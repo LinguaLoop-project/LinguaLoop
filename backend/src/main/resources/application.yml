@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: backend
+  profiles:
+    active: local
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jackson:
+    time-zone: UTC
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  # TODO: cau hinh datasource sau khi chot DB (Postgres/MySQL/...)
+  # datasource:
+  #   url:
+  #   username:
+  #   password:
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  # TODO: cau hinh datasource qua env var sau khi chot DB
+  # datasource:
+  #   url: ${DB_URL}
+  #   username: ${DB_USERNAME}
+  #   password: ${DB_PASSWORD}
