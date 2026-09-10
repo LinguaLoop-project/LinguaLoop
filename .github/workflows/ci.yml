@@ -1,0 +1,354 @@
+# =============================================================================
+# LinguaLoop — CI/CD pipeline
+# -----------------------------------------------------------------------------
+# Pipeline chia thành 6 job độc lập để đồ thị Actions hiện đủ 6 nút:
+#   1 Build -> (2 Lint | 3 Test | 4 Security chạy song song) -> 5 Docker -> 6 Deploy
+# =============================================================================
+name: CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Quyền mặc định tối thiểu cho mọi job.
+permissions:
+  contents: read
+
+env:
+  JAVA_VERSION: "21"
+  JAVA_DISTRIBUTION: temurin
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/backend
+
+jobs:
+  # ===========================================================================
+  # JOB 1 — BUILD
+  # Mục tiêu: bắt lỗi biên dịch sớm nhất có thể. Nếu job này đỏ thì 3 job sau
+  # không cần chạy -> tiết kiệm runner minutes.
+  # ===========================================================================
+  build:
+    name: "1 · Build"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: maven
+
+      - name: Biên dịch (mvn clean compile)
+        run: |
+          chmod +x backend/mvnw
+          cd backend
+          ./mvnw -B clean compile
+
+  # ===========================================================================
+  # JOB 2 — LINT & PHÂN TÍCH TĨNH
+  # SpotBugs: đọc bytecode, tìm bug pattern (NPE, resource leak, so sánh sai...).
+  # SonarCloud: code smell, trùng lặp, security hotspot, quality gate.
+  # ===========================================================================
+  lint:
+    name: "2 · Lint & phân tích tĩnh"
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - name: Checkout mã nguồn (kèm lịch sử)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cài JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: maven
+
+      - name: SpotBugs
+        run: |
+          chmod +x backend/mvnw
+          cd backend
+          # spotbugs:check đọc file .class nên phải compile trước.
+          # Plugin cấu hình failOnError=false trong pom -> chỉ báo cáo, không chặn build.
+          ./mvnw -B compile spotbugs:check
+
+      - name: Tải báo cáo SpotBugs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotbugs-report
+          path: backend/target/spotbugs*.xml
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: SonarCloud
+        if: env.SONAR_TOKEN != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x backend/mvnw
+          cd backend
+          # Chạy verify trước để có báo cáo JaCoCo XML; Sonar đọc file đó
+          # (property sonar.coverage.jacoco.xmlReportPaths trong pom) để hiện coverage.
+          ./mvnw -B verify sonar:sonar
+
+      - name: Cảnh báo khi bỏ qua SonarCloud
+        if: env.SONAR_TOKEN == ''
+        run: echo "::notice::Bỏ qua SonarCloud vì chưa có secret SONAR_TOKEN."
+
+  # ===========================================================================
+  # JOB 3 — KIỂM THỬ & COVERAGE
+  # mvn verify chạy: surefire (unit test) -> jacoco:report -> jacoco:check
+  # (ngưỡng LINE >= 0.30 cấu hình trong pom).
+  # Runner ubuntu-latest có sẵn Docker daemon nên Testcontainers chạy được.
+  # ===========================================================================
+  test:
+    name: "3 · Kiểm thử & coverage"
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: maven
+
+      - name: Chạy test + đo coverage (mvn verify)
+        run: |
+          chmod +x backend/mvnw
+          cd backend
+          ./mvnw -B verify
+
+      - name: Tải báo cáo JaCoCo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          # HTML để người đọc, XML để Sonar và công cụ khác đọc.
+          path: |
+            backend/target/site/jacoco/
+            backend/target/jacoco.exec
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Tải báo cáo Surefire khi test đỏ
+        # Chỉ chạy khi bước test thất bại — để mở ra xem test nào hỏng.
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-report
+          path: backend/target/surefire-reports/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ===========================================================================
+  # JOB 4 — QUÉT BẢO MẬT & PHỤ THUỘC
+  # Gitleaks: quét TOÀN BỘ lịch sử git tìm secret bị commit nhầm.
+  # Trivy: quét dependency (pom.xml, package-lock.json) tìm CVE đã biết.
+  # ===========================================================================
+  security:
+    name: "4 · Quét bảo mật & phụ thuộc"
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout mã nguồn (kèm lịch sử)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks — quét toàn bộ lịch sử git
+        run: |
+          # Chạy bằng Docker image chính chủ, pin phiên bản để kết quả ổn định
+          # (bản latest đổi rule -> kết quả CI đổi theo, khó tái lập).
+          # --log-opts="--all --full-history": duyệt mọi nhánh, mọi commit,
+          # kể cả commit bị rebase/merge che khuất.
+          # --redact: che giá trị secret trong log, tránh lộ lần thứ hai qua log CI.
+          # --exit-code=1: có secret thì job đỏ (khác Trivy, secret là lỗi chặn).
+          docker run --rm \
+            -v "${{ github.workspace }}:/repo" \
+            ghcr.io/gitleaks/gitleaks:v8.30.1 \
+            git /repo \
+            --log-opts="--all --full-history" \
+            --redact \
+            --report-format=sarif \
+            --report-path=/repo/gitleaks-report.sarif \
+            --exit-code=1
+
+      - name: Tải báo cáo Gitleaks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.sarif
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # Action bên thứ ba ghim theo commit SHA đầy đủ: tag như v3 có thể bị
+      # chủ repo dời sang commit khác. Comment cuối dòng ghi phiên bản tương ứng.
+      - name: Trivy — quét CVE trong dependency
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          format: table
+          # exit-code 0 = CHỈ CẢNH BÁO, chưa chặn build.
+          exit-code: "0"
+
+      - name: Trivy — xuất báo cáo SARIF
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          format: sarif
+          output: trivy-report.sarif
+          exit-code: "0"
+
+      - name: Tải báo cáo Trivy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.sarif
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ===========================================================================
+  # JOB 5 — ĐÓNG GÓI DOCKER
+  # Chỉ chạy khi CẢ BA job 2, 3, 4 xanh -> không bao giờ đẩy ảnh dựng từ mã
+  # chưa qua kiểm thử lên registry.
+  # ===========================================================================
+  docker:
+    name: "5 · Đóng gói Docker"
+    runs-on: ubuntu-latest
+    needs: [lint, test, security]
+    permissions:
+      contents: read
+      # packages: write bắt buộc để push lên ghcr.io bằng GITHUB_TOKEN.
+      packages: write
+    steps:
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
+
+      # Action bên thứ ba ghim theo commit SHA đầy đủ: tag như v3 có thể bị
+      # chủ repo dời sang commit khác. Comment cuối dòng ghi phiên bản tương ứng.
+      - name: Cài Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: Đăng nhập ghcr.io
+        if: github.event_name == 'push'
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sinh tag & label cho ảnh
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # Tag theo nhánh: main -> :main, develop -> :develop
+            type=ref,event=branch
+            # Tag theo PR: :pr-12 (chỉ build thử, không push)
+            type=ref,event=pr
+            # Tag theo SHA ngắn: :sha-a1b2c3d — định danh bất biến để rollback
+            type=sha,format=short,prefix=sha-
+            # :latest chỉ gán cho nhánh mặc định (main)
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build & push ảnh
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          # context là backend/ vì Dockerfile chỉ COPY trong phạm vi backend.
+          context: ./backend
+          file: ./backend/Dockerfile
+          # PR: chỉ build để kiểm tra Dockerfile còn dựng được, KHÔNG push.
+          push: ${{ github.event_name == 'push' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Cache layer Docker lưu ngay trong GitHub Actions cache.
+          # mode=max cache cả layer trung gian (kể cả tầng build) chứ không chỉ tầng cuối.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ===========================================================================
+  # JOB 6 — TRIỂN KHAI STAGING
+  # Chỉ chạy khi push vào main. PR không bao giờ deploy: PR từ fork có thể
+  # chứa mã lạ, và secrets không nên lộ cho fork.
+  # ===========================================================================
+  deploy:
+    name: "6 · Triển khai staging"
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_URL }}
+    env:
+      DEPLOY_HOOK: ${{ secrets.DEPLOY_HOOK }}
+      STAGING_URL: ${{ vars.STAGING_URL }}
+    steps:
+      - name: Cảnh báo khi chưa cấu hình deploy hook
+        if: env.DEPLOY_HOOK == ''
+        run: echo "::notice::Bỏ qua deploy vì chưa có secret DEPLOY_HOOK."
+
+      - name: Gọi deploy hook
+        if: env.DEPLOY_HOOK != ''
+        run: |
+          # Webhook chung: Render / Railway / Coolify / Portainer đều nhận POST.
+          # Body gửi kèm tag ảnh theo SHA để phía server biết kéo đúng bản nào;
+          # server nào không đọc body thì bỏ qua, vẫn deploy bản mới nhất.
+          # metadata-action cắt SHA còn 7 ký tự nên ở đây cắt cho khớp.
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-$SHORT_SHA"
+          echo "Deploy ảnh: $IMAGE"
+          # --fail-with-body: HTTP >= 400 thì lệnh trả lỗi VÀ in body để debug.
+          curl --fail-with-body -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"image\":\"$IMAGE\"}" \
+            "$DEPLOY_HOOK"
+
+      - name: Kiểm tra /actuator/health
+        if: env.DEPLOY_HOOK != '' && env.STAGING_URL != ''
+        run: |
+          # Deploy hook trả về ngay lập tức, container cần thời gian khởi động.
+          # Poll tối đa 20 lần x 15s = 5 phút rồi mới kết luận thất bại.
+          for i in $(seq 1 20); do
+            body=$(curl -sS --max-time 10 "$STAGING_URL/actuator/health" || true)
+            echo "Lần $i: $body"
+            # Actuator trả {"status":"UP"} khi ứng dụng sẵn sàng nhận request.
+            if echo "$body" | grep -q '"status":"UP"'; then
+              echo "Staging đã UP."
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::Staging không UP sau 5 phút."
+          exit 1
+
+      - name: Cảnh báo khi thiếu STAGING_URL
+        if: env.DEPLOY_HOOK != '' && env.STAGING_URL == ''
+        run: echo "::notice::Đã gọi deploy hook nhưng bỏ qua health check vì chưa có variable STAGING_URL."
