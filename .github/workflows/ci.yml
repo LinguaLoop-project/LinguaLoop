@@ -199,9 +199,11 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      # Action bên thứ ba ghim theo commit SHA đầy đủ: tag như v3 có thể bị
+      # chủ repo dời sang commit khác. Comment cuối dòng ghi phiên bản tương ứng.
       - name: Trivy — quét CVE trong dependency
         if: always()
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -213,7 +215,7 @@ jobs:
 
       - name: Trivy — xuất báo cáo SARIF
         if: always()
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -249,12 +251,14 @@ jobs:
       - name: Checkout mã nguồn
         uses: actions/checkout@v4
 
+      # Action bên thứ ba ghim theo commit SHA đầy đủ: tag như v3 có thể bị
+      # chủ repo dời sang commit khác. Comment cuối dòng ghi phiên bản tương ứng.
       - name: Cài Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Đăng nhập ghcr.io
         if: github.event_name == 'push'
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -262,7 +266,7 @@ jobs:
 
       - name: Sinh tag & label cho ảnh
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -276,7 +280,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build & push ảnh
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           # context là backend/ vì Dockerfile chỉ COPY trong phạm vi backend.
           context: ./backend
@@ -302,10 +306,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: staging
-      url: ${{ secrets.STAGING_URL }}
+      url: ${{ vars.STAGING_URL }}
     env:
       DEPLOY_HOOK: ${{ secrets.DEPLOY_HOOK }}
-      STAGING_URL: ${{ secrets.STAGING_URL }}
+      STAGING_URL: ${{ vars.STAGING_URL }}
     steps:
       - name: Cảnh báo khi chưa cấu hình deploy hook
         if: env.DEPLOY_HOOK == ''
@@ -347,4 +351,4 @@ jobs:
 
       - name: Cảnh báo khi thiếu STAGING_URL
         if: env.DEPLOY_HOOK != '' && env.STAGING_URL == ''
-        run: echo "::notice::Đã gọi deploy hook nhưng bỏ qua health check vì chưa có secret STAGING_URL."
+        run: echo "::notice::Đã gọi deploy hook nhưng bỏ qua health check vì chưa có variable STAGING_URL."

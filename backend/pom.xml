@@ -38,7 +38,7 @@
 		<wiremock.version>3.13.2</wiremock.version>
 
 		<!-- ===== Cấu hình SonarCloud ===== -->
-		<sonar.organization>LinguaLoop-project</sonar.organization>
+		<sonar.organization>lingualoop-project</sonar.organization>
 		<sonar.projectKey>LinguaLoop-project_LinguaLoop</sonar.projectKey>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<!-- Trỏ Sonar tới file XML mà JaCoCo sinh ra ở phase verify.
