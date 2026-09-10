@@ -28,6 +28,29 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+
+		<!-- ===== Phiên bản plugin CI =====
+		     Spring Boot parent KHÔNG quản lý version cho 3 plugin dưới đây,
+		     nên phải ghim tay. -->
+		<jacoco.version>0.8.15</jacoco.version>
+		<spotbugs.version>4.10.4.1</spotbugs.version>
+		<sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
+		<wiremock.version>3.13.2</wiremock.version>
+
+		<!-- ===== Cấu hình SonarCloud ===== -->
+		<sonar.organization>LinguaLoop-project</sonar.organization>
+		<sonar.projectKey>LinguaLoop-project_LinguaLoop</sonar.projectKey>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<!-- Trỏ Sonar tới file XML mà JaCoCo sinh ra ở phase verify.
+		     Thiếu dòng này thì Sonar báo coverage 0% dù test có chạy. -->
+		<sonar.coverage.jacoco.xmlReportPaths>
+			${project.build.directory}/site/jacoco/jacoco.xml
+		</sonar.coverage.jacoco.xmlReportPaths>
+		<!-- Loại khỏi phép đo của Sonar đúng những gói đã loại khỏi JaCoCo,
+		     để hai con số coverage khớp nhau. -->
+		<sonar.coverage.exclusions>
+			**/config/**,**/dto/**,**/entity/**,**/BackendApplication.java
+		</sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -53,6 +76,18 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- Từ Flyway 10, mỗi loại database tách thành một module riêng.
+		     Thiếu module này Flyway ném "Unsupported Database: PostgreSQL". -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>
@@ -112,7 +147,26 @@
 			<artifactId>testcontainers-junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- TODO: them testcontainers module tuong ung DB sau khi chot DB -->
+		<!-- Module Testcontainers cho PostgreSQL: cung cấp PostgreSQLContainer.
+		     Version do testcontainers-bom trong Spring Boot BOM quản lý.
+		     Lưu ý: từ Testcontainers 2.x, class nằm ở gói
+		     org.testcontainers.postgresql (gói cũ org.testcontainers.containers
+		     vẫn còn nhưng đã deprecated). -->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-postgresql</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- WireMock: giả lập HTTP API bên ngoài (ví dụ dịch vụ dịch/TTS) trong
+		     integration test, để test không phụ thuộc mạng và không tốn quota.
+		     Bản "standalone" đã shade sẵn Jetty/Jackson riêng nên không đụng độ
+		     version với Jetty/Jackson của Spring Boot. -->
+		<dependency>
+			<groupId>org.wiremock</groupId>
+			<artifactId>wiremock-standalone</artifactId>
+			<version>${wiremock.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -156,6 +210,108 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+
+			<!-- ==============================================================
+			     JaCoCo — đo test coverage
+			     Vòng đời: prepare-agent (gắn agent vào JVM test)
+			               -> test chạy, sinh target/jacoco.exec
+			               -> report (verify): đổi .exec thành HTML + XML
+			               -> check (verify): so với ngưỡng, không đạt thì đỏ.
+			     ============================================================== -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<configuration>
+					<!-- Loại khỏi PHÉP ĐO những lớp không đáng test:
+					     config  : lớp cấu hình Spring, chỉ khai báo bean
+					     dto     : record/POJO chỉ có getter-setter
+					     entity  : lớp ánh xạ bảng, logic gần như bằng 0
+					     BackendApplication : hàm main một dòng
+					     Không loại thì coverage bị pha loãng, con số mất ý nghĩa. -->
+					<excludes>
+						<exclude>**/config/**</exclude>
+						<exclude>**/dto/**</exclude>
+						<exclude>**/entity/**</exclude>
+						<exclude>**/BackendApplication.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<!-- Gắn JaCoCo agent vào dòng lệnh JVM của Surefire.
+						     Không có bước này thì file .exec rỗng. -->
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<!-- Sinh báo cáo ở phase verify: HTML cho người đọc
+						     (target/site/jacoco/index.html) và XML cho Sonar. -->
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<!-- Cổng chất lượng: coverage dòng < 30% thì build đỏ.
+						     Đặt 0.30 vì dự án mới bắt đầu; nâng dần theo thời gian
+						     (0.50 rồi 0.70) để tránh coverage tụt lùi. -->
+						<id>check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<!-- BUNDLE = tính trên toàn module, không phải từng lớp. -->
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.30</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- ==============================================================
+			     SpotBugs — phân tích tĩnh trên bytecode
+			     ============================================================== -->
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>${spotbugs.version}</version>
+				<configuration>
+					<!-- Max: phân tích sâu nhất, chậm hơn nhưng CI chịu được. -->
+					<effort>Max</effort>
+					<!-- Low: báo cả cảnh báo mức thấp -> thấy được nhiều vấn đề nhất. -->
+					<threshold>Low</threshold>
+					<!-- false: SpotBugs tìm thấy lỗi thì VẪN không chặn build.
+					     Giai đoạn đầu dùng SpotBugs như công cụ tham khảo; khi đã
+					     dọn hết cảnh báo thì đổi thành true để nó thành cổng chặn. -->
+					<failOnError>false</failOnError>
+					<xmlOutput>true</xmlOutput>
+				</configuration>
+			</plugin>
+
+			<!-- ==============================================================
+			     SonarScanner cho Maven — đẩy kết quả lên SonarCloud.
+			     Không gắn vào phase nào: CI gọi tay `mvn sonar:sonar`, và chỉ
+			     gọi khi đã có SONAR_TOKEN.
+			     ============================================================== -->
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>${sonar-maven-plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>
