@@ -16,7 +16,7 @@ Nhật ký sử dụng AI trong đồ án, phục vụ minh chứng tiêu chí "
 
 | Ngày | Người thực hiện | Công cụ / model | Nhiệm vụ (prompt chính, tóm tắt) | Vai trò AI | Vị trí cụ thể (file:hàm/dòng) | Commit AI sinh | Commit sinh viên sửa | Người kiểm chứng & cách kiểm chứng |
 |------|------------------|------------------|-----------------------------------|------------|-------------------------------|-----------------|------------------------|--------------------------------------|
-| 2026-09-11 | nvk3005 | Claude Sonnet 5 (Claude Code) | Tạo mẫu AI Usage Log và coding convention | sinh mới | `docs/AI-USAGE-LOG.md` (toàn file), `docs/convention/CODING-CONVENTION.md` (toàn file) | _(điền hash sau khi commit)_ | — | Đọc lại thủ công, đối chiếu với pom.xml/ci.yml/eslint.config.js thực tế |
+| 2026-09-11 | nvk3005 | Claude Sonnet 5 (Claude Code) | Tạo mẫu AI Usage Log và coding convention | sinh mới | `docs/AI-USAGE-LOG.md` (toàn file), `docs/convention/CODING-CONVENTION.md` (toàn file) | 458c6af | — | Đọc lại thủ công, đối chiếu với pom.xml/ci.yml/eslint.config.js thực tế |
 
 <!--
 Ví dụ dòng đầy đủ có sửa lại:
