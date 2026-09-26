@@ -36,6 +36,7 @@
 		<spotbugs.version>4.10.4.1</spotbugs.version>
 		<sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
 		<wiremock.version>3.13.2</wiremock.version>
+		<argLine></argLine>
 
 		<!-- ===== Cấu hình SonarCloud ===== -->
 		<sonar.organization>lingualoop-project</sonar.organization>
@@ -281,6 +282,14 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>@{argLine} -Duser.timezone=UTC</argLine>
+				</configuration>
 			</plugin>
 
 			<!-- ==============================================================

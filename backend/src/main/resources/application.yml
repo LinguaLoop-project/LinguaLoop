@@ -27,19 +27,13 @@ spring:
   config:
     activate:
       on-profile: local
-  # TODO: cau hinh datasource sau khi chot DB (Postgres/MySQL/...)
-  # datasource:
-  #   url:
-  #   username:
-  #   password:
 
 ---
 spring:
   config:
     activate:
       on-profile: prod
-  # TODO: cau hinh datasource qua env var sau khi chot DB
-  # datasource:
-  #   url: ${DB_URL}
-  #   username: ${DB_USERNAME}
-  #   password: ${DB_PASSWORD}
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}

@@ -37,6 +37,8 @@ USER lingualoop
 
 EXPOSE 8080
 
+ENV SPRING_PROFILES_ACTIVE=prod
+
 # start-period=60s: chừa thời gian Spring Boot khởi động, chưa tính là unhealthy.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
   CMD curl -fsS http://localhost:8080/actuator/health || exit 1
