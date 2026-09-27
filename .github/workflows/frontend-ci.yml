@@ -228,7 +228,9 @@ jobs:
           env.VERCEL_PROJECT_ID != '' &&
           github.ref != 'refs/heads/main'
         id: deploy-preview
-        working-directory: ${{ env.WORKING_DIR }}
+        # Không đặt working-directory ở đây: Vercel CLI chạy từ root repo.
+        # Root Directory = "frontend" đã cấu hình trên Vercel Dashboard.
+        # Nếu đặt working-directory: frontend thì path sẽ bị nhân đôi thành frontend/frontend.
         env:
           VERCEL_TOKEN: ${{ env.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
@@ -262,7 +264,8 @@ jobs:
           env.VERCEL_PROJECT_ID != '' &&
           github.event_name == 'push' &&
           github.ref == 'refs/heads/main'
-        working-directory: ${{ env.WORKING_DIR }}
+        # Không đặt working-directory: Vercel CLI chạy từ root repo,
+        # Root Directory = "frontend" đã cấu hình trên Vercel Dashboard.
         env:
           VERCEL_TOKEN: ${{ env.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
