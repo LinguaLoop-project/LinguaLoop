@@ -221,25 +221,6 @@ jobs:
         # Cài global để dùng lệnh `vercel` trực tiếp trong các bước sau.
         run: npm install -g vercel@latest
 
-      - name: Tải artifact build
-        if: |
-          env.VERCEL_TOKEN != '' &&
-          env.VERCEL_ORG_ID != '' &&
-          env.VERCEL_PROJECT_ID != ''
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: ${{ env.WORKING_DIR }}/dist/
-
-      - name: Kéo cấu hình Vercel
-        if: |
-          env.VERCEL_TOKEN != '' &&
-          env.VERCEL_ORG_ID != '' &&
-          env.VERCEL_PROJECT_ID != ''
-        working-directory: ${{ env.WORKING_DIR }}
-        # Pull về file .vercel/project.json chứa cấu hình project.
-        run: vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
-
       - name: Deploy Preview (PR & develop)
         if: |
           env.VERCEL_TOKEN != '' &&
@@ -248,10 +229,15 @@ jobs:
           github.ref != 'refs/heads/main'
         id: deploy-preview
         working-directory: ${{ env.WORKING_DIR }}
+        env:
+          VERCEL_TOKEN: ${{ env.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
         run: |
-          # --prebuilt: dùng artifact đã build từ job 1, bỏ qua bước build lại.
+          # Vercel CLI tự đọc VERCEL_ORG_ID và VERCEL_PROJECT_ID từ env vars.
+          # --yes: bỏ qua mọi prompt xác nhận.
           # Kết quả là URL preview dạng https://<hash>.vercel.app
-          PREVIEW_URL=$(vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }})
+          PREVIEW_URL=$(vercel deploy --yes --token=${{ env.VERCEL_TOKEN }})
           echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
           echo "Preview URL: $PREVIEW_URL"
 
@@ -277,7 +263,12 @@ jobs:
           github.event_name == 'push' &&
           github.ref == 'refs/heads/main'
         working-directory: ${{ env.WORKING_DIR }}
+        env:
+          VERCEL_TOKEN: ${{ env.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
         run: |
           # --prod: deploy lên production alias (domain chính thức).
-          # --prebuilt: dùng artifact đã build, không build lại trên Vercel.
-          vercel deploy --prebuilt --prod --token=${{ env.VERCEL_TOKEN }}
+          # --yes: bỏ qua mọi prompt xác nhận.
+          vercel deploy --prod --yes --token=${{ env.VERCEL_TOKEN }}
+
