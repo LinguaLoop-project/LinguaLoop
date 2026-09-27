@@ -9,8 +9,16 @@ name: CI/CD
 on:
   push:
     branches: [main, develop]
+    paths:
+      # Chỉ kích hoạt khi có thay đổi trong backend/ hoặc chính file này.
+      # Tránh chạy pipeline backend khi chỉ sửa frontend.
+      - "backend/**"
+      - ".github/workflows/ci.yml"
   pull_request:
     branches: [main, develop]
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
