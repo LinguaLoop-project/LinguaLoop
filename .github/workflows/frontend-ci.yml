@@ -221,12 +221,15 @@ jobs:
         # Cài global để dùng lệnh `vercel` trực tiếp trong các bước sau.
         run: npm install -g vercel@latest
 
-      - name: Deploy Preview (PR & develop)
+      - name: Deploy Preview (develop & PR)
         if: |
           env.VERCEL_TOKEN != '' &&
           env.VERCEL_ORG_ID != '' &&
           env.VERCEL_PROJECT_ID != '' &&
-          github.ref != 'refs/heads/main'
+          (
+            github.ref == 'refs/heads/develop' ||
+            github.event_name == 'pull_request'
+          )
         id: deploy-preview
         # Không đặt working-directory ở đây: Vercel CLI chạy từ root repo.
         # Root Directory = "frontend" đã cấu hình trên Vercel Dashboard.
@@ -242,6 +245,7 @@ jobs:
           PREVIEW_URL=$(vercel deploy --yes --token=${{ env.VERCEL_TOKEN }})
           echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
           echo "Preview URL: $PREVIEW_URL"
+
 
       - name: Gắn URL preview vào PR
         if: |
