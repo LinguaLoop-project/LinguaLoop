@@ -8,7 +8,7 @@
   Type dùng trong repo: `feat`, `fix`, `chore`, `refactor`, `test`, `docs`, `ci`.
   Ví dụ thật trong log: `fix(ci): pin third-party actions to SHA, use vars for staging url`.
 - Nhánh đặt tên `type/mo-ta-ngan` (vd `chore/ci-pipeline`, `feat/shadowing-scoring`).
-- Không commit thẳng vào `main`; qua PR để CI (6 job trong `.github/workflows/ci.yml`) chạy trước khi merge.
+- Không commit thẳng vào `main`; qua PR để CI (6 job trong `.github/workflows/backend-ci.yml`) chạy trước khi merge.
 - Không bao giờ commit secret (API key, mật khẩu DB, token). Gitleaks quét toàn bộ lịch sử ở job "4 · Quét bảo mật" — lỡ commit thì phải revoke key, không chỉ xoá dòng ở commit sau.
 
 ## 2. Backend (Java 21 / Spring Boot 4.1.1)
