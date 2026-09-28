@@ -1,24 +1,16 @@
 # =============================================================================
 # LinguaLoop — Frontend CI/CD pipeline
 # -----------------------------------------------------------------------------
-# Pipeline chia thành 4 job độc lập để đồ thị Actions hiện đủ 4 nút:
-#   1 Build -> (2 Lint | 3 Test chạy song song) -> 4 Deploy (Vercel)
+# Pipeline chia thành 5 job để đồ thị Actions hiện đủ node:
+#   0 Phát hiện thay đổi -> 1 Build -> (2 Lint | 3 Test chạy song song) -> 4 Deploy (Vercel)
 # =============================================================================
 name: Frontend CI/CD
 
 on:
   push:
     branches: [main, develop]
-    paths:
-      # Chỉ kích hoạt khi có thay đổi trong frontend/ hoặc chính file này.
-      # Tránh chạy pipeline frontend khi chỉ sửa backend.
-      - "frontend/**"
-      - ".github/workflows/frontend-ci.yml"
   pull_request:
     branches: [main, develop]
-    paths:
-      - "frontend/**"
-      - ".github/workflows/frontend-ci.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,13 +26,38 @@ env:
 
 jobs:
   # ===========================================================================
+  # JOB 0 — PHÁT HIỆN THAY ĐỔI
+  # Luôn chạy (không bị paths lọc) để required status check luôn có báo cáo.
+  # ===========================================================================
+  changes:
+    name: "0 · Phát hiện thay đổi"
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Lọc đường dẫn thay đổi
+        id: filter
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          filters: |
+            frontend:
+              - "frontend/**"
+              - ".github/workflows/frontend-ci.yml"
+
+  # ===========================================================================
   # JOB 1 — BUILD
   # Mục tiêu: bắt lỗi TypeScript và lỗi build Vite sớm nhất có thể.
   # Nếu job này đỏ thì 2 job sau không cần chạy -> tiết kiệm runner minutes.
+  # Skip khi frontend/ không đổi (xem job "changes" ở trên).
   # ===========================================================================
   build:
     name: "1 · Build"
     runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     steps:
       - name: Checkout mã nguồn
         uses: actions/checkout@v4
