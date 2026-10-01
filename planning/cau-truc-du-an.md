@@ -79,22 +79,28 @@ src/
 ├── lib/
 ├── styles/
 │
-└── features/
-    ├── auth/                    # login, register, verify, forgot
-    ├── settings/
-    ├── lessons/                 # thư viện bài, chủ đề, chi tiết bài
-    ├── dictation/
-    ├── shadowing/
-    ├── vocab/                   # tra từ, bộ từ, ôn thẻ
-    ├── mywords/                 # từ đã lưu, câu cần ôn, ghi chú
-    ├── phoneme/
-    ├── assessment/              # Kế
-    ├── weakness/
-    ├── practice/
-    ├── today/                   # trang Hôm nay
-    ├── teacher/                 # topics, lessons, compose, cefr, ...
-    └── admin/                   # users, reports, overview (Kế); limits, subs (Lâm)
+└── features/                # tên trùng với feature backend
+    ├── auth/                # Kế: login, register, verify, forgot
+    ├── user/                # Kế: Cài đặt, quyền riêng tư
+    ├── audit/               # Kế: lịch sử thay đổi (dùng trong teacher, admin)
+    ├── dictation/           # Kế: nghe chép; tab Câu cần ôn, Ghi chú của trang mywords
+    ├── dictionary/          # Kế: tra từ, từ đã lưu, khung trang mywords
+    ├── vocab/               # Kế: bộ từ, học và ôn thẻ
+    ├── assessment/          # Kế: onboarding, kiểm tra trình độ; trang giáo viên qbank
+    ├── report/              # Kế: modal báo lỗi, danh sách báo lỗi đã gửi
+    ├── teacher/             # Kế: các trang giáo viên (topics, lessons, compose, cefr, ...)
+    ├── admin/               # Kế: users, reports, overview, decks, audit
+    │
+    ├── lesson/              # Lâm: thư viện bài, chủ đề, chi tiết bài
+    ├── subscription/        # Lâm: bảng giá, paywall, tab Gói; trang admin limits, subs
+    ├── shadowing/           # Lâm
+    ├── phoneme/             # Lâm: bảng âm IPA; trang giáo viên phoneme
+    ├── weakness/            # Lâm
+    ├── practice/            # Lâm: luyện sửa lỗi
+    └── plan/                # Lâm: trang Hôm nay
 ```
+
+Backend có `ai/` nhưng frontend không có thư mục tương ứng vì chưa có trang riêng (nhận xét AI hiện trong `shadowing/`). Trang giáo viên và admin gom trong `teacher/` và `admin/`; riêng `limits`, `subs` của Lâm đặt trong `subscription/` rồi gắn vào route admin.
 
 Bên trong mỗi feature:
 ```
