@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo & mascot — LinguaLoop</title>
+<meta name="description" content="Bộ nhận diện thương hiệu LinguaLoop.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-brand">
+        <div class="head rv">
+          <div><div class="overline">Nhận diện thương hiệu</div><h1>Logo &amp; mascot</h1><p class="muted">Bộ nhận diện dùng chung cho web, app và tài liệu. Màu lấy từ token Cosmic Violet.</p></div>
+        </div>
+        <div class="brand-hero">
+          <div class="brand-stage rv">
+            <svg class="obj" viewBox="0 0 200 200" style="--s:88px;top:-36px;right:8%;--d:-1s"><use href="#o-orb"/></svg>
+            <svg class="obj m-hide" viewBox="0 0 200 200" style="--s:56px;bottom:-22px;left:10%;--d:-4s;--dur:9s"><use href="#o-star"/></svg>
+            <div class="card glass spotlight logo-stage"><div class="logo-full"><svg viewBox="0 0 100 100" role="img" aria-label="Logo LinguaLoop"><use href="#logo-mark-lg"/></svg><span class="wordmark">Lingua<b>Loop</b></span></div></div>
+          </div>
+          <div class="card rv"><div class="overline">Ý tưởng: “Bong bóng lặp”</div>
+            <ul class="tips">
+              <li><b>Cung tròn mở có đuôi</b>: một bong bóng thoại, học để nói được.</li>
+              <li><b>Đầu mũi tên khép vòng</b>: vòng lặp nghe → nói → ôn, lặp lại đúng lúc để nhớ lâu (chính là tên LinguaLoop).</li>
+              <li><b>3 vạch sóng âm</b>: nghe chép và phát âm, hai kỹ năng lõi.</li>
+            </ul>
+            <div class="overline" style="margin-top:20px">Quy tắc dùng</div>
+            <ul class="tips small">
+              <li>Wordmark: Bricolage Grotesque 700, letter-spacing −0.035em, chữ “Loop” tô gradient (đổi theo theme).</li>
+              <li>Nét dày theo cỡ: lớn hơn 48px nét 8, 25–48px nét 10, từ 24px trở xuống dùng bản favicon (nét 13, bỏ đầu mũi tên).</li>
+              <li>Wordmark cao bằng 0.78 lần chiều cao mark. Dưới 24px chỉ dùng mark.</li>
+              <li>Asset gốc: <code>docs/design/lingualoop-logo/</code> (SVG, PNG, favicon.ico, <code>Logo.tsx</code>).</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sec-head rv"><h2><span class="sec-ic"><i class="ph-duotone ph-palette"></i></span>Biến thể</h2></div>
+        <div class="tiles rv">
+          <figure class="tile" data-theme="dark"><div class="logo-full sm"><img src="../lingualoop-logo/svg/mark-dark.svg" width="48" height="48" alt=""><span class="wordmark">Lingua<b>Loop</b></span></div><figcaption>Nền tối (mặc định) · mark-dark.svg</figcaption></figure>
+          <figure class="tile" data-theme="light"><div class="logo-full sm"><img src="../lingualoop-logo/svg/mark-light.svg" width="48" height="48" alt=""><span class="wordmark">Lingua<b>Loop</b></span></div><figcaption>Nền sáng · mark-light.svg</figcaption></figure>
+          <figure class="tile mono"><div class="logo-full sm"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#logo-mark"/></svg><span class="wordmark">LinguaLoop</span></div><figcaption>Đơn sắc · mark-mono.svg</figcaption></figure>
+        </div>
+        <div class="card rv" style="margin-top:20px"><div class="overline">Kích thước &amp; icon ứng dụng</div>
+          <div class="sizes">
+            <div class="sz"><img class="app-img" src="../lingualoop-logo/svg/app-icon-dark.svg" width="80" height="80" alt="App icon nền tối"><span class="small muted">App icon</span></div>
+            <div class="sz"><img class="app-img" src="../lingualoop-logo/svg/app-icon-light.svg" width="80" height="80" alt="App icon nền sáng"><span class="small muted">App icon sáng</span></div>
+            <div class="sz"><img class="app-img" src="../lingualoop-logo/svg/favicon.svg" width="80" height="80" alt="Favicon"><span class="small muted">Favicon</span></div>
+            <div class="sz"><svg viewBox="0 0 100 100" style="width:64px;height:64px" aria-hidden="true"><use href="#logo-mark-lg"/></svg><span class="small muted">64</span></div>
+            <div class="sz"><svg viewBox="0 0 100 100" style="width:48px;height:48px" aria-hidden="true"><use href="#logo-mark"/></svg><span class="small muted">48</span></div>
+            <div class="sz"><svg viewBox="0 0 100 100" style="width:32px;height:32px" aria-hidden="true"><use href="#logo-mark"/></svg><span class="small muted">32</span></div>
+            <div class="sz"><svg viewBox="0 0 100 100" style="width:24px;height:24px" aria-hidden="true"><use href="#logo-mark-sm"/></svg><span class="small muted">24</span></div>
+            <div class="sz"><svg viewBox="0 0 100 100" style="width:16px;height:16px" aria-hidden="true"><use href="#logo-mark-sm"/></svg><span class="small muted">16</span></div>
+          </div></div>
+        <div class="sec-head rv"><h2><span class="sec-ic"><i class="ph-duotone ph-smiley"></i></span>Mascot Loopi</h2></div>
+        <div class="card mascot-intro rv" id="mIntro"></div>
+        <div class="m-grid rv" id="mStates"></div>
+      </section>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('brand');</script>
+<script src="js/brand.js"></script>
+</body>
+</html>

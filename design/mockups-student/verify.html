@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xác minh email — LinguaLoop</title>
+<meta name="description" content="Đăng nhập hoặc tạo tài khoản LinguaLoop.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<div class="auth" id="auth">
+  <aside class="auth-side">
+    <div class="brand"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#logo-mark"/></svg><span class="wordmark">Lingua<b>Loop</b></span></div>
+    <div class="auth-hero">
+      <svg class="obj" viewBox="0 0 200 200" style="--s:104px;top:-48px;right:-28px;--d:-2s" aria-hidden="true"><use href="#o-orb"/></svg>
+      <svg class="obj" viewBox="0 0 200 200" style="--s:80px;bottom:-36px;left:-28px;--d:-5s;--dur:9s" aria-hidden="true"><use href="#o-torus"/></svg>
+      <div class="card glass spotlight">
+        <img class="mascot loopi__img loopi--hello" src="../loopi-mascot/svg/loopi-hello.svg" width="128" height="128" alt="Loopi vẫy tay chào" draggable="false">
+        <h2>Nghe, chép, nói theo.<br>Mỗi ngày 15 phút.</h2>
+        <ul class="auth-points">
+          <li><span class="sec-ic"><i class="ph-duotone ph-headphones"></i></span><div><b>Nghe chép có chấm từng từ</b><span class="small muted">Biết mình hay sót từ nhỏ hay sai đuôi -ed.</span></div></li>
+          <li><span class="sec-ic"><i class="ph-duotone ph-microphone"></i></span><div><b>AI chấm phát âm tới từng âm</b><span class="small muted">Thấy ngay /θ/ đang bị đọc thành /t/.</span></div></li>
+          <li><span class="sec-ic"><i class="ph-duotone ph-cards"></i></span><div><b>Ôn từ đúng lúc sắp quên</b><span class="small muted">Từ lưu khi học tự vào lịch ôn.</span></div></li>
+        </ul>
+      </div>
+    </div>
+    <p class="small muted">Gần 670 bài từ video thật · 8 chủ đề · miễn phí để bắt đầu</p>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-top">
+      <div class="brand auth-m-brand"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#logo-mark"/></svg><span class="wordmark">Lingua<b>Loop</b></span></div>
+      <span class="grow"></span>
+      <button class="ux-btn" data-ux="auth"><i class="ph ph-lightbulb"></i><span class="hide-m">Ghi chú UX</span></button>
+      <button class="icon-btn theme-btn" data-act="theme" aria-label="Đổi giao diện sáng/tối"><span class="theme-ic"><i class="ph ph-moon"></i><i class="ph ph-sun"></i></span></button>
+    </div>
+
+    <div class="auth-box">
+      <section class="auth-view on" id="a-verify">
+        <div class="auth-form center">
+          <img class="mascot loopi__img loopi--celebrate" src="../loopi-mascot/svg/loopi-celebrate.svg" width="136" height="136" alt="Loopi ăn mừng" draggable="false">
+          <div><div class="overline">Gần xong rồi</div><h1>Kiểm tra hộp thư</h1><p class="muted">Mình vừa gửi link xác minh tới <b id="vfEmail"></b>. Bấm link trong thư để kích hoạt tài khoản, link có hạn 24 giờ.</p></div>
+          <div class="row w" style="justify-content:center"><button class="btn ghost" data-act="openMail"><i class="ph ph-envelope-open"></i>Mở hộp thư</button><button class="btn text" id="vfResend" data-act="resend">Gửi lại thư</button></div>
+          <div class="card tight vf-next">
+            <div class="overline">Trong lúc chờ</div>
+            <b>Làm bài kiểm tra trình độ 10 phút</b>
+            <p class="small muted" style="margin:4px 0 12px">Kết quả dùng để tạo kế hoạch học đầu tiên cho bạn.</p>
+            <div class="row w"><button class="btn primary" data-act="afterVerify" data-to="test"><i class="ph-fill ph-play"></i>Làm bài kiểm tra</button><button class="btn text" data-act="afterVerify" data-to="today">Để sau, vào trang chủ</button></div>
+          </div>
+          <p class="small muted">Nhập sai email? <button type="button" class="link" data-go="register">Đăng ký lại</button></p>
+        </div>
+      </section>
+    </div>
+
+    <p class="auth-foot small muted">© 2026 LinguaLoop · <button class="link" data-act="footLink" data-name="Điều khoản sử dụng">Điều khoản</button> · <button class="link" data-act="footLink" data-name="Chính sách quyền riêng tư">Quyền riêng tư</button> · <button class="link" data-act="footLink" data-name="Trung tâm trợ giúp">Trợ giúp</button></p>
+  </main>
+</div>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('verify', { auth: true });</script>
+<script src="js/auth.js"></script>
+</body>
+</html>

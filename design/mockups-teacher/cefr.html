@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duyệt CEFR AI — LinguaLoop Giảng viên</title>
+<meta name="description" content="Duyệt mức CEFR do AI gợi ý cho từng câu bài học.">
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Ngôn ngữ</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1>Duyệt CEFR do AI gợi ý</h1>
+        <p class="sub" style="margin-top:4px">Phím tắt: <kbd>A</kbd> đồng ý &middot; <kbd>1–6</kbd> chọn A1–C2 &middot; <kbd>↓↑</kbd> di chuyển câu</p>
+      </div>
+      <div class="row g8">
+        <button class="btn ghost sm" id="btnCefrApproveAll"><i class="ph ph-check-circle"></i>Đồng ý tất cả</button>
+        <select style="height:38px" id="cefrFilterLesson">
+          <option value="">Mọi bài học</option>
+          <option>Ordering Coffee</option>
+          <option>Airport Check-in</option>
+          <option>Job Interview</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="seg" id="cefrConfFilter" role="group">
+      <button class="on">Tất cả</button>
+      <button>Cao ≥0.8</button>
+      <button>Trung bình</button>
+      <button>Thấp &lt;0.6</button>
+    </div>
+    <span class="grow"></span>
+    <span class="small muted" id="cefrCount">6 câu chờ duyệt</span>
+  </div>
+
+  <div class="card p0" id="cefrQueue">
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 80px 180px 80px auto;gap:12px;align-items:center">
+      <span class="small muted bold">Câu</span>
+      <span class="small muted bold">AI gợi ý</span>
+      <span class="small muted bold">Độ tin cậy</span>
+      <span class="small muted bold">Hiện tại</span>
+      <span></span>
+    </div>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('cefr');
+
+const LEVELS = ['A1','A2','B1','B2','C1','C2'];
+const queue  = document.getElementById('cefrQueue');
+const approved = new Set();
+
+function renderQueue() {
+  // Remove old rows
+  queue.querySelectorAll('.cefr-row-item').forEach(el => el.remove());
+
+  DATA.cefrQueue.forEach((item, idx) => {
+    if (approved.has(idx)) return;
+    const pct  = Math.round(item.conf * 100);
+    const confCls = item.conf >= 0.8 ? 'conf-hi' : item.conf >= 0.6 ? 'conf-mid' : 'conf-lo';
+    const row = document.createElement('div');
+    row.className = 'cefr-row-item';
+    row.id = 'cefrItem' + idx;
+    row.innerHTML = `
+      <div>
+        <div class="small bold">"${item.sent}"</div>
+        <div class="small muted" style="margin-top:2px">${item.lesson}</div>
+      </div>
+      <div><span class="badge cefr ${item.ai} sm">${item.ai}</span></div>
+      <div class="cefr-conf">
+        <div class="conf-bar"><i class="${confCls}" style="width:${pct}%;display:block;height:100%;border-radius:3px"></i></div>
+        <span class="small" style="color:${item.conf<0.6?'var(--warning)':'var(--text-muted)'}">${pct}%</span>
+      </div>
+      <div><span class="badge cefr ${item.ai} sm">${item.ai}</span></div>
+      <div class="row g8">
+        <button class="btn primary sm" onclick="approve(${idx},'${item.ai}')"><i class="ph ph-check"></i>Đồng ý</button>
+        <select style="height:34px;font-size:13px" onchange="approve(${idx},this.value)" aria-label="Chọn CEFR">
+          ${LEVELS.map(l=>`<option value="${l}"${l===item.ai?' selected':''}>${l}</option>`).join('')}
+        </select>
+      </div>`;
+    queue.appendChild(row);
+  });
+
+  document.getElementById('cefrCount').textContent = (DATA.cefrQueue.length - approved.size) + ' câu chờ duyệt';
+}
+
+function approve(idx, cefr) {
+  approved.add(idx);
+  const row = document.getElementById('cefrItem' + idx);
+  if (row) {
+    row.style.transition = 'opacity .3s';
+    row.style.opacity = '0';
+    setTimeout(() => row.remove(), 300);
+  }
+  Shell.toast('Đã chấp nhận CEFR ' + cefr);
+  setTimeout(() => document.getElementById('cefrCount').textContent = (DATA.cefrQueue.length - approved.size) + ' câu chờ duyệt', 320);
+}
+window.approve = approve;
+
+document.getElementById('btnCefrApproveAll').addEventListener('click', () => {
+  DATA.cefrQueue.forEach((_, idx) => approved.add(idx));
+  queue.querySelectorAll('.cefr-row-item').forEach(el => el.remove());
+  document.getElementById('cefrCount').textContent = '0 câu chờ duyệt';
+  Shell.toast('Đã đồng ý tất cả ' + DATA.cefrQueue.length + ' câu');
+});
+
+renderQueue();
+</script>
+</body>
+</html>

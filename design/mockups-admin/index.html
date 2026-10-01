@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tổng quan Admin — LinguaLoop</title>
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Dashboard</div>
+    <h1>Tổng quan hệ thống</h1>
+    <p class="sub">Số liệu tính đến ngày 29/09/2026</p>
+  </div>
+
+  <div class="stat-grid" style="margin-bottom:28px">
+    <div class="stat-tile">
+      <div class="stat-icon vi"><i class="ph-fill ph-users"></i></div>
+      <div class="overline" style="margin-bottom:0">Tổng người dùng</div>
+      <div class="stat-value" id="stTotal"></div>
+      <div class="stat-label">Người dùng đã xác thực</div>
+      <div class="stat-delta up"><i class="ph ph-trend-up"></i><span id="stNew"></span> trong 7 ngày</div>
+    </div>
+    <div class="stat-tile card-highlight">
+      <div class="stat-icon ok"><i class="ph-fill ph-crown-simple"></i></div>
+      <div class="overline" style="margin-bottom:0">Pro đang hoạt động</div>
+      <div class="stat-value text-gradient" id="stPro"></div>
+      <div class="stat-label">Chuyển đổi <span id="stConv"></span>%</div>
+      <div class="stat-delta up"><i class="ph ph-trend-up"></i>Doanh thu ~<span id="stMrr"></span></div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-icon bad"><i class="ph-fill ph-flag"></i></div>
+      <div class="overline" style="margin-bottom:0">Báo lỗi chưa xử lý</div>
+      <div class="stat-value" style="color:var(--danger)" id="stReports"></div>
+      <div class="stat-label">Cần xem xét nội dung</div>
+      <div class="stat-delta"><a class="btn text" style="padding:0;height:auto" href="reports.html">Xử lý ngay →</a></div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-icon warn"><i class="ph-fill ph-stack"></i></div>
+      <div class="overline" style="margin-bottom:0">Bộ từ chờ duyệt</div>
+      <div class="stat-value" style="color:var(--warning)" id="stDecks"></div>
+      <div class="stat-label">Gửi từ cộng đồng học viên</div>
+      <div class="stat-delta"><a class="btn text" style="padding:0;height:auto" href="decks.html">Duyệt ngay →</a></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start">
+    <div class="card p0">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+        <h3>Biểu đồ DAU & Người dùng mới (Minh hoạ)</h3>
+      </div>
+      <div style="height:250px;background:var(--surface-hover);margin:20px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-subtle)">
+        [Biểu đồ Chart.js sẽ được nhúng tại đây]
+      </div>
+    </div>
+
+    <div class="col g16">
+      <div class="card p0">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+          <h3 class="row g8"><i class="ph-fill ph-flag" style="color:var(--danger)"></i> Báo lỗi ưu tiên</h3>
+        </div>
+        <div class="col g0" id="dashReports" style="padding:10px 0"></div>
+      </div>
+    </div>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('dashboard');
+
+document.getElementById('stTotal').textContent = DATA.adminStats.totalUsers.toLocaleString();
+document.getElementById('stNew').textContent = '+' + DATA.adminStats.newUsers7d;
+document.getElementById('stPro').textContent = DATA.adminStats.activePro.toLocaleString();
+document.getElementById('stConv').textContent = DATA.adminStats.conversionRate;
+document.getElementById('stMrr').textContent = (DATA.adminStats.mrr / 1000000).toFixed(1) + 'M đ';
+document.getElementById('stReports').textContent = DATA.adminStats.pendingReports;
+document.getElementById('stDecks').textContent = DATA.adminStats.pendingDecks;
+
+document.getElementById('dashReports').innerHTML = DATA.reports.slice(0, 3).map(r => `
+  <a href="reports.html" style="display:block;padding:12px 20px;border-bottom:1px solid var(--border);text-decoration:none">
+    <div class="bold small truncate">${r.entityName}</div>
+    <div class="small muted" style="margin-top:4px">${r.reason} · Từ ${r.user}</div>
+  </a>`).join('');
+</script>
+</body>
+</html>

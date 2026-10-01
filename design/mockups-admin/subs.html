@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng ký Pro — LinguaLoop Admin</title>
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Hệ thống</div>
+    <h1>Đăng ký Pro (Subscriptions)</h1>
+    <p class="sub">Danh sách các tài khoản đang dùng gói trả phí.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box grow" style="max-width:300px">
+      <i class="ph ph-magnifying-glass"></i>
+      <input placeholder="Tìm người dùng/email..." autocomplete="off">
+    </div>
+    <div class="seg" role="group">
+      <button class="on">Đang hoạt động</button>
+      <button>Sắp hết hạn (7 ngày)</button>
+      <button>Đã huỷ</button>
+    </div>
+    <span class="grow"></span>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Người dùng</th>
+        <th>Gói (Tháng)</th>
+        <th>Giá trị</th>
+        <th>Ngày kích hoạt</th>
+        <th>Ngày hết hạn</th>
+        <th>Trạng thái</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="subBody"></tbody>
+    </table>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('subs');
+
+document.getElementById('subBody').innerHTML = DATA.userPlans.map(p => `
+  <tr>
+    <td>
+      <div class="bold small">${p.user}</div>
+      <div class="small muted">${p.email}</div>
+    </td>
+    <td class="bold text-gradient">${p.plan}</td>
+    <td class="small">${p.price}</td>
+    <td class="small muted">${p.activated}</td>
+    <td class="small ${p.status === 'active' ? 'bold' : 'muted'}" style="${p.status === 'active' ? 'color:var(--accent)' : ''}">${p.expires}</td>
+    <td>${p.status === 'active' ? '<span class="badge pub sm">Hoạt động</span>' : '<span class="badge draft sm">Đã huỷ</span>'}</td>
+    <td>
+      <div class="tbl-actions">
+        ${p.status === 'active' ? `
+          <button class="row-menu-btn" title="Hoàn tiền & Huỷ" onclick="Shell.confirm('Hoàn tiền và huỷ gói Pro của <b>${p.user}</b>?')"><i class="ph ph-money"></i></button>
+          <button class="row-menu-btn" title="Gia hạn thủ công" onclick="Shell.confirm('Gia hạn thêm 1 tháng cho <b>${p.user}</b>?')"><i class="ph ph-clock-counter-clockwise"></i></button>
+        ` : ''}
+      </div>
+    </td>
+  </tr>`).join('');
+</script>
+</body>
+</html>

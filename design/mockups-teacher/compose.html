@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soạn bài học — LinguaLoop Giảng viên</title>
+<meta name="description" content="Tạo và soạn bài học mới cho Giảng viên LinguaLoop.">
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Soạn nội dung</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <h1>Tạo bài học mới</h1>
+      <div class="row g8">
+        <button class="btn ghost" id="btnSaveDraft"><i class="ph ph-floppy-disk"></i>Lưu nháp</button>
+        <button class="btn primary" id="btnPublish" disabled><i class="ph ph-rocket-launch"></i>Đăng bài</button>
+      </div>
+    </div>
+    <p class="small muted" style="margin-top:8px"><i class="ph ph-shield-check" style="color:var(--success)"></i> Mọi thay đổi được ghi lại tự động</p>
+  </div>
+
+  <!-- Stepper -->
+  <div class="stepper" id="composeStepper">
+    <div class="step-item active" id="step1">
+      <div class="step-num">1</div>
+      <div class="step-lbl">Thông tin</div>
+    </div>
+    <div class="step-item" id="step2">
+      <div class="step-num">2</div>
+      <div class="step-lbl">Cắt câu</div>
+    </div>
+  </div>
+
+  <!-- BƯỚC 1 -->
+  <div id="composeStep1">
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start">
+      <div class="col g20">
+        <div class="card">
+          <h3 style="margin-bottom:16px">Thông tin cơ bản</h3>
+          <div class="col g16">
+            <div class="form-row">
+              <div class="field">
+                <label class="req" for="cmpTopic">Chủ đề</label>
+                <select id="cmpTopic">
+                  <option value="">Chọn chủ đề...</option>
+                  <option>Du lịch</option><option>Giao tiếp hàng ngày</option>
+                  <option>Công nghệ</option><option>Phỏng vấn xin việc</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="cmpCefr">Trình độ CEFR</label>
+                <select id="cmpCefr"><option>A1</option><option>A2</option><option selected>B1</option><option>B2</option><option>C1</option><option>C2</option></select>
+              </div>
+            </div>
+            <div class="field">
+              <label class="req" for="cmpTitle">Tiêu đề (tiếng Anh)</label>
+              <input type="text" id="cmpTitle" placeholder="vd: Ordering Coffee at Starbucks">
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="cmpTitleVi">Tiêu đề tiếng Việt</label>
+                <input type="text" id="cmpTitleVi" placeholder="vd: Gọi cà phê tại Starbucks">
+              </div>
+              <div class="field">
+                <label for="cmpSlug">Slug</label>
+                <input type="text" id="cmpSlug" placeholder="ordering-coffee-starbucks">
+              </div>
+            </div>
+            <div class="field">
+              <label for="cmpDesc">Mô tả ngắn</label>
+              <textarea id="cmpDesc" rows="3" placeholder="Mô tả nội dung bài học..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:16px">Nguồn video/audio</h3>
+          <div class="col g16">
+            <div class="field">
+              <label class="req" for="cmpUrl">URL nguồn</label>
+              <div class="inp-wrap">
+                <i class="ic ph ph-youtube-logo"></i>
+                <input type="url" id="cmpUrl" class="has-ic" placeholder="https://youtube.com/watch?v=...">
+              </div>
+              <span class="field-hint">Dán link YouTube để tự động lấy thumbnail và thời lượng</span>
+            </div>
+            <div id="cmpYtPreview" style="display:none;background:var(--surface-hover);border-radius:var(--radius-md);padding:12px;gap:12px;align-items:center;display:flex">
+              <div class="tbl-thumb" style="width:80px;height:52px"><i class="ph ph-youtube-logo" style="color:var(--danger)"></i></div>
+              <div class="grow">
+                <div class="bold small">Ordering Coffee at Starbucks | English Listening</div>
+                <div class="small muted">YouTube &middot; 4:32 &middot; Tự động lấy ✓</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col g16">
+        <div class="card">
+          <h3 style="margin-bottom:12px">Tuỳ chọn</h3>
+          <div class="col g12">
+            <label class="toggle">
+              <input type="checkbox" id="cmpIsPro">
+              <span class="toggle-track"></span>
+              <span><b class="small">Nội dung PRO</b><br><span class="small muted">Chỉ học viên Pro xem được</span></span>
+            </label>
+            <div class="field">
+              <label for="cmpOrder">Thứ tự trong chủ đề</label>
+              <input type="number" id="cmpOrder" value="1" min="1">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:12px">Ảnh thumbnail</h3>
+          <div style="aspect-ratio:16/9;background:var(--surface-hover);border-radius:var(--radius-md);border:2px dashed var(--border-strong);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer" id="thumbDrop">
+            <i class="ph ph-image" style="font-size:32px;color:var(--text-subtle)"></i>
+            <span class="small muted">Tải lên hoặc dán link ảnh</span>
+            <span class="small subtle">PNG, JPG &middot; 16:9 &middot; tối đa 2MB</span>
+          </div>
+        </div>
+
+        <div style="padding:12px 16px;border-radius:var(--radius-md);border:1px solid var(--border);background:color-mix(in srgb,var(--info) 6%,transparent)">
+          <div class="row g8 small" style="color:var(--info)"><i class="ph ph-info"></i><b>Sau khi đăng bài</b></div>
+          <p class="small muted" style="margin-top:6px">Bài học được đăng trực tiếp, không cần admin duyệt.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <a class="btn ghost" href="lessons.html">Huỷ</a>
+      <button class="btn primary" id="btnGoStep2"><i class="ph ph-arrow-right"></i>Tiếp: Cắt câu</button>
+    </div>
+  </div>
+
+  <!-- BƯỚC 2 -->
+  <div id="composeStep2" style="display:none">
+    <div class="card" style="margin-bottom:16px;padding:12px 16px">
+      <div class="row w g8">
+        <span class="small bold">Nhập nhanh:</span>
+        <button class="chip sm"><i class="ph ph-subtitles"></i>Nhập .srt/.vtt</button>
+        <button class="chip sm"><i class="ph ph-text-t"></i>Nhập văn bản</button>
+        <span class="grow"></span>
+        <span class="small muted">Phím tắt: <kbd>[</kbd> điểm đầu &middot; <kbd>]</kbd> điểm cuối &middot; <kbd>A</kbd> thêm câu</span>
+      </div>
+    </div>
+
+    <div class="compose-shell" id="composeShell">
+      <!-- Player -->
+      <div class="compose-player">
+        <div class="player-area" id="playerArea">
+          <i class="ph ph-youtube-logo" style="color:var(--danger)"></i>
+          <span>Player video sẽ hiển thị ở đây</span>
+          <span class="small muted">Dán link YouTube ở bước trước</span>
+        </div>
+        <div class="timeline" id="timeline">
+          <div class="timeline-track" id="timelineTrack"></div>
+          <div class="timeline-cursor" id="tlCursor" style="left:18%"></div>
+          <div class="timeline-ruler" id="tlRuler"></div>
+        </div>
+        <div class="player-ctrl">
+          <button class="btn ghost sm" id="btnPlay"><i class="ph-fill ph-play"></i>Phát</button>
+          <button class="btn ghost sm" id="btnPlaySeg"><i class="ph ph-arrows-in-line-horizontal"></i>Phát đoạn</button>
+          <div class="seg sm" id="playerSpeed" role="group">
+            <button data-r=".5">0.5×</button>
+            <button data-r=".75">0.75×</button>
+            <button class="on" data-r="1">1×</button>
+          </div>
+          <span class="grow"></span>
+          <span class="small muted" id="playerTime">00:00 / 04:32</span>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn ghost sm" id="btnStep2Back"><i class="ph ph-arrow-left"></i>Quay lại</button>
+          <span class="grow"></span>
+          <button class="btn ghost sm" id="btnSaveDraft2"><i class="ph ph-floppy-disk"></i>Lưu nháp</button>
+          <button class="btn primary sm" id="btnPublish2"><i class="ph ph-rocket-launch"></i>Đăng bài</button>
+        </div>
+      </div>
+
+      <!-- Sentence list -->
+      <div class="compose-list" id="sentenceList">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg-elevated);position:sticky;top:0;z-index:5">
+          <span class="small bold" id="sentCount">0 câu</span>
+          <button class="btn primary sm" id="btnAddSent"><i class="ph ph-plus"></i>Thêm câu</button>
+        </div>
+        <div id="sentItems"></div>
+      </div>
+    </div>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('compose');
+
+// Stepper logic
+function goToStep(n) {
+  const s1 = document.getElementById('composeStep1');
+  const s2 = document.getElementById('composeStep2');
+  const st1 = document.getElementById('step1');
+  const st2 = document.getElementById('step2');
+  const pubBtn = document.getElementById('btnPublish');
+  if (n === 1) {
+    s1.style.display = ''; s2.style.display = 'none';
+    st1.classList.add('active'); st1.classList.remove('done');
+    st2.classList.remove('active','done');
+    pubBtn.disabled = true;
+  } else {
+    s1.style.display = 'none'; s2.style.display = '';
+    st1.classList.remove('active'); st1.classList.add('done');
+    st2.classList.add('active');
+    pubBtn.disabled = false;
+    renderSentences(); renderTimeline();
+  }
+}
+
+document.getElementById('btnGoStep2').addEventListener('click', () => {
+  const t = document.getElementById('cmpTitle').value.trim();
+  if (!t) { document.getElementById('cmpTitle').closest('.field').classList.add('error'); return; }
+  goToStep(2);
+});
+document.getElementById('btnStep2Back').addEventListener('click', () => goToStep(1));
+
+// Auto slug
+document.getElementById('cmpTitle').addEventListener('input', e => {
+  document.getElementById('cmpSlug').value = e.target.value.toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'-');
+});
+
+// YouTube preview
+document.getElementById('cmpUrl').addEventListener('input', e => {
+  const v = e.target.value.trim();
+  document.getElementById('cmpYtPreview').style.display = (v.includes('youtube') || v.includes('youtu.be')) ? 'flex' : 'none';
+});
+
+// Save/publish
+document.getElementById('btnSaveDraft').addEventListener('click', () => Shell.toast('Đã lưu nháp'));
+document.getElementById('btnSaveDraft2').addEventListener('click', () => Shell.toast('Đã lưu nháp'));
+document.getElementById('btnPublish').addEventListener('click', () => { Shell.toast('Bài học đã được đăng!'); setTimeout(()=>{ location.href='lessons.html'; }, 1200); });
+document.getElementById('btnPublish2').addEventListener('click', () => { Shell.toast('Bài học đã được đăng!'); setTimeout(()=>{ location.href='lessons.html'; }, 1200); });
+
+// Sentence render
+const sentences = [...DATA.sentences];
+
+function ms2time(ms) {
+  const sec = Math.floor(ms/1000), m = Math.floor(sec/60), s = sec%60, ms2 = ms%1000;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms2).padStart(3,'0')}`;
+}
+
+function renderSentences() {
+  const container = document.getElementById('sentItems');
+  document.getElementById('sentCount').textContent = sentences.length + ' câu';
+  container.innerHTML = sentences.map((s, i) => {
+    const srcLabel = {instructor:'Giáo viên đoán', ai:`AI gợi ý (${s.cefrConf?Math.round(s.cefrConf*100)+'%':''})`, reviewed:'Đã duyệt ✓'}[s.cefrSrc] || s.cefrSrc;
+    return `<div class="sent-item${i===0?' active':''}" onclick="selectSent(${i})">
+      <div class="row between">
+        <div class="sent-num">Câu ${i+1}</div>
+        <div class="sent-time">${ms2time(s.startMs)} – ${ms2time(s.endMs)}</div>
+      </div>
+      <div class="sent-text">${s.text || '<span class="muted">(chưa có nội dung)</span>'}</div>
+      <div class="sent-ipa muted">${s.ipa || ''}</div>
+      <div class="cefr-row">
+        <span class="badge cefr ${s.cefr} sm">${s.cefr}</span>
+        <span class="cefr-src">${srcLabel}</span>
+        <span class="grow"></span>
+        <button class="btn text" style="padding:0;height:auto;font-size:11px"
+          onclick="event.stopPropagation();openSentDrawer(${i})"><i class="ph ph-pencil-simple"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectSent(idx) {
+  document.querySelectorAll('.sent-item').forEach((el,i) => el.classList.toggle('active', i===idx));
+}
+window.selectSent = selectSent;
+
+function openSentDrawer(idx) {
+  const s = sentences[idx];
+  document.getElementById('drawerSentTitle').textContent = `Câu #${idx+1}`;
+  document.getElementById('dsStart').value = ms2time(s.startMs);
+  document.getElementById('dsEnd').value   = ms2time(s.endMs);
+  document.getElementById('dsSent').value  = s.text;
+  document.getElementById('dsTrans').value = s.trans;
+  document.getElementById('dsIpa').value   = s.ipa;
+  document.getElementById('dsCefr').value  = s.cefr;
+  openDrawer('drawerSent','scrimSent');
+}
+window.openSentDrawer = openSentDrawer;
+
+// Add sentence
+document.getElementById('btnAddSent').addEventListener('click', () => {
+  const last = sentences[sentences.length-1];
+  sentences.push({ id:Date.now(), startMs:last.endMs+500, endMs:last.endMs+4000, text:'', trans:'', ipa:'', cefr:'B1', cefrSrc:'instructor' });
+  renderSentences(); renderTimeline();
+  openSentDrawer(sentences.length-1);
+});
+
+// Timeline
+function renderTimeline() {
+  const track = document.getElementById('timelineTrack');
+  const ruler  = document.getElementById('tlRuler');
+  const totalMs = 4*60*1000 + 32*1000;
+  const colors  = ['var(--primary)','var(--accent-2)','var(--success)'];
+  track.innerHTML = sentences.map((s,i) => {
+    const left  = (s.startMs/totalMs*100).toFixed(2)+'%';
+    const width = ((s.endMs-s.startMs)/totalMs*100).toFixed(2)+'%';
+    return `<div class="sent-block" style="left:${left};width:${width};border-color:${colors[i%3]}"
+      onclick="selectSent(${i})">${i+1}</div>`;
+  }).join('');
+  const marks = [0,30,60,90,120,150,180,210,240,272];
+  ruler.innerHTML = marks.map(s => {
+    const m=Math.floor(s/60), sec=s%60;
+    return `<span style="left:${(s/272*100).toFixed(1)}%;position:absolute">${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}</span>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
