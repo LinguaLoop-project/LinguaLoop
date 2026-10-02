@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Điểm yếu — LinguaLoop</title>
+<meta name="description" content="Bản đồ 44 âm vị và lỗi nghe chép theo loại từ.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-weakness">
+        <div class="head rv">
+          <div><div class="overline">Hồ sơ điểm yếu</div><h1>Bạn hay sai ở đâu?</h1><p class="muted">Tổng hợp từ 412 câu đã luyện trong 30 ngày</p></div>
+          <div class="row w"><div class="seg" id="wkRange" role="group" aria-label="Khoảng thời gian"><button>7 ngày</button><button class="on">30 ngày</button><button>Toàn bộ</button></div><button class="ux-btn" data-ux="weakness"><i class="ph ph-lightbulb"></i>Ghi chú UX</button></div>
+        </div>
+        <div class="g-main">
+          <div class="col g24">
+            <div class="card rv">
+              <div class="row between w"><h3>Bản đồ 44 âm vị</h3>
+                <div class="legend"><span><i class="sw t-ok"></i>&lt;15% lỗi</span><span><i class="sw t-warn"></i>15–30%</span><span><i class="sw t-bad"></i>&gt;30%</span><span><i class="sw"></i>Chưa đủ dữ liệu</span></div></div>
+              <p class="small muted" style="margin:8px 0 16px">Bấm vào một âm để xem bạn hay đọc nhầm thành âm gì</p>
+              <div class="overline">Nguyên âm đơn &amp; đôi</div>
+              <div class="ipa-grid" id="gridV"></div>
+              <div class="overline" style="margin-top:20px">Phụ âm</div>
+              <div class="ipa-grid" id="gridC"></div>
+            </div>
+            <div class="card rv">
+              <h3 style="margin-bottom:16px">Nghe chép: lỗi theo loại từ</h3>
+              <div class="col" id="dictStats"></div>
+              <div class="legend" style="margin-top:16px"><span><i class="sw t-bad solid"></i>Bỏ sót</span><span><i class="sw t-warn solid"></i>Nhầm từ</span><span><i class="sw t-info solid"></i>Sai chính tả</span></div>
+            </div>
+          </div>
+          <div class="panel-wrap rv">
+            <svg class="obj learn" style="--s:64px;top:-28px;right:-16px"><use href="#o-orb"/></svg>
+            <div class="card" id="phPanel"></div>
+          </div>
+        </div>
+      </section>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('weakness');</script>
+<script src="js/weakness.js"></script>
+</body>
+</html>

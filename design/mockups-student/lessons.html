@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bài học — LinguaLoop</title>
+<meta name="description" content="Thư viện bài học theo chủ đề.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-lessons">
+        <div class="head rv">
+          <div><div class="overline" id="lsOver">Thư viện bài học</div><h1 id="lsTitle">Bài học</h1><p class="muted" id="lsSub"></p></div>
+          <button class="ux-btn" data-ux="lessons"><i class="ph ph-lightbulb"></i>Ghi chú UX</button>
+        </div>
+        <div class="yt-wrap rv">
+          <svg class="obj m-hide" viewBox="0 0 200 200" style="--s:84px;top:-38px;right:5%;--d:-2s"><use href="#o-cone"/></svg>
+          <svg class="obj" viewBox="0 0 200 200" style="--s:64px;bottom:-26px;left:-22px;--d:-4s;--dur:8s"><use href="#o-orb"/></svg>
+          <div class="card glass spotlight yt-card">
+            <div class="yt-ic"><i class="ph-fill ph-youtube-logo"></i></div>
+            <div class="grow"><div class="row w g8"><h3>Tạo bài từ video YouTube</h3><span class="badge t-pri"><i class="ph-fill ph-sparkle"></i>AI</span><span class="badge pro"><i class="ph-fill ph-crown-simple"></i>PRO</span></div>
+              <p class="small muted">Dán link video tiếng Anh, AI tách câu, gắn mốc thời gian và ước lượng trình độ. Bài được duyệt trước khi hiện công khai.</p></div>
+            <div class="yt-form"><div class="search-sm"><i class="ph ph-link"></i><input placeholder="https://youtube.com/watch?v=…" aria-label="Link YouTube"></div><button class="btn primary" data-act="ytCreate"><i class="ph ph-magic-wand"></i>Tạo bài</button></div>
+          </div>
+        </div>
+        <div class="toolbar rv">
+          <div class="search-sm grow"><i class="ph ph-magnifying-glass"></i><input id="lsSearch" placeholder="Tìm bài học theo tên…" autocomplete="off" aria-label="Tìm bài học"></div>
+          <div class="seg" id="lsLevel" role="group" aria-label="Trình độ"><button data-v="all" class="on">Tất cả</button><button data-v="basic">Cơ bản</button><button data-v="mid">Trung cấp</button><button data-v="adv">Nâng cao</button></div>
+          <div class="seg" id="lsSort" role="group" aria-label="Sắp xếp"><button data-v="pop" class="on"><i class="ph ph-fire"></i>Phổ biến</button><button data-v="new"><i class="ph ph-clock"></i>Mới</button><button data-v="short"><i class="ph ph-timer"></i>Ngắn</button></div>
+          <button class="chip lift" id="lsFree" aria-pressed="false"><i class="ph ph-lock-simple-open"></i>Chỉ bài miễn phí</button>
+        </div>
+        <div class="chips-row rv" id="lsTopics"></div>
+        <div id="lsBody"></div>
+      </section>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('lessons');</script>
+<script src="js/lessons.js"></script>
+</body>
+</html>

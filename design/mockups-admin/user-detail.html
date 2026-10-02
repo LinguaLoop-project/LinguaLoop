@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi tiết người dùng — LinguaLoop Admin</title>
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline"><a href="users.html" class="muted" style="text-decoration:none"><i class="ph ph-arrow-left"></i> Người dùng</a> / Chi tiết</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:8px">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="avatar" style="width:64px;height:64px;font-size:24px">N</div>
+        <div>
+          <h1 style="margin:0;font-size:28px">Nguyễn Minh Anh</h1>
+          <div class="muted small" style="margin-top:4px">minhanh@gmail.com <i class="ph-fill ph-check-circle" style="color:var(--success)" title="Đã xác thực email"></i></div>
+        </div>
+      </div>
+      <div class="row g12">
+        <button class="btn secondary" onclick="Shell.confirm('Xác nhận đổi quyền của người dùng này?')"><i class="ph ph-shield-star"></i>Đổi quyền</button>
+        <button class="btn ghost" style="color:var(--warning)" onclick="Shell.confirm('Xác nhận khoá tài khoản này?')"><i class="ph ph-lock-key"></i>Khoá tài khoản</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:start">
+    
+    <!-- Left Column: Info -->
+    <div class="col g24">
+      <div class="card p0">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+          <h3 class="row g8"><i class="ph-fill ph-identification-card"></i> Thông tin chung</h3>
+        </div>
+        <div style="padding:20px" class="col g16">
+          <div>
+            <div class="small muted">Vai trò</div>
+            <div class="bold" style="margin-top:4px"><span class="badge sm draft">Học viên</span></div>
+          </div>
+          <div>
+            <div class="small muted">Trạng thái</div>
+            <div class="bold" style="margin-top:4px"><span class="badge pub sm">Hoạt động</span></div>
+          </div>
+          <div>
+            <div class="small muted">Ngày tham gia</div>
+            <div class="bold" style="margin-top:4px">12/01/2026</div>
+          </div>
+          <div>
+            <div class="small muted">Hoạt động lần cuối</div>
+            <div class="bold" style="margin-top:4px">Hôm nay, 14:23</div>
+          </div>
+          <div>
+            <div class="small muted">IP Đăng nhập cuối</div>
+            <div class="mono small" style="margin-top:4px">118.69.112.14</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p0">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+          <h3 class="row g8"><i class="ph-fill ph-crown"></i> Gói dịch vụ</h3>
+        </div>
+        <div style="padding:20px" class="col g16">
+          <div>
+            <div class="small muted">Gói hiện tại</div>
+            <div class="bold" style="margin-top:4px"><span class="badge pro sm">PRO</span></div>
+          </div>
+          <div>
+            <div class="small muted">Ngày hết hạn</div>
+            <div class="bold" style="margin-top:4px">12/01/2027</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Activity -->
+    <div class="col g24">
+      <div class="card p0">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+          <h3 class="row g8"><i class="ph-fill ph-clock-counter-clockwise"></i> Lịch sử thanh toán</h3>
+        </div>
+        <div class="tbl-wrap" style="border:none">
+          <table style="border:none">
+            <thead><tr>
+              <th>Mã GD</th>
+              <th>Ngày</th>
+              <th>Gói</th>
+              <th style="text-align:right">Số tiền</th>
+              <th>Trạng thái</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td class="mono small">TXN-88219</td>
+                <td class="small muted">12/01/2026</td>
+                <td class="bold">Pro 1 năm</td>
+                <td style="text-align:right" class="bold">599.000₫</td>
+                <td><span class="badge pub sm">Thành công</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card p0">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+          <h3 class="row g8"><i class="ph-fill ph-activity"></i> Hoạt động học tập gần đây</h3>
+        </div>
+        <div class="tbl-wrap" style="border:none">
+          <table style="border:none">
+            <thead><tr>
+              <th>Hành động</th>
+              <th>Nội dung</th>
+              <th>Thời gian</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="badge ai sm">Ôn tập</span></td>
+                <td class="small">Làm bài kiểm tra từ vựng CEFR B1</td>
+                <td class="small muted">Hôm nay, 14:10</td>
+              </tr>
+              <tr>
+                <td><span class="badge pending sm">Tạo bộ từ</span></td>
+                <td class="small">Tạo bộ từ mới "IELTS Writing Task 2"</td>
+                <td class="small muted">Hôm qua, 20:35</td>
+              </tr>
+              <tr>
+                <td><span class="badge draft sm">Báo lỗi</span></td>
+                <td class="small">Báo lỗi câu hỏi ID #1042</td>
+                <td class="small muted">25/09/2026</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script>
+Shell.init('users');
+</script>
+</body>
+</html>

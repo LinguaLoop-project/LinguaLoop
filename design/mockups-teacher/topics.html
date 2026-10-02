@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chủ đề — LinguaLoop Giảng viên</title>
+<meta name="description" content="Quản lý chủ đề bài học dành cho Giảng viên LinguaLoop.">
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Nội dung</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <h1>Chủ đề</h1>
+      <button class="btn primary" id="btnAddTopic"><i class="ph-fill ph-plus-circle"></i>Thêm chủ đề</button>
+    </div>
+    <p class="sub">Quản lý chủ đề bài học.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box grow" style="max-width:320px">
+      <i class="ph ph-magnifying-glass"></i>
+      <input placeholder="Tìm chủ đề..." id="topicSearch" autocomplete="off">
+    </div>
+    <div class="seg" id="topicStatus" role="group">
+      <button class="on">Tất cả</button>
+      <button>Đã đăng</button>
+      <button>Nháp</button>
+    </div>
+    <span class="small muted" id="topicCount"></span>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th style="width:44px"><input type="checkbox" class="row-check" id="chkTopicAll"></th>
+        <th>Tên chủ đề</th><th>Slug</th>
+        <th style="text-align:center">Số bài</th>
+        <th>Trạng thái</th>
+        <th style="text-align:center">Thứ tự</th>
+        <th>Cập nhật</th><th></th>
+      </tr></thead>
+      <tbody id="topicBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="topicPag"></div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('topics');
+
+document.getElementById('btnAddTopic').addEventListener('click', () => openModal('modalTopic'));
+
+(function render(){
+  const body = document.getElementById('topicBody');
+  document.getElementById('topicCount').textContent = DATA.topics.length + ' chủ đề';
+  body.innerHTML = DATA.topics.map(t => `
+    <tr>
+      <td><input type="checkbox" class="row-check"></td>
+      <td><div class="bold">${t.name}</div></td>
+      <td class="mono">${t.slug}</td>
+      <td style="text-align:center">${t.lessons}</td>
+      <td>${Shell.statusBadge(t.status)}</td>
+      <td style="text-align:center">${t.order}</td>
+      <td class="small muted">${t.updated}</td>
+      <td>
+        <div class="tbl-actions">
+          <button class="row-menu-btn" title="Sửa" onclick="openModal('modalTopic')"><i class="ph ph-pencil-simple"></i></button>
+          <button class="row-menu-btn" title="Xoá" style="color:var(--danger)"
+            onclick="Shell.confirmDelete('${t.name}', () => Shell.toast('Đã xoá', 'bad'))">
+            <i class="ph ph-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+})();
+</script>
+</body>
+</html>

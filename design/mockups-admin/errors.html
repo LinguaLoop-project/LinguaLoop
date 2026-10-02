@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Danh mục lỗi — LinguaLoop Admin</title>
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Hệ thống</div>
+    <h1>Danh mục lỗi chấm điểm</h1>
+    <p class="sub">Quản lý (bật/tắt, sửa mô tả) các danh mục lỗi phân tích bởi hệ thống (chỉ admin).</p>
+  </div>
+
+  <div class="tbl-wrap" style="margin-top:20px">
+    <table>
+      <thead><tr>
+        <th>Mã lỗi (System Code)</th>
+        <th>Kỹ năng</th>
+        <th>Tên hiển thị (Tiếng Việt)</th>
+        <th>Mô tả / Hướng dẫn</th>
+        <th style="text-align:center">Trạng thái</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="errBody"></tbody>
+    </table>
+  </div>
+
+  <div class="modal-back" id="modalErr">
+    <div class="modal" role="dialog" aria-modal="true" style="width:500px; max-width:90vw;">
+      <div class="modal-head">
+        <h2>Sửa danh mục lỗi</h2>
+        <button class="icon-btn" onclick="closeModal('modalErr')"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Mã lỗi (Hệ thống)</label>
+          <input type="text" id="errCode" disabled class="muted">
+          <p class="small muted" style="margin-top:4px">Không thể thay đổi mã lỗi vì hệ thống chấm điểm dựa vào mã này.</p>
+        </div>
+        <div class="field">
+          <label>Tên hiển thị (Tiếng Việt)</label>
+          <input type="text" id="errName">
+        </div>
+        <div class="field">
+          <label>Mô tả / Hướng dẫn người dùng</label>
+          <textarea id="errDesc" rows="3"></textarea>
+        </div>
+        <div class="field" style="flex-direction:row;align-items:center;gap:8px">
+          <input type="checkbox" id="errActive" style="width:16px;height:16px;accent-color:var(--primary)">
+          <label for="errActive" style="margin:0;font-weight:normal">Bật danh mục lỗi này</label>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <span class="grow"></span>
+        <button class="btn primary" onclick="Shell.toast('Đã lưu thay đổi!');closeModal('modalErr')"><i class="ph ph-check"></i>Lưu thay đổi</button>
+      </div>
+    </div>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('errors');
+
+document.getElementById('errBody').innerHTML = DATA.errorCategories.map(e => `
+  <tr>
+    <td class="mono small">${e.code}</td>
+    <td><span class="badge sm pending">${e.skill}</span></td>
+    <td class="bold small">${e.name}</td>
+    <td class="small muted">${e.desc}</td>
+    <td style="text-align:center">${e.active ? '<span class="badge pub sm">Bật</span>' : '<span class="badge draft sm">Tắt</span>'}</td>
+    <td>
+      <button class="btn text sm" onclick="openErr('${e.code}')">Sửa</button>
+    </td>
+  </tr>`).join('');
+
+window.openErr = code => {
+  const e = DATA.errorCategories.find(x => x.code === code);
+  if(!e) return;
+  document.getElementById('errCode').value = e.code;
+  document.getElementById('errName').value = e.name;
+  document.getElementById('errDesc').value = e.desc;
+  document.getElementById('errActive').checked = e.active;
+  window.openModal('modalErr');
+};
+</script>
+</body>
+</html>
