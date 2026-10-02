@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hôm nay — LinguaLoop</title>
+<meta name="description" content="Kế hoạch 15 phút mỗi ngày, chuỗi ngày học, điểm yếu tuần này.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-today">
+        <div class="head rv">
+          <div><div class="overline">Thứ Hai · 28/09/2026</div><h1>Chào Minh Anh</h1></div>
+          <button class="ux-btn" data-ux="today"><i class="ph ph-lightbulb"></i>Ghi chú UX</button>
+        </div>
+
+        <div class="hero-wrap parallax rv">
+          <svg class="obj" data-depth="1" style="--s:120px;top:-60px;right:-20px;--d:-1s"><use href="#o-orb"/></svg>
+          <svg class="obj m-hide" data-depth="-.6" style="--s:110px;bottom:-44px;left:-28px;--d:-3s;--dur:8s"><use href="#o-torus"/></svg>
+          <svg class="obj m-hide" data-depth=".5" style="--s:56px;top:-28px;left:26%;--d:-5s;--dur:9s"><use href="#o-star"/></svg>
+          <div class="hero glass spotlight">
+            <div class="hero-grid">
+              <div class="hero-mascot" id="heroMascot"></div>
+              <div class="hero-copy">
+                <span class="pill-note"><b>Mới</b>Kế hoạch được tạo từ điểm yếu tuần này</span>
+                <h2 class="display-lg text-gradient hero-title" id="heroTitle">Kế hoạch 15 phút</h2>
+                <p class="muted">Làm liền một mạch, không phải chọn gì cả. Xong bài này hệ thống tự chuyển sang bài tiếp theo.</p>
+                <div class="row w" style="margin-top:24px">
+                  <button class="btn primary lg" data-act="startFocus"><i class="ph-fill ph-play"></i>Bắt đầu phiên</button>
+                  <button class="btn ghost lg" data-act="duration"><i class="ph ph-timer"></i><span id="durLbl">15 phút</span></button>
+                </div>
+              </div>
+              <div class="ring hero-ring" id="heroRing"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="g-main">
+          <div class="card rv">
+            <div class="row between" style="margin-bottom:8px"><h3>Các việc hôm nay</h3><span class="small muted" id="planMeta"></span></div>
+            <div id="taskList"></div>
+          </div>
+          <div class="col g24">
+            <div class="card rv">
+              <div class="row between"><div class="overline" style="margin:0">Chuỗi ngày học</div><span class="small muted">Kỷ lục 12</span></div>
+              <div class="streak-head"><i class="ph-fill ph-fire flame"></i><span class="big-num count" id="streakBig">5</span><span class="muted">ngày liên tiếp</span></div>
+              <div class="streak-days" id="streakDays"></div>
+              <p class="small muted" style="margin-top:12px" id="streakHint"></p>
+            </div>
+            <div class="card rv">
+              <div class="row between"><h3>Điểm yếu tuần này</h3><button class="btn text sm" data-go="weakness">Xem hết<i class="ph ph-arrow-right arr"></i></button></div>
+              <div class="col g12" style="margin-top:12px" id="weakMini"></div>
+            </div>
+            <div class="card rv">
+              <div class="row between"><h3>Trình độ</h3><button class="btn text sm" data-go="test">Kiểm tra lại<i class="ph ph-arrow-right arr"></i></button></div>
+              <div class="col g8" style="margin-top:12px">
+                <div class="row between"><span class="row g8"><i class="ph ph-book-open-text muted"></i>Từ vựng</span><span class="badge cefr B1">B1</span></div>
+                <div class="row between"><span class="row g8"><i class="ph ph-headphones muted"></i>Nghe chép</span><span class="badge cefr A2">A2</span></div>
+                <div class="row between"><span class="row g8"><i class="ph ph-microphone muted"></i>Nói</span><span class="badge cefr B1">B1</span></div>
+              </div>
+              <p class="small muted" style="margin-top:12px">Kiểm tra lại sau 6 ngày nữa</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('today');</script>
+<script src="js/today.js"></script>
+</body>
+</html>

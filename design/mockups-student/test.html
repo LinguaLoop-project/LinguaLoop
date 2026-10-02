@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiểm tra trình độ — LinguaLoop</title>
+<meta name="description" content="Kiểm tra trình độ 10 phút theo khung CEFR.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-test">
+        <div class="head rv">
+          <div><div class="overline">Kiểm tra trình độ</div><h1>10 phút, biết mình ở đâu</h1></div>
+          <button class="ux-btn" data-ux="test"><i class="ph ph-lightbulb"></i>Ghi chú UX</button>
+        </div>
+        <div class="test-shell rv" id="tStage"></div>
+      </section>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('test');</script>
+<script src="js/test.js"></script>
+</body>
+</html>
