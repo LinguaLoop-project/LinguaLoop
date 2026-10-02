@@ -83,7 +83,7 @@ Nếu muốn đổi interface sau khi đã merge, báo người kia trước.
 
 **Mã nguồn**
 - Backend chia theo feature, trong mỗi feature chia tầng: `com.lingualoop.backend.<feature>.{controller,service,repository,entity,dto}` (ví dụ `dictation.controller`, `dictation.service`). Cấu trúc đầy đủ xem [cau-truc-du-an.md](cau-truc-du-an.md). Frontend: `src/features/<feature>/`.
-- Nhánh: `feature/<tên-trang>-<việc>`. PR nhỏ, vài ngày. Mọi PR đều do người còn lại duyệt.
+- Nhánh: `<type>/<mo-ta-ngan>`, `type` giống type của commit (`feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `ci`), ví dụ `feat/dictation-cham-tung-tu`, `fix/shadowing-timeout`. Xem [CODING-CONVENTION.md](../docs/convention/CODING-CONVENTION.md) mục 1. PR nhỏ, vài ngày. Mọi PR đều do người còn lại duyệt.
 
 **Database (Flyway)**
 - Không sửa `V1`, `V2`. Migration mới đặt tên theo thời gian: `V20261001_1530__ten_viec.sql`.
