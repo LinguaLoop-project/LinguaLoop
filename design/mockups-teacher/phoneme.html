@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ngữ âm — LinguaLoop Giảng viên</title>
+<meta name="description" content="Quản lý hướng dẫn phát âm tiếng Anh: 44 âm vị, cặp nhầm lẫn và cặp tối thiểu.">
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Ngôn ngữ</div>
+    <h1>Ngữ âm</h1>
+    <p class="sub">Quản lý hướng dẫn phát âm: 44 âm vị, cặp nhầm lẫn và cặp tối thiểu.</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="seg" id="phonemeTabs" role="tablist" style="margin-bottom:20px">
+    <button class="on" data-t="phonemes">Âm vị (44)</button>
+    <button data-t="confusions">Nhầm âm</button>
+    <button data-t="pairs">Cặp tối thiểu</button>
+  </div>
+
+  <!-- Tab: Âm vị -->
+  <div id="tabPhonemes">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn primary sm" id="btnAddPhoneme"><i class="ph-fill ph-plus-circle"></i>Thêm âm vị</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:80px">Ký hiệu</th>
+          <th>Loại</th><th>Từ ví dụ</th>
+          <th>Mô tả tiếng Việt</th>
+          <th>Video khẩu hình</th>
+          <th>PRO</th><th></th>
+        </tr></thead>
+        <tbody id="phonemeBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tab: Nhầm âm -->
+  <div id="tabConfusions" style="display:none">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn primary sm" id="btnAddConf"><i class="ph-fill ph-plus-circle"></i>Thêm cặp nhầm âm</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Âm đúng</th><th>→ Đọc thành</th>
+          <th>Nhóm lỗi</th><th>Mẹo sửa</th><th></th>
+        </tr></thead>
+        <tbody id="confBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tab: Cặp tối thiểu -->
+  <div id="tabPairs" style="display:none">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn primary sm" id="btnAddPair"><i class="ph-fill ph-plus-circle"></i>Thêm cặp tối thiểu</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Âm A</th><th>Từ A</th>
+          <th>Âm B</th><th>Từ B</th>
+          <th>Vị trí khác biệt</th>
+          <th>Nghe</th><th></th>
+        </tr></thead>
+        <tbody id="pairBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  </div>
+
+  <!-- Modal Form Âm vị -->
+  <div class="modal-back" id="modalPhonemeForm">
+    <div class="modal" role="dialog" aria-modal="true" style="width:500px; max-width:90vw;">
+      <div class="modal-head" style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 id="pfTitle">Thêm âm vị</h2>
+        <button class="icon-btn" onclick="closeModal('modalPhonemeForm')"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="col g16">
+          <div class="row">
+            <div class="field" style="width:120px">
+              <label>Ký hiệu <span class="t-bad">*</span></label>
+              <input type="text" id="pfSym" placeholder="/θ/" style="font-family:var(--font-ipa)">
+            </div>
+            <div class="field grow">
+              <label>Loại</label>
+              <select id="pfType"><option>Nguyên âm đơn</option><option>Nguyên âm đôi</option><option>Phụ âm vô thanh</option><option>Phụ âm hữu thanh</option></select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Từ ví dụ</label>
+            <input type="text" id="pfEx" placeholder="vd: think, three, month">
+          </div>
+          <div class="field">
+            <label>Mô tả tiếng Việt</label>
+            <textarea id="pfDesc" rows="2" placeholder="Hướng dẫn đặt khẩu hình miệng..."></textarea>
+          </div>
+          <div class="field">
+            <label>Video khẩu hình (URL)</label>
+            <input type="url" placeholder="https://...">
+          </div>
+          <label class="toggle"><input type="checkbox"><span class="toggle-track"></span><span><b class="small">Yêu cầu gói PRO</b></span></label>
+        </div>
+      </div>
+      <div class="modal-foot" style="display:flex; gap:12px;">
+        <span class="grow"></span>
+        <button class="btn ghost" onclick="closeModal('modalPhonemeForm')">Huỷ</button>
+        <button class="btn primary" onclick="closeModal('modalPhonemeForm');Shell.toast('Đã lưu âm vị!')"><i class="ph ph-check"></i>Lưu âm vị</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Form Nhầm âm -->
+  <div class="modal-back" id="modalConfForm">
+    <div class="modal" role="dialog" aria-modal="true" style="width:500px; max-width:90vw;">
+      <div class="modal-head" style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 id="cfTitle">Thêm cặp nhầm âm</h2>
+        <button class="icon-btn" onclick="closeModal('modalConfForm')"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="col g16">
+          <div class="row">
+            <div class="field grow">
+              <label>Âm đúng <span class="t-bad">*</span></label>
+              <input type="text" id="cfCorrect" placeholder="/θ/" style="font-family:var(--font-ipa)">
+            </div>
+            <div style="padding-top:24px;color:var(--text-muted)"><i class="ph ph-arrow-right"></i></div>
+            <div class="field grow">
+              <label>Thường đọc thành</label>
+              <input type="text" id="cfProduced" placeholder="/t/ hoặc /s/" style="font-family:var(--font-ipa)">
+            </div>
+          </div>
+          <div class="field">
+            <label>Nhóm lỗi</label>
+            <select id="cfGroup"><option>Thay thế phụ âm</option><option>Rụng âm cuối</option><option>Thêm âm (epenthesis)</option><option>Sai nguyên âm</option></select>
+          </div>
+          <div class="field">
+            <label>Mẹo sửa lỗi</label>
+            <textarea id="cfTip" rows="2" placeholder="Ví dụ: Đẩy đầu lưỡi ra giữa hai hàm răng trước khi phát âm..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot" style="display:flex; gap:12px;">
+        <span class="grow"></span>
+        <button class="btn ghost" onclick="closeModal('modalConfForm')">Huỷ</button>
+        <button class="btn primary" onclick="closeModal('modalConfForm');Shell.toast('Đã lưu cặp nhầm âm!')"><i class="ph ph-check"></i>Lưu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Form Cặp tối thiểu -->
+  <div class="modal-back" id="modalPairForm">
+    <div class="modal" role="dialog" aria-modal="true" style="width:500px; max-width:90vw;">
+      <div class="modal-head" style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 id="mpTitle">Thêm cặp tối thiểu</h2>
+        <button class="icon-btn" onclick="closeModal('modalPairForm')"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="col g16">
+          <div class="row">
+            <div class="field" style="width:120px">
+              <label>Âm A <span class="t-bad">*</span></label>
+              <input type="text" id="mpPhoneA" placeholder="/æ/" style="font-family:var(--font-ipa)">
+            </div>
+            <div class="field grow">
+              <label>Từ A <span class="t-bad">*</span></label>
+              <input type="text" id="mpWordA" placeholder="bad">
+            </div>
+          </div>
+          <div class="row">
+            <div class="field" style="width:120px">
+              <label>Âm B <span class="t-bad">*</span></label>
+              <input type="text" id="mpPhoneB" placeholder="/e/" style="font-family:var(--font-ipa)">
+            </div>
+            <div class="field grow">
+              <label>Từ B <span class="t-bad">*</span></label>
+              <input type="text" id="mpWordB" placeholder="bed">
+            </div>
+          </div>
+          <div class="field">
+            <label>Vị trí khác biệt</label>
+            <select id="mpPos"><option>Giữa (Nguyên âm)</option><option>Đầu (Phụ âm đầu)</option><option>Cuối (Phụ âm cuối)</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot" style="display:flex; gap:12px;">
+        <span class="grow"></span>
+        <button class="btn ghost" onclick="closeModal('modalPairForm')">Huỷ</button>
+        <button class="btn primary" onclick="closeModal('modalPairForm');Shell.toast('Đã lưu cặp tối thiểu!')"><i class="ph ph-check"></i>Lưu cặp từ</button>
+      </div>
+    </div>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('phoneme');
+
+function renderPhonemes() {
+  document.getElementById('phonemeBody').innerHTML = DATA.phonemes.map(p => `
+    <tr>
+      <td style="font:700 20px/1 var(--font-ipa);color:var(--primary)">${p.sym}</td>
+      <td class="small muted">${p.type}</td>
+      <td class="small">${p.ex}</td>
+      <td class="small muted" style="max-width:200px">${p.desc}</td>
+      <td>${p.video ? '<span class="badge ai sm"><i class="ph ph-video"></i>Có</span>' : '<span class="badge draft sm">Chưa có</span>'}</td>
+      <td>${p.isPro ? '<span class="badge pro sm">PRO</span>' : '—'}</td>
+      <td><button class="btn text sm" onclick="
+        document.getElementById('pfTitle').textContent='Sửa âm vị';
+        document.getElementById('pfSym').value='${p.sym}';
+        document.getElementById('pfEx').value='${p.ex}';
+        document.getElementById('pfDesc').value='${p.desc}';
+        openModal('modalPhonemeForm');
+      ">Sửa</button></td>
+    </tr>`).join('');
+}
+
+function renderConfusions() {
+  document.getElementById('confBody').innerHTML = DATA.confusions.map(c => `
+    <tr>
+      <td style="font:700 18px/1 var(--font-ipa);color:var(--primary)">${c.correct}</td>
+      <td style="font:700 18px/1 var(--font-ipa);color:var(--danger)">${c.produced || '<span style="color:var(--text-subtle);font-size:13px">rụng âm</span>'}</td>
+      <td><span class="badge draft sm">${c.group}</span></td>
+      <td class="small">${c.tip}</td>
+      <td>
+        <div class="tbl-actions">
+          <button class="btn text sm" onclick="
+            document.getElementById('cfTitle').textContent='Sửa cặp nhầm âm';
+            document.getElementById('cfCorrect').value='${c.correct}';
+            document.getElementById('cfProduced').value='${c.produced||''}';
+            document.getElementById('cfTip').value='${c.tip}';
+            openModal('modalConfForm');
+          ">Sửa</button>
+          <button class="row-menu-btn" style="color:var(--danger)" onclick="Shell.confirmDelete('cặp nhầm âm',()=>Shell.toast('Đã xoá','bad'))"><i class="ph ph-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderPairs() {
+  document.getElementById('pairBody').innerHTML = DATA.minPairs.map(p => `
+    <tr>
+      <td style="font:700 18px/1 var(--font-ipa);color:var(--primary)">${p.phoneA}</td>
+      <td class="bold">${p.wordA}</td>
+      <td style="font:700 18px/1 var(--font-ipa);color:var(--info)">${p.phoneB}</td>
+      <td class="bold">${p.wordB}</td>
+      <td class="small muted">${p.pos}</td>
+      <td>
+        <button class="btn ghost xs" onclick="Shell.speak('${p.wordA}')"><i class="ph ph-speaker-high"></i>${p.wordA}</button>
+        <button class="btn ghost xs" onclick="Shell.speak('${p.wordB}')" style="margin-left:4px"><i class="ph ph-speaker-high"></i>${p.wordB}</button>
+      </td>
+      <td><button class="btn text sm" onclick="
+        document.getElementById('mpTitle').textContent='Sửa cặp tối thiểu';
+        document.getElementById('mpPhoneA').value='${p.phoneA}';
+        document.getElementById('mpWordA').value='${p.wordA}';
+        document.getElementById('mpPhoneB').value='${p.phoneB}';
+        document.getElementById('mpWordB').value='${p.wordB}';
+        openModal('modalPairForm');
+      ">Sửa</button></td>
+    </tr>`).join('');
+}
+
+// Tab switching
+const tabMap = { phonemes:'tabPhonemes', confusions:'tabConfusions', pairs:'tabPairs' };
+const renderMap = { phonemes:renderPhonemes, confusions:renderConfusions, pairs:renderPairs };
+const rendered = {};
+
+function showTab(id) {
+  Object.values(tabMap).forEach(el => document.getElementById(el).style.display = 'none');
+  document.querySelectorAll('#phonemeTabs button').forEach(b => b.classList.remove('on'));
+  document.getElementById(tabMap[id]).style.display = '';
+  document.querySelector(`#phonemeTabs [data-t="${id}"]`).classList.add('on');
+  if (!rendered[id]) { renderMap[id](); rendered[id] = true; }
+}
+
+document.getElementById('phonemeTabs').addEventListener('click', e => {
+  const btn = e.target.closest('[data-t]');
+  if (btn) showTab(btn.dataset.t);
+});
+
+document.getElementById('btnAddPhoneme').addEventListener('click', () => {
+  document.getElementById('pfTitle').textContent = 'Thêm âm vị';
+  document.getElementById('pfSym').value = '';
+  document.getElementById('pfEx').value = '';
+  document.getElementById('pfDesc').value = '';
+  openModal('modalPhonemeForm');
+});
+document.getElementById('btnAddConf').addEventListener('click', () => {
+  document.getElementById('cfTitle').textContent = 'Thêm cặp nhầm âm';
+  document.getElementById('cfCorrect').value = '';
+  document.getElementById('cfProduced').value = '';
+  document.getElementById('cfTip').value = '';
+  openModal('modalConfForm');
+});
+document.getElementById('btnAddPair').addEventListener('click', () => {
+  document.getElementById('mpTitle').textContent = 'Thêm cặp tối thiểu';
+  document.getElementById('mpPhoneA').value = '';
+  document.getElementById('mpWordA').value = '';
+  document.getElementById('mpPhoneB').value = '';
+  document.getElementById('mpWordB').value = '';
+  openModal('modalPairForm');
+});
+
+showTab('phonemes');
+</script>
+</body>
+</html>

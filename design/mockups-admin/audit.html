@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhật ký nội dung — LinguaLoop Admin</title>
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Hệ thống</div>
+    <h1>Nhật ký nội dung (Audit Log)</h1>
+    <p class="sub">Tất cả thay đổi nội dung trên hệ thống (chỉ đọc).</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box grow" style="max-width:280px">
+      <i class="ph ph-magnifying-glass"></i>
+      <input placeholder="Tìm người dùng..." autocomplete="off">
+    </div>
+    <select style="height:38px">
+      <option value="">Mọi hành động</option>
+      <option>Tạo</option><option>Sửa</option><option>Xoá</option><option>Duyệt</option>
+    </select>
+    <select style="height:38px">
+      <option value="">Mọi nội dung</option>
+      <option>Bài học</option><option>Câu</option><option>Bộ từ</option><option>Thẻ</option><option>Người dùng</option>
+    </select>
+    <div class="seg" role="group">
+      <button class="on">7 ngày</button>
+      <button>30 ngày</button>
+      <button>Tất cả</button>
+    </div>
+    <button class="btn ghost sm"><i class="ph ph-download-simple"></i>Xuất CSV</button>
+  </div>
+
+  <div class="col g0" id="auditFeed"></div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('audit');
+
+document.getElementById('auditFeed').innerHTML = DATA.auditLog.map(log => `
+  <div style="display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--border)">
+    <div style="width:36px;height:36px;border-radius:50%;background:${actionBg(log.action)};display:grid;place-items:center;flex-shrink:0">
+      <i class="ph ${actionIcon(log.action)}" style="color:${actionColor(log.action)};font-size:18px"></i>
+    </div>
+    <div class="grow">
+      <div class="row g8">
+        <span class="bold small">${actionLabel(log.action)}</span>
+        <span class="badge sm draft">${log.type}</span>
+        <span class="small">${log.name}</span>
+      </div>
+      <div class="small muted" style="margin-top:2px">Bởi: ${log.actor} · ${log.time}</div>
+    </div>
+    ${log.diff ? `<button class="btn ghost sm"><i class="ph ph-code"></i>Xem thay đổi</button>` : ''}
+  </div>`).join('');
+</script>
+</body>
+</html>

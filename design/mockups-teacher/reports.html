@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo lỗi nội dung — LinguaLoop Giảng viên</title>
+<meta name="description" content="Danh sách báo lỗi từ học viên về nội dung Giảng viên tạo.">
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Theo dõi</div>
+    <h1>Báo lỗi về nội dung của tôi</h1>
+    <p class="sub">Học viên đã báo lỗi về nội dung bạn tạo.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="seg" id="repStatus" role="group">
+      <button class="on">Đang mở <span class="tag t-bad" style="margin-left:4px">3</span></button>
+      <button>Đang xem</button>
+      <button>Đã sửa</button>
+      <button>Tất cả</button>
+    </div>
+    <select style="height:38px" id="repReason">
+      <option value="">Mọi lý do</option>
+      <option>Sai nội dung</option>
+      <option>Sai bản dịch</option>
+      <option>Sai mức CEFR</option>
+      <option>Lỗi âm thanh</option>
+      <option>Phản cảm</option>
+      <option>Spam</option>
+    </select>
+    <span class="grow"></span>
+    <span class="small muted" id="repCount"></span>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Nội dung bị báo</th>
+        <th>Lý do</th>
+        <th>Mô tả</th>
+        <th>Người báo</th>
+        <th>Ngày gửi</th>
+        <th>Trạng thái</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="repBody"></tbody>
+    </table>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('reports');
+
+const statusBadge = s => ({
+  open:      '<span class="badge sm" style="background:color-mix(in srgb,var(--danger) 15%,transparent);color:var(--danger);border:1px solid color-mix(in srgb,var(--danger) 30%,transparent)">Đang mở</span>',
+  reviewing: '<span class="badge pending sm">Đang xem</span>',
+  done:      '<span class="badge reviewed sm">Đã sửa</span>',
+})[s] || s;
+
+(function render(){
+  document.getElementById('repCount').textContent = DATA.reports.length + ' báo cáo';
+  document.getElementById('repBody').innerHTML = DATA.reports.map(r => `
+    <tr>
+      <td>
+        <div class="bold small">${r.content}</div>
+        <div class="small muted">${r.type}</div>
+      </td>
+      <td><span class="badge sm draft">${r.reason}</span></td>
+      <td class="small muted" style="max-width:200px">${r.desc}</td>
+      <td class="small">${r.user}</td>
+      <td class="small muted">${r.date}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td><a class="btn text sm" href="compose.html">Sửa nội dung</a></td>
+    </tr>`).join('');
+})();
+</script>
+</body>
+</html>

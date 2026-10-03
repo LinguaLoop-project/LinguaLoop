@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Từ & câu đã lưu — LinguaLoop</title>
+<meta name="description" content="Từ đã lưu, câu cần ôn lại và ghi chú.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-mywords">
+        <div class="head rv">
+          <div><div class="overline">Của tôi</div><h1>Từ &amp; câu đã lưu</h1><p class="muted">Những gì bạn lưu khi tra từ, khi học bài và khi tự thêm, được nhắc ôn lúc sắp quên</p></div>
+          <div class="row w"><div class="seg" id="mwTabs" role="tablist" aria-label="Loại mục đã lưu">
+            <button data-t="words" class="on"><i class="ph ph-bookmark-simple"></i>Từ<span class="badge" id="mwCntW"></span></button>
+            <button data-t="sents"><i class="ph ph-quotes"></i>Câu cần ôn<span class="badge t-bad" id="mwCntS"></span></button>
+            <button data-t="notes"><i class="ph ph-note-pencil"></i>Ghi chú<span class="badge" id="mwCntN"></span></button></div>
+            <button class="ux-btn" data-ux="mywords"><i class="ph ph-lightbulb"></i>Ghi chú UX</button></div>
+        </div>
+        <div id="mwBody"></div>
+      </section>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('mywords');</script>
+<script src="js/mywords.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Từ vựng — LinguaLoop</title>
+<meta name="description" content="Học theo bộ, tra từ, ôn thẻ đúng lúc sắp quên.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-vocab">
+        <div class="head rv">
+          <div><button class="crumb" id="vCrumb" data-go="deck" hidden><i class="ph ph-arrow-left"></i><span></span></button><div class="overline" id="vOver">Từ vựng</div><h1 id="vTitle">Học theo bộ, tra, ôn đúng lúc</h1></div>
+          <div class="row w"><div class="seg" id="vTabs" role="tablist" aria-label="Chế độ từ vựng">
+            <button data-t="decks" class="on"><i class="ph ph-stack"></i>Bộ từ</button>
+            <button data-t="lookup"><i class="ph ph-magnifying-glass"></i>Tra từ</button>
+            <button data-t="review"><i class="ph ph-cards"></i>Ôn thẻ<span class="badge t-bad count" id="dueBadge">8</span></button>
+            <button data-t="quiz"><i class="ph ph-list-checks"></i>Trắc nghiệm</button></div>
+            <button class="ux-btn" data-ux="vocab"><i class="ph ph-lightbulb"></i>Ghi chú UX</button></div>
+        </div>
+        <div id="vDecks" class="tab-pane"></div>
+        <div id="vLookup" class="tab-pane" style="display:none">
+          <div class="search-wrap rv">
+            <div class="search-xl"><i class="ph ph-magnifying-glass"></i><input id="vSearch" placeholder="Gõ từ tiếng Anh, vd: present, went…" autocomplete="off" aria-label="Tra từ"><kbd>/</kbd></div>
+            <div class="sugg glass" id="vSugg" style="display:none"></div>
+          </div>
+          <div id="vEntry" class="rv"></div>
+        </div>
+        <div id="vReview" class="g-vocab tab-pane" style="display:none"><div id="vReviewInner"></div><aside class="col g24" id="vReviewSide"></aside></div>
+        <div id="vQuiz" class="g-vocab tab-pane" style="display:none"><div id="vQuizInner"></div><aside class="col g24" id="vQuizSide"></aside></div>
+      </section>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('vocab');</script>
+<script src="js/decks.js"></script>
+<script src="js/vocab.js"></script>
+</body>
+</html>

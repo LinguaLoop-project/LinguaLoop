@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Người dùng — LinguaLoop Admin</title>
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Hệ thống</div>
+    <h1>Quản lý người dùng</h1>
+    <p class="sub">Tìm kiếm, khoá, hoặc thay đổi quyền người dùng.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box grow" style="max-width:320px">
+      <i class="ph ph-magnifying-glass"></i>
+      <input placeholder="Tìm email hoặc tên..." id="userSearch" autocomplete="off">
+    </div>
+    <select style="height:38px" id="userRole">
+      <option value="">Mọi vai trò</option>
+      <option>Học viên</option>
+      <option>Giảng viên</option>
+      <option>Admin</option>
+    </select>
+    <select style="height:38px" id="userPlan">
+      <option value="">Mọi gói</option>
+      <option>Free</option>
+      <option>Pro</option>
+    </select>
+    <div class="seg" id="userStatus" role="group">
+      <button class="on">Đang hoạt động</button>
+      <button>Đã khoá</button>
+    </div>
+    <span class="grow"></span>
+    <span class="small muted">14,205 người dùng</span>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Người dùng</th>
+        <th>Email</th>
+        <th>Vai trò</th>
+        <th>Gói (Học viên)</th>
+        <th>Trạng thái</th>
+        <th>Ngày tham gia</th>
+        <th>Lần cuối</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="userBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="userPag"></div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('users');
+
+const roleMap = { student: '<span class="badge sm draft">Học viên</span>', instructor: '<span class="badge sm ai">Giảng viên</span>', admin: '<span class="badge sm pending">Admin</span>' };
+const planMap = { free: 'Free', pro: '<span class="badge pro sm">PRO</span>' };
+
+document.getElementById('userBody').innerHTML = DATA.users.map(u => `
+  <tr>
+    <td>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar" style="width:32px;height:32px;font-size:12px">${u.name.charAt(0)}</div>
+        <div class="bold">${u.name}</div>
+      </div>
+    </td>
+    <td class="small muted">${u.email} <i class="ph-fill ph-check-circle" style="color:${u.verified?'var(--success)':'var(--text-subtle)'};margin-left:4px" title="Đã xác thực email"></i></td>
+    <td>${roleMap[u.role]}</td>
+    <td>${u.role === 'student' ? planMap[u.plan] : '—'}</td>
+    <td>${u.status === 'active' ? '<span class="badge pub sm">Hoạt động</span>' : '<span class="badge sm t-bad">Đã khoá</span>'}</td>
+    <td class="small muted">${u.joined}</td>
+    <td class="small muted">${u.lastActive}</td>
+    <td>
+      <div class="tbl-actions">
+        <button class="btn text sm" onclick="location.href='user-detail.html'">Chi tiết</button>
+        <button class="row-menu-btn" title="Đổi quyền" onclick="Shell.confirm('Xác nhận đổi quyền của <b>${u.name}</b> thành Giảng viên?')"><i class="ph ph-shield-star"></i></button>
+        ${u.status === 'active' 
+          ? `<button class="row-menu-btn" title="Khoá tài khoản" style="color:var(--warning)" onclick="Shell.confirm('Khoá tài khoản của <b>${u.name}</b>?')"><i class="ph ph-lock-key"></i></button>`
+          : `<button class="row-menu-btn" title="Mở khoá" style="color:var(--success)" onclick="Shell.confirm('Mở khoá tài khoản <b>${u.name}</b>?')"><i class="ph ph-lock-key-open"></i></button>`
+        }
+      </div>
+    </td>
+  </tr>
+`).join('');
+</script>
+</body>
+</html>

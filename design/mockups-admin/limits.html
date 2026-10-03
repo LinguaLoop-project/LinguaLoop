@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gói & Hạn mức — LinguaLoop Admin</title>
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Cấu hình</div>
+    <h1>Cấu hình Gói & Hạn mức</h1>
+    <p class="sub">Quản lý giới hạn tính năng cho gói Free và Pro (plan_limits). <span class="badge sm pending">Có ảnh hưởng chi phí AI</span></p>
+  </div>
+
+  <div class="card p0" style="margin-top:20px;overflow:hidden">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <h3>Giới hạn tính năng</h3>
+      <button class="btn primary sm" onclick="Shell.toast('Đã lưu thay đổi')"><i class="ph ph-floppy-disk"></i>Lưu thay đổi</button>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Tính năng (Feature)</th>
+        <th style="width:250px">Gói Free</th>
+        <th style="width:250px">Gói Pro</th>
+      </tr></thead>
+      <tbody id="limitBody"></tbody>
+    </table>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('limits');
+
+document.getElementById('limitBody').innerHTML = DATA.planLimits.map(l => `
+  <tr>
+    <td class="bold small">${l.feature}</td>
+    <td><input type="text" value="${l.free}" style="width:100%;height:32px;font-size:14px"></td>
+    <td><input type="text" value="${l.pro}" style="width:100%;height:32px;font-size:14px;border-color:var(--primary)"></td>
+  </tr>`).join('');
+</script>
+</body>
+</html>
