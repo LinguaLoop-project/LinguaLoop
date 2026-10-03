@@ -20,15 +20,12 @@ const Login = () => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: yupResolver(loginSchema),
     defaultValues: { email: "", password: "", remember: true },
     mode: "onTouched",
   });
-
-  const rememberValue = watch("remember");
 
   useEffect(() => {
     if (isAuthenticated) navigate("/");
@@ -38,7 +35,7 @@ const Login = () => {
     return () => clearError();
   }, [clearError]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: LoginFormData) => {
     try {
       await login({ email_or_phone: data.email, password: data.password });
       navigate("/");
@@ -167,7 +164,7 @@ const Login = () => {
             <label className="ll-check">
               <input type="checkbox" {...register("remember")} />
               <span className="ll-check-box">
-                {rememberValue && <i className="ph ph-check" />}
+                <i className="ph ph-check" />
               </span>
               Ghi nhớ đăng nhập trên máy này
             </label>

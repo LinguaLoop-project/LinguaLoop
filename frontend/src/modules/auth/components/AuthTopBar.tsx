@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from "react";
 
 export const AuthTopBar: React.FC = () => {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    try {
+      const stored = localStorage.getItem("ll3-theme");
+      if (stored) return JSON.parse(stored) as "dark" | "light";
+    } catch {
+      // fallback to dark
+    }
+    return "dark";
+  });
 
   useEffect(() => {
-    let savedTheme = "dark";
-    try {
-      savedTheme = JSON.parse(localStorage.getItem("ll3-theme") || '"dark"');
-    } catch {
-      savedTheme = "dark";
-    }
-    setTheme(savedTheme as "dark" | "light");
-    document.documentElement.setAttribute("data-theme", savedTheme);
-  }, []);
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
     localStorage.setItem("ll3-theme", JSON.stringify(nextTheme));
-    document.documentElement.setAttribute("data-theme", nextTheme);
   };
 
   return (

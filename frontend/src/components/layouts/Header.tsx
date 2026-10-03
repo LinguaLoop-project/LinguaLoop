@@ -20,7 +20,13 @@ import {
 } from "lucide-react";
 
 export default function Header() {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    try {
+      return (localStorage.getItem("ll_theme") as "dark" | "light") || "dark";
+    } catch {
+      return "dark";
+    }
+  });
   const [lang, setLang] = useState<"vi" | "en">("vi");
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -29,19 +35,14 @@ export default function Header() {
   const moreDropdownRef = useRef<HTMLDivElement>(null);
   const langDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Initialize theme from document or localStorage
   useEffect(() => {
-    const savedTheme =
-      (localStorage.getItem("ll_theme") as "dark" | "light") || "dark";
-    setTheme(savedTheme);
-    document.documentElement.setAttribute("data-theme", savedTheme);
-  }, []);
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
     localStorage.setItem("ll_theme", nextTheme);
-    document.documentElement.setAttribute("data-theme", nextTheme);
   };
 
   // Close dropdowns on outside click

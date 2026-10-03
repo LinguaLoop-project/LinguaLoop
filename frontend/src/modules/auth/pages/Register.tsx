@@ -1,4 +1,4 @@
-import { useState, useEffect, useId } from "react";
+import React, { useState, useEffect, useId } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -44,6 +44,10 @@ const Register = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
+  // Live input states for feedback
+  const [usernameInput, setUsernameInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+
   // Username live check state
   const [userStatus, setUserStatus] = useState<
     "idle" | "checking" | "ok" | "bad"
@@ -57,7 +61,6 @@ const Register = () => {
   const {
     register,
     handleSubmit,
-    watch,
     setError,
     formState: { errors },
   } = useForm<RegisterFormData>({
@@ -71,35 +74,34 @@ const Register = () => {
     mode: "onTouched",
   });
 
-  const usernameValue = watch("username");
-  const passwordValue = watch("password");
-  const termsValue = watch("terms");
-
   useEffect(() => {
     if (isAuthenticated) navigate("/");
   }, [isAuthenticated, navigate]);
 
   // Debounced username check
   useEffect(() => {
-    const u = usernameValue?.trim().toLowerCase();
+    const u = usernameInput.trim().toLowerCase();
     if (!u) {
-      setUserStatus("idle");
-      setUserMsg("3–20 ký tự: chữ thường, số hoặc dấu gạch dưới");
-      return;
+      const timer = setTimeout(() => {
+        setUserStatus("idle");
+        setUserMsg("3–20 ký tự: chữ thường, số hoặc dấu gạch dưới");
+      }, 0);
+      return () => clearTimeout(timer);
     }
 
     if (!USER_RE.test(u)) {
-      setUserStatus("bad");
-      setUserMsg(
-        "Chỉ dùng chữ thường không dấu, số hoặc dấu gạch dưới, 3–20 ký tự",
-      );
-      return;
+      const timer = setTimeout(() => {
+        setUserStatus("bad");
+        setUserMsg(
+          "Chỉ dùng chữ thường không dấu, số hoặc dấu gạch dưới, 3–20 ký tự",
+        );
+      }, 0);
+      return () => clearTimeout(timer);
     }
 
-    setUserStatus("checking");
-    setUserMsg("Đang kiểm tra tên người dùng...");
-
     const timer = setTimeout(() => {
+      setUserStatus("checking");
+      setUserMsg("Đang kiểm tra tên người dùng...");
       const isTaken = TAKEN_USERNAMES.includes(u);
       if (isTaken) {
         setUserStatus("bad");
@@ -111,11 +113,11 @@ const Register = () => {
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [usernameValue]);
+  }, [usernameInput]);
 
   // Password score calculation
-  const pwScore = getPwScore(passwordValue || "");
-  const pwValid = isPwValid(passwordValue || "");
+  const pwScore = getPwScore(passwordInput);
+  const pwValid = isPwValid(passwordInput);
 
   const onSubmit = async (data: RegisterFormData) => {
     setApiError(null);
@@ -138,9 +140,13 @@ const Register = () => {
       setTimeout(() => {
         navigate("/auth/login");
       }, 2000);
-    } catch (err: any) {
-      const resMsg = err?.response?.data?.message || err?.message;
-      if (err?.response?.status === 404 || !err?.response) {
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { data?: { message?: string }; status?: number };
+        message?: string;
+      };
+      const resMsg = error.response?.data?.message || error.message;
+      if (error.response?.status === 404 || !error.response) {
         // Fallback simulation for demo
         setSuccessMsg("Đăng ký thành công! Đang chuyển đến trang đăng nhập...");
         setTimeout(() => navigate("/auth/login"), 1500);
@@ -254,7 +260,10 @@ const Register = () => {
                     placeholder="vd: minhanh_2003"
                     maxLength={20}
                     spellCheck={false}
-                    {...register("username")}
+                    {...register("username", {
+                      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                        setUsernameInput(e.target.value),
+                    })}
                   />
                   {userStatus === "checking" && (
                     <i className="ph ph-circle-notch animate-spin text-[18px] text-[var(--text-subtle)] mr-3" />
@@ -316,7 +325,10 @@ const Register = () => {
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     placeholder="Ít nhất 8 ký tự"
-                    {...register("password")}
+                    {...register("password", {
+                      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                        setPasswordInput(e.target.value),
+                    })}
                   />
                   <button
                     type="button"
@@ -350,7 +362,7 @@ const Register = () => {
                       <i className="ph ph-warning-circle" />
                       <span>{errors.password.message}</span>
                     </>
-                  ) : passwordValue ? (
+                  ) : passwordInput ? (
                     <span>
                       Độ mạnh: <b>{PW_LABELS[pwScore]}</b>
                       {!pwValid && " · cần ít nhất 8 ký tự, có cả chữ và số"}
@@ -366,7 +378,7 @@ const Register = () => {
                 <label className="ll-check items-start">
                   <input type="checkbox" {...register("terms")} />
                   <span className="ll-check-box mt-0.5">
-                    {termsValue && <i className="ph ph-check" />}
+                    <i className="ph ph-check" />
                   </span>
                   <span className="text-[14px] leading-snug">
                     Tôi đồng ý với Điều khoản sử dụng và Chính sách quyền riêng

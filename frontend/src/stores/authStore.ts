@@ -30,6 +30,11 @@ export type AuthState = {
   initialized: boolean;
 };
 
+export type AuthResponseData = {
+  accessToken: string;
+  user: User;
+};
+
 export type AuthActions = {
   setUser: (user: User | null) => void;
   setToken: (accessToken: string) => void;
@@ -39,8 +44,8 @@ export type AuthActions = {
   login: (payload: {
     email_or_phone: string;
     password: string;
-  }) => Promise<any>;
-  googleLogin: (googleAccessToken: string) => Promise<any>;
+  }) => Promise<AuthResponseData>;
+  googleLogin: (googleAccessToken: string) => Promise<AuthResponseData>;
 };
 
 // ─── Store ─────────────────────────────────────────────────────────────────────
@@ -106,17 +111,21 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
         user: data.user,
       });
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const message =
-        error.response?.data?.message ||
-        error.message ||
+        err.response?.data?.message ||
+        err.message ||
         "Đăng nhập thất bại. Vui lòng thử lại.";
       set({
         loading: false,
         isAuthenticated: false,
         error: message,
       });
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   },
 
@@ -138,17 +147,21 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
         user: data.user,
       });
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const message =
-        error.response?.data?.message ||
-        error.message ||
+        err.response?.data?.message ||
+        err.message ||
         "Đăng nhập bằng Google thất bại.";
       set({
         loading: false,
         isAuthenticated: false,
         error: message,
       });
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   },
 }));

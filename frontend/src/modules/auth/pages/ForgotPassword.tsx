@@ -34,7 +34,7 @@ const ForgotPassword = () => {
     try {
       await authService.forgotPassword({ email });
       setSubmittedEmail(email);
-    } catch (err: any) {
+    } catch {
       // Graceful fallback for mock/demo if backend endpoint isn't mounted yet
       // Security best practice: don't reveal if email exists, show success message
       setSubmittedEmail(email);
