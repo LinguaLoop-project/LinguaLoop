@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/stores/authStore";
-import { authService } from "@/modules/auth/services/authService";
+import { authService } from "@/features/auth/services/authService";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 

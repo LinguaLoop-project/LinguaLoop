@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuthStore } from "@/stores/authStore";
-import { authService } from "@/modules/auth/services/authService";
+import { authService } from "@/features/auth/services/authService";
 import {
   registerSchema,
   type RegisterFormData,

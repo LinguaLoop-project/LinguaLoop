@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { authService } from "@/modules/auth/services/authService";
+import { authService } from "@/features/auth/services/authService";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type User = {

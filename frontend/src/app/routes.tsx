@@ -1,9 +1,9 @@
 import AuthLayout from "@/components/layouts/AuthLayout";
 import MainLayout from "@/components/layouts/MainLayout";
-import Login from "@/modules/auth/pages/Login";
-import Register from "@/modules/auth/pages/Register";
-import ForgotPassword from "@/modules/auth/pages/ForgotPassword";
-import NotFound from "@/modules/core/design-system/NotFound";
+import Login from "@/features/auth/pages/Login";
+import Register from "@/features/auth/pages/Register";
+import ForgotPassword from "@/features/auth/pages/ForgotPassword";
+import NotFound from "@/components/common/NotFound";
 import { Navigate, type RouteObject } from "react-router-dom";
 
 export const getRoutes = (): RouteObject[] => {
