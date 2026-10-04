@@ -83,6 +83,20 @@ axiosClient.interceptors.response.use(
       }
     }
 
+    const isQuotaExceeded =
+      error.response?.status === 403 &&
+      (error.response?.data?.errorCode === "QUOTA_EXCEEDED" ||
+        error.response?.data?.code === "QUOTA_EXCEEDED" ||
+        error.response?.data?.message?.includes("QUOTA"));
+
+    if (isQuotaExceeded) {
+      import("@/stores/quotaStore").then(({ useQuotaStore }) => {
+        useQuotaStore.getState().setShowUpgradeModal(true);
+      });
+      // Optionally don't reject if we want to swallow it, but usually we reject so the UI stops loading
+      return Promise.reject(error);
+    }
+
     return Promise.reject(error);
   },
 );
