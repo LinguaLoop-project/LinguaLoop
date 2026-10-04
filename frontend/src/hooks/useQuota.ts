@@ -1,46 +1,48 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useAuthStore } from "../features/auth/stores/authStore";
 import { useQuotaStore } from "../stores/quotaStore";
 
 const MAX_FREE_ACTIONS = 5;
 
+function getStoredCount(userId?: string): number {
+  if (!userId) return 0;
+  const key = `quota_${userId}`;
+  const stored = localStorage.getItem(key);
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed.date === today) {
+        return parsed.count;
+      }
+    } catch {
+      // Ignore invalid JSON
+    }
+  }
+  
+  localStorage.setItem(key, JSON.stringify({ date: today, count: 0 }));
+  return 0;
+}
+
 export function useQuota() {
   const { user } = useAuthStore();
   const { showUpgradeModal, setShowUpgradeModal } = useQuotaStore();
-  const [actionsToday, setActionsToday] = useState(0);
+  
+  const [actionsToday, setActionsToday] = useState(() => getStoredCount(user?.id));
+  const [prevUserId, setPrevUserId] = useState(user?.id);
+
+  // Sync state when user changes (React recommended pattern to avoid useEffect cascading renders)
+  if (user?.id !== prevUserId) {
+    setPrevUserId(user?.id);
+    setActionsToday(getStoredCount(user?.id));
+  }
 
   // Consider users with missing plan as 'free'
-  // Actually, let's treat admin and instructor as pro automatically.
   const isPro = 
     user?.role === "admin" || 
     user?.role === "instructor" || 
-    (user as any)?.plan === "pro";
-
-  useEffect(() => {
-    if (!user) return;
-    const key = `quota_${user.id}`;
-    const stored = localStorage.getItem(key);
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed.date === today) {
-          setActionsToday(parsed.count);
-        } else {
-          // Reset for new day
-          localStorage.setItem(key, JSON.stringify({ date: today, count: 0 }));
-          setActionsToday(0);
-        }
-      } catch {
-        localStorage.setItem(key, JSON.stringify({ date: today, count: 0 }));
-        setActionsToday(0);
-      }
-    } else {
-      localStorage.setItem(key, JSON.stringify({ date: today, count: 0 }));
-      setActionsToday(0);
-    }
-  }, [user]);
+    (user as Record<string, unknown>)?.plan === "pro";
 
   const checkQuota = useCallback((): boolean => {
     if (isPro) return true;
@@ -48,7 +50,7 @@ export function useQuota() {
     
     setShowUpgradeModal(true);
     return false;
-  }, [isPro, actionsToday]);
+  }, [isPro, actionsToday, setShowUpgradeModal]);
 
   const incrementQuota = useCallback(() => {
     if (isPro) return;
