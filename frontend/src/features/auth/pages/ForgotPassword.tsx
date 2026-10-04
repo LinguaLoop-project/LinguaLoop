@@ -2,7 +2,7 @@ import { useState, useId } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { authService } from "@/features/auth/services/authService";
+import { authService } from "../services/authService";
 import {
   forgotPasswordSchema,
   type ForgotPasswordFormData,
@@ -34,10 +34,17 @@ const ForgotPassword = () => {
     try {
       await authService.forgotPassword({ email });
       setSubmittedEmail(email);
-    } catch {
-      // Graceful fallback for mock/demo if backend endpoint isn't mounted yet
-      // Security best practice: don't reveal if email exists, show success message
-      setSubmittedEmail(email);
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { data?: { message?: string }; status?: number };
+        message?: string;
+      };
+      const resMsg =
+        error.response?.data?.message ||
+        (!error.response
+          ? "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau."
+          : error.message);
+      setApiError(resMsg || "Gửi yêu cầu thất bại. Vui lòng thử lại!");
     } finally {
       setLoading(false);
     }

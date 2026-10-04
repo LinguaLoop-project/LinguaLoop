@@ -2,8 +2,8 @@ import React, { useState, useEffect, useId } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useAuthStore } from "@/stores/authStore";
-import { authService } from "@/features/auth/services/authService";
+import { useAuthStore } from "../stores/authStore";
+import { authService } from "../services/authService";
 import {
   registerSchema,
   type RegisterFormData,
@@ -145,14 +145,12 @@ const Register = () => {
         response?: { data?: { message?: string }; status?: number };
         message?: string;
       };
-      const resMsg = error.response?.data?.message || error.message;
-      if (error.response?.status === 404 || !error.response) {
-        // Fallback simulation for demo
-        setSuccessMsg("Đăng ký thành công! Đang chuyển đến trang đăng nhập...");
-        setTimeout(() => navigate("/auth/login"), 1500);
-      } else {
-        setApiError(resMsg || "Đăng ký không thành công. Vui lòng thử lại!");
-      }
+      const resMsg =
+        error.response?.data?.message ||
+        (!error.response
+          ? "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau."
+          : error.message);
+      setApiError(resMsg || "Đăng ký không thành công. Vui lòng thử lại!");
     } finally {
       setSubmitting(false);
     }

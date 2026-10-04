@@ -1,5 +1,5 @@
 import { type PropsWithChildren } from "react";
-import useAuth from "@/hooks/useAuth";
+import { useAuth } from "@/features/auth";
 import { Navigate } from "react-router-dom";
 
 export type GuestGuardProps = PropsWithChildren & {};

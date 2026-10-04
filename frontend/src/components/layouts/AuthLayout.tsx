@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import GuestGuard from "@/hocs/GuestGuard";
+import { GuestGuard } from "@/app/guards";
 import Footer from "./Footer";
 
 const AuthLayout = () => {

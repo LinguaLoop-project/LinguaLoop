@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "../stores/authStore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema, type LoginFormData } from "../validations/authSchemas";
 import AuthSidePanel from "../components/AuthSidePanel";
