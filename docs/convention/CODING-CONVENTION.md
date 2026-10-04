@@ -62,6 +62,7 @@ Quy tắc phụ thuộc:
 
 - Validate input ở DTO bằng annotation của `spring-boot-starter-validation` (`@NotNull`, `@Size`, `@Email`, ...), không tự viết if-check trùng lặp trong controller.
 - Lỗi nghiệp vụ ném exception riêng (dùng chung trong `common/exception/`), xử lý tập trung bằng `@RestControllerAdvice`, trả response lỗi có cấu trúc thống nhất (status, message, timestamp) — không để exception mặc định của Spring lộ ra ngoài.
+- Định dạng response, bảng mã lỗi, header và cách lấy người dùng hiện tại: xem [API-CONVENTION.md](API-CONVENTION.md).
 
 ### 2.5 Database & migration
 
