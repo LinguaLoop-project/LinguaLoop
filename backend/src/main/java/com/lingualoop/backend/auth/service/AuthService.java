@@ -7,23 +7,19 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.lingualoop.backend.auth.dto.RegisterRequest;
 import com.lingualoop.backend.auth.dto.RegisterResponse;
-import com.lingualoop.backend.auth.mail.AuthMailSender;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.user.dto.UserAccount;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserAccountService userAccountService;
     private final EmailVerificationService emailVerificationService;
-    private final AuthMailSender authMailSender;
     private final PasswordEncoder passwordEncoder;
     private final TransactionTemplate transactionTemplate;
 
@@ -44,18 +40,8 @@ public class AuthService {
             // hai request cùng email chạy đồng thời: unique index của DB là chốt cuối
             throw new BusinessException(ErrorCode.AUTH_EMAIL_TAKEN);
         }
-        return new RegisterResponse(request.email(), sendVerifyMail(pending));
-    }
-
-    private boolean sendVerifyMail(PendingVerification pending) {
-        try {
-            authMailSender.sendVerifyEmail(pending.account().email(), pending.account().uiLanguage(),
-                    pending.rawToken());
-            return true;
-        } catch (RuntimeException e) {
-            log.warn("Could not send verification mail to user {}", pending.account().id(), e);
-            return false;
-        }
+        return new RegisterResponse(request.email(),
+                emailVerificationService.trySendMail(pending.account(), pending.rawToken()));
     }
 
     private record PendingVerification(UserAccount account, String rawToken) {

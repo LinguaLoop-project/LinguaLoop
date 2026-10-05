@@ -54,4 +54,16 @@ public class EmailToken {
         token.expiresAt = expiresAt;
         return token;
     }
+
+    public boolean isUsed() {
+        return usedAt != null;
+    }
+
+    public boolean isExpiredAt(Instant now) {
+        return !now.isBefore(expiresAt);
+    }
+
+    public void markUsed(Instant now) {
+        this.usedAt = now;
+    }
 }
