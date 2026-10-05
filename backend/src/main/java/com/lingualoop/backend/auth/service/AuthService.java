@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.lingualoop.backend.auth.dto.AuthResponse;
+import com.lingualoop.backend.auth.dto.AuthSession;
 import com.lingualoop.backend.auth.dto.LoginRequest;
 import com.lingualoop.backend.auth.dto.RegisterRequest;
 import com.lingualoop.backend.auth.dto.RegisterResponse;
 import com.lingualoop.backend.auth.service.LoginAttemptService.FailureResult;
+import com.lingualoop.backend.auth.service.RefreshTokenService.Rotation;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.security.JwtTokenService;
@@ -29,6 +31,7 @@ public class AuthService {
     private final UserAccountService userAccountService;
     private final EmailVerificationService emailVerificationService;
     private final LoginAttemptService loginAttemptService;
+    private final RefreshTokenService refreshTokenService;
     private final JwtTokenService jwtTokenService;
     private final PasswordEncoder passwordEncoder;
     private final TransactionTemplate transactionTemplate;
@@ -37,11 +40,12 @@ public class AuthService {
     private final String dummyPasswordHash;
 
     public AuthService(UserAccountService userAccountService, EmailVerificationService emailVerificationService,
-            LoginAttemptService loginAttemptService, JwtTokenService jwtTokenService, PasswordEncoder passwordEncoder,
-            TransactionTemplate transactionTemplate) {
+            LoginAttemptService loginAttemptService, RefreshTokenService refreshTokenService,
+            JwtTokenService jwtTokenService, PasswordEncoder passwordEncoder, TransactionTemplate transactionTemplate) {
         this.userAccountService = userAccountService;
         this.emailVerificationService = emailVerificationService;
         this.loginAttemptService = loginAttemptService;
+        this.refreshTokenService = refreshTokenService;
         this.jwtTokenService = jwtTokenService;
         this.passwordEncoder = passwordEncoder;
         this.transactionTemplate = transactionTemplate;
@@ -74,7 +78,7 @@ public class AuthService {
      * (commit) trước khi ném lỗi. Thứ tự kiểm tra bám UC-AUTH-02 và BR-AUTH-04: chỉ lộ "bị khoá bởi admin" hay
      * "chưa xác thực email" sau khi đã nhập đúng mật khẩu.
      */
-    public AuthResponse login(LoginRequest request) {
+    public AuthSession login(LoginRequest request, String userAgent) {
         String email = request.email();
         loginAttemptService.assertNotLocked(email);
 
@@ -90,10 +94,33 @@ public class AuthService {
         if (!account.emailVerified()) {
             throw new BusinessException(ErrorCode.AUTH_EMAIL_NOT_VERIFIED);
         }
-        return issueSession(account);
+        return new AuthSession(accessResponse(account), refreshTokenService.startSession(account.id(), userAgent));
     }
 
-    private AuthResponse issueSession(UserAccount account) {
+    /**
+     * Đổi refresh token (từ cookie) lấy access token mới và refresh token mới. Tài khoản bị khoá hoặc đã bị
+     * xoá thì thu hồi cả chuỗi để các token còn lại cũng hết dùng được.
+     */
+    public AuthSession refresh(String rawRefreshToken, String userAgent) {
+        Rotation rotation = refreshTokenService.rotate(rawRefreshToken, userAgent);
+        UserAccount account = userAccountService.findById(rotation.userId()).orElse(null);
+        if (account == null) {
+            refreshTokenService.revokeFamily(rotation.familyId());
+            throw new RefreshInvalidException();
+        }
+        if (account.disabled()) {
+            refreshTokenService.revokeFamily(rotation.familyId());
+            throw new BusinessException(ErrorCode.AUTH_ACCOUNT_DISABLED);
+        }
+        return new AuthSession(accessResponse(account), rotation.rawToken());
+    }
+
+    /** Đăng xuất thiết bị hiện tại; không có hoặc sai cookie thì coi như đã đăng xuất. */
+    public void logout(String rawRefreshToken) {
+        refreshTokenService.revokeSession(rawRefreshToken);
+    }
+
+    private AuthResponse accessResponse(UserAccount account) {
         JwtTokenService.AccessToken access = jwtTokenService.issueAccessToken(account.id(), account.role());
         return new AuthResponse(access.token(), access.expiresAt(), account.toMe());
     }
