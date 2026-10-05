@@ -1,0 +1,77 @@
+package com.lingualoop.backend.user.entity;
+
+import java.time.Instant;
+
+
+import com.lingualoop.backend.common.entity.BaseEntity;
+import com.lingualoop.backend.security.Role;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@Entity
+@Table(name = "users")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class User extends BaseEntity {
+
+    @Column(name = "auth_uid")
+    private String authUid;
+
+    @Column(nullable = false, columnDefinition = "citext")
+    private String email;
+
+    @Column(name = "display_name")
+    private String displayName;
+
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    @Column(name = "ui_language", nullable = false)
+    private String uiLanguage = "vi";
+
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified;
+
+    @Column(nullable = false)
+    private boolean disabled;
+
+    @Convert(converter = RoleConverter.class)
+    @Column(nullable = false)
+    private Role role = Role.STUDENT;
+
+    @Column(name = "onboarded_at")
+    private Instant onboardedAt;
+
+    @Column(name = "terms_accepted_at")
+    private Instant termsAcceptedAt;
+
+    public static User createLocal(String email, String displayName, String passwordHash, Instant termsAcceptedAt) {
+        User user = new User();
+        user.email = email;
+        user.displayName = displayName;
+        user.passwordHash = passwordHash;
+        user.termsAcceptedAt = termsAcceptedAt;
+        return user;
+    }
+
+    public void markEmailVerified() {
+        this.emailVerified = true;
+    }
+
+    public boolean isOnboarded() {
+        return onboardedAt != null;
+    }
+
+    public boolean hasPassword() {
+        return passwordHash != null;
+    }
+}
