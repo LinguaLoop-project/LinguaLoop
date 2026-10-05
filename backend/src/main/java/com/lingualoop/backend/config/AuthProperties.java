@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Positive;
 @ConfigurationProperties("app.auth")
 public record AuthProperties(
         @NotBlank String frontendUrl,
+        @NotBlank @DefaultValue("no-reply@lingualoop.local") String mailFrom,
         @Positive @DefaultValue("5") int maxFailedAttempts,
         @NotNull @DefaultValue("15m") Duration lockDuration,
         @NotNull @DefaultValue("24h") Duration verifyTtl,

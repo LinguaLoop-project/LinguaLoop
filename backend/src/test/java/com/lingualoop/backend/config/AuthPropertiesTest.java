@@ -19,6 +19,7 @@ class AuthPropertiesTest {
                 .bind("app.auth", AuthProperties.class).get();
 
         assertThat(props.frontendUrl()).isEqualTo("http://localhost:5173");
+        assertThat(props.mailFrom()).isEqualTo("no-reply@lingualoop.local");
         assertThat(props.maxFailedAttempts()).isEqualTo(5);
         assertThat(props.lockDuration()).isEqualTo(Duration.ofMinutes(15));
         assertThat(props.verifyTtl()).isEqualTo(Duration.ofHours(24));
