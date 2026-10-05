@@ -59,13 +59,15 @@ Mọi lỗi, kể cả 401/403 do Spring Security trả, đều có cùng một 
   "timestamp": "2026-10-02T08:00:00Z",
   "errors": [
     { "field": "answer", "code": "Size", "params": { "min": 1, "max": 500 }, "message": "size must be between 1 and 500" }
-  ]
+  ],
+  "details": {}
 }
 ```
 
 - Frontend xử lý và dịch theo `code`. `message` chỉ là câu dự phòng cho dev đọc, không hiển thị cho người dùng.
 - `errors` chỉ có phần tử khi lỗi validate. Các lỗi khác trả mảng rỗng.
 - Trong `errors[]`, `code` là tên annotation constraint (`NotBlank`, `Size`, `Min`, `Email`, ...). `params` là thuộc tính của constraint đó (`min`, `max`, `value`, ...) để chèn vào câu dịch.
+- `details` là object dữ liệu kèm theo của lỗi nghiệp vụ để frontend chèn vào câu dịch (vd `remainingAttempts`, `lockedUntil`). Luôn có mặt, rỗng `{}` nếu lỗi không có dữ liệu kèm. Service ném `new BusinessException(code, Map.of("remainingAttempts", 3))`. Không đặt dữ liệu nhạy cảm vào đây.
 - Lỗi 500 không bao giờ chứa chi tiết exception. Muốn tra nguyên nhân thì tìm log theo `traceId`.
 
 ### Mã lỗi (`ErrorCode`)
@@ -83,6 +85,13 @@ Mọi lỗi, kể cả 401/403 do Spring Security trả, đều có cùng một 
 | `PAYLOAD_TOO_LARGE` | 413 | File upload vượt giới hạn (vd file ghi âm) |
 | `UNSUPPORTED_MEDIA_TYPE` | 415 | Sai `Content-Type` hoặc `Accept` |
 | `QUOTA_EXCEEDED` | 429 | Hết lượt Free/Pro trong ngày |
+| `AUTH_INVALID_CREDENTIALS` | 401 | Sai email hoặc mật khẩu (email không tồn tại cũng trả y hệt). `details.remainingAttempts` |
+| `AUTH_ACCOUNT_LOCKED` | 423 | Tạm khoá đăng nhập do nhập sai 5 lần liên tiếp (15 phút). `details.lockedUntil` |
+| `AUTH_ACCOUNT_DISABLED` | 403 | Tài khoản bị quản trị viên khoá (chỉ báo sau khi đã đúng mật khẩu) |
+| `AUTH_EMAIL_NOT_VERIFIED` | 403 | Đúng mật khẩu nhưng email chưa xác thực, không cấp phiên |
+| `AUTH_EMAIL_TAKEN` | 409 | Đăng ký với email đã có (không phân biệt hoa thường) |
+| `AUTH_LINK_INVALID` | 400 | Liên kết trong thư sai, hết hạn hoặc đã dùng |
+| `AUTH_REFRESH_INVALID` | 401 | Refresh token thiếu, sai, hết hạn hoặc đã bị thu hồi; cookie bị xoá kèm theo |
 | `INTERNAL_ERROR` | 500 | Lỗi không lường trước |
 
 ### Thêm mã lỗi mới
@@ -115,6 +124,15 @@ Mọi lỗi, kể cả 401/403 do Spring Security trả, đều có cùng một 
 
 - Ngoài controller dùng `SecurityUtils.currentUserId()`.
 - Phân quyền chi tiết hơn mức URL thì dùng `@PreAuthorize("hasRole('ADMIN')")`.
+
+### Phiên đăng nhập (access token + refresh token)
+
+- Access token (JWT, 1 giờ) nằm trong body `AuthResponse { accessToken, expiresAt, user }`. Frontend chỉ giữ trong bộ nhớ, gửi qua `Authorization: Bearer`.
+- Refresh token **không nằm trong body** mà trong cookie `ll_refresh`: `HttpOnly`, `Path=/api/v1/auth`, `Max-Age` 30 ngày, trượt theo lần dùng (không dùng 30 ngày thì hết hạn). `SameSite` và `Secure` lấy từ `app.auth.cookie.*`: local `Lax`/`false`, prod `None`/`true` (frontend và backend khác domain). DB chỉ lưu SHA-256 của token.
+- `POST /auth/login` và `POST /auth/refresh` đặt cookie mới. Mỗi lần refresh, token cũ bị thu hồi và token mới cùng chuỗi (`family_id`) được cấp. Dùng lại token đã thu hồi quá 10 giây là dấu hiệu bị trộm, cả chuỗi bị thu hồi. Trong 10 giây vẫn được đổi, để nhiều tab refresh cùng lúc không đá nhau.
+- `POST /auth/refresh` và `POST /auth/logout` dựa vào cookie nên **bắt buộc header `X-Requested-With`** (giá trị tuỳ ý, vd `lingualoop`). Thiếu thì trả `BAD_REQUEST`. Header tuỳ biến buộc trình duyệt qua preflight CORS nên trang lạ không giả được request (chặn CSRF).
+- Frontend gặp `401 TOKEN_INVALID` thì gọi `/auth/refresh` một lần rồi thử lại; gặp `AUTH_REFRESH_INVALID` thì về trang đăng nhập. `/auth/logout` luôn trả 204 và xoá cookie.
+- CORS bật `allowCredentials=true`, nên `app.cors.allowed-origins` phải là danh sách origin cụ thể, không dùng `*`. Frontend gọi với `credentials: 'include'`.
 
 ## 7. Entity
 
