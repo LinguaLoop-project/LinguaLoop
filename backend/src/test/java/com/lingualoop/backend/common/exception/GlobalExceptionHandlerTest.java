@@ -1,5 +1,6 @@
 package com.lingualoop.backend.common.exception;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -7,6 +8,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.Instant;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,6 +68,33 @@ class GlobalExceptionHandlerTest {
         mockMvc.perform(get("/fake/quota"))
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"));
+    }
+
+    @Test
+    void businessExceptionWithDetails_returnsDetailsObject() throws Exception {
+        mockMvc.perform(get("/fake/locked"))
+                .andExpect(status().is(423))
+                .andExpect(jsonPath("$.code").value("AUTH_ACCOUNT_LOCKED"))
+                .andExpect(jsonPath("$.details.lockedUntil").value("2026-10-05T10:15:00Z"))
+                .andExpect(jsonPath("$.details.remainingAttempts").value(0));
+    }
+
+    @Test
+    void businessExceptionWithoutDetails_returnsEmptyDetails() throws Exception {
+        mockMvc.perform(get("/fake/quota"))
+                .andExpect(jsonPath("$.details").isMap())
+                .andExpect(jsonPath("$.details").isEmpty());
+    }
+
+    @Test
+    void authErrorCodes_mapToDocumentedHttpStatus() {
+        assertThat(ErrorCode.AUTH_INVALID_CREDENTIALS.getStatus().value()).isEqualTo(401);
+        assertThat(ErrorCode.AUTH_ACCOUNT_LOCKED.getStatus().value()).isEqualTo(423);
+        assertThat(ErrorCode.AUTH_ACCOUNT_DISABLED.getStatus().value()).isEqualTo(403);
+        assertThat(ErrorCode.AUTH_EMAIL_NOT_VERIFIED.getStatus().value()).isEqualTo(403);
+        assertThat(ErrorCode.AUTH_EMAIL_TAKEN.getStatus().value()).isEqualTo(409);
+        assertThat(ErrorCode.AUTH_LINK_INVALID.getStatus().value()).isEqualTo(400);
+        assertThat(ErrorCode.AUTH_REFRESH_INVALID.getStatus().value()).isEqualTo(401);
     }
 
     @Test
@@ -173,6 +204,12 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/fake/quota")
         String quota() {
             throw new BusinessException(ErrorCode.QUOTA_EXCEEDED);
+        }
+
+        @GetMapping("/fake/locked")
+        String locked() {
+            throw new BusinessException(ErrorCode.AUTH_ACCOUNT_LOCKED,
+                    Map.of("lockedUntil", Instant.parse("2026-10-05T10:15:00Z"), "remainingAttempts", 0));
         }
 
         @PostMapping("/fake/body")

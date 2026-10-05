@@ -33,6 +33,8 @@ app:
     access-token-ttl: 1h
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  auth:
+    frontend-url: ${FRONTEND_URL}
 
 ---
 spring:
@@ -47,6 +49,8 @@ app:
     secret: ${JWT_SECRET:local-dev-only-secret-change-me-0123456789}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  auth:
+    frontend-url: ${FRONTEND_URL:http://localhost:5173}
 ---
 spring:
   config:
