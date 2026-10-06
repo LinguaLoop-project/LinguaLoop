@@ -83,11 +83,7 @@ axiosClient.interceptors.response.use(
       }
     }
 
-    const isQuotaExceeded =
-      error.response?.status === 403 &&
-      (error.response?.data?.errorCode === "QUOTA_EXCEEDED" ||
-        error.response?.data?.code === "QUOTA_EXCEEDED" ||
-        error.response?.data?.message?.includes("QUOTA"));
+    const isQuotaExceeded = error.response?.status === 429 && error.response?.data?.code === "QUOTA_EXCEEDED";
 
     if (isQuotaExceeded) {
       import("@/stores/quotaStore").then(({ useQuotaStore }) => {

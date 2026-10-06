@@ -13,7 +13,7 @@ import Footer from "@/components/layouts/Footer";
 
 const TeacherLayout = () => {
   return (
-    <AuthGuard allowedRoles={["TEACHER"]}>
+    <AuthGuard allowedRoles={["INSTRUCTOR"]}>
       <>
         <SvgSprites />
 
