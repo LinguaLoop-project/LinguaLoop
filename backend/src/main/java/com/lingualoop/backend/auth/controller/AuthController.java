@@ -36,12 +36,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController {
 
-    /**
-     * Header bắt buộc trên các endpoint dùng cookie ({@code /refresh}, {@code /logout}). Trình duyệt chỉ cho
-     * trang khác origin gửi header tuỳ biến sau khi qua preflight CORS, nên đây là lớp chặn CSRF.
-     */
-    private static final String CSRF_HEADER = "X-Requested-With";
-
     private final AuthService authService;
     private final EmailVerificationService emailVerificationService;
     private final RefreshCookies refreshCookies;
@@ -60,14 +54,13 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<AuthResponse>> refresh(
-            @RequestHeader(CSRF_HEADER) String csrfGuard,
             @CookieValue(name = RefreshCookies.NAME, required = false) String refreshToken,
             @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
         return withSession(authService.refresh(refreshToken, userAgent));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader(CSRF_HEADER) String csrfGuard,
+    public ResponseEntity<Void> logout(
             @CookieValue(name = RefreshCookies.NAME, required = false) String refreshToken) {
         authService.logout(refreshToken);
         return ResponseEntity.noContent()

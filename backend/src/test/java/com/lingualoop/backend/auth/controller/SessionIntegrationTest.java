@@ -41,7 +41,6 @@ class SessionIntegrationTest {
 
     private static final String PASSWORD = "password123";
     private static final String COOKIE = "ll_refresh";
-    private static final String CSRF_HEADER = "X-Requested-With";
 
     @Autowired
     private MockMvc mockMvc;
@@ -93,7 +92,7 @@ class SessionIntegrationTest {
     }
 
     private ResultActions refresh(String cookie) throws Exception {
-        return mockMvc.perform(post("/api/v1/auth/refresh").header(CSRF_HEADER, "lingualoop")
+        return mockMvc.perform(post("/api/v1/auth/refresh")
                 .cookie(new Cookie(COOKIE, cookie)));
     }
 
@@ -152,18 +151,8 @@ class SessionIntegrationTest {
     }
 
     @Test
-    void refresh_withoutRequestedWithHeader_returns400_AC27() throws Exception {
-        UserAccount user = verifiedUser();
-        String cookie = cookieValue(loginAndGetSetCookie(user));
-
-        mockMvc.perform(post("/api/v1/auth/refresh").cookie(new Cookie(COOKIE, cookie)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("BAD_REQUEST"));
-    }
-
-    @Test
     void refresh_withoutCookie_returns401AndClearsCookie_AC27() throws Exception {
-        mockMvc.perform(post("/api/v1/auth/refresh").header(CSRF_HEADER, "lingualoop"))
+        mockMvc.perform(post("/api/v1/auth/refresh"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("AUTH_REFRESH_INVALID"))
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, org.hamcrest.Matchers.containsString("Max-Age=0")));
@@ -223,7 +212,7 @@ class SessionIntegrationTest {
     void logout_revokesSessionClearsCookieAndRefreshFails_AC25() throws Exception {
         String cookie = cookieValue(loginAndGetSetCookie(verifiedUser()));
 
-        mockMvc.perform(post("/api/v1/auth/logout").header(CSRF_HEADER, "lingualoop")
+        mockMvc.perform(post("/api/v1/auth/logout")
                 .cookie(new Cookie(COOKIE, cookie)))
                 .andExpect(status().isNoContent())
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, org.hamcrest.Matchers.containsString("Max-Age=0")));
@@ -236,7 +225,7 @@ class SessionIntegrationTest {
     void afterLogout_sessionCannotBeRestoredAndProtectedDataNeedsLogin_AC26() throws Exception {
         MvcResult login = loginFull(verifiedUser());
         String cookie = cookieValue(login.getResponse().getHeader(HttpHeaders.SET_COOKIE));
-        mockMvc.perform(post("/api/v1/auth/logout").header(CSRF_HEADER, "lingualoop")
+        mockMvc.perform(post("/api/v1/auth/logout")
                 .cookie(new Cookie(COOKIE, cookie)))
                 .andExpect(status().isNoContent());
 
@@ -257,7 +246,7 @@ class SessionIntegrationTest {
         MvcResult login = loginFull(verifiedUser());
         String cookie = cookieValue(login.getResponse().getHeader(HttpHeaders.SET_COOKIE));
         String accessToken = JsonPath.read(login.getResponse().getContentAsString(), "$.data.accessToken");
-        mockMvc.perform(post("/api/v1/auth/logout").header(CSRF_HEADER, "lingualoop")
+        mockMvc.perform(post("/api/v1/auth/logout")
                 .cookie(new Cookie(COOKIE, cookie)))
                 .andExpect(status().isNoContent());
 
@@ -267,21 +256,39 @@ class SessionIntegrationTest {
 
     @Test
     void logout_withoutCookie_stillReturns204_AC25() throws Exception {
-        mockMvc.perform(post("/api/v1/auth/logout").header(CSRF_HEADER, "lingualoop"))
+        mockMvc.perform(post("/api/v1/auth/logout"))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void logout_withoutRequestedWithHeader_returns400_AC25() throws Exception {
-        mockMvc.perform(post("/api/v1/auth/logout")).andExpect(status().isBadRequest());
+    void refresh_fromUnknownOrigin_isRejectedByCors_AC27() throws Exception {
+        String cookie = cookieValue(loginAndGetSetCookie(verifiedUser()));
+
+        // CSRF: trang lạ gửi form/fetch kèm cookie của nạn nhân; trình duyệt luôn gửi Origin nên CORS chặn (403)
+        mockMvc.perform(post("/api/v1/auth/refresh").header(HttpHeaders.ORIGIN, "https://evil.example")
+                .cookie(new Cookie(COOKIE, cookie)))
+                .andExpect(status().isForbidden());
+
+        // cookie chưa bị tiêu hao: lần refresh hợp lệ từ frontend vẫn thành công
+        refresh(cookie).andExpect(status().isOk());
     }
 
     @Test
-    void cors_preflightForRefreshFromFrontendAllowsCredentialsAndCsrfHeader_AC27() throws Exception {
+    void logout_fromUnknownOrigin_isRejectedByCorsAndSessionSurvives_AC25() throws Exception {
+        String cookie = cookieValue(loginAndGetSetCookie(verifiedUser()));
+
+        mockMvc.perform(post("/api/v1/auth/logout").header(HttpHeaders.ORIGIN, "https://evil.example")
+                .cookie(new Cookie(COOKIE, cookie)))
+                .andExpect(status().isForbidden());
+
+        refresh(cookie).andExpect(status().isOk());
+    }
+
+    @Test
+    void cors_preflightForRefreshFromFrontendAllowsCredentials_AC27() throws Exception {
         mockMvc.perform(options("/api/v1/auth/refresh")
                 .header(HttpHeaders.ORIGIN, "http://localhost:5173")
-                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST")
-                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "x-requested-with"))
+                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST"))
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"))
                 .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"));
