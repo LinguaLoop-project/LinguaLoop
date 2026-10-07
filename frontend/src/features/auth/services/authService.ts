@@ -16,7 +16,7 @@ export const authService = {
   register: (payload: RegisterPayload) => {
     return publicAxios.post<ApiResponse<RegisterResponse>>("/auth/register", payload);
   },
-  // Cookie `ll_refresh` đi kèm tự động (withCredentials); header X-Requested-With có sẵn trong publicAxios.
+  // Cookie `ll_refresh` đi kèm tự động (withCredentials).
   refresh: () => {
     return publicAxios.post<ApiResponse<AuthResponse>>("/auth/refresh");
   },

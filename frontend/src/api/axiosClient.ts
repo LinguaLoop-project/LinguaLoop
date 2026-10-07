@@ -5,8 +5,6 @@ export const publicAxios = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
-    // Backend bắt buộc header này trên /auth/refresh và /auth/logout (chặn CSRF cho cookie refresh)
-    "X-Requested-With": "lingualoop",
   },
   withCredentials: true,
 });
@@ -15,8 +13,6 @@ export const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
-    // Backend bắt buộc header này trên /auth/refresh và /auth/logout (chặn CSRF cho cookie refresh)
-    "X-Requested-With": "lingualoop",
   },
   withCredentials: true,
 });
