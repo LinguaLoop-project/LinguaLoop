@@ -44,3 +44,4 @@ export { default as SvgSprites } from "./SvgSprites";
 
 export { UpgradeModal } from './UpgradeModal';
 export { default as PlaceholderPage } from './PlaceholderPage';
+export { default as LoadingScreen } from './LoadingScreen';

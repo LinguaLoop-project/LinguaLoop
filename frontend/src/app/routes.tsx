@@ -6,6 +6,7 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import { Login, Register, ForgotPassword } from "@/features/auth";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
+import { AuthGuard } from "@/app/guards";
 import PlaceholderPage from "@/components/common/PlaceholderPage";
 
 const getRoutesConfig = (): RouteObject[] => {
@@ -50,7 +51,11 @@ const getRoutesConfig = (): RouteObject[] => {
   const studentRoutes: RouteObject[] = [
     {
       path: "student",
-      element: <StudentLayout />,
+      element: (
+        <AuthGuard allowedRoles={["student"]}>
+          <StudentLayout />
+        </AuthGuard>
+      ),
       children: [
         {
           index: true,
@@ -231,7 +236,11 @@ const getRoutesConfig = (): RouteObject[] => {
   const teacherRoutes: RouteObject[] = [
     {
       path: "teacher",
-      element: <TeacherLayout />,
+      element: (
+        <AuthGuard allowedRoles={["instructor"]}>
+          <TeacherLayout />
+        </AuthGuard>
+      ),
       children: [
         {
           index: true,
@@ -430,7 +439,11 @@ const getRoutesConfig = (): RouteObject[] => {
   const adminRoutes: RouteObject[] = [
     {
       path: "admin",
-      element: <AdminLayout />,
+      element: (
+        <AuthGuard allowedRoles={["admin"]}>
+          <AdminLayout />
+        </AuthGuard>
+      ),
       children: [
         {
           index: true,

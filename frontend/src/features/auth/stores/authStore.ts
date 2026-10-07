@@ -25,6 +25,9 @@ export type AuthActions = {
   login: (payload: LoginPayload) => Promise<AuthResponseData>;
 };
 
+// Dùng chung một lần gọi khi React StrictMode chạy effect hai lần
+let initPromise: Promise<void> | null = null;
+
 // ─── Store ─────────────────────────────────────────────────────────────────────
 export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   user: null,
@@ -32,7 +35,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   isAuthenticated: false,
   loading: false,
   error: null,
-  initialized: true,
+  initialized: false,
 
   setUser: (user) => set({ user, isAuthenticated: !!user }),
 
@@ -50,26 +53,31 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
 
   clearError: () => set({ error: null }),
 
-  initAuth: async () => {
-    set({ loading: true, initialized: false });
-    try {
-      const response = await authService.getMe();
-      const user = response.data?.data as User;
-      set({
-        loading: false,
-        initialized: true,
-        isAuthenticated: true,
-        user,
-      });
-    } catch {
-      set({
-        loading: false,
-        initialized: true,
-        isAuthenticated: false,
-        user: null,
-        accessToken: "",
-      });
-    }
+  // Khôi phục phiên khi mở app: đổi cookie refresh lấy access token + user. Chưa xong thì guard còn hiện loading.
+  initAuth: () => {
+    initPromise ??= (async () => {
+      set({ loading: true, initialized: false });
+      try {
+        const response = await authService.refresh();
+        const data = response.data.data;
+        set({
+          loading: false,
+          initialized: true,
+          isAuthenticated: true,
+          accessToken: data.accessToken,
+          user: data.user,
+        });
+      } catch {
+        set({
+          loading: false,
+          initialized: true,
+          isAuthenticated: false,
+          user: null,
+          accessToken: "",
+        });
+      }
+    })();
+    return initPromise;
   },
 
   login: async (payload) => {
