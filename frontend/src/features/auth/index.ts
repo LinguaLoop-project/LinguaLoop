@@ -17,6 +17,9 @@ export type {
   AuthActions,
 } from "./stores/authStore";
 
+// Errors
+export { toApiError, errorMessage, fieldErrorMessage, applyFieldErrors } from "./errors";
+
 // Hooks
 export { default as useAuth } from "./hooks/useAuth";
 

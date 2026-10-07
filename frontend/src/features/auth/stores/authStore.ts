@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { authService } from "../services/authService";
+import { errorMessage, toApiError } from "../errors";
 import type { AuthResponse, LoginPayload, MeResponse } from "../types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -86,7 +87,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       const response = await authService.login(payload);
       const data = response.data?.data;
       if (!data) {
-        throw new Error("Đăng nhập thất bại");
+        throw new Error("Phản hồi đăng nhập không có dữ liệu");
       }
       set({
         loading: false,
@@ -97,20 +98,13 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       });
       return data;
     } catch (error: unknown) {
-      const err = error as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Đăng nhập thất bại. Vui lòng thử lại.";
+      // Giữ nguyên lỗi gốc để trang Login đọc `code` (vd AUTH_EMAIL_NOT_VERIFIED); `error` là câu hiển thị.
       set({
         loading: false,
         isAuthenticated: false,
-        error: message,
+        error: errorMessage(toApiError(error)),
       });
-      throw new Error(message, { cause: error });
+      throw error;
     }
   },
 }));
