@@ -36,7 +36,7 @@ export default function TeacherTopBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
 
-  const displayName = user?.username ?? "Nguyễn Văn Giảng";
+  const displayName = user?.displayName ?? "Nguyễn Văn Giảng";
   const displayEmail = user?.email ?? "instructor@lingualoop.app";
 
   const [dark, setDark] = useState(() => {

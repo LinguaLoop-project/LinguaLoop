@@ -35,7 +35,7 @@ export default function AdminTopBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
 
-  const displayName = user?.username ?? "Admin Tâm";
+  const displayName = user?.displayName ?? "Admin Tâm";
   const displayEmail = user?.email ?? "admin@lingualoop.app";
 
   const [dark, setDark] = useState(() => {

@@ -1,25 +1,9 @@
 import { create } from "zustand";
 import { authService } from "../services/authService";
+import type { AuthResponse, MeResponse } from "../types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-export type User = {
-  id: string;
-  auth_uid?: string | null;
-  email: string;
-  username?: string | null;
-  avatar_url?: string | null;
-  description?: string | null;
-  birthday?: string | null;
-  gender?: "male" | "female" | "other" | null;
-  ui_language: "vi" | "en";
-  timezone: string;
-  max_daily_reviews: number;
-  email_verified: boolean;
-  disabled: boolean;
-  role: "student" | "instructor" | "admin";
-  created_at: string;
-  updated_at: string;
-};
+export type User = MeResponse;
 
 export type AuthState = {
   user: User | null;
@@ -30,10 +14,7 @@ export type AuthState = {
   initialized: boolean;
 };
 
-export type AuthResponseData = {
-  accessToken: string;
-  user: User;
-};
+export type AuthResponseData = AuthResponse;
 
 export type AuthActions = {
   setUser: (user: User | null) => void;

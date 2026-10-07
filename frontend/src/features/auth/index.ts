@@ -9,6 +9,7 @@ export { default as AuthTopBar } from "./components/AuthTopBar";
 
 // Store & Types
 export { useAuthStore } from "./stores/authStore";
+export type { MeResponse, AuthResponse, ApiError, ApiErrorBody, FieldError, Role } from "./types";
 export type {
   User,
   AuthResponseData,

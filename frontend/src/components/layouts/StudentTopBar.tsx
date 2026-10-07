@@ -78,7 +78,7 @@ export default function StudentTopBar() {
   }
 
   const displayName =
-    user?.username || user?.email?.split("@")[0] || "Minh Anh";
+    user?.displayName || user?.email?.split("@")[0] || "Minh Anh";
   const displayEmail = user?.email || "minhanh.nguyen@gmail.com";
 
   return (
