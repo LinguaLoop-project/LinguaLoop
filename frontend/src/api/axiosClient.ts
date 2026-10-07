@@ -25,17 +25,21 @@ let refreshTokenRequest: Promise<string> | null = null;
 
 const refreshToken = async () => {
   const response = await publicAxios.post("/auth/refresh");
+  const data = response.data?.data;
 
-  if (response.data.data) {
-    const { accessToken } = response.data.data;
+  if (data?.accessToken) {
+    const { setToken, setUser } = useAuthStore.getState();
+    setToken(data.accessToken);
+    setUser(data.user);
 
-    useAuthStore.getState().setToken(accessToken);
-
-    return accessToken;
+    return data.accessToken as string;
   }
 
   throw new Error("Refresh token failed");
 };
+
+// Các endpoint /auth/* tự xử lý lỗi 401 của chính chúng (sai mật khẩu, refresh hỏng...), không refresh lại.
+const isAuthEndpoint = (url?: string) => !!url && url.startsWith("/auth/");
 
 axiosClient.interceptors.request.use((config) => {
   const accessToken = useAuthStore.getState().accessToken;
@@ -59,12 +63,13 @@ axiosClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // tránh loop vô hạn
-    if (originalRequest._retry) {
+    // Lỗi không có request gốc (vd bị huỷ) hoặc đã thử lại một lần: tránh loop vô hạn
+    if (!originalRequest || originalRequest._retry) {
       return Promise.reject(error);
     }
 
-    const isUnauthorized = error.response?.status === 401;
+    const isUnauthorized =
+      error.response?.status === 401 && !isAuthEndpoint(originalRequest.url);
 
     if (isUnauthorized) {
       originalRequest._retry = true;
@@ -78,7 +83,7 @@ axiosClient.interceptors.response.use(
 
         return axiosClient(originalRequest);
       } catch (refreshError) {
-        await publicAxios.post("/auth/logout").catch(() => {});
+        // Refresh hỏng: backend đã xoá cookie. Xoá phiên cục bộ, guard sẽ đưa về trang đăng nhập.
         useAuthStore.getState().logout();
 
         return Promise.reject(refreshError);
