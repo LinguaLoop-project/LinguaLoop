@@ -35,7 +35,7 @@ service/     business logic — nơi duy nhất được orchestrate nhiều rep
 repository/  interface Spring Data JPA cho bảng feature này sở hữu — không viết business logic
 entity/      @Entity JPA — chỉ mapping bảng, chỉ feature này được dùng
 dto/         request, response, view trả cho feature khác — không mang logic
-mapper/      (nếu cần) chuyển đổi entity <-> DTO — không đặt logic nghiệp vụ ở đây
+mapper/      (nếu cần) MapStruct, chuyển đổi entity <-> DTO — không đặt logic nghiệp vụ ở đây
 ```
 
 Tầng nào chưa cần thì chưa tạo thư mục. Phần gọi dịch vụ ngoài đặt thư mục riêng trong feature (ví dụ `shadowing/azure/`).

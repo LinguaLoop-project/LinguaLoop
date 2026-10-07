@@ -50,10 +50,19 @@ dictation/
 ├── service/       # nghiệp vụ; interface public cho feature khác nằm ở đây
 ├── repository/    # Spring Data JPA
 ├── entity/        # JPA entity, chỉ feature này được dùng
-└── dto/           # request, response, view trả cho feature khác
+├── dto/           # request, response, view trả cho feature khác (record, không có logic)
+└── mapper/        # MapStruct: chuyển entity -> dto/view (chỉ tạo khi feature cần)
 ```
 
-Tầng chưa cần thì chưa tạo thư mục (ví dụ `audit` chưa có entity phức tạp). Feature có phần ngoài đặc biệt thì thêm thư mục riêng, ví dụ `shadowing/azure/`.
+Tầng chưa cần thì chưa tạo thư mục (ví dụ `audit` chưa có entity phức tạp).
+
+**Mapper dùng MapStruct** (đã cấu hình trong `pom.xml`, chạy cùng Lombok):
+- Mỗi mapper là một `interface` gắn `@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)`; MapStruct sinh class `...Impl` lúc biên dịch và Spring inject như bean thường (`private final UserMapper userMapper;`).
+- `unmappedTargetPolicy = ERROR`: thêm field vào DTO mà quên map thì build đỏ, không để field mang giá trị mặc định sai âm thầm.
+- Field DTO không có tên tương ứng trên entity thì khai báo rõ bằng `@Mapping(target = ..., expression = ...)` (vd `googleLinked` suy từ `authUid != null`).
+- Mapper chỉ chuyển đổi dữ liệu, không gọi repository/service và không chứa quy tắc nghiệp vụ. Mỗi mapper có test trong `src/test/.../mapper/`.
+- Mapper dùng nội bộ trong feature; feature khác chỉ nhận DTO qua service interface, không import mapper hay entity.
+- Thêm dependency hay processor MapStruct mới thì giữ thứ tự trong `annotationProcessorPaths`: `lombok`, `lombok-mapstruct-binding`, `mapstruct-processor`. Feature có phần ngoài đặc biệt thì thêm thư mục riêng, ví dụ `shadowing/azure/`.
 
 ## Database: `backend/src/main/resources/db/migration/`
 

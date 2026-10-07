@@ -5,14 +5,13 @@ import java.util.UUID;
 
 import com.lingualoop.backend.user.dto.UserAccount;
 
-/** Cổng duy nhất để feature khác (auth) đọc/ghi tài khoản; bảng {@code users} thuộc feature {@code user}. */
+/** Cổng duy nhất để feature khác (auth) đọc/ghi tài khoản */
 public interface UserAccountService {
 
     Optional<UserAccount> findByEmail(String email);
 
     Optional<UserAccount> findById(UUID id);
 
-    /** Tạo tài khoản student chưa xác thực email, ghi nhận đã đồng ý điều khoản tại thời điểm tạo. */
     UserAccount createLocal(String email, String displayName, String passwordHash);
 
     void markEmailVerified(UUID userId);
