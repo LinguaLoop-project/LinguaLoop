@@ -31,7 +31,6 @@ export {
   loginSchema,
   registerSchema,
   forgotPasswordSchema,
-  USER_RE,
 } from "./validations/authSchemas";
 export type {
   LoginFormData,
