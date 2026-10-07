@@ -111,6 +111,25 @@ class EmailVerificationIntegrationTest {
     }
 
     @Test
+    void registerThenVerifyThenLogin_loginOnlyWorksAfterVerification_AC28() throws Exception {
+        String email = uniqueEmail();
+        String token = registerAndCaptureToken(email);
+        String loginBody = "{\"email\":\"%s\",\"password\":\"password123\"}".formatted(email);
+
+        mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginBody))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("AUTH_EMAIL_NOT_VERIFIED"));
+
+        verifyEmail(token).andExpect(status().isOk()).andExpect(jsonPath("$.data.result").value("VERIFIED"));
+
+        mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.data.user.email").value(email))
+                .andExpect(jsonPath("$.data.user.emailVerified").value(true));
+    }
+
+    @Test
     void verify_emailAlreadyVerified_returnsAlreadyVerifiedNotError_AC30() throws Exception {
         String email = uniqueEmail();
         String token = registerAndCaptureToken(email);

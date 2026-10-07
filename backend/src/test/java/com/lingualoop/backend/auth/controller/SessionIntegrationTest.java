@@ -1,6 +1,7 @@
 package com.lingualoop.backend.auth.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -24,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
+import com.jayway.jsonpath.JsonPath;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;
@@ -76,6 +78,13 @@ class SessionIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn();
         return result.getResponse().getHeader(HttpHeaders.SET_COOKIE);
+    }
+
+    private MvcResult loginFull(UserAccount user) throws Exception {
+        return mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(user.email(), PASSWORD)))
+                .andExpect(status().isOk())
+                .andReturn();
     }
 
     private static String cookieValue(String setCookieHeader) {
@@ -221,6 +230,39 @@ class SessionIntegrationTest {
 
         refresh(cookie).andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("AUTH_REFRESH_INVALID"));
+    }
+
+    @Test
+    void afterLogout_sessionCannotBeRestoredAndProtectedDataNeedsLogin_AC26() throws Exception {
+        MvcResult login = loginFull(verifiedUser());
+        String cookie = cookieValue(login.getResponse().getHeader(HttpHeaders.SET_COOKIE));
+        mockMvc.perform(post("/api/v1/auth/logout").header(CSRF_HEADER, "lingualoop")
+                .cookie(new Cookie(COOKIE, cookie)))
+                .andExpect(status().isNoContent());
+
+        // trình duyệt quay lại / F5: không còn access token trong bộ nhớ và cookie refresh đã chết
+        refresh(cookie).andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("AUTH_REFRESH_INVALID"));
+        mockMvc.perform(get("/api/v1/users/me"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
+    }
+
+    /**
+     * Ghi lại giới hạn đã biết của JWT stateless: logout không thu hồi access token đã cấp, nên token cũ dùng được
+     * tới khi hết hạn (1 giờ). AC-26 chỉ đúng khi frontend xoá access token khỏi bộ nhớ lúc đăng xuất.
+     */
+    @Test
+    void afterLogout_alreadyIssuedAccessTokenStaysValidUntilItExpires_AC26() throws Exception {
+        MvcResult login = loginFull(verifiedUser());
+        String cookie = cookieValue(login.getResponse().getHeader(HttpHeaders.SET_COOKIE));
+        String accessToken = JsonPath.read(login.getResponse().getContentAsString(), "$.data.accessToken");
+        mockMvc.perform(post("/api/v1/auth/logout").header(CSRF_HEADER, "lingualoop")
+                .cookie(new Cookie(COOKIE, cookie)))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/v1/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
+                .andExpect(status().isOk());
     }
 
     @Test

@@ -6,11 +6,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -93,6 +97,48 @@ class LoginIntegrationTest {
         mockMvc.perform(get("/api/v1/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.email").value(user.email()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "instructor", "admin" })
+    void login_nonStudentRole_isReturnedInBodyAndAccessTokenClaim_AC08(String role) throws Exception {
+        UserAccount user = createUser(true);
+        jdbcTemplate.update("UPDATE users SET role = ? WHERE id = ?", role, user.id());
+
+        MvcResult result = login(user.email(), PASSWORD)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.user.role").value(role))
+                .andReturn();
+
+        String token = JsonPath.read(result.getResponse().getContentAsString(), "$.data.accessToken");
+        String claims = new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), StandardCharsets.UTF_8);
+        assertThat((String) JsonPath.read(claims, "$.role")).isEqualTo(role);
+        assertThat((String) JsonPath.read(claims, "$.sub")).isEqualTo(user.id().toString());
+    }
+
+    @Test
+    void login_studentWithoutOnboarding_responseSaysNotOnboarded_AC11() throws Exception {
+        UserAccount user = createUser(true);
+
+        login(user.email(), PASSWORD)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.user.role").value("student"))
+                .andExpect(jsonPath("$.data.user.onboarded").value(false));
+    }
+
+    @Test
+    void login_studentWhoCompletedOnboarding_responseSaysOnboarded_AC11() throws Exception {
+        UserAccount user = createUser(true);
+        jdbcTemplate.update("UPDATE users SET onboarded_at = now() WHERE id = ?", user.id());
+
+        MvcResult result = login(user.email(), PASSWORD)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.user.onboarded").value(true))
+                .andReturn();
+
+        String token = JsonPath.read(result.getResponse().getContentAsString(), "$.data.accessToken");
+        mockMvc.perform(get("/api/v1/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(jsonPath("$.data.onboarded").value(true));
     }
 
     @Test
