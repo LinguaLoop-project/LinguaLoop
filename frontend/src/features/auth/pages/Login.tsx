@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { useAuthStore } from "../stores/authStore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema, type LoginFormData } from "../validations/authSchemas";
+import { toApiError } from "../errors";
+import { homePathFor } from "../navigation";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
 
@@ -15,7 +17,8 @@ const Login = () => {
   const loading = useAuthStore((state) => state.loading);
   const error = useAuthStore((state) => state.error);
   const clearError = useAuthStore((state) => state.clearError);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  // Chỉ gợi ý đặt lại mật khẩu khi lỗi có thể do quên mật khẩu (sai nhiều lần / đang bị khoá)
+  const [showResetHint, setShowResetHint] = useState(false);
 
   const {
     register,
@@ -28,19 +31,24 @@ const Login = () => {
   });
 
   useEffect(() => {
-    if (isAuthenticated) navigate("/");
-  }, [isAuthenticated, navigate]);
-
-  useEffect(() => {
     return () => clearError();
   }, [clearError]);
 
   const onSubmit = async (data: LoginFormData) => {
+    setShowResetHint(false);
     try {
-      await login({ email: data.email, password: data.password });
-      navigate("/");
-    } catch {
-      // Error shown via store
+      const { user } = await login({ email: data.email.trim(), password: data.password });
+      navigate(homePathFor(user), { replace: true });
+    } catch (err: unknown) {
+      const error = toApiError(err);
+      if (error.code === "AUTH_EMAIL_NOT_VERIFIED") {
+        // Đúng mật khẩu nhưng chưa xác thực email: không cấp phiên, mời gửi lại thư (AC-AUTH-10)
+        clearError();
+        navigate("/auth/check-email", { state: { email: data.email.trim(), mailSent: null } });
+        return;
+      }
+      setShowResetHint(error.code === "AUTH_INVALID_CREDENTIALS" || error.code === "AUTH_ACCOUNT_LOCKED");
+      // Câu lỗi hiển thị lấy từ store
     }
   };
 
@@ -81,32 +89,18 @@ const Login = () => {
               <div className="ll-form-alert danger" role="alert">
                 <i className="ph ph-warning-circle" style={{ fontSize: 20, flexShrink: 0 }} />
                 <span>
-                  {error}{" "}
-                  <Link to="/auth/forgot-password" className="ll-link underline">
-                    Đặt lại mật khẩu
-                  </Link>
+                  {error}
+                  {showResetHint && (
+                    <>
+                      {" "}
+                      <Link to="/auth/forgot-password" className="ll-link underline">
+                        Đặt lại mật khẩu
+                      </Link>
+                    </>
+                  )}
                 </span>
               </div>
             )}
-
-            {/* Google button */}
-            <button
-              type="button"
-              className="ll-btn ghost lg full"
-              onClick={() => {
-                alert("Đăng nhập bằng Google đang được tích hợp.");
-              }}
-            >
-              <svg className="w-5 h-5 mr-1" aria-hidden="true">
-                <use href="#g-google" />
-              </svg>
-              <span>Đăng nhập với Google</span>
-            </button>
-
-            {/* "or" divider */}
-            <div className="ll-or">
-              <span>hoặc dùng email</span>
-            </div>
 
             {/* Email */}
             <div className={`ll-field ${errors.email ? "bad" : ""}`}>
@@ -186,12 +180,6 @@ const Login = () => {
               Chưa có tài khoản?{" "}
               <Link to="/auth/register" className="ll-link">Đăng ký miễn phí</Link>
             </p>
-
-            {/* Demo hint */}
-            <div className="ll-demo-hint">
-              <i className="ph ph-info" />
-              <span>Bản mẫu: mật khẩu từ 6 ký tự là vào được, ngắn hơn để xem báo lỗi.</span>
-            </div>
           </form>
         </div>
 

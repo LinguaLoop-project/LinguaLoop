@@ -1,5 +1,5 @@
 import { type PropsWithChildren } from "react";
-import { useAuth } from "@/features/auth";
+import { useAuth, homePathFor } from "@/features/auth";
 import { Navigate, useLocation } from "react-router-dom";
 import LoadingScreen from "@/components/common/LoadingScreen";
 
@@ -22,7 +22,8 @@ const AuthGuard = ({ children, allowedRoles }: AuthGuardProps) => {
 
   if (allowedRoles && user) {
     if (!user.role || !allowedRoles.map((r) => r.toLowerCase()).includes(user.role.toLowerCase())) {
-      return <Navigate to="/" replace />;
+      // Sai vai trò: về trang của vai trò mình, không vào được trang của vai trò khác
+      return <Navigate to={homePathFor(user)} replace />;
     }
   }
 

@@ -19,6 +19,9 @@ export type {
   AuthActions,
 } from "./stores/authStore";
 
+// Navigation
+export { homePathFor } from "./navigation";
+
 // Errors
 export { toApiError, errorMessage, fieldErrorMessage, applyFieldErrors } from "./errors";
 

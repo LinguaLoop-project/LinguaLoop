@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useId } from "react";
+import React, { useState, useId } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useAuthStore } from "../stores/authStore";
 import { authService } from "../services/authService";
 import { registerSchema, type RegisterFormData } from "../validations/authSchemas";
 import { applyFieldErrors, errorMessage, toApiError } from "../errors";
@@ -36,8 +35,6 @@ const Register = () => {
   // Live input state for feedback
   const [passwordInput, setPasswordInput] = useState("");
 
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
   const {
     register,
     handleSubmit,
@@ -54,10 +51,6 @@ const Register = () => {
     },
     mode: "onTouched",
   });
-
-  useEffect(() => {
-    if (isAuthenticated) navigate("/");
-  }, [isAuthenticated, navigate]);
 
   // Password score calculation
   const pwScore = getPwScore(passwordInput);
@@ -144,25 +137,6 @@ const Register = () => {
                 <span>{apiError}</span>
               </div>
             )}
-
-            {/* Google OAuth button */}
-            <button
-              type="button"
-              className="ll-btn ghost lg full"
-              onClick={() => {
-                alert("Tính năng Đăng ký bằng Google đang được kết nối.");
-              }}
-            >
-              <svg className="w-5 h-5 mr-1" aria-hidden="true">
-                <use href="#g-google" />
-              </svg>
-              <span>Đăng ký với Google</span>
-            </button>
-
-            {/* Divider */}
-            <div className="ll-or">
-              <span>hoặc dùng email</span>
-            </div>
 
             {/* Register form */}
             <form

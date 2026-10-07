@@ -10,8 +10,6 @@ import { AuthGuard } from "@/app/guards";
 import PlaceholderPage from "@/components/common/PlaceholderPage";
 
 const getRoutesConfig = (): RouteObject[] => {
-  const role = "ADMIN";
-
   const publicRoutes: RouteObject[] = [
     {
       path: "/",
@@ -34,6 +32,18 @@ const getRoutesConfig = (): RouteObject[] => {
         { path: "forgot", element: <ForgotPassword /> },
         { path: "logout" },
       ],
+    },
+    // Placeholder: trang thiết lập hồ sơ làm ở PR onboarding (UC-AUTH-08)
+    {
+      path: "onboarding",
+      element: (
+        <AuthGuard allowedRoles={["student"]}>
+          <PlaceholderPage
+            title="Thiết lập hồ sơ học tập"
+            description="Chọn mục tiêu mỗi ngày, ngôn ngữ giao diện và múi giờ trước khi bắt đầu học."
+          />
+        </AuthGuard>
+      ),
     },
     // Đích của link trong thư xác thực (backend gửi frontend-url + /verify-email?token=...)
     { path: "verify-email", element: <VerifyEmail /> },
@@ -616,18 +626,13 @@ const getRoutesConfig = (): RouteObject[] => {
 
   const catchAll: RouteObject[] = [{ path: "*", element: <NotFound /> }];
 
-  switch (role) {
-    case "ADMIN":
-      return [
-        ...publicRoutes,
-        ...studentRoutes,
-        ...teacherRoutes,
-        ...adminRoutes,
-        ...catchAll,
-      ];
-    default:
-      return [...publicRoutes, ...catchAll];
-  }
+  return [
+    ...publicRoutes,
+    ...studentRoutes,
+    ...teacherRoutes,
+    ...adminRoutes,
+    ...catchAll,
+  ];
 };
 
 export const AppRoutes = () => {
