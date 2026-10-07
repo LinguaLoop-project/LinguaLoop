@@ -3,7 +3,7 @@ import MainLayout from "@/components/layouts/MainLayout";
 import StudentLayout from "@/components/layouts/StudentLayout";
 import TeacherLayout from "@/components/layouts/TeacherLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { Login, Register, ForgotPassword, CheckEmail } from "@/features/auth";
+import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail } from "@/features/auth";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
 import { AuthGuard } from "@/app/guards";
@@ -35,6 +35,8 @@ const getRoutesConfig = (): RouteObject[] => {
         { path: "logout" },
       ],
     },
+    // Đích của link trong thư xác thực (backend gửi frontend-url + /verify-email?token=...)
+    { path: "verify-email", element: <VerifyEmail /> },
     // ── Redirect shorthands ──
     { path: "login", element: <Navigate to="/auth/login" replace /> },
     { path: "register", element: <Navigate to="/auth/register" replace /> },
