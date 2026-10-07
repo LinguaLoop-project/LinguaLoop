@@ -223,7 +223,7 @@ const Register = () => {
                     {" · "}
                     <Link
                       to="/auth/check-email"
-                      state={{ email: getValues("email").trim(), mailSent: true }}
+                      state={{ email: getValues("email").trim(), mailSent: null }}
                       className="ll-link"
                     >
                       Gửi lại email xác thực

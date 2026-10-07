@@ -3,7 +3,7 @@ import MainLayout from "@/components/layouts/MainLayout";
 import StudentLayout from "@/components/layouts/StudentLayout";
 import TeacherLayout from "@/components/layouts/TeacherLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { Login, Register, ForgotPassword } from "@/features/auth";
+import { Login, Register, ForgotPassword, CheckEmail } from "@/features/auth";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
 import { AuthGuard } from "@/app/guards";
@@ -29,6 +29,7 @@ const getRoutesConfig = (): RouteObject[] => {
       children: [
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
+        { path: "check-email", element: <CheckEmail /> },
         { path: "forgot-password", element: <ForgotPassword /> },
         { path: "forgot", element: <ForgotPassword /> },
         { path: "logout" },
