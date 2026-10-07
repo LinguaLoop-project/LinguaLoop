@@ -1,6 +1,7 @@
 package com.lingualoop.backend.auth.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Duration;
@@ -152,7 +153,9 @@ class RefreshTokenServiceTest {
 
     @Test
     void revokeSession_unknownToken_isIgnored_AC25() {
-        service.revokeSession("no-such-token");
-        service.revokeSession(null);
+        assertThatCode(() -> {
+            service.revokeSession("no-such-token");
+            service.revokeSession(null);
+        }).doesNotThrowAnyException();
     }
 }

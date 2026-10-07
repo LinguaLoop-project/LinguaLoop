@@ -83,9 +83,7 @@ public class EmailVerificationService {
      */
     public void resend(String email) {
         Optional<PendingMail> pending = transactionTemplate.execute(status -> prepareResend(email));
-        if (pending != null && pending.isPresent()) {
-            trySendMail(pending.get().account(), pending.get().rawToken());
-        }
+        pending.ifPresent(mail -> trySendMail(mail.account(), mail.rawToken()));
     }
 
     private Optional<PendingMail> prepareResend(String email) {

@@ -2,6 +2,7 @@ package com.lingualoop.backend.auth.service;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -39,11 +40,8 @@ public class RefreshTokenService {
 
     /** Đổi token cũ lấy token mới; ném {@link RefreshInvalidException} nếu không hợp lệ. */
     public Rotation rotate(String rawToken, String userAgent) {
-        Rotation rotation = transactionTemplate.execute(status -> doRotate(rawToken, userAgent));
-        if (rotation == null) {
-            throw new RefreshInvalidException();
-        }
-        return rotation;
+        Optional<Rotation> rotation = transactionTemplate.execute(status -> doRotate(rawToken, userAgent));
+        return rotation.orElseThrow(RefreshInvalidException::new);
     }
 
     /** Đăng xuất: thu hồi cả chuỗi chứa token này. Token lạ hoặc rỗng thì bỏ qua. */
@@ -60,15 +58,15 @@ public class RefreshTokenService {
         transactionTemplate.executeWithoutResult(status -> repository.revokeFamily(familyId, Instant.now(clock)));
     }
 
-    /** {@code null} nghĩa là token không dùng được (việc thu hồi family nếu có vẫn được commit). */
-    private Rotation doRotate(String rawToken, String userAgent) {
+    /** Rỗng nghĩa là token không dùng được (việc thu hồi family nếu có vẫn được commit). */
+    private Optional<Rotation> doRotate(String rawToken, String userAgent) {
         if (rawToken == null || rawToken.isBlank()) {
-            return null;
+            return Optional.empty();
         }
         RefreshToken token = repository.findByTokenHash(SecureTokens.sha256(rawToken)).orElse(null);
         Instant now = Instant.now(clock);
         if (token == null || token.isExpiredAt(now)) {
-            return null;
+            return Optional.empty();
         }
         if (token.isRevoked()) {
             // Ân hạn cho nhiều tab refresh cùng lúc: chỉ khi vừa bị thu hồi VÀ chuỗi vẫn còn token đang sống.
@@ -76,13 +74,13 @@ public class RefreshTokenService {
             boolean withinGrace = !token.getRevokedAt().plus(authProperties.refreshReuseGrace()).isBefore(now);
             if (!withinGrace || !repository.hasActiveToken(token.getFamilyId(), now)) {
                 repository.revokeFamily(token.getFamilyId(), now);
-                return null;
+                return Optional.empty();
             }
         } else {
             token.revoke(now);
         }
         String next = issue(token.getUserId(), token.getFamilyId(), userAgent);
-        return new Rotation(token.getUserId(), token.getFamilyId(), next);
+        return Optional.of(new Rotation(token.getUserId(), token.getFamilyId(), next));
     }
 
     private String issue(UUID userId, UUID familyId, String userAgent) {
