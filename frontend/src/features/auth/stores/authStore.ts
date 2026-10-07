@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { authService } from "../services/authService";
-import type { AuthResponse, MeResponse } from "../types";
+import type { AuthResponse, LoginPayload, MeResponse } from "../types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type User = MeResponse;
@@ -22,11 +22,7 @@ export type AuthActions = {
   logout: () => void;
   clearError: () => void;
   initAuth: () => Promise<void>;
-  login: (payload: {
-    email_or_phone: string;
-    password: string;
-  }) => Promise<AuthResponseData>;
-  googleLogin: (googleAccessToken: string) => Promise<AuthResponseData>;
+  login: (payload: LoginPayload) => Promise<AuthResponseData>;
 };
 
 // ─── Store ─────────────────────────────────────────────────────────────────────
@@ -82,7 +78,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       const response = await authService.login(payload);
       const data = response.data?.data;
       if (!data) {
-        throw new Error(response.data?.message || "Đăng nhập thất bại");
+        throw new Error("Đăng nhập thất bại");
       }
       set({
         loading: false,
@@ -101,42 +97,6 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
         err.response?.data?.message ||
         err.message ||
         "Đăng nhập thất bại. Vui lòng thử lại.";
-      set({
-        loading: false,
-        isAuthenticated: false,
-        error: message,
-      });
-      throw new Error(message, { cause: error });
-    }
-  },
-
-  googleLogin: async (googleAccessToken) => {
-    set({ loading: true, error: null });
-    try {
-      const response = await authService.googleLogin(googleAccessToken);
-      const data = response.data?.data;
-      if (!data) {
-        throw new Error(
-          response.data?.message || "Đăng nhập bằng Google thất bại.",
-        );
-      }
-      set({
-        loading: false,
-        initialized: true,
-        isAuthenticated: true,
-        accessToken: data.accessToken,
-        user: data.user,
-      });
-      return data;
-    } catch (error: unknown) {
-      const err = error as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Đăng nhập bằng Google thất bại.";
       set({
         loading: false,
         isAuthenticated: false,

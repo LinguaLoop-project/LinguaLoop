@@ -37,7 +37,7 @@ const Login = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await login({ email_or_phone: data.email, password: data.password });
+      await login({ email: data.email, password: data.password });
       navigate("/");
     } catch {
       // Error shown via store

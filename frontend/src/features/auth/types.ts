@@ -69,3 +69,9 @@ export type ApiError = {
   errors: FieldError[];
   details: Record<string, unknown>;
 };
+
+/** Phong bì thành công của backend (`ApiResponse<T>`). */
+export type ApiResponse<T> = {
+  success: boolean;
+  data: T;
+};

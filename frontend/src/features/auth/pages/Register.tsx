@@ -130,9 +130,10 @@ const Register = () => {
     setSubmitting(true);
     try {
       await authService.register({
-        username: data.username.trim().toLowerCase(),
+        displayName: data.username.trim(),
         email: data.email.trim(),
         password: data.password,
+        acceptTerms: data.terms,
       });
       setSuccessMsg(
         "Tài khoản đã tạo thành công! Vui lòng kiểm tra email để xác minh tài khoản.",
