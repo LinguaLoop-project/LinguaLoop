@@ -7,6 +7,7 @@ import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail } from "@/feat
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
 import { AuthGuard } from "@/app/guards";
+import OnboardingPlaceholder from "@/app/placeholders/OnboardingPlaceholder";
 import PlaceholderPage from "@/components/common/PlaceholderPage";
 
 const getRoutesConfig = (): RouteObject[] => {
@@ -38,10 +39,7 @@ const getRoutesConfig = (): RouteObject[] => {
       path: "onboarding",
       element: (
         <AuthGuard allowedRoles={["student"]}>
-          <PlaceholderPage
-            title="Thiết lập hồ sơ học tập"
-            description="Chọn mục tiêu mỗi ngày, ngôn ngữ giao diện và múi giờ trước khi bắt đầu học."
-          />
+          <OnboardingPlaceholder />
         </AuthGuard>
       ),
     },

@@ -25,7 +25,7 @@ const useAuth = () => {
     } finally {
       logoutState();
       queryClient.clear();
-      navigate("/auth/login");
+      navigate("/auth/login", { replace: true });
     }
   };
 
