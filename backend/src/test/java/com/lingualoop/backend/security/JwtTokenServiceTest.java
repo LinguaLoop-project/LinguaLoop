@@ -44,6 +44,18 @@ class JwtTokenServiceTest {
     }
 
     @Test
+    void tokenIssuedWithoutSessionHasNoSidClaim() {
+        JwtProperties props = new JwtProperties(SECRET, "lingualoop", Duration.ofMinutes(30));
+        SecretKey key = config.jwtSecretKey(props);
+        JwtTokenService service = new JwtTokenService(config.jwtEncoder(key), props);
+
+        Jwt jwt = config.jwtDecoder(key, props)
+                .decode(service.issueAccessToken(UUID.randomUUID(), Role.STUDENT, null).token());
+
+        assertThat(jwt.hasClaim(JwtTokenService.SESSION_CLAIM)).isFalse();
+    }
+
+    @Test
     void tokenSignedWithOtherSecretIsRejected() {
         JwtProperties props = new JwtProperties(SECRET, "lingualoop", Duration.ofMinutes(30));
         JwtProperties other = new JwtProperties("b".repeat(40), "lingualoop",

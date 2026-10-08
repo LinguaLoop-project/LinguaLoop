@@ -40,20 +40,22 @@ public class JwtTokenService {
         this.clock = clock;
     }
 
+    /** @param sessionId family_id của refresh token (claim {@code sid}); {@code null} thì token không gắn phiên nào */
     public AccessToken issueAccessToken(UUID userId, Role role, UUID sessionId) {
         // JWT lưu thời gian theo giây; cắt trước để expiresAt trả về khớp claim exp.
         Instant now = clock.instant().truncatedTo(ChronoUnit.SECONDS);
         Instant expiresAt = now.plus(props.accessTokenTtl());
-        JwtClaimsSet claims = JwtClaimsSet.builder()
+        JwtClaimsSet.Builder claims = JwtClaimsSet.builder()
                 .issuer(props.issuer())
                 .subject(userId.toString())
                 .issuedAt(now)
                 .expiresAt(expiresAt)
-                .claim(ROLE_CLAIM, role.value())
-                .claim(SESSION_CLAIM, sessionId.toString())
-                .build();
+                .claim(ROLE_CLAIM, role.value());
+        if (sessionId != null) {
+            claims.claim(SESSION_CLAIM, sessionId.toString());
+        }
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
-        String token = jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+        String token = jwtEncoder.encode(JwtEncoderParameters.from(header, claims.build())).getTokenValue();
         return new AccessToken(token, expiresAt);
     }
 
