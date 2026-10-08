@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chủ đề — LinguaLoop</title>
+<meta name="description" content="Danh sách bài học của một chủ đề.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-topic">
+        <div id="tpHead" class="rv"></div>
+        <div class="toolbar rv">
+          <div class="seg" id="tpLevel" role="group" aria-label="Trình độ"><button data-v="all" class="on">Mọi trình độ</button><button data-v="basic">A1–A2</button><button data-v="mid">B1–B2</button><button data-v="adv">C1–C2</button></div>
+          <div class="seg" id="tpState" role="group" aria-label="Trạng thái"><button data-v="all" class="on">Tất cả</button><button data-v="todo">Chưa học</button><button data-v="doing">Đang học</button><button data-v="done">Đã xong</button></div>
+          <span class="grow"></span><span class="small muted" id="tpCount"></span>
+        </div>
+        <div class="l-grid" id="tpGrid"></div>
+        <div style="text-align:center;margin-top:32px" id="tpMore"></div>
+      </section>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('topic');</script>
+<script src="js/lessons.js"></script>
+</body>
+</html>

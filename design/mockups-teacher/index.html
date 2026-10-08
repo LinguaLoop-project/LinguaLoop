@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tổng quan — LinguaLoop Giảng viên</title>
+<meta name="description" content="Tổng quan thống kê nội dung dành cho Giảng viên LinguaLoop.">
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+<main class="main">
+<div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Dashboard</div>
+    <h1>Tổng quan</h1>
+    <p class="sub">Dữ liệu cập nhật mỗi giờ &middot; 29/09/2026</p>
+  </div>
+
+  <!-- Stat tiles -->
+  <div class="stat-grid" style="margin-bottom:28px">
+    <div class="stat-tile card-highlight">
+      <div class="stat-icon vi"><i class="ph-fill ph-film-strip"></i></div>
+      <div class="overline" style="margin-bottom:0">Bài học đã đăng</div>
+      <div class="stat-value text-gradient">24</div>
+      <div class="stat-label">8 nháp &middot; 2 bài PRO</div>
+      <div class="stat-delta up"><i class="ph ph-trend-up"></i>+3 tháng này</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-icon ok"><i class="ph-fill ph-eye"></i></div>
+      <div class="overline" style="margin-bottom:0">Lượt luyện</div>
+      <div class="stat-value">4,812</div>
+      <div class="stat-label">Tổng lượt nghe chép + shadowing</div>
+      <div class="stat-delta up"><i class="ph ph-trend-up"></i>+18% so với tháng trước</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-icon warn"><i class="ph-fill ph-robot"></i></div>
+      <div class="overline" style="margin-bottom:0">Chờ duyệt CEFR</div>
+      <div class="stat-value" style="color:var(--warning)">12</div>
+      <div class="stat-label">Câu AI gợi ý, cần xác nhận</div>
+      <div class="stat-delta"><a class="btn text" style="padding:0;height:auto" href="cefr.html">Duyệt ngay →</a></div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-icon bad"><i class="ph-fill ph-flag"></i></div>
+      <div class="overline" style="margin-bottom:0">Báo lỗi đang mở</div>
+      <div class="stat-value" style="color:var(--danger)">3</div>
+      <div class="stat-label">Về nội dung tôi tạo</div>
+      <div class="stat-delta"><a class="btn text" style="padding:0;height:auto" href="reports.html">Xem báo lỗi →</a></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start">
+    <!-- Left column -->
+    <div class="col g24">
+      <div class="card p0">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <h3>Bài học được luyện nhiều nhất</h3>
+          <a class="btn text sm" href="lessons.html">Xem tất cả <i class="ph ph-arrow-right"></i></a>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Bài học</th><th>CEFR</th>
+            <th style="text-align:right">Lượt</th>
+            <th style="text-align:right">TB Dict</th>
+            <th style="text-align:right">TB Shadow</th>
+          </tr></thead>
+          <tbody id="dashTopLessons"></tbody>
+        </table>
+      </div>
+
+      <div class="card p0">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <h3>Câu người học hay sai nhất</h3>
+          <span class="small muted">Gợi ý chỉnh độ khó</span>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Câu</th><th>Bài học</th>
+            <th style="text-align:right">Lượt</th>
+            <th style="text-align:right">TB điểm</th>
+          </tr></thead>
+          <tbody id="dashHardSents"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="col g16">
+      <div class="card card-highlight" style="position:relative;overflow:hidden">
+        <svg class="obj" style="--s:72px;top:-28px;right:-20px;--d:-1s" aria-hidden="true"><use href="#o-orb"/></svg>
+        <div class="overline">Tạo mới</div>
+        <div class="col g8" style="margin-top:8px">
+          <a class="btn primary full" href="compose.html" id="btnNewLesson"><i class="ph-fill ph-plus-circle"></i>Tạo bài học mới</a>
+          <a class="btn ghost full" href="decks.html"><i class="ph ph-stack"></i>Tạo bộ từ mới</a>
+          <a class="btn ghost full" href="topics.html"><i class="ph ph-folders"></i>Thêm chủ đề</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="overline">Hoạt động gần đây</div>
+        <div class="col g0" style="margin-top:10px" id="dashActivity"></div>
+      </div>
+
+      <div class="card" style="background:color-mix(in srgb,var(--warning) 6%,var(--surface))">
+        <div class="row g8" style="margin-bottom:10px">
+          <i class="ph-fill ph-robot" style="color:var(--warning);font-size:22px"></i>
+          <h3>CEFR cần duyệt</h3>
+          <span class="badge pending sm">12 câu</span>
+        </div>
+        <p class="small muted" style="margin-bottom:12px">AI vừa gợi ý mức CEFR cho 12 câu mới.</p>
+        <a class="btn ghost full sm" href="cefr.html"><i class="ph ph-check-circle"></i>Duyệt ngay</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('dashboard');
+
+// Render top lessons
+(function(){
+  const tbody = document.getElementById('dashTopLessons');
+  tbody.innerHTML = DATA.topLessons.map(l => `
+    <tr>
+      <td><div class="bold truncate" style="max-width:220px">${l.title}</div></td>
+      <td><span class="badge cefr ${l.cefr} sm">${l.cefr}</span></td>
+      <td style="text-align:right">${l.views.toLocaleString()}</td>
+      <td style="text-align:right"><span style="color:${scoreColor(l.dictAvg)}">${l.dictAvg}</span></td>
+      <td style="text-align:right"><span style="color:${scoreColor(l.shadowAvg)}">${l.shadowAvg}</span></td>
+    </tr>`).join('');
+
+  const tbody2 = document.getElementById('dashHardSents');
+  tbody2.innerHTML = DATA.hardSents.map(s => `
+    <tr>
+      <td><div class="small truncate" style="max-width:240px">${s.text}</div></td>
+      <td class="small muted">${s.lesson}</td>
+      <td style="text-align:right">${s.attempts}</td>
+      <td style="text-align:right"><span style="color:${scoreColor(s.avg)}">${s.avg}</span></td>
+    </tr>`).join('');
+
+  const act = document.getElementById('dashActivity');
+  act.innerHTML = DATA.activities.map(a => Shell.activityItem(a)).join('');
+})();
+</script>
+</body>
+</html>

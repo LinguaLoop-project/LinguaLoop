@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nghe chép — LinguaLoop</title>
+<meta name="description" content="Nghe từng câu rồi gõ lại, chấm từng từ và chỉ ra loại lỗi.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-dictation">
+        <div class="head rv">
+          <div><button class="crumb" data-go="lesson" data-id="ordering-coffee" id="dCrumb"><i class="ph ph-arrow-left"></i><span>Ordering Coffee at Starbucks</span></button><div class="overline">Nghe chép · A2</div><h1>Nghe rồi gõ lại</h1></div>
+          <button class="ux-btn" data-ux="dictation"><i class="ph ph-lightbulb"></i>Ghi chú UX</button>
+        </div>
+        <div class="g-learn">
+          <div class="card learn-card rv" id="dCard">
+            <svg class="obj learn" style="--s:60px;top:-30px;right:-18px"><use href="#o-star"/></svg>
+            <div class="sent-dots" id="dDots"></div>
+            <div id="dVp"></div>
+            <div class="row" style="gap:20px">
+              <button class="play-big" id="dPlay" aria-label="Phát câu (phím Ctrl)"><i class="ph-fill ph-play"></i></button>
+              <div class="grow">
+                <div class="row w between"><b class="h3" id="dCount">Câu 1/3</b><div class="seg" id="dSpeed" role="group" aria-label="Tốc độ phát"><button data-r=".6">0.6×</button><button data-r=".8" class="on">0.8×</button><button data-r="1">1×</button></div></div>
+                <p class="small muted" style="margin-top:4px">Đã nghe <b id="dReplays">0</b> lần · <kbd>Ctrl</kbd> phát lại mà không rời bàn phím</p>
+              </div>
+            </div>
+            <div class="dict-box" style="margin-top:24px">
+              <textarea id="dInput" placeholder="Gõ những gì bạn nghe được…" spellcheck="false" aria-label="Câu bạn nghe được"></textarea>
+              <div class="hints"><span><kbd>Enter</kbd> kiểm tra</span><button class="btn text sm" id="dHint"><i class="ph ph-lightbulb"></i>Gợi ý chữ đầu</button></div>
+            </div>
+            <div id="dResult" style="display:none;margin-top:24px"></div>
+          </div>
+          <aside class="col g24">
+            <div class="card rv"><div class="m-say" id="dLoopi"></div></div>
+            <div class="card rv"><div class="overline">Tiến độ bài</div><div class="col g8" id="dList"></div></div>
+            <div class="card rv"><div class="overline">Phím tắt</div>
+              <div class="col g8 small">
+                <div class="row between"><span class="muted">Phát / nghe lại</span><kbd>Ctrl</kbd></div>
+                <div class="row between"><span class="muted">Kiểm tra · câu tiếp</span><kbd>Enter</kbd></div>
+                <div class="row between"><span class="muted">Xuống dòng</span><kbd>Shift + Enter</kbd></div>
+              </div></div>
+            <div class="card rv"><div class="overline">Để ý khi nghe</div>
+              <p class="small">Bạn hay <b>bỏ sót từ chức năng</b> (a, the, to…). Nghe kỹ các từ nhỏ đọc lướt giữa câu.</p>
+              <div class="row between small" style="margin:12px 0 6px"><span class="muted">Tỉ lệ lỗi 30 ngày</span><b style="color:var(--danger)">31%</b></div>
+              <div class="bar t-bad"><i style="width:31%"></i></div></div>
+          </aside>
+        </div>
+      </section>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('dictation');</script>
+<script src="js/video.js"></script>
+<script src="js/dictation.js"></script>
+</body>
+</html>

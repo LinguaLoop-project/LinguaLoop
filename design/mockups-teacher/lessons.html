@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bài học — LinguaLoop Giảng viên</title>
+<meta name="description" content="Quản lý toàn bộ bài học do Giảng viên tạo.">
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Nội dung</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <h1>Bài học</h1>
+      <a class="btn primary" href="compose.html"><i class="ph-fill ph-plus-circle"></i>Tạo bài học mới</a>
+    </div>
+    <p class="sub">Quản lý toàn bộ bài học do bạn tạo.</p>
+  </div>
+
+  <div class="bulk-bar" id="lessonBulk">
+    <i class="ph ph-check-square"></i>
+    <span id="lessonBulkCount">0 bài đã chọn</span>
+    <span class="grow"></span>
+    <button class="btn ghost sm"><i class="ph ph-eye-slash"></i>Gỡ đăng</button>
+    <button class="btn danger sm"><i class="ph ph-trash"></i>Xoá</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box grow" style="max-width:280px">
+      <i class="ph ph-magnifying-glass"></i>
+      <input placeholder="Tìm bài học..." id="lessonSearch" autocomplete="off">
+    </div>
+    <select id="lessonTopic" style="height:38px;min-width:140px">
+      <option value="">Mọi chủ đề</option>
+      <option>Du lịch</option><option>Giao tiếp</option>
+      <option>Công nghệ</option><option>Phỏng vấn</option>
+    </select>
+    <div class="seg" id="lessonCefr" role="group">
+      <button class="on">Tất cả</button>
+      <button>A1</button><button>A2</button>
+      <button>B1</button><button>B2</button><button>C1</button>
+    </div>
+    <div class="seg" id="lessonStatus" role="group">
+      <button class="on">Tất cả</button>
+      <button>Đã đăng</button><button>Nháp</button>
+    </div>
+    <button class="chip" aria-pressed="false" id="btnOnlyPro"><i class="ph-fill ph-crown-simple"></i>PRO</button>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th class="tbl-check"><input type="checkbox" class="row-check" id="chkLessonAll"></th>
+        <th>Bài học</th><th>Chủ đề</th><th>CEFR</th>
+        <th>Nguồn</th>
+        <th style="text-align:right">Câu</th>
+        <th style="text-align:right">Lượt</th>
+        <th>Trạng thái</th><th>Cập nhật</th><th></th>
+      </tr></thead>
+      <tbody id="lessonBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="lessonPag"></div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('lessons');
+
+(function render(){
+  const body = document.getElementById('lessonBody');
+  body.innerHTML = DATA.lessons.map(l => `
+    <tr>
+      <td><input type="checkbox" class="row-check"></td>
+      <td>
+        <div class="row g8">
+          <div class="tbl-thumb"><i class="ph ph-youtube-logo" style="color:var(--danger)"></i></div>
+          <div>
+            <div class="bold small truncate" style="max-width:200px">${l.title}</div>
+            <div class="small muted">${l.titleVi}</div>
+          </div>
+        </div>
+      </td>
+      <td class="small muted">${l.topic}</td>
+      <td><span class="badge cefr ${l.cefr} sm">${l.cefr}</span></td>
+      <td class="small">${l.src}</td>
+      <td style="text-align:right" class="small">${l.sents}</td>
+      <td style="text-align:right" class="small">${l.views.toLocaleString()}</td>
+      <td>
+        ${Shell.statusBadge(l.status)}
+        ${l.isPro ? ' <span class="badge pro sm">PRO</span>' : ''}
+      </td>
+      <td class="small muted">${l.updated}</td>
+      <td>
+        <div class="tbl-actions">
+          <a class="btn text sm" href="compose.html">Sửa</a>
+          <button class="row-menu-btn" style="color:var(--danger)"
+            onclick="Shell.confirmDelete('${l.title}', () => Shell.toast('Đã xoá', 'bad'))">
+            <i class="ph ph-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  // Select-all
+  document.getElementById('chkLessonAll').addEventListener('change', function(){
+    document.querySelectorAll('.row-check').forEach(c => c.checked = this.checked);
+    document.getElementById('lessonBulk').classList.toggle('visible', this.checked);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ngân hàng câu hỏi — LinguaLoop Giảng viên</title>
+<meta name="description" content="Quản lý ngân hàng câu hỏi kiểm tra theo CEFR và loại câu.">
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Ngôn ngữ</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <h1>Ngân hàng câu hỏi kiểm tra</h1>
+      <button class="btn primary" id="btnAddQ"><i class="ph-fill ph-plus-circle"></i>Tạo câu hỏi</button>
+    </div>
+    <p class="sub">Cần ít nhất 10 câu mỗi mức CEFR × loại.</p>
+  </div>
+
+  <!-- Distribution grid -->
+  <div class="card" style="margin-bottom:20px">
+    <h3 style="margin-bottom:14px">Phân bố câu theo CEFR × Loại</h3>
+    <div id="qbankDistGrid" style="overflow-x:auto"></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="seg" id="qType" role="group">
+      <button class="on">Tất cả</button>
+      <button>Từ vựng</button>
+      <button>Nghe chép</button>
+      <button>Nói nhại</button>
+    </div>
+    <div class="seg" id="qCefr" role="group">
+      <button class="on">Tất cả</button>
+      <button>A1</button><button>A2</button>
+      <button>B1</button><button>B2</button>
+    </div>
+    <span class="grow"></span>
+    <span class="small muted" id="qCount"></span>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Loại</th><th>Nội dung</th><th>CEFR</th>
+        <th style="text-align:center">Lượt trả lời</th>
+        <th style="text-align:right">% "Biết"</th>
+        <th>Đang dùng</th><th></th>
+      </tr></thead>
+      <tbody id="qBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="qPag"></div>
+
+  <!-- Modal Form Câu hỏi -->
+  <div class="modal-back" id="modalQForm">
+    <div class="modal" role="dialog" aria-modal="true" style="width:600px; max-width:90vw;">
+      <div class="modal-head" style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 id="mqTitle">Thêm câu hỏi</h2>
+        <button class="icon-btn" onclick="closeModal('modalQForm')"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="col g16">
+          <div class="row">
+            <div class="field grow">
+              <label>Loại câu hỏi <span class="t-bad">*</span></label>
+              <select id="mqType"><option>Từ vựng</option><option>Nghe chép</option><option>Nói nhại</option></select>
+            </div>
+            <div class="field" style="width:120px">
+              <label>Mức độ CEFR</label>
+              <select id="mqCefr"><option>A1</option><option>A2</option><option selected>B1</option><option>B2</option><option>C1</option><option>C2</option></select>
+            </div>
+          </div>
+          
+          <hr style="border:none;border-top:1px solid var(--border);margin:8px 0">
+          
+          <!-- Form: Từ vựng -->
+          <div id="qFormVocab" class="col g16">
+            <div class="field">
+              <label>Câu hỏi (có chỗ trống ___) <span class="t-bad">*</span></label>
+              <textarea id="mqVocabQ" rows="2" placeholder="Ví dụ: She is a very ___ person."></textarea>
+            </div>
+            <div class="field">
+              <label>Đáp án đúng <span class="t-bad">*</span></label>
+              <input type="text" id="mqVocabA" placeholder="resilient">
+            </div>
+            <div class="field">
+              <label>Các lựa chọn gây nhiễu (cách nhau bằng phẩy)</label>
+              <input type="text" placeholder="lazy, weak, tired">
+            </div>
+          </div>
+
+          <!-- Form: Nghe chép -->
+          <div id="qFormDictation" class="col g16" style="display:none">
+            <div class="field">
+              <label>Audio / Video URL <span class="t-bad">*</span></label>
+              <input type="url" placeholder="https://...">
+            </div>
+            <div class="field">
+              <label>Nội dung cần chép (Script) <span class="t-bad">*</span></label>
+              <textarea id="mqDictScript" rows="3" placeholder="Gõ chính xác nội dung audio..."></textarea>
+            </div>
+            <div class="field">
+              <label>Đáp án chấp nhận thêm (Tùy chọn)</label>
+              <textarea rows="2" placeholder="Các cách viết tắt được tính là đúng..."></textarea>
+            </div>
+          </div>
+
+          <!-- Form: Nói nhại -->
+          <div id="qFormShadowing" class="col g16" style="display:none">
+            <div class="field">
+              <label>Audio / Video Mẫu <span class="t-bad">*</span></label>
+              <input type="url" placeholder="https://...">
+            </div>
+            <div class="field">
+              <label>Kịch bản gốc (Script) <span class="t-bad">*</span></label>
+              <textarea id="mqShadScript" rows="3" placeholder="Đoạn văn cần đọc nhại lại..."></textarea>
+            </div>
+            <div class="field row between" style="background:var(--surface-hover);padding:12px;border-radius:var(--radius-md)">
+              <div class="col g4">
+                <b style="color:var(--text)">Yêu cầu AI chấm điểm cao</b>
+                <span class="small muted">Phải đạt >80% phát âm mới qua</span>
+              </div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--border);margin:8px 0">
+          
+          <label class="toggle"><input type="checkbox" id="mqActive" checked><span class="toggle-track"></span><span><b class="small">Đang dùng (Active)</b></span></label>
+        </div>
+      </div>
+      <div class="modal-foot" style="display:flex; gap:12px;">
+        <span class="grow"></span>
+        <button class="btn ghost" onclick="closeModal('modalQForm')">Huỷ</button>
+        <button class="btn primary" onclick="closeModal('modalQForm');Shell.toast('Đã lưu câu hỏi!')"><i class="ph ph-check"></i>Lưu câu hỏi</button>
+      </div>
+    </div>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('qbank');
+
+document.getElementById('mqType').addEventListener('change', function() {
+  const v = this.value;
+  document.getElementById('qFormVocab').style.display = (v === 'Từ vựng') ? '' : 'none';
+  document.getElementById('qFormDictation').style.display = (v === 'Nghe chép') ? '' : 'none';
+  document.getElementById('qFormShadowing').style.display = (v === 'Nói nhại') ? '' : 'none';
+});
+
+document.getElementById('btnAddQ').addEventListener('click', () => {
+  document.getElementById('mqTitle').textContent = 'Thêm câu hỏi';
+  document.getElementById('mqType').value = 'Từ vựng';
+  document.getElementById('mqType').dispatchEvent(new Event('change'));
+  document.getElementById('mqCefr').value = 'B1';
+  document.getElementById('mqVocabQ').value = '';
+  document.getElementById('mqVocabA').value = '';
+  document.getElementById('mqDictScript').value = '';
+  document.getElementById('mqShadScript').value = '';
+  document.getElementById('mqActive').checked = true;
+  openModal('modalQForm');
+});
+
+(function render(){
+  const typeMap = { 'Từ vựng':'draft', 'Nghe chép':'ai', 'Nói nhại':'pub' };
+  document.getElementById('qCount').textContent = DATA.qbank.length + ' câu hỏi';
+  document.getElementById('qBody').innerHTML = DATA.qbank.map(q => `
+    <tr>
+      <td><span class="badge ${typeMap[q.type]||'draft'} sm">${q.type}</span></td>
+      <td class="small truncate" style="max-width:280px">${q.content}</td>
+      <td><span class="badge cefr ${q.cefr} sm">${q.cefr}</span></td>
+      <td style="text-align:center">${q.attempts}</td>
+      <td style="text-align:right">${q.knowPct !== null ? q.knowPct + '%' : '—'}</td>
+      <td>
+        <label class="toggle" style="justify-content:flex-start">
+          <input type="checkbox" ${q.active?'checked':''}>
+          <span class="toggle-track"></span>
+        </label>
+      </td>
+      <td>
+        <button class="btn text sm" onclick="
+          document.getElementById('mqTitle').textContent = 'Sửa câu hỏi';
+          document.getElementById('mqType').value = '${q.type}';
+          document.getElementById('mqType').dispatchEvent(new Event('change'));
+          document.getElementById('mqCefr').value = '${q.cefr}';
+          
+          if ('${q.type}' === 'Từ vựng') {
+            document.getElementById('mqVocabQ').value = '${q.content}';
+            document.getElementById('mqVocabA').value = 'Mock Answer';
+          } else if ('${q.type}' === 'Nghe chép') {
+            document.getElementById('mqDictScript').value = '${q.content}';
+          } else {
+            document.getElementById('mqShadScript').value = '${q.content}';
+          }
+          
+          document.getElementById('mqActive').checked = ${q.active};
+          openModal('modalQForm');
+        ">Sửa</button>
+      </td>
+    </tr>`).join('');
+
+  // Distribution grid
+  const levels = ['A1','A2','B1','B2','C1','C2'];
+  const types  = ['Từ vựng','Nghe chép','Nói nhại'];
+  const dist   = {};
+  DATA.qbank.forEach(q => { const k = q.cefr+'_'+q.type; dist[k] = (dist[k]||0)+1; });
+  document.getElementById('qbankDistGrid').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr>
+        <th style="padding:6px 10px;text-align:left"></th>
+        ${types.map(t=>`<th style="padding:6px 10px;text-align:center">${t}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${levels.map(l=>`<tr>
+          <td style="padding:6px 10px;font-weight:700;color:var(--text-muted)">${l}</td>
+          ${types.map(t=>{
+            const n = dist[l+'_'+t]||0;
+            const style = n < 10 ? 'color:var(--danger);font-weight:700' : 'color:var(--success)';
+            return `<td style="padding:6px 10px;text-align:center;${style}">${n} ${n<10?'⚠':'✓'}</td>`;
+          }).join('')}
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+})();
+</script>
+</body>
+</html>

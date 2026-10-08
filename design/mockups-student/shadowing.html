@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shadowing — LinguaLoop</title>
+<meta name="description" content="Nghe mẫu, đọc theo, xem lỗi phát âm tới từng âm vị.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<link rel="icon" href="../lingualoop-logo/svg/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../lingualoop-logo/png/apple-touch-icon.png">
+<script>
+  // Theme trước khi vẽ để không nháy: lựa chọn đã lưu > prefers-color-scheme > dark
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll3-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="student.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-shadowing">
+        <div class="head rv">
+          <div><button class="crumb" data-go="lesson" data-id="airport-checkin" id="sCrumb"><i class="ph ph-arrow-left"></i><span>At the Airport Check-in</span></button><div class="overline">Shadowing · B1</div><h1>Nghe, đọc theo, xem lỗi</h1></div>
+          <button class="ux-btn" data-ux="shadowing"><i class="ph ph-lightbulb"></i>Ghi chú UX</button>
+        </div>
+        <div class="g-learn">
+          <div class="card learn-card rv">
+            <svg class="obj learn" style="--s:60px;top:-30px;right:-18px"><use href="#o-cone"/></svg>
+            <div class="stepper3" id="sSteps"><span data-s="1"><b>1</b>Nghe mẫu</span><span data-s="2"><b>2</b>Đọc theo</span><span data-s="3"><b>3</b>Xem lỗi</span></div>
+            <div id="sVp" style="margin-bottom:8px"></div>
+            <div class="karaoke" id="sText"></div>
+            <p class="ipa muted" style="text-align:center;margin-top:8px">/aɪ θɪŋk ðɪs ɪz ðə θɜːd taɪm aɪv biːn hɪə/</p>
+            <p class="small muted" style="text-align:center">Tôi nghĩ đây là lần thứ ba tôi đến đây.</p>
+            <canvas class="wave" id="sWave" style="margin-top:16px"></canvas>
+            <div class="row s-ctrl" style="justify-content:center;gap:24px;margin-top:8px">
+              <button class="btn ghost" id="sListen"><i class="ph ph-speaker-high"></i>Nghe mẫu</button>
+              <button class="mic" id="sMic" aria-label="Ghi âm (phím Space)"><i class="ph-fill ph-microphone"></i></button>
+              <button class="btn ghost" id="sMine" disabled><i class="ph ph-play"></i>Giọng tôi</button>
+            </div>
+            <p class="small muted" style="text-align:center;margin-top:12px" id="sStatus">Nghe mẫu trước, rồi nhấn micro (hoặc <kbd>Space</kbd>) để đọc theo</p>
+          </div>
+          <aside class="col g24">
+            <div class="card rv free-only"><div class="overline">Lượt chấm hôm nay</div>
+              <div class="row between"><span class="big-num count" id="quotaLeft">3</span><span class="small muted">/ 5 lượt · gói Free</span></div>
+              <div class="bar" style="margin-top:12px"><i id="quotaBar" style="width:60%"></i></div>
+              <button class="btn text sm" style="margin-top:8px" data-act="togglePro"><i class="ph ph-crown-simple"></i>Không giới hạn với Pro</button></div>
+            <div class="card rv"><div class="m-say" id="sLoopi"></div></div>
+            <div class="card rv"><div class="overline">Âm đang luyện</div>
+              <div class="row between"><span class="ipa ipa-big">/θ/</span><span class="badge t-bad">42% lỗi</span></div>
+              <p class="small muted" style="margin-top:8px">Đặt nhẹ đầu lưỡi giữa hai hàm răng rồi thổi hơi. Nếu lưỡi chạm lợi trên là bạn đang đọc thành /t/.</p>
+              <div class="row w" style="margin-top:12px"><button class="aud" data-say="think" data-lang="en-GB"><span class="aud-dot"><i class="ph-fill ph-speaker-high"></i><span class="bars"><b></b><b></b><b></b></span></span>think</button><button class="aud" data-say="third" data-lang="en-GB"><span class="aud-dot"><i class="ph-fill ph-speaker-high"></i><span class="bars"><b></b><b></b><b></b></span></span>third</button></div></div>
+            <div class="card rv"><div class="overline">Mẹo đọc theo</div>
+              <ul class="tips small"><li>Nghe trọn câu 1 lần trước khi đọc.</li><li>Bắt chước nhịp và chỗ ngắt, đừng đọc từng từ.</li><li>Giữ micro cách miệng khoảng một gang tay.</li></ul></div>
+          </aside>
+        </div>
+        <div id="sResult" style="display:none;margin-top:24px" class="col g24"></div>
+      </section>
+
+</div></main>
+
+<script src="shell.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('shadowing');</script>
+<script src="js/video.js"></script>
+<script src="js/shadowing.js"></script>
+</body>
+</html>

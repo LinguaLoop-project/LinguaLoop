@@ -15,21 +15,35 @@
 
 ### 2.1 Cấu trúc package
 
-Theo layer, đúng cấu trúc đã có ở `backend/src/main/java/com/lingualoop/backend/`:
+Chia theo **feature**, trong mỗi feature chia theo **tầng**: `com.lingualoop.backend.<feature>.{controller,service,repository,entity,dto}`. Danh sách feature và người phụ trách xem [planning/cau-truc-du-an.md](../../planning/cau-truc-du-an.md).
+
+Phần dùng chung ở cấp gốc `backend/src/main/java/com/lingualoop/backend/`:
 
 ```
-common/      tiện ích dùng chung, không phụ thuộc layer khác
-config/      @Configuration, khai báo bean — không chứa business logic
+common/exception/  mã lỗi, định dạng lỗi API, GlobalExceptionHandler (@RestControllerAdvice)
+common/response/   ApiResponse, PageResponse
+common/util/       tiện ích dùng chung, không phụ thuộc feature nào
+config/            @Configuration, khai báo bean — không chứa business logic
+security/          JWT, filter, phân quyền theo vai trò
+```
+
+Bên trong mỗi feature (ví dụ `dictation/`):
+
+```
 controller/  @RestController — chỉ nhận request, validate, gọi service, trả response
-dto/         record/POJO truyền qua API — không mang logic, không map trực tiếp entity ra ngoài
-entity/      @Entity JPA — chỉ mapping bảng, không chứa business logic
-exception/   exception riêng của domain + @ControllerAdvice xử lý lỗi tập trung
-mapper/      chuyển đổi entity <-> DTO — không đặt logic nghiệp vụ ở đây
-repository/  interface Spring Data JPA — không viết business logic
-service/     business logic chính — nơi duy nhất được orchestrate nhiều repository
+service/     business logic — nơi duy nhất được orchestrate nhiều repository; interface public cho feature khác nằm ở đây
+repository/  interface Spring Data JPA cho bảng feature này sở hữu — không viết business logic
+entity/      @Entity JPA — chỉ mapping bảng, chỉ feature này được dùng
+dto/         request, response, view trả cho feature khác — không mang logic
+mapper/      (nếu cần) chuyển đổi entity <-> DTO — không đặt logic nghiệp vụ ở đây
 ```
 
-Quy tắc phụ thuộc: `controller -> service -> repository`. Controller không được gọi thẳng repository; service không được biết `HttpServletRequest`/DTO của tầng web.
+Tầng nào chưa cần thì chưa tạo thư mục. Phần gọi dịch vụ ngoài đặt thư mục riêng trong feature (ví dụ `shadowing/azure/`).
+
+Quy tắc phụ thuộc:
+- `controller -> service -> repository`. Controller không được gọi thẳng repository; service không được biết `HttpServletRequest`/DTO của tầng web.
+- Feature gọi feature khác **chỉ qua service interface** (danh sách ở mục 4 [planning/README.md](../../planning/README.md)), không import repository hay entity của feature khác.
+- Chỉ chủ sở hữu bảng (mục 3 planning/README.md) được ghi vào bảng đó.
 
 ### 2.2 Naming
 
@@ -47,11 +61,14 @@ Quy tắc phụ thuộc: `controller -> service -> repository`. Controller khôn
 ### 2.4 Exception & validation
 
 - Validate input ở DTO bằng annotation của `spring-boot-starter-validation` (`@NotNull`, `@Size`, `@Email`, ...), không tự viết if-check trùng lặp trong controller.
-- Lỗi nghiệp vụ ném exception riêng trong `exception/`, xử lý tập trung bằng `@RestControllerAdvice`, trả response lỗi có cấu trúc thống nhất (status, message, timestamp) — không để exception mặc định của Spring lộ ra ngoài.
+- Lỗi nghiệp vụ ném exception riêng (dùng chung trong `common/exception/`), xử lý tập trung bằng `@RestControllerAdvice`, trả response lỗi có cấu trúc thống nhất (status, message, timestamp) — không để exception mặc định của Spring lộ ra ngoài.
+- Định dạng response, bảng mã lỗi, header và cách lấy người dùng hiện tại: xem [API-CONVENTION.md](API-CONVENTION.md).
 
 ### 2.5 Database & migration
 
-- Mọi thay đổi schema đi qua Flyway migration trong `src/main/resources/db/migration`, đặt tên `V<version>__mo_ta.sql`, **không sửa lại migration đã merge** — muốn sửa thì tạo migration mới.
+- Mọi thay đổi schema đi qua Flyway migration trong `src/main/resources/db/migration`, **không sửa lại migration đã merge** (kể cả `V1__init_schema.sql`, `V2__seed_reference_data.sql`) — muốn sửa thì tạo migration mới.
+- Migration mới đặt tên theo thời gian `V<yyyyMMdd_HHmm>__mo_ta.sql` (vd `V20261001_1530__them_cot_streak.sql`) để hai người tạo song song không trùng version. Bật `spring.flyway.out-of-order=true` cho dev và test.
+- Ưu tiên thêm cột nullable hoặc có giá trị mặc định. Migration sửa bảng của người kia phải qua PR và được người đó duyệt.
 - Không dùng `ddl-auto: update/create` ở môi trường không phải local dev.
 
 ### 2.6 Test & coverage

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lịch sử thay đổi — LinguaLoop Giảng viên</title>
+<meta name="description" content="Nhật ký toàn bộ thao tác của Giảng viên trên nội dung LinguaLoop.">
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Theo dõi</div>
+    <h1>Lịch sử thay đổi</h1>
+    <p class="sub">Nhật ký tất cả thao tác bạn đã thực hiện trên nội dung.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="seg" id="auditAction" role="group">
+      <button class="on">Tất cả</button>
+      <button>Tạo</button>
+      <button>Sửa</button>
+      <button>Xoá</button>
+      <button>Đăng</button>
+    </div>
+    <select style="height:38px" id="auditType">
+      <option value="">Mọi loại</option>
+      <option>Bài học</option>
+      <option>Câu</option>
+      <option>Bộ từ</option>
+      <option>Thẻ từ</option>
+      <option>Chủ đề</option>
+    </select>
+    <div class="seg" id="auditRange" role="group">
+      <button class="on">7 ngày</button>
+      <button>30 ngày</button>
+      <button>Tất cả</button>
+    </div>
+    <span class="grow"></span>
+    <span class="small muted" id="auditCount"></span>
+  </div>
+
+  <div class="col g0" id="auditFeed"></div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('audit');
+
+(function render(){
+  document.getElementById('auditCount').textContent = DATA.auditLog.length + ' thay đổi';
+  document.getElementById('auditFeed').innerHTML = DATA.auditLog.map((log, idx) => `
+    <div style="display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:36px;border-radius:50%;background:${actionBg(log.action)};display:grid;place-items:center;flex-shrink:0">
+        <i class="ph ${actionIcon(log.action)}" style="color:${actionColor(log.action)};font-size:18px"></i>
+      </div>
+      <div class="grow">
+        <div class="row g8">
+          <span class="bold small">${actionLabel(log.action)}</span>
+          <span class="badge sm draft">${log.type}</span>
+          <span class="small">${log.name}</span>
+        </div>
+        <div class="small muted" style="margin-top:2px">${log.time}</div>
+      </div>
+      ${log.diff ? `<button class="btn ghost sm" onclick="showDiff(${idx})"><i class="ph ph-code"></i>Xem thay đổi</button>` : ''}
+    </div>`).join('');
+})();
+
+function showDiff(idx) {
+  const log = DATA.auditLog[idx];
+  if (!log?.diff) return;
+  Shell.showDiff(log.diff.before, log.diff.after, 'Thay đổi: ' + log.name);
+}
+window.showDiff = showDiff;
+</script>
+</body>
+</html>

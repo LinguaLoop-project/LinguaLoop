@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Từ điển — LinguaLoop Giảng viên</title>
+<meta name="description" content="Quản lý từ điển tiếng Anh: từ, nghĩa, phát âm và biến thể từ.">
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Ngôn ngữ</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <h1>Từ điển</h1>
+      <div class="row g8">
+        <button class="btn ghost"><i class="ph ph-upload-simple"></i>Nhập CSV/JSON</button>
+        <button class="btn primary" id="btnAddWord"><i class="ph-fill ph-plus-circle"></i>Thêm từ</button>
+      </div>
+    </div>
+    <p class="sub">Quản lý từ, nghĩa, phát âm và biến thể từ. Hỗ trợ tìm kiếm trigram.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box grow" style="max-width:320px">
+      <i class="ph ph-magnifying-glass"></i>
+      <input placeholder="Tìm từ (trigram)..." id="dictSearch" autocomplete="off">
+    </div>
+    <div class="seg" id="dictCefr" role="group">
+      <button class="on">Tất cả</button>
+      <button>A1</button><button>A2</button>
+      <button>B1</button><button>B2</button><button>C1</button>
+    </div>
+    <span class="grow"></span>
+    <span class="small muted" id="dictCount"></span>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Từ</th><th>CEFR</th>
+        <th style="text-align:center">Nghĩa</th>
+        <th style="text-align:center">Phát âm</th>
+        <th style="text-align:center">Biến thể</th>
+        <th>Ngày cập nhật</th><th></th>
+      </tr></thead>
+      <tbody id="dictBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="dictPag"></div>
+
+  <!-- Modal Form Từ điển -->
+  <div class="modal-back" id="modalDictForm">
+    <div class="modal" role="dialog" aria-modal="true" style="width:600px; max-width:90vw; max-height:90vh; display:flex; flex-direction:column;">
+      <div class="modal-head" style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 id="dfTitle">Thêm từ mới</h2>
+        <button class="icon-btn" onclick="closeModal('modalDictForm')"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="modal-body" style="overflow-y:auto;">
+        <div class="col g16">
+          <div class="row">
+            <div class="field grow">
+              <label>Từ vựng (Headword) <span class="t-bad">*</span></label>
+              <input type="text" id="dfWord" placeholder="Vd: resilient">
+            </div>
+            <div class="field" style="width:120px">
+              <label>Mức độ CEFR</label>
+              <select id="dfCefr"><option>B1</option><option>A1</option><option>A2</option><option>B2</option><option>C1</option><option>C2</option></select>
+            </div>
+          </div>
+          
+          <hr style="border:none;border-top:1px solid var(--border);margin:8px 0">
+          
+          <div class="row between">
+            <h3>Danh sách nghĩa (1)</h3>
+            <button class="btn ghost sm" onclick="openModal('modalMeaningForm')"><i class="ph ph-plus"></i>Thêm nghĩa</button>
+          </div>
+          
+          <div class="card p16 col g12" style="background:var(--bg-base);border:1px solid var(--border-strong)">
+            <div class="row between">
+              <div class="row g8">
+                <span class="badge sm pending">Tính từ (adj)</span>
+                <b>Nghĩa 1</b>
+              </div>
+              <button class="btn text sm" style="color:var(--danger);height:auto;padding:0"><i class="ph ph-trash"></i></button>
+            </div>
+            <div class="field">
+              <label>Định nghĩa EN <span class="t-bad">*</span></label>
+              <textarea rows="2">able to recoil or spring back into shape after bending, stretching, or being compressed.</textarea>
+            </div>
+            <div class="field">
+              <label>Nghĩa Việt</label>
+              <input type="text" value="đàn hồi, kiên cường">
+            </div>
+            <div class="field">
+              <label>Ví dụ EN</label>
+              <textarea rows="2">She is a resilient girl.</textarea>
+            </div>
+            
+            <div class="row between" style="margin-top:8px">
+              <button class="btn text sm" style="height:auto;padding:0" onclick="openModal('modalVariantForm')"><i class="ph ph-plus"></i>Thêm biến thể / phát âm</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      <div class="modal-foot" style="display:flex; gap:12px; margin-top:auto;">
+        <span class="grow"></span>
+        <button class="btn ghost" onclick="closeModal('modalDictForm')">Huỷ</button>
+        <button class="btn primary" onclick="closeModal('modalDictForm');Shell.toast('Đã lưu từ thành công!')"><i class="ph ph-floppy-disk"></i>Lưu từ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Form Thêm Nghĩa -->
+  <div class="modal-back" id="modalMeaningForm">
+    <div class="modal" role="dialog" aria-modal="true" style="width:500px; max-width:90vw;">
+      <div class="modal-head" style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Thêm nghĩa mới</h2>
+        <button class="icon-btn" onclick="closeModal('modalMeaningForm')"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="col g16">
+          <div class="field">
+            <label>Loại từ</label>
+            <select><option>Danh từ (noun)</option><option>Động từ (verb)</option><option>Tính từ (adj)</option><option>Trạng từ (adv)</option><option>Khác</option></select>
+          </div>
+          <div class="field">
+            <label>Định nghĩa EN <span class="t-bad">*</span></label>
+            <textarea rows="2" placeholder="Giải nghĩa bằng tiếng Anh..."></textarea>
+          </div>
+          <div class="field">
+            <label>Nghĩa tiếng Việt</label>
+            <input type="text" placeholder="Nghĩa tiếng Việt...">
+          </div>
+          <div class="field">
+            <label>Ví dụ EN</label>
+            <textarea rows="2" placeholder="Ví dụ sử dụng tiếng Anh..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot" style="display:flex; gap:12px;">
+        <span class="grow"></span>
+        <button class="btn ghost" onclick="closeModal('modalMeaningForm')">Huỷ</button>
+        <button class="btn primary" onclick="closeModal('modalMeaningForm');Shell.toast('Đã lưu nghĩa!')"><i class="ph ph-check"></i>Lưu nghĩa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Form Thêm Biến Thể -->
+  <div class="modal-back" id="modalVariantForm">
+    <div class="modal" role="dialog" aria-modal="true" style="width:500px; max-width:90vw;">
+      <div class="modal-head" style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Thêm biến thể / Phát âm</h2>
+        <button class="icon-btn" onclick="closeModal('modalVariantForm')"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="col g16">
+          <div class="row">
+            <div class="field" style="width:140px">
+              <label>Loại biến thể</label>
+              <select><option>Số nhiều</option><option>V-ing</option><option>Quá khứ (V2)</option><option>Phân từ (V3)</option><option>Khác</option></select>
+            </div>
+            <div class="field grow">
+              <label>Từ biến thể <span class="t-bad">*</span></label>
+              <input type="text" placeholder="Vd: resiliences">
+            </div>
+          </div>
+          <div class="field">
+            <label>Phiên âm (IPA)</label>
+            <div class="inp-wrap">
+              <input type="text" placeholder="/rɪˈzɪliənsɪz/" style="font-family:var(--font-ipa)">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot" style="display:flex; gap:12px;">
+        <span class="grow"></span>
+        <button class="btn ghost" onclick="closeModal('modalVariantForm')">Huỷ</button>
+        <button class="btn primary" onclick="closeModal('modalVariantForm');Shell.toast('Đã lưu biến thể!')"><i class="ph ph-check"></i>Lưu biến thể</button>
+      </div>
+    </div>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('dict');
+
+document.getElementById('btnAddWord').addEventListener('click', () => {
+  document.getElementById('dfTitle').textContent = 'Thêm từ mới';
+  document.getElementById('dfWord').value = '';
+  document.getElementById('dfCefr').value = 'B1';
+  openModal('modalDictForm');
+});
+
+(function render(){
+  const words = [
+    { word:'present',     cefr:'B1', meanings:4, prons:2, forms:5, updated:'28/09' },
+    { word:'resilient',   cefr:'C1', meanings:2, prons:2, forms:3, updated:'25/09' },
+    { word:'abbreviate',  cefr:'B2', meanings:1, prons:2, forms:4, updated:'22/09' },
+    { word:'ephemeral',   cefr:'C1', meanings:1, prons:2, forms:2, updated:'20/09' },
+    { word:'collaborate', cefr:'B2', meanings:2, prons:2, forms:5, updated:'18/09' },
+    { word:'persevere',   cefr:'B2', meanings:1, prons:2, forms:3, updated:'16/09' },
+    { word:'meticulous',  cefr:'C1', meanings:2, prons:2, forms:2, updated:'14/09' },
+  ];
+  document.getElementById('dictCount').textContent = '1,248 từ';
+  document.getElementById('dictBody').innerHTML = words.map(w => `
+    <tr>
+      <td><span class="bold">${w.word}</span></td>
+      <td><span class="badge cefr ${w.cefr} sm">${w.cefr}</span></td>
+      <td style="text-align:center">${w.meanings}</td>
+      <td style="text-align:center">${w.prons}</td>
+      <td style="text-align:center">${w.forms}</td>
+      <td class="small muted">${w.updated}</td>
+      <td>
+        <div class="tbl-actions">
+          <button class="btn text sm" onclick="
+            document.getElementById('dfTitle').textContent = 'Sửa từ';
+            document.getElementById('dfWord').value = '${w.word}';
+            document.getElementById('dfCefr').value = '${w.cefr}';
+            openModal('modalDictForm');
+          ">Sửa</button>
+          <button class="row-menu-btn" style="color:var(--danger)"
+            onclick="Shell.confirmDelete('từ &quot;${w.word}&quot;', () => Shell.toast('Đã xoá', 'bad'))">
+            <i class="ph ph-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+})();
+</script>
+</body>
+</html>

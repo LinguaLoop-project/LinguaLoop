@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duyệt bộ từ — LinguaLoop Admin</title>
+<script>(function(){var t=null;try{t=JSON.parse(localStorage.getItem('ll-theme'));}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head">
+    <div class="overline">Kiểm duyệt</div>
+    <h1>Duyệt bộ từ công khai</h1>
+    <p class="sub">Học viên gửi yêu cầu public bộ từ họ tự tạo. (Chỉ duyệt nội dung không phản cảm/spam, không đánh giá chuyên môn).</p>
+  </div>
+
+  <div class="tbl-wrap" style="margin-top:24px">
+    <table>
+      <thead><tr>
+        <th>Tên bộ từ</th>
+        <th>Tác giả</th>
+        <th style="text-align:center">Số bài</th>
+        <th style="text-align:center">Số thẻ</th>
+        <th>Thẻ tag</th>
+        <th>Ngày gửi</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="deckBody"></tbody>
+    </table>
+  </div>
+
+  <div class="modal-back" id="modalDeck">
+    <div class="modal" role="dialog" aria-modal="true" style="width:600px; max-width:90vw;">
+      <div class="modal-head">
+        <h2 id="ddTitle">Xem bộ từ</h2>
+        <button class="icon-btn" onclick="closeModal('modalDeck')"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="padding:16px;background:var(--surface-hover);border-radius:var(--radius-md);margin-bottom:16px">
+          <div class="bold" style="font-size:18px" id="ddName">IELTS Academic Vocab</div>
+          <div class="small muted" style="margin-top:4px">Tác giả: <b id="ddAuthor">minhanh_03</b> · <span id="ddStats">12 bài, 240 thẻ</span></div>
+        </div>
+        
+        <div style="border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden">
+          <div style="background:var(--surface-hover);padding:12px 16px;border-bottom:1px solid var(--border)">
+            <div class="bold small">Bài 1: Environment (20 thẻ)</div>
+          </div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:grid;grid-template-columns:100px 1fr;gap:12px;font-size:14px;border-bottom:1px solid var(--border-subtle);padding-bottom:12px">
+              <b style="color:var(--primary)">sustain</b>
+              <div>duy trì, chống đỡ<br><span class="muted small">She found it difficult to sustain the children's interest.</span></div>
+            </div>
+            <div style="display:grid;grid-template-columns:100px 1fr;gap:12px;font-size:14px;border-bottom:1px solid var(--border-subtle);padding-bottom:12px">
+              <b style="color:var(--primary)">emission</b>
+              <div>sự phát ra, toả ra<br><span class="muted small">Vehicle emissions are a major source of pollution.</span></div>
+            </div>
+            <button class="btn ghost sm full">Xem thêm 18 thẻ...</button>
+          </div>
+        </div>
+        <div class="field" style="margin-top:16px">
+          <label>Lý do từ chối (bắt buộc nếu Từ chối)</label>
+          <textarea rows="2" placeholder="Chứa từ ngữ quảng cáo..."></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn danger" onclick="Shell.toast('Đã từ chối', 'bad');closeModal('modalDeck')"><i class="ph ph-x"></i>Từ chối</button>
+        <span class="grow"></span>
+        <button class="btn primary" onclick="Shell.toast('Đã duyệt thành công!');closeModal('modalDeck')"><i class="ph ph-check"></i>Duyệt & Công khai</button>
+      </div>
+    </div>
+  </div>
+
+</div></main>
+
+<script src="data.js"></script>
+<script src="shell.js"></script>
+<script>
+Shell.init('decks');
+
+document.getElementById('deckBody').innerHTML = DATA.pendingDecks.map(d => `
+  <tr>
+    <td class="bold">${d.name}</td>
+    <td class="small">${d.author}</td>
+    <td style="text-align:center">${d.groups}</td>
+    <td style="text-align:center">${d.cards}</td>
+    <td>${d.tags.map(t=>`<span class="badge sm draft">${t}</span>`).join(' ')}</td>
+    <td class="small muted">${d.date}</td>
+    <td>
+      <button class="btn text sm" onclick="openDeck(${d.id})">Xem trước duyệt</button>
+    </td>
+  </tr>`).join('');
+
+window.openDeck = id => {
+  const d = DATA.pendingDecks.find(x => x.id === id);
+  if(!d) return;
+  document.getElementById('ddName').textContent = d.name;
+  document.getElementById('ddAuthor').textContent = d.author;
+  document.getElementById('ddStats').textContent = `${d.groups} bài, ${d.cards} thẻ`;
+  window.openModal('modalDeck');
+};
+</script>
+</body>
+</html>
