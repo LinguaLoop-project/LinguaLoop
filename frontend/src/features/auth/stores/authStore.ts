@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { authService } from "../services/authService";
-import { errorMessage, toApiError } from "../errors";
-import type { AuthResponse, LoginPayload, MeResponse } from "../types";
+import i18n from "@/i18n";
+import { toApiError } from "../errors";
+import type { ApiError, AuthResponse, LoginPayload, MeResponse } from "../types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type User = MeResponse;
@@ -11,7 +12,8 @@ export type AuthState = {
   accessToken: string;
   isAuthenticated: boolean;
   loading: boolean;
-  error: string | null;
+  // Giữ ApiError (không phải câu đã dịch) để UI dịch lại khi đổi ngôn ngữ
+  error: ApiError | null;
   initialized: boolean;
 };
 
@@ -87,7 +89,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       const response = await authService.login(payload);
       const data = response.data?.data;
       if (!data) {
-        throw new Error("Phản hồi đăng nhập không có dữ liệu");
+        throw new Error(i18n.t("auth:errors.loginNoData"));
       }
       set({
         loading: false,
@@ -98,11 +100,11 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       });
       return data;
     } catch (error: unknown) {
-      // Giữ nguyên lỗi gốc để trang Login đọc `code` (vd AUTH_EMAIL_NOT_VERIFIED); `error` là câu hiển thị.
+      // Giữ nguyên lỗi gốc để trang Login đọc `code` (vd AUTH_EMAIL_NOT_VERIFIED); `error` là bản chuẩn hoá để UI dịch ra câu hiển thị.
       set({
         loading: false,
         isAuthenticated: false,
-        error: errorMessage(toApiError(error)),
+        error: toApiError(error),
       });
       throw error;
     }

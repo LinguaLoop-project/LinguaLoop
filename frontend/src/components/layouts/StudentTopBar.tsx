@@ -7,7 +7,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Logo from "@/components/common/Logo";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useAuth } from "@/features/auth";
 import { useQuota } from "@/hooks/useQuota";
 
@@ -24,6 +26,7 @@ function initials(name: string) {
 }
 
 export default function StudentTopBar() {
+  const { t } = useTranslation("layout");
   const navigate = useNavigate();
   const { user, handleLogout } = useAuth();
   const { isPro, actionsToday, maxActions } = useQuota();
@@ -32,9 +35,9 @@ export default function StudentTopBar() {
 
   const [dark, setDark] = useState(() => {
     try {
-      const t = JSON.parse(localStorage.getItem("ll3-theme") ?? "null");
-      return t
-        ? t === "dark"
+      const stored = JSON.parse(localStorage.getItem("ll3-theme") ?? "null");
+      return stored
+        ? stored === "dark"
         : window.matchMedia("(prefers-color-scheme: dark)").matches;
     } catch {
       return true;
@@ -88,7 +91,7 @@ export default function StudentTopBar() {
         type="button"
         className="flex md:hidden items-center justify-center p-0 bg-transparent border-0 cursor-pointer"
         onClick={() => navigate("/student")}
-        aria-label="LinguaLoop, về trang Hôm nay"
+        aria-label={t("student.sidebar.homeLabel")}
       >
         <Logo size={32} showText={false} />
       </button>
@@ -97,11 +100,11 @@ export default function StudentTopBar() {
       <button
         type="button"
         className="w-11 md:w-auto md:max-w-[480px] md:flex-1 h-11 flex items-center justify-center md:justify-start gap-2.5 px-3 rounded-md border border-border bg-surface-glass text-text-muted text-sm transition-colors duration-150 hover:border-border-strong hover:bg-surface-hover cursor-pointer"
-        aria-label="Mở tìm kiếm nhanh"
+        aria-label={t("student.topbar.search")}
         disabled
       >
         <i className="ph ph-magnifying-glass text-xl" aria-hidden="true" />
-        <span className="hidden md:inline">Tra từ, mở bài, chuyển màn…</span>
+        <span className="hidden md:inline">{t("student.topbar.searchPlaceholder")}</span>
         <kbd className="hidden md:inline ml-auto px-1.5 py-0.5 rounded text-[11px] font-semibold bg-surface-hover border border-border text-text-muted">
           Ctrl K
         </kbd>
@@ -112,7 +115,7 @@ export default function StudentTopBar() {
         {/* Streak pill */}
         <span
           className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full border border-border-strong bg-surface-glass font-semibold text-sm select-none"
-          title="Chuỗi ngày học"
+          title={t("student.topbar.streak")}
         >
           <i
             className="ph-fill ph-fire text-warning text-lg"
@@ -125,7 +128,7 @@ export default function StudentTopBar() {
         {!isPro && (
           <span
             className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full border border-border-strong bg-surface-glass font-semibold text-sm select-none"
-            title="Lượt hành động trong ngày"
+            title={t("student.topbar.quota")}
           >
             <i
               className="ph-fill ph-lightning text-purple-500 text-lg"
@@ -145,12 +148,15 @@ export default function StudentTopBar() {
           {isPro ? "Pro" : "Free"}
         </span>
 
+        {/* Language toggle */}
+        <LanguageSwitcher className="w-10 h-10 shrink-0 rounded-md border border-border grid place-items-center text-xl text-text-muted bg-transparent hover:bg-surface-hover hover:border-border-strong hover:text-text transition-colors cursor-pointer" />
+
         {/* Theme toggle */}
         <button
           type="button"
           className="w-10 h-10 shrink-0 rounded-md border border-border grid place-items-center text-xl text-text-muted bg-transparent hover:bg-surface-hover hover:border-border-strong hover:text-text transition-colors cursor-pointer"
           onClick={toggleTheme}
-          aria-label="Đổi giao diện sáng/tối"
+          aria-label={t("theme.toggle")}
         >
           {dark ? (
             <i className="ph ph-moon text-accent" aria-hidden="true" />
@@ -169,7 +175,7 @@ export default function StudentTopBar() {
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             aria-controls="acctMenu"
-            aria-label={`Tài khoản ${displayName}`}
+            aria-label={t("student.topbar.account", { name: displayName })}
           >
             {initials(displayName)}
           </button>
@@ -179,7 +185,7 @@ export default function StudentTopBar() {
               className="absolute top-[calc(100%+8px)] right-0 z-50 min-w-[260px] rounded-lg p-2 flex flex-col gap-0.5 bg-surface-glass backdrop-blur-xl border border-border-strong shadow-[var(--shadow-card)] animate-in fade-in duration-150"
               id="acctMenu"
               role="menu"
-              aria-label="Tài khoản"
+              aria-label={t("student.topbar.menuAria")}
             >
               {/* Header */}
               <div className="flex items-center gap-3 p-2 pb-3">
@@ -213,7 +219,7 @@ export default function StudentTopBar() {
                   Free
                 </span>
                 <span className="text-xs text-accent font-semibold">
-                  Nâng cấp Pro
+                  {t("student.topbar.upgrade")}
                 </span>
                 <i
                   className="ph ph-arrow-right ml-auto text-sm text-text-subtle"
@@ -224,11 +230,11 @@ export default function StudentTopBar() {
               <hr className="border-0 border-t border-border -mx-2 my-1.5" />
 
               {[
-                ["profile", "ph-user-circle", "Hồ sơ"],
-                ["learning", "ph-target", "Cài đặt học tập"],
-                ["security", "ph-shield-check", "Bảo mật & đăng nhập"],
-                ["privacy", "ph-lock-key", "Quyền riêng tư & dữ liệu"],
-              ].map(([tab, icon, label]) => (
+                ["profile", "ph-user-circle"],
+                ["learning", "ph-target"],
+                ["security", "ph-shield-check"],
+                ["privacy", "ph-lock-key"],
+              ].map(([tab, icon]) => (
                 <button
                   key={tab}
                   type="button"
@@ -240,7 +246,7 @@ export default function StudentTopBar() {
                   }}
                 >
                   <i className={`ph ${icon} text-lg`} aria-hidden="true" />
-                  {label}
+                  {t(`student.topbar.${tab}`)}
                 </button>
               ))}
 
@@ -254,7 +260,7 @@ export default function StudentTopBar() {
                 }}
               >
                 <i className="ph ph-circle-half text-lg" aria-hidden="true" />
-                Đổi giao diện sáng/tối
+                {t("theme.toggle")}
               </button>
 
               <hr className="border-0 border-t border-border -mx-2 my-1.5" />
@@ -269,7 +275,7 @@ export default function StudentTopBar() {
                 }}
               >
                 <i className="ph ph-sign-out text-lg" aria-hidden="true" />
-                Đăng xuất
+                {t("student.topbar.logout")}
               </button>
             </div>
           )}

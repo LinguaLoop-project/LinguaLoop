@@ -1,0 +1,224 @@
+{
+  "theme": {
+    "toggle": "Đổi giao diện sáng/tối",
+    "toLight": "Chuyển sang giao diện sáng",
+    "toDark": "Chuyển sang giao diện tối"
+  },
+  "header": {
+    "homeLabel": "LinguaLoop, về trang chủ",
+    "mainMenu": "Menu chính",
+    "toggleMenu": "Mở/đóng menu",
+    "nav": {
+      "listening": "Nghe chép",
+      "pronunciation": "Phát âm",
+      "vocabulary": "Từ vựng",
+      "speaking": "Luyện nói",
+      "ielts": "Luyện thi IELTS",
+      "more": "Xem thêm"
+    },
+    "badgeNew": "MỚI",
+    "more": {
+      "lessons": {
+        "title": "Kho bài học video",
+        "desc": "Hàng trăm video theo cấp độ"
+      },
+      "weakness": {
+        "title": "Chẩn đoán điểm yếu",
+        "desc": "Phân tích lỗi phát âm & ngữ âm"
+      },
+      "test": {
+        "title": "Kiểm tra trình độ",
+        "desc": "Đánh giá chuẩn khung CEFR"
+      }
+    },
+    "mobileWeakness": "Điểm yếu & Cần luyện",
+    "login": "Đăng nhập",
+    "start": "Bắt đầu",
+    "learnNow": "Học ngay"
+  },
+  "footer": {
+    "homeLabel": "LinguaLoop, về trang chủ",
+    "about": "Nền tảng luyện nghe chép chính tả (Dictation) và phát âm (Shadowing) trên video thực tế. Mỗi ngày 15 phút, giải quyết tận gốc các điểm yếu ngữ âm của bạn.",
+    "badgeAi": "AI Phát âm chuẩn",
+    "badgeVideo": "Video thực tế",
+    "emailAria": "Gửi email cho LinguaLoop",
+    "telegramAria": "Cộng đồng Telegram",
+    "practice": {
+      "title": "Luyện tập",
+      "dictation": "Nghe chép chính tả",
+      "shadowing": "Phát âm Shadowing",
+      "vocab": "Kho từ vựng & SRS",
+      "speaking": "Luyện nói giao tiếp",
+      "ielts": "Luyện thi IELTS"
+    },
+    "personal": {
+      "title": "Cá nhân",
+      "mywords": "Từ & câu đã lưu",
+      "weakness": "Chẩn đoán điểm yếu",
+      "account": "Tài khoản cá nhân",
+      "upgrade": "Nâng cấp gói Pro"
+    },
+    "support": {
+      "title": "Hỗ trợ",
+      "gettingStarted": "Hướng dẫn bắt đầu",
+      "faq": "Câu hỏi thường gặp",
+      "reportContent": "Báo lỗi nội dung",
+      "feedback": "Góp ý phát triển"
+    },
+    "aboutUs": {
+      "title": "Về LinguaLoop",
+      "brand": "Bộ nhận diện & Loopi",
+      "terms": "Điều khoản dịch vụ",
+      "privacy": "Chính sách bảo mật"
+    },
+    "copyright": "© 2026 LinguaLoop. Video bài học thuộc bản quyền của kênh gốc, chỉ dùng cho mục đích giáo dục.",
+    "status": "Hệ thống bình thường",
+    "languagePill": "Tiếng Việt (VN)"
+  },
+  "student": {
+    "sidebar": {
+      "aria": "Điều hướng chính",
+      "homeLabel": "LinguaLoop, về trang Hôm nay",
+      "groups": {
+        "learn": "Học",
+        "mine": "Của tôi"
+      },
+      "items": {
+        "today": "Hôm nay",
+        "lessons": "Bài học",
+        "dictation": "Nghe chép",
+        "shadowing": "Shadowing",
+        "vocab": "Từ vựng",
+        "mywords": "Từ & câu đã lưu",
+        "weakness": "Điểm yếu",
+        "test": "Kiểm tra trình độ"
+      },
+      "pro": {
+        "price": "Từ 33k/tháng",
+        "desc": "Chấm không giới hạn, nhận xét AI, video khẩu hình.",
+        "cta": "Dùng thử Pro"
+      }
+    },
+    "topbar": {
+      "search": "Mở tìm kiếm nhanh",
+      "searchPlaceholder": "Tra từ, mở bài, chuyển màn…",
+      "streak": "Chuỗi ngày học",
+      "quota": "Lượt hành động trong ngày",
+      "account": "Tài khoản {{name}}",
+      "menuAria": "Tài khoản",
+      "upgrade": "Nâng cấp Pro",
+      "profile": "Hồ sơ",
+      "learning": "Cài đặt học tập",
+      "security": "Bảo mật & đăng nhập",
+      "privacy": "Quyền riêng tư & dữ liệu",
+      "logout": "Đăng xuất"
+    }
+  },
+  "instructor": {
+    "sidebar": {
+      "aria": "Điều hướng giảng viên",
+      "homeLabel": "LinguaLoop Giảng viên",
+      "viewAsStudent": "Xem như học viên",
+      "groups": {
+        "content": "NỘI DUNG",
+        "language": "NGÔN NGỮ",
+        "tracking": "THEO DÕI"
+      },
+      "items": {
+        "dashboard": "Tổng quan",
+        "topics": "Chủ đề",
+        "lessons": "Bài học",
+        "decks": "Bộ từ vựng",
+        "cefr": "Duyệt CEFR AI",
+        "dict": "Từ điển",
+        "phoneme": "Ngữ âm",
+        "qbank": "Câu hỏi kiểm tra",
+        "reports": "Báo lỗi của tôi",
+        "audit": "Lịch sử thay đổi"
+      }
+    },
+    "topbar": {
+      "homeLabel": "LinguaLoop Giảng viên",
+      "breadcrumbAria": "Vị trí hiện tại",
+      "root": "Giảng viên",
+      "accountAria": "Tài khoản giảng viên",
+      "menuAria": "Tài khoản",
+      "myHistory": "Lịch sử của tôi",
+      "viewAsStudent": "Xem như học viên",
+      "logout": "Đăng xuất",
+      "titles": {
+        "overview": "Tổng quan",
+        "topics": "Chủ đề",
+        "lessons": "Bài học",
+        "compose": "Soạn bài học mới",
+        "decks": "Bộ từ vựng",
+        "cefr": "Duyệt CEFR AI",
+        "dict": "Từ điển",
+        "phoneme": "Ngữ âm",
+        "qbank": "Câu hỏi kiểm tra",
+        "reports": "Báo lỗi của tôi",
+        "audit": "Lịch sử thay đổi",
+        "classes": "Lớp học",
+        "students": "Học viên",
+        "progress": "Tiến độ lớp",
+        "weakness": "Điểm yếu chung",
+        "settings": "Cài đặt",
+        "profile": "Hồ sơ giảng viên",
+        "topicDetail": "Chi tiết chủ đề",
+        "lessonDetail": "Chi tiết bài học",
+        "deckDetail": "Chi tiết bộ từ",
+        "reportDetail": "Chi tiết báo cáo lỗi"
+      }
+    }
+  },
+  "admin": {
+    "sidebar": {
+      "aria": "Điều hướng Admin",
+      "homeLabel": "LinguaLoop Quản trị",
+      "groups": {
+        "system": "HỆ THỐNG",
+        "moderation": "KIỂM DUYỆT",
+        "config": "CẤU HÌNH"
+      },
+      "items": {
+        "dashboard": "Tổng quan",
+        "users": "Người dùng",
+        "reports": "Báo lỗi nội dung",
+        "decks": "Duyệt bộ từ công khai",
+        "audit": "Nhật ký nội dung",
+        "limits": "Gói & Hạn mức",
+        "subs": "Đăng ký Pro",
+        "errors": "Danh mục lỗi"
+      }
+    },
+    "topbar": {
+      "homeLabel": "LinguaLoop Quản trị",
+      "breadcrumbAria": "Vị trí hiện tại",
+      "root": "Admin",
+      "accountAria": "Tài khoản quản trị",
+      "menuAria": "Tài khoản",
+      "systemSettings": "Cài đặt hệ thống",
+      "logout": "Đăng xuất",
+      "titles": {
+        "overview": "Tổng quan",
+        "users": "Quản lý người dùng",
+        "reports": "Hàng đợi báo lỗi",
+        "decks": "Duyệt bộ từ",
+        "audit": "Nhật ký nội dung",
+        "limits": "Gói & Hạn mức",
+        "subs": "Đăng ký Pro",
+        "errors": "Danh mục lỗi",
+        "instructors": "Giáo viên",
+        "subscriptions": "Gói dịch vụ",
+        "content": "Nội dung",
+        "settings": "Cài đặt hệ thống",
+        "logs": "Nhật ký hoạt động",
+        "profile": "Hồ sơ quản trị viên",
+        "analytics": "Phân tích & Thống kê",
+        "userDetail": "Chi tiết người dùng",
+        "reportDetail": "Chi tiết báo cáo lỗi",
+        "deckDetail": "Chi tiết duyệt bộ từ"
+      }
+    }
+  }
+}

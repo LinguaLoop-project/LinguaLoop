@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { DEFAULT_LANGUAGE, isLanguage, setLanguage, type Language } from "@/i18n";
 import Logo from "@/components/common/Logo";
 import {
   Sun,
@@ -20,6 +22,7 @@ import {
 } from "lucide-react";
 
 export default function Header() {
+  const { t, i18n } = useTranslation("layout");
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     try {
       return (localStorage.getItem("ll_theme") as "dark" | "light") || "dark";
@@ -27,7 +30,7 @@ export default function Header() {
       return "dark";
     }
   });
-  const [lang, setLang] = useState<"vi" | "en">("vi");
+  const lang: Language = isLanguage(i18n.resolvedLanguage) ? i18n.resolvedLanguage : DEFAULT_LANGUAGE;
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -72,7 +75,7 @@ export default function Header() {
         <Link
           to="/"
           className="flex items-center shrink-0 group py-1 mr-4 lg:mr-8"
-          aria-label="LinguaLoop Trang chủ"
+          aria-label={t("header.homeLabel")}
         >
           <Logo size={34} showText={true} />
         </Link>
@@ -80,7 +83,7 @@ export default function Header() {
         {/* Center: Desktop Navigation Links */}
         <nav
           className="hidden lg:flex items-center gap-1 xl:gap-2 mr-auto"
-          aria-label="Menu chính"
+          aria-label={t("header.mainMenu")}
         >
           {/* Listening */}
           <div className="relative">
@@ -95,7 +98,7 @@ export default function Header() {
               }
             >
               <Headphones className="w-4 h-4 text-purple-400 shrink-0" />
-              <span>Listening</span>
+              <span>{t("header.nav.listening")}</span>
             </NavLink>
           </div>
 
@@ -112,7 +115,7 @@ export default function Header() {
               }
             >
               <Mic className="w-4 h-4 text-pink-400 shrink-0" />
-              <span>Pronunciation</span>
+              <span>{t("header.nav.pronunciation")}</span>
             </NavLink>
           </div>
 
@@ -129,7 +132,7 @@ export default function Header() {
               }
             >
               <BookOpen className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>Vocabulary</span>
+              <span>{t("header.nav.vocabulary")}</span>
             </NavLink>
           </div>
 
@@ -183,7 +186,7 @@ export default function Header() {
               aria-haspopup="menu"
               aria-expanded={isMoreOpen}
             >
-              <span>More</span>
+              <span>{t("header.nav.more")}</span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-200 ${isMoreOpen ? "rotate-180" : ""}`}
               />
@@ -201,9 +204,9 @@ export default function Header() {
                     <Layers className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-medium">Kho bài học video</div>
+                    <div className="font-medium">{t("header.more.lessons.title")}</div>
                     <div className="text-xs text-[var(--text-subtle)]">
-                      Hàng trăm video theo cấp độ
+                      {t("header.more.lessons.desc")}
                     </div>
                   </div>
                 </Link>
@@ -217,9 +220,9 @@ export default function Header() {
                     <TrendingUp className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-medium">Chẩn đoán điểm yếu</div>
+                    <div className="font-medium">{t("header.more.weakness.title")}</div>
                     <div className="text-xs text-[var(--text-subtle)]">
-                      Phân tích lỗi phát âm & ngữ âm
+                      {t("header.more.weakness.desc")}
                     </div>
                   </div>
                 </Link>
@@ -233,9 +236,9 @@ export default function Header() {
                     <GraduationCap className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-medium">Kiểm tra trình độ</div>
+                    <div className="font-medium">{t("header.more.test.title")}</div>
                     <div className="text-xs text-[var(--text-subtle)]">
-                      Đánh giá chuẩn khung CEFR
+                      {t("header.more.test.desc")}
                     </div>
                   </div>
                 </Link>
@@ -261,13 +264,9 @@ export default function Header() {
               <button
                 type="button"
                 onClick={toggleTheme}
-                aria-label="Đổi giao diện sáng/tối"
+                aria-label={t("theme.toggle")}
                 className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-white size-9 border border-[var(--border)]"
-                title={
-                  theme === "dark"
-                    ? "Chuyển sang Giao diện Sáng"
-                    : "Chuyển sang Giao diện Tối"
-                }
+                title={theme === "dark" ? t("theme.toLight") : t("theme.toDark")}
               >
                 {theme === "dark" ? (
                   <Sun className="h-4 w-4 text-amber-400 transition-transform hover:rotate-45" />
@@ -285,6 +284,7 @@ export default function Header() {
                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all hover:bg-[var(--surface-hover)] border border-[var(--border)] h-9 px-3 py-1.5 text-[var(--text)]"
                 aria-haspopup="dialog"
                 aria-expanded={isLangOpen}
+                aria-label={t("common:language.label")}
               >
                 {lang === "vi" ? (
                   <>
@@ -298,7 +298,7 @@ export default function Header() {
                         />
                       </svg>
                     </span>
-                    <span>Tiếng Việt</span>
+                    <span>{t("common:language.names.vi")}</span>
                   </>
                 ) : (
                   <>
@@ -328,7 +328,7 @@ export default function Header() {
                         />
                       </svg>
                     </span>
-                    <span>English</span>
+                    <span>{t("common:language.names.en")}</span>
                   </>
                 )}
                 <ChevronDown
@@ -341,7 +341,7 @@ export default function Header() {
                   <button
                     type="button"
                     onClick={() => {
-                      setLang("vi");
+                      void setLanguage("vi");
                       setIsLangOpen(false);
                     }}
                     className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
@@ -359,13 +359,13 @@ export default function Header() {
                         />
                       </svg>
                     </span>
-                    <span>Tiếng Việt</span>
+                    <span>{t("common:language.names.vi")}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => {
-                      setLang("en");
+                      void setLanguage("en");
                       setIsLangOpen(false);
                     }}
                     className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
@@ -399,7 +399,7 @@ export default function Header() {
                         />
                       </svg>
                     </span>
-                    <span>English</span>
+                    <span>{t("common:language.names.en")}</span>
                   </button>
                 </div>
               )}
@@ -411,7 +411,7 @@ export default function Header() {
               className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-[var(--border-strong)] hover:bg-[var(--surface-hover)] text-[var(--text)] h-9 px-3.5 py-1.5 text-sm font-medium transition-all"
             >
               <LogIn className="w-4 h-4 text-[var(--text-subtle)]" />
-              <span>Đăng nhập</span>
+              <span>{t("header.login")}</span>
             </Link>
 
             {/* Quick Action: Start Learning */}
@@ -421,7 +421,7 @@ export default function Header() {
               style={{ background: "var(--gradient-primary)" }}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Bắt đầu</span>
+              <span>{t("header.start")}</span>
             </Link>
           </nav>
         </div>
@@ -433,7 +433,7 @@ export default function Header() {
             type="button"
             onClick={toggleTheme}
             className="p-2 rounded-lg text-[var(--text-muted)] hover:text-white border border-[var(--border)] size-9 flex items-center justify-center"
-            aria-label="Đổi theme"
+            aria-label={t("theme.toggle")}
           >
             {theme === "dark" ? (
               <Sun className="h-4 w-4 text-amber-400" />
@@ -447,7 +447,7 @@ export default function Header() {
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 rounded-lg text-[var(--text-muted)] hover:text-white hover:bg-[var(--surface)] transition-colors border border-[var(--border)] size-9 flex items-center justify-center"
-            aria-label="Toggle menu"
+            aria-label={t("header.toggleMenu")}
           >
             {mobileMenuOpen ? (
               <X className="h-5 w-5" />
@@ -468,7 +468,7 @@ export default function Header() {
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
             >
               <Headphones className="w-4 h-4 text-purple-400" />
-              <span>Listening</span>
+              <span>{t("header.nav.listening")}</span>
             </Link>
             <Link
               to="/shadowing"
@@ -476,7 +476,7 @@ export default function Header() {
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
             >
               <Mic className="w-4 h-4 text-pink-400" />
-              <span>Pronunciation</span>
+              <span>{t("header.nav.pronunciation")}</span>
             </Link>
             <Link
               to="/vocabulary"
@@ -484,7 +484,7 @@ export default function Header() {
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
             >
               <BookOpen className="w-4 h-4 text-amber-400" />
-              <span>Vocabulary</span>
+              <span>{t("header.nav.vocabulary")}</span>
             </Link>
             <Link
               to="/practice-english-speaking"
@@ -492,7 +492,7 @@ export default function Header() {
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
             >
               <MessageSquare className="w-4 h-4 text-cyan-400" />
-              <span>Speaking</span>
+              <span>{t("header.nav.speaking")}</span>
             </Link>
             <Link
               to="/exams/ielts"
@@ -501,10 +501,10 @@ export default function Header() {
             >
               <div className="flex items-center gap-3">
                 <Award className="w-4 h-4 text-emerald-400" />
-                <span>IELTS Exams</span>
+                <span>{t("header.nav.ielts")}</span>
               </div>
               <span className="inline-flex items-center rounded-full bg-gradient-to-r from-rose-500 to-orange-500 px-1.5 py-0.5 text-[9px] font-bold leading-none text-white shadow-sm">
-                NEW
+                {t("header.badgeNew")}
               </span>
             </Link>
 
@@ -515,7 +515,7 @@ export default function Header() {
                 className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--surface-hover)]"
               >
                 <Layers className="w-4 h-4" />
-                <span>Kho bài học video</span>
+                <span>{t("header.more.lessons.title")}</span>
               </Link>
               <Link
                 to="/weakness"
@@ -523,7 +523,7 @@ export default function Header() {
                 className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--surface-hover)]"
               >
                 <TrendingUp className="w-4 h-4" />
-                <span>Điểm yếu & Cần luyện</span>
+                <span>{t("header.mobileWeakness")}</span>
               </Link>
               <Link
                 to="/test"
@@ -531,7 +531,7 @@ export default function Header() {
                 className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--surface-hover)]"
               >
                 <GraduationCap className="w-4 h-4" />
-                <span>Kiểm tra trình độ</span>
+                <span>{t("header.more.test.title")}</span>
               </Link>
             </div>
           </nav>
@@ -540,30 +540,30 @@ export default function Header() {
           <div className="pt-3 border-t border-[var(--border)] flex flex-col gap-2.5">
             <div className="flex items-center justify-between px-2">
               <span className="text-xs text-[var(--text-subtle)] font-medium">
-                Ngôn ngữ hiển thị
+                {t("common:language.display")}
               </span>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  onClick={() => setLang("vi")}
+                  onClick={() => void setLanguage("vi")}
                   className={`px-2 py-1 rounded text-xs font-medium ${
                     lang === "vi"
                       ? "bg-[var(--primary)] text-white"
                       : "text-[var(--text-muted)] hover:bg-[var(--surface)]"
                   }`}
                 >
-                  Tiếng Việt
+                  {t("common:language.names.vi")}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setLang("en")}
+                  onClick={() => void setLanguage("en")}
                   className={`px-2 py-1 rounded text-xs font-medium ${
                     lang === "en"
                       ? "bg-[var(--primary)] text-white"
                       : "text-[var(--text-muted)] hover:bg-[var(--surface)]"
                   }`}
                 >
-                  English
+                  {t("common:language.names.en")}
                 </button>
               </div>
             </div>
@@ -575,7 +575,7 @@ export default function Header() {
                 className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)] text-center"
               >
                 <LogIn className="w-4 h-4" />
-                <span>Đăng nhập</span>
+                <span>{t("header.login")}</span>
               </Link>
               <Link
                 to="/dictation"
@@ -584,7 +584,7 @@ export default function Header() {
                 style={{ background: "var(--gradient-primary)" }}
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Học ngay</span>
+                <span>{t("header.learnNow")}</span>
               </Link>
             </div>
           </div>

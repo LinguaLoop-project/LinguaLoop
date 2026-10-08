@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../stores/authStore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema, type LoginFormData } from "../validations/authSchemas";
-import { toApiError } from "../errors";
+import { errorMessage, toApiError } from "../errors";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
 
 const Login = () => {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -66,7 +68,7 @@ const Login = () => {
           <form className="auth-form" onSubmit={handleSubmit(onSubmit)} noValidate>
             {/* Heading */}
             <div>
-              <span className="ll-overline">Chào mừng trở lại</span>
+              <span className="ll-overline">{t("login.overline")}</span>
               <h1
                 style={{
                   fontSize: 28,
@@ -76,10 +78,10 @@ const Login = () => {
                   marginBottom: 8,
                 }}
               >
-                Đăng nhập
+                {t("login.title")}
               </h1>
               <p className="mt-1 text-[15px]" style={{ color: "var(--text-muted)" }}>
-                Học tiếp từ chỗ bạn dừng lần trước.
+                {t("login.subtitle")}
               </p>
             </div>
 
@@ -88,12 +90,12 @@ const Login = () => {
               <div className="ll-form-alert danger" role="alert">
                 <i className="ph ph-warning-circle" style={{ fontSize: 20, flexShrink: 0 }} />
                 <span>
-                  {error}
+                  {errorMessage(error)}
                   {showResetHint && (
                     <>
                       {" "}
                       <Link to="/auth/forgot-password" className="ll-link underline">
-                        Đặt lại mật khẩu
+                        {t("login.resetPassword")}
                       </Link>
                     </>
                   )}
@@ -104,7 +106,7 @@ const Login = () => {
             {/* Email */}
             <div className={`ll-field ${errors.email ? "bad" : ""}`}>
               <label htmlFor="liEmail" className="ll-label">
-                Email
+                {t("login.email")}
               </label>
               <div className="ll-inp">
                 <i className="ph ph-envelope-simple" />
@@ -112,7 +114,7 @@ const Login = () => {
                   id="liEmail"
                   type="email"
                   autoComplete="email"
-                  placeholder="ban@email.com"
+                  placeholder={t("login.emailPlaceholder")}
                   aria-describedby="liEmailErr"
                   {...register("email")}
                 />
@@ -124,10 +126,10 @@ const Login = () => {
             <div className={`ll-field ${errors.password ? "bad" : ""}`}>
               <div className="flex justify-between items-center">
                 <label htmlFor="liPw" className="ll-label">
-                  Mật khẩu
+                  {t("login.password")}
                 </label>
                 <Link to="/auth/forgot-password" className="ll-link text-[13px]">
-                  Quên mật khẩu?
+                  {t("login.forgotPassword")}
                 </Link>
               </div>
               <div className="ll-inp">
@@ -136,7 +138,7 @@ const Login = () => {
                   id="liPw"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
-                  placeholder="Mật khẩu của bạn"
+                  placeholder={t("login.passwordPlaceholder")}
                   aria-describedby="liPwErr"
                   {...register("password")}
                 />
@@ -144,7 +146,7 @@ const Login = () => {
                   type="button"
                   className="ll-pw-eye"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
                   aria-pressed={showPassword}
                 >
                   <i className={showPassword ? "ph ph-eye-slash" : "ph ph-eye"} />
@@ -159,7 +161,7 @@ const Login = () => {
               <span className="ll-check-box">
                 <i className="ph ph-check" />
               </span>
-              Ghi nhớ đăng nhập trên máy này
+              {t("login.remember")}
             </label>
 
             {/* Submit */}
@@ -169,15 +171,15 @@ const Login = () => {
                   <span
                     className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
                   />
-                  Đang đăng nhập...
+                  {t("login.submitting")}
                 </span>
-              ) : "Đăng nhập"}
+              ) : t("login.submit")}
             </button>
 
             {/* Register link */}
             <p className="text-center text-[13px]" style={{ color: "var(--text-muted)" }}>
-              Chưa có tài khoản?{" "}
-              <Link to="/auth/register" className="ll-link">Đăng ký miễn phí</Link>
+              {t("login.noAccount")}{" "}
+              <Link to="/auth/register" className="ll-link">{t("login.registerFree")}</Link>
             </p>
           </form>
         </div>
@@ -185,9 +187,9 @@ const Login = () => {
         {/* Footer */}
         <p className="auth-foot text-[13px] text-center" style={{ color: "var(--text-muted)", marginTop: "auto", paddingTop: 16 }}>
           © 2026 LinguaLoop ·{" "}
-          <button type="button" className="ll-link">Điều khoản</button> ·{" "}
-          <button type="button" className="ll-link">Quyền riêng tư</button> ·{" "}
-          <button type="button" className="ll-link">Trợ giúp</button>
+          <button type="button" className="ll-link">{t("footer.terms")}</button> ·{" "}
+          <button type="button" className="ll-link">{t("footer.privacy")}</button> ·{" "}
+          <button type="button" className="ll-link">{t("footer.help")}</button>
         </p>
       </main>
     </div>

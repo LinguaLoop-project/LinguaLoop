@@ -1,4 +1,8 @@
 import * as yup from "yup";
+import i18n from "@/i18n";
+
+// Message là hàm để dịch lúc validate, theo ngôn ngữ đang chọn, không cố định lúc nạp module
+const msg = (key: string) => () => i18n.t(`auth:validation.${key}`);
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -7,11 +11,11 @@ export const loginSchema = yup.object().shape({
   email: yup
     .string()
     .trim()
-    .required("Vui lòng nhập email của bạn")
-    .matches(EMAIL_RE, "Email chưa đúng định dạng, ví dụ ban@email.com"),
+    .required(msg("loginEmailRequired"))
+    .matches(EMAIL_RE, msg("emailFormat")),
   password: yup
     .string()
-    .required("Vui lòng nhập mật khẩu"),
+    .required(msg("loginPasswordRequired")),
   remember: yup.boolean().default(true),
 });
 
@@ -22,27 +26,23 @@ export const registerSchema = yup.object().shape({
   displayName: yup
     .string()
     .trim()
-    .required("Nhập tên hiển thị của bạn")
-    .max(50, "Tên hiển thị tối đa 50 ký tự"),
+    .required(msg("displayNameRequired"))
+    .max(50, msg("displayNameMax")),
   email: yup
     .string()
     .trim()
-    .required("Nhập email của bạn")
-    .matches(EMAIL_RE, "Email chưa đúng định dạng, ví dụ ban@email.com"),
+    .required(msg("registerEmailRequired"))
+    .matches(EMAIL_RE, msg("emailFormat")),
   password: yup
     .string()
-    .required("Tạo mật khẩu cho tài khoản")
-    .min(8, "Mật khẩu cần ít nhất 8 ký tự")
+    .required(msg("passwordCreate"))
+    .min(8, msg("passwordMin"))
     // BCrypt chỉ nhận 72 byte (backend kiểm @MaxBytes), ký tự có dấu chiếm 2-3 byte nên không đếm theo ký tự
-    .test(
-      "max-bytes",
-      "Mật khẩu tối đa 72 byte (ký tự có dấu chiếm nhiều byte hơn)",
-      (value) => !value || new TextEncoder().encode(value).length <= 72,
-    ),
+    .test("max-bytes", msg("passwordMaxBytes"), (value) => !value || new TextEncoder().encode(value).length <= 72),
   acceptTerms: yup
     .boolean()
-    .oneOf([true], "Bạn cần đồng ý với điều khoản để tạo tài khoản")
-    .required("Bạn cần đồng ý với điều khoản để tạo tài khoản"),
+    .oneOf([true], msg("termsRequired"))
+    .required(msg("termsRequired")),
 });
 
 export type RegisterFormData = yup.InferType<typeof registerSchema>;
@@ -52,8 +52,8 @@ export const forgotPasswordSchema = yup.object().shape({
   email: yup
     .string()
     .trim()
-    .required("Nhập email bạn dùng để đăng ký")
-    .matches(EMAIL_RE, "Email chưa đúng định dạng, ví dụ ban@email.com"),
+    .required(msg("forgotEmailRequired"))
+    .matches(EMAIL_RE, msg("emailFormat")),
 });
 
 export type ForgotPasswordFormData = yup.InferType<typeof forgotPasswordSchema>;

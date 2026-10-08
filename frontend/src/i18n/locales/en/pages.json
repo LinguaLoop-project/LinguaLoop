@@ -1,0 +1,236 @@
+{
+  "student": {
+    "today": {
+      "title": "Today",
+      "description": "Your personal learning dashboard, streak and daily lesson suggestions."
+    },
+    "lessons": {
+      "title": "Lessons",
+      "description": "A multimedia lesson library graded from A1 to C2, with video, audio and subtitles."
+    },
+    "lessonDetail": {
+      "title": "Lesson details",
+      "description": "Interactive learning, listen to the transcript and do reinforcement exercises."
+    },
+    "dictation": {
+      "title": "Dictation",
+      "description": "Train your listening and spell every sentence correctly with native-speaker audio."
+    },
+    "dictationDetail": {
+      "title": "Dictation practice",
+      "description": "A live dictation space with AI scoring and character-level feedback."
+    },
+    "shadowing": {
+      "title": "Shadowing",
+      "description": "Practice intonation, stress and linking with in-depth shadowing."
+    },
+    "shadowingDetail": {
+      "title": "Speaking room",
+      "description": "A recording room that compares waveforms and detects pronunciation in real time."
+    },
+    "vocab": {
+      "title": "Vocabulary library",
+      "description": "Topic-based word sets plus TOEIC, IELTS and Oxford 3000 collections."
+    },
+    "deckDetail": {
+      "title": "Flashcard deck",
+      "description": "Smart spaced-repetition flashcard practice."
+    },
+    "topics": {
+      "title": "Learning topics",
+      "description": "Explore topics in communication, daily life, travel and work."
+    },
+    "topicDetail": {
+      "title": "Topic details",
+      "description": "The lessons and vocabulary decks that belong to this topic."
+    },
+    "mywords": {
+      "title": "Saved words & sentences",
+      "description": "The words and favorite sentences you pinned in your lessons."
+    },
+    "weakness": {
+      "title": "Weakness analysis",
+      "description": "A map of difficult sounds, commonly confused grammar and targeted fixing exercises."
+    },
+    "test": {
+      "title": "Placement test",
+      "description": "An adaptive CEFR test that pins down your exact language level."
+    },
+    "settings": {
+      "title": "Account settings",
+      "description": "Manage your profile, Pro plan, study reminders and privacy."
+    },
+    "profile": {
+      "title": "Student profile",
+      "description": "Personal info, achievement badges and your learning streak."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Daily study reminders, new exercises and system updates."
+    },
+    "stats": {
+      "title": "Learning statistics",
+      "description": "Charts of study time, words mastered and your progress."
+    }
+  },
+  "instructor": {
+    "overview": {
+      "title": "Instructor overview",
+      "description": "A quick dashboard of class metrics, lessons awaiting review and reported errors to handle."
+    },
+    "topics": {
+      "title": "Topic management",
+      "description": "Organize lesson topics by CEFR levels from A1 to C2."
+    },
+    "topicDetail": {
+      "title": "Topic details",
+      "description": "View and manage the lessons and vocabulary decks in this topic."
+    },
+    "lessons": {
+      "title": "Lesson management",
+      "description": "Lessons with video/audio, transcripts and interactive exercises."
+    },
+    "lessonDetail": {
+      "title": "Lesson details",
+      "description": "Edit the lesson script, subtitle timestamps and attached exercises."
+    },
+    "compose": {
+      "title": "Create new lesson",
+      "description": "A multimedia lesson editor with CEFR suggestions and an AI dictionary."
+    },
+    "decks": {
+      "title": "Course vocabulary decks",
+      "description": "Manage official flashcard decks for teaching and supplementary exercises."
+    },
+    "deckDetail": {
+      "title": "Deck details",
+      "description": "Vocabulary list with IPA, Vietnamese meanings and illustrative example sentences."
+    },
+    "cefr": {
+      "title": "CEFR AI review",
+      "description": "A queue for reviewing difficulty levels of words and sentences suggested by AI."
+    },
+    "dict": {
+      "title": "Specialized dictionary",
+      "description": "Look up and refine definitions and context-based meanings in Vietnamese."
+    },
+    "phoneme": {
+      "title": "Phonetics & Pronunciation",
+      "description": "A phonology database, minimal pairs and IPA sound drills."
+    },
+    "qbank": {
+      "title": "Question bank",
+      "description": "Multiple-choice, fill-in, dictation and pronunciation-check questions."
+    },
+    "reports": {
+      "title": "My error reports",
+      "description": "Track and respond to learner feedback and content error reports."
+    },
+    "reportDetail": {
+      "title": "Handle error report",
+      "description": "See the reported content and confirm the corrections."
+    },
+    "audit": {
+      "title": "Change history",
+      "description": "A log of create, update and delete actions on your instructor account content."
+    },
+    "classes": {
+      "title": "Class management",
+      "description": "Your classes, class sizes, assigned work and test results."
+    },
+    "students": {
+      "title": "Student list",
+      "description": "Per-student profiles, attendance rates and progress over time."
+    },
+    "progress": {
+      "title": "Class progress",
+      "description": "Charts of lesson completion and the score distribution of your students."
+    },
+    "weakness": {
+      "title": "Common weaknesses",
+      "description": "The pronunciation and vocabulary errors your class makes most often."
+    },
+    "settings": {
+      "title": "Instructor settings",
+      "description": "Customize notifications, teaching schedule, linked accounts and teaching methods."
+    },
+    "profile": {
+      "title": "Instructor profile",
+      "description": "Personal info, degrees, certificates and subjects taught."
+    }
+  },
+  "admin": {
+    "overview": {
+      "title": "System overview",
+      "description": "A system-wide KPI dashboard: active users, revenue and moderation alerts."
+    },
+    "users": {
+      "title": "User management",
+      "description": "Student, instructor and administrator accounts with system permissions."
+    },
+    "userDetail": {
+      "title": "User details",
+      "description": "Account details, learning history, transactions and access rights."
+    },
+    "reports": {
+      "title": "Error report queue",
+      "description": "Moderate inappropriate or inaccurate content reports from the user community."
+    },
+    "reportDetail": {
+      "title": "Error report details",
+      "description": "See the report evidence, the reporter and decide how to handle the violation."
+    },
+    "decks": {
+      "title": "Public deck review",
+      "description": "Approve community-shared vocabulary decks before they go public."
+    },
+    "deckDetail": {
+      "title": "Deck moderation",
+      "description": "Review the words in a user-contributed deck before approving it for display."
+    },
+    "audit": {
+      "title": "Content log",
+      "description": "Trace the full edit and publishing history of instructors content."
+    },
+    "limits": {
+      "title": "Plans & Quotas",
+      "description": "Configure AI lookup limits and daily lesson caps for Free and Pro accounts."
+    },
+    "subs": {
+      "title": "Pro subscriptions",
+      "description": "Track paid subscribers, payment revenue and renewals."
+    },
+    "errors": {
+      "title": "Error categories",
+      "description": "Manage the cause taxonomy used to classify reports and statistics."
+    },
+    "instructors": {
+      "title": "Instructor management",
+      "description": "Review applications, grant instructor access and assess authoring quality."
+    },
+    "subscriptions": {
+      "title": "Plan configuration",
+      "description": "Set monthly/yearly subscription prices, promotions and exclusive features."
+    },
+    "content": {
+      "title": "Content administration",
+      "description": "An overview of lesson resources, audio, video and documents across the system."
+    },
+    "settings": {
+      "title": "System settings",
+      "description": "Configure servers, AI API keys, service email and online payment gateways."
+    },
+    "logs": {
+      "title": "Activity log",
+      "description": "Access, security and authentication logs plus server error monitoring."
+    },
+    "profile": {
+      "title": "Administrator profile",
+      "description": "Administrator personal info and sign-in session log."
+    },
+    "analytics": {
+      "title": "Analytics & Statistics",
+      "description": "In-depth reports on user growth, retention and revenue."
+    }
+  }
+}

@@ -12,6 +12,7 @@
 
 import { useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
 
 
@@ -19,29 +20,32 @@ import { LogoMark } from "@/components/common/Logo";
 type NavItem = {
   id: string;
   icon: string;
-  label: string;
+  /** Khoá trong layout:student.sidebar.items */
+  labelKey: string;
   to: string;
   badge?: number;
 };
 
 const STUDENT_NAV: NavItem[] = [
-  { id: "today", icon: "sun-horizon", label: "Hôm nay", to: "/student" },
+  { id: "today", icon: "sun-horizon", labelKey: "today", to: "/student" },
 ];
 
 const LEARN_NAV: NavItem[] = [
-  { id: "lessons", icon: "books", label: "Bài học", to: "/student/lessons" },
-  { id: "dictation", icon: "headphones", label: "Nghe chép", to: "/student/dictation" },
-  { id: "shadowing", icon: "microphone", label: "Shadowing", to: "/student/shadowing" },
-  { id: "vocab", icon: "cards", label: "Từ vựng", to: "/student/vocab" },
+  { id: "lessons", icon: "books", labelKey: "lessons", to: "/student/lessons" },
+  { id: "dictation", icon: "headphones", labelKey: "dictation", to: "/student/dictation" },
+  { id: "shadowing", icon: "microphone", labelKey: "shadowing", to: "/student/shadowing" },
+  { id: "vocab", icon: "cards", labelKey: "vocab", to: "/student/vocab" },
 ];
 
 const PERSONAL_NAV: NavItem[] = [
-  { id: "mywords", icon: "bookmarks-simple", label: "Từ & câu đã lưu", to: "/student/mywords", badge: 8 },
-  { id: "weakness", icon: "target", label: "Điểm yếu", to: "/student/weakness" },
-  { id: "test", icon: "exam", label: "Kiểm tra trình độ", to: "/student/test" },
+  { id: "mywords", icon: "bookmarks-simple", labelKey: "mywords", to: "/student/mywords", badge: 8 },
+  { id: "weakness", icon: "target", labelKey: "weakness", to: "/student/weakness" },
+  { id: "test", icon: "exam", labelKey: "test", to: "/student/test" },
 ];
 
 function NavItem({ item }: { item: NavItem }) {
+  const { t } = useTranslation("layout");
+  const label = t(`student.sidebar.items.${item.labelKey}`);
   const iconBase = item.icon.replace(/^ph-/, "");
   return (
     <NavLink
@@ -54,7 +58,7 @@ function NavItem({ item }: { item: NavItem }) {
             : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_i]:translate-x-0.5"
         }`
       }
-      aria-label={item.label}
+      aria-label={label}
     >
       {({ isActive }) => (
         <>
@@ -64,7 +68,7 @@ function NavItem({ item }: { item: NavItem }) {
             } ph-${iconBase}`}
             aria-hidden="true"
           />
-          <span>{item.label}</span>
+          <span>{label}</span>
           {item.badge != null && item.badge > 0 && (
             <span className="ml-auto min-w-[22px] h-[22px] px-1.5 rounded-full grid place-items-center text-xs font-semibold bg-[rgba(251,113,133,0.18)] text-danger">
               {item.badge}
@@ -77,6 +81,7 @@ function NavItem({ item }: { item: NavItem }) {
 }
 
 export default function StudentSidebar() {
+  const { t } = useTranslation("layout");
   const navigate = useNavigate();
   const isPro = false; // TODO: thêm field plan vào User type khi backend ready
   const proCardRef = useRef<HTMLDivElement>(null);
@@ -99,13 +104,13 @@ export default function StudentSidebar() {
   return (
     <aside
       className="sticky top-0 h-screen overflow-y-auto hidden md:flex flex-col gap-1 p-5 px-4 bg-bg-elevated border-r border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      aria-label="Điều hướng chính"
+      aria-label={t("student.sidebar.aria")}
     >
       {/* Brand / Logo */}
       <button
         className="flex items-center gap-2.5 px-1 pt-1 pb-6 text-left border-0 bg-transparent cursor-pointer group select-none"
         onClick={() => navigate("/student")}
-        aria-label="LinguaLoop, về trang Hôm nay"
+        aria-label={t("student.sidebar.homeLabel")}
       >
         <div className="shrink-0 transition-transform duration-300 group-hover:scale-105">
           <LogoMark size={44} />
@@ -122,7 +127,7 @@ export default function StudentSidebar() {
 
       {/* Nhóm: Học */}
       <div className="text-[11px] font-semibold tracking-[0.12em] uppercase text-text-subtle px-3 pt-5 pb-1.5 font-body">
-        Học
+        {t("student.sidebar.groups.learn")}
       </div>
       {LEARN_NAV.map((item) => (
         <NavItem key={item.id} item={item} />
@@ -130,7 +135,7 @@ export default function StudentSidebar() {
 
       {/* Nhóm: Của tôi */}
       <div className="text-[11px] font-semibold tracking-[0.12em] uppercase text-text-subtle px-3 pt-5 pb-1.5 font-body">
-        Của tôi
+        {t("student.sidebar.groups.mine")}
       </div>
       {PERSONAL_NAV.map((item) => (
         <NavItem key={item.id} item={item} />
@@ -160,10 +165,10 @@ export default function StudentSidebar() {
               PRO
             </span>
             <b className="block mt-2.5 text-[17px] font-bold leading-snug text-text">
-              Từ 33k/tháng
+              {t("student.sidebar.pro.price")}
             </b>
             <p className="text-[13px] leading-relaxed text-text-muted my-1 mb-3">
-              Chấm không giới hạn, nhận xét AI, video khẩu hình.
+              {t("student.sidebar.pro.desc")}
             </p>
             <button
               type="button"
@@ -174,7 +179,7 @@ export default function StudentSidebar() {
               }}
               onClick={() => navigate("/pricing")}
             >
-              Dùng thử Pro
+              {t("student.sidebar.pro.cta")}
             </button>
           </div>
         </div>

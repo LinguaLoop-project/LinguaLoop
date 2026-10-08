@@ -6,30 +6,42 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useAuth } from "@/features/auth";
 
+// Đường dẫn → khoá trong layout:instructor.topbar.titles
 const INSTRUCTOR_PAGE_TITLES: Record<string, string> = {
-  "/instructor": "Tổng quan",
-  "/instructor/topics": "Chủ đề",
-  "/instructor/lessons": "Bài học",
-  "/instructor/compose": "Soạn bài học mới",
-  "/instructor/decks": "Bộ từ vựng",
-  "/instructor/cefr": "Duyệt CEFR AI",
-  "/instructor/dict": "Từ điển",
-  "/instructor/phoneme": "Ngữ âm",
-  "/instructor/qbank": "Câu hỏi kiểm tra",
-  "/instructor/reports": "Báo lỗi của tôi",
-  "/instructor/audit": "Lịch sử thay đổi",
-  "/instructor/classes": "Lớp học",
-  "/instructor/students": "Học viên",
-  "/instructor/progress": "Tiến độ lớp",
-  "/instructor/weakness": "Điểm yếu chung",
-  "/instructor/settings": "Cài đặt",
-  "/instructor/profile": "Hồ sơ giảng viên",
+  "/instructor": "overview",
+  "/instructor/topics": "topics",
+  "/instructor/lessons": "lessons",
+  "/instructor/compose": "compose",
+  "/instructor/decks": "decks",
+  "/instructor/cefr": "cefr",
+  "/instructor/dict": "dict",
+  "/instructor/phoneme": "phoneme",
+  "/instructor/qbank": "qbank",
+  "/instructor/reports": "reports",
+  "/instructor/audit": "audit",
+  "/instructor/classes": "classes",
+  "/instructor/students": "students",
+  "/instructor/progress": "progress",
+  "/instructor/weakness": "weakness",
+  "/instructor/settings": "settings",
+  "/instructor/profile": "profile",
 };
 
+// Trang chi tiết (đường dẫn con) → khoá tiêu đề
+const DETAIL_TITLES: [prefix: string, key: string][] = [
+  ["/instructor/topics/", "topicDetail"],
+  ["/instructor/lessons/", "lessonDetail"],
+  ["/instructor/decks/", "deckDetail"],
+  ["/instructor/reports/", "reportDetail"],
+];
+
 export default function InstructorTopBar() {
+  const { t } = useTranslation("layout");
   const navigate = useNavigate();
   const location = useLocation();
   const { user, handleLogout } = useAuth();
@@ -41,8 +53,8 @@ export default function InstructorTopBar() {
 
   const [dark, setDark] = useState(() => {
     try {
-      const t = JSON.parse(localStorage.getItem("ll3-theme") ?? "null");
-      return t ? t === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const stored = JSON.parse(localStorage.getItem("ll3-theme") ?? "null");
+      return stored ? stored === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
     } catch {
       return true;
     }
@@ -82,17 +94,11 @@ export default function InstructorTopBar() {
     setDark(!dark);
   }
 
-  const pageTitle =
-    INSTRUCTOR_PAGE_TITLES[location.pathname] ||
-    (location.pathname.startsWith("/instructor/topics/")
-      ? "Chi tiết chủ đề"
-      : location.pathname.startsWith("/instructor/lessons/")
-      ? "Chi tiết bài học"
-      : location.pathname.startsWith("/instructor/decks/")
-      ? "Chi tiết bộ từ"
-      : location.pathname.startsWith("/instructor/reports/")
-      ? "Chi tiết báo cáo lỗi"
-      : "Tổng quan");
+  const titleKey =
+    INSTRUCTOR_PAGE_TITLES[location.pathname] ??
+    DETAIL_TITLES.find(([prefix]) => location.pathname.startsWith(prefix))?.[1] ??
+    "overview";
+  const pageTitle = t(`instructor.topbar.titles.${titleKey}`);
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between px-4 md:px-7 py-3 md:py-3.5 bg-[color-mix(in_srgb,var(--bg-base)_72%,transparent)] backdrop-blur-md border-b border-border">
@@ -103,19 +109,19 @@ export default function InstructorTopBar() {
           type="button"
           className="flex md:hidden items-center justify-center p-0 bg-transparent border-0 cursor-pointer"
           onClick={() => navigate("/instructor")}
-          aria-label="LinguaLoop Giảng viên"
+          aria-label={t("instructor.topbar.homeLabel")}
         >
           <LogoMark size={32} />
         </button>
 
         {/* Breadcrumb: Giảng viên › [Page Title] */}
-        <nav className="flex items-center gap-1.5 text-sm" aria-label="Vị trí hiện tại">
+        <nav className="flex items-center gap-1.5 text-sm" aria-label={t("instructor.topbar.breadcrumbAria")}>
           <button
             type="button"
             onClick={() => navigate("/instructor")}
             className="text-text-muted hover:text-primary transition-colors text-sm font-medium bg-transparent border-0 cursor-pointer p-0"
           >
-            Giảng viên
+            {t("instructor.topbar.root")}
           </button>
           <span className="text-text-subtle text-xs" aria-hidden="true">&#8250;</span>
           <b className="text-text font-semibold">{pageTitle}</b>
@@ -124,12 +130,15 @@ export default function InstructorTopBar() {
 
       {/* Right side: Theme toggle + Account menu */}
       <div className="flex items-center gap-2.5">
+        {/* Language toggle */}
+        <LanguageSwitcher className="w-10 h-10 shrink-0 rounded-md border border-border grid place-items-center text-xl text-text-muted bg-transparent hover:bg-surface-hover hover:border-border-strong hover:text-text transition-colors cursor-pointer" />
+
         {/* Theme toggle */}
         <button
           type="button"
           className="w-10 h-10 shrink-0 rounded-md border border-border grid place-items-center text-xl text-text-muted bg-transparent hover:bg-surface-hover hover:border-border-strong hover:text-text transition-colors cursor-pointer"
           onClick={toggleTheme}
-          aria-label="Đổi giao diện sáng/tối"
+          aria-label={t("theme.toggle")}
         >
           {dark ? (
             <i className="ph ph-moon text-accent" aria-hidden="true" />
@@ -147,7 +156,7 @@ export default function InstructorTopBar() {
             onClick={() => setMenuOpen((v) => !v)}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            aria-label="Tài khoản giảng viên"
+            aria-label={t("instructor.topbar.accountAria")}
           >
             GV
           </button>
@@ -156,7 +165,7 @@ export default function InstructorTopBar() {
             <div
               className="absolute top-[calc(100%+8px)] right-0 z-50 w-[240px] rounded-[20px] bg-surface-glass backdrop-blur-xl border border-border-strong shadow-[var(--shadow-card)] overflow-hidden animate-in fade-in duration-150"
               role="menu"
-              aria-label="Tài khoản"
+              aria-label={t("instructor.topbar.menuAria")}
             >
               {/* Account header */}
               <div className="px-4 py-3.5 border-b border-border">
@@ -180,7 +189,7 @@ export default function InstructorTopBar() {
                   }}
                 >
                   <i className="ph ph-clock-counter-clockwise text-lg text-text-subtle" aria-hidden="true" />
-                  <span>Lịch sử của tôi</span>
+                  <span>{t("instructor.topbar.myHistory")}</span>
                 </button>
 
                 <div className="h-[1px] bg-border my-1 -mx-1.5" />
@@ -195,7 +204,7 @@ export default function InstructorTopBar() {
                   }}
                 >
                   <i className="ph ph-student text-lg text-text-subtle" aria-hidden="true" />
-                  <span>Xem như học viên</span>
+                  <span>{t("instructor.topbar.viewAsStudent")}</span>
                 </button>
 
                 <button
@@ -208,7 +217,7 @@ export default function InstructorTopBar() {
                   }}
                 >
                   <i className="ph ph-sign-out text-lg" aria-hidden="true" />
-                  <span>Đăng xuất</span>
+                  <span>{t("instructor.topbar.logout")}</span>
                 </button>
               </div>
             </div>

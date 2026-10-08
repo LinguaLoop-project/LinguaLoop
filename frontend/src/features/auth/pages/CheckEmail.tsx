@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
+import { Trans, useTranslation } from "react-i18next";
 import { authService } from "../services/authService";
 import { errorMessage, toApiError } from "../errors";
+import type { ApiError } from "../types";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
 
@@ -11,6 +13,7 @@ const RESEND_COOLDOWN_MS = 60_000;
 export type CheckEmailState = { email: string; mailSent: boolean | null };
 
 const CheckEmail = () => {
+  const { t } = useTranslation("auth");
   const location = useLocation();
   const state = location.state as Partial<CheckEmailState> | null;
 
@@ -19,7 +22,7 @@ const CheckEmail = () => {
   const [now, setNow] = useState(() => Date.now());
   const [sending, setSending] = useState(false);
   const [resent, setResent] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
   const secondsLeft = Math.max(0, Math.ceil((cooldownEnd - now) / 1000));
 
@@ -44,7 +47,7 @@ const CheckEmail = () => {
       setNow(Date.now());
       setCooldownEnd(Date.now() + RESEND_COOLDOWN_MS);
     } catch (err: unknown) {
-      setError(errorMessage(toApiError(err)));
+      setError(toApiError(err));
     } finally {
       setSending(false);
     }
@@ -64,7 +67,7 @@ const CheckEmail = () => {
             <img src="/loopi-hello.svg" width={120} height={120} alt="" draggable={false} />
 
             <div>
-              <span className="ll-overline">Gần xong rồi</span>
+              <span className="ll-overline">{t("checkEmail.overline")}</span>
               <h1
                 style={{
                   fontSize: 28,
@@ -74,21 +77,37 @@ const CheckEmail = () => {
                   marginBottom: 8,
                 }}
               >
-                Kiểm tra hộp thư
+                {t("checkEmail.title")}
               </h1>
               {mailFailed ? (
                 <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
-                  Tài khoản đã được tạo nhưng mình chưa gửi được thư xác minh tới <b>{email}</b>. Bấm "Gửi lại email
-                  xác thực" để thử lại.
+                  <Trans
+                    t={t}
+                    i18nKey="checkEmail.mailFailed"
+                    values={{ email }}
+                    components={{ b: <b /> }}
+                    shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
+                  />
                 </p>
               ) : state?.mailSent === null ? (
                 <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
-                  Email <b>{email}</b> chưa được xác thực. Bạn cần bấm link trong thư xác minh trước khi đăng nhập.
+                  <Trans
+                    t={t}
+                    i18nKey="checkEmail.notVerified"
+                    values={{ email }}
+                    components={{ b: <b /> }}
+                    shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
+                  />
                 </p>
               ) : (
                 <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
-                  Mình vừa gửi link xác minh tới <b>{email}</b>. Bấm link trong thư để kích hoạt tài khoản, link có hạn
-                  24 giờ.
+                  <Trans
+                    t={t}
+                    i18nKey="checkEmail.sent"
+                    values={{ email }}
+                    components={{ b: <b /> }}
+                    shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
+                  />
                 </p>
               )}
             </div>
@@ -96,21 +115,21 @@ const CheckEmail = () => {
             {mailFailed && (
               <div className="ll-form-alert danger text-left" role="alert">
                 <i className="ph ph-warning-circle" style={{ fontSize: 20, flexShrink: 0 }} />
-                <span>Chưa gửi được email xác thực.</span>
+                <span>{t("checkEmail.mailFailedAlert")}</span>
               </div>
             )}
 
             {resent && !error && (
               <div className="ll-form-alert success text-left" role="status">
                 <i className="ph ph-check-circle" style={{ fontSize: 20, flexShrink: 0 }} />
-                <span>Nếu email này đang chờ xác thực, mình đã gửi một thư mới. Link cũ không còn dùng được.</span>
+                <span>{t("checkEmail.resent")}</span>
               </div>
             )}
 
             {error && (
               <div className="ll-form-alert danger text-left" role="alert">
                 <i className="ph ph-warning-circle" style={{ fontSize: 20, flexShrink: 0 }} />
-                <span>{error}</span>
+                <span>{errorMessage(error)}</span>
               </div>
             )}
 
@@ -122,20 +141,20 @@ const CheckEmail = () => {
             >
               <i className="ph ph-paper-plane-tilt" />
               {sending
-                ? "Đang gửi..."
+                ? t("checkEmail.sending")
                 : secondsLeft > 0
-                  ? `Gửi lại sau ${secondsLeft} giây`
-                  : "Gửi lại email xác thực"}
+                  ? t("checkEmail.resendIn", { seconds: secondsLeft })
+                  : t("checkEmail.resend")}
             </button>
 
             <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
-              Nhập sai email?{" "}
+              {t("checkEmail.wrongEmail")}{" "}
               <Link to="/auth/register" className="ll-link">
-                Đăng ký lại
+                {t("checkEmail.registerAgain")}
               </Link>
               {" · "}
               <Link to="/auth/login" className="ll-link">
-                Về đăng nhập
+                {t("checkEmail.backToLogin")}
               </Link>
             </p>
           </section>

@@ -1,45 +1,31 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export const AuthSidePanel: React.FC = () => {
+  const { t } = useTranslation("auth");
+
   return (
     <aside className="auth-side">
       {/* Brand */}
-      <div className="flex items-center gap-2">
+      <Link to="/" className="flex items-center gap-2 w-fit" aria-label={t("sidePanel.homeLabel")}>
         <svg className="ll-brand-mark" viewBox="0 0 100 100" aria-hidden="true">
           <use href="#logo-mark" />
         </svg>
         <span className="ll-wordmark">
           Lingua<b className="ll-loop">Loop</b>
         </span>
-      </div>
+      </Link>
 
       {/* Hero card */}
       <div className="auth-hero relative max-w-[460px]">
-        {/* Decorative 3D objects */}
-        <svg
-          className="ll-obj"
-          viewBox="0 0 200 200"
-          style={{ "--s": "104px", top: "-48px", right: "-28px", "--d": "-2s" } as React.CSSProperties}
-          aria-hidden="true"
-        >
-          <use href="#o-orb" />
-        </svg>
-        <svg
-          className="ll-obj"
-          viewBox="0 0 200 200"
-          style={{ "--s": "80px", bottom: "-36px", left: "-28px", "--d": "-5s", "--dur": "9s" } as React.CSSProperties}
-          aria-hidden="true"
-        >
-          <use href="#o-torus" />
-        </svg>
-
         {/* Glass card */}
         <div className="auth-hero-card ll-glass ll-spotlight">
           <img
             src="/loopi-hello.svg"
             width={120}
             height={120}
-            alt="Loopi vẫy tay chào"
+            alt={t("sidePanel.loopiAlt")}
             draggable={false}
             style={{ margin: "-12px 0 8px -10px" }}
           />
@@ -52,8 +38,8 @@ export const AuthSidePanel: React.FC = () => {
               fontWeight: 700,
             }}
           >
-            Nghe, chép, nói theo.<br />
-            Mỗi ngày 15 phút.
+            {t("sidePanel.headline")}<br />
+            {t("sidePanel.headlineSub")}
           </h2>
           <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 16 }}>
             <li className="flex gap-[14px] items-start">
@@ -61,9 +47,9 @@ export const AuthSidePanel: React.FC = () => {
                 <i className="ph-duotone ph-headphones" />
               </span>
               <div>
-                <b className="block text-[15px] mb-0.5">Nghe chép có chấm từng từ</b>
+                <b className="block text-[15px] mb-0.5">{t("sidePanel.features.dictation.title")}</b>
                 <span className="text-[13px] leading-snug" style={{ color: "var(--text-muted)" }}>
-                  Biết mình hay sót từ nhỏ hay sai đuôi -ed.
+                  {t("sidePanel.features.dictation.desc")}
                 </span>
               </div>
             </li>
@@ -72,9 +58,9 @@ export const AuthSidePanel: React.FC = () => {
                 <i className="ph-duotone ph-microphone" />
               </span>
               <div>
-                <b className="block text-[15px] mb-0.5">AI chấm phát âm tới từng âm</b>
+                <b className="block text-[15px] mb-0.5">{t("sidePanel.features.pronunciation.title")}</b>
                 <span className="text-[13px] leading-snug" style={{ color: "var(--text-muted)" }}>
-                  Thấy ngay /θ/ đang bị đọc thành /t/.
+                  {t("sidePanel.features.pronunciation.desc")}
                 </span>
               </div>
             </li>
@@ -83,9 +69,9 @@ export const AuthSidePanel: React.FC = () => {
                 <i className="ph-duotone ph-cards" />
               </span>
               <div>
-                <b className="block text-[15px] mb-0.5">Ôn từ đúng lúc sắp quên</b>
+                <b className="block text-[15px] mb-0.5">{t("sidePanel.features.srs.title")}</b>
                 <span className="text-[13px] leading-snug" style={{ color: "var(--text-muted)" }}>
-                  Từ lưu khi học tự vào lịch ôn.
+                  {t("sidePanel.features.srs.desc")}
                 </span>
               </div>
             </li>
@@ -95,7 +81,7 @@ export const AuthSidePanel: React.FC = () => {
 
       {/* Footer tagline */}
       <p className="text-[13px] leading-relaxed" style={{ color: "var(--text-muted)" }}>
-        Gần 670 bài từ video thật · 8 chủ đề · miễn phí để bắt đầu
+        {t("sidePanel.tagline")}
       </p>
     </aside>
   );

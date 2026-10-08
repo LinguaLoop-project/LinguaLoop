@@ -1,8 +1,9 @@
 import { isAxiosError } from "axios";
 import type { FieldPath, FieldValues, UseFormSetError } from "react-hook-form";
+import i18n from "@/i18n";
 import type { ApiError, ApiErrorBody, FieldError } from "./types";
 
-// Bảng mã lỗi → câu tiếng Việt (tạm, trước khi có i18n). Backend chỉ trả `code` + `details`, không trả câu hiển thị.
+// Bảng mã lỗi → câu hiển thị (vi/en, xem locales/*/auth.json). Backend chỉ trả `code` + `details`, không trả câu hiển thị.
 
 export const NETWORK_ERROR = "NETWORK_ERROR";
 
@@ -31,65 +32,62 @@ function minutesUntil(lockedUntil: unknown): number {
   return Number.isNaN(ms) ? 15 : Math.max(1, Math.ceil(ms / 60_000));
 }
 
-/** Câu thông báo cho lỗi cấp form (không thuộc field nào). */
+/** Câu thông báo cho lỗi cấp form (không thuộc field nào), theo ngôn ngữ đang chọn. */
 export function errorMessage(error: ApiError): string {
   switch (error.code) {
     case "AUTH_INVALID_CREDENTIALS": {
       const remaining = error.details.remainingAttempts;
       return typeof remaining === "number"
-        ? `Email hoặc mật khẩu chưa đúng. Bạn còn ${remaining} lần thử.`
-        : "Email hoặc mật khẩu chưa đúng.";
+        ? i18n.t("auth:errors.invalidCredentialsRemaining", { count: remaining })
+        : i18n.t("auth:errors.invalidCredentials");
     }
     case "AUTH_ACCOUNT_LOCKED":
-      return `Đăng nhập tạm bị khoá do sai mật khẩu nhiều lần. Thử lại sau khoảng ${minutesUntil(error.details.lockedUntil)} phút, hoặc đặt lại mật khẩu.`;
+      return i18n.t("auth:errors.accountLocked", { minutes: minutesUntil(error.details.lockedUntil) });
     case "AUTH_ACCOUNT_DISABLED":
-      return "Tài khoản này đã bị khoá. Vui lòng liên hệ quản trị viên.";
+      return i18n.t("auth:errors.accountDisabled");
     case "AUTH_EMAIL_NOT_VERIFIED":
-      return "Email này chưa được xác thực.";
+      return i18n.t("auth:errors.emailNotVerified");
     case "AUTH_EMAIL_TAKEN":
-      return "Email này đã được sử dụng.";
+      return i18n.t("auth:errors.emailTaken");
     case "AUTH_LINK_INVALID":
-      return "Liên kết không hợp lệ, đã hết hạn hoặc đã được sử dụng.";
+      return i18n.t("auth:errors.linkInvalid");
     case "AUTH_REFRESH_INVALID":
-      return "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.";
+      return i18n.t("auth:errors.refreshInvalid");
     case "VALIDATION_FAILED":
-      return "Thông tin chưa hợp lệ, vui lòng kiểm tra lại các ô bên dưới.";
+      return i18n.t("auth:errors.validationFailed");
     case NETWORK_ERROR:
-      return "Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng hoặc thử lại sau.";
+      return i18n.t("auth:errors.network");
     default:
-      return "Có lỗi xảy ra, vui lòng thử lại sau.";
+      return i18n.t("auth:errors.unknown");
   }
 }
 
-// Tên field của request → nhãn hiển thị trong câu lỗi
-const FIELD_LABELS: Record<string, string> = {
-  email: "Email",
-  password: "Mật khẩu",
-  displayName: "Tên hiển thị",
-  acceptTerms: "Điều khoản",
-};
+// Tên field của request → khoá nhãn trong auth:fieldLabels
+const FIELD_LABEL_KEYS = new Set(["email", "password", "displayName", "acceptTerms"]);
 
 /** Câu lỗi cho một field, dịch theo tên constraint của Bean Validation (`NotBlank`, `Size`, ...). */
 export function fieldErrorMessage(fe: FieldError): string {
-  const label = FIELD_LABELS[fe.field] ?? "Giá trị này";
+  const label = i18n.t(FIELD_LABEL_KEYS.has(fe.field) ? `auth:fieldLabels.${fe.field}` : "auth:fieldLabels.fallback");
   const { min, max } = fe.params;
   switch (fe.code) {
     case "NotBlank":
     case "NotNull":
-      return `${label} không được để trống.`;
+      return i18n.t("auth:fieldErrors.required", { label });
     case "Email":
-      return "Email chưa đúng định dạng, ví dụ ban@email.com";
+      return i18n.t("auth:fieldErrors.emailFormat");
     case "MaxBytes":
-      return `${label} tối đa ${fe.params.value} byte (ký tự có dấu chiếm nhiều byte hơn).`;
+      return i18n.t("auth:fieldErrors.maxBytes", { label, max: fe.params.value });
     case "AssertTrue":
-      return "Bạn cần đồng ý với điều khoản để tạo tài khoản.";
+      return i18n.t("auth:fieldErrors.acceptTerms");
     case "Size":
       if (typeof min === "number" && typeof max === "number") {
-        return min <= 1 ? `${label} tối đa ${max} ký tự.` : `${label} cần từ ${min} đến ${max} ký tự.`;
+        return min <= 1
+          ? i18n.t("auth:fieldErrors.sizeMax", { label, max })
+          : i18n.t("auth:fieldErrors.sizeRange", { label, min, max });
       }
-      return `${label} chưa đúng độ dài.`;
+      return i18n.t("auth:fieldErrors.sizeInvalid", { label });
     default:
-      return fe.message || `${label} chưa hợp lệ.`;
+      return fe.message || i18n.t("auth:fieldErrors.invalid", { label });
   }
 }
 

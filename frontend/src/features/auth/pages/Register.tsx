@@ -1,14 +1,13 @@
 import React, { useState, useId } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { authService } from "../services/authService";
 import { registerSchema, type RegisterFormData } from "../validations/authSchemas";
 import { applyFieldErrors, errorMessage, toApiError } from "../errors";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
-
-const PW_LABELS = ["", "Yếu", "Tạm được", "Mạnh", "Rất mạnh"];
 
 function getPwScore(v: string): number {
   if (!v) return 0;
@@ -25,6 +24,7 @@ function isPwValid(v: string): boolean {
 }
 
 const Register = () => {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const formId = useId();
   const [showPassword, setShowPassword] = useState(false);
@@ -109,7 +109,7 @@ const Register = () => {
           >
             {/* Header info */}
             <div>
-              <span className="ll-overline">Miễn phí, không cần thẻ</span>
+              <span className="ll-overline">{t("register.overline")}</span>
               <h1
                 style={{
                   fontSize: 28,
@@ -119,14 +119,13 @@ const Register = () => {
                   marginBottom: 8,
                 }}
               >
-                Tạo tài khoản
+                {t("register.title")}
               </h1>
               <p
                 className="text-[14px] leading-relaxed"
                 style={{ color: "var(--text-muted)" }}
               >
-                Chưa tới một phút. Xong thì làm bài kiểm tra 10 phút để có kế
-                hoạch riêng.
+                {t("register.subtitle")}
               </p>
             </div>
 
@@ -147,7 +146,7 @@ const Register = () => {
               {/* Display name */}
               <div className={`ll-field ${errors.displayName ? "bad" : ""}`}>
                 <label htmlFor={`${formId}-displayName`} className="ll-label">
-                  Tên hiển thị
+                  {t("register.displayName")}
                 </label>
                 <div className="ll-inp">
                   <i className="ph ph-user" />
@@ -155,7 +154,7 @@ const Register = () => {
                     id={`${formId}-displayName`}
                     type="text"
                     autoComplete="name"
-                    placeholder="vd: Minh Anh"
+                    placeholder={t("register.displayNamePlaceholder")}
                     maxLength={50}
                     {...register("displayName")}
                   />
@@ -163,14 +162,14 @@ const Register = () => {
                 {errors.displayName ? (
                   <p className="ll-err">{errors.displayName.message}</p>
                 ) : (
-                  <p className="ll-hint">Tên này được phép trùng với người khác</p>
+                  <p className="ll-hint">{t("register.displayNameHint")}</p>
                 )}
               </div>
 
               {/* Email */}
               <div className={`ll-field ${errors.email ? "bad" : ""}`}>
                 <label htmlFor={`${formId}-email`} className="ll-label">
-                  Email
+                  {t("register.email")}
                 </label>
                 <div className="ll-inp">
                   <i className="ph ph-envelope-simple" />
@@ -178,7 +177,7 @@ const Register = () => {
                     id={`${formId}-email`}
                     type="email"
                     autoComplete="email"
-                    placeholder="ban@email.com"
+                    placeholder={t("register.emailPlaceholder")}
                     {...register("email")}
                   />
                 </div>
@@ -188,11 +187,11 @@ const Register = () => {
                 {emailTaken && (
                   <p className="ll-hint">
                     <Link to="/auth/login" className="ll-link">
-                      Đăng nhập
+                      {t("register.emailTakenLogin")}
                     </Link>
                     {" · "}
                     <Link to="/auth/forgot-password" className="ll-link">
-                      Quên mật khẩu
+                      {t("register.emailTakenForgot")}
                     </Link>
                     {" · "}
                     <Link
@@ -200,7 +199,7 @@ const Register = () => {
                       state={{ email: getValues("email").trim(), mailSent: null }}
                       className="ll-link"
                     >
-                      Gửi lại email xác thực
+                      {t("register.emailTakenResend")}
                     </Link>
                   </p>
                 )}
@@ -209,7 +208,7 @@ const Register = () => {
               {/* Password */}
               <div className={`ll-field ${errors.password ? "bad" : ""}`}>
                 <label htmlFor={`${formId}-password`} className="ll-label">
-                  Mật khẩu
+                  {t("register.password")}
                 </label>
                 <div className="ll-inp">
                   <i className="ph ph-lock-simple" />
@@ -217,7 +216,7 @@ const Register = () => {
                     id={`${formId}-password`}
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
-                    placeholder="Ít nhất 8 ký tự"
+                    placeholder={t("register.passwordPlaceholder")}
                     {...register("password", {
                       onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
                         setPasswordInput(e.target.value),
@@ -227,7 +226,7 @@ const Register = () => {
                     type="button"
                     className="ll-pw-eye"
                     onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    aria-label={showPassword ? t("register.hidePassword") : t("register.showPassword")}
                     aria-pressed={showPassword}
                   >
                     <i
@@ -257,11 +256,11 @@ const Register = () => {
                     </>
                   ) : passwordInput ? (
                     <span>
-                      Độ mạnh: <b>{PW_LABELS[pwScore]}</b>
-                      {!pwValid && " · cần ít nhất 8 ký tự"}
+                      {t("register.strength")} <b>{t(`register.strengthLevels.${pwScore}`)}</b>
+                      {!pwValid && t("register.strengthNeedMin")}
                     </span>
                   ) : (
-                    "Ít nhất 8 ký tự"
+                    t("register.passwordHint")
                   )}
                 </p>
               </div>
@@ -274,8 +273,7 @@ const Register = () => {
                     <i className="ph ph-check" />
                   </span>
                   <span className="text-[14px] leading-snug">
-                    Tôi đồng ý với Điều khoản sử dụng và Chính sách quyền riêng
-                    tư của LinguaLoop
+                    {t("register.acceptTerms")}
                   </span>
                 </label>
                 <p
@@ -283,11 +281,11 @@ const Register = () => {
                   style={{ color: "var(--text-muted)" }}
                 >
                   <button type="button" className="ll-link">
-                    Đọc điều khoản
+                    {t("register.readTerms")}
                   </button>
                   {" · "}
                   <button type="button" className="ll-link">
-                    Đọc chính sách
+                    {t("register.readPolicy")}
                   </button>
                 </p>
                 {errors.acceptTerms && (
@@ -299,8 +297,7 @@ const Register = () => {
               <div className="ll-note-sm">
                 <i className="ph ph-shield-check" />
                 <span>
-                  Quyền lưu giọng nói và gửi bài đọc cho AI được hỏi riêng khi
-                  bạn ghi âm lần đầu. Đổi lúc nào cũng được trong Cài đặt.
+                  {t("register.voiceNote")}
                 </span>
               </div>
 
@@ -313,10 +310,10 @@ const Register = () => {
                 {submitting ? (
                   <span className="flex items-center gap-2">
                     <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Đang tạo tài khoản...
+                    {t("register.submitting")}
                   </span>
                 ) : (
-                  "Tạo tài khoản"
+                  t("register.submit")
                 )}
               </button>
 
@@ -325,9 +322,9 @@ const Register = () => {
                 className="text-center text-[13px]"
                 style={{ color: "var(--text-muted)" }}
               >
-                Đã có tài khoản?{" "}
+                {t("register.haveAccount")}{" "}
                 <Link to="/auth/login" className="ll-link">
-                  Đăng nhập
+                  {t("register.login")}
                 </Link>
               </p>
             </form>
@@ -345,15 +342,15 @@ const Register = () => {
         >
           © 2026 LinguaLoop ·{" "}
           <button type="button" className="ll-link">
-            Điều khoản
+            {t("footer.terms")}
           </button>{" "}
           ·{" "}
           <button type="button" className="ll-link">
-            Quyền riêng tư
+            {t("footer.privacy")}
           </button>{" "}
           ·{" "}
           <button type="button" className="ll-link">
-            Trợ giúp
+            {t("footer.help")}
           </button>
         </p>
       </main>

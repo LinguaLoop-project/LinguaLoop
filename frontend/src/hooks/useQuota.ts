@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useAuthStore } from "../features/auth/stores/authStore";
 import { useQuotaStore } from "../stores/quotaStore";
 
-const MAX_FREE_ACTIONS = 5;
+export const MAX_FREE_ACTIONS = 5;
 
 function getStoredCount(userId?: string): number {
   if (!userId) return 0;
