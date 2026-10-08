@@ -4,6 +4,7 @@ import StudentLayout from "@/components/layouts/StudentLayout";
 import InstructorLayout from "@/components/layouts/InstructorLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail } from "@/features/auth";
+import { Settings } from "@/features/user";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
 import { AuthGuard } from "@/app/guards";
@@ -129,7 +130,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "settings",
-          element: <PlaceholderPage pageKey="student.settings" />,
+          element: <Settings />,
         },
         {
           path: "profile",
@@ -235,7 +236,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "settings",
-          element: <PlaceholderPage pageKey="instructor.settings" />,
+          element: <Settings />,
         },
         {
           path: "profile",
@@ -313,7 +314,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "settings",
-          element: <PlaceholderPage pageKey="admin.settings" />,
+          element: <Settings />,
         },
         {
           path: "logs",

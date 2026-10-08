@@ -75,7 +75,7 @@ export function errorMessage(error: ApiError): string {
 }
 
 // Tên field của request → khoá nhãn trong auth:fieldLabels
-const FIELD_LABEL_KEYS = new Set(["email", "password", "displayName", "acceptTerms"]);
+const FIELD_LABEL_KEYS = new Set(["email", "password", "displayName", "acceptTerms", "currentPassword", "newPassword"]);
 
 /** Câu lỗi cho một field, dịch theo tên constraint của Bean Validation (`NotBlank`, `Size`, ...). */
 export function fieldErrorMessage(fe: FieldError): string {

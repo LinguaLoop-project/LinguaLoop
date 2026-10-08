@@ -22,6 +22,7 @@ export type {
 } from "./stores/authStore";
 
 // Config
+export { getPwScore, isPwValid } from "./passwordStrength";
 export { isGoogleConfigured } from "./googleConfig";
 
 // Navigation
