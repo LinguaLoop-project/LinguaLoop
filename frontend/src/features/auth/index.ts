@@ -8,6 +8,7 @@ export { default as VerifyEmail } from "./pages/VerifyEmail";
 // Components
 export { default as AuthSidePanel } from "./components/AuthSidePanel";
 export { default as AuthTopBar } from "./components/AuthTopBar";
+export { default as GoogleAuthProvider } from "./components/GoogleAuthProvider";
 
 // Store & Types
 export { useAuthStore } from "./stores/authStore";
@@ -18,6 +19,9 @@ export type {
   AuthState,
   AuthActions,
 } from "./stores/authStore";
+
+// Config
+export { isGoogleConfigured } from "./googleConfig";
 
 // Navigation
 export { homePathFor, resolvePostLoginPath } from "./navigation";

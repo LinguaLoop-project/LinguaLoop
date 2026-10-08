@@ -6,12 +6,15 @@ import { BrowserRouter } from "react-router-dom";
 import { queryClient } from "@/api/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { GoogleAuthProvider } from "@/features/auth";
 
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <GoogleAuthProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </GoogleAuthProvider>
     <ReactQueryDevtools initialIsOpen={false} />
   </QueryClientProvider>,
 );
