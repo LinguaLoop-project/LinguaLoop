@@ -579,6 +579,15 @@
     width: 100%;
   }
   .ll-inp input::placeholder { color: var(--text-subtle); }
+  /* Trình duyệt tự tô nền xanh nhạt/trắng khi autofill: phủ lại bằng màu của theme */
+  .ll-inp input:-webkit-autofill,
+  .ll-inp input:-webkit-autofill:hover,
+  .ll-inp input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+    -webkit-text-fill-color: var(--text);
+    caret-color: var(--text);
+    transition: background-color 9999s ease-out 0s;
+  }
   .ll-pw-eye {
     padding: 0 12px;
     color: var(--text-subtle);
