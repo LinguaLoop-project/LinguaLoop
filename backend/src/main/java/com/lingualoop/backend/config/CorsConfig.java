@@ -11,7 +11,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.lingualoop.backend.common.web.RequestIdFilter;
 
-/** CORS cho frontend; Spring Security dùng bean này qua {@code http.cors()}. */
+/** CORS cho frontend (có credentials để gửi cookie refresh); Spring Security dùng bean này qua {@code http.cors()}. */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(CorsProperties.class)
 public class CorsConfig {
@@ -23,7 +23,7 @@ public class CorsConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of(RequestIdFilter.HEADER));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

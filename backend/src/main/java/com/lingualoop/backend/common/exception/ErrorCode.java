@@ -25,6 +25,15 @@ public enum ErrorCode {
     PAYLOAD_TOO_LARGE(HttpStatus.CONTENT_TOO_LARGE, "Tệp tải lên quá lớn"),
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Định dạng dữ liệu không được hỗ trợ"),
     QUOTA_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "Bạn đã dùng hết lượt trong ngày"),
+
+    AUTH_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu chưa đúng"),
+    AUTH_ACCOUNT_LOCKED(HttpStatus.LOCKED, "Tài khoản tạm thời bị khoá do đăng nhập sai nhiều lần"),
+    AUTH_ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "Tài khoản đã bị khoá bởi quản trị viên"),
+    AUTH_EMAIL_NOT_VERIFIED(HttpStatus.FORBIDDEN, "Email chưa được xác thực"),
+    AUTH_EMAIL_TAKEN(HttpStatus.CONFLICT, "Email này đã được đăng ký"),
+    AUTH_LINK_INVALID(HttpStatus.BAD_REQUEST, "Liên kết không hợp lệ, đã hết hạn hoặc đã được sử dụng"),
+    AUTH_REFRESH_INVALID(HttpStatus.UNAUTHORIZED, "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại"),
+
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi hệ thống, vui lòng thử lại sau");
 
     private final HttpStatus status;

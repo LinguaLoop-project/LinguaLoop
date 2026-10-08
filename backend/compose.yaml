@@ -7,3 +7,10 @@ services:
       POSTGRES_PASSWORD: lingualoop
     ports:
       - "5432:5432"
+
+  # Hộp thư giả cho môi trường local: SMTP :1025, xem thư tại http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"

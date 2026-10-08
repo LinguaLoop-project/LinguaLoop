@@ -10,7 +10,8 @@ import com.lingualoop.backend.common.web.RequestIdFilter;
 
 /**
  * Định dạng lỗi duy nhất của API. {@code traceId} trùng header {@code X-Request-Id}
- * để tra log; {@code errors} chỉ có khi lỗi validate.
+ * để tra log; {@code errors} chỉ có khi lỗi validate; {@code details} là dữ liệu kèm theo
+ * của lỗi nghiệp vụ (vd {@code remainingAttempts}), luôn là object, rỗng nếu không có.
  */
 public record ErrorResponse(
         int status,
@@ -19,10 +20,12 @@ public record ErrorResponse(
         String path,
         String traceId,
         Instant timestamp,
-        List<FieldError> errors) {
+        List<FieldError> errors,
+        Map<String, Object> details) {
 
     public ErrorResponse {
         errors = errors == null ? List.of() : List.copyOf(errors);
+        details = details == null ? Map.of() : Map.copyOf(details);
     }
 
     /**
@@ -42,7 +45,12 @@ public record ErrorResponse(
     }
 
     public static ErrorResponse of(ErrorCode code, String message, String path, List<FieldError> errors) {
+        return of(code, message, path, errors, Map.of());
+    }
+
+    public static ErrorResponse of(ErrorCode code, String message, String path, List<FieldError> errors,
+            Map<String, Object> details) {
         return new ErrorResponse(code.getStatus().value(), code.name(), message, path,
-                MDC.get(RequestIdFilter.MDC_KEY), Instant.now(), errors);
+                MDC.get(RequestIdFilter.MDC_KEY), Instant.now(), errors, details);
     }
 }

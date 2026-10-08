@@ -40,6 +40,7 @@ Chỉ chủ sở hữu được sửa cấu trúc và ghi vào bảng. Người 
 | Chủ | Nhóm | Bảng (tên trong database) |
 |---|---|---|
 | **Kế** | Người dùng | `users`, `user_consents` |
+| **Kế** | Xác thực | `auth_login_attempts`, `auth_refresh_tokens`, `auth_email_tokens` |
 | **Kế** | Từ điển, từ vựng | `dictionary_words`, `dictionary_meanings`, `dictionary_word_forms`, `dictionary_pronunciations`, `user_saved_words` |
 | **Kế** | Bộ từ, ôn thẻ | `vocab_deck_categories`, `vocab_decks`, `vocab_deck_tags`, `vocab_groups`, `vocab_cards`, `vocab_card_phonetics`, `user_card_progress`, `vocab_study_sessions`, `vocab_review_logs` |
 | **Kế** | Kiểm tra trình độ | `assessment_items`, `assessment_sessions`, `assessment_responses`, `assessment_results` |
