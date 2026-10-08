@@ -25,8 +25,8 @@ export type AuthActions = {
   clearError: () => void;
   initAuth: () => Promise<void>;
   login: (payload: LoginPayload) => Promise<AuthResponseData>;
-  /** Đăng nhập bằng ID token Google. Lỗi không ghi vào `error` của store: nút Google tự hiển thị lỗi của nó. */
-  googleLogin: (idToken: string) => Promise<AuthResponseData>;
+  /** Đăng nhập bằng authorization code Google. Lỗi không ghi vào `error` của store: trang /authenticate tự hiển thị lỗi. */
+  googleLogin: (code: string) => Promise<AuthResponseData>;
 };
 
 // Dùng chung một lần gọi khi React StrictMode chạy effect hai lần
@@ -108,10 +108,10 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
     }
   },
 
-  googleLogin: async (idToken) => {
+  googleLogin: async (code) => {
     set({ loading: true });
     try {
-      const response = await authService.googleLogin(idToken);
+      const response = await authService.googleLogin(code);
       const data = response.data.data;
       set({
         loading: false,

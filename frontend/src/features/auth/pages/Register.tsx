@@ -126,7 +126,7 @@ const Register = () => {
             )}
 
             {/* Google + "or" divider (ẩn khi chưa có client ID) */}
-            <GoogleSignInButton text="signup_with" />
+            <GoogleSignInButton variant="signup" />
 
             {/* Register form */}
             <form
