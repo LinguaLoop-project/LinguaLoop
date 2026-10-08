@@ -152,7 +152,7 @@ export default function InstructorTopBar() {
           <button
             type="button"
             className="w-10 h-10 rounded-full grid place-items-center font-display font-bold text-base text-white shadow-sm transition-transform duration-150 hover:scale-105 active:scale-95 cursor-pointer select-none border-0"
-            style={{ background: "var(--gradient-primary)" }}
+            style={{ background: "var(--btn-primary)" }}
             onClick={() => setMenuOpen((v) => !v)}
             aria-haspopup="menu"
             aria-expanded={menuOpen}

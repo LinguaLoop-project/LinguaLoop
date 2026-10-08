@@ -157,7 +157,7 @@ export default function StudentSidebar() {
             <span
               className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-sm text-[11px] font-bold tracking-[0.06em] text-white select-none"
               style={{
-                background: "var(--gradient-primary)",
+                background: "var(--btn-primary)",
                 boxShadow: "0 2px 8px rgba(139, 92, 246, 0.35)",
               }}
             >
@@ -174,8 +174,7 @@ export default function StudentSidebar() {
               type="button"
               className="w-full h-9 inline-flex items-center justify-center gap-2 px-4 rounded-md text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer border-0"
               style={{
-                background: "var(--gradient-primary)",
-                boxShadow: "0 4px 18px rgba(139, 92, 246, 0.4)",
+                background: "var(--btn-primary)",
               }}
               onClick={() => navigate("/pricing")}
             >

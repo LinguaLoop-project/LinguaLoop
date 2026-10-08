@@ -418,7 +418,7 @@ export default function Header() {
             <Link
               to="/dictation"
               className="inline-flex items-center justify-center gap-1.5 h-9 px-4 text-sm font-semibold rounded-lg text-white shadow-sm transition-all hover:opacity-95 active:scale-[0.98]"
-              style={{ background: "var(--gradient-primary)" }}
+              style={{ background: "var(--btn-primary)" }}
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>{t("header.start")}</span>
@@ -581,7 +581,7 @@ export default function Header() {
                 to="/dictation"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-semibold text-center text-white shadow-sm transition-all hover:opacity-95 active:scale-[0.98]"
-                style={{ background: "var(--gradient-primary)" }}
+                style={{ background: "var(--btn-primary)" }}
               >
                 <Sparkles className="w-4 h-4" />
                 <span>{t("header.learnNow")}</span>

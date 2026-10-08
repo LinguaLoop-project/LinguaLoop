@@ -37,11 +37,13 @@ Dùng CSS variables. **Không hardcode mã màu trong component.**
   /* Chữ */
   --text:           #F4F1FF;
   --text-muted:     #A59DC0;
-  --text-subtle:    #6E6690;
+  --text-subtle:    #857DA3;   /* ≥ 4.5:1 trên mọi bề mặt dark */
 
   /* Thương hiệu */
   --primary:        #8B5CF6;   /* violet 500 */
   --primary-hover:  #9D74FF;
+  --btn-primary:       #7B4DE8;   /* nền nút primary, chữ trắng đạt 5.2:1 */
+  --btn-primary-hover: #6D3DE0;
   --primary-soft:   rgba(139, 92, 246, 0.16);
   --accent:         #D8B4FE;   /* lavender sáng, dùng cho gradient chữ */
   --accent-2:       #F0ABFC;   /* hồng tím, điểm nhấn phụ */
@@ -71,10 +73,12 @@ Dùng CSS variables. **Không hardcode mã màu trong component.**
 
   --text:           #1A1030;
   --text-muted:     #5B5275;
-  --text-subtle:    #8C84A6;
+  --text-subtle:    #6F6789;   /* ≥ 4.5:1 trên nền sáng */
 
   --primary:        #7C3AED;   /* đậm hơn một bậc để đủ tương phản trên nền sáng */
   --primary-hover:  #6D28D9;
+  --btn-primary:       #7C3AED;
+  --btn-primary-hover: #6D28D9;
   --primary-soft:   rgba(124, 58, 237, 0.10);
   --accent:         #A855F7;
   --accent-2:       #DB2777;
@@ -239,7 +243,7 @@ Bộ vật thể cố định: **orb (quả cầu), torus (vòng xuyến), ngôi
 ### Nút
 | Loại | Style |
 |---|---|
-| **Primary** | Nền `--gradient-primary`, chữ trắng, `--radius-md`, cao 44px. Có `--glow-primary` nhẹ. |
+| **Primary** | Nền đặc `--btn-primary`, chữ trắng, `--radius-md`, cao 44px. Không gradient, không glow. Hover: `--btn-primary-hover` + bóng đổ nhẹ. |
 | **Secondary (dark)** | Nền trắng, chữ đen (giống "Start for free" trong ảnh tham khảo). Light mode: nền `--text`, chữ trắng. |
 | **Ghost** | Nền trong suốt, viền `--border-strong`, hover nền `--surface-hover`. |
 | **Icon button** | 40×40, `--radius-md`, viền `--border`. |
