@@ -1,5 +1,6 @@
 package com.lingualoop.backend.security;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,23 @@ public final class SecurityUtils {
                 return UUID.fromString(subject);
             } catch (IllegalArgumentException e) {
                 throw new BusinessException(ErrorCode.TOKEN_INVALID);
+            }
+        }
+        throw new BusinessException(ErrorCode.UNAUTHORIZED);
+    }
+
+    /** Mã phiên trong claim {@code sid}; rỗng nếu token cũ không có hoặc giá trị hỏng. */
+    public static Optional<UUID> currentSessionId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
+            String sid = jwt.getClaimAsString(JwtTokenService.SESSION_CLAIM);
+            if (sid == null) {
+                return Optional.empty();
+            }
+            try {
+                return Optional.of(UUID.fromString(sid));
+            } catch (IllegalArgumentException e) {
+                return Optional.empty();
             }
         }
         throw new BusinessException(ErrorCode.UNAUTHORIZED);

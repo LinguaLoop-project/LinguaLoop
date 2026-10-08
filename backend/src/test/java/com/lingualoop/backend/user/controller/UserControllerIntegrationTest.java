@@ -67,6 +67,6 @@ class UserControllerIntegrationTest {
     }
 
     private String bearer(UUID userId) {
-        return "Bearer " + jwtTokenService.issueAccessToken(userId, Role.STUDENT).token();
+        return "Bearer " + jwtTokenService.issueAccessToken(userId, Role.STUDENT, UUID.randomUUID()).token();
     }
 }
