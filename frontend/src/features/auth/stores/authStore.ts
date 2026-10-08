@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { authService } from "../services/authService";
-import i18n from "@/i18n";
 import { toApiError } from "../errors";
 import type { ApiError, AuthResponse, LoginPayload, MeResponse } from "../types";
 
@@ -87,10 +86,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await authService.login(payload);
-      const data = response.data?.data;
-      if (!data) {
-        throw new Error(i18n.t("auth:errors.loginNoData"));
-      }
+      const data = response.data.data;
       set({
         loading: false,
         initialized: true,

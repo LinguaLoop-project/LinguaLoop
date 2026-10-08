@@ -54,6 +54,11 @@ const CheckEmail = () => {
   };
 
   const mailFailed = state?.mailSent === false;
+  const introKey = mailFailed
+    ? "checkEmail.mailFailed"
+    : state?.mailSent === null
+      ? "checkEmail.notVerified"
+      : "checkEmail.sent";
 
   return (
     <div className="auth-layout" id="auth">
@@ -79,37 +84,16 @@ const CheckEmail = () => {
               >
                 {t("checkEmail.title")}
               </h1>
-              {mailFailed ? (
-                <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
-                  <Trans
-                    t={t}
-                    i18nKey="checkEmail.mailFailed"
-                    values={{ email }}
-                    components={{ b: <b /> }}
-                    shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
-                  />
-                </p>
-              ) : state?.mailSent === null ? (
-                <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
-                  <Trans
-                    t={t}
-                    i18nKey="checkEmail.notVerified"
-                    values={{ email }}
-                    components={{ b: <b /> }}
-                    shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
-                  />
-                </p>
-              ) : (
-                <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
-                  <Trans
-                    t={t}
-                    i18nKey="checkEmail.sent"
-                    values={{ email }}
-                    components={{ b: <b /> }}
-                    shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
-                  />
-                </p>
-              )}
+              <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
+                <Trans
+                  t={t}
+                  i18nKey={introKey}
+                  values={{ email }}
+                  components={{ b: <b /> }}
+                  shouldUnescape
+                  tOptions={{ interpolation: { escapeValue: true } }}
+                />
+              </p>
             </div>
 
             {mailFailed && (
