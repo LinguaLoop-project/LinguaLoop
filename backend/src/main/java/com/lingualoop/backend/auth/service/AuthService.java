@@ -95,6 +95,11 @@ public class AuthService {
         if (!account.emailVerified()) {
             throw new BusinessException(ErrorCode.AUTH_EMAIL_NOT_VERIFIED);
         }
+        return openSession(account, userAgent);
+    }
+
+    /** Mở phiên mới cho tài khoản đã được xác thực (mật khẩu hoặc Google): access token có {@code sid} + refresh token. */
+    public AuthSession openSession(UserAccount account, String userAgent) {
         Session session = refreshTokenService.startSession(account.id(), userAgent);
         return new AuthSession(accessResponse(account, session.familyId()), session.rawToken());
     }
