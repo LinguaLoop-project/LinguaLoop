@@ -45,7 +45,7 @@ export default function GoogleCallback() {
         if (active) navigate(homePathFor(user), { replace: true });
       },
       (err: unknown) => {
-        if (active) setError(toApiError(err));
+        if (active) setError(err === STATE_MISMATCH ? STATE_MISMATCH : toApiError(err));
       },
     );
     return () => {
