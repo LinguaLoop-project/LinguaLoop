@@ -92,6 +92,10 @@ Mọi lỗi, kể cả 401/403 do Spring Security trả, đều có cùng một 
 | `AUTH_EMAIL_TAKEN` | 409 | Đăng ký với email đã có (không phân biệt hoa thường) |
 | `AUTH_LINK_INVALID` | 400 | Liên kết trong thư sai, hết hạn hoặc đã dùng |
 | `AUTH_REFRESH_INVALID` | 401 | Refresh token thiếu, sai, hết hạn hoặc đã bị thu hồi; cookie bị xoá kèm theo |
+| `AUTH_GOOGLE_TOKEN_INVALID` | 401 | ID token Google sai chữ ký, hết hạn, sai `aud`/`iss` hoặc email Google chưa xác thực |
+| `AUTH_GOOGLE_UNAVAILABLE` | 503 | Không tải được khoá công khai (JWKS) của Google, hoặc chưa cấu hình `GOOGLE_CLIENT_ID` |
+| `AUTH_GOOGLE_LINK_CONFLICT` | 409 | Email đã gắn với một tài khoản Google khác |
+| `AUTH_CURRENT_PASSWORD_WRONG` | 400 | Sai mật khẩu hiện tại khi đổi mật khẩu. `details.remainingAttempts`; sai lần thứ 5 trả `AUTH_ACCOUNT_LOCKED` |
 | `INTERNAL_ERROR` | 500 | Lỗi không lường trước |
 
 ### Thêm mã lỗi mới
@@ -113,8 +117,8 @@ Mọi lỗi, kể cả 401/403 do Spring Security trả, đều có cùng một 
 
 ## 6. Xác thực và người dùng hiện tại
 
-- Token chứa `sub` = id người dùng (UUID), `role` (`student` | `instructor` | `admin`), `iss` = `lingualoop` và `exp` (mặc định 1 giờ).
-- Feature `auth` cấp token bằng `JwtTokenService.issueAccessToken(userId, Role.STUDENT)` sau khi kiểm tra mật khẩu bằng bean `PasswordEncoder` (BCrypt). Refresh token do feature `auth` quyết định.
+- Token chứa `sub` = id người dùng (UUID), `role` (`student` | `instructor` | `admin`), `sid` = mã phiên đăng nhập (UUID, bằng `family_id` của refresh token; token cũ không có thì bỏ qua), `iss` = `lingualoop` và `exp` (mặc định 1 giờ).
+- Feature `auth` cấp token bằng `JwtTokenService.issueAccessToken(userId, Role.STUDENT, sessionId)` sau khi kiểm tra mật khẩu bằng bean `PasswordEncoder` (BCrypt). Refresh token do feature `auth` quyết định.
 - Controller lấy id người đang đăng nhập bằng `@CurrentUserId`. Không đọc `userId` từ body hay query:
 
   ```java
@@ -133,6 +137,14 @@ Mọi lỗi, kể cả 401/403 do Spring Security trả, đều có cùng một 
 - `POST /auth/refresh` và `POST /auth/logout` dựa vào cookie nên có nguy cơ CSRF. Lớp chặn chính là **CORS allow-list**: Spring từ chối (`403`) mọi request mang `Origin` không nằm trong `app.cors.allowed-origins`, kể cả request thật chứ không riêng preflight; trình duyệt luôn gửi `Origin` trên `POST` cross-origin. Không dùng header tuỳ biến như `X-Requested-With` làm lớp chặn, vì JavaScript của trang nào cũng tự đặt được, tác dụng của nó phụ thuộc hoàn toàn vào CORS.
 - Frontend gặp `401 TOKEN_INVALID` thì gọi `/auth/refresh` một lần rồi thử lại; gặp `AUTH_REFRESH_INVALID` thì về trang đăng nhập. `/auth/logout` luôn trả 204 và xoá cookie.
 - CORS bật `allowCredentials=true`, nên `app.cors.allowed-origins` phải là danh sách origin cụ thể, không dùng `*`. Đây cũng là chốt chặn CSRF nên phải kiểm tra kỹ `CORS_ALLOWED_ORIGINS` khi deploy. Prod dùng `SameSite=None` nên `SameSite` không còn che chắn. Frontend gọi với `credentials: 'include'`.
+
+### Đăng nhập Google và tạo/đổi mật khẩu
+
+- `POST /auth/google {idToken}` → `200 AuthResponse` + cookie `ll_refresh`, giống `/auth/login`. `idToken` là `credential` do nút `<GoogleLogin>` (Google Identity Services) trả về. Backend tự xác minh bằng JWKS của Google (`app.google.jwk-set-uri`), kiểm tra `iss`, `aud` = `GOOGLE_CLIENT_ID`, `exp` và `email_verified`; không dùng client secret. Lỗi: `AUTH_GOOGLE_TOKEN_INVALID` (401), `AUTH_GOOGLE_UNAVAILABLE` (503), `AUTH_GOOGLE_LINK_CONFLICT` (409), `AUTH_ACCOUNT_DISABLED` (403).
+- Tìm tài khoản theo `sub` (`users.auth_uid`), không thấy thì theo email: gắn `sub` vào tài khoản đó, hoặc tạo học viên mới (email đã xác thực, không mật khẩu, `terms_accepted_at` còn trống để hỏi ở onboarding). Nếu tài khoản email-mật khẩu trước đó **chưa xác thực email** thì mật khẩu bị xoá và mọi phiên cũ bị thu hồi (BR-AUTH-08).
+- Đăng nhập Google không chịu khoá 5 lần sai (khoá chỉ áp dụng cho mật khẩu).
+- `PUT /users/me/password {currentPassword?, newPassword}` → `204`, cần Bearer token. `currentPassword` bắt buộc khi tài khoản đã có mật khẩu (thiếu thì `VALIDATION_FAILED` với `errors[].field = currentPassword`), bỏ qua khi tài khoản Google chưa tạo mật khẩu. `newPassword` 8-72 byte như đăng ký. Sai mật khẩu hiện tại tính vào bộ đếm khoá giống đăng nhập. Thành công thì thu hồi mọi phiên **trừ phiên hiện tại** (claim `sid` của access token); token không có `sid` thì thu hồi tất cả. Frontend gọi lại `GET /users/me` để cập nhật `hasPassword`.
+- Lỗi validate phụ thuộc dữ liệu (không biểu diễn được bằng Bean Validation) ném `FieldValidationException(field, constraint)`: `GlobalExceptionHandler` trả `VALIDATION_FAILED` kèm `errors[]` như lỗi `@Valid`.
 
 ## 7. Entity
 
