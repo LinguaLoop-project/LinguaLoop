@@ -6,7 +6,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.lingualoop.backend.auth.dto.AuthSession;
-import com.lingualoop.backend.auth.google.GoogleIdTokenVerifier;
+import com.lingualoop.backend.auth.google.GoogleCodeExchanger;
 import com.lingualoop.backend.auth.google.GoogleIdentity;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
@@ -24,13 +24,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GoogleAuthService {
 
-    private final GoogleIdTokenVerifier verifier;
+    private final GoogleCodeExchanger googleCodeExchanger;
     private final UserAccountService userAccountService;
     private final RefreshTokenService refreshTokenService;
     private final AuthService authService;
 
-    public AuthSession login(String idToken, String userAgent) {
-        GoogleIdentity identity = verifier.verify(idToken);
+    public AuthSession login(String code, String userAgent) {
+        GoogleIdentity identity = googleCodeExchanger.exchange(code);
         UserAccount account = resolveAccount(identity, true);
         return authService.openSession(account, userAgent);
     }

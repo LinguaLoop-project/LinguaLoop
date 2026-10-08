@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import com.jayway.jsonpath.JsonPath;
 import com.lingualoop.backend.TestcontainersConfiguration;
-import com.lingualoop.backend.auth.google.GoogleIdTokenVerifier;
+import com.lingualoop.backend.auth.google.GoogleCodeExchanger;
 import com.lingualoop.backend.auth.google.GoogleIdentity;
 import com.lingualoop.backend.auth.google.GoogleUnavailableException;
 import com.lingualoop.backend.auth.service.RefreshTokenService;
@@ -64,7 +64,7 @@ class GoogleLoginIntegrationTest {
     private JdbcTemplate jdbcTemplate;
 
     @MockitoBean
-    private GoogleIdTokenVerifier verifier;
+    private GoogleCodeExchanger exchanger;
 
     private static String uniqueEmail() {
         return "gl-" + UUID.randomUUID() + "@x.com";
@@ -77,11 +77,11 @@ class GoogleLoginIntegrationTest {
     private ResultActions googleLogin(String idToken) throws Exception {
         return mockMvc.perform(post("/api/v1/auth/google").contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.USER_AGENT, "JUnit-Browser/1.0")
-                .content("{\"idToken\":\"%s\"}".formatted(idToken)));
+                .content("{\"code\":\"%s\"}".formatted(idToken)));
     }
 
     private void tokenResolvesTo(GoogleIdentity identity) {
-        when(verifier.verify("tok")).thenReturn(identity);
+        when(exchanger.exchange("tok")).thenReturn(identity);
     }
 
     private ResultActions passwordLogin(String email) throws Exception {
@@ -176,7 +176,7 @@ class GoogleLoginIntegrationTest {
 
     @Test
     void google_invalidIdToken_returns401_AC22() throws Exception {
-        when(verifier.verify("bad")).thenThrow(new BusinessException(ErrorCode.AUTH_GOOGLE_TOKEN_INVALID));
+        when(exchanger.exchange("bad")).thenThrow(new BusinessException(ErrorCode.AUTH_GOOGLE_TOKEN_INVALID));
 
         googleLogin("bad")
                 .andExpect(status().isUnauthorized())
@@ -185,7 +185,7 @@ class GoogleLoginIntegrationTest {
 
     @Test
     void google_jwksUnavailable_returns503_AC23() throws Exception {
-        when(verifier.verify("tok")).thenThrow(new GoogleUnavailableException("down"));
+        when(exchanger.exchange("tok")).thenThrow(new GoogleUnavailableException("down"));
 
         googleLogin("tok")
                 .andExpect(status().isServiceUnavailable())
@@ -216,7 +216,7 @@ class GoogleLoginIntegrationTest {
 
     @Test
     void google_blankIdToken_returns400() throws Exception {
-        mockMvc.perform(post("/api/v1/auth/google").contentType(MediaType.APPLICATION_JSON).content("{\"idToken\":\"\"}"))
+        mockMvc.perform(post("/api/v1/auth/google").contentType(MediaType.APPLICATION_JSON).content("{\"code\":\"\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
     }

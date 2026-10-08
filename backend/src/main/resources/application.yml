@@ -28,6 +28,16 @@ spring:
       mail.smtp.timeout: 5000
       mail.smtp.writetimeout: 5000
 
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            # gọi Google trong request đăng nhập nên phải chặn treo
+            connect-timeout: 5000
+            read-timeout: 5000
+            logger-level: none
+
 management:
   endpoints:
     web:
@@ -53,11 +63,13 @@ app:
     frontend-url: ${FRONTEND_URL}
     mail-from: ${MAIL_FROM}
   google:
-    # Rỗng = chưa cấu hình: app vẫn chạy, POST /auth/google trả AUTH_GOOGLE_UNAVAILABLE
+    # Rỗng = chưa cấu hình: app vẫn chạy, POST /auth/google trả AUTH_GOOGLE_UNAVAILABLE.
+    # client-secret chỉ đặt qua biến môi trường, không ghi vào file.
     client-id: ${GOOGLE_CLIENT_ID:}
-    jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
-    timeout: 5s
-
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
+    redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:5173/authenticate}
+    oauth-url: https://oauth2.googleapis.com
+    user-info-url: https://openidconnect.googleapis.com
 ---
 spring:
   config:

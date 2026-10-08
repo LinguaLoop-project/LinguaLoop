@@ -3,7 +3,7 @@ package com.lingualoop.backend.auth.google;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 
-/** Không xác minh được ID token vì Google không phản hồi (hoặc chưa cấu hình client ID). */
+/** Không đăng nhập Google được vì Google không phản hồi hoặc hệ thống chưa cấu hình client ID/secret. */
 public class GoogleUnavailableException extends BusinessException {
 
     private static final long serialVersionUID = 1L;

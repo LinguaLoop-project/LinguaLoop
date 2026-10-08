@@ -58,7 +58,7 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<ApiResponse<AuthResponse>> google(@Valid @RequestBody GoogleLoginRequest request,
             @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-        return withSession(googleAuthService.login(request.idToken(), userAgent));
+        return withSession(googleAuthService.login(request.code(), userAgent));
     }
 
     @PostMapping("/refresh")

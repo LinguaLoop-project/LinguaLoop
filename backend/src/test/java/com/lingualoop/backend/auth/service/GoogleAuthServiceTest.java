@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.lingualoop.backend.auth.dto.AuthSession;
-import com.lingualoop.backend.auth.google.GoogleIdTokenVerifier;
+import com.lingualoop.backend.auth.google.GoogleCodeExchanger;
 import com.lingualoop.backend.auth.google.GoogleIdentity;
 import com.lingualoop.backend.auth.google.GoogleUnavailableException;
 import com.lingualoop.backend.common.exception.BusinessException;
@@ -32,7 +32,7 @@ class GoogleAuthServiceTest {
     private static final String SUB = "google-sub-1";
     private static final GoogleIdentity IDENTITY = new GoogleIdentity(SUB, "minh@gmail.com", "Minh", "https://img/m.png");
 
-    private GoogleIdTokenVerifier verifier;
+    private GoogleCodeExchanger exchanger;
     private UserAccountService users;
     private RefreshTokenService refreshTokens;
     private AuthService authService;
@@ -41,12 +41,12 @@ class GoogleAuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        verifier = mock(GoogleIdTokenVerifier.class);
+        exchanger = mock(GoogleCodeExchanger.class);
         users = mock(UserAccountService.class);
         refreshTokens = mock(RefreshTokenService.class);
         authService = mock(AuthService.class);
-        service = new GoogleAuthService(verifier, users, refreshTokens, authService);
-        when(verifier.verify("id-token")).thenReturn(IDENTITY);
+        service = new GoogleAuthService(exchanger, users, refreshTokens, authService);
+        when(exchanger.exchange("id-token")).thenReturn(IDENTITY);
         when(authService.openSession(any(UserAccount.class), anyString())).thenReturn(session);
     }
 
@@ -165,8 +165,8 @@ class GoogleAuthServiceTest {
     }
 
     @Test
-    void login_verifierRejectsToken_propagatesAndTouchesNothing_AC22() {
-        when(verifier.verify("bad")).thenThrow(new BusinessException(ErrorCode.AUTH_GOOGLE_TOKEN_INVALID));
+    void login_exchangerRejectsCode_propagatesAndTouchesNothing_AC22() {
+        when(exchanger.exchange("bad")).thenThrow(new BusinessException(ErrorCode.AUTH_GOOGLE_TOKEN_INVALID));
 
         assertThatThrownBy(() -> service.login("bad", "ua")).isInstanceOf(BusinessException.class);
         verify(users, never()).findByGoogleSub(anyString());
@@ -174,7 +174,7 @@ class GoogleAuthServiceTest {
 
     @Test
     void login_googleUnavailable_propagates_AC23() {
-        when(verifier.verify("id-token")).thenThrow(new GoogleUnavailableException("down"));
+        when(exchanger.exchange("id-token")).thenThrow(new GoogleUnavailableException("down"));
 
         assertThatThrownBy(() -> service.login("id-token", "ua")).isInstanceOf(GoogleUnavailableException.class);
     }
