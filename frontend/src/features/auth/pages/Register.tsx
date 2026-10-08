@@ -8,6 +8,7 @@ import { registerSchema, type RegisterFormData } from "../validations/authSchema
 import { applyFieldErrors, errorMessage, toApiError } from "../errors";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 
 function getPwScore(v: string): number {
   if (!v) return 0;
@@ -136,6 +137,9 @@ const Register = () => {
                 <span>{apiError}</span>
               </div>
             )}
+
+            {/* Google + "or" divider (ẩn khi chưa có client ID) */}
+            <GoogleSignInButton text="signup_with" />
 
             {/* Register form */}
             <form

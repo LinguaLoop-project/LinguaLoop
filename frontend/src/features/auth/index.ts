@@ -9,6 +9,7 @@ export { default as VerifyEmail } from "./pages/VerifyEmail";
 export { default as AuthSidePanel } from "./components/AuthSidePanel";
 export { default as AuthTopBar } from "./components/AuthTopBar";
 export { default as GoogleAuthProvider } from "./components/GoogleAuthProvider";
+export { default as GoogleSignInButton } from "./components/GoogleSignInButton";
 
 // Store & Types
 export { useAuthStore } from "./stores/authStore";

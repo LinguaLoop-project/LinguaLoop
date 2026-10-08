@@ -53,6 +53,18 @@ export function errorMessage(error: ApiError): string {
       return i18n.t("auth:errors.linkInvalid");
     case "AUTH_REFRESH_INVALID":
       return i18n.t("auth:errors.refreshInvalid");
+    case "AUTH_GOOGLE_TOKEN_INVALID":
+      return i18n.t("auth:errors.googleTokenInvalid");
+    case "AUTH_GOOGLE_UNAVAILABLE":
+      return i18n.t("auth:errors.googleUnavailable");
+    case "AUTH_GOOGLE_LINK_CONFLICT":
+      return i18n.t("auth:errors.googleLinkConflict");
+    case "AUTH_CURRENT_PASSWORD_WRONG": {
+      const remaining = error.details.remainingAttempts;
+      return typeof remaining === "number"
+        ? i18n.t("auth:errors.currentPasswordWrongRemaining", { count: remaining })
+        : i18n.t("auth:errors.currentPasswordWrong");
+    }
     case "VALIDATION_FAILED":
       return i18n.t("auth:errors.validationFailed");
     case NETWORK_ERROR:

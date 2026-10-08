@@ -25,6 +25,8 @@ export type AuthActions = {
   clearError: () => void;
   initAuth: () => Promise<void>;
   login: (payload: LoginPayload) => Promise<AuthResponseData>;
+  /** Đăng nhập bằng ID token Google. Lỗi không ghi vào `error` của store: nút Google tự hiển thị lỗi của nó. */
+  googleLogin: (idToken: string) => Promise<AuthResponseData>;
 };
 
 // Dùng chung một lần gọi khi React StrictMode chạy effect hai lần
@@ -102,6 +104,26 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
         isAuthenticated: false,
         error: toApiError(error),
       });
+      throw error;
+    }
+  },
+
+  googleLogin: async (idToken) => {
+    set({ loading: true });
+    try {
+      const response = await authService.googleLogin(idToken);
+      const data = response.data.data;
+      set({
+        loading: false,
+        initialized: true,
+        isAuthenticated: true,
+        accessToken: data.accessToken,
+        user: data.user,
+        error: null,
+      });
+      return data;
+    } catch (error: unknown) {
+      set({ loading: false });
       throw error;
     }
   },

@@ -13,6 +13,10 @@ export const authService = {
   login: (payload: LoginPayload) => {
     return publicAxios.post<ApiResponse<AuthResponse>>("/auth/login", payload);
   },
+  // `idToken` là `credential` do nút <GoogleLogin> trả về; backend tự xác minh bằng JWKS của Google.
+  googleLogin: (idToken: string) => {
+    return publicAxios.post<ApiResponse<AuthResponse>>("/auth/google", { idToken });
+  },
   register: (payload: RegisterPayload) => {
     return publicAxios.post<ApiResponse<RegisterResponse>>("/auth/register", payload);
   },
