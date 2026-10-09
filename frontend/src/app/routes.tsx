@@ -31,7 +31,6 @@ const getRoutesConfig = (): RouteObject[] => {
         { path: "check-email", element: <CheckEmail /> },
         { path: "forgot-password", element: <ForgotPassword /> },
         { path: "forgot", element: <ForgotPassword /> },
-        { path: "logout" },
       ],
     },
     // Placeholder: trang thiết lập hồ sơ làm ở PR onboarding (UC-AUTH-08)

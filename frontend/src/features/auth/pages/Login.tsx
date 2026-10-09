@@ -5,7 +5,6 @@ import { useAuthStore } from "../stores/authStore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema, type LoginFormData } from "../validations/authSchemas";
 import { toApiError } from "../errors";
-import { homePathFor } from "../navigation";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
 
@@ -37,8 +36,8 @@ const Login = () => {
   const onSubmit = async (data: LoginFormData) => {
     setShowResetHint(false);
     try {
-      const { user } = await login({ email: data.email.trim(), password: data.password });
-      navigate(homePathFor(user), { replace: true });
+      // Thành công thì GuestGuard (route cha) tự chuyển trang, kể cả quay lại trang đang mở dở
+      await login({ email: data.email.trim(), password: data.password });
     } catch (err: unknown) {
       const error = toApiError(err);
       if (error.code === "AUTH_EMAIL_NOT_VERIFIED") {

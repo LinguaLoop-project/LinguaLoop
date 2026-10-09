@@ -1,5 +1,6 @@
 import axios from "axios";
-import { useAuthStore } from "@/features/auth";
+// Import thẳng store, không qua index của feature, để tránh vòng phụ thuộc (index -> authStore -> authService -> axiosClient)
+import { useAuthStore } from "@/features/auth/stores/authStore";
 
 export const publicAxios = axios.create({
   baseURL: import.meta.env.VITE_API_URL,

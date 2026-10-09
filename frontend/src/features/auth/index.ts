@@ -20,7 +20,8 @@ export type {
 } from "./stores/authStore";
 
 // Navigation
-export { homePathFor } from "./navigation";
+export { homePathFor, resolvePostLoginPath } from "./navigation";
+export type { FromLocation } from "./navigation";
 
 // Errors
 export { toApiError, errorMessage, fieldErrorMessage, applyFieldErrors } from "./errors";
