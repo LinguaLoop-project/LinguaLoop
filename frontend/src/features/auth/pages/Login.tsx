@@ -105,7 +105,7 @@ const Login = () => {
             )}
 
             {/* Google + "or" divider (ẩn khi chưa có client ID) */}
-            <GoogleSignInButton variant="continue" />
+            <GoogleSignInButton />
 
             {/* Email */}
             <div className={`ll-field ${errors.email ? "bad" : ""}`}>

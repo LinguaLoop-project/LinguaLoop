@@ -9,7 +9,6 @@ import { applyFieldErrors, errorMessage, toApiError } from "../errors";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
 import { getPwScore, isPwValid } from "../passwordStrength";
-import GoogleSignInButton from "../components/GoogleSignInButton";
 
 const Register = () => {
   const { t } = useTranslation("auth");
@@ -124,9 +123,6 @@ const Register = () => {
                 <span>{apiError}</span>
               </div>
             )}
-
-            {/* Google + "or" divider (ẩn khi chưa có client ID) */}
-            <GoogleSignInButton variant="signup" />
 
             {/* Register form */}
             <form
