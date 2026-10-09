@@ -33,7 +33,12 @@ export const registerSchema = yup.object().shape({
     .string()
     .required("Tạo mật khẩu cho tài khoản")
     .min(8, "Mật khẩu cần ít nhất 8 ký tự")
-    .max(72, "Mật khẩu tối đa 72 ký tự"),
+    // BCrypt chỉ nhận 72 byte (backend kiểm @MaxBytes), ký tự có dấu chiếm 2-3 byte nên không đếm theo ký tự
+    .test(
+      "max-bytes",
+      "Mật khẩu tối đa 72 byte (ký tự có dấu chiếm nhiều byte hơn)",
+      (value) => !value || new TextEncoder().encode(value).length <= 72,
+    ),
   acceptTerms: yup
     .boolean()
     .oneOf([true], "Bạn cần đồng ý với điều khoản để tạo tài khoản")

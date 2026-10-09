@@ -79,6 +79,8 @@ export function fieldErrorMessage(fe: FieldError): string {
       return `${label} không được để trống.`;
     case "Email":
       return "Email chưa đúng định dạng, ví dụ ban@email.com";
+    case "MaxBytes":
+      return `${label} tối đa ${fe.params.value} byte (ký tự có dấu chiếm nhiều byte hơn).`;
     case "AssertTrue":
       return "Bạn cần đồng ý với điều khoản để tạo tài khoản.";
     case "Size":
