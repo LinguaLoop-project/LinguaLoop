@@ -92,8 +92,8 @@ Mọi lỗi, kể cả 401/403 do Spring Security trả, đều có cùng một 
 | `AUTH_EMAIL_TAKEN` | 409 | Đăng ký với email đã có (không phân biệt hoa thường) |
 | `AUTH_LINK_INVALID` | 400 | Liên kết trong thư sai, hết hạn hoặc đã dùng |
 | `AUTH_REFRESH_INVALID` | 401 | Refresh token thiếu, sai, hết hạn hoặc đã bị thu hồi; cookie bị xoá kèm theo |
-| `AUTH_GOOGLE_TOKEN_INVALID` | 401 | ID token Google sai chữ ký, hết hạn, sai `aud`/`iss` hoặc email Google chưa xác thực |
-| `AUTH_GOOGLE_UNAVAILABLE` | 503 | Không tải được khoá công khai (JWKS) của Google, hoặc chưa cấu hình `GOOGLE_CLIENT_ID` |
+| `AUTH_GOOGLE_TOKEN_INVALID` | 401 | Google từ chối authorization code (sai, hết hạn, đã dùng) hoặc email Google chưa xác thực |
+| `AUTH_GOOGLE_UNAVAILABLE` | 503 | Không gọi được Google (timeout, 5xx), Google từ chối client (sai secret), hoặc chưa cấu hình `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` |
 | `AUTH_GOOGLE_LINK_CONFLICT` | 409 | Email đã gắn với một tài khoản Google khác |
 | `AUTH_CURRENT_PASSWORD_WRONG` | 400 | Sai mật khẩu hiện tại khi đổi mật khẩu. `details.remainingAttempts`; sai lần thứ 5 trả `AUTH_ACCOUNT_LOCKED` |
 | `INTERNAL_ERROR` | 500 | Lỗi không lường trước |
@@ -140,7 +140,7 @@ Mọi lỗi, kể cả 401/403 do Spring Security trả, đều có cùng một 
 
 ### Đăng nhập Google và tạo/đổi mật khẩu
 
-- `POST /auth/google {idToken}` → `200 AuthResponse` + cookie `ll_refresh`, giống `/auth/login`. `idToken` là `credential` do nút `<GoogleLogin>` (Google Identity Services) trả về. Backend tự xác minh bằng JWKS của Google (`app.google.jwk-set-uri`), kiểm tra `iss`, `aud` = `GOOGLE_CLIENT_ID`, `exp` và `email_verified`; không dùng client secret. Lỗi: `AUTH_GOOGLE_TOKEN_INVALID` (401), `AUTH_GOOGLE_UNAVAILABLE` (503), `AUTH_GOOGLE_LINK_CONFLICT` (409), `AUTH_ACCOUNT_DISABLED` (403).
+- `POST /auth/google {code}` → `200 AuthResponse` + cookie `ll_refresh`, giống `/auth/login`. Dùng **authorization code flow**: frontend chuyển người dùng sang Google (`client_id`, `redirect_uri` = `<origin>/authenticate`, `scope=openid email profile`, `state`), Google chuyển về `/authenticate?code=...&state=...`, frontend kiểm tra `state` rồi gửi `code` lên đây. Backend đổi `code` lấy access token ở `POST https://oauth2.googleapis.com/token` (form body, kèm `client_secret`), rồi gọi `GET https://openidconnect.googleapis.com/v1/userinfo` (Bearer) để lấy `sub`, `email`, `email_verified`, `name`, `picture`, bằng OpenFeign (`auth/google/GoogleTokenClient`, `GoogleUserInfoClient`). Cấu hình: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (chỉ ở backend, không commit), `GOOGLE_REDIRECT_URI` (phải trùng frontend và Google Console). Lỗi: `AUTH_GOOGLE_TOKEN_INVALID` (401), `AUTH_GOOGLE_UNAVAILABLE` (503), `AUTH_GOOGLE_LINK_CONFLICT` (409), `AUTH_ACCOUNT_DISABLED` (403).
 - Tìm tài khoản theo `sub` (`users.auth_uid`), không thấy thì theo email: gắn `sub` vào tài khoản đó, hoặc tạo học viên mới (email đã xác thực, không mật khẩu, `terms_accepted_at` còn trống để hỏi ở onboarding). Nếu tài khoản email-mật khẩu trước đó **chưa xác thực email** thì mật khẩu bị xoá và mọi phiên cũ bị thu hồi (BR-AUTH-08).
 - Đăng nhập Google không chịu khoá 5 lần sai (khoá chỉ áp dụng cho mật khẩu).
 - `PUT /users/me/password {currentPassword?, newPassword}` → `204`, cần Bearer token. `currentPassword` bắt buộc khi tài khoản đã có mật khẩu (thiếu thì `VALIDATION_FAILED` với `errors[].field = currentPassword`), bỏ qua khi tài khoản Google chưa tạo mật khẩu. `newPassword` 8-72 byte như đăng ký. Sai mật khẩu hiện tại tính vào bộ đếm khoá giống đăng nhập. Thành công thì thu hồi mọi phiên **trừ phiên hiện tại** (claim `sid` của access token); token không có `sid` thì thu hồi tất cả. Frontend gọi lại `GET /users/me` để cập nhật `hasPassword`.
