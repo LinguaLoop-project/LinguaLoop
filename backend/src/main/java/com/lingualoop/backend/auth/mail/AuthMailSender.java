@@ -4,4 +4,6 @@ package com.lingualoop.backend.auth.mail;
 public interface AuthMailSender {
 
     void sendVerifyEmail(String to, String uiLanguage, String rawToken);
+
+    void sendResetPassword(String to, String uiLanguage, String rawToken, boolean hasPassword);
 }

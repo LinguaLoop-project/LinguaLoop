@@ -19,6 +19,7 @@ public record AuthProperties(
         @Positive @DefaultValue("5") int maxFailedAttempts,
         @NotNull @DefaultValue("15m") Duration lockDuration,
         @NotNull @DefaultValue("24h") Duration verifyTtl,
+        @NotNull @DefaultValue("30m") Duration resetTtl,
         @NotNull @DefaultValue("60s") Duration resendCooldown,
         @NotNull @DefaultValue("30d") Duration refreshTokenTtl,
         /** Token vừa bị thu hồi trong khoảng này vẫn được đổi tiếp (nhiều tab refresh cùng lúc). */

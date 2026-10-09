@@ -26,4 +26,13 @@ public class AuthMailDispatcher {
             log.warn("Could not send verification mail to user {}", account.id(), e);
         }
     }
+
+    @Async
+    public void sendResetPassword(UserAccount account, String rawToken) {
+        try {
+            authMailSender.sendResetPassword(account.email(), account.uiLanguage(), rawToken, account.hasPassword());
+        } catch (RuntimeException e) {
+            log.warn("Could not send reset password mail to user {}", account.id(), e);
+        }
+    }
 }
