@@ -1,25 +1,13 @@
-import React, { useState, useEffect, useId } from "react";
+import React, { useState, useId } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useAuthStore } from "../stores/authStore";
 import { authService } from "../services/authService";
-import {
-  registerSchema,
-  type RegisterFormData,
-  USER_RE,
-} from "../validations/authSchemas";
+import { registerSchema, type RegisterFormData } from "../validations/authSchemas";
+import { applyFieldErrors, errorMessage, toApiError } from "../errors";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
 
-const TAKEN_USERNAMES = [
-  "admin",
-  "root",
-  "support",
-  "test",
-  "loopi",
-  "minhanh",
-];
 const PW_LABELS = ["", "Yếu", "Tạm được", "Mạnh", "Rất mạnh"];
 
 function getPwScore(v: string): number {
@@ -33,7 +21,7 @@ function getPwScore(v: string): number {
 }
 
 function isPwValid(v: string): boolean {
-  return v.length >= 8 && /[a-z]/i.test(v) && /\d/.test(v);
+  return v.length >= 8;
 }
 
 const Register = () => {
@@ -42,78 +30,27 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [emailTaken, setEmailTaken] = useState(false);
 
-  // Live input states for feedback
-  const [usernameInput, setUsernameInput] = useState("");
+  // Live input state for feedback
   const [passwordInput, setPasswordInput] = useState("");
-
-  // Username live check state
-  const [userStatus, setUserStatus] = useState<
-    "idle" | "checking" | "ok" | "bad"
-  >("idle");
-  const [userMsg, setUserMsg] = useState<string>(
-    "3–20 ký tự: chữ thường, số hoặc dấu gạch dưới",
-  );
-
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const {
     register,
     handleSubmit,
     setError,
+    getValues,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: yupResolver(registerSchema),
     defaultValues: {
-      username: "",
+      displayName: "",
       email: "",
       password: "",
-      terms: false,
+      acceptTerms: false,
     },
     mode: "onTouched",
   });
-
-  useEffect(() => {
-    if (isAuthenticated) navigate("/");
-  }, [isAuthenticated, navigate]);
-
-  // Debounced username check
-  useEffect(() => {
-    const u = usernameInput.trim().toLowerCase();
-    if (!u) {
-      const timer = setTimeout(() => {
-        setUserStatus("idle");
-        setUserMsg("3–20 ký tự: chữ thường, số hoặc dấu gạch dưới");
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-
-    if (!USER_RE.test(u)) {
-      const timer = setTimeout(() => {
-        setUserStatus("bad");
-        setUserMsg(
-          "Chỉ dùng chữ thường không dấu, số hoặc dấu gạch dưới, 3–20 ký tự",
-        );
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-
-    const timer = setTimeout(() => {
-      setUserStatus("checking");
-      setUserMsg("Đang kiểm tra tên người dùng...");
-      const isTaken = TAKEN_USERNAMES.includes(u);
-      if (isTaken) {
-        setUserStatus("bad");
-        setUserMsg(`@${u} đã có người dùng. Thử @${u}_2026?`);
-      } else {
-        setUserStatus("ok");
-        setUserMsg(`@${u} dùng được`);
-      }
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [usernameInput]);
 
   // Password score calculation
   const pwScore = getPwScore(passwordInput);
@@ -121,36 +58,34 @@ const Register = () => {
 
   const onSubmit = async (data: RegisterFormData) => {
     setApiError(null);
-
-    if (userStatus === "bad") {
-      setError("username", { message: userMsg });
-      return;
-    }
+    setEmailTaken(false);
 
     setSubmitting(true);
     try {
-      await authService.register({
-        username: data.username.trim().toLowerCase(),
+      const response = await authService.register({
+        displayName: data.displayName.trim(),
         email: data.email.trim(),
         password: data.password,
+        acceptTerms: data.acceptTerms,
       });
-      setSuccessMsg(
-        "Tài khoản đã tạo thành công! Vui lòng kiểm tra email để xác minh tài khoản.",
-      );
-      setTimeout(() => {
-        navigate("/auth/login");
-      }, 2000);
+      const { email, mailSent } = response.data.data;
+      navigate("/auth/check-email", { state: { email, mailSent } });
     } catch (err: unknown) {
-      const error = err as {
-        response?: { data?: { message?: string }; status?: number };
-        message?: string;
-      };
-      const resMsg =
-        error.response?.data?.message ||
-        (!error.response
-          ? "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau."
-          : error.message);
-      setApiError(resMsg || "Đăng ký không thành công. Vui lòng thử lại!");
+      const error = toApiError(err);
+      if (error.code === "AUTH_EMAIL_TAKEN") {
+        setEmailTaken(true);
+        setError("email", { type: "server", message: errorMessage(error) });
+      } else if (error.code === "VALIDATION_FAILED") {
+        const applied = applyFieldErrors<RegisterFormData>(error, setError, {
+          email: "email",
+          password: "password",
+          displayName: "displayName",
+          acceptTerms: "acceptTerms",
+        });
+        if (applied === 0) setApiError(errorMessage(error));
+      } else {
+        setApiError(errorMessage(error));
+      }
     } finally {
       setSubmitting(false);
     }
@@ -195,14 +130,6 @@ const Register = () => {
               </p>
             </div>
 
-            {/* Success message */}
-            {successMsg && (
-              <div className="ll-form-alert success">
-                <i className="ph ph-check-circle text-xl flex-shrink-0" />
-                <span>{successMsg}</span>
-              </div>
-            )}
-
             {/* Error alert */}
             {apiError && (
               <div className="ll-form-alert danger">
@@ -211,84 +138,33 @@ const Register = () => {
               </div>
             )}
 
-            {/* Google OAuth button */}
-            <button
-              type="button"
-              className="ll-btn ghost lg full"
-              onClick={() => {
-                alert("Tính năng Đăng ký bằng Google đang được kết nối.");
-              }}
-            >
-              <svg className="w-5 h-5 mr-1" aria-hidden="true">
-                <use href="#g-google" />
-              </svg>
-              <span>Đăng ký với Google</span>
-            </button>
-
-            {/* Divider */}
-            <div className="ll-or">
-              <span>hoặc dùng email</span>
-            </div>
-
             {/* Register form */}
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="flex flex-col gap-5"
               noValidate
             >
-              {/* Username */}
-              <div
-                className={`ll-field ${
-                  errors.username || userStatus === "bad"
-                    ? "bad"
-                    : userStatus === "ok"
-                      ? "ok"
-                      : ""
-                }`}
-              >
-                <label htmlFor={`${formId}-username`} className="ll-label">
-                  Tên người dùng
+              {/* Display name */}
+              <div className={`ll-field ${errors.displayName ? "bad" : ""}`}>
+                <label htmlFor={`${formId}-displayName`} className="ll-label">
+                  Tên hiển thị
                 </label>
                 <div className="ll-inp">
-                  <span className="ll-pre">@</span>
+                  <i className="ph ph-user" />
                   <input
-                    id={`${formId}-username`}
+                    id={`${formId}-displayName`}
                     type="text"
-                    autoComplete="username"
-                    placeholder="vd: minhanh_2003"
-                    maxLength={20}
-                    spellCheck={false}
-                    {...register("username", {
-                      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                        setUsernameInput(e.target.value),
-                    })}
+                    autoComplete="name"
+                    placeholder="vd: Minh Anh"
+                    maxLength={50}
+                    {...register("displayName")}
                   />
-                  {userStatus === "checking" && (
-                    <i className="ph ph-circle-notch animate-spin text-[18px] text-[var(--text-subtle)] mr-3" />
-                  )}
                 </div>
-
-                {/* Username live feedback hint */}
-                <p
-                  className={`ll-hint ${
-                    errors.username || userStatus === "bad"
-                      ? "bad"
-                      : userStatus === "ok"
-                        ? "ok"
-                        : ""
-                  }`}
-                >
-                  {userStatus === "ok" && <i className="ph ph-check-circle" />}
-                  {(errors.username || userStatus === "bad") && (
-                    <i className="ph ph-warning-circle" />
-                  )}
-                  {userStatus === "checking" && (
-                    <i className="ph ph-circle-notch animate-spin" />
-                  )}
-                  <span>
-                    {errors.username ? errors.username.message : userMsg}
-                  </span>
-                </p>
+                {errors.displayName ? (
+                  <p className="ll-err">{errors.displayName.message}</p>
+                ) : (
+                  <p className="ll-hint">Tên này được phép trùng với người khác</p>
+                )}
               </div>
 
               {/* Email */}
@@ -308,6 +184,25 @@ const Register = () => {
                 </div>
                 {errors.email && (
                   <p className="ll-err">{errors.email.message}</p>
+                )}
+                {emailTaken && (
+                  <p className="ll-hint">
+                    <Link to="/auth/login" className="ll-link">
+                      Đăng nhập
+                    </Link>
+                    {" · "}
+                    <Link to="/auth/forgot-password" className="ll-link">
+                      Quên mật khẩu
+                    </Link>
+                    {" · "}
+                    <Link
+                      to="/auth/check-email"
+                      state={{ email: getValues("email").trim(), mailSent: null }}
+                      className="ll-link"
+                    >
+                      Gửi lại email xác thực
+                    </Link>
+                  </p>
                 )}
               </div>
 
@@ -363,18 +258,18 @@ const Register = () => {
                   ) : passwordInput ? (
                     <span>
                       Độ mạnh: <b>{PW_LABELS[pwScore]}</b>
-                      {!pwValid && " · cần ít nhất 8 ký tự, có cả chữ và số"}
+                      {!pwValid && " · cần ít nhất 8 ký tự"}
                     </span>
                   ) : (
-                    "Ít nhất 8 ký tự, có cả chữ và số"
+                    "Ít nhất 8 ký tự"
                   )}
                 </p>
               </div>
 
               {/* Terms Checkbox */}
-              <div className={`ll-field ${errors.terms ? "bad" : ""}`}>
+              <div className={`ll-field ${errors.acceptTerms ? "bad" : ""}`}>
                 <label className="ll-check items-start">
-                  <input type="checkbox" {...register("terms")} />
+                  <input type="checkbox" {...register("acceptTerms")} />
                   <span className="ll-check-box mt-0.5">
                     <i className="ph ph-check" />
                   </span>
@@ -395,8 +290,8 @@ const Register = () => {
                     Đọc chính sách
                   </button>
                 </p>
-                {errors.terms && (
-                  <p className="ll-err pl-7">{errors.terms.message}</p>
+                {errors.acceptTerms && (
+                  <p className="ll-err pl-7">{errors.acceptTerms.message}</p>
                 )}
               </div>
 

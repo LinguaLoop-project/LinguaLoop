@@ -48,13 +48,13 @@ export default function PlaceholderPage({
   // Xác định trang chủ theo layout
   const homePath = location.pathname.startsWith("/admin")
     ? "/admin"
-    : location.pathname.startsWith("/teacher")
-    ? "/teacher"
+    : location.pathname.startsWith("/instructor")
+    ? "/instructor"
     : "/student";
 
   const homeLabel = location.pathname.startsWith("/admin")
     ? "Tổng quan Quản trị"
-    : location.pathname.startsWith("/teacher")
+    : location.pathname.startsWith("/instructor")
     ? "Tổng quan Giảng viên"
     : "Về Hôm nay";
 

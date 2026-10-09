@@ -24,7 +24,7 @@ backend/
 ├── user/                        # Kế: users, user_consents, cài đặt, quyền riêng tư
 ├── audit/                       # Kế: AuditService, content_audit_log
 ├── dictation/                   # Kế: nghe chép, chấm từng từ, lượt làm (tuần 2)
-├── teacher/                     # Kế: màn giáo viên: chủ đề, soạn bài, cắt câu, duyệt CEFR (ghi bài qua LessonAuthoringService)
+├── instructor/                  # Kế: màn giáo viên: chủ đề, soạn bài, cắt câu, duyệt CEFR (ghi bài qua LessonAuthoringService)
 ├── dictionary/                  # Kế: từ điển, từ đã lưu (DictionaryQueryService)
 ├── vocab/                       # Kế: bộ từ, học và ôn thẻ (SrsQueryService)
 ├── assessment/                  # Kế: kiểm tra trình độ, ngân hàng câu hỏi
@@ -91,13 +91,13 @@ src/
 └── features/                # tên trùng với feature backend
     ├── auth/                # Kế: login, register, verify, forgot
     ├── user/                # Kế: Cài đặt, quyền riêng tư
-    ├── audit/               # Kế: lịch sử thay đổi (dùng trong teacher, admin)
+    ├── audit/               # Kế: lịch sử thay đổi (dùng trong instructor, admin)
     ├── dictation/           # Kế: nghe chép; tab Câu cần ôn, Ghi chú của trang mywords
     ├── dictionary/          # Kế: tra từ, từ đã lưu, khung trang mywords
     ├── vocab/               # Kế: bộ từ, học và ôn thẻ
     ├── assessment/          # Kế: onboarding, kiểm tra trình độ; trang giáo viên qbank
     ├── report/              # Kế: modal báo lỗi, danh sách báo lỗi đã gửi
-    ├── teacher/             # Kế: các trang giáo viên (topics, lessons, compose, cefr, ...)
+    ├── instructor/          # Kế: các trang giáo viên (topics, lessons, compose, cefr, ...)
     ├── admin/               # Kế: users, reports, overview, decks, audit
     │
     ├── lesson/              # Lâm: thư viện bài, chủ đề, chi tiết bài
@@ -109,7 +109,7 @@ src/
     └── plan/                # Lâm: trang Hôm nay
 ```
 
-Backend có `ai/` nhưng frontend không có thư mục tương ứng vì chưa có trang riêng (nhận xét AI hiện trong `shadowing/`). Trang giáo viên và admin gom trong `teacher/` và `admin/`; riêng `limits`, `subs` của Lâm đặt trong `subscription/` rồi gắn vào route admin.
+Backend có `ai/` nhưng frontend không có thư mục tương ứng vì chưa có trang riêng (nhận xét AI hiện trong `shadowing/`). Trang giáo viên và admin gom trong `instructor/` và `admin/`; riêng `limits`, `subs` của Lâm đặt trong `subscription/` rồi gắn vào route admin.
 
 Bên trong mỗi feature:
 ```

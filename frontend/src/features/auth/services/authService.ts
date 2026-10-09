@@ -1,22 +1,39 @@
 import { publicAxios, axiosClient } from "@/api/axiosClient";
+import type {
+  ApiResponse,
+  AuthResponse,
+  LoginPayload,
+  MeResponse,
+  RegisterPayload,
+  RegisterResponse,
+  VerifyEmailResult,
+} from "../types";
 
 export const authService = {
-  login: (payload: { email_or_phone: string; password: string }) => {
-    return publicAxios.post("/auth/login", payload);
+  login: (payload: LoginPayload) => {
+    return publicAxios.post<ApiResponse<AuthResponse>>("/auth/login", payload);
   },
-  googleLogin: (googleAccessToken: string) => {
-    return publicAxios.post("/auth/google-login", { googleAccessToken });
+  register: (payload: RegisterPayload) => {
+    return publicAxios.post<ApiResponse<RegisterResponse>>("/auth/register", payload);
   },
-  register: (payload: { username: string; email: string; password: string }) => {
-    return publicAxios.post("/auth/register", payload);
-  },
-  forgotPassword: (payload: { email: string }) => {
-    return publicAxios.post("/auth/forgot-password", payload);
+  // Cookie `ll_refresh` đi kèm tự động (withCredentials).
+  refresh: () => {
+    return publicAxios.post<ApiResponse<AuthResponse>>("/auth/refresh");
   },
   logout: () => {
     return publicAxios.post("/auth/logout");
   },
+  verifyEmail: (token: string) => {
+    return publicAxios.post<ApiResponse<{ result: VerifyEmailResult }>>("/auth/verify-email", { token });
+  },
+  // Luôn 202, không cho biết email có tồn tại hay không (BR-AUTH-04).
+  resendVerification: (email: string) => {
+    return publicAxios.post("/auth/verify-email/resend", { email });
+  },
+  forgotPassword: (payload: { email: string }) => {
+    return publicAxios.post("/auth/forgot-password", payload);
+  },
   getMe: () => {
-    return axiosClient.get("/user/profile");
+    return axiosClient.get<ApiResponse<MeResponse>>("/users/me");
   },
 };

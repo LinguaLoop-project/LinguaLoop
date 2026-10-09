@@ -1,16 +1,16 @@
 import AuthLayout from "@/components/layouts/AuthLayout";
 import MainLayout from "@/components/layouts/MainLayout";
 import StudentLayout from "@/components/layouts/StudentLayout";
-import TeacherLayout from "@/components/layouts/TeacherLayout";
+import InstructorLayout from "@/components/layouts/InstructorLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { Login, Register, ForgotPassword } from "@/features/auth";
+import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail } from "@/features/auth";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
+import { AuthGuard } from "@/app/guards";
+import OnboardingPlaceholder from "@/app/placeholders/OnboardingPlaceholder";
 import PlaceholderPage from "@/components/common/PlaceholderPage";
 
 const getRoutesConfig = (): RouteObject[] => {
-  const role = "ADMIN";
-
   const publicRoutes: RouteObject[] = [
     {
       path: "/",
@@ -28,11 +28,22 @@ const getRoutesConfig = (): RouteObject[] => {
       children: [
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
+        { path: "check-email", element: <CheckEmail /> },
         { path: "forgot-password", element: <ForgotPassword /> },
         { path: "forgot", element: <ForgotPassword /> },
-        { path: "logout" },
       ],
     },
+    // Placeholder: trang thiết lập hồ sơ làm ở PR onboarding (UC-AUTH-08)
+    {
+      path: "onboarding",
+      element: (
+        <AuthGuard allowedRoles={["student"]}>
+          <OnboardingPlaceholder />
+        </AuthGuard>
+      ),
+    },
+    // Đích của link trong thư xác thực (backend gửi frontend-url + /verify-email?token=...)
+    { path: "verify-email", element: <VerifyEmail /> },
     // ── Redirect shorthands ──
     { path: "login", element: <Navigate to="/auth/login" replace /> },
     { path: "register", element: <Navigate to="/auth/register" replace /> },
@@ -50,7 +61,11 @@ const getRoutesConfig = (): RouteObject[] => {
   const studentRoutes: RouteObject[] = [
     {
       path: "student",
-      element: <StudentLayout />,
+      element: (
+        <AuthGuard allowedRoles={["student"]}>
+          <StudentLayout />
+        </AuthGuard>
+      ),
       children: [
         {
           index: true,
@@ -227,11 +242,15 @@ const getRoutesConfig = (): RouteObject[] => {
     },
   ];
 
-  // ── Teacher routes ──
-  const teacherRoutes: RouteObject[] = [
+  // ── Instructor routes ──
+  const instructorRoutes: RouteObject[] = [
     {
-      path: "teacher",
-      element: <TeacherLayout />,
+      path: "instructor",
+      element: (
+        <AuthGuard allowedRoles={["instructor", "admin"]}>
+          <InstructorLayout />
+        </AuthGuard>
+      ),
       children: [
         {
           index: true,
@@ -430,7 +449,11 @@ const getRoutesConfig = (): RouteObject[] => {
   const adminRoutes: RouteObject[] = [
     {
       path: "admin",
-      element: <AdminLayout />,
+      element: (
+        <AuthGuard allowedRoles={["admin"]}>
+          <AdminLayout />
+        </AuthGuard>
+      ),
       children: [
         {
           index: true,
@@ -532,7 +555,7 @@ const getRoutesConfig = (): RouteObject[] => {
           ),
         },
         {
-          path: "teachers",
+          path: "instructors",
           element: (
             <PlaceholderPage
               title="Quản lý giáo viên"
@@ -600,18 +623,13 @@ const getRoutesConfig = (): RouteObject[] => {
 
   const catchAll: RouteObject[] = [{ path: "*", element: <NotFound /> }];
 
-  switch (role) {
-    case "ADMIN":
-      return [
-        ...publicRoutes,
-        ...studentRoutes,
-        ...teacherRoutes,
-        ...adminRoutes,
-        ...catchAll,
-      ];
-    default:
-      return [...publicRoutes, ...catchAll];
-  }
+  return [
+    ...publicRoutes,
+    ...studentRoutes,
+    ...instructorRoutes,
+    ...adminRoutes,
+    ...catchAll,
+  ];
 };
 
 export const AppRoutes = () => {

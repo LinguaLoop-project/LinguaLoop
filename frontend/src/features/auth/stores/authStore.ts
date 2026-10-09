@@ -1,25 +1,10 @@
 import { create } from "zustand";
 import { authService } from "../services/authService";
+import { errorMessage, toApiError } from "../errors";
+import type { AuthResponse, LoginPayload, MeResponse } from "../types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-export type User = {
-  id: string;
-  auth_uid?: string | null;
-  email: string;
-  username?: string | null;
-  avatar_url?: string | null;
-  description?: string | null;
-  birthday?: string | null;
-  gender?: "male" | "female" | "other" | null;
-  ui_language: "vi" | "en";
-  timezone: string;
-  max_daily_reviews: number;
-  email_verified: boolean;
-  disabled: boolean;
-  role: "student" | "instructor" | "admin";
-  created_at: string;
-  updated_at: string;
-};
+export type User = MeResponse;
 
 export type AuthState = {
   user: User | null;
@@ -30,10 +15,7 @@ export type AuthState = {
   initialized: boolean;
 };
 
-export type AuthResponseData = {
-  accessToken: string;
-  user: User;
-};
+export type AuthResponseData = AuthResponse;
 
 export type AuthActions = {
   setUser: (user: User | null) => void;
@@ -41,12 +23,11 @@ export type AuthActions = {
   logout: () => void;
   clearError: () => void;
   initAuth: () => Promise<void>;
-  login: (payload: {
-    email_or_phone: string;
-    password: string;
-  }) => Promise<AuthResponseData>;
-  googleLogin: (googleAccessToken: string) => Promise<AuthResponseData>;
+  login: (payload: LoginPayload) => Promise<AuthResponseData>;
 };
+
+// Dùng chung một lần gọi khi React StrictMode chạy effect hai lần
+let initPromise: Promise<void> | null = null;
 
 // ─── Store ─────────────────────────────────────────────────────────────────────
 export const useAuthStore = create<AuthState & AuthActions>((set) => ({
@@ -55,7 +36,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   isAuthenticated: false,
   loading: false,
   error: null,
-  initialized: true,
+  initialized: false,
 
   setUser: (user) => set({ user, isAuthenticated: !!user }),
 
@@ -73,26 +54,31 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
 
   clearError: () => set({ error: null }),
 
-  initAuth: async () => {
-    set({ loading: true, initialized: false });
-    try {
-      const response = await authService.getMe();
-      const user = response.data?.data as User;
-      set({
-        loading: false,
-        initialized: true,
-        isAuthenticated: true,
-        user,
-      });
-    } catch {
-      set({
-        loading: false,
-        initialized: true,
-        isAuthenticated: false,
-        user: null,
-        accessToken: "",
-      });
-    }
+  // Khôi phục phiên khi mở app: đổi cookie refresh lấy access token + user. Chưa xong thì guard còn hiện loading.
+  initAuth: () => {
+    initPromise ??= (async () => {
+      set({ loading: true, initialized: false });
+      try {
+        const response = await authService.refresh();
+        const data = response.data.data;
+        set({
+          loading: false,
+          initialized: true,
+          isAuthenticated: true,
+          accessToken: data.accessToken,
+          user: data.user,
+        });
+      } catch {
+        set({
+          loading: false,
+          initialized: true,
+          isAuthenticated: false,
+          user: null,
+          accessToken: "",
+        });
+      }
+    })();
+    return initPromise;
   },
 
   login: async (payload) => {
@@ -101,7 +87,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       const response = await authService.login(payload);
       const data = response.data?.data;
       if (!data) {
-        throw new Error(response.data?.message || "Đăng nhập thất bại");
+        throw new Error("Phản hồi đăng nhập không có dữ liệu");
       }
       set({
         loading: false,
@@ -112,56 +98,13 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       });
       return data;
     } catch (error: unknown) {
-      const err = error as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Đăng nhập thất bại. Vui lòng thử lại.";
+      // Giữ nguyên lỗi gốc để trang Login đọc `code` (vd AUTH_EMAIL_NOT_VERIFIED); `error` là câu hiển thị.
       set({
         loading: false,
         isAuthenticated: false,
-        error: message,
+        error: errorMessage(toApiError(error)),
       });
-      throw new Error(message, { cause: error });
-    }
-  },
-
-  googleLogin: async (googleAccessToken) => {
-    set({ loading: true, error: null });
-    try {
-      const response = await authService.googleLogin(googleAccessToken);
-      const data = response.data?.data;
-      if (!data) {
-        throw new Error(
-          response.data?.message || "Đăng nhập bằng Google thất bại.",
-        );
-      }
-      set({
-        loading: false,
-        initialized: true,
-        isAuthenticated: true,
-        accessToken: data.accessToken,
-        user: data.user,
-      });
-      return data;
-    } catch (error: unknown) {
-      const err = error as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Đăng nhập bằng Google thất bại.";
-      set({
-        loading: false,
-        isAuthenticated: false,
-        error: message,
-      });
-      throw new Error(message, { cause: error });
+      throw error;
     }
   },
 }));

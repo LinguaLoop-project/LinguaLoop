@@ -5,7 +5,7 @@ Quy ước chung cho mọi REST API của backend. Code nền nằm ở `common/
 ## 1. Đường dẫn
 
 - Mọi endpoint bắt đầu bằng `/api/v1`. Tên tài nguyên dùng danh từ số nhiều, viết thường, nối bằng `-`: `/api/v1/lessons/{id}/sentences`.
-- Màn giáo viên dùng `/api/v1/teacher/**` (vai trò `INSTRUCTOR` hoặc `ADMIN`). Màn admin dùng `/api/v1/admin/**` (chỉ `ADMIN`).
+- Màn giáo viên dùng `/api/v1/instructor/**` (vai trò `INSTRUCTOR` hoặc `ADMIN`). Màn admin dùng `/api/v1/admin/**` (chỉ `ADMIN`).
 - Không cần đăng nhập: `/api/v1/auth/**`, `/actuator/health`, Swagger (`/swagger-ui.html`, `/v3/api-docs`). Mọi đường dẫn khác đều cần token.
 
 ## 2. Header

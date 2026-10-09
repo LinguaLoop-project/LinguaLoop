@@ -19,7 +19,7 @@ const ADMIN_PAGE_TITLES: Record<string, string> = {
   "/admin/limits": "Gói & Hạn mức",
   "/admin/subs": "Đăng ký Pro",
   "/admin/errors": "Danh mục lỗi",
-  "/admin/teachers": "Giáo viên",
+  "/admin/instructors": "Giáo viên",
   "/admin/subscriptions": "Gói dịch vụ",
   "/admin/content": "Nội dung",
   "/admin/settings": "Cài đặt hệ thống",
@@ -35,7 +35,7 @@ export default function AdminTopBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
 
-  const displayName = user?.username ?? "Admin Tâm";
+  const displayName = user?.displayName ?? "Admin Tâm";
   const displayEmail = user?.email ?? "admin@lingualoop.app";
 
   const [dark, setDark] = useState(() => {

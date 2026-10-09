@@ -22,7 +22,7 @@ Việc dự kiến chưa xong (lộ trình tuần 3): API đăng ký, đăng nh�
 | Công việc | Kết quả | Minh chứng |
 |---|---|---|
 | Hoàn thiện CI/CD frontend: deploy Vercel chỉ qua GitHub Actions, preview chỉ chạy trên `develop` và PR | Xong | `00f5a59`, `7e1025f`, `f3e1c96`, `5b386b1`, `9618a56` |
-| Mockup giao diện giáo viên và admin | Xong, đã merge | `design/mockups-teacher/`, `design/mockups-admin/`, `26a32d4`, PR #7 (Kế gộp commit chung) |
+| Mockup giao diện giáo viên và admin | Xong, đã merge | `design/mockups-instructor/`, `design/mockups-admin/`, `26a32d4`, PR #7 (Kế gộp commit chung) |
 | Trang đăng nhập, đăng ký, quên mật khẩu (giao diện, kiểm tra dữ liệu nhập) | Bản nháp, Kế tiếp nhận sửa và nối API ở tuần 04 | `e0d9e97`, `bc777f3`, PR #11 |
 
 Việc dự kiến chưa xong (lộ trình tuần 3): bộ giao diện chung (màu, nút, bảng, 3 layout học viên, giáo viên, admin), quota tạm, thử gọi Azure Speech. Dời sang tuần 04.

@@ -9,6 +9,7 @@ const useAuth = () => {
 
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const initialized = useAuthStore((state) => state.initialized);
   const loading = useAuthStore((state) => state.loading);
   const error = useAuthStore((state) => state.error);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -24,7 +25,7 @@ const useAuth = () => {
     } finally {
       logoutState();
       queryClient.clear();
-      navigate("/auth/login");
+      navigate("/auth/login", { replace: true });
     }
   };
 
@@ -34,6 +35,7 @@ const useAuth = () => {
 
   return {
     isAuthenticated,
+    initialized,
     user,
     loading,
     error,

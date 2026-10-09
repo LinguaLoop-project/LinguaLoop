@@ -1,6 +1,5 @@
 import * as yup from "yup";
 
-export const USER_RE = /^[a-z0-9_]{3,20}$/;
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // ─── Login Schema ─────────────────────────────────────────────────────────────
@@ -20,14 +19,11 @@ export type LoginFormData = yup.InferType<typeof loginSchema>;
 
 // ─── Register Schema ──────────────────────────────────────────────────────────
 export const registerSchema = yup.object().shape({
-  username: yup
+  displayName: yup
     .string()
     .trim()
-    .required("Chọn một tên người dùng")
-    .matches(
-      USER_RE,
-      "Chỉ dùng chữ thường không dấu, số hoặc dấu gạch dưới, 3–20 ký tự"
-    ),
+    .required("Nhập tên hiển thị của bạn")
+    .max(50, "Tên hiển thị tối đa 50 ký tự"),
   email: yup
     .string()
     .trim()
@@ -36,10 +32,14 @@ export const registerSchema = yup.object().shape({
   password: yup
     .string()
     .required("Tạo mật khẩu cho tài khoản")
-    .min(8, "Cần ít nhất 8 ký tự, có cả chữ và số")
-    .matches(/[a-z]/i, "Mật khẩu phải có cả chữ và số")
-    .matches(/\d/, "Mật khẩu phải có cả chữ và số"),
-  terms: yup
+    .min(8, "Mật khẩu cần ít nhất 8 ký tự")
+    // BCrypt chỉ nhận 72 byte (backend kiểm @MaxBytes), ký tự có dấu chiếm 2-3 byte nên không đếm theo ký tự
+    .test(
+      "max-bytes",
+      "Mật khẩu tối đa 72 byte (ký tự có dấu chiếm nhiều byte hơn)",
+      (value) => !value || new TextEncoder().encode(value).length <= 72,
+    ),
+  acceptTerms: yup
     .boolean()
     .oneOf([true], "Bạn cần đồng ý với điều khoản để tạo tài khoản")
     .required("Bạn cần đồng ý với điều khoản để tạo tài khoản"),
