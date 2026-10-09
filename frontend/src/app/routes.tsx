@@ -248,7 +248,7 @@ const getRoutesConfig = (): RouteObject[] => {
     {
       path: "instructor",
       element: (
-        <AuthGuard allowedRoles={["instructor"]}>
+        <AuthGuard allowedRoles={["instructor", "admin"]}>
           <InstructorLayout />
         </AuthGuard>
       ),
