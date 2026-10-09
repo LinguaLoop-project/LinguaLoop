@@ -37,7 +37,7 @@ public class Lesson extends BaseEntity {
     private Integer durationSec;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "difficulty")
+    @Column(name = "difficulty", columnDefinition = "cefr_code")
     private CefrLevel difficulty;
 
     @Enumerated(EnumType.STRING)

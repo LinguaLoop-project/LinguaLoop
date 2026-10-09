@@ -38,21 +38,21 @@ public class Sentence extends BaseEntity {
     private Integer endMs;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "cefr_level")
+    @Column(name = "cefr_level", columnDefinition = "cefr_code")
     private CefrLevel cefrLevel;
 
     @Column(name = "cefr_source", nullable = false)
     private String cefrSource = "editor_guess";
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "cefr_suggested_by_ai")
+    @Column(name = "cefr_suggested_by_ai", columnDefinition = "cefr_code")
     private CefrLevel cefrSuggestedByAi;
 
     @Column(name = "ai_model")
     private String aiModel;
 
-    @Column(name = "ai_confidence")
-    private Double aiConfidence;
+    @Column(name = "ai_confidence", columnDefinition = "numeric(4,3)")
+    private java.math.BigDecimal aiConfidence;
 
     @Column(name = "reviewed_by")
     private UUID reviewedBy;

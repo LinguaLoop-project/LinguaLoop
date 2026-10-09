@@ -5,6 +5,7 @@ import InstructorLayout from "@/components/layouts/InstructorLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail, GoogleCallback } from "@/features/auth";
 import { Settings } from "@/features/user";
+import { LessonLibraryPage, LessonDetailPage, TopicDetailPage } from "@/features/lesson";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
 import { AuthGuard } from "@/app/guards";
@@ -76,11 +77,11 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "lessons",
-          element: <PlaceholderPage pageKey="student.lessons" />,
+          element: <LessonLibraryPage />,
         },
         {
           path: "lessons/:id",
-          element: <PlaceholderPage pageKey="student.lessonDetail" />,
+          element: <LessonDetailPage />,
         },
         {
           path: "dictation",
@@ -116,7 +117,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "topics/:id",
-          element: <PlaceholderPage pageKey="student.topicDetail" />,
+          element: <TopicDetailPage />,
         },
         {
           path: "mywords",

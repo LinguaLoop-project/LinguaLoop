@@ -25,7 +25,7 @@ public class UserLessonModeProgress {
 
     @Id
     @Enumerated(EnumType.STRING)
-    @Column(name = "mode")
+    @Column(name = "mode", columnDefinition = "practice_mode")
     private PracticeMode mode;
 
     @Column(name = "started_at", nullable = false)

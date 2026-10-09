@@ -70,6 +70,19 @@ const SvgSprites = () => (
       <path fillRule="evenodd" d="M10 100a90 58 0 1 0 180 0a90 58 0 1 0-180 0ZM60 92a40 18 0 1 0 80 0a40 18 0 1 0-80 0Z" fill="none" stroke="url(#gEdge)" strokeWidth="2.5" />
       <ellipse cx="56" cy="74" rx="26" ry="8" transform="rotate(-18 56 74)" fill="url(#gSpec)" />
     </symbol>
+    <symbol id="o-star" viewBox="0 0 200 200">
+      <path d="M100 6C107 72 128 93 194 100C128 107 107 128 100 194C93 128 72 107 6 100C72 93 93 72 100 6Z" fill="url(#gBody)" />
+      <path d="M100 6C107 72 128 93 194 100C128 107 107 128 100 194C93 128 72 107 6 100C72 93 93 72 100 6Z" fill="url(#gRim)" />
+      <path d="M100 6C107 72 128 93 194 100C128 107 107 128 100 194C93 128 72 107 6 100C72 93 93 72 100 6Z" fill="none" stroke="url(#gEdge)" strokeWidth="2.5" />
+      <ellipse cx="82" cy="80" rx="14" ry="6" transform="rotate(-40 82 80)" fill="url(#gSpec)" />
+    </symbol>
+    <symbol id="o-cone" viewBox="0 0 200 200">
+      <path d="M100 10L174 158A74 26 0 0 1 26 158Z" fill="url(#gBody)" />
+      <path d="M100 10L174 158A74 26 0 0 1 26 158Z" fill="url(#gRim)" />
+      <path d="M100 10L174 158A74 26 0 0 1 26 158Z" fill="none" stroke="url(#gEdge)" strokeWidth="2.5" />
+      <path d="M26 158A74 26 0 0 0 174 158" fill="none" stroke="url(#gEdge)" strokeWidth="2" opacity="0.6" />
+      <ellipse cx="74" cy="92" rx="5" ry="40" transform="rotate(26 74 92)" fill="url(#gSpec)" />
+    </symbol>
 
     {/* ── Google logo ── */}
     <symbol id="g-google" viewBox="0 0 48 48">
