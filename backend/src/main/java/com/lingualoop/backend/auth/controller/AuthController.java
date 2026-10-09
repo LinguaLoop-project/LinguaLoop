@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lingualoop.backend.auth.dto.AuthResponse;
 import com.lingualoop.backend.auth.dto.AuthSession;
+import com.lingualoop.backend.auth.dto.GoogleLoginRequest;
 import com.lingualoop.backend.auth.dto.LoginRequest;
 import com.lingualoop.backend.auth.dto.RegisterRequest;
 import com.lingualoop.backend.auth.dto.RegisterResponse;
@@ -22,6 +23,7 @@ import com.lingualoop.backend.auth.dto.VerifyEmailRequest;
 import com.lingualoop.backend.auth.dto.VerifyEmailResponse;
 import com.lingualoop.backend.auth.service.AuthService;
 import com.lingualoop.backend.auth.service.EmailVerificationService;
+import com.lingualoop.backend.auth.service.GoogleAuthService;
 import com.lingualoop.backend.auth.service.RefreshInvalidException;
 import com.lingualoop.backend.auth.web.RefreshCookies;
 import com.lingualoop.backend.common.exception.ErrorResponse;
@@ -37,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    private final GoogleAuthService googleAuthService;
     private final EmailVerificationService emailVerificationService;
     private final RefreshCookies refreshCookies;
 
@@ -50,6 +53,12 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request,
             @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
         return withSession(authService.login(request, userAgent));
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<ApiResponse<AuthResponse>> google(@Valid @RequestBody GoogleLoginRequest request,
+            @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
+        return withSession(googleAuthService.login(request.code(), userAgent));
     }
 
     @PostMapping("/refresh")

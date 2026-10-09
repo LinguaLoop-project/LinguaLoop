@@ -8,20 +8,7 @@ import { registerSchema, type RegisterFormData } from "../validations/authSchema
 import { applyFieldErrors, errorMessage, toApiError } from "../errors";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
-
-function getPwScore(v: string): number {
-  if (!v) return 0;
-  let s = 0;
-  if (v.length >= 8) s++;
-  if (/[a-z]/i.test(v) && /\d/.test(v)) s++;
-  if (/[^a-z0-9]/i.test(v)) s++;
-  if (v.length >= 12) s++;
-  return Math.max(1, s);
-}
-
-function isPwValid(v: string): boolean {
-  return v.length >= 8;
-}
+import { getPwScore, isPwValid } from "../passwordStrength";
 
 const Register = () => {
   const { t } = useTranslation("auth");

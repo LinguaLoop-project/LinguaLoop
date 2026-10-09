@@ -80,6 +80,16 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void fieldValidationException_returnsValidationFailedWithThatFieldError() throws Exception {
+        mockMvc.perform(get("/fake/field-invalid"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].field").value("currentPassword"))
+                .andExpect(jsonPath("$.errors[0].code").value("NotBlank"));
+    }
+
+    @Test
     void businessExceptionWithoutDetails_returnsEmptyDetails() throws Exception {
         mockMvc.perform(get("/fake/quota"))
                 .andExpect(jsonPath("$.details").isMap())
@@ -199,6 +209,11 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/fake/not-found")
         String notFound() {
             throw new NotFoundException("Lesson 42 not found");
+        }
+
+        @GetMapping("/fake/field-invalid")
+        String fieldInvalid() {
+            throw new FieldValidationException("currentPassword", "NotBlank");
         }
 
         @GetMapping("/fake/quota")

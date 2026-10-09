@@ -99,7 +99,7 @@ class SecurityIntegrationTest {
     }
 
     private String bearer(UUID userId, Role role) {
-        return "Bearer " + jwtTokenService.issueAccessToken(userId, role).token();
+        return "Bearer " + jwtTokenService.issueAccessToken(userId, role, UUID.randomUUID()).token();
     }
 
     @TestConfiguration

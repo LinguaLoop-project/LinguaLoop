@@ -33,6 +33,10 @@ public enum ErrorCode {
     AUTH_EMAIL_TAKEN(HttpStatus.CONFLICT, "Email này đã được đăng ký"),
     AUTH_LINK_INVALID(HttpStatus.BAD_REQUEST, "Liên kết không hợp lệ, đã hết hạn hoặc đã được sử dụng"),
     AUTH_REFRESH_INVALID(HttpStatus.UNAUTHORIZED, "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại"),
+    AUTH_GOOGLE_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "Không thể đăng nhập bằng Google"),
+    AUTH_GOOGLE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Tạm thời không đăng nhập được bằng Google"),
+    AUTH_GOOGLE_LINK_CONFLICT(HttpStatus.CONFLICT, "Email này đã liên kết với một tài khoản Google khác"),
+    AUTH_CURRENT_PASSWORD_WRONG(HttpStatus.BAD_REQUEST, "Mật khẩu hiện tại chưa đúng"),
 
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi hệ thống, vui lòng thử lại sau");
 

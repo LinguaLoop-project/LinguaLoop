@@ -35,8 +35,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusiness(BusinessException ex, HttpServletRequest request) {
         ErrorCode code = ex.getErrorCode();
+        List<ErrorResponse.FieldError> errors = ex instanceof FieldValidationException fieldError
+                ? fieldError.fieldErrors()
+                : List.of();
         return ResponseEntity.status(code.getStatus())
-                .body(ErrorResponse.of(code, ex.getMessage(), request.getRequestURI(), List.of(), ex.getDetails()));
+                .body(ErrorResponse.of(code, ex.getMessage(), request.getRequestURI(), errors, ex.getDetails()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -63,6 +63,37 @@ public class User extends BaseEntity {
         return user;
     }
 
+    /** Tài khoản tạo lần đầu từ Google: email đã được Google xác thực, chưa có mật khẩu, chưa đồng ý điều khoản. */
+    public static User createFromGoogle(String sub, String email, String displayName, String avatarUrl) {
+        User user = new User();
+        user.authUid = sub;
+        user.email = email;
+        user.displayName = displayName;
+        user.avatarUrl = avatarUrl;
+        user.emailVerified = true;
+        return user;
+    }
+
+    /**
+     * Gắn tài khoản với Google. Nếu email trước đó chưa xác thực thì bỏ mật khẩu: người đăng ký cục bộ
+     * chưa chứng minh sở hữu email thì không được giữ đường đăng nhập bằng mật khẩu (BR-AUTH-08).
+     *
+     * @return {@code true} nếu mật khẩu đã bị xoá (caller phải thu hồi mọi phiên)
+     */
+    public boolean linkGoogle(String sub) {
+        boolean clearPassword = !emailVerified;
+        this.authUid = sub;
+        this.emailVerified = true;
+        if (clearPassword) {
+            this.passwordHash = null;
+        }
+        return clearPassword;
+    }
+
+    public void changePassword(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
     public void markEmailVerified() {
         this.emailVerified = true;
     }

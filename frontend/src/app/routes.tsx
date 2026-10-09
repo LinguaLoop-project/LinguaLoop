@@ -3,7 +3,8 @@ import MainLayout from "@/components/layouts/MainLayout";
 import StudentLayout from "@/components/layouts/StudentLayout";
 import InstructorLayout from "@/components/layouts/InstructorLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail } from "@/features/auth";
+import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail, GoogleCallback } from "@/features/auth";
+import { Settings } from "@/features/user";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
 import { AuthGuard } from "@/app/guards";
@@ -42,6 +43,8 @@ const getRoutesConfig = (): RouteObject[] => {
         </AuthGuard>
       ),
     },
+    // Đích Google chuyển về sau khi người dùng đồng ý (redirect URI khai trong Google Console)
+    { path: "authenticate", element: <GoogleCallback /> },
     // Đích của link trong thư xác thực (backend gửi frontend-url + /verify-email?token=...)
     { path: "verify-email", element: <VerifyEmail /> },
     // ── Redirect shorthands ──
@@ -129,7 +132,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "settings",
-          element: <PlaceholderPage pageKey="student.settings" />,
+          element: <Settings />,
         },
         {
           path: "profile",
@@ -235,7 +238,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "settings",
-          element: <PlaceholderPage pageKey="instructor.settings" />,
+          element: <Settings />,
         },
         {
           path: "profile",
@@ -313,7 +316,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "settings",
-          element: <PlaceholderPage pageKey="admin.settings" />,
+          element: <Settings />,
         },
         {
           path: "logs",

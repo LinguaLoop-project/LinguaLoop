@@ -19,6 +19,7 @@ import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.auth.entity.RefreshToken;
 import com.lingualoop.backend.auth.repository.RefreshTokenRepository;
 import com.lingualoop.backend.auth.service.RefreshTokenService.Rotation;
+import com.lingualoop.backend.auth.service.RefreshTokenService.Session;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;
@@ -60,7 +61,7 @@ class RefreshTokenServiceTest {
 
     @Test
     void startSession_storesOnlyHashAndUserAgentWith30DayExpiry_AC08() {
-        String raw = service.startSession(userId, "JUnit/5");
+        String raw = service.startSession(userId, "JUnit/5").rawToken();
 
         RefreshToken stored = byRaw(raw);
         assertThat(stored.getTokenHash()).isNotEqualTo(raw);
@@ -73,7 +74,7 @@ class RefreshTokenServiceTest {
 
     @Test
     void rotate_validToken_revokesOldIssuesNewInSameFamily_AC27() {
-        String first = service.startSession(userId, "ua");
+        String first = service.startSession(userId, "ua").rawToken();
 
         Rotation rotation = service.rotate(first, "ua");
 
@@ -88,7 +89,7 @@ class RefreshTokenServiceTest {
 
     @Test
     void rotate_slidesExpiryFromTheTimeOfUse_BRAUTH07() {
-        String first = service.startSession(userId, "ua");
+        String first = service.startSession(userId, "ua").rawToken();
         clock.advance(Duration.ofDays(20));
 
         Rotation rotation = service.rotate(first, "ua");
@@ -107,7 +108,7 @@ class RefreshTokenServiceTest {
 
     @Test
     void rotate_afterThirtyDaysUnused_throwsRefreshInvalid_AC27() {
-        String raw = service.startSession(userId, "ua");
+        String raw = service.startSession(userId, "ua").rawToken();
 
         clock.advance(Duration.ofDays(30).plusSeconds(1));
 
@@ -116,7 +117,7 @@ class RefreshTokenServiceTest {
 
     @Test
     void rotate_reusedAfterGraceWindow_revokesWholeFamily_AC27() {
-        String first = service.startSession(userId, "ua");
+        String first = service.startSession(userId, "ua").rawToken();
         Rotation second = service.rotate(first, "ua");
         clock.advance(Duration.ofSeconds(11));
 
@@ -129,7 +130,7 @@ class RefreshTokenServiceTest {
 
     @Test
     void rotate_reusedWithinGraceWindow_issuesAnotherTokenInSameFamily_AC27() {
-        String first = service.startSession(userId, "ua");
+        String first = service.startSession(userId, "ua").rawToken();
         Rotation second = service.rotate(first, "ua");
         clock.advance(Duration.ofSeconds(9));
 
@@ -142,7 +143,7 @@ class RefreshTokenServiceTest {
 
     @Test
     void rotate_afterSessionRevoked_noGraceEvenWithinTenSeconds_AC25() {
-        String first = service.startSession(userId, "ua");
+        String first = service.startSession(userId, "ua").rawToken();
         Rotation second = service.rotate(first, "ua");
 
         service.revokeSession(second.rawToken());
@@ -157,5 +158,54 @@ class RefreshTokenServiceTest {
             service.revokeSession("no-such-token");
             service.revokeSession(null);
         }).doesNotThrowAnyException();
+    }
+
+    @Test
+    void startSession_returnsFamilyIdOfStoredToken_AC41() {
+        Session session = service.startSession(userId, "ua");
+
+        assertThat(byRaw(session.rawToken()).getFamilyId()).isEqualTo(session.familyId());
+    }
+
+    @Test
+    void revokeAllForUser_revokesEveryFamilyOfThatUserOnly_AC20() {
+        Session a = service.startSession(userId, "ua");
+        Session b = service.startSession(userId, "ua");
+        UUID otherUser = userAccountService.createLocal("rt-" + UUID.randomUUID() + "@x.com", "Other", "hash").id();
+        Session others = service.startSession(otherUser, "ua");
+
+        service.revokeAllForUser(userId);
+
+        assertThat(byRaw(a.rawToken()).getRevokedAt()).isNotNull();
+        assertThat(byRaw(b.rawToken()).getRevokedAt()).isNotNull();
+        assertThat(byRaw(others.rawToken()).getRevokedAt()).isNull();
+        assertThatThrownBy(() -> service.rotate(a.rawToken(), "ua")).isInstanceOf(RefreshInvalidException.class);
+    }
+
+    @Test
+    void revokeAllExcept_keepsGivenFamilyAndRevokesTheRest_AC41() {
+        Session current = service.startSession(userId, "ua");
+        Session other = service.startSession(userId, "ua");
+        UUID otherUser = userAccountService.createLocal("rt-" + UUID.randomUUID() + "@x.com", "Other", "hash").id();
+        Session strangers = service.startSession(otherUser, "ua");
+
+        service.revokeAllExcept(userId, current.familyId());
+
+        assertThat(byRaw(current.rawToken()).getRevokedAt()).isNull();
+        assertThat(byRaw(other.rawToken()).getRevokedAt()).isNotNull();
+        assertThat(byRaw(strangers.rawToken()).getRevokedAt()).isNull();
+        assertThatThrownBy(() -> service.rotate(other.rawToken(), "ua")).isInstanceOf(RefreshInvalidException.class);
+        assertThatCode(() -> service.rotate(current.rawToken(), "ua")).doesNotThrowAnyException();
+    }
+
+    @Test
+    void revokeAllExcept_nullFamily_revokesEverySession_AC41() {
+        Session a = service.startSession(userId, "ua");
+        Session b = service.startSession(userId, "ua");
+
+        service.revokeAllExcept(userId, null);
+
+        assertThat(byRaw(a.rawToken()).getRevokedAt()).isNotNull();
+        assertThat(byRaw(b.rawToken()).getRevokedAt()).isNotNull();
     }
 }

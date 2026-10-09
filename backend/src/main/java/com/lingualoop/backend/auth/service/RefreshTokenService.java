@@ -33,9 +33,11 @@ public class RefreshTokenService {
     private final Clock clock;
     private final TransactionTemplate transactionTemplate;
 
-    /** Mở chuỗi mới cho một lần đăng nhập, trả về token thô (chỉ đặt vào cookie). */
-    public String startSession(UUID userId, String userAgent) {
-        return transactionTemplate.execute(status -> issue(userId, UUID.randomUUID(), userAgent));
+    /** Mở chuỗi mới cho một lần đăng nhập: trả mã chuỗi (đưa vào claim {@code sid}) và token thô (chỉ đặt vào cookie). */
+    public Session startSession(UUID userId, String userAgent) {
+        UUID familyId = UUID.randomUUID();
+        String raw = transactionTemplate.execute(status -> issue(userId, familyId, userAgent));
+        return new Session(familyId, raw);
     }
 
     /** Đổi token cũ lấy token mới; ném {@link RefreshInvalidException} nếu không hợp lệ. */
@@ -56,6 +58,21 @@ public class RefreshTokenService {
 
     public void revokeFamily(UUID familyId) {
         transactionTemplate.executeWithoutResult(status -> repository.revokeFamily(familyId, Instant.now(clock)));
+    }
+
+    /** Thu hồi mọi phiên của người dùng (vd khi mật khẩu bị xoá lúc liên kết Google). */
+    public void revokeAllForUser(UUID userId) {
+        transactionTemplate.executeWithoutResult(status -> repository.revokeAllByUser(userId, Instant.now(clock)));
+    }
+
+    /** Thu hồi mọi phiên của người dùng trừ phiên {@code keepFamilyId}; {@code null} nghĩa là không giữ phiên nào. */
+    public void revokeAllExcept(UUID userId, UUID keepFamilyId) {
+        if (keepFamilyId == null) {
+            revokeAllForUser(userId);
+            return;
+        }
+        transactionTemplate.executeWithoutResult(
+                status -> repository.revokeAllByUserExceptFamily(userId, keepFamilyId, Instant.now(clock)));
     }
 
     /** Rỗng nghĩa là token không dùng được (việc thu hồi family nếu có vẫn được commit). */
@@ -96,6 +113,10 @@ public class RefreshTokenService {
             return userAgent;
         }
         return userAgent.substring(0, MAX_USER_AGENT_LENGTH);
+    }
+
+    /** Phiên mới mở: mã chuỗi và token thô để đặt vào cookie. */
+    public record Session(UUID familyId, String rawToken) {
     }
 
     /** Kết quả xoay vòng: người dùng, chuỗi và token thô mới để đặt vào cookie. */

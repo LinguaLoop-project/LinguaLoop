@@ -4,10 +4,12 @@ export { default as Register } from "./pages/Register";
 export { default as ForgotPassword } from "./pages/ForgotPassword";
 export { default as CheckEmail } from "./pages/CheckEmail";
 export { default as VerifyEmail } from "./pages/VerifyEmail";
+export { default as GoogleCallback } from "./pages/GoogleCallback";
 
 // Components
 export { default as AuthSidePanel } from "./components/AuthSidePanel";
 export { default as AuthTopBar } from "./components/AuthTopBar";
+export { default as GoogleSignInButton } from "./components/GoogleSignInButton";
 
 // Store & Types
 export { useAuthStore } from "./stores/authStore";
@@ -18,6 +20,10 @@ export type {
   AuthState,
   AuthActions,
 } from "./stores/authStore";
+
+// Config
+export { getPwScore, isPwValid } from "./passwordStrength";
+export { isGoogleConfigured } from "./googleConfig";
 
 // Navigation
 export { homePathFor, resolvePostLoginPath } from "./navigation";

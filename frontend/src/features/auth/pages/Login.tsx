@@ -8,6 +8,7 @@ import { loginSchema, type LoginFormData } from "../validations/authSchemas";
 import { errorMessage, toApiError } from "../errors";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 
 const Login = () => {
   const { t } = useTranslation("auth");
@@ -102,6 +103,9 @@ const Login = () => {
                 </span>
               </div>
             )}
+
+            {/* Google + "or" divider (ẩn khi chưa có client ID) */}
+            <GoogleSignInButton />
 
             {/* Email */}
             <div className={`ll-field ${errors.email ? "bad" : ""}`}>

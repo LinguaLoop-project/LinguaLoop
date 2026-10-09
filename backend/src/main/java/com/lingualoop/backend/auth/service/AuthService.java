@@ -16,6 +16,7 @@ import com.lingualoop.backend.auth.dto.RegisterRequest;
 import com.lingualoop.backend.auth.dto.RegisterResponse;
 import com.lingualoop.backend.auth.service.LoginAttemptService.FailureResult;
 import com.lingualoop.backend.auth.service.RefreshTokenService.Rotation;
+import com.lingualoop.backend.auth.service.RefreshTokenService.Session;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.security.JwtTokenService;
@@ -94,7 +95,13 @@ public class AuthService {
         if (!account.emailVerified()) {
             throw new BusinessException(ErrorCode.AUTH_EMAIL_NOT_VERIFIED);
         }
-        return new AuthSession(accessResponse(account), refreshTokenService.startSession(account.id(), userAgent));
+        return openSession(account, userAgent);
+    }
+
+    /** Mở phiên mới cho tài khoản đã được xác thực (mật khẩu hoặc Google): access token có {@code sid} + refresh token. */
+    public AuthSession openSession(UserAccount account, String userAgent) {
+        Session session = refreshTokenService.startSession(account.id(), userAgent);
+        return new AuthSession(accessResponse(account, session.familyId()), session.rawToken());
     }
 
     /**
@@ -112,7 +119,7 @@ public class AuthService {
             refreshTokenService.revokeFamily(rotation.familyId());
             throw new BusinessException(ErrorCode.AUTH_ACCOUNT_DISABLED);
         }
-        return new AuthSession(accessResponse(account), rotation.rawToken());
+        return new AuthSession(accessResponse(account, rotation.familyId()), rotation.rawToken());
     }
 
     /** Đăng xuất thiết bị hiện tại; không có hoặc sai cookie thì coi như đã đăng xuất. */
@@ -120,8 +127,8 @@ public class AuthService {
         refreshTokenService.revokeSession(rawRefreshToken);
     }
 
-    private AuthResponse accessResponse(UserAccount account) {
-        JwtTokenService.AccessToken access = jwtTokenService.issueAccessToken(account.id(), account.role());
+    private AuthResponse accessResponse(UserAccount account, UUID sessionId) {
+        JwtTokenService.AccessToken access = jwtTokenService.issueAccessToken(account.id(), account.role(), sessionId);
         return new AuthResponse(access.token(), access.expiresAt(), account.toMe());
     }
 

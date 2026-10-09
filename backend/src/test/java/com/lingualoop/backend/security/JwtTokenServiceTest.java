@@ -29,16 +29,30 @@ class JwtTokenServiceTest {
         SecretKey key = config.jwtSecretKey(props);
         JwtTokenService service = new JwtTokenService(config.jwtEncoder(key), props);
         UUID userId = UUID.randomUUID();
+        UUID sessionId = UUID.randomUUID();
 
-        JwtTokenService.AccessToken token = service.issueAccessToken(userId, Role.INSTRUCTOR);
+        JwtTokenService.AccessToken token = service.issueAccessToken(userId, Role.INSTRUCTOR, sessionId);
         Jwt jwt = config.jwtDecoder(key, props).decode(token.token());
 
         assertThat(jwt.getSubject()).isEqualTo(userId.toString());
         assertThat(jwt.getClaimAsString(JwtTokenService.ROLE_CLAIM)).isEqualTo("instructor");
+        assertThat(jwt.getClaimAsString(JwtTokenService.SESSION_CLAIM)).isEqualTo(sessionId.toString());
         assertThat(jwt.getExpiresAt()).isEqualTo(token.expiresAt());
         assertThat(SecurityConfig.roleAuthorities(jwt))
                 .extracting(Object::toString)
                 .containsExactly("ROLE_INSTRUCTOR");
+    }
+
+    @Test
+    void tokenIssuedWithoutSessionHasNoSidClaim() {
+        JwtProperties props = new JwtProperties(SECRET, "lingualoop", Duration.ofMinutes(30));
+        SecretKey key = config.jwtSecretKey(props);
+        JwtTokenService service = new JwtTokenService(config.jwtEncoder(key), props);
+
+        Jwt jwt = config.jwtDecoder(key, props)
+                .decode(service.issueAccessToken(UUID.randomUUID(), Role.STUDENT, null).token());
+
+        assertThat(jwt.hasClaim(JwtTokenService.SESSION_CLAIM)).isFalse();
     }
 
     @Test
@@ -69,7 +83,7 @@ class JwtTokenServiceTest {
         SecretKey key = config.jwtSecretKey(props);
         Clock anHourAgo = Clock.fixed(Instant.now().minus(Duration.ofHours(1)), ZoneOffset.UTC);
         String token = new JwtTokenService(config.jwtEncoder(key), props, anHourAgo)
-                .issueAccessToken(UUID.randomUUID(), Role.STUDENT).token();
+                .issueAccessToken(UUID.randomUUID(), Role.STUDENT, UUID.randomUUID()).token();
 
         JwtDecoder decoder = config.jwtDecoder(key, props);
 
@@ -85,6 +99,6 @@ class JwtTokenServiceTest {
 
     private String tokenFor(JwtProperties props) {
         return new JwtTokenService(config.jwtEncoder(config.jwtSecretKey(props)), props)
-                .issueAccessToken(UUID.randomUUID(), Role.STUDENT).token();
+                .issueAccessToken(UUID.randomUUID(), Role.STUDENT, UUID.randomUUID()).token();
     }
 }

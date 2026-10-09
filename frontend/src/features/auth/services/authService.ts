@@ -13,6 +13,10 @@ export const authService = {
   login: (payload: LoginPayload) => {
     return publicAxios.post<ApiResponse<AuthResponse>>("/auth/login", payload);
   },
+  // `code` là authorization code Google trả về ở /authenticate; backend tự đổi lấy access token bằng client secret.
+  googleLogin: (code: string) => {
+    return publicAxios.post<ApiResponse<AuthResponse>>("/auth/google", { code });
+  },
   register: (payload: RegisterPayload) => {
     return publicAxios.post<ApiResponse<RegisterResponse>>("/auth/register", payload);
   },

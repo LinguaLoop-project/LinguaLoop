@@ -70,4 +70,73 @@ class UserRepositoryTest {
         assertThatThrownBy(() -> userRepository.saveAndFlush(newUser("D@x.com", "D2")))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
+
+    @Test
+    void findByAuthUid_returnsLinkedUser() {
+        User google = User.createFromGoogle("sub-1", "g@x.com", "Gia", "https://img/a.png");
+        userRepository.saveAndFlush(google);
+
+        assertThat(userRepository.findByAuthUid("sub-1"))
+                .hasValueSatisfying(u -> assertThat(u.getEmail()).isEqualTo("g@x.com"));
+        assertThat(userRepository.findByAuthUid("sub-other")).isEmpty();
+    }
+
+    @Test
+    void createFromGoogle_isVerifiedStudentWithoutPasswordOrTerms() {
+        User saved = userRepository.saveAndFlush(User.createFromGoogle("sub-2", "h@x.com", "Hoa", "https://img/h.png"));
+
+        User found = userRepository.findById(saved.getId()).orElseThrow();
+        assertThat(found.isEmailVerified()).isTrue();
+        assertThat(found.hasPassword()).isFalse();
+        assertThat(found.getTermsAcceptedAt()).isNull();
+        assertThat(found.getRole()).isEqualTo(Role.STUDENT);
+        assertThat(found.getAuthUid()).isEqualTo("sub-2");
+        assertThat(found.getAvatarUrl()).isEqualTo("https://img/h.png");
+    }
+
+    @Test
+    void save_duplicateAuthUid_throws() {
+        userRepository.saveAndFlush(User.createFromGoogle("sub-3", "i1@x.com", "I1", null));
+
+        assertThatThrownBy(() -> userRepository.saveAndFlush(User.createFromGoogle("sub-3", "i2@x.com", "I2", null)))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void linkGoogle_unverifiedAccount_dropsPasswordAndVerifiesEmail() {
+        User local = userRepository.saveAndFlush(newUser("j@x.com", "Jin"));
+
+        boolean passwordCleared = local.linkGoogle("sub-4");
+        userRepository.saveAndFlush(local);
+
+        User found = userRepository.findByAuthUid("sub-4").orElseThrow();
+        assertThat(passwordCleared).isTrue();
+        assertThat(found.hasPassword()).isFalse();
+        assertThat(found.isEmailVerified()).isTrue();
+    }
+
+    @Test
+    void linkGoogle_verifiedAccount_keepsPassword() {
+        User local = newUser("k@x.com", "Kim");
+        local.markEmailVerified();
+        userRepository.saveAndFlush(local);
+
+        boolean passwordCleared = local.linkGoogle("sub-5");
+        userRepository.saveAndFlush(local);
+
+        User found = userRepository.findByAuthUid("sub-5").orElseThrow();
+        assertThat(passwordCleared).isFalse();
+        assertThat(found.hasPassword()).isTrue();
+        assertThat(found.isEmailVerified()).isTrue();
+    }
+
+    @Test
+    void changePassword_replacesHash() {
+        User local = userRepository.saveAndFlush(newUser("l@x.com", "Linh"));
+
+        local.changePassword("new-hash");
+        userRepository.saveAndFlush(local);
+
+        assertThat(userRepository.findById(local.getId()).orElseThrow().getPasswordHash()).isEqualTo("new-hash");
+    }
 }
