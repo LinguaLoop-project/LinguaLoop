@@ -1,7 +1,7 @@
 import AuthLayout from "@/components/layouts/AuthLayout";
 import MainLayout from "@/components/layouts/MainLayout";
 import StudentLayout from "@/components/layouts/StudentLayout";
-import TeacherLayout from "@/components/layouts/TeacherLayout";
+import InstructorLayout from "@/components/layouts/InstructorLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail } from "@/features/auth";
 import NotFound from "@/components/common/NotFound";
@@ -243,13 +243,13 @@ const getRoutesConfig = (): RouteObject[] => {
     },
   ];
 
-  // ── Teacher routes ──
-  const teacherRoutes: RouteObject[] = [
+  // ── Instructor routes ──
+  const instructorRoutes: RouteObject[] = [
     {
-      path: "teacher",
+      path: "instructor",
       element: (
         <AuthGuard allowedRoles={["instructor"]}>
-          <TeacherLayout />
+          <InstructorLayout />
         </AuthGuard>
       ),
       children: [
@@ -556,7 +556,7 @@ const getRoutesConfig = (): RouteObject[] => {
           ),
         },
         {
-          path: "teachers",
+          path: "instructors",
           element: (
             <PlaceholderPage
               title="Quản lý giáo viên"
@@ -627,7 +627,7 @@ const getRoutesConfig = (): RouteObject[] => {
   return [
     ...publicRoutes,
     ...studentRoutes,
-    ...teacherRoutes,
+    ...instructorRoutes,
     ...adminRoutes,
     ...catchAll,
   ];

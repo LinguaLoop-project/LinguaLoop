@@ -1,6 +1,6 @@
 /**
  * AdminLayout — Khung giao diện chuẩn cho Quản trị viên (Cosmic Violet design system).
- * Tách biệt AdminSidebar và AdminTopBar tương tự StudentLayout và TeacherLayout.
+ * Tách biệt AdminSidebar và AdminTopBar tương tự StudentLayout và InstructorLayout.
  * Hoàn toàn dùng TailwindCSS v4.
  */
 

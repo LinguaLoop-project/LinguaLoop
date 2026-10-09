@@ -1,5 +1,5 @@
 /**
- * TeacherTopBar — thanh top cố định của Teacher Layout.
+ * InstructorTopBar — thanh top cố định của Instructor Layout.
  * Dựa trên TOPBAR trong mockups-teacher/shell.js và mockups-teacher/teacher.css.
  * Hoàn toàn dùng TailwindCSS v4.
  */
@@ -9,27 +9,27 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { LogoMark } from "@/components/common/Logo";
 import { useAuth } from "@/features/auth";
 
-const TEACHER_PAGE_TITLES: Record<string, string> = {
-  "/teacher": "Tổng quan",
-  "/teacher/topics": "Chủ đề",
-  "/teacher/lessons": "Bài học",
-  "/teacher/compose": "Soạn bài học mới",
-  "/teacher/decks": "Bộ từ vựng",
-  "/teacher/cefr": "Duyệt CEFR AI",
-  "/teacher/dict": "Từ điển",
-  "/teacher/phoneme": "Ngữ âm",
-  "/teacher/qbank": "Câu hỏi kiểm tra",
-  "/teacher/reports": "Báo lỗi của tôi",
-  "/teacher/audit": "Lịch sử thay đổi",
-  "/teacher/classes": "Lớp học",
-  "/teacher/students": "Học viên",
-  "/teacher/progress": "Tiến độ lớp",
-  "/teacher/weakness": "Điểm yếu chung",
-  "/teacher/settings": "Cài đặt",
-  "/teacher/profile": "Hồ sơ giảng viên",
+const INSTRUCTOR_PAGE_TITLES: Record<string, string> = {
+  "/instructor": "Tổng quan",
+  "/instructor/topics": "Chủ đề",
+  "/instructor/lessons": "Bài học",
+  "/instructor/compose": "Soạn bài học mới",
+  "/instructor/decks": "Bộ từ vựng",
+  "/instructor/cefr": "Duyệt CEFR AI",
+  "/instructor/dict": "Từ điển",
+  "/instructor/phoneme": "Ngữ âm",
+  "/instructor/qbank": "Câu hỏi kiểm tra",
+  "/instructor/reports": "Báo lỗi của tôi",
+  "/instructor/audit": "Lịch sử thay đổi",
+  "/instructor/classes": "Lớp học",
+  "/instructor/students": "Học viên",
+  "/instructor/progress": "Tiến độ lớp",
+  "/instructor/weakness": "Điểm yếu chung",
+  "/instructor/settings": "Cài đặt",
+  "/instructor/profile": "Hồ sơ giảng viên",
 };
 
-export default function TeacherTopBar() {
+export default function InstructorTopBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, handleLogout } = useAuth();
@@ -83,14 +83,14 @@ export default function TeacherTopBar() {
   }
 
   const pageTitle =
-    TEACHER_PAGE_TITLES[location.pathname] ||
-    (location.pathname.startsWith("/teacher/topics/")
+    INSTRUCTOR_PAGE_TITLES[location.pathname] ||
+    (location.pathname.startsWith("/instructor/topics/")
       ? "Chi tiết chủ đề"
-      : location.pathname.startsWith("/teacher/lessons/")
+      : location.pathname.startsWith("/instructor/lessons/")
       ? "Chi tiết bài học"
-      : location.pathname.startsWith("/teacher/decks/")
+      : location.pathname.startsWith("/instructor/decks/")
       ? "Chi tiết bộ từ"
-      : location.pathname.startsWith("/teacher/reports/")
+      : location.pathname.startsWith("/instructor/reports/")
       ? "Chi tiết báo cáo lỗi"
       : "Tổng quan");
 
@@ -102,7 +102,7 @@ export default function TeacherTopBar() {
         <button
           type="button"
           className="flex md:hidden items-center justify-center p-0 bg-transparent border-0 cursor-pointer"
-          onClick={() => navigate("/teacher")}
+          onClick={() => navigate("/instructor")}
           aria-label="LinguaLoop Giảng viên"
         >
           <LogoMark size={32} />
@@ -112,7 +112,7 @@ export default function TeacherTopBar() {
         <nav className="flex items-center gap-1.5 text-sm" aria-label="Vị trí hiện tại">
           <button
             type="button"
-            onClick={() => navigate("/teacher")}
+            onClick={() => navigate("/instructor")}
             className="text-text-muted hover:text-primary transition-colors text-sm font-medium bg-transparent border-0 cursor-pointer p-0"
           >
             Giảng viên
@@ -176,7 +176,7 @@ export default function TeacherTopBar() {
                   className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-text-muted hover:text-text hover:bg-surface-hover font-medium text-[14px] text-left border-0 bg-transparent cursor-pointer transition-colors duration-150"
                   onClick={() => {
                     setMenuOpen(false);
-                    navigate("/teacher/audit");
+                    navigate("/instructor/audit");
                   }}
                 >
                   <i className="ph ph-clock-counter-clockwise text-lg text-text-subtle" aria-hidden="true" />

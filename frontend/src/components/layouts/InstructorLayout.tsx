@@ -1,17 +1,17 @@
 /**
- * TeacherLayout — Khung giao diện chuẩn cho Giảng viên (Cosmic Violet design system).
- * Tách biệt TeacherSidebar và TeacherTopBar tương tự StudentLayout.
+ * InstructorLayout — Khung giao diện chuẩn cho Giảng viên (Cosmic Violet design system).
+ * Tách biệt InstructorSidebar và InstructorTopBar tương tự StudentLayout.
  * Hoàn toàn dùng TailwindCSS v4.
  */
 
 import { Outlet } from "react-router-dom";
 import AuthGuard from "@/app/guards/AuthGuard";
 import SvgSprites from "@/components/common/SvgSprites";
-import TeacherSidebar from "@/components/layouts/TeacherSidebar";
-import TeacherTopBar from "@/components/layouts/TeacherTopBar";
+import InstructorSidebar from "@/components/layouts/InstructorSidebar";
+import InstructorTopBar from "@/components/layouts/InstructorTopBar";
 import Footer from "@/components/layouts/Footer";
 
-const TeacherLayout = () => {
+const InstructorLayout = () => {
   return (
     <AuthGuard allowedRoles={["INSTRUCTOR"]}>
       <>
@@ -28,9 +28,9 @@ const TeacherLayout = () => {
 
         {/* Shell layout: sidebar + page */}
         <div className="relative z-[1] grid grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] min-h-screen">
-          <TeacherSidebar />
+          <InstructorSidebar />
           <div className="min-w-0 flex flex-col justify-between">
-            <TeacherTopBar />
+            <InstructorTopBar />
             <main
               className="p-4 md:p-7 min-w-0 overflow-x-clip"
               id="main-content"
@@ -47,4 +47,4 @@ const TeacherLayout = () => {
   );
 };
 
-export default TeacherLayout;
+export default InstructorLayout;
