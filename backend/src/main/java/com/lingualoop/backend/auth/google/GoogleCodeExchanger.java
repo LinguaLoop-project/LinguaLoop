@@ -1,7 +1,5 @@
 package com.lingualoop.backend.auth.google;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -13,6 +11,7 @@ import com.lingualoop.backend.config.GoogleProperties;
 
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Authorization code flow với Google: đổi {@code code} lấy access token (kèm client secret), rồi gọi userinfo
@@ -21,11 +20,10 @@ import lombok.RequiredArgsConstructor;
  * (thiếu client ID/secret, Google từ chối client) thì ném {@link GoogleUnavailableException}.
  * Không log code, access token hay secret.
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GoogleCodeExchanger {
-
-    private static final Logger log = LoggerFactory.getLogger(GoogleCodeExchanger.class);
 
     private final GoogleProperties props;
     private final GoogleTokenClient tokenClient;
@@ -33,8 +31,8 @@ public class GoogleCodeExchanger {
 
     public GoogleIdentity exchange(String code) {
         if (!props.configured()) {
-            log.warn("app.google.client-id/client-secret chưa cấu hình: đăng nhập Google tạm thời không dùng được");
-            throw new GoogleUnavailableException("Chưa cấu hình Google client ID/secret");
+            log.warn("app.google.client-id/client-secret not configured: Google sign-in is unavailable");
+            throw new GoogleUnavailableException("Google client ID/secret not configured");
         }
         String accessToken = fetchAccessToken(code);
         GoogleUserInfo info = fetchUserInfo(accessToken);
@@ -59,7 +57,7 @@ public class GoogleCodeExchanger {
         try {
             response = tokenClient.exchange(form);
         } catch (FeignException e) {
-            throw translate("đổi code", e, true);
+            throw translate("token exchange", e, true);
         }
         if (response == null || response.accessToken() == null || response.accessToken().isBlank()) {
             throw new BusinessException(ErrorCode.AUTH_GOOGLE_TOKEN_INVALID);
@@ -72,7 +70,7 @@ public class GoogleCodeExchanger {
             return userInfoClient.getUserInfo("Bearer " + accessToken);
         } catch (FeignException e) {
             // access token vừa nhận mà bị từ chối là bất thường, không phải lỗi của người dùng
-            throw translate("lấy userinfo", e, false);
+            throw translate("userinfo", e, false);
         }
     }
 
@@ -83,10 +81,10 @@ public class GoogleCodeExchanger {
     private BusinessException translate(String step, FeignException e, boolean badRequestIsUserError) {
         HttpStatusCode status = HttpStatusCode.valueOf(e.status() > 0 ? e.status() : 503);
         if (badRequestIsUserError && status.value() == 400) {
-            log.debug("Google từ chối authorization code");
+            log.debug("Google rejected the authorization code");
             return new BusinessException(ErrorCode.AUTH_GOOGLE_TOKEN_INVALID);
         }
-        log.warn("Gọi Google ({}) thất bại: status={} {}", step, e.status(), e.getClass().getSimpleName());
-        return new GoogleUnavailableException("Không gọi được Google (" + step + ")", e);
+        log.warn("Google call failed ({}): status={} {}", step, e.status(), e.getClass().getSimpleName());
+        return new GoogleUnavailableException("Could not reach Google (" + step + ")", e);
     }
 }
