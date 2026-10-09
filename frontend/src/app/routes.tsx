@@ -3,7 +3,7 @@ import MainLayout from "@/components/layouts/MainLayout";
 import StudentLayout from "@/components/layouts/StudentLayout";
 import InstructorLayout from "@/components/layouts/InstructorLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail, GoogleCallback } from "@/features/auth";
+import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail, ResetPassword, GoogleCallback } from "@/features/auth";
 import { Settings } from "@/features/user";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
@@ -47,6 +47,8 @@ const getRoutesConfig = (): RouteObject[] => {
     { path: "authenticate", element: <GoogleCallback /> },
     // Đích của link trong thư xác thực (backend gửi frontend-url + /verify-email?token=...)
     { path: "verify-email", element: <VerifyEmail /> },
+    // Đích của link trong thư đặt lại mật khẩu (backend gửi frontend-url + /reset-password?token=...)
+    { path: "reset-password", element: <ResetPassword /> },
     // ── Redirect shorthands ──
     { path: "login", element: <Navigate to="/auth/login" replace /> },
     { path: "register", element: <Navigate to="/auth/register" replace /> },

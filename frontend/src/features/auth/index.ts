@@ -4,6 +4,7 @@ export { default as Register } from "./pages/Register";
 export { default as ForgotPassword } from "./pages/ForgotPassword";
 export { default as CheckEmail } from "./pages/CheckEmail";
 export { default as VerifyEmail } from "./pages/VerifyEmail";
+export { default as ResetPassword } from "./pages/ResetPassword";
 export { default as GoogleCallback } from "./pages/GoogleCallback";
 
 // Components
@@ -43,9 +44,11 @@ export {
   loginSchema,
   registerSchema,
   forgotPasswordSchema,
+  resetPasswordSchema,
 } from "./validations/authSchemas";
 export type {
   LoginFormData,
   RegisterFormData,
   ForgotPasswordFormData,
+  ResetPasswordFormData,
 } from "./validations/authSchemas";
