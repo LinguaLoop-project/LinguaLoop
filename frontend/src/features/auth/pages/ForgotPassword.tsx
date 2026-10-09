@@ -2,8 +2,10 @@ import { useState, useId } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Trans, useTranslation } from "react-i18next";
 import { authService } from "../services/authService";
 import { errorMessage, toApiError } from "../errors";
+import type { ApiError } from "../types";
 import {
   forgotPasswordSchema,
   type ForgotPasswordFormData,
@@ -12,10 +14,11 @@ import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
 
 const ForgotPassword = () => {
+  const { t } = useTranslation("auth");
   const formId = useId();
   const [loading, setLoading] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<ApiError | null>(null);
 
   const {
     register,
@@ -36,7 +39,7 @@ const ForgotPassword = () => {
       await authService.forgotPassword({ email });
       setSubmittedEmail(email);
     } catch (err: unknown) {
-      setApiError(errorMessage(toApiError(err)));
+      setApiError(toApiError(err));
     } finally {
       setLoading(false);
     }
@@ -61,12 +64,12 @@ const ForgotPassword = () => {
             {/* Back link */}
             <Link to="/auth/login" className="ll-crumb">
               <i className="ph ph-arrow-left text-base" />
-              <span>Quay lại đăng nhập</span>
+              <span>{t("forgot.backToLogin")}</span>
             </Link>
 
             {/* Header info */}
             <div>
-              <span className="ll-overline">Lấy lại tài khoản</span>
+              <span className="ll-overline">{t("forgot.overline")}</span>
               <h1
                 style={{
                   fontSize: 28,
@@ -76,14 +79,13 @@ const ForgotPassword = () => {
                   marginBottom: 8,
                 }}
               >
-                Quên mật khẩu
+                {t("forgot.title")}
               </h1>
               <p
                 className="text-[14px] leading-relaxed"
                 style={{ color: "var(--text-muted)" }}
               >
-                Nhập email bạn dùng để đăng ký. Mình sẽ gửi link đặt lại mật
-                khẩu.
+                {t("forgot.subtitle")}
               </p>
             </div>
 
@@ -92,9 +94,13 @@ const ForgotPassword = () => {
               <div className="ll-form-alert success" role="status">
                 <i className="ph ph-check-circle text-xl flex-shrink-0" />
                 <span className="text-[14px] leading-relaxed">
-                  Nếu <b>{submittedEmail}</b> có tài khoản, link đặt lại mật
-                  khẩu sẽ tới trong vài phút và dùng được trong 30 phút. Nhớ xem
-                  cả thư mục Spam.
+                  <Trans
+                    t={t}
+                    i18nKey="forgot.success"
+                    values={{ email: submittedEmail }}
+                    components={{ b: <b /> }}
+                    shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
+                  />
                 </span>
               </div>
             )}
@@ -103,7 +109,7 @@ const ForgotPassword = () => {
             {apiError && (
               <div className="ll-form-alert danger">
                 <i className="ph ph-warning-circle text-xl flex-shrink-0" />
-                <span>{apiError}</span>
+                <span>{errorMessage(apiError)}</span>
               </div>
             )}
 
@@ -115,7 +121,7 @@ const ForgotPassword = () => {
             >
               <div className={`ll-field ${errors.email ? "bad" : ""}`}>
                 <label htmlFor={`${formId}-email`} className="ll-label">
-                  Email
+                  {t("forgot.email")}
                 </label>
                 <div className="ll-inp">
                   <i className="ph ph-envelope-simple" />
@@ -123,7 +129,7 @@ const ForgotPassword = () => {
                     id={`${formId}-email`}
                     type="email"
                     autoComplete="email"
-                    placeholder="ban@email.com"
+                    placeholder={t("forgot.emailPlaceholder")}
                     {...register("email")}
                   />
                 </div>
@@ -141,12 +147,12 @@ const ForgotPassword = () => {
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Đang gửi...
+                    {t("forgot.submitting")}
                   </span>
                 ) : submittedEmail ? (
-                  "Gửi lại link"
+                  t("forgot.resubmit")
                 ) : (
-                  "Gửi link đặt lại"
+                  t("forgot.submit")
                 )}
               </button>
             </form>
@@ -164,15 +170,15 @@ const ForgotPassword = () => {
         >
           © 2026 LinguaLoop ·{" "}
           <button type="button" className="ll-link">
-            Điều khoản
+            {t("footer.terms")}
           </button>{" "}
           ·{" "}
           <button type="button" className="ll-link">
-            Quyền riêng tư
+            {t("footer.privacy")}
           </button>{" "}
           ·{" "}
           <button type="button" className="ll-link">
-            Trợ giúp
+            {t("footer.help")}
           </button>
         </p>
       </main>

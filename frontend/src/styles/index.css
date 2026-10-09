@@ -52,10 +52,12 @@
 
     --text:           #F4F1FF;
     --text-muted:     #A59DC0;
-    --text-subtle:    #6E6690;
+    --text-subtle:    #857DA3;
 
     --primary:        #8B5CF6;
     --primary-hover:  #9D74FF;
+    --btn-primary:       #7B4DE8;
+    --btn-primary-hover: #6D3DE0;
     --primary-soft:   rgba(139, 92, 246, 0.16);
     --accent:         #D8B4FE;
     --accent-2:       #F0ABFC;
@@ -89,10 +91,12 @@
 
     --text:           #1A1030;
     --text-muted:     #5B5275;
-    --text-subtle:    #8C84A6;
+    --text-subtle:    #6F6789;
 
     --primary:        #7C3AED;
     --primary-hover:  #6D28D9;
+    --btn-primary:       #7C3AED;
+    --btn-primary-hover: #6D28D9;
     --primary-soft:   rgba(124, 58, 237, 0.10);
     --accent:         #A855F7;
     --accent-2:       #DB2777;
@@ -355,31 +359,14 @@
   .btn.primary,
   .ll-btn.primary {
     color: #fff;
-    background: var(--gradient-primary);
-    background-size: 250% 100%;
-    background-position: 0 0;
-    box-shadow: 0 4px 18px rgba(139, 92, 246, 0.35);
-    text-shadow: 0 1px 2px rgba(46, 16, 101, .35);
-  }
-  .btn.primary::after,
-  .ll-btn.primary::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    box-shadow: var(--glow-primary);
-    opacity: .5;
-    transition: opacity var(--dur-base);
-    pointer-events: none;
+    background: var(--btn-primary);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
   }
   .btn.primary:hover,
   .ll-btn.primary:hover {
-    background-position: 45% 0;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgba(139, 92, 246, 0.5);
+    background: var(--btn-primary-hover);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-primary) 35%, transparent);
   }
-  .btn.primary:hover::after,
-  .ll-btn.primary:hover::after { opacity: 1; }
   .btn.primary:active,
   .ll-btn.primary:active { transform: scale(.97); }
 
@@ -532,25 +519,6 @@
   :root[data-theme="light"] .theme-ic .ph-moon { opacity: 0; }
   :root[data-theme="light"] .theme-ic .ph-sun { opacity: 1; }
 
-  /* UX button */
-  .ll-ux-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 36px;
-    padding: 0 14px;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--border-strong);
-    background: var(--surface-glass);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: background-color var(--dur-fast), color var(--dur-fast);
-  }
-  .ll-ux-btn:hover { background: var(--surface-hover); color: var(--text); }
-  .ll-ux-btn i { font-size: 16px; color: var(--accent); }
-
   /* ── Form fields ── */
   .ll-field { display: flex; flex-direction: column; gap: 6px; }
   .ll-label { font-size: 14px; font-weight: 500; color: var(--text); }
@@ -579,6 +547,15 @@
     width: 100%;
   }
   .ll-inp input::placeholder { color: var(--text-subtle); }
+  /* Trình duyệt tự tô nền xanh nhạt/trắng khi autofill: phủ lại bằng màu của theme */
+  .ll-inp input:-webkit-autofill,
+  .ll-inp input:-webkit-autofill:hover,
+  .ll-inp input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+    -webkit-text-fill-color: var(--text);
+    caret-color: var(--text);
+    transition: background-color 9999s ease-out 0s;
+  }
   .ll-pw-eye {
     padding: 0 12px;
     color: var(--text-subtle);

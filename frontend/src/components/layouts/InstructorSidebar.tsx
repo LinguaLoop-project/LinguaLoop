@@ -5,68 +5,72 @@
  */
 
 import { NavLink, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
 
 type InstructorNavItem = {
   id: string;
   icon: string;
-  label: string;
+  /** Khoá trong layout:instructor.sidebar.items */
+  labelKey: string;
   to: string;
   badge?: string;
   badgeType?: "warn" | "bad";
 };
 
 type InstructorNavGroup = {
-  group?: string;
+  /** Khoá trong layout:instructor.sidebar.groups */
+  groupKey?: string;
   items: InstructorNavItem[];
 };
 
 const INSTRUCTOR_NAV_GROUPS: InstructorNavGroup[] = [
   {
     items: [
-      { id: "dashboard", icon: "squares-four", label: "Tổng quan", to: "/instructor" },
+      { id: "dashboard", icon: "squares-four", labelKey: "dashboard", to: "/instructor" },
     ],
   },
   {
-    group: "NỘI DUNG",
+    groupKey: "content",
     items: [
-      { id: "topics", icon: "folders", label: "Chủ đề", to: "/instructor/topics" },
-      { id: "lessons", icon: "film-strip", label: "Bài học", to: "/instructor/lessons" },
-      { id: "decks", icon: "stack", label: "Bộ từ vựng", to: "/instructor/decks" },
+      { id: "topics", icon: "folders", labelKey: "topics", to: "/instructor/topics" },
+      { id: "lessons", icon: "film-strip", labelKey: "lessons", to: "/instructor/lessons" },
+      { id: "decks", icon: "stack", labelKey: "decks", to: "/instructor/decks" },
     ],
   },
   {
-    group: "NGÔN NGỮ",
+    groupKey: "language",
     items: [
-      { id: "cefr", icon: "robot", label: "Duyệt CEFR AI", to: "/instructor/cefr", badge: "12", badgeType: "warn" },
-      { id: "dict", icon: "book-open-text", label: "Từ điển", to: "/instructor/dict" },
-      { id: "phoneme", icon: "waveform", label: "Ngữ âm", to: "/instructor/phoneme" },
-      { id: "qbank", icon: "exam", label: "Câu hỏi kiểm tra", to: "/instructor/qbank" },
+      { id: "cefr", icon: "robot", labelKey: "cefr", to: "/instructor/cefr", badge: "12", badgeType: "warn" },
+      { id: "dict", icon: "book-open-text", labelKey: "dict", to: "/instructor/dict" },
+      { id: "phoneme", icon: "waveform", labelKey: "phoneme", to: "/instructor/phoneme" },
+      { id: "qbank", icon: "exam", labelKey: "qbank", to: "/instructor/qbank" },
     ],
   },
   {
-    group: "THEO DÕI",
+    groupKey: "tracking",
     items: [
-      { id: "reports", icon: "flag", label: "Báo lỗi của tôi", to: "/instructor/reports", badge: "3", badgeType: "bad" },
-      { id: "audit", icon: "clock-counter-clockwise", label: "Lịch sử thay đổi", to: "/instructor/audit" },
+      { id: "reports", icon: "flag", labelKey: "reports", to: "/instructor/reports", badge: "3", badgeType: "bad" },
+      { id: "audit", icon: "clock-counter-clockwise", labelKey: "audit", to: "/instructor/audit" },
     ],
   },
 ];
 
 export default function InstructorSidebar() {
+  const { t } = useTranslation("layout");
   const navigate = useNavigate();
 
   return (
     <aside
       className="sticky top-0 h-screen overflow-y-auto hidden md:flex flex-col gap-1 p-5 px-4 bg-bg-elevated border-r border-border [scrollbar-width:thin] scrollbar-color-[var(--border)_transparent]"
-      aria-label="Điều hướng giảng viên"
+      aria-label={t("instructor.sidebar.aria")}
     >
       {/* Brand / Logo */}
       <button
         type="button"
         className="flex items-center gap-2.5 px-1 pt-1 pb-6 text-left border-0 bg-transparent cursor-pointer group select-none"
         onClick={() => navigate("/instructor")}
-        aria-label="LinguaLoop Giảng viên"
+        aria-label={t("instructor.sidebar.homeLabel")}
       >
         <div className="shrink-0 transition-transform duration-300 group-hover:scale-105">
           <LogoMark size={44} />
@@ -83,15 +87,15 @@ export default function InstructorSidebar() {
         className="flex items-center gap-2.5 w-full min-h-[44px] px-3.5 py-2.5 mb-2 rounded-xl border border-border-strong bg-primary-soft text-accent text-[14px] font-semibold transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--primary)_22%,transparent)] cursor-pointer select-none"
       >
         <i className="ph ph-student text-xl shrink-0" aria-hidden="true" />
-        <span>Xem như học viên</span>
+        <span>{t("instructor.sidebar.viewAsStudent")}</span>
       </button>
 
       {/* Navigation Groups */}
       {INSTRUCTOR_NAV_GROUPS.map((group, gIdx) => (
         <div key={gIdx} className="flex flex-col gap-0.5">
-          {group.group && (
+          {group.groupKey && (
             <div className="text-[11px] font-semibold tracking-[0.12em] uppercase text-text-subtle px-3 pt-5 pb-1.5 font-body">
-              {group.group}
+              {t(`instructor.sidebar.groups.${group.groupKey}`)}
             </div>
           )}
 
@@ -107,7 +111,7 @@ export default function InstructorSidebar() {
                     : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_i]:translate-x-0.5"
                 }`
               }
-              aria-label={item.label}
+              aria-label={t(`instructor.sidebar.items.${item.labelKey}`)}
             >
               {({ isActive }) => (
                 <>
@@ -117,7 +121,7 @@ export default function InstructorSidebar() {
                     } ph-${item.icon}`}
                     aria-hidden="true"
                   />
-                  <span className="truncate">{item.label}</span>
+                  <span className="truncate">{t(`instructor.sidebar.items.${item.labelKey}`)}</span>
 
                   {item.badge && (
                     <span

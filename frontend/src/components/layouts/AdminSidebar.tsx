@@ -6,66 +6,70 @@
  */
 
 import { NavLink, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
 
 type AdminNavItem = {
   id: string;
   icon: string;
-  label: string;
+  /** Khoá trong layout:admin.sidebar.items */
+  labelKey: string;
   to: string;
   badge?: string;
   badgeType?: "warn" | "bad";
 };
 
 type AdminNavGroup = {
-  group?: string;
+  /** Khoá trong layout:admin.sidebar.groups */
+  groupKey?: string;
   items: AdminNavItem[];
 };
 
 const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
   {
     items: [
-      { id: "dashboard", icon: "squares-four", label: "Tổng quan", to: "/admin" },
+      { id: "dashboard", icon: "squares-four", labelKey: "dashboard", to: "/admin" },
     ],
   },
   {
-    group: "HỆ THỐNG",
+    groupKey: "system",
     items: [
-      { id: "users", icon: "users", label: "Người dùng", to: "/admin/users" },
+      { id: "users", icon: "users", labelKey: "users", to: "/admin/users" },
     ],
   },
   {
-    group: "KIỂM DUYỆT",
+    groupKey: "moderation",
     items: [
-      { id: "reports", icon: "flag", label: "Báo lỗi nội dung", to: "/admin/reports", badge: "5", badgeType: "bad" },
-      { id: "decks", icon: "stack", label: "Duyệt bộ từ công khai", to: "/admin/decks", badge: "8", badgeType: "warn" },
-      { id: "audit", icon: "clock-counter-clockwise", label: "Nhật ký nội dung", to: "/admin/audit" },
+      { id: "reports", icon: "flag", labelKey: "reports", to: "/admin/reports", badge: "5", badgeType: "bad" },
+      { id: "decks", icon: "stack", labelKey: "decks", to: "/admin/decks", badge: "8", badgeType: "warn" },
+      { id: "audit", icon: "clock-counter-clockwise", labelKey: "audit", to: "/admin/audit" },
     ],
   },
   {
-    group: "CẤU HÌNH",
+    groupKey: "config",
     items: [
-      { id: "limits", icon: "sliders-horizontal", label: "Gói & Hạn mức", to: "/admin/limits" },
-      { id: "subs", icon: "credit-card", label: "Đăng ký Pro", to: "/admin/subs" },
-      { id: "errors", icon: "warning-circle", label: "Danh mục lỗi", to: "/admin/errors" },
+      { id: "limits", icon: "sliders-horizontal", labelKey: "limits", to: "/admin/limits" },
+      { id: "subs", icon: "credit-card", labelKey: "subs", to: "/admin/subs" },
+      { id: "errors", icon: "warning-circle", labelKey: "errors", to: "/admin/errors" },
     ],
   },
 ];
 
 export default function AdminSidebar() {
+  const { t } = useTranslation("layout");
   const navigate = useNavigate();
 
   return (
     <aside
       className="sticky top-0 h-screen overflow-y-auto hidden md:flex flex-col gap-1 p-5 px-4 bg-bg-elevated border-r border-border [scrollbar-width:thin] scrollbar-color-[var(--border)_transparent]"
-      aria-label="Điều hướng Admin"
+      aria-label={t("admin.sidebar.aria")}
     >
       {/* Brand / Logo */}
       <button
         type="button"
         className="flex items-center gap-2.5 px-1 pt-1 pb-6 text-left border-0 bg-transparent cursor-pointer group select-none"
         onClick={() => navigate("/admin")}
-        aria-label="LinguaLoop Quản trị"
+        aria-label={t("admin.sidebar.homeLabel")}
       >
         <div className="shrink-0 transition-transform duration-300 group-hover:scale-105">
           <LogoMark size={44} />
@@ -78,9 +82,9 @@ export default function AdminSidebar() {
       {/* Navigation Groups */}
       {ADMIN_NAV_GROUPS.map((group, gIdx) => (
         <div key={gIdx} className="flex flex-col gap-0.5">
-          {group.group && (
+          {group.groupKey && (
             <div className="text-[11px] font-semibold tracking-[0.12em] uppercase text-text-subtle px-3 pt-5 pb-1.5 font-body">
-              {group.group}
+              {t(`admin.sidebar.groups.${group.groupKey}`)}
             </div>
           )}
 
@@ -96,7 +100,7 @@ export default function AdminSidebar() {
                     : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_i]:translate-x-0.5"
                 }`
               }
-              aria-label={item.label}
+              aria-label={t(`admin.sidebar.items.${item.labelKey}`)}
             >
               {({ isActive }) => (
                 <>
@@ -106,7 +110,7 @@ export default function AdminSidebar() {
                     } ph-${item.icon}`}
                     aria-hidden="true"
                   />
-                  <span className="truncate">{item.label}</span>
+                  <span className="truncate">{t(`admin.sidebar.items.${item.labelKey}`)}</span>
 
                   {item.badge && (
                     <span

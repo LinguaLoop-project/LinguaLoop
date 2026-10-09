@@ -1,0 +1,224 @@
+{
+  "theme": {
+    "toggle": "Switch light/dark theme",
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
+  },
+  "header": {
+    "homeLabel": "LinguaLoop, go to home page",
+    "mainMenu": "Main menu",
+    "toggleMenu": "Toggle menu",
+    "nav": {
+      "listening": "Listening",
+      "pronunciation": "Pronunciation",
+      "vocabulary": "Vocabulary",
+      "speaking": "Speaking",
+      "ielts": "IELTS Exams",
+      "more": "More"
+    },
+    "badgeNew": "NEW",
+    "more": {
+      "lessons": {
+        "title": "Video lesson library",
+        "desc": "Hundreds of videos by level"
+      },
+      "weakness": {
+        "title": "Weakness diagnosis",
+        "desc": "Analyze pronunciation and phonetic errors"
+      },
+      "test": {
+        "title": "Placement test",
+        "desc": "CEFR-based assessment"
+      }
+    },
+    "mobileWeakness": "Weaknesses & practice needed",
+    "login": "Sign in",
+    "start": "Get started",
+    "learnNow": "Learn now"
+  },
+  "footer": {
+    "homeLabel": "LinguaLoop, go to home page",
+    "about": "A platform for dictation and shadowing practice on real videos. 15 minutes a day to fix your pronunciation weaknesses at the root.",
+    "badgeAi": "Accurate AI pronunciation",
+    "badgeVideo": "Real videos",
+    "emailAria": "Email LinguaLoop",
+    "telegramAria": "Telegram community",
+    "practice": {
+      "title": "Practice",
+      "dictation": "Dictation",
+      "shadowing": "Shadowing pronunciation",
+      "vocab": "Vocabulary & SRS",
+      "speaking": "Conversational speaking",
+      "ielts": "IELTS preparation"
+    },
+    "personal": {
+      "title": "Personal",
+      "mywords": "Saved words & sentences",
+      "weakness": "Weakness diagnosis",
+      "account": "My account",
+      "upgrade": "Upgrade to Pro"
+    },
+    "support": {
+      "title": "Support",
+      "gettingStarted": "Getting started",
+      "faq": "FAQ",
+      "reportContent": "Report content error",
+      "feedback": "Send feedback"
+    },
+    "aboutUs": {
+      "title": "About LinguaLoop",
+      "brand": "Brand & Loopi",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy"
+    },
+    "copyright": "© 2026 LinguaLoop. Lesson videos are copyrighted by their original channels and used for educational purposes only.",
+    "status": "All systems normal",
+    "languagePill": "English (US)"
+  },
+  "student": {
+    "sidebar": {
+      "aria": "Main navigation",
+      "homeLabel": "LinguaLoop, go to Today",
+      "groups": {
+        "learn": "Learn",
+        "mine": "Mine"
+      },
+      "items": {
+        "today": "Today",
+        "lessons": "Lessons",
+        "dictation": "Dictation",
+        "shadowing": "Shadowing",
+        "vocab": "Vocabulary",
+        "mywords": "Saved words & sentences",
+        "weakness": "Weaknesses",
+        "test": "Placement test"
+      },
+      "pro": {
+        "price": "From 33k VND/month",
+        "desc": "Unlimited scoring, AI feedback, mouth-movement videos.",
+        "cta": "Try Pro"
+      }
+    },
+    "topbar": {
+      "search": "Open quick search",
+      "searchPlaceholder": "Look up words, open lessons, jump to a page…",
+      "streak": "Learning streak",
+      "quota": "Actions left today",
+      "account": "Account of {{name}}",
+      "menuAria": "Account",
+      "upgrade": "Upgrade to Pro",
+      "profile": "Profile",
+      "learning": "Learning settings",
+      "security": "Security & sign-in",
+      "privacy": "Privacy & data",
+      "logout": "Sign out"
+    }
+  },
+  "instructor": {
+    "sidebar": {
+      "aria": "Instructor navigation",
+      "homeLabel": "LinguaLoop Instructor",
+      "viewAsStudent": "View as student",
+      "groups": {
+        "content": "CONTENT",
+        "language": "LANGUAGE",
+        "tracking": "TRACKING"
+      },
+      "items": {
+        "dashboard": "Overview",
+        "topics": "Topics",
+        "lessons": "Lessons",
+        "decks": "Vocabulary decks",
+        "cefr": "CEFR AI review",
+        "dict": "Dictionary",
+        "phoneme": "Phonetics",
+        "qbank": "Test questions",
+        "reports": "My error reports",
+        "audit": "Change history"
+      }
+    },
+    "topbar": {
+      "homeLabel": "LinguaLoop Instructor",
+      "breadcrumbAria": "Current location",
+      "root": "Instructor",
+      "accountAria": "Instructor account",
+      "menuAria": "Account",
+      "myHistory": "My history",
+      "viewAsStudent": "View as student",
+      "logout": "Sign out",
+      "titles": {
+        "overview": "Overview",
+        "topics": "Topics",
+        "lessons": "Lessons",
+        "compose": "Create new lesson",
+        "decks": "Vocabulary decks",
+        "cefr": "CEFR AI review",
+        "dict": "Dictionary",
+        "phoneme": "Phonetics",
+        "qbank": "Test questions",
+        "reports": "My error reports",
+        "audit": "Change history",
+        "classes": "Classes",
+        "students": "Students",
+        "progress": "Class progress",
+        "weakness": "Common weaknesses",
+        "settings": "Settings",
+        "profile": "Instructor profile",
+        "topicDetail": "Topic details",
+        "lessonDetail": "Lesson details",
+        "deckDetail": "Deck details",
+        "reportDetail": "Error report details"
+      }
+    }
+  },
+  "admin": {
+    "sidebar": {
+      "aria": "Admin navigation",
+      "homeLabel": "LinguaLoop Admin",
+      "groups": {
+        "system": "SYSTEM",
+        "moderation": "MODERATION",
+        "config": "CONFIGURATION"
+      },
+      "items": {
+        "dashboard": "Overview",
+        "users": "Users",
+        "reports": "Content error reports",
+        "decks": "Public deck review",
+        "audit": "Content log",
+        "limits": "Plans & Quotas",
+        "subs": "Pro subscriptions",
+        "errors": "Error categories"
+      }
+    },
+    "topbar": {
+      "homeLabel": "LinguaLoop Admin",
+      "breadcrumbAria": "Current location",
+      "root": "Admin",
+      "accountAria": "Admin account",
+      "menuAria": "Account",
+      "systemSettings": "System settings",
+      "logout": "Sign out",
+      "titles": {
+        "overview": "Overview",
+        "users": "User management",
+        "reports": "Error report queue",
+        "decks": "Deck review",
+        "audit": "Content log",
+        "limits": "Plans & Quotas",
+        "subs": "Pro subscriptions",
+        "errors": "Error categories",
+        "instructors": "Instructors",
+        "subscriptions": "Service plans",
+        "content": "Content",
+        "settings": "System settings",
+        "logs": "Activity log",
+        "profile": "Administrator profile",
+        "analytics": "Analytics & Statistics",
+        "userDetail": "User details",
+        "reportDetail": "Error report details",
+        "deckDetail": "Deck review details"
+      }
+    }
+  }
+}

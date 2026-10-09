@@ -1,0 +1,56 @@
+{
+  "language": {
+    "label": "Ngôn ngữ",
+    "display": "Ngôn ngữ hiển thị",
+    "switchTo": "Chuyển sang {{language}}",
+    "names": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    }
+  },
+  "loading": "Đang tải",
+  "processing": "Đang xử lý...",
+  "table": {
+    "empty": "Không có dữ liệu"
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "goHome": "Về trang chủ"
+  },
+  "upgradeModal": {
+    "close": "Đóng",
+    "title": "Đã hết lượt dùng thử!",
+    "description": "Bạn đã sử dụng hết {{count}} lượt hành động miễn phí trong ngày hôm nay. Nâng cấp lên <b>LinguaLoop Pro</b> để sử dụng không giới hạn.",
+    "benefits": {
+      "unlimited": "Không giới hạn số lượt hành động",
+      "advanced": "Mở khóa tất cả bài học nâng cao",
+      "support": "Hỗ trợ cá nhân hóa 24/7"
+    },
+    "upgrade": "Nâng cấp ngay",
+    "later": "Để sau"
+  },
+  "placeholder": {
+    "defaultDescription": "Tính năng này đang được hoàn thiện theo đúng thiết kế và quy trình của LinguaLoop.",
+    "badge": "Đang phát triển",
+    "features": {
+      "ui": {
+        "title": "Giao diện chuẩn",
+        "desc": "Bám sát bộ mockup & hệ màu chuyên sâu."
+      },
+      "ai": {
+        "title": "Hỗ trợ AI",
+        "desc": "Phân tầng CEFR, chấm phát âm & gợi ý từ."
+      },
+      "sync": {
+        "title": "Đồng bộ tức thì",
+        "desc": "Lưu tiến trình học và số liệu thông suốt."
+      }
+    },
+    "back": "Quay lại trang trước",
+    "homeAdmin": "Tổng quan Quản trị",
+    "homeInstructor": "Tổng quan Giảng viên",
+    "homeStudent": "Về Hôm nay",
+    "tryQuota": "Thử Action (Quota)",
+    "quotaSuccess": "Đã thực hiện một hành động thành công!"
+  }
+}

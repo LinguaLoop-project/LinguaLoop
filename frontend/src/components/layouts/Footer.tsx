@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Logo from "@/components/common/Logo";
 import {
   Headphones,
@@ -23,6 +24,8 @@ import {
 } from "lucide-react";
 
 export default function Footer() {
+  const { t } = useTranslation("layout");
+
   return (
     <footer className="bg-[var(--bg-elevated)] border-t border-[var(--border)] pt-16 pb-12 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -30,22 +33,22 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8 mb-14">
           {/* Brand Info (2 cols on large screen) */}
           <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="inline-flex items-center gap-2.5 group" aria-label="LinguaLoop Trang chủ">
+            <Link to="/" className="inline-flex items-center gap-2.5 group" aria-label={t("footer.homeLabel")}>
               <Logo size={36} showText={true} />
             </Link>
 
             <p className="text-sm text-[var(--text-muted)] leading-relaxed max-w-sm">
-              Nền tảng luyện nghe chép chính tả (Dictation) và phát âm (Shadowing) trên video thực tế. Mỗi ngày 15 phút, giải quyết tận gốc các điểm yếu ngữ âm của bạn.
+              {t("footer.about")}
             </p>
 
             <div className="flex items-center gap-2 pt-1 text-xs text-[var(--text-subtle)]">
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--surface)] border border-[var(--border)]">
                 <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                <span>AI Phát âm chuẩn</span>
+                <span>{t("footer.badgeAi")}</span>
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--surface)] border border-[var(--border)]">
                 <Headphones className="w-3.5 h-3.5 text-pink-400" />
-                <span>Video thực tế</span>
+                <span>{t("footer.badgeVideo")}</span>
               </span>
             </div>
 
@@ -85,7 +88,7 @@ export default function Footer() {
               <a
                 href="mailto:support@lingualoop.app"
                 className="w-9 h-9 rounded-lg bg-[var(--surface)] hover:bg-purple-500/15 border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:text-purple-400 transition-all hover:scale-105"
-                aria-label="Gửi email cho LinguaLoop"
+                aria-label={t("footer.emailAria")}
               >
                 <Mail className="w-4 h-4" />
               </a>
@@ -94,7 +97,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-lg bg-[var(--surface)] hover:bg-blue-500/15 border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:text-blue-400 transition-all hover:scale-105"
-                aria-label="Telegram Community"
+                aria-label={t("footer.telegramAria")}
               >
                 <Send className="w-4 h-4" />
               </a>
@@ -104,37 +107,37 @@ export default function Footer() {
           {/* Cột 1: Học tập */}
           <div>
             <h4 className="font-display font-semibold text-sm tracking-wide text-[var(--text)] uppercase mb-4">
-              Luyện tập
+              {t("footer.practice.title")}
             </h4>
             <ul className="space-y-2.5">
               <li>
                 <Link to="/dictation" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
                   <Headphones className="w-3.5 h-3.5 text-purple-400 group-hover:scale-110 transition-transform" />
-                  <span>Nghe chép chính tả</span>
+                  <span>{t("footer.practice.dictation")}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/shadowing" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
                   <Mic className="w-3.5 h-3.5 text-pink-400 group-hover:scale-110 transition-transform" />
-                  <span>Phát âm Shadowing</span>
+                  <span>{t("footer.practice.shadowing")}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/vocabulary" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
                   <BookOpen className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
-                  <span>Kho từ vựng & SRS</span>
+                  <span>{t("footer.practice.vocab")}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/practice-english-speaking" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
                   <MessageSquare className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                  <span>Luyện nói giao tiếp</span>
+                  <span>{t("footer.practice.speaking")}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/exams/ielts" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
                   <Award className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition-transform" />
-                  <span>Luyện thi IELTS</span>
+                  <span>{t("footer.practice.ielts")}</span>
                 </Link>
               </li>
             </ul>
@@ -143,31 +146,31 @@ export default function Footer() {
           {/* Cột 2: Cá nhân */}
           <div>
             <h4 className="font-display font-semibold text-sm tracking-wide text-[var(--text)] uppercase mb-4">
-              Cá nhân
+              {t("footer.personal.title")}
             </h4>
             <ul className="space-y-2.5">
               <li>
                 <Link to="/mywords" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
                   <Bookmark className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
-                  <span>Từ & câu đã lưu</span>
+                  <span>{t("footer.personal.mywords")}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/weakness" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
                   <TrendingUp className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                  <span>Chẩn đoán điểm yếu</span>
+                  <span>{t("footer.personal.weakness")}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/settings" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
                   <User className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform" />
-                  <span>Tài khoản cá nhân</span>
+                  <span>{t("footer.personal.account")}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/settings?id=plan" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
                   <Crown className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
-                  <span>Nâng cấp gói Pro</span>
+                  <span>{t("footer.personal.upgrade")}</span>
                 </Link>
               </li>
             </ul>
@@ -176,31 +179,31 @@ export default function Footer() {
           {/* Cột 3: Hỗ trợ */}
           <div>
             <h4 className="font-display font-semibold text-sm tracking-wide text-[var(--text)] uppercase mb-4">
-              Hỗ trợ
+              {t("footer.support.title")}
             </h4>
             <ul className="space-y-2.5">
               <li>
                 <button className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors text-left">
                   <HelpCircle className="w-3.5 h-3.5 text-sky-400 group-hover:scale-110 transition-transform" />
-                  <span>Hướng dẫn bắt đầu</span>
+                  <span>{t("footer.support.gettingStarted")}</span>
                 </button>
               </li>
               <li>
                 <button className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors text-left">
                   <MessageCircle className="w-3.5 h-3.5 text-teal-400 group-hover:scale-110 transition-transform" />
-                  <span>Câu hỏi thường gặp</span>
+                  <span>{t("footer.support.faq")}</span>
                 </button>
               </li>
               <li>
                 <button className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors text-left">
                   <AlertCircle className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition-transform" />
-                  <span>Báo lỗi nội dung</span>
+                  <span>{t("footer.support.reportContent")}</span>
                 </button>
               </li>
               <li>
                 <button className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors text-left">
                   <Mail className="w-3.5 h-3.5 text-violet-400 group-hover:scale-110 transition-transform" />
-                  <span>Góp ý phát triển</span>
+                  <span>{t("footer.support.feedback")}</span>
                 </button>
               </li>
             </ul>
@@ -209,25 +212,25 @@ export default function Footer() {
           {/* Cột 4: Về LinguaLoop */}
           <div>
             <h4 className="font-display font-semibold text-sm tracking-wide text-[var(--text)] uppercase mb-4">
-              Về LinguaLoop
+              {t("footer.aboutUs.title")}
             </h4>
             <ul className="space-y-2.5">
               <li>
                 <Link to="/brand" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
                   <Sparkles className="w-3.5 h-3.5 text-fuchsia-400 group-hover:scale-110 transition-transform" />
-                  <span>Bộ nhận diện & Loopi</span>
+                  <span>{t("footer.aboutUs.brand")}</span>
                 </Link>
               </li>
               <li>
                 <button className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors text-left">
                   <FileText className="w-3.5 h-3.5 text-slate-400 group-hover:scale-110 transition-transform" />
-                  <span>Điều khoản dịch vụ</span>
+                  <span>{t("footer.aboutUs.terms")}</span>
                 </button>
               </li>
               <li>
                 <button className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors text-left">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                  <span>Chính sách bảo mật</span>
+                  <span>{t("footer.aboutUs.privacy")}</span>
                 </button>
               </li>
             </ul>
@@ -237,20 +240,20 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[var(--text-subtle)]">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
-            <span>© 2026 LinguaLoop. Video bài học thuộc bản quyền của kênh gốc, chỉ dùng cho mục đích giáo dục.</span>
+            <span>{t("footer.copyright")}</span>
           </div>
 
           <div className="flex items-center gap-4">
             {/* System Status Indicator */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-              <span>Hệ thống bình thường</span>
+              <span>{t("footer.status")}</span>
             </div>
 
             {/* Language Pill */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text-muted)]">
               <Globe className="w-3.5 h-3.5" />
-              <span>Tiếng Việt (VN)</span>
+              <span>{t("footer.languagePill")}</span>
             </div>
           </div>
         </div>

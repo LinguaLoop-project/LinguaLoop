@@ -1,0 +1,56 @@
+{
+  "language": {
+    "label": "Language",
+    "display": "Display language",
+    "switchTo": "Switch to {{language}}",
+    "names": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    }
+  },
+  "loading": "Loading",
+  "processing": "Processing...",
+  "table": {
+    "empty": "No data"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "goHome": "Go home"
+  },
+  "upgradeModal": {
+    "close": "Close",
+    "title": "You've run out of free tries!",
+    "description": "You've used all {{count}} free actions for today. Upgrade to <b>LinguaLoop Pro</b> for unlimited use.",
+    "benefits": {
+      "unlimited": "Unlimited actions",
+      "advanced": "Unlock all advanced lessons",
+      "support": "Personalized support 24/7"
+    },
+    "upgrade": "Upgrade now",
+    "later": "Maybe later"
+  },
+  "placeholder": {
+    "defaultDescription": "This feature is being finished in line with LinguaLoop's design and process.",
+    "badge": "In development",
+    "features": {
+      "ui": {
+        "title": "Consistent UI",
+        "desc": "Follows the mockups and the full color system."
+      },
+      "ai": {
+        "title": "AI support",
+        "desc": "CEFR levelling, pronunciation scoring and word suggestions."
+      },
+      "sync": {
+        "title": "Instant sync",
+        "desc": "Learning progress and stats are saved seamlessly."
+      }
+    },
+    "back": "Back to previous page",
+    "homeAdmin": "Admin overview",
+    "homeInstructor": "Instructor overview",
+    "homeStudent": "Back to Today",
+    "tryQuota": "Try Action (Quota)",
+    "quotaSuccess": "Action completed successfully!"
+  }
+}

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 export const AuthTopBar: React.FC = () => {
+  const { t } = useTranslation("auth");
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     try {
       const stored = localStorage.getItem("ll3-theme");
@@ -24,36 +28,25 @@ export const AuthTopBar: React.FC = () => {
   return (
     <div className="auth-top mb-4">
       {/* Mobile brand */}
-      <div className="flex items-center gap-2 md:hidden">
+      <Link to="/" className="flex items-center gap-2 md:hidden" aria-label={t("sidePanel.homeLabel")}>
         <svg className="ll-brand-mark" viewBox="0 0 100 100" aria-hidden="true">
           <use href="#logo-mark" />
         </svg>
         <span className="ll-wordmark">
           Lingua<b className="ll-loop">Loop</b>
         </span>
-      </div>
+      </Link>
 
       <div className="flex-1" />
 
-      {/* UX notes hint */}
-      <button
-        type="button"
-        className="ll-ux-btn"
-        title="Ghi chú UX"
-        onClick={() => {
-          alert("LinguaLoop UX: Giao diện tối ưu hoá cho việc học ngoại ngữ tập trung, tự động lưu tiến trình và hỗ trợ phím tắt tiện lợi.");
-        }}
-      >
-        <i className="ph ph-lightbulb" />
-        <span className="hidden sm:inline">Ghi chú UX</span>
-      </button>
+      <LanguageSwitcher className="ll-icon-btn" />
 
       {/* Theme toggle */}
       <button
         type="button"
         onClick={toggleTheme}
         className="ll-icon-btn"
-        aria-label="Đổi giao diện sáng/tối"
+        aria-label={t("topBar.toggleTheme")}
       >
         <span className="theme-ic">
           <i className="ph ph-moon" />

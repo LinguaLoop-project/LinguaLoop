@@ -7,28 +7,39 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useAuth } from "@/features/auth";
 
+// Đường dẫn → khoá trong layout:admin.topbar.titles
 const ADMIN_PAGE_TITLES: Record<string, string> = {
-  "/admin": "Tổng quan",
-  "/admin/users": "Quản lý người dùng",
-  "/admin/reports": "Hàng đợi báo lỗi",
-  "/admin/decks": "Duyệt bộ từ",
-  "/admin/audit": "Nhật ký nội dung",
-  "/admin/limits": "Gói & Hạn mức",
-  "/admin/subs": "Đăng ký Pro",
-  "/admin/errors": "Danh mục lỗi",
-  "/admin/instructors": "Giáo viên",
-  "/admin/subscriptions": "Gói dịch vụ",
-  "/admin/content": "Nội dung",
-  "/admin/settings": "Cài đặt hệ thống",
-  "/admin/logs": "Nhật ký hoạt động",
-  "/admin/profile": "Hồ sơ quản trị viên",
-  "/admin/analytics": "Phân tích & Thống kê",
+  "/admin": "overview",
+  "/admin/users": "users",
+  "/admin/reports": "reports",
+  "/admin/decks": "decks",
+  "/admin/audit": "audit",
+  "/admin/limits": "limits",
+  "/admin/subs": "subs",
+  "/admin/errors": "errors",
+  "/admin/instructors": "instructors",
+  "/admin/subscriptions": "subscriptions",
+  "/admin/content": "content",
+  "/admin/settings": "settings",
+  "/admin/logs": "logs",
+  "/admin/profile": "profile",
+  "/admin/analytics": "analytics",
 };
 
+// Trang chi tiết (đường dẫn con) → khoá tiêu đề
+const DETAIL_TITLES: [prefix: string, key: string][] = [
+  ["/admin/users/", "userDetail"],
+  ["/admin/reports/", "reportDetail"],
+  ["/admin/decks/", "deckDetail"],
+];
+
 export default function AdminTopBar() {
+  const { t } = useTranslation("layout");
   const navigate = useNavigate();
   const location = useLocation();
   const { user, handleLogout } = useAuth();
@@ -40,8 +51,8 @@ export default function AdminTopBar() {
 
   const [dark, setDark] = useState(() => {
     try {
-      const t = JSON.parse(localStorage.getItem("ll3-theme") ?? "null");
-      return t ? t === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const stored = JSON.parse(localStorage.getItem("ll3-theme") ?? "null");
+      return stored ? stored === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
     } catch {
       return true;
     }
@@ -81,15 +92,11 @@ export default function AdminTopBar() {
     setDark(!dark);
   }
 
-  const pageTitle =
-    ADMIN_PAGE_TITLES[location.pathname] ||
-    (location.pathname.startsWith("/admin/users/")
-      ? "Chi tiết người dùng"
-      : location.pathname.startsWith("/admin/reports/")
-      ? "Chi tiết báo cáo lỗi"
-      : location.pathname.startsWith("/admin/decks/")
-      ? "Chi tiết duyệt bộ từ"
-      : "Tổng quan");
+  const titleKey =
+    ADMIN_PAGE_TITLES[location.pathname] ??
+    DETAIL_TITLES.find(([prefix]) => location.pathname.startsWith(prefix))?.[1] ??
+    "overview";
+  const pageTitle = t(`admin.topbar.titles.${titleKey}`);
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between px-4 md:px-7 py-3 md:py-3.5 bg-[color-mix(in_srgb,var(--bg-base)_72%,transparent)] backdrop-blur-md border-b border-border">
@@ -100,19 +107,19 @@ export default function AdminTopBar() {
           type="button"
           className="flex md:hidden items-center justify-center p-0 bg-transparent border-0 cursor-pointer"
           onClick={() => navigate("/admin")}
-          aria-label="LinguaLoop Quản trị"
+          aria-label={t("admin.topbar.homeLabel")}
         >
           <LogoMark size={32} />
         </button>
 
         {/* Breadcrumb: Admin › [Page Title] */}
-        <nav className="flex items-center gap-1.5 text-sm" aria-label="Vị trí hiện tại">
+        <nav className="flex items-center gap-1.5 text-sm" aria-label={t("admin.topbar.breadcrumbAria")}>
           <button
             type="button"
             onClick={() => navigate("/admin")}
             className="text-text-muted hover:text-primary transition-colors text-sm font-medium bg-transparent border-0 cursor-pointer p-0"
           >
-            Admin
+            {t("admin.topbar.root")}
           </button>
           <span className="text-text-subtle text-xs" aria-hidden="true">&#8250;</span>
           <b className="text-text font-semibold">{pageTitle}</b>
@@ -121,12 +128,15 @@ export default function AdminTopBar() {
 
       {/* Right side: Theme toggle + Account menu */}
       <div className="flex items-center gap-2.5">
+        {/* Language toggle */}
+        <LanguageSwitcher className="w-10 h-10 shrink-0 rounded-md border border-border grid place-items-center text-xl text-text-muted bg-transparent hover:bg-surface-hover hover:border-border-strong hover:text-text transition-colors cursor-pointer" />
+
         {/* Theme toggle */}
         <button
           type="button"
           className="w-10 h-10 shrink-0 rounded-md border border-border grid place-items-center text-xl text-text-muted bg-transparent hover:bg-surface-hover hover:border-border-strong hover:text-text transition-colors cursor-pointer"
           onClick={toggleTheme}
-          aria-label="Đổi giao diện sáng/tối"
+          aria-label={t("theme.toggle")}
         >
           {dark ? (
             <i className="ph ph-moon text-accent" aria-hidden="true" />
@@ -140,11 +150,11 @@ export default function AdminTopBar() {
           <button
             type="button"
             className="w-10 h-10 rounded-full grid place-items-center font-display font-bold text-base text-white shadow-sm transition-transform duration-150 hover:scale-105 active:scale-95 cursor-pointer select-none border-0"
-            style={{ background: "var(--gradient-primary)" }}
+            style={{ background: "var(--btn-primary)" }}
             onClick={() => setMenuOpen((v) => !v)}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            aria-label="Tài khoản quản trị"
+            aria-label={t("admin.topbar.accountAria")}
           >
             AD
           </button>
@@ -153,7 +163,7 @@ export default function AdminTopBar() {
             <div
               className="absolute top-[calc(100%+8px)] right-0 z-50 w-[240px] rounded-[20px] bg-surface-glass backdrop-blur-xl border border-border-strong shadow-[var(--shadow-card)] overflow-hidden animate-in fade-in duration-150"
               role="menu"
-              aria-label="Tài khoản"
+              aria-label={t("admin.topbar.menuAria")}
             >
               {/* Account header */}
               <div className="px-4 py-3.5 border-b border-border">
@@ -177,7 +187,7 @@ export default function AdminTopBar() {
                   }}
                 >
                   <i className="ph ph-gear-six text-lg text-text-subtle" aria-hidden="true" />
-                  <span>Cài đặt hệ thống</span>
+                  <span>{t("admin.topbar.systemSettings")}</span>
                 </button>
 
                 <div className="h-[1px] bg-border my-1 -mx-1.5" />
@@ -192,7 +202,7 @@ export default function AdminTopBar() {
                   }}
                 >
                   <i className="ph ph-sign-out text-lg" aria-hidden="true" />
-                  <span>Đăng xuất</span>
+                  <span>{t("admin.topbar.logout")}</span>
                 </button>
               </div>
             </div>

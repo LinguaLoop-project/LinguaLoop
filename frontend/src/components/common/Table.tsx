@@ -1,5 +1,6 @@
 import React, { forwardRef } from "react";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // ─── Table Container ─────────────────────────────────────────────────────────
 export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
@@ -199,9 +200,10 @@ export interface TableEmptyProps {
 
 export const TableEmpty: React.FC<TableEmptyProps> = ({
   colSpan,
-  message = "Không có dữ liệu",
+  message,
   icon,
 }) => {
+  const { t } = useTranslation();
   return (
     <tr>
       <td
@@ -210,7 +212,7 @@ export const TableEmpty: React.FC<TableEmptyProps> = ({
       >
         <div className="flex flex-col items-center justify-center space-y-2">
           {icon && <div className="text-[var(--text-subtle)]">{icon}</div>}
-          <p className="text-sm font-medium">{message}</p>
+          <p className="text-sm font-medium">{message ?? t("table.empty")}</p>
         </div>
       </td>
     </tr>
