@@ -1,6 +1,6 @@
 /**
  * InstructorSidebar — thanh điều hướng dọc bên trái của Instructor Layout.
- * Dựa trên RAIL trong mockups-teacher/shell.js và mockups-teacher/teacher.css.
+ * Dựa trên RAIL trong mockups-instructor/shell.js và mockups-instructor/instructor.css.
  * Hoàn toàn dùng TailwindCSS v4.
  */
 

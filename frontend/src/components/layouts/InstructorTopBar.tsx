@@ -1,6 +1,6 @@
 /**
  * InstructorTopBar — thanh top cố định của Instructor Layout.
- * Dựa trên TOPBAR trong mockups-teacher/shell.js và mockups-teacher/teacher.css.
+ * Dựa trên TOPBAR trong mockups-instructor/shell.js và mockups-instructor/instructor.css.
  * Hoàn toàn dùng TailwindCSS v4.
  */
 
