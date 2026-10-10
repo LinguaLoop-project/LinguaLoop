@@ -106,12 +106,12 @@ export const LessonDetailPage = () => {
         <span>{lesson.title}</span>
       </div>
 
-      {/* ── Main 2-column layout (.g-vocab) ── */}
-      <div className="g-vocab">
+      {/* ── Main 2-column layout ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-[7fr_5fr] gap-6 items-start">
         {/* Left Column */}
         <div className="col g24">
           {/* Media Player Container */}
-          <div className="ld-media rv">
+          <div className="relative aspect-video rounded-xl overflow-hidden rv">
             {lesson.videoUrl && isPlayingMedia ? (
               <iframe
                 src={`${lesson.videoUrl}?autoplay=1`}
@@ -121,21 +121,22 @@ export const LessonDetailPage = () => {
                 allowFullScreen
               />
             ) : (
-              <div className="lthumb w-full h-full">
+              <div className="absolute inset-0 border border-border rounded-[inherit] w-full h-full group">
                 {lesson.thumbnailUrl && (
                   <img
                     src={lesson.thumbnailUrl}
                     alt={lesson.title}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 )}
-                <svg className="art-orb" viewBox="0 0 200 200" aria-hidden="true">
+                <div className="absolute inset-0 z-10 bg-primary-soft mix-blend-luminosity transition-opacity duration-300 pointer-events-none group-hover:opacity-0"></div>
+                <svg className="absolute h-[74%] w-auto aspect-square left-1/2 top-[13%] -translate-x-1/2 transition-transform duration-500 group-hover:scale-105 z-[5]" viewBox="0 0 200 200" aria-hidden="true">
                   <use href="#o-orb" />
                 </svg>
-                <i className="ph-duotone ph-headphones art" aria-hidden="true"></i>
+                <i className="ph-duotone ph-headphones relative z-10 text-[44px] text-accent drop-shadow-[0_0_14px_rgba(139,92,246,0.6)] transition-transform duration-500 group-hover:scale-105 flex items-center justify-center w-full h-full" aria-hidden="true"></i>
 
                 <button
-                  className="play-big"
+                  className="absolute z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white text-[28px] shadow-[0_0_30px_rgba(139,92,246,0.6)] transition-transform duration-200 hover:scale-105"
                   aria-label="Phát video"
                   onClick={() => setIsPlayingMedia(true)}
                 >
@@ -150,7 +151,7 @@ export const LessonDetailPage = () => {
             <h1>{lesson.title}</h1>
             {lesson.titleVi && <p className="muted mt-1">{lesson.titleVi}</p>}
 
-            <div className="meta-row mt-3">
+            <div className="flex flex-wrap gap-y-2 gap-x-4 items-center text-[13px] text-txt-muted mt-3 [&>span]:inline-flex [&>span]:items-center [&>span]:gap-1.5 [&>span>i]:text-base">
               {lesson.difficulty && (
                 <span className={`badge cefr ${lesson.difficulty}`}>
                   {lesson.difficulty}
@@ -198,10 +199,10 @@ export const LessonDetailPage = () => {
           </div>
 
           {/* Practice Modes */}
-          <div className="mode-grid rv">
-            <div className="card lift mode-card">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 rv">
+            <div className="card lift flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <div className="mode-ic">
+                <div className="w-12 h-12 rounded-md grid place-items-center text-[26px] bg-primary-soft text-accent border border-border">
                   <i className="ph ph-headphones"></i>
                 </div>
               </div>
@@ -229,9 +230,9 @@ export const LessonDetailPage = () => {
               </button>
             </div>
 
-            <div className="card lift mode-card">
+            <div className="card lift flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <div className="mode-ic">
+                <div className="w-12 h-12 rounded-md grid place-items-center text-[26px] bg-primary-soft text-accent border border-border">
                   <i className="ph ph-microphone"></i>
                 </div>
               </div>
@@ -287,10 +288,10 @@ export const LessonDetailPage = () => {
                 </div>
               ) : sentenceList.length > 0 ? (
                 sentenceList.map((s, idx) => (
-                  <div key={s.id || idx} className="sent">
-                    <span className="n">{idx + 1}</span>
-                    <span className="tx">{s.text}</span>
-                    <span className="st">
+                  <div key={s.id || idx} className="grid grid-cols-[32px_1fr_auto] gap-3 items-center py-3 border-t border-border first:border-t-0">
+                    <span className="w-7 h-7 rounded-sm grid place-items-center font-semibold text-xs bg-surface-hover text-txt-muted">{idx + 1}</span>
+                    <span className="font-medium transition-[filter] duration-200">{s.text}</span>
+                    <span className="inline-flex items-center gap-1.5 text-xs text-txt-muted whitespace-nowrap [&>i]:text-base">
                       <span>{formatTimeMs(s.startTimeMs || idx * 4000 + 1000)}</span>
                       <button
                         className="icon-btn sm"
@@ -353,7 +354,7 @@ export const LessonDetailPage = () => {
               <button className="btn text sm">Lưu tất cả</button>
             </div>
             {sampleWords.map((w) => (
-              <div key={w.word} className="fam">
+              <div key={w.word} className="flex items-center justify-between gap-3 py-2 border-t border-border first:border-t-0">
                 <div className="row g8">
                   <button
                     className="icon-btn sm"
@@ -369,7 +370,7 @@ export const LessonDetailPage = () => {
                   </div>
                 </div>
                 <button
-                  className="save"
+                  className="w-9 h-9 grid place-items-center text-lg text-txt-muted rounded-sm transition-colors hover:text-primary hover:bg-primary-soft"
                   aria-label={`Lưu từ ${w.word}`}
                   onClick={(e) => {
                     const btn = e.currentTarget;
@@ -403,10 +404,10 @@ export const LessonDetailPage = () => {
             {relatedLessons.map((rel) => (
               <div
                 key={rel.id}
-                className="rel"
+                className="flex items-center gap-3 p-2 -mx-2 rounded-md cursor-pointer transition-colors hover:bg-surface-hover"
                 onClick={() => navigate(`/student/lessons/${rel.slug}`)}
               >
-                <div className="lthumb w-[88px] h-[52px] shrink-0 rounded-md overflow-hidden relative border border-border">
+                <div className="w-[88px] h-[52px] shrink-0 rounded-md overflow-hidden relative border border-border">
                   {rel.thumbnailUrl ? (
                     <img
                       src={rel.thumbnailUrl}

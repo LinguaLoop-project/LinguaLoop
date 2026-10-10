@@ -719,43 +719,6 @@
   .ccard .lthumb .art { font-size: 28px; }
   .ccard .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 
-  /* ── Lesson Detail Styles ── */
-  .g-vocab { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px; align-items: start; }
-  .ld-media { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden; }
-  .ld-media .lthumb { position: absolute; inset: 0; aspect-ratio: auto; border: 1px solid var(--border); border-radius: inherit; }
-  .ld-media .lthumb .art { font-size: 72px; }
-  .ld-media .play-big {
-    position: absolute; z-index: 4; left: 50%; top: 50%; translate: -50% -50%;
-    width: 64px; height: 64px; border-radius: 50%; background: var(--primary);
-    display: grid; place-items: center; color: #fff; font-size: 28px;
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
-    transition: transform var(--dur-base) var(--ease-spring);
-  }
-  .ld-media .play-big:hover { transform: scale(1.08); }
-  .meta-row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 13px; color: var(--text-muted); }
-  .meta-row span { display: inline-flex; align-items: center; gap: 6px; }
-  .meta-row i { font-size: 16px; }
-  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .mode-card { display: flex; flex-direction: column; gap: 12px; }
-  .mode-ic { width: 48px; height: 48px; border-radius: var(--radius-md); display: grid; place-items: center; font-size: 26px; background: var(--primary-soft); color: var(--accent); border: 1px solid var(--border); }
-  .sent { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--border); }
-  .sent:first-of-type { border-top: 0; }
-  .sent .n { width: 28px; height: 28px; border-radius: var(--radius-sm); display: grid; place-items: center; font: 600 12px/1 var(--font-body); background: var(--surface-hover); color: var(--text-muted); }
-  .sent .tx { font-weight: 500; transition: filter var(--dur-base); }
-  .masked .sent .tx { filter: blur(6px); user-select: none; }
-  .sent .st { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
-  .sent .st i { font-size: 16px; }
-  .note { padding: 14px 16px; border-radius: var(--radius-md); background: var(--surface-hover); border: 1px solid var(--border); }
-  .note q { display: block; font-style: italic; color: var(--text-muted); font-size: 13px; margin-bottom: 6px; }
-  .rel { display: flex; align-items: center; gap: 12px; padding: 8px; margin: 0 -8px; border-radius: var(--radius-md); cursor: pointer; transition: background-color var(--dur-base); }
-  .rel:hover { background: var(--surface-hover); }
-  .rel .lthumb { width: 88px; flex-shrink: 0; border-radius: var(--radius-sm); border: 1px solid var(--border); }
-  .rel .lthumb .art { font-size: 22px; }
-  .fam { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--border); }
-  .fam:first-of-type { border-top: 0; }
-  .save { width: 36px; height: 36px; display: grid; place-items: center; font-size: 18px; color: var(--text-muted); border-radius: var(--radius-sm); transition: color var(--dur-fast); }
-  .save:hover { color: var(--primary); background: var(--primary-soft); }
-
   /* ── Responsive rules for Lessons ── */
   @media (max-width: 1279px) {
     .l-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -767,8 +730,6 @@
   }
 
   @media (max-width: 1023px) {
-    .g-vocab { grid-template-columns: 1fr; }
-    .mode-grid { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 767px) {
