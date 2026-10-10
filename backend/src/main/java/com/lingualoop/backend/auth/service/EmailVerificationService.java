@@ -11,6 +11,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.lingualoop.backend.auth.dto.VerifyEmailResponse;
 import com.lingualoop.backend.auth.entity.EmailToken;
+import com.lingualoop.backend.auth.mail.AuthMailDispatcher;
 import com.lingualoop.backend.auth.mail.AuthMailSender;
 import com.lingualoop.backend.auth.repository.EmailTokenRepository;
 import com.lingualoop.backend.common.exception.BusinessException;
@@ -30,6 +31,7 @@ public class EmailVerificationService {
     private final EmailTokenRepository emailTokenRepository;
     private final UserAccountService userAccountService;
     private final AuthMailSender authMailSender;
+    private final AuthMailDispatcher authMailDispatcher;
     private final AuthProperties authProperties;
     private final Clock clock;
     private final TransactionTemplate transactionTemplate;
@@ -80,10 +82,11 @@ public class EmailVerificationService {
     /**
      * Gửi lại thư xác thực. Chỉ gửi khi email thuộc tài khoản chưa xác thực, có mật khẩu và thư gần nhất đã quá
      * thời gian chờ; các trường hợp còn lại lặng lẽ bỏ qua để phản hồi không lộ email có tồn tại hay không.
+     * Thư gửi ở luồng nền sau khi transaction đã commit, nên thời gian phản hồi không phụ thuộc SMTP.
      */
     public void resend(String email) {
         Optional<PendingMail> pending = transactionTemplate.execute(status -> prepareResend(email));
-        pending.ifPresent(mail -> trySendMail(mail.account(), mail.rawToken()));
+        pending.ifPresent(mail -> authMailDispatcher.sendVerifyEmail(mail.account(), mail.rawToken()));
     }
 
     private Optional<PendingMail> prepareResend(String email) {

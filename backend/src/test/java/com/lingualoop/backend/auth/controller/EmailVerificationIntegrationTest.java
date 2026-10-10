@@ -3,8 +3,11 @@ package com.lingualoop.backend.auth.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,6 +44,10 @@ import com.lingualoop.backend.user.service.UserAccountService;
 @AutoConfigureMockMvc
 @Import({ TestcontainersConfiguration.class, TestClockConfiguration.class })
 class EmailVerificationIntegrationTest {
+
+    /** Thư gửi ở luồng nền: chờ tối đa chừng này để thấy thư đã gửi, hoặc chờ chừng này để chắc là không gửi. */
+    private static final long MAIL_WAIT_MS = 2000;
+    private static final long NO_MAIL_WAIT_MS = 300;
 
     @Autowired
     private MockMvc mockMvc;
@@ -185,7 +192,7 @@ class EmailVerificationIntegrationTest {
 
         resend(email).andExpect(status().isAccepted());
 
-        verify(authMailSender, times(2)).sendVerifyEmail(eq(email), any(), any());
+        verify(authMailSender, timeout(MAIL_WAIT_MS).times(2)).sendVerifyEmail(eq(email), any(), any());
         String newToken = lastMailedToken(email);
         assertThat(newToken).isNotEqualTo(oldToken);
         verifyEmail(oldToken).andExpect(status().isBadRequest())
@@ -199,7 +206,7 @@ class EmailVerificationIntegrationTest {
 
         resend(email).andExpect(status().isAccepted());
 
-        verify(authMailSender, never()).sendVerifyEmail(eq(email), any(), any());
+        verify(authMailSender, after(NO_MAIL_WAIT_MS).never()).sendVerifyEmail(eq(email), any(), any());
     }
 
     @Test
@@ -210,7 +217,7 @@ class EmailVerificationIntegrationTest {
 
         resend(email).andExpect(status().isAccepted());
 
-        verify(authMailSender, times(1)).sendVerifyEmail(eq(email), any(), any());
+        verify(authMailSender, after(NO_MAIL_WAIT_MS).times(1)).sendVerifyEmail(eq(email), any(), any());
         assertThat(tokensOf(email)).hasSize(1);
     }
 
@@ -222,7 +229,7 @@ class EmailVerificationIntegrationTest {
 
         resend(email).andExpect(status().isAccepted());
 
-        verify(authMailSender, times(1)).sendVerifyEmail(eq(email), any(), any());
+        verify(authMailSender, after(NO_MAIL_WAIT_MS).times(1)).sendVerifyEmail(eq(email), any(), any());
     }
 
     @Test
@@ -234,7 +241,7 @@ class EmailVerificationIntegrationTest {
         resend(email.toUpperCase()).andExpect(status().isAccepted());
 
         // thư luôn gửi tới địa chỉ lưu trong tài khoản, không phải chuỗi người dùng gõ
-        verify(authMailSender, times(2)).sendVerifyEmail(eq(email), any(), any());
+        verify(authMailSender, timeout(MAIL_WAIT_MS).times(2)).sendVerifyEmail(eq(email), any(), any());
     }
 
     @Test
@@ -252,5 +259,22 @@ class EmailVerificationIntegrationTest {
         doThrow(new IllegalStateException("smtp down")).when(authMailSender).sendVerifyEmail(any(), any(), any());
 
         resend(email).andExpect(status().isAccepted());
+    }
+
+    @Test
+    void resend_slowSmtp_doesNotDelayResponse_BRAUTH04() throws Exception {
+        String email = uniqueEmail();
+        registerAndCaptureToken(email);
+        clock.advance(Duration.ofSeconds(61));
+        doAnswer(invocation -> {
+            Thread.sleep(1500);
+            return null;
+        }).when(authMailSender).sendVerifyEmail(any(), any(), any());
+
+        long start = System.nanoTime();
+        resend(email).andExpect(status().isAccepted());
+        long elapsedMs = Duration.ofNanos(System.nanoTime() - start).toMillis();
+
+        assertThat(elapsedMs).isLessThan(1000);
     }
 }

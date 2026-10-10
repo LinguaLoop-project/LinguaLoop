@@ -34,8 +34,17 @@ export const authService = {
   resendVerification: (email: string) => {
     return publicAxios.post("/auth/verify-email/resend", { email });
   },
+  // Luôn 202, không cho biết email có tài khoản hay không (BR-AUTH-04).
   forgotPassword: (payload: { email: string }) => {
     return publicAxios.post("/auth/forgot-password", payload);
+  },
+  // Chỉ kiểm tra link, không dùng hết token. Link hỏng thì lỗi AUTH_LINK_INVALID.
+  validateResetToken: (token: string) => {
+    return publicAxios.post<ApiResponse<{ valid: boolean }>>("/auth/reset-password/validate", { token });
+  },
+  // 204, không cấp phiên: người dùng đăng nhập lại bằng mật khẩu mới.
+  resetPassword: (payload: { token: string; newPassword: string }) => {
+    return publicAxios.post("/auth/reset-password", payload);
   },
   getMe: () => {
     return axiosClient.get<ApiResponse<MeResponse>>("/users/me");

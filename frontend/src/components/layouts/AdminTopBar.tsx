@@ -10,6 +10,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import ThemeToggle from "@/components/common/ThemeToggle";
 import { useAuth } from "@/features/auth";
 
 // Đường dẫn → khoá trong layout:admin.topbar.titles
@@ -49,15 +50,6 @@ export default function AdminTopBar() {
   const displayName = user?.displayName ?? "Admin Tâm";
   const displayEmail = user?.email ?? "admin@lingualoop.app";
 
-  const [dark, setDark] = useState(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem("ll3-theme") ?? "null");
-      return stored ? stored === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    } catch {
-      return true;
-    }
-  });
-
   useEffect(() => {
     if (!menuOpen) return;
     const handlePointerDown = (e: MouseEvent | TouchEvent) => {
@@ -80,17 +72,6 @@ export default function AdminTopBar() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [menuOpen]);
-
-  function toggleTheme() {
-    const next = dark ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    try {
-      localStorage.setItem("ll3-theme", JSON.stringify(next));
-    } catch {
-      /* ignore */
-    }
-    setDark(!dark);
-  }
 
   const titleKey =
     ADMIN_PAGE_TITLES[location.pathname] ??
@@ -128,22 +109,9 @@ export default function AdminTopBar() {
 
       {/* Right side: Theme toggle + Account menu */}
       <div className="flex items-center gap-2.5">
-        {/* Language toggle */}
-        <LanguageSwitcher className="w-10 h-10 shrink-0 rounded-md border border-border grid place-items-center text-xl text-text-muted bg-transparent hover:bg-surface-hover hover:border-border-strong hover:text-text transition-colors cursor-pointer" />
+        <ThemeToggle sizeClass="size-10" />
 
-        {/* Theme toggle */}
-        <button
-          type="button"
-          className="w-10 h-10 shrink-0 rounded-md border border-border grid place-items-center text-xl text-text-muted bg-transparent hover:bg-surface-hover hover:border-border-strong hover:text-text transition-colors cursor-pointer"
-          onClick={toggleTheme}
-          aria-label={t("theme.toggle")}
-        >
-          {dark ? (
-            <i className="ph ph-moon text-accent" aria-hidden="true" />
-          ) : (
-            <i className="ph ph-sun text-warning" aria-hidden="true" />
-          )}
-        </button>
+        <LanguageSwitcher heightClass="h-10" />
 
         {/* Account menu dropdown */}
         <div ref={accountMenuRef} className="relative">

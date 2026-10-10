@@ -30,12 +30,27 @@ public class SmtpAuthMailSender implements AuthMailSender {
 
     @Override
     public void sendVerifyEmail(String to, String uiLanguage, String rawToken) {
-        Locale locale = Locale.forLanguageTag(SUPPORTED_LANGUAGES.contains(uiLanguage) ? uiLanguage : DEFAULT_LANGUAGE);
+        Locale locale = localeOf(uiLanguage);
         String link = baseUrl() + "/verify-email?token=" + rawToken;
         String hours = String.valueOf(authProperties.verifyTtl().toHours());
 
         send(to, messageSource.getMessage("auth.mail.verify.subject", null, locale),
                 messageSource.getMessage("auth.mail.verify.body", new Object[] { link, hours }, locale));
+    }
+
+    @Override
+    public void sendResetPassword(String to, String uiLanguage, String rawToken, boolean hasPassword) {
+        Locale locale = localeOf(uiLanguage);
+        String link = baseUrl() + "/reset-password?token=" + rawToken;
+        String minutes = String.valueOf(authProperties.resetTtl().toMinutes());
+        String key = hasPassword ? "auth.mail.reset" : "auth.mail.reset.noPassword";
+
+        send(to, messageSource.getMessage(key + ".subject", null, locale),
+                messageSource.getMessage(key + ".body", new Object[] { link, minutes }, locale));
+    }
+
+    private static Locale localeOf(String uiLanguage) {
+        return Locale.forLanguageTag(SUPPORTED_LANGUAGES.contains(uiLanguage) ? uiLanguage : DEFAULT_LANGUAGE);
     }
 
     private String baseUrl() {

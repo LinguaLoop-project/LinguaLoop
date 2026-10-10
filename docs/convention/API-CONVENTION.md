@@ -146,6 +146,14 @@ Mọi lỗi, kể cả 401/403 do Spring Security trả, đều có cùng một 
 - `PUT /users/me/password {currentPassword?, newPassword}` → `204`, cần Bearer token. `currentPassword` bắt buộc khi tài khoản đã có mật khẩu (thiếu thì `VALIDATION_FAILED` với `errors[].field = currentPassword`), bỏ qua khi tài khoản Google chưa tạo mật khẩu. `newPassword` 8-72 byte như đăng ký. Sai mật khẩu hiện tại tính vào bộ đếm khoá giống đăng nhập. Thành công thì thu hồi mọi phiên **trừ phiên hiện tại** (claim `sid` của access token); token không có `sid` thì thu hồi tất cả. Frontend gọi lại `GET /users/me` để cập nhật `hasPassword`.
 - Lỗi validate phụ thuộc dữ liệu (không biểu diễn được bằng Bean Validation) ném `FieldValidationException(field, constraint)`: `GlobalExceptionHandler` trả `VALIDATION_FAILED` kèm `errors[]` như lỗi `@Valid`.
 
+### Quên và đặt lại mật khẩu
+
+- `POST /auth/forgot-password {email}` → luôn `202`, không body (BR-AUTH-04). Email sai định dạng thì `400 VALIDATION_FAILED`. Chỉ gửi thư khi email có tài khoản, tài khoản không bị quản trị viên khoá (BR-AUTH-10) và thư đặt lại gần nhất đã quá 60 giây (`app.auth.resend-cooldown`, tính riêng cho từng loại thư). Cấp token mới thì các link đặt lại cũ hết hiệu lực. Tài khoản Google chưa có mật khẩu nhận thư "đặt mật khẩu" cùng link.
+- Link trong thư: `<frontend-url>/reset-password?token=...`, hiệu lực 30 phút (`app.auth.reset-ttl`), dùng một lần. DB chỉ lưu SHA-256 của token.
+- `POST /auth/reset-password/validate {token}` → `200 {data: {valid: true}}`. Chỉ kiểm tra, không dùng hết token, để trang đặt lại báo link hỏng ngay khi mở link. Token sai, đã dùng hoặc hết hạn thì `400 AUTH_LINK_INVALID`.
+- `POST /auth/reset-password {token, newPassword}` → `204`, **không cấp phiên** (frontend chuyển sang trang đăng nhập). `newPassword` 8-72 byte như đăng ký (`400 VALIDATION_FAILED`, `errors[].field = newPassword`); token hỏng thì `400 AUTH_LINK_INVALID`. Trong một transaction: đánh dấu token đã dùng, lưu mật khẩu, đánh dấu email đã xác thực (BR-AUTH-05), thu hồi **mọi** phiên (BR-AUTH-09) và xoá bộ đếm sai mật khẩu để tài khoản đang bị khoá đăng nhập được ngay.
+- Thư của `forgot-password` và `verify-email/resend` gửi ở luồng nền sau khi transaction đã commit (`@Async`), nên thời gian phản hồi không phụ thuộc SMTP; nếu gửi đồng bộ thì email có tài khoản sẽ chậm hơn và lộ việc tài khoản tồn tại. Lỗi gửi chỉ được ghi log. `register` vẫn gửi đồng bộ vì cần báo `mailSent`.
+
 ## 7. Entity
 
 Entity có đủ ba cột `id uuid`, `created_at`, `updated_at` thì kế thừa `common/entity/BaseEntity`, khi đó hai cột thời gian được tự điền. Bảng thiếu `updated_at` hoặc dùng khoá ghép thì tự khai báo các cột này.

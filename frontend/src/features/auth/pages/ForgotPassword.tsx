@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Trans, useTranslation } from "react-i18next";
 import { authService } from "../services/authService";
-import { errorMessage, toApiError } from "../errors";
+import { applyFieldErrors, errorMessage, toApiError } from "../errors";
 import type { ApiError } from "../types";
 import {
   forgotPasswordSchema,
@@ -23,6 +23,7 @@ const ForgotPassword = () => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<ForgotPasswordFormData>({
     resolver: yupResolver(forgotPasswordSchema),
@@ -39,7 +40,11 @@ const ForgotPassword = () => {
       await authService.forgotPassword({ email });
       setSubmittedEmail(email);
     } catch (err: unknown) {
-      setApiError(toApiError(err));
+      const error = toApiError(err);
+      // 400 theo field (email sai định dạng) hiện ngay dưới ô email, lỗi khác hiện ở khung báo lỗi chung (AC-AUTH-37)
+      if (applyFieldErrors(error, setError, { email: "email" }) === 0) {
+        setApiError(error);
+      }
     } finally {
       setLoading(false);
     }

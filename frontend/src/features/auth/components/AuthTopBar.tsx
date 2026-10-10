@@ -1,30 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import ThemeToggle from "@/components/common/ThemeToggle";
 
 export const AuthTopBar: React.FC = () => {
   const { t } = useTranslation("auth");
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    try {
-      const stored = localStorage.getItem("ll3-theme");
-      if (stored) return JSON.parse(stored) as "dark" | "light";
-    } catch {
-      // fallback to dark
-    }
-    return "dark";
-  });
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    localStorage.setItem("ll3-theme", JSON.stringify(nextTheme));
-  };
-
   return (
     <div className="auth-top mb-4">
       {/* Mobile brand */}
@@ -39,20 +20,9 @@ export const AuthTopBar: React.FC = () => {
 
       <div className="flex-1" />
 
-      <LanguageSwitcher className="ll-icon-btn" />
+      <ThemeToggle />
 
-      {/* Theme toggle */}
-      <button
-        type="button"
-        onClick={toggleTheme}
-        className="ll-icon-btn"
-        aria-label={t("topBar.toggleTheme")}
-      >
-        <span className="theme-ic">
-          <i className="ph ph-moon" />
-          <i className="ph ph-sun" />
-        </span>
-      </button>
+      <LanguageSwitcher />
     </div>
   );
 };

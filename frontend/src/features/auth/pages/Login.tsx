@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../stores/authStore";
@@ -13,6 +13,8 @@ import GoogleSignInButton from "../components/GoogleSignInButton";
 const Login = () => {
   const { t } = useTranslation("auth");
   const navigate = useNavigate();
+  // Trang đặt lại mật khẩu chuyển về đây kèm state để báo thành công (AC-AUTH-35)
+  const passwordReset = (useLocation().state as { passwordReset?: boolean } | null)?.passwordReset === true;
   const [showPassword, setShowPassword] = useState(false);
 
   const login = useAuthStore((state) => state.login);
@@ -85,6 +87,13 @@ const Login = () => {
                 {t("login.subtitle")}
               </p>
             </div>
+
+            {passwordReset && !error && (
+              <div className="ll-form-alert success" role="status">
+                <i className="ph ph-check-circle" style={{ fontSize: 20, flexShrink: 0 }} />
+                <span>{t("login.passwordResetNotice")}</span>
+              </div>
+            )}
 
             {/* API error alert */}
             {error && (

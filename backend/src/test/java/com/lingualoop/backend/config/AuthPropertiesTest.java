@@ -23,6 +23,7 @@ class AuthPropertiesTest {
         assertThat(props.maxFailedAttempts()).isEqualTo(5);
         assertThat(props.lockDuration()).isEqualTo(Duration.ofMinutes(15));
         assertThat(props.verifyTtl()).isEqualTo(Duration.ofHours(24));
+        assertThat(props.resetTtl()).isEqualTo(Duration.ofMinutes(30));
         assertThat(props.resendCooldown()).isEqualTo(Duration.ofSeconds(60));
         assertThat(props.refreshTokenTtl()).isEqualTo(Duration.ofDays(30));
         assertThat(props.refreshReuseGrace()).isEqualTo(Duration.ofSeconds(10));

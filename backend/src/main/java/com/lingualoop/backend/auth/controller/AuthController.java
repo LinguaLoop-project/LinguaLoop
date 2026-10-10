@@ -14,16 +14,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lingualoop.backend.auth.dto.AuthResponse;
 import com.lingualoop.backend.auth.dto.AuthSession;
+import com.lingualoop.backend.auth.dto.ForgotPasswordRequest;
 import com.lingualoop.backend.auth.dto.GoogleLoginRequest;
 import com.lingualoop.backend.auth.dto.LoginRequest;
 import com.lingualoop.backend.auth.dto.RegisterRequest;
 import com.lingualoop.backend.auth.dto.RegisterResponse;
 import com.lingualoop.backend.auth.dto.ResendVerificationRequest;
+import com.lingualoop.backend.auth.dto.ResetPasswordRequest;
+import com.lingualoop.backend.auth.dto.ValidateResetTokenRequest;
+import com.lingualoop.backend.auth.dto.ValidateResetTokenResponse;
 import com.lingualoop.backend.auth.dto.VerifyEmailRequest;
 import com.lingualoop.backend.auth.dto.VerifyEmailResponse;
 import com.lingualoop.backend.auth.service.AuthService;
 import com.lingualoop.backend.auth.service.EmailVerificationService;
 import com.lingualoop.backend.auth.service.GoogleAuthService;
+import com.lingualoop.backend.auth.service.PasswordResetService;
 import com.lingualoop.backend.auth.service.RefreshInvalidException;
 import com.lingualoop.backend.auth.web.RefreshCookies;
 import com.lingualoop.backend.common.exception.ErrorResponse;
@@ -41,6 +46,7 @@ public class AuthController {
     private final AuthService authService;
     private final GoogleAuthService googleAuthService;
     private final EmailVerificationService emailVerificationService;
+    private final PasswordResetService passwordResetService;
     private final RefreshCookies refreshCookies;
 
     @PostMapping("/register")
@@ -87,6 +93,28 @@ public class AuthController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
         emailVerificationService.resend(request.email());
+    }
+
+    /** Luôn 202 (BR-AUTH-04): không cho biết email có tài khoản hay đã gửi thư hay chưa. */
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordResetService.request(request.email());
+    }
+
+    /** Để trang đặt lại báo link hỏng ngay khi mở link (AC-39); không dùng hết token. */
+    @PostMapping("/reset-password/validate")
+    public ApiResponse<ValidateResetTokenResponse> validateResetToken(
+            @Valid @RequestBody ValidateResetTokenRequest request) {
+        passwordResetService.validate(request.token());
+        return ApiResponse.ok(new ValidateResetTokenResponse(true));
+    }
+
+    /** Không cấp phiên: người dùng đăng nhập lại bằng mật khẩu mới. */
+    @PostMapping("/reset-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordResetService.reset(request.token(), request.newPassword());
     }
 
     /** Refresh token hỏng: báo 401 và xoá cookie để trình duyệt không gửi lại token chết (AC-27). */

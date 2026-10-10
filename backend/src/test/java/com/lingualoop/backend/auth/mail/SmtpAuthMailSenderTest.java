@@ -35,7 +35,7 @@ class SmtpAuthMailSenderTest {
         MessageSource messages = new MessageConfig().messageSource();
 
         AuthProperties props = new AuthProperties("http://localhost:5173", "no-reply@lingualoop.test", 5,
-                Duration.ofMinutes(15), Duration.ofHours(24), Duration.ofSeconds(60), Duration.ofDays(30),
+                Duration.ofMinutes(15), Duration.ofHours(24), Duration.ofMinutes(30), Duration.ofSeconds(60), Duration.ofDays(30),
                 Duration.ofSeconds(10), new AuthProperties.Cookie("Lax", false));
         sender = new SmtpAuthMailSender(javaMailSender, messages, props);
     }
@@ -81,10 +81,59 @@ class SmtpAuthMailSenderTest {
     @Test
     void sendVerifyEmail_frontendUrlWithTrailingSlash_doesNotDoubleSlash() throws Exception {
         AuthProperties props = new AuthProperties("http://localhost:5173/", "no-reply@lingualoop.test", 5,
-                Duration.ofMinutes(15), Duration.ofHours(24), Duration.ofSeconds(60), Duration.ofDays(30),
+                Duration.ofMinutes(15), Duration.ofHours(24), Duration.ofMinutes(30), Duration.ofSeconds(60), Duration.ofDays(30),
                 Duration.ofSeconds(10), new AuthProperties.Cookie("Lax", false));
         new SmtpAuthMailSender(javaMailSender, new MessageConfig().messageSource(), props).sendVerifyEmail("a@x.com", "vi", "t");
 
         assertThat((String) sentMessage().getContent()).contains("http://localhost:5173/verify-email?token=t");
+    }
+
+    @Test
+    void sendResetPassword_vi_hasResetLinkMinutesAndVietnameseText() throws Exception {
+        sender.sendResetPassword("minh@x.com", "vi", "tok_en-123", true);
+
+        MimeMessage message = sentMessage();
+        assertThat(message.getRecipients(Message.RecipientType.TO))
+                .extracting(a -> ((InternetAddress) a).getAddress()).containsExactly("minh@x.com");
+        assertThat(message.getSubject()).isEqualTo("Đặt lại mật khẩu LinguaLoop");
+        assertThat((String) message.getContent())
+                .contains("http://localhost:5173/reset-password?token=tok_en-123")
+                .contains("30 phút");
+    }
+
+    @Test
+    void sendResetPassword_en_usesEnglishText() throws Exception {
+        sender.sendResetPassword("minh@x.com", "en", "tok123", true);
+
+        MimeMessage message = sentMessage();
+        assertThat(message.getSubject()).isEqualTo("Reset your LinguaLoop password");
+        assertThat((String) message.getContent())
+                .contains("http://localhost:5173/reset-password?token=tok123")
+                .contains("30 minutes");
+    }
+
+    @Test
+    void sendResetPassword_googleOnlyAccount_usesSetPasswordTemplate_AC36() throws Exception {
+        sender.sendResetPassword("gia@x.com", "vi", "tok123", false);
+
+        MimeMessage message = sentMessage();
+        assertThat(message.getSubject()).isEqualTo("Đặt mật khẩu cho tài khoản LinguaLoop");
+        assertThat((String) message.getContent())
+                .contains("http://localhost:5173/reset-password?token=tok123")
+                .contains("Google");
+    }
+
+    @Test
+    void sendResetPassword_googleOnlyAccountEn_usesSetPasswordTemplate_AC36() throws Exception {
+        sender.sendResetPassword("gia@x.com", "en", "tok123", false);
+
+        assertThat(sentMessage().getSubject()).isEqualTo("Set a password for your LinguaLoop account");
+    }
+
+    @Test
+    void sendResetPassword_unknownLanguage_fallsBackToVietnamese() throws Exception {
+        sender.sendResetPassword("minh@x.com", "fr", "tok123", true);
+
+        assertThat(sentMessage().getSubject()).isEqualTo("Đặt lại mật khẩu LinguaLoop");
     }
 }

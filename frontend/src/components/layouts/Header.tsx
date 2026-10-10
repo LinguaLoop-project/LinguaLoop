@@ -3,9 +3,9 @@ import { Link, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { DEFAULT_LANGUAGE, isLanguage, setLanguage, type Language } from "@/i18n";
 import Logo from "@/components/common/Logo";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import ThemeToggle from "@/components/common/ThemeToggle";
 import {
-  Sun,
-  Moon,
   ChevronDown,
   Menu,
   X,
@@ -23,30 +23,11 @@ import {
 
 export default function Header() {
   const { t, i18n } = useTranslation("layout");
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    try {
-      return (localStorage.getItem("ll_theme") as "dark" | "light") || "dark";
-    } catch {
-      return "dark";
-    }
-  });
   const lang: Language = isLanguage(i18n.resolvedLanguage) ? i18n.resolvedLanguage : DEFAULT_LANGUAGE;
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [isLangOpen, setIsLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const moreDropdownRef = useRef<HTMLDivElement>(null);
-  const langDropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    localStorage.setItem("ll_theme", nextTheme);
-  };
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -56,12 +37,6 @@ export default function Header() {
         !moreDropdownRef.current.contains(event.target as Node)
       ) {
         setIsMoreOpen(false);
-      }
-      if (
-        langDropdownRef.current &&
-        !langDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsLangOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -259,151 +234,9 @@ export default function Header() {
               <span>5 ngày</span>
             </div> */}
 
-            {/* Dark / Light Mode Switch */}
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label={t("theme.toggle")}
-                className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-white size-9 border border-[var(--border)]"
-                title={theme === "dark" ? t("theme.toLight") : t("theme.toDark")}
-              >
-                {theme === "dark" ? (
-                  <Sun className="h-4 w-4 text-amber-400 transition-transform hover:rotate-45" />
-                ) : (
-                  <Moon className="h-4 w-4 text-purple-600 transition-transform hover:-rotate-12" />
-                )}
-              </button>
-            </div>
+            <ThemeToggle />
 
-            {/* Language Selector Popover */}
-            <div className="relative" ref={langDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsLangOpen(!isLangOpen)}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all hover:bg-[var(--surface-hover)] border border-[var(--border)] h-9 px-3 py-1.5 text-[var(--text)]"
-                aria-haspopup="dialog"
-                aria-expanded={isLangOpen}
-                aria-label={t("common:language.label")}
-              >
-                {lang === "vi" ? (
-                  <>
-                    <span className="w-4 h-3 rounded-xs overflow-hidden inline-flex items-center justify-center shrink-0 shadow-xs">
-                      {/* Vietnam Flag */}
-                      <svg viewBox="0 0 30 20" className="w-full h-full">
-                        <rect width="30" height="20" fill="#DA251D" />
-                        <polygon
-                          points="15,4 17.5,11.5 10.5,6.5 19.5,6.5 12.5,11.5"
-                          fill="#FFFF00"
-                        />
-                      </svg>
-                    </span>
-                    <span>{t("common:language.names.vi")}</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="w-4 h-3 rounded-xs overflow-hidden inline-flex items-center justify-center shrink-0 shadow-xs">
-                      {/* UK/US Flag representation */}
-                      <svg viewBox="0 0 30 20" className="w-full h-full">
-                        <rect width="30" height="20" fill="#012169" />
-                        <path
-                          d="M0,0 L30,20 M30,0 L0,20"
-                          stroke="#FFF"
-                          strokeWidth="4"
-                        />
-                        <path
-                          d="M0,0 L30,20 M30,0 L0,20"
-                          stroke="#C8102E"
-                          strokeWidth="2"
-                        />
-                        <path
-                          d="M15,0 V20 M0,10 H30"
-                          stroke="#FFF"
-                          strokeWidth="6"
-                        />
-                        <path
-                          d="M15,0 V20 M0,10 H30"
-                          stroke="#C8102E"
-                          strokeWidth="3.5"
-                        />
-                      </svg>
-                    </span>
-                    <span>{t("common:language.names.en")}</span>
-                  </>
-                )}
-                <ChevronDown
-                  className={`h-3.5 w-3.5 text-[var(--text-subtle)] transition-transform duration-200 ${isLangOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-
-              {isLangOpen && (
-                <div className="absolute right-0 mt-2 w-36 rounded-xl bg-[var(--surface)] border border-[var(--border-strong)] shadow-xl p-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void setLanguage("vi");
-                      setIsLangOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      lang === "vi"
-                        ? "bg-[var(--surface-hover)] text-[var(--primary-hover)] font-semibold"
-                        : "text-[var(--text)] hover:bg-[var(--surface-hover)]"
-                    }`}
-                  >
-                    <span className="w-4 h-3 rounded-xs overflow-hidden inline-block shrink-0 shadow-xs">
-                      <svg viewBox="0 0 30 20" className="w-full h-full">
-                        <rect width="30" height="20" fill="#DA251D" />
-                        <polygon
-                          points="15,4 17.5,11.5 10.5,6.5 19.5,6.5 12.5,11.5"
-                          fill="#FFFF00"
-                        />
-                      </svg>
-                    </span>
-                    <span>{t("common:language.names.vi")}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void setLanguage("en");
-                      setIsLangOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      lang === "en"
-                        ? "bg-[var(--surface-hover)] text-[var(--primary-hover)] font-semibold"
-                        : "text-[var(--text)] hover:bg-[var(--surface-hover)]"
-                    }`}
-                  >
-                    <span className="w-4 h-3 rounded-xs overflow-hidden inline-block shrink-0 shadow-xs">
-                      <svg viewBox="0 0 30 20" className="w-full h-full">
-                        <rect width="30" height="20" fill="#012169" />
-                        <path
-                          d="M0,0 L30,20 M30,0 L0,20"
-                          stroke="#FFF"
-                          strokeWidth="4"
-                        />
-                        <path
-                          d="M0,0 L30,20 M30,0 L0,20"
-                          stroke="#C8102E"
-                          strokeWidth="2"
-                        />
-                        <path
-                          d="M15,0 V20 M0,10 H30"
-                          stroke="#FFF"
-                          strokeWidth="6"
-                        />
-                        <path
-                          d="M15,0 V20 M0,10 H30"
-                          stroke="#C8102E"
-                          strokeWidth="3.5"
-                        />
-                      </svg>
-                    </span>
-                    <span>{t("common:language.names.en")}</span>
-                  </button>
-                </div>
-              )}
-            </div>
+            <LanguageSwitcher />
 
             {/* Login / Auth Button */}
             <Link
@@ -428,19 +261,7 @@ export default function Header() {
 
         {/* Mobile Header Controls */}
         <div className="flex items-center gap-2 lg:hidden">
-          {/* Theme Toggle Mobile */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-2 rounded-lg text-[var(--text-muted)] hover:text-white border border-[var(--border)] size-9 flex items-center justify-center"
-            aria-label={t("theme.toggle")}
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4 text-amber-400" />
-            ) : (
-              <Moon className="h-4 w-4 text-purple-600" />
-            )}
-          </button>
+          <ThemeToggle />
 
           {/* Hamburger Menu Button */}
           <button
