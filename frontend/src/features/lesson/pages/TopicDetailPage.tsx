@@ -49,19 +49,19 @@ export const TopicDetailPage = () => {
     <section className="view on w-full" id="v-topic">
       {/* ── Breadcrumb & Topic Hero ── */}
       <div id="tpHead" className="rv">
-        <div className="crumbs">
+        <div className="flex flex-wrap items-center gap-1.5 text-[13px] text-txt-muted mb-4 [&>a]:text-txt-muted [&>a]:min-h-8 [&>a]:inline-flex [&>a]:items-center hover:[&>a]:text-text hover:[&>a]:underline [&>i]:text-[14px]">
           <Link to="/student/lessons">Bài học</Link>
           <i className="ph ph-caret-right"></i>
           <span>{topic?.nameVi || topic?.name || topicSlug}</span>
         </div>
 
-        <div className="tp-hero">
-          <div className="tp-ic">
-            <svg viewBox="0 0 200 200" aria-hidden="true">
+        <div className="relative flex flex-wrap items-center gap-6 my-2 mb-7">
+          <div className="relative w-24 h-24 shrink-0 grid place-items-center">
+            <svg viewBox="0 0 200 200" aria-hidden="true" className="absolute inset-0 w-full h-full">
               <use href="#o-orb" />
             </svg>
             <i
-              className={`ph-duotone ph-${topic?.iconUrl || "books"}`}
+              className={`ph-duotone ph-${topic?.iconUrl || "books"} relative text-[40px] text-accent`}
               aria-hidden="true"
             ></i>
           </div>
@@ -79,8 +79,9 @@ export const TopicDetailPage = () => {
                 {doneN}/{totalCount} bài
               </b>
             </div>
-            <div className="bar" style={{ marginTop: 10 }}>
+            <div className="h-2 rounded-full bg-border overflow-hidden" style={{ marginTop: 10 }}>
               <i
+                className="relative block h-full rounded-[inherit] bg-gradient-primary overflow-hidden transition-[width] duration-500 ease-out"
                 style={{
                   width: `${totalCount ? Math.min(100, Math.round((doneN / totalCount) * 100)) : 0}%`,
                 }}

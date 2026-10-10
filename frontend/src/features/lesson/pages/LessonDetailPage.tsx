@@ -94,7 +94,7 @@ export const LessonDetailPage = () => {
   return (
     <section className="view on w-full" id="v-lesson">
       {/* ── Breadcrumb ── */}
-      <div className="crumbs rv">
+      <div className="flex flex-wrap items-center gap-1.5 text-[13px] text-txt-muted mb-4 [&>a]:text-txt-muted [&>a]:min-h-8 [&>a]:inline-flex [&>a]:items-center hover:[&>a]:text-text hover:[&>a]:underline [&>i]:text-[14px] rv">
         <Link to="/student/lessons">Bài học</Link>
         <i className="ph ph-caret-right"></i>
         {topicSlug ? (
@@ -217,8 +217,8 @@ export const LessonDetailPage = () => {
                   <span className="muted">0/{sentenceList.length || 9} câu</span>
                   <span className="muted">Chưa bắt đầu</span>
                 </div>
-                <div className="bar thin mt-1.5">
-                  <i style={{ width: "0%" }}></i>
+                <div className="h-1 mt-1.5 rounded-full bg-border overflow-hidden">
+                  <i className="relative block h-full rounded-[inherit] bg-gradient-primary overflow-hidden transition-[width] duration-500 ease-out" style={{ width: "0%" }}></i>
                 </div>
               </div>
               <button
@@ -247,8 +247,8 @@ export const LessonDetailPage = () => {
                   <span className="muted">0/{sentenceList.length || 9} câu</span>
                   <span className="muted">Chưa bắt đầu</span>
                 </div>
-                <div className="bar thin mt-1.5">
-                  <i style={{ width: "0%" }}></i>
+                <div className="h-1 mt-1.5 rounded-full bg-border overflow-hidden">
+                  <i className="relative block h-full rounded-[inherit] bg-gradient-primary overflow-hidden transition-[width] duration-500 ease-out" style={{ width: "0%" }}></i>
                 </div>
               </div>
               <button

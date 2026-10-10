@@ -1,6 +1,10 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLessonSearch, useTopicList, useLessonOverview } from "../hooks/useLessons";
+import {
+  useLessonSearch,
+  useTopicList,
+  useLessonOverview,
+} from "../hooks/useLessons";
 import { LessonCard } from "../components/LessonCard";
 import { useDebounce } from "../../../hooks/useDebounce";
 
@@ -18,7 +22,7 @@ export const LessonLibraryPage = () => {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const { data: topicsData } = useTopicList();
-  const topics = topicsData || [];
+  const topics = useMemo(() => topicsData || [], [topicsData]);
 
   const { data: overviewData } = useLessonOverview();
 
@@ -56,7 +60,7 @@ export const LessonLibraryPage = () => {
   const handleYtCreate = () => {
     if (!ytUrl.trim()) return;
     setToastMsg(
-      "AI đang tách câu và ước lượng trình độ… Bài sẽ chờ duyệt trước khi công khai"
+      "AI đang tách câu và ước lượng trình độ… Bài sẽ chờ duyệt trước khi công khai",
     );
     setTimeout(() => setToastMsg(null), 4000);
     setYtUrl("");
@@ -72,10 +76,16 @@ export const LessonLibraryPage = () => {
 
   // Continue learning lessons
   const continueLessons = useMemo(() => {
-    if (overviewData?.continueLessons && overviewData.continueLessons.length > 0) {
+    if (
+      overviewData?.continueLessons &&
+      overviewData.continueLessons.length > 0
+    ) {
       return overviewData.continueLessons;
     }
-    if (overviewData?.currentLessons && overviewData.currentLessons.length > 0) {
+    if (
+      overviewData?.currentLessons &&
+      overviewData.currentLessons.length > 0
+    ) {
       return overviewData.currentLessons;
     }
     return [];
@@ -90,11 +100,16 @@ export const LessonLibraryPage = () => {
       return overviewData.topTopics;
     }
     // Fallback: Group lessons by topic from search results & topic list
-    if (searchResults?.content && searchResults.content.length > 0 && topics.length > 0) {
+    if (
+      searchResults?.content &&
+      searchResults.content.length > 0 &&
+      topics.length > 0
+    ) {
       return topics
         .map((t) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const topicLessons = searchResults.content.filter(
-            (l: any) => l.topicSlug === t.slug || l.topic?.slug === t.slug
+            (l: any) => l.topicSlug === t.slug || l.topic?.slug === t.slug,
           );
           return {
             topic: t,
@@ -110,7 +125,9 @@ export const LessonLibraryPage = () => {
   // Lessons recommended for B1
   const b1Lessons = useMemo(() => {
     const all = searchResults?.content || [];
-    const b1s = all.filter((l) => l.difficulty === "B1" || l.cefrLevel === "B1");
+    const b1s = all.filter(
+      (l) => l.difficulty === "B1" || l.cefrLevel === "B1",
+    );
     return b1s.length > 0 ? b1s : all.slice(0, 4);
   }, [searchResults]);
 
@@ -131,7 +148,9 @@ export const LessonLibraryPage = () => {
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
               <div className="flex items-center gap-2">
                 <i className="ph ph-lightbulb text-xl text-accent"></i>
-                <h3 className="font-semibold text-lg">Ghi chú UX — Thư viện bài học</h3>
+                <h3 className="font-semi text-lg">
+                  Ghi chú UX — Thư viện bài học
+                </h3>
               </div>
               <button
                 className="w-8 h-8 rounded-lg grid place-items-center text-txt-muted hover:text-txt hover:bg-surface-hover"
@@ -142,19 +161,28 @@ export const LessonLibraryPage = () => {
             </div>
             <div className="flex flex-col gap-3 text-sm text-txt-muted leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
               <p>
-                <b className="text-txt">parroto.app/topics · YouTube:</b> Thẻ bài hiển thị đầy đủ thông tin: trình độ CEFR, thời lượng, nguồn YouTube/Audio, lượt học, PRO.
+                <b className="text-txt">parroto.app/topics · YouTube:</b> Thẻ
+                bài hiển thị đầy đủ thông tin: trình độ CEFR, thời lượng, nguồn
+                YouTube/Audio, lượt học, PRO.
               </p>
               <p>
-                <b className="text-txt">Hai chế độ ngay trên thẻ:</b> Nút Nghe chép / Shadowing ngay trên thẻ cho phép bấm thẳng vào luyện tập nhanh.
+                <b className="text-txt">Hai chế độ ngay trên thẻ:</b> Nút Nghe
+                chép / Shadowing ngay trên thẻ cho phép bấm thẳng vào luyện tập
+                nhanh.
               </p>
               <p>
-                <b className="text-txt">Tiếp tục học + gợi ý theo trình độ:</b> “Tiếp tục học” đặt trên cùng. Hàng “Hợp trình độ B1” gợi ý từ bài kiểm tra trình độ.
+                <b className="text-txt">Tiếp tục học + gợi ý theo trình độ:</b>{" "}
+                “Tiếp tục học” đặt trên cùng. Hàng “Hợp trình độ B1” gợi ý từ
+                bài kiểm tra trình độ.
               </p>
               <p>
-                <b className="text-txt">Lọc &amp; tìm:</b> Tìm kiếm tức thì với debounce 300ms, lọc 3 cấp độ (Cơ bản/Trung cấp/Nâng cao), sắp xếp Phổ biến/Mới/Ngắn, và bộ lọc bài miễn phí.
+                <b className="text-txt">Lọc &amp; tìm:</b> Tìm kiếm tức thì với
+                debounce 300ms, lọc 3 cấp độ (Cơ bản/Trung cấp/Nâng cao), sắp
+                xếp Phổ biến/Mới/Ngắn, và bộ lọc bài miễn phí.
               </p>
               <p>
-                <b className="text-txt">Tạo bài từ YouTube:</b> AI tách câu và ước lượng CEFR, bài duyệt trước khi công khai.
+                <b className="text-txt">Tạo bài từ YouTube:</b> AI tách câu và
+                ước lượng CEFR, bài duyệt trước khi công khai.
               </p>
             </div>
             <div className="mt-5 pt-3 border-t border-border flex justify-end">
@@ -177,7 +205,8 @@ export const LessonLibraryPage = () => {
           </div>
           <h1 id="lsTitle">Bài học</h1>
           <p className="muted" id="lsSub">
-            Nghe chép và shadowing trên video, audio thật · {totalLessons} bài · {topics.length} chủ đề
+            Nghe chép và shadowing trên video, audio thật · {totalLessons} bài ·{" "}
+            {topics.length} chủ đề
           </p>
         </div>
         <button
@@ -225,7 +254,10 @@ export const LessonLibraryPage = () => {
           className="card glass spotlight yt-card"
           onPointerMove={(e) => {
             const r = e.currentTarget.getBoundingClientRect();
-            e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+            e.currentTarget.style.setProperty(
+              "--mx",
+              `${e.clientX - r.left}px`,
+            );
             e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
           }}
         >
@@ -243,7 +275,8 @@ export const LessonLibraryPage = () => {
               </span>
             </div>
             <p className="small muted">
-              Dán link video tiếng Anh, AI tách câu, gắn mốc thời gian và ước lượng trình độ. Bài được duyệt trước khi hiện công khai.
+              Dán link video tiếng Anh, AI tách câu, gắn mốc thời gian và ước
+              lượng trình độ. Bài được duyệt trước khi hiện công khai.
             </p>
           </div>
           <div className="yt-form">
@@ -359,7 +392,10 @@ export const LessonLibraryPage = () => {
           onClick={() => setSelectedTopic("all")}
         >
           <i className="ph ph-squares-four"></i>Tất cả
-          <small>{topics.reduce((sum, t) => sum + (t.totalLessons || 0), 0) || totalLessons}</small>
+          <small>
+            {topics.reduce((sum, t) => sum + (t.totalLessons || 0), 0) ||
+              totalLessons}
+          </small>
         </button>
         {topics.map((t) => (
           <button
@@ -436,7 +472,10 @@ export const LessonLibraryPage = () => {
                 <div className="sec-head rv">
                   <h2>
                     <span className="sec-ic">
-                      <i className="ph-duotone ph-play-circle" aria-hidden="true"></i>
+                      <i
+                        className="ph-duotone ph-play-circle"
+                        aria-hidden="true"
+                      ></i>
                     </span>
                     Tiếp tục học
                   </h2>
@@ -457,7 +496,9 @@ export const LessonLibraryPage = () => {
                           {l.title}
                         </b>
                         <span className="small muted">
-                          Nghe chép · câu {Math.round((l.sentenceCount || 10) * 0.4)}/{l.sentenceCount || 10}
+                          Nghe chép · câu{" "}
+                          {Math.round((l.sentenceCount || 10) * 0.4)}/
+                          {l.sentenceCount || 10}
                         </span>
                         <div className="bar thin">
                           <i style={{ width: "40%" }}></i>
@@ -485,11 +526,16 @@ export const LessonLibraryPage = () => {
                 <div className="sec-head rv">
                   <h2>
                     <span className="sec-ic">
-                      <i className="ph-duotone ph-sparkle" aria-hidden="true"></i>
+                      <i
+                        className="ph-duotone ph-sparkle"
+                        aria-hidden="true"
+                      ></i>
                     </span>
                     Hợp trình độ B1 của bạn
                   </h2>
-                  <span className="small muted hide-m">Gợi ý từ bài kiểm tra trình độ</span>
+                  <span className="small muted hide-m">
+                    Gợi ý từ bài kiểm tra trình độ
+                  </span>
                 </div>
                 <div className="l-row rv">
                   {b1Lessons.slice(0, 4).map((l) => (
@@ -501,6 +547,7 @@ export const LessonLibraryPage = () => {
 
             {/* 3. Phân nhóm theo từng Topic */}
             {topicSections.length > 0 ? (
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               topicSections.map((sec: any) => (
                 <div key={sec.topic?.id || sec.topic?.slug} className="mb-8">
                   <div className="sec-head rv">
@@ -513,20 +560,30 @@ export const LessonLibraryPage = () => {
                       </span>
                       {sec.topic?.nameVi || sec.topic?.name}
                       <small>
-                        {sec.totalLessons || sec.topic?.totalLessons || sec.lessons?.length || 0} bài
+                        {sec.totalLessons ||
+                          sec.topic?.totalLessons ||
+                          sec.lessons?.length ||
+                          0}{" "}
+                        bài
                       </small>
                     </h2>
                     <button
                       className="btn ghost sm"
                       data-go="topic"
                       data-id={sec.topic?.slug}
-                      onClick={() => navigate(`/student/topics/${sec.topic?.slug}`)}
+                      onClick={() =>
+                        navigate(`/student/topics/${sec.topic?.slug}`)
+                      }
                     >
                       Xem tất cả
-                      <i className="ph ph-arrow-right arr" aria-hidden="true"></i>
+                      <i
+                        className="ph ph-arrow-right arr"
+                        aria-hidden="true"
+                      ></i>
                     </button>
                   </div>
                   <div className="l-row rv">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {(sec.lessons || []).slice(0, 4).map((l: any) => (
                       <LessonCard key={l.id} lesson={l} />
                     ))}
