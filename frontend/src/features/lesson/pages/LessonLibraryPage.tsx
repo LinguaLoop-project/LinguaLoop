@@ -107,8 +107,8 @@ export const LessonLibraryPage = () => {
     ) {
       return topics
         .map((t) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const topicLessons = searchResults.content.filter(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (l: any) => l.topicSlug === t.slug || l.topic?.slug === t.slug,
           );
           return {

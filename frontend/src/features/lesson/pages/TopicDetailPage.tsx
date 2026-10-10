@@ -27,7 +27,7 @@ export const TopicDetailPage = () => {
     size: pageSize,
   });
 
-  const lessons = searchResults?.content || [];
+  const lessons = useMemo(() => searchResults?.content || [], [searchResults]);
   const totalCount = searchResults?.totalElements || topic?.displayOrder || lessons.length;
   const doneN = useMemo(() => {
     return lessons.filter((l) => l.isCompleted).length;
