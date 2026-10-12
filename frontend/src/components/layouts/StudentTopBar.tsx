@@ -70,7 +70,7 @@ export default function StudentTopBar() {
       <button
         type="button"
         className="flex md:hidden items-center justify-center p-0 bg-transparent border-0 cursor-pointer"
-        onClick={() => navigate("/student")}
+        onClick={() => navigate("/")}
         aria-label={t("student.sidebar.homeLabel")}
       >
         <Logo size={32} showText={false} />
@@ -79,13 +79,15 @@ export default function StudentTopBar() {
       {/* Command palette placeholder */}
       <button
         type="button"
-        className="w-11 md:w-auto md:max-w-[480px] md:flex-1 h-11 flex items-center justify-center md:justify-start gap-2.5 px-3 rounded-md border border-border bg-surface-glass text-text-muted text-sm transition-colors duration-150 hover:border-border-strong hover:bg-surface-hover cursor-pointer"
+        className="w-11 md:w-auto md:max-w-[480px] md:flex-1 h-11 flex items-center justify-center md:justify-start gap-2.5 px-3.5 rounded-md border border-border bg-surface-glass text-text-muted text-[15px] transition-colors duration-150 hover:border-border-strong hover:bg-surface-hover cursor-pointer"
         aria-label={t("student.topbar.search")}
         disabled
       >
         <i className="ph ph-magnifying-glass text-xl" aria-hidden="true" />
-        <span className="hidden md:inline">{t("student.topbar.searchPlaceholder")}</span>
-        <kbd className="hidden md:inline ml-auto px-1.5 py-0.5 rounded text-[11px] font-semibold bg-surface-hover border border-border text-text-muted">
+        <span className="hidden md:inline">
+          {t("student.topbar.searchPlaceholder")}
+        </span>
+        <kbd className="hidden md:inline ml-auto px-1.5 py-0.5 rounded text-xs font-semibold bg-surface-hover border border-border text-text-muted">
           Ctrl K
         </kbd>
       </button>
@@ -94,7 +96,7 @@ export default function StudentTopBar() {
       <div className="ml-auto flex items-center gap-2">
         {/* Streak pill */}
         <span
-          className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full border border-border-strong bg-surface-glass font-semibold text-sm select-none"
+          className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full border border-border-strong bg-surface-glass font-semibold text-[15px] select-none"
           title={t("student.topbar.streak")}
         >
           <i
@@ -107,21 +109,25 @@ export default function StudentTopBar() {
         {/* Quota pill */}
         {!isPro && (
           <span
-            className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full border border-border-strong bg-surface-glass font-semibold text-sm select-none"
+            className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full border border-border-strong bg-surface-glass font-semibold text-[15px] select-none"
             title={t("student.topbar.quota")}
           >
             <i
               className="ph-fill ph-lightning text-purple-500 text-lg"
               aria-hidden="true"
             />
-            <span>{maxActions - actionsToday}/{maxActions}</span>
+            <span>
+              {maxActions - actionsToday}/{maxActions}
+            </span>
           </span>
         )}
 
         {/* Plan pill */}
         <span
-          className={`hidden md:inline-flex items-center justify-center h-10 px-3.5 rounded-full border border-border-strong font-semibold text-sm cursor-pointer hover:bg-surface-hover transition-colors ${
-            isPro ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-surface-glass text-text"
+          className={`hidden md:inline-flex items-center justify-center h-10 px-3.5 rounded-full border border-border-strong font-semibold text-[15px] cursor-pointer hover:bg-surface-hover transition-colors ${
+            isPro
+              ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+              : "bg-surface-glass text-text"
           }`}
           id="planPill"
         >

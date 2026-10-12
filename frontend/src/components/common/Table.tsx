@@ -13,7 +13,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(
     const tableElement = (
       <table
         ref={ref}
-        className={`ll-table ${className}`}
+        className={`w-full border-collapse border-spacing-0 font-body text-sm text-left ${className}`}
         {...props}
       >
         {children}
@@ -25,7 +25,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(
     }
 
     return (
-      <div className={`ll-table-wrap ${containerClassName}`}>
+      <div className={`w-full overflow-x-auto border border-border rounded-2xl bg-surface shadow-[var(--shadow-card)] ${containerClassName}`}>
         {tableElement}
       </div>
     );
@@ -38,7 +38,7 @@ export type TableHeaderProps = React.HTMLAttributes<HTMLTableSectionElement>;
 
 export const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>(
   ({ className = "", children, ...props }, ref) => (
-    <thead ref={ref} className={className} {...props}>
+    <thead ref={ref} className={`bg-surface-hover border-b border-border text-xs uppercase tracking-wider text-text-muted font-bold ${className}`} {...props}>
       {children}
     </thead>
   ),
@@ -50,7 +50,7 @@ export type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>;
 
 export const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>(
   ({ className = "", children, ...props }, ref) => (
-    <tbody ref={ref} className={className} {...props}>
+    <tbody ref={ref} className={`divide-y divide-border ${className}`} {...props}>
       {children}
     </tbody>
   ),
@@ -64,7 +64,7 @@ export const TableFooter = forwardRef<HTMLTableSectionElement, TableFooterProps>
   ({ className = "", children, ...props }, ref) => (
     <tfoot
       ref={ref}
-      className={`border-t border-[var(--border)] bg-[var(--surface-hover)] font-medium ${className}`}
+      className={`border-t border-border bg-surface-hover font-medium ${className}`}
       {...props}
     >
       {children}
@@ -85,8 +85,8 @@ export const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(
     <tr
       ref={ref}
       className={[
-        interactive ? "interactive" : "",
-        selected ? "!bg-[var(--primary-soft)]" : "",
+        interactive ? "transition-colors duration-150 hover:bg-surface-hover/80" : "",
+        selected ? "!bg-primary-soft" : "",
         className,
       ]
         .filter(Boolean)
@@ -124,7 +124,8 @@ export const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(
         ref={ref}
         onClick={sortable ? onSort : undefined}
         className={[
-          sortable ? "sortable" : "",
+          "px-4 py-3.5 select-none",
+          sortable ? "cursor-pointer hover:text-text transition-colors" : "",
           className,
         ]
           .filter(Boolean)
@@ -136,9 +137,9 @@ export const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(
           {sortable && (
             <span className="inline-flex shrink-0">
               {sortDirection === "asc" ? (
-                <ArrowUp className="h-3.5 w-3.5 text-[var(--primary)]" />
+                <ArrowUp className="h-3.5 w-3.5 text-primary" />
               ) : sortDirection === "desc" ? (
-                <ArrowDown className="h-3.5 w-3.5 text-[var(--primary)]" />
+                <ArrowDown className="h-3.5 w-3.5 text-primary" />
               ) : (
                 <ArrowUpDown className="h-3 w-3 opacity-40 hover:opacity-100" />
               )}
@@ -162,7 +163,8 @@ export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
     <td
       ref={ref}
       className={[
-        mono ? "mono" : "",
+        "px-4 py-3.5 text-text",
+        mono ? "font-mono text-[13px]" : "",
         className,
       ]
         .filter(Boolean)
@@ -182,7 +184,7 @@ export const TableCaption = forwardRef<HTMLTableCaptionElement, TableCaptionProp
   ({ className = "", children, ...props }, ref) => (
     <caption
       ref={ref}
-      className={`mt-4 text-sm text-[var(--text-muted)] ${className}`}
+      className={`mt-4 text-sm text-text-muted ${className}`}
       {...props}
     >
       {children}
@@ -208,10 +210,10 @@ export const TableEmpty: React.FC<TableEmptyProps> = ({
     <tr>
       <td
         colSpan={colSpan}
-        className="py-12 text-center text-[var(--text-muted)]"
+        className="py-12 text-center text-text-muted"
       >
         <div className="flex flex-col items-center justify-center space-y-2">
-          {icon && <div className="text-[var(--text-subtle)]">{icon}</div>}
+          {icon && <div className="text-text-subtle">{icon}</div>}
           <p className="text-sm font-medium">{message ?? t("table.empty")}</p>
         </div>
       </td>

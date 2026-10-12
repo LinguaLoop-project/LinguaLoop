@@ -10,6 +10,16 @@
   },
   "loading": "Đang tải",
   "processing": "Đang xử lý...",
+  "actions": {
+    "close": "Đóng",
+    "viewAll": "Xem tất cả",
+    "create": "Tạo bài",
+    "clearFilters": "Xoá bộ lọc",
+    "start": "Bắt đầu",
+    "back": "Quay lại",
+    "cancel": "Huỷ",
+    "save": "Lưu"
+  },
   "table": {
     "empty": "Không có dữ liệu"
   },

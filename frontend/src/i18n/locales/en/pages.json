@@ -6,11 +6,144 @@
     },
     "lessons": {
       "title": "Lessons",
-      "description": "A multimedia lesson library graded from A1 to C2, with video, audio and subtitles."
+      "description": "A multimedia lesson library graded from A1 to C2, with video, audio and subtitles.",
+      "overline": "Lesson Library",
+      "subtitle": "Dictation and shadowing with authentic video & audio · {{total}} lessons · {{topics}} topics",
+      "uxNotesBtn": "UX Notes",
+      "uxNotesTitle": "UX Notes — Lesson Library",
+      "uxNotes": {
+        "item1Title": "parroto.app/topics · YouTube:",
+        "item1Desc": "Cards display full metadata: CEFR level, duration, YouTube/Audio source, views, and PRO badge.",
+        "item2Title": "Dual practice modes on cards:",
+        "item2Desc": "Direct Dictation / Shadowing buttons on each card enable instant practice access.",
+        "item3Title": "Continue learning + Level suggestions:",
+        "item3Desc": "“Continue learning” sits at the top. “Matches your B1 level” suggests lessons based on placement tests.",
+        "item4Title": "Filter & search:",
+        "item4Desc": "Instant search with 300ms debounce, 3 difficulty tiers (Basic/Intermediate/Advanced), sorting, and free-only filter.",
+        "item5Title": "Create from YouTube:",
+        "item5Desc": "AI splits sentences and estimates CEFR level; lessons are reviewed before going public."
+      },
+      "ytCard": {
+        "title": "Create Lesson from YouTube Video",
+        "desc": "Paste an English video URL. AI transcribes sentences, sets timestamps, and estimates CEFR level. Reviewed before public release.",
+        "placeholder": "https://youtube.com/watch?v=…",
+        "createBtn": "Create lesson",
+        "toast": "AI is extracting sentences and estimating level… Lesson will be reviewed before going public"
+      },
+      "toolbar": {
+        "searchPlaceholder": "Search lessons by title…",
+        "searchAria": "Search lessons",
+        "levels": {
+          "label": "Level",
+          "all": "All",
+          "basic": "Basic",
+          "mid": "Intermediate",
+          "adv": "Advanced"
+        },
+        "sorts": {
+          "label": "Sort by",
+          "pop": "Popular",
+          "new": "Newest",
+          "short": "Shortest"
+        },
+        "freeOnly": "Free only"
+      },
+      "continue": {
+        "title": "Continue learning",
+        "dictationProgress": "Dictation · sentence {{current}}/{{total}}",
+        "shadowingProgress": "Shadowing · sentence {{current}}/{{total}}",
+        "resume": "Continue {{title}}"
+      },
+      "b1Section": {
+        "title": "Matches your B1 level",
+        "hint": "Suggested based on placement test"
+      },
+      "topicSec": {
+        "count": "{{count}} lessons",
+        "viewAll": "View all"
+      },
+      "filterResults": {
+        "title": "Results",
+        "count": "{{count}} lessons",
+        "resetBtn": "Clear filters"
+      },
+      "empty": {
+        "title": "No matching lessons found",
+        "desc": "Try adjusting your filters or search keywords."
+      },
+      "card": {
+        "views": "Views",
+        "dictation": "Dictation",
+        "shadowing": "Shadowing",
+        "done": "Done {{percent}}%",
+        "notStarted": "Not started",
+        "aria": "Lesson {{title}}",
+        "sentences": "{{count}} sentences"
+      },
+      "error": {
+        "title": "Couldn't load the lesson library",
+        "desc": "There was a problem reaching the server. Please try again.",
+        "retry": "Try again"
+      }
     },
     "lessonDetail": {
       "title": "Lesson details",
-      "description": "Interactive learning, listen to the transcript and do reinforcement exercises."
+      "description": "Interactive learning, listen to the transcript and do reinforcement exercises.",
+      "sentencesCount": "{{count}} sentences",
+      "viewsCount": "{{count}} views",
+      "recentAdded": "Recently added",
+      "descriptionFallback": "Part of {{topic}} topic, duration {{duration}}, segmented into {{count}} sentences with timestamps. Choose a practice mode; progress is tracked individually.",
+      "dictation": {
+        "title": "Dictation",
+        "desc": "Listen to each sentence and transcribe. Words scored with error tagging.",
+        "progress": "{{current}}/{{total}} sentences",
+        "notStarted": "Not started",
+        "start": "Start"
+      },
+      "shadowing": {
+        "title": "Shadowing",
+        "desc": "Practice speech shadowing. AI detects rhythm, intonation, and pronunciation.",
+        "progress": "{{current}}/{{total}} sentences",
+        "notStarted": "Not started",
+        "start": "Start"
+      },
+      "transcript": {
+        "title": "Detailed transcript",
+        "sentencesInLesson": "Sentences in lesson",
+        "hide": "Hide transcript",
+        "view": "Show transcript",
+        "note": "Transcript is hidden by default so answers are not revealed during dictation.",
+        "sentence": "Sentence {{index}}",
+        "listen": "Listen to sentence",
+        "shadow": "Shadow sentence",
+        "dictate": "Dictate sentence",
+        "empty": "No sentence data available for this lesson.",
+        "showMore": "Show {{count}} more sentences",
+        "collapse": "Collapse",
+        "showingCount": "Showing {{visible}} of {{total}} sentences"
+      },
+      "notFoundTitle": "Lesson not found",
+      "notFoundDesc": "The lesson you are looking for does not exist or has been removed.",
+      "backToLibrary": "Back to Library",
+      "playVideo": "Play video",
+      "aside": {
+        "progress": "Your progress",
+        "studyTime": "Study time",
+        "vocab": "Vocabulary in lesson",
+        "saveAll": "Save all",
+        "notes": "My notes",
+        "noNotes": "No notes yet. While practicing, press N to take notes for the active sentence.",
+        "add": "Add"
+      },
+      "related": {
+        "title": "Related lessons",
+        "viewTopic": "View full topic",
+        "exploreLessons": "Explore more lessons"
+      },
+      "errorTitle": "Couldn't load this lesson",
+      "errorDesc": "There was a problem reaching the server. Please try again.",
+      "proRequiredTitle": "This lesson is for Pro",
+      "proRequiredDesc": "Upgrade to Pro to read the transcript and practise this lesson."
     },
     "dictation": {
       "title": "Dictation",
@@ -42,7 +175,32 @@
     },
     "topicDetail": {
       "title": "Topic details",
-      "description": "The lessons and vocabulary decks that belong to this topic."
+      "description": "The lessons and vocabulary decks that belong to this topic.",
+      "topicPrefix": "Topic",
+      "completedLabel": "You have completed",
+      "completedCount": "{{done}}/{{total}} lessons",
+      "levels": {
+        "label": "Level",
+        "all": "All levels",
+        "basic": "A1–A2",
+        "mid": "B1–B2",
+        "adv": "C1–C2"
+      },
+      "states": {
+        "label": "Status",
+        "all": "All",
+        "todo": "Not started",
+        "doing": "In progress",
+        "done": "Completed"
+      },
+      "showingCount": "Showing {{count}} / {{total}} lessons",
+      "empty": {
+        "title": "No lessons in this category yet",
+        "desc": "Change difficulty or status filter to see more lessons."
+      },
+      "loadMore": "View {{count}} more lessons",
+      "notFoundTitle": "Topic not found",
+      "notFoundDesc": "The topic you're looking for doesn't exist or isn't published yet."
     },
     "mywords": {
       "title": "Saved words & sentences",

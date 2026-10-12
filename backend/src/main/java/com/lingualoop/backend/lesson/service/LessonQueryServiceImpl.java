@@ -1,0 +1,190 @@
+package com.lingualoop.backend.lesson.service;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.lingualoop.backend.common.exception.BusinessException;
+import com.lingualoop.backend.common.exception.ErrorCode;
+import com.lingualoop.backend.common.exception.NotFoundException;
+import com.lingualoop.backend.lesson.dto.LessonDetail;
+import com.lingualoop.backend.lesson.dto.LessonSummary;
+import com.lingualoop.backend.lesson.dto.LibraryOverview;
+import com.lingualoop.backend.lesson.dto.ModeProgress;
+import com.lingualoop.backend.lesson.dto.SentenceResponse;
+import com.lingualoop.backend.lesson.dto.TopicResponse;
+import com.lingualoop.backend.lesson.dto.TopicRow;
+import com.lingualoop.backend.lesson.entity.Lesson;
+import com.lingualoop.backend.lesson.entity.Topic;
+import com.lingualoop.backend.lesson.enums.LessonState;
+import com.lingualoop.backend.lesson.enums.LessonStatus;
+import com.lingualoop.backend.lesson.mapper.LessonMapper;
+import com.lingualoop.backend.lesson.mapper.SentenceMapper;
+import com.lingualoop.backend.lesson.mapper.TopicMapper;
+import com.lingualoop.backend.lesson.repository.LessonProgressRepository;
+import com.lingualoop.backend.lesson.repository.LessonRepository;
+import com.lingualoop.backend.lesson.repository.LessonSpecification;
+import com.lingualoop.backend.lesson.repository.SentenceRepository;
+import com.lingualoop.backend.lesson.repository.TopicRepository;
+import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class LessonQueryServiceImpl implements LessonQueryService {
+
+    private static final int CONTINUE_LIMIT = 3;
+    private static final int POPULAR_PER_TOPIC = 4;
+    private static final int RELATED_LIMIT = 3;
+
+    // TODO(contract): lấy phần trăm tiến độ thật từ user_lesson_mode_progress + sentence_attempts khi
+    // feature dictation/shadowing có dữ liệu.
+    private static final ModeProgress NO_PROGRESS = new ModeProgress(0, 0);
+
+    private final TopicRepository topicRepository;
+    private final LessonRepository lessonRepository;
+    private final SentenceRepository sentenceRepository;
+    private final LessonProgressRepository progressRepository;
+    private final TopicMapper topicMapper;
+    private final LessonMapper lessonMapper;
+    private final SentenceMapper sentenceMapper;
+    private final SubscriptionQueryService subscriptionQueryService;
+
+    @Override
+    public List<TopicResponse> getTopics(UUID userId) {
+        List<Topic> topics = topicRepository.findByStatusOrderBySortOrderAsc(LessonStatus.APPROVED);
+        Map<UUID, Long> totals = toMap(lessonRepository.countApprovedGroupByTopic());
+        Map<UUID, Long> completed = toMap(progressRepository.countCompletedGroupByTopic(userId));
+        return topics.stream()
+                .map(t -> withCounts(t, totals.getOrDefault(t.getId(), 0L), completed.getOrDefault(t.getId(), 0L)))
+                .toList();
+    }
+
+    @Override
+    public TopicRow getTopic(String slug, UUID userId) {
+        Topic topic = topicRepository.findBySlugAndStatus(slug, LessonStatus.APPROVED)
+                .orElseThrow(() -> new NotFoundException("Topic not found"));
+        long total = lessonRepository.countByTopicIdAndStatusAndDeletedAtIsNull(topic.getId(), LessonStatus.APPROVED);
+        long completed = progressRepository.countCompletedLessonsByUserAndTopic(userId, topic.getId());
+        // Danh sách bài của chủ đề lấy phân trang ở GET /lessons?topic=slug.
+        return new TopicRow(withCounts(topic, total, completed), total, Collections.emptyList());
+    }
+
+    @Override
+    public Page<LessonSummary> searchLessons(String q, String topic, String difficulty, Boolean free,
+                                             LessonState state, UUID userId, Pageable pageable) {
+        Specification<Lesson> spec = LessonSpecification.filterLessons(q, topic, difficulty, free, state, userId);
+        Page<Lesson> page = lessonRepository.findAll(spec, pageable);
+        return new PageImpl<>(toSummaries(page.getContent(), userId), pageable, page.getTotalElements());
+    }
+
+    @Override
+    public LibraryOverview getOverview(UUID userId) {
+        List<Lesson> continueLessons = lessonRepository.findContinueLessons(userId, PageRequest.of(0, CONTINUE_LIMIT));
+        List<Lesson> popular = lessonRepository.findTopPopularPerTopic(POPULAR_PER_TOPIC);
+
+        // Dựng summary một lần cho mọi bài của cả hai danh sách để đếm câu và kiểm tra Pro theo lô.
+        Map<UUID, Lesson> distinct = new LinkedHashMap<>();
+        Stream.concat(continueLessons.stream(), popular.stream()).forEach(l -> distinct.putIfAbsent(l.getId(), l));
+        Map<UUID, LessonSummary> summaries = toSummaries(new ArrayList<>(distinct.values()), userId).stream()
+                .collect(Collectors.toMap(LessonSummary::id, Function.identity()));
+
+        Map<UUID, List<LessonSummary>> popularByTopic = new LinkedHashMap<>();
+        for (Lesson lesson : popular) {
+            popularByTopic.computeIfAbsent(lesson.getTopic().getId(), k -> new ArrayList<>())
+                    .add(summaries.get(lesson.getId()));
+        }
+
+        List<TopicRow> rows = getTopics(userId).stream()
+                .filter(t -> popularByTopic.containsKey(t.id()))
+                .map(t -> new TopicRow(t, t.totalLessons(), popularByTopic.get(t.id())))
+                .toList();
+        List<LessonSummary> continues = continueLessons.stream().map(l -> summaries.get(l.getId())).toList();
+        return new LibraryOverview(continues, rows);
+    }
+
+    @Override
+    public LessonDetail getLessonDetail(String slug, UUID userId) {
+        Lesson lesson = findVisibleLesson(slug);
+        LessonDetail detail = lessonMapper.toDetail(lesson);
+        long sentenceCount = sentenceCounts(List.of(lesson.getId())).getOrDefault(lesson.getId(), 0L);
+        // lessons.topic_id là NOT NULL nên topic luôn có mặt
+        List<LessonSummary> related = toSummaries(lessonRepository.findRelatedLessons(
+                lesson.getTopic().getId(), lesson.getId(), PageRequest.of(0, RELATED_LIMIT)), userId);
+        boolean locked = lesson.isPro() && !subscriptionQueryService.isPro(userId);
+
+        return new LessonDetail(
+                detail.id(), detail.slug(), detail.title(), detail.titleVi(), detail.description(),
+                detail.difficulty(), detail.sourceType(), detail.sourceUrl(), detail.durationSec(),
+                detail.viewCount(), detail.thumbnailUrl(), detail.pro(), locked, sentenceCount, NO_PROGRESS,
+                topicMapper.toResponse(lesson.getTopic()),
+                related);
+    }
+
+    @Override
+    public List<SentenceResponse> getSentences(String slug, UUID userId) {
+        Lesson lesson = findVisibleLesson(slug);
+        if (lesson.isPro() && !subscriptionQueryService.isPro(userId)) {
+            throw new BusinessException(ErrorCode.LESSON_PRO_REQUIRED);
+        }
+        return sentenceRepository.findByLessonIdOrderBySortOrderAsc(lesson.getId()).stream()
+                .map(sentenceMapper::toResponse)
+                .toList();
+    }
+
+    /** Bài đã duyệt và chưa xoá mềm; bài DRAFT/PENDING/REJECTED coi như không tồn tại. */
+    private Lesson findVisibleLesson(String slug) {
+        return lessonRepository.findBySlugAndStatusAndDeletedAtIsNull(slug, LessonStatus.APPROVED)
+                .orElseThrow(() -> new NotFoundException("Lesson not found"));
+    }
+
+    private TopicResponse withCounts(Topic topic, long total, long completed) {
+        TopicResponse base = topicMapper.toResponse(topic);
+        return new TopicResponse(base.id(), base.slug(), base.name(), base.nameVi(), base.icon(),
+                base.sortOrder(), total, completed);
+    }
+
+    /** Chuyển bài sang summary: đếm câu một truy vấn, kiểm tra Pro một lần (chỉ khi có bài Pro). */
+    private List<LessonSummary> toSummaries(List<Lesson> lessons, UUID userId) {
+        if (lessons.isEmpty()) {
+            return List.of();
+        }
+        Map<UUID, Long> counts = sentenceCounts(lessons.stream().map(Lesson::getId).toList());
+        boolean hasProLesson = lessons.stream().anyMatch(Lesson::isPro);
+        boolean userIsPro = hasProLesson && subscriptionQueryService.isPro(userId);
+        return lessons.stream().map(lesson -> {
+            LessonSummary s = lessonMapper.toSummary(lesson);
+            return new LessonSummary(s.id(), s.slug(), s.title(), s.titleVi(), s.difficulty(), s.sourceType(),
+                    s.durationSec(), s.viewCount(), s.thumbnailUrl(), s.pro(), lesson.isPro() && !userIsPro,
+                    counts.getOrDefault(lesson.getId(), 0L), NO_PROGRESS);
+        }).toList();
+    }
+
+    private Map<UUID, Long> sentenceCounts(Collection<UUID> lessonIds) {
+        return lessonRepository.findSentenceCounts(lessonIds).stream()
+                .collect(Collectors.toMap(LessonRepository.SentenceCount::getLessonId,
+                        LessonRepository.SentenceCount::getSentenceCount));
+    }
+
+    private static Map<UUID, Long> toMap(List<LessonRepository.TopicCount> counts) {
+        return counts.stream().collect(Collectors.toMap(
+                LessonRepository.TopicCount::getTopicId, LessonRepository.TopicCount::getTotal));
+    }
+}

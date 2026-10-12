@@ -38,6 +38,8 @@ public enum ErrorCode {
     AUTH_GOOGLE_LINK_CONFLICT(HttpStatus.CONFLICT, "Email này đã liên kết với một tài khoản Google khác"),
     AUTH_CURRENT_PASSWORD_WRONG(HttpStatus.BAD_REQUEST, "Mật khẩu hiện tại chưa đúng"),
 
+    LESSON_PRO_REQUIRED(HttpStatus.FORBIDDEN, "Bạn cần gói Pro để xem nội dung này"),
+
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi hệ thống, vui lòng thử lại sau");
 
     private final HttpStatus status;

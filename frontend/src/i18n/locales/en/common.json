@@ -10,6 +10,16 @@
   },
   "loading": "Loading",
   "processing": "Processing...",
+  "actions": {
+    "close": "Close",
+    "viewAll": "View all",
+    "create": "Create",
+    "clearFilters": "Clear filters",
+    "start": "Start",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
   "table": {
     "empty": "No data"
   },

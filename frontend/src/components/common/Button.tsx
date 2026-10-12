@@ -34,11 +34,54 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const { t } = useTranslation();
 
-    // Classes based on design spec
-    const baseClasses = iconOnly ? "ll-icon-btn" : "ll-btn";
-    const variantClass = variant;
-    const sizeClass = size !== "md" ? size : "";
-    const fullClass = fullWidth ? "full" : "";
+    // Base styling
+    const baseClasses =
+      "inline-flex items-center justify-center font-body font-semibold select-none rounded-md transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:pointer-events-none disabled:transform-none disabled:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+
+    // Size styling
+    let sizeClasses = "gap-2 h-11 px-4.5 text-[15px]";
+    if (size === "sm") {
+      sizeClasses = "gap-1.5 h-9 px-3 text-sm";
+    } else if (size === "lg") {
+      sizeClasses = "gap-2.5 h-[52px] px-6 text-base";
+    }
+
+    if (iconOnly) {
+      if (size === "sm") {
+        sizeClasses = "w-9 h-9 p-0 text-base";
+      } else if (size === "lg") {
+        sizeClasses = "w-[50px] h-[50px] p-0 text-xl";
+      } else {
+        sizeClasses = "w-11 h-11 p-0 text-lg";
+      }
+    }
+
+    // Variant styling
+    let variantClasses = "";
+    switch (variant) {
+      case "primary":
+        variantClasses =
+          "bg-[var(--btn-primary)] hover:bg-[var(--btn-primary-hover)] text-white shadow-[0_2px_12px_color-mix(in_srgb,var(--btn-primary)_35%,transparent)] hover:shadow-[0_4px_16px_color-mix(in_srgb,var(--btn-primary)_45%,transparent)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]";
+        break;
+      case "secondary":
+        variantClasses =
+          "bg-surface-hover hover:bg-[color-mix(in_srgb,var(--primary)_18%,transparent)] text-text border border-border-strong hover:border-primary hover:text-white hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]";
+        break;
+      case "ghost":
+        variantClasses =
+          "bg-transparent hover:bg-surface-hover text-text-muted hover:text-text border border-border hover:border-border-strong hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]";
+        break;
+      case "text":
+        variantClasses =
+          "bg-transparent hover:bg-surface-hover/50 text-text-muted hover:text-text border-0";
+        break;
+      case "danger":
+        variantClasses =
+          "bg-[color-mix(in_srgb,var(--danger)_15%,transparent)] hover:bg-danger text-danger hover:text-white border border-[color-mix(in_srgb,var(--danger)_30%,transparent)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]";
+        break;
+    }
+
+    const fullClass = fullWidth ? "w-full" : "";
 
     return (
       <button
@@ -48,8 +91,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         aria-busy={isLoading}
         className={[
           baseClasses,
-          variantClass,
-          sizeClass,
+          sizeClasses,
+          variantClasses,
           fullClass,
           className,
         ]

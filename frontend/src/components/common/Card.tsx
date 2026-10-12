@@ -1,4 +1,5 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef } from "react";
+import { useSpotlight } from "@/hooks/useSpotlight";
 
 export type CardVariant = "standard" | "glass" | "highlight" | "elevated";
 
@@ -17,56 +18,65 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       children,
       className = "",
       onMouseMove,
+      onMouseLeave,
       style,
       ...props
     },
     ref,
   ) => {
-    const [mousePos, setMousePos] = useState({ x: -999, y: -999 });
+    const {
+      onMouseMove: handleSpotlightMove,
+      onMouseLeave: handleSpotlightLeave,
+      style: spotlightStyle,
+    } = useSpotlight({
+      color: "color-mix(in srgb, var(--primary) 18%, transparent)",
+      stopPercent: "60%",
+    });
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
       if (spotlight) {
-        const rect = e.currentTarget.getBoundingClientRect();
-        setMousePos({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
-        });
+        handleSpotlightMove(e);
       }
       onMouseMove?.(e);
     };
 
+    const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (spotlight) {
+        handleSpotlightLeave(e);
+      }
+      onMouseLeave?.(e);
+    };
+
     // Variant classes mapping
-    let variantClass = "ll-card";
+    let variantClass = "bg-surface border border-border rounded-2xl shadow-[var(--shadow-card)] p-6 transition-all duration-200";
     if (variant === "glass") {
-      variantClass = "ll-glass";
+      variantClass = "bg-surface-glass backdrop-blur-xl border border-border-strong rounded-2xl shadow-[var(--shadow-card)] p-6 transition-all duration-200";
     } else if (variant === "highlight") {
-      variantClass = "ll-card-highlight";
+      variantClass = "relative bg-surface border border-accent/30 rounded-2xl shadow-[var(--shadow-card)] p-6 transition-all duration-200";
     } else if (variant === "elevated") {
-      variantClass = "bg-[var(--bg-elevated)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-card)]";
+      variantClass = "bg-bg-elevated border border-border rounded-2xl shadow-[var(--shadow-card)] p-6 transition-all duration-200";
     }
 
     const hoverClass = hoverable
-      ? "transition-all duration-200 hover:-translate-y-1 hover:border-[var(--border-strong)] hover:shadow-lg"
+      ? "hover:-translate-y-1 hover:border-border-strong hover:shadow-2xl cursor-pointer"
       : "";
 
-    const spotlightClass = spotlight ? "ll-spotlight" : "";
-
-    const dynamicStyle = spotlight
+    const dynamicStyle: React.CSSProperties = spotlight
       ? ({
+          ...spotlightStyle,
           ...style,
-          "--mx": `${mousePos.x}px`,
-          "--my": `${mousePos.y}px`,
         } as React.CSSProperties)
-      : style;
+      : (style || {});
 
     return (
       <div
         ref={ref}
-        className={[variantClass, hoverClass, spotlightClass, className]
+        className={[variantClass, hoverClass, className]
           .filter(Boolean)
           .join(" ")}
         style={dynamicStyle}
         onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
         {...props}
       >
         {children}
@@ -98,7 +108,7 @@ export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ as: Component = "h3", className = "", children, ...props }, ref) => (
     <Component
       ref={ref}
-      className={`font-semibold text-lg leading-snug tracking-tight text-[var(--text)] ${className}`}
+      className={`font-semibold text-lg leading-snug tracking-tight text-text ${className}`}
       {...props}
     >
       {children}
@@ -114,7 +124,7 @@ export const CardDescription = forwardRef<
 >(({ className = "", children, ...props }, ref) => (
   <p
     ref={ref}
-    className={`text-sm text-[var(--text-muted)] ${className}`}
+    className={`text-sm text-text-muted ${className}`}
     {...props}
   >
     {children}
@@ -137,7 +147,7 @@ export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
   ({ className = "", children, ...props }, ref) => (
     <div
       ref={ref}
-      className={`flex items-center pt-4 border-t border-[var(--border)] ${className}`}
+      className={`flex items-center pt-4 border-t border-border ${className}`}
       {...props}
     >
       {children}
