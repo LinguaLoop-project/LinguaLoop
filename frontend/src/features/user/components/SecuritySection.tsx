@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/features/auth";
 import PasswordForm from "./PasswordForm";
+import Badge from "@/components/common/Badge";
 
 /** Tab "Bảo mật & đăng nhập": tạo/đổi mật khẩu và trạng thái liên kết Google (chỉ xem). */
 export default function SecuritySection() {
@@ -12,8 +13,8 @@ export default function SecuritySection() {
     <div className="flex flex-col gap-6">
       <PasswordForm />
 
-      <section className="ll-card">
-        <h3 className="text-lg font-semibold" style={{ fontFamily: "var(--font-display)" }}>
+      <section className="p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-card)]">
+        <h3 className="text-lg font-semibold font-display text-text">
           {t("settings.google.title")}
         </h3>
         <div className="mt-4 flex items-center gap-3">
@@ -21,12 +22,14 @@ export default function SecuritySection() {
             <use href="#g-google" />
           </svg>
           <div className="min-w-0 grow">
-            <b className="block text-[15px]">{t("settings.google.name")}</b>
-            <span className="block truncate text-[13px]" style={{ color: "var(--text-muted)" }}>
+            <b className="block text-[15px] font-semibold text-text">{t("settings.google.name")}</b>
+            <span className="block truncate text-[13px] text-text-muted mt-0.5">
               {googleLinked ? t("settings.google.linked", { email: user?.email }) : t("settings.google.notLinked")}
             </span>
           </div>
-          <span className={`badge ${googleLinked ? "t-ok" : ""}`}>{googleLinked ? "✓" : "—"}</span>
+          <Badge variant={googleLinked ? "success" : "default"}>
+            {googleLinked ? "✓" : "—"}
+          </Badge>
         </div>
       </section>
     </div>

@@ -1,59 +1,54 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { authService } from "../services/authService";
 import { errorMessage, toApiError } from "../errors";
-import { EMAIL_RE } from "../validations/authSchemas";
 import type { ApiError } from "../types";
-import AuthSidePanel from "../components/AuthSidePanel";
-import AuthTopBar from "../components/AuthTopBar";
+import { EMAIL_RE } from "../validations/authSchemas";
+import Button from "@/components/common/Button";
+import FormAlert from "@/components/common/FormAlert";
 
-type Status = "loading" | "verified" | "already" | "invalid" | "error";
+type VerifyStatus = "loading" | "verified" | "already" | "invalid_link" | "error";
 
 const REDIRECT_DELAY_MS = 2000;
 
-const headingStyle = {
-  fontSize: 28,
-  fontWeight: 700,
-  fontFamily: "var(--font-display)",
-  lineHeight: 1.2,
-  marginBottom: 8,
-} as const;
-
-/** Đích của link trong thư xác thực: `/verify-email?token=...`. Nằm ngoài AuthLayout để người đã đăng nhập vẫn mở được. */
+/** Đích của link trong thư xác thực: `/verify-email?token=...`. */
 const VerifyEmail = () => {
   const { t } = useTranslation("auth");
+  const [params] = useSearchParams();
+  const token = params.get("token");
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
 
-  const [status, setStatus] = useState<Status>(token ? "loading" : "invalid");
+  const [status, setStatus] = useState<VerifyStatus>(() => (token ? "loading" : "invalid_link"));
   const [verifyError, setVerifyError] = useState<ApiError | null>(null);
   const [email, setEmail] = useState("");
   // "format" = lỗi định dạng tại chỗ; ApiError = lỗi từ server. Giữ mã lỗi để dịch lại khi đổi ngôn ngữ.
-  const [emailError, setEmailError] = useState<"format" | ApiError | null>(null);
+  const [emailError, setEmailError] = useState<"format" | ApiError | null>(
+    null,
+  );
   const [sending, setSending] = useState(false);
 
   // Token chỉ dùng được một lần: chặn gọi API hai lần (React StrictMode chạy effect hai lần ở dev)
-  const started = useRef(false);
+  const calledRef = useRef(false);
 
   useEffect(() => {
-    if (!token || started.current) return;
-    started.current = true;
+    if (!token) {
+      return;
+    }
+    if (calledRef.current) return;
+    calledRef.current = true;
 
     authService
       .verifyEmail(token)
       .then((response) => {
-        setStatus(response.data.data.result === "VERIFIED" ? "verified" : "already");
+        setStatus(
+          response.data.data.result === "VERIFIED" ? "verified" : "already",
+        );
       })
       .catch((err: unknown) => {
         const error = toApiError(err);
-        if (error.code === "AUTH_LINK_INVALID") {
-          setStatus("invalid");
-        } else {
-          setVerifyError(error);
-          setStatus("error");
-        }
+        setVerifyError(error);
+        setStatus(error.code === "AUTH_LINK_INVALID" ? "invalid_link" : "error");
       });
   }, [token]);
 
@@ -64,7 +59,7 @@ const VerifyEmail = () => {
     return () => clearTimeout(timer);
   }, [status, navigate]);
 
-  const handleResend = async (e: FormEvent) => {
+  const handleResend = async (e: React.FormEvent) => {
     e.preventDefault();
     const value = email.trim();
     if (!EMAIL_RE.test(value)) {
@@ -75,7 +70,9 @@ const VerifyEmail = () => {
     setSending(true);
     try {
       await authService.resendVerification(value);
-      navigate("/auth/check-email", { state: { email: value, mailSent: true } });
+      navigate("/auth/check-email", {
+        state: { email: value, mailSent: true },
+      });
     } catch (err: unknown) {
       setEmailError(toApiError(err));
     } finally {
@@ -84,107 +81,150 @@ const VerifyEmail = () => {
   };
 
   return (
-    <div className="auth-layout" id="auth">
-      <AuthSidePanel />
+    <section
+      className="flex flex-col gap-5 text-center items-center w-full"
+      aria-live="polite"
+    >
+      {status === "loading" && (
+        <>
+          <span
+            className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary"
+            role="status"
+            aria-label={t("verify.verifying")}
+          />
+          <h1 className="text-2xl font-bold font-display text-text">
+            {t("verify.verifyingTitle")}
+          </h1>
+        </>
+      )}
 
-      <main className="auth-main">
-        <AuthTopBar />
+      {(status === "verified" || status === "already") && (
+        <>
+          <img
+            src="/loopi-hello.svg"
+            width={120}
+            height={120}
+            alt=""
+            draggable={false}
+            className="select-none pointer-events-none"
+          />
+          <div>
+            <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+              {status === "verified"
+                ? t("verify.success")
+                : t("verify.alreadyOverline")}
+            </span>
+            <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+              {status === "verified"
+                ? t("verify.verifiedTitle")
+                : t("verify.alreadyTitle")}
+            </h1>
+            <p className="text-[15px] text-text-muted mt-1 leading-relaxed">
+              {status === "verified"
+                ? t("verify.verifiedDesc")
+                : t("verify.alreadyDesc")}
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => navigate("/auth/login")}
+          >
+            {t("verify.login")}
+          </Button>
+        </>
+      )}
 
-        <div className="auth-box">
-          <section className="auth-form text-center items-center" style={{ maxWidth: 440 }} aria-live="polite">
-            {status === "loading" && (
-              <>
-                <span
-                  className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary"
-                  role="status"
-                  aria-label={t("verify.verifying")}
+      {status === "invalid_link" && (
+        <>
+          <FormAlert variant="warning" className="text-left w-full">
+            {t("verify.invalidAlert")}
+          </FormAlert>
+
+          <div>
+            <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+              {t("verify.resendTitle")}
+            </h1>
+            <p className="text-[15px] text-text-muted mt-1 leading-relaxed">
+              {t("verify.resendDesc")}
+            </p>
+          </div>
+
+          <form
+            className="flex w-full flex-col gap-3 text-left"
+            onSubmit={handleResend}
+            noValidate
+          >
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="vfEmail"
+                className="text-[13px] font-semibold text-text"
+              >
+                {t("verify.email")}
+              </label>
+              <div
+                className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
+                  emailError
+                    ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
+                    : "border-border"
+                }`}
+              >
+                <i className="ph ph-envelope-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+                <input
+                  id="vfEmail"
+                  type="email"
+                  autoComplete="email"
+                  placeholder={t("verify.emailPlaceholder")}
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) setEmailError(null);
+                  }}
+                  className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
                 />
-                <h1 style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-display)" }}>
-                  {t("verify.verifyingTitle")}
-                </h1>
-              </>
-            )}
-
-            {(status === "verified" || status === "already") && (
-              <>
-                <img src="/loopi-hello.svg" width={120} height={120} alt="" draggable={false} />
-                <div>
-                  <span className="ll-overline">{status === "verified" ? t("verify.success") : t("verify.alreadyOverline")}</span>
-                  <h1 style={headingStyle}>
-                    {status === "verified" ? t("verify.verifiedTitle") : t("verify.alreadyTitle")}
-                  </h1>
-                  <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
-                    {status === "verified"
-                      ? t("verify.verifiedDesc")
-                      : t("verify.alreadyDesc")}
-                  </p>
-                </div>
-                <Link to="/auth/login" className="ll-btn primary lg">
-                  {t("verify.login")}
-                </Link>
-              </>
-            )}
-
-            {status === "invalid" && (
-              <>
-                <div>
-                  <span className="ll-overline">{t("verify.invalidOverline")}</span>
-                  <h1 style={headingStyle}>{t("verify.invalidTitle")}</h1>
-                  <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
-                    {t("verify.invalidDesc")}
-                  </p>
-                </div>
-
-                <form className="flex w-full flex-col gap-3 text-left" onSubmit={handleResend} noValidate>
-                  <div className={`ll-field ${emailError ? "bad" : ""}`}>
-                    <label htmlFor="vfEmail" className="ll-label">
-                      {t("verify.email")}
-                    </label>
-                    <div className="ll-inp">
-                      <i className="ph ph-envelope-simple" />
-                      <input
-                        id="vfEmail"
-                        type="email"
-                        autoComplete="email"
-                        placeholder={t("verify.emailPlaceholder")}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    {emailError && (
-                      <p className="ll-err">
-                        {emailError === "format" ? t("validation.emailFormat") : errorMessage(emailError)}
-                      </p>
-                    )}
-                  </div>
-                  <button type="submit" className="ll-btn primary lg full" disabled={sending}>
-                    {sending ? t("verify.sending") : t("verify.resend")}
-                  </button>
-                </form>
-
-                <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
-                  <Link to="/auth/login" className="ll-link">
-                    {t("verify.backToLogin")}
-                  </Link>
+              </div>
+              {emailError && (
+                <p className="text-xs font-medium text-danger mt-0.5">
+                  {emailError === "format"
+                    ? t("validation.emailFormat")
+                    : errorMessage(emailError)}
                 </p>
-              </>
-            )}
+              )}
+            </div>
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
+              disabled={sending}
+              isLoading={sending}
+            >
+              {sending ? t("verify.sending") : t("verify.resend")}
+            </Button>
+          </form>
 
-            {status === "error" && (
-              <>
-                <div className="ll-form-alert danger text-left" role="alert">
-                  <i className="ph ph-warning-circle" style={{ fontSize: 20, flexShrink: 0 }} />
-                  <span>{verifyError && errorMessage(verifyError)}</span>
-                </div>
-                <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
-                  {t("verify.errorHint")}
-                </p>
-              </>
-            )}
-          </section>
-        </div>
-      </main>
-    </div>
+          <p className="text-[13px] text-text-muted">
+            <Link
+              to="/auth/login"
+              className="text-accent hover:underline font-medium"
+            >
+              {t("verify.backToLogin")}
+            </Link>
+          </p>
+        </>
+      )}
+
+      {status === "error" && (
+        <>
+          <FormAlert variant="danger" className="text-left w-full">
+            {verifyError && errorMessage(verifyError)}
+          </FormAlert>
+          <p className="text-[13px] text-text-muted">
+            {t("verify.errorHint")}
+          </p>
+        </>
+      )}
+    </section>
   );
 };
 

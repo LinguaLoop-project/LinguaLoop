@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/features/auth";
 import PlaceholderPage from "@/components/common/PlaceholderPage";
+import Button from "@/components/common/Button";
 
 /** Tạm thời, thay bằng trang thiết lập hồ sơ ở PR onboarding (UC-AUTH-08). Có nút đăng xuất vì trang này chưa có layout. */
 const OnboardingPlaceholder = () => {
@@ -13,9 +14,9 @@ const OnboardingPlaceholder = () => {
         title={t("onboarding.title")}
         description={t("onboarding.description")}
       />
-      <button type="button" className="ll-btn ghost" onClick={() => void handleLogout()}>
+      <Button variant="ghost" onClick={() => void handleLogout()}>
         {t("onboarding.logout")}
-      </button>
+      </Button>
     </div>
   );
 };
