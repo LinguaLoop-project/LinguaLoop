@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LoadingScreen from "@/components/common/LoadingScreen";
+import Card from "@/components/common/Card";
+import FormAlert from "@/components/common/FormAlert";
 import { errorMessage, toApiError } from "../errors";
 import { consumeGoogleState } from "../googleOAuth";
 import { homePathFor } from "../navigation";
@@ -57,18 +59,21 @@ export default function GoogleCallback() {
 
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
-      <div className="ll-card flex w-full max-w-[420px] flex-col gap-4">
-        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)" }}>
+      <Card className="flex w-full max-w-[420px] flex-col gap-4">
+        <h1 className="text-xl font-bold font-display text-text">
           {t("google.failedTitle")}
         </h1>
-        <div className="ll-form-alert danger" role="alert">
-          <i className="ph ph-warning-circle" style={{ fontSize: 20, flexShrink: 0 }} />
+        <FormAlert variant="danger">
           <span>{errorMessage(error)}</span>
-        </div>
-        <Link to="/auth/login" className="ll-btn primary lg full" replace>
+        </FormAlert>
+        <Link
+          to="/auth/login"
+          replace
+          className="inline-flex items-center justify-center font-semibold select-none rounded-xl transition-all duration-200 cursor-pointer h-12 px-6 text-sm bg-[var(--btn-primary)] hover:bg-[var(--btn-primary-hover)] text-white shadow-[0_2px_12px_rgba(123,77,232,0.35)] hover:shadow-[0_4px_16px_rgba(123,77,232,0.45)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] w-full"
+        >
           {t("google.backToLogin")}
         </Link>
-      </div>
+      </Card>
     </main>
   );
 }

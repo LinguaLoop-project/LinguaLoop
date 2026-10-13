@@ -8,7 +8,7 @@ import { Settings } from "@/features/user";
 import { LessonLibraryPage, LessonDetailPage, TopicDetailPage } from "@/features/lesson";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
-import { AuthGuard } from "@/app/guards";
+import { AuthGuard, GuestGuard } from "@/app/guards";
 import OnboardingPlaceholder from "@/app/placeholders/OnboardingPlaceholder";
 import PlaceholderPage from "@/components/common/PlaceholderPage";
 
@@ -26,7 +26,11 @@ const getRoutesConfig = (): RouteObject[] => {
     },
     {
       path: "auth",
-      element: <AuthLayout />,
+      element: (
+        <GuestGuard>
+          <AuthLayout />
+        </GuestGuard>
+      ),
       children: [
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
@@ -47,7 +51,10 @@ const getRoutesConfig = (): RouteObject[] => {
     // Đích Google chuyển về sau khi người dùng đồng ý (redirect URI khai trong Google Console)
     { path: "authenticate", element: <GoogleCallback /> },
     // Đích của link trong thư xác thực (backend gửi frontend-url + /verify-email?token=...)
-    { path: "verify-email", element: <VerifyEmail /> },
+    {
+      element: <AuthLayout />,
+      children: [{ path: "verify-email", element: <VerifyEmail /> }],
+    },
     // Đích của link trong thư đặt lại mật khẩu (backend gửi frontend-url + /reset-password?token=...)
     { path: "reset-password", element: <ResetPassword /> },
     // ── Redirect shorthands ──

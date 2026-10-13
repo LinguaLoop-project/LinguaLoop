@@ -1,26 +1,54 @@
 import { Outlet } from "react-router-dom";
-import { GuestGuard } from "@/app/guards";
-import Footer from "./Footer";
+import { useTranslation } from "react-i18next";
+import AuthSidePanel from "@/features/auth/components/AuthSidePanel";
+import AuthTopBar from "@/features/auth/components/AuthTopBar";
 
 const AuthLayout = () => {
+  const { t } = useTranslation("auth");
+
   return (
-    <GuestGuard>
-      <div className="relative min-h-screen flex flex-col justify-between overflow-x-clip bg-bg-base text-text">
-        {/* Glow effect with Tailwind */}
-        <div
-          className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
-          aria-hidden="true"
-        >
-          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.18)_0%,transparent_70%)] blur-3xl" />
-        </div>
-        <main className="relative z-10 flex-1 flex flex-col">
+    <div
+      className="grid grid-cols-1 md:grid-cols-[700px_1fr] lg:grid-cols-[780px_1fr] min-h-screen bg-bg-base text-text"
+      id="auth"
+    >
+      {/* ── Left side panel with Loopi mascot and 3D objects ── */}
+      <AuthSidePanel />
+
+      {/* ── Right side main container ── */}
+      <main className="flex flex-col justify-between p-6 sm:p-10 lg:p-12 overflow-y-auto">
+        <AuthTopBar />
+
+        {/* Dynamic page content */}
+        <div className="w-full max-w-[440px] mx-auto my-auto py-6">
           <Outlet />
-        </main>
-        <div className="relative z-10">
-          <Footer />
         </div>
-      </div>
-    </GuestGuard>
+
+        {/* Footer */}
+        <p className="text-[13px] text-center text-text-muted mt-auto pt-4">
+          © 2026 LinguaLoop ·{" "}
+          <button
+            type="button"
+            className="text-text-muted hover:text-text hover:underline transition-colors cursor-pointer bg-transparent border-0"
+          >
+            {t("footer.terms")}
+          </button>{" "}
+          ·{" "}
+          <button
+            type="button"
+            className="text-text-muted hover:text-text hover:underline transition-colors cursor-pointer bg-transparent border-0"
+          >
+            {t("footer.privacy")}
+          </button>{" "}
+          ·{" "}
+          <button
+            type="button"
+            className="text-text-muted hover:text-text hover:underline transition-colors cursor-pointer bg-transparent border-0"
+          >
+            {t("footer.help")}
+          </button>
+        </p>
+      </main>
+    </div>
   );
 };
 

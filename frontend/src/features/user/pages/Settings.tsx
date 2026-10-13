@@ -21,11 +21,13 @@ export default function Settings() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <span className="ll-overline">{t("settings.overline")}</span>
-        <h1 className="mb-1 text-[28px] font-bold leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+        <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+          {t("settings.overline")}
+        </span>
+        <h1 className="mb-1 text-[28px] font-bold leading-tight font-display text-text">
           {t("settings.title")}
         </h1>
-        <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
+        <p className="text-[15px] text-text-muted">
           {t("settings.subtitle")}
         </p>
       </div>
@@ -40,13 +42,13 @@ export default function Settings() {
                 type="button"
                 aria-current={active ? "page" : undefined}
                 onClick={() => setTab(id)}
-                className="flex shrink-0 items-center gap-2 rounded-[var(--radius-md)] px-3 py-2.5 text-left text-[14px] font-medium transition-colors"
-                style={{
-                  background: active ? "var(--primary-soft)" : "transparent",
-                  color: active ? "var(--text)" : "var(--text-muted)",
-                }}
+                className={`flex shrink-0 items-center gap-2 rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors cursor-pointer ${
+                  active
+                    ? "bg-primary-soft text-text font-semibold"
+                    : "bg-transparent text-text-muted hover:bg-surface-hover hover:text-text"
+                }`}
               >
-                <i className={`ph ph-${icon} text-lg`} />
+                <i className={`ph ph-${icon} text-lg ${active ? "text-accent" : ""}`} />
                 {t(`settings.tabs.${id}`)}
               </button>
             );
@@ -57,9 +59,9 @@ export default function Settings() {
           {tab === "security" ? (
             <SecuritySection />
           ) : (
-            <p className="ll-card text-[14px]" style={{ color: "var(--text-muted)" }}>
+            <div className="p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-card)] text-sm text-text-muted">
               {t("settings.comingSoon")}
-            </p>
+            </div>
           )}
         </div>
       </div>

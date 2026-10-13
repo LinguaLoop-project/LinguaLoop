@@ -10,8 +10,8 @@ import {
   forgotPasswordSchema,
   type ForgotPasswordFormData,
 } from "../validations/authSchemas";
-import AuthSidePanel from "../components/AuthSidePanel";
-import AuthTopBar from "../components/AuthTopBar";
+import Button from "@/components/common/Button";
+import FormAlert from "@/components/common/FormAlert";
 
 const ForgotPassword = () => {
   const { t } = useTranslation("auth");
@@ -51,143 +51,100 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="auth-layout" id="auth">
-      {/* ── Left side hero panel ── */}
-      <AuthSidePanel />
+    <section className="flex flex-col gap-5 w-full">
+      {/* Back link */}
+      <Link
+        to="/auth/login"
+        className="inline-flex items-center gap-1.5 text-[13px] font-medium text-text-muted hover:text-text transition-colors w-fit"
+      >
+        <i className="ph ph-arrow-left text-base" />
+        <span>{t("forgot.backToLogin")}</span>
+      </Link>
 
-      {/* ── Right side main form ── */}
-      <main className="auth-main">
-        {/* Top header bar */}
-        <AuthTopBar />
+      {/* Header info */}
+      <div>
+        <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+          {t("forgot.overline")}
+        </span>
+        <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+          {t("forgot.title")}
+        </h1>
+        <p className="text-[14px] leading-relaxed text-text-muted">
+          {t("forgot.subtitle")}
+        </p>
+      </div>
 
-        {/* Form container */}
-        <div className="auth-box">
-          <section
-            className="auth-form"
-            style={{ width: "100%", maxWidth: 420 }}
+      {/* Success notification */}
+      {submittedEmail && (
+        <FormAlert variant="success">
+          <span className="text-[14px] leading-relaxed">
+            <Trans
+              t={t}
+              i18nKey="forgot.success"
+              values={{ email: submittedEmail }}
+              components={{ b: <b /> }}
+              shouldUnescape
+              tOptions={{ interpolation: { escapeValue: true } }}
+            />
+          </span>
+        </FormAlert>
+      )}
+
+      {/* API error */}
+      {apiError && (
+        <FormAlert variant="danger">{errorMessage(apiError)}</FormAlert>
+      )}
+
+      {/* Forgot password form */}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-5"
+        noValidate
+      >
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor={`${formId}-email`}
+            className="text-[13px] font-semibold text-text"
           >
-            {/* Back link */}
-            <Link to="/auth/login" className="ll-crumb">
-              <i className="ph ph-arrow-left text-base" />
-              <span>{t("forgot.backToLogin")}</span>
-            </Link>
-
-            {/* Header info */}
-            <div>
-              <span className="ll-overline">{t("forgot.overline")}</span>
-              <h1
-                style={{
-                  fontSize: 28,
-                  fontWeight: 700,
-                  fontFamily: "var(--font-display)",
-                  lineHeight: 1.2,
-                  marginBottom: 8,
-                }}
-              >
-                {t("forgot.title")}
-              </h1>
-              <p
-                className="text-[14px] leading-relaxed"
-                style={{ color: "var(--text-muted)" }}
-              >
-                {t("forgot.subtitle")}
-              </p>
-            </div>
-
-            {/* Success notification */}
-            {submittedEmail && (
-              <div className="ll-form-alert success" role="status">
-                <i className="ph ph-check-circle text-xl flex-shrink-0" />
-                <span className="text-[14px] leading-relaxed">
-                  <Trans
-                    t={t}
-                    i18nKey="forgot.success"
-                    values={{ email: submittedEmail }}
-                    components={{ b: <b /> }}
-                    shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
-                  />
-                </span>
-              </div>
-            )}
-
-            {/* API error */}
-            {apiError && (
-              <div className="ll-form-alert danger">
-                <i className="ph ph-warning-circle text-xl flex-shrink-0" />
-                <span>{errorMessage(apiError)}</span>
-              </div>
-            )}
-
-            {/* Forgot password form */}
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-5"
-              noValidate
-            >
-              <div className={`ll-field ${errors.email ? "bad" : ""}`}>
-                <label htmlFor={`${formId}-email`} className="ll-label">
-                  {t("forgot.email")}
-                </label>
-                <div className="ll-inp">
-                  <i className="ph ph-envelope-simple" />
-                  <input
-                    id={`${formId}-email`}
-                    type="email"
-                    autoComplete="email"
-                    placeholder={t("forgot.emailPlaceholder")}
-                    {...register("email")}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="ll-err">{errors.email.message}</p>
-                )}
-              </div>
-
-              {/* Submit button */}
-              <button
-                type="submit"
-                className="ll-btn primary lg full"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    {t("forgot.submitting")}
-                  </span>
-                ) : submittedEmail ? (
-                  t("forgot.resubmit")
-                ) : (
-                  t("forgot.submit")
-                )}
-              </button>
-            </form>
-          </section>
+            {t("forgot.email")}
+          </label>
+          <div
+            className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
+              errors.email
+                ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
+                : "border-border"
+            }`}
+          >
+            <i className="ph ph-envelope-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+            <input
+              id={`${formId}-email`}
+              type="email"
+              autoComplete="email"
+              placeholder={t("forgot.emailPlaceholder")}
+              className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
+              {...register("email")}
+            />
+          </div>
+          {errors.email && (
+            <p className="text-xs font-medium text-danger mt-0.5">
+              {errors.email.message}
+            </p>
+          )}
         </div>
 
-        {/* Footer */}
-        <p
-          className="auth-foot text-[13px] text-center"
-          style={{
-            color: "var(--text-muted)",
-            marginTop: "auto",
-            paddingTop: 16,
-          }}
+        {/* Submit button */}
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          fullWidth
+          disabled={loading}
+          isLoading={loading}
         >
-          © 2026 LinguaLoop ·{" "}
-          <button type="button" className="ll-link">
-            {t("footer.terms")}
-          </button>{" "}
-          ·{" "}
-          <button type="button" className="ll-link">
-            {t("footer.privacy")}
-          </button>{" "}
-          ·{" "}
-          <button type="button" className="ll-link">
-            {t("footer.help")}
-          </button>
-        </p>
-      </main>
-    </div>
+          {submittedEmail ? t("forgot.resubmit") : t("forgot.submit")}
+        </Button>
+      </form>
+    </section>
   );
 };
 

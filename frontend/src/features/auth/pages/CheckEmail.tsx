@@ -4,8 +4,8 @@ import { Trans, useTranslation } from "react-i18next";
 import { authService } from "../services/authService";
 import { errorMessage, toApiError } from "../errors";
 import type { ApiError } from "../types";
-import AuthSidePanel from "../components/AuthSidePanel";
-import AuthTopBar from "../components/AuthTopBar";
+import Button from "@/components/common/Button";
+import FormAlert from "@/components/common/FormAlert";
 
 const RESEND_COOLDOWN_MS = 60_000;
 
@@ -18,7 +18,9 @@ const CheckEmail = () => {
   const state = location.state as Partial<CheckEmailState> | null;
 
   // Vừa gửi thư thì phải chờ 60 giây mới cho gửi lại (AC-AUTH-31); thư chưa gửi được thì cho gửi ngay
-  const [cooldownEnd, setCooldownEnd] = useState(() => (state?.mailSent === true ? Date.now() + RESEND_COOLDOWN_MS : 0));
+  const [cooldownEnd, setCooldownEnd] = useState(() =>
+    state?.mailSent === true ? Date.now() + RESEND_COOLDOWN_MS : 0,
+  );
   const [now, setNow] = useState(() => Date.now());
   const [sending, setSending] = useState(false);
   const [resent, setResent] = useState(false);
@@ -61,90 +63,83 @@ const CheckEmail = () => {
       : "checkEmail.sent";
 
   return (
-    <div className="auth-layout" id="auth">
-      <AuthSidePanel />
+    <section className="flex flex-col gap-5 text-center items-center w-full">
+      <img
+        src="/loopi-hello.svg"
+        width={120}
+        height={120}
+        alt=""
+        draggable={false}
+        className="select-none pointer-events-none"
+      />
 
-      <main className="auth-main">
-        <AuthTopBar />
+      <div>
+        <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+          {t("checkEmail.overline")}
+        </span>
+        <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+          {t("checkEmail.title")}
+        </h1>
+        <p className="text-[15px] text-text-muted mt-1 leading-relaxed">
+          <Trans
+            t={t}
+            i18nKey={introKey}
+            values={{ email }}
+            components={{ b: <b className="text-text font-semibold" /> }}
+            shouldUnescape
+            tOptions={{ interpolation: { escapeValue: true } }}
+          />
+        </p>
+      </div>
 
-        <div className="auth-box">
-          <section className="auth-form text-center items-center" style={{ maxWidth: 440 }}>
-            <img src="/loopi-hello.svg" width={120} height={120} alt="" draggable={false} />
+      {mailFailed && (
+        <FormAlert variant="danger" className="text-left w-full">
+          {t("checkEmail.mailFailedAlert")}
+        </FormAlert>
+      )}
 
-            <div>
-              <span className="ll-overline">{t("checkEmail.overline")}</span>
-              <h1
-                style={{
-                  fontSize: 28,
-                  fontWeight: 700,
-                  fontFamily: "var(--font-display)",
-                  lineHeight: 1.2,
-                  marginBottom: 8,
-                }}
-              >
-                {t("checkEmail.title")}
-              </h1>
-              <p className="text-[15px]" style={{ color: "var(--text-muted)" }}>
-                <Trans
-                  t={t}
-                  i18nKey={introKey}
-                  values={{ email }}
-                  components={{ b: <b /> }}
-                  shouldUnescape
-                  tOptions={{ interpolation: { escapeValue: true } }}
-                />
-              </p>
-            </div>
+      {resent && !error && (
+        <FormAlert variant="success" className="text-left w-full">
+          {t("checkEmail.resent")}
+        </FormAlert>
+      )}
 
-            {mailFailed && (
-              <div className="ll-form-alert danger text-left" role="alert">
-                <i className="ph ph-warning-circle" style={{ fontSize: 20, flexShrink: 0 }} />
-                <span>{t("checkEmail.mailFailedAlert")}</span>
-              </div>
-            )}
+      {error && (
+        <FormAlert variant="danger" className="text-left w-full">
+          {errorMessage(error)}
+        </FormAlert>
+      )}
 
-            {resent && !error && (
-              <div className="ll-form-alert success text-left" role="status">
-                <i className="ph ph-check-circle" style={{ fontSize: 20, flexShrink: 0 }} />
-                <span>{t("checkEmail.resent")}</span>
-              </div>
-            )}
+      <Button
+        variant="ghost"
+        size="lg"
+        onClick={handleResend}
+        disabled={sending || secondsLeft > 0}
+        isLoading={sending}
+        leftIcon={<i className="ph ph-paper-plane-tilt" />}
+      >
+        {secondsLeft > 0
+          ? t("checkEmail.resendIn", { seconds: secondsLeft })
+          : t("checkEmail.resend")}
+      </Button>
 
-            {error && (
-              <div className="ll-form-alert danger text-left" role="alert">
-                <i className="ph ph-warning-circle" style={{ fontSize: 20, flexShrink: 0 }} />
-                <span>{errorMessage(error)}</span>
-              </div>
-            )}
-
-            <button
-              type="button"
-              className="ll-btn ghost lg"
-              onClick={handleResend}
-              disabled={sending || secondsLeft > 0}
-            >
-              <i className="ph ph-paper-plane-tilt" />
-              {sending
-                ? t("checkEmail.sending")
-                : secondsLeft > 0
-                  ? t("checkEmail.resendIn", { seconds: secondsLeft })
-                  : t("checkEmail.resend")}
-            </button>
-
-            <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
-              {t("checkEmail.wrongEmail")}{" "}
-              <Link to="/auth/register" className="ll-link">
-                {t("checkEmail.registerAgain")}
-              </Link>
-              {" · "}
-              <Link to="/auth/login" className="ll-link">
-                {t("checkEmail.backToLogin")}
-              </Link>
-            </p>
-          </section>
-        </div>
-      </main>
-    </div>
+      <p className="text-[13px] text-text-muted">
+        {t("checkEmail.wrongEmail")}{" "}
+        <Link
+          to="/auth/register"
+          className="text-accent hover:underline font-medium"
+        >
+          {t("checkEmail.registerAgain")}
+        </Link>
+        {" · "}
+        <Link
+          to="/auth/login"
+          className="text-accent hover:underline font-medium"
+        >
+          {t("checkEmail.backToLogin")}
+        </Link>
+      </p>
+    </section>
   );
 };
 
