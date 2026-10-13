@@ -17,6 +17,7 @@ import { Outlet } from "react-router-dom";
 import SvgSprites from "@/components/common/SvgSprites";
 import StudentSidebar from "./StudentSidebar";
 import StudentTopBar from "./StudentTopBar";
+import StudentMobileNav from "./StudentMobileNav";
 import Footer from "@/components/layouts/Footer";
 import { UpgradeModal } from "@/components/common/UpgradeModal";
 import { useQuotaStore } from "@/stores/quotaStore";
@@ -25,7 +26,6 @@ const StudentLayout = () => {
   const { showUpgradeModal, setShowUpgradeModal } = useQuotaStore();
 
   return (
-    // <AuthGuard allowedRoles={["STUDENT", "USER"]}>
     <>
       {/* Upgrade Modal */}
       <UpgradeModal
@@ -51,12 +51,12 @@ const StudentLayout = () => {
         <StudentSidebar />
 
         {/* Page area */}
-        <div className="min-w-0 flex flex-col justify-between ">
+        <div className="min-w-0 flex flex-col justify-between">
           <StudentTopBar />
 
           {/* Main content */}
           <main
-            className="p-4 md:px-6 md:pt-6 md:pb-20 min-w-0 overflow-x-clip"
+            className="p-3.5 sm:p-5 md:px-6 md:pt-6 pb-28 md:pb-20 min-w-0 overflow-x-clip"
             id="main-content"
           >
             <div className="max-w-[1200px] mx-auto w-full">
@@ -66,8 +66,10 @@ const StudentLayout = () => {
           <Footer />
         </div>
       </div>
+
+      {/* Mobile Navigation Dock (< 768px) */}
+      <StudentMobileNav />
     </>
-    // </AuthGuard>
   );
 };
 

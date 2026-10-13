@@ -6,11 +6,144 @@
     },
     "lessons": {
       "title": "Bài học",
-      "description": "Kho bài học đa phương tiện phân tầng từ A1 đến C2 kèm video, audio và phụ đề."
+      "description": "Kho bài học đa phương tiện phân tầng từ A1 đến C2 kèm video, audio và phụ đề.",
+      "overline": "Thư viện bài học",
+      "subtitle": "Nghe chép và shadowing trên video, audio thật · {{total}} bài · {{topics}} chủ đề",
+      "uxNotesBtn": "Ghi chú UX",
+      "uxNotesTitle": "Ghi chú UX — Thư viện bài học",
+      "uxNotes": {
+        "item1Title": "parroto.app/topics · YouTube:",
+        "item1Desc": "Thẻ bài hiển thị đầy đủ thông tin: trình độ CEFR, thời lượng, nguồn YouTube/Audio, lượt học, PRO.",
+        "item2Title": "Hai chế độ ngay trên thẻ:",
+        "item2Desc": "Nút Nghe chép / Shadowing ngay trên thẻ cho phép bấm thẳng vào luyện tập nhanh.",
+        "item3Title": "Tiếp tục học + gợi ý theo trình độ:",
+        "item3Desc": "“Tiếp tục học” đặt trên cùng. Hàng “Hợp trình độ B1” gợi ý từ bài kiểm tra trình độ.",
+        "item4Title": "Lọc & tìm:",
+        "item4Desc": "Tìm kiếm tức thì với debounce 300ms, lọc 3 cấp độ (Cơ bản/Trung cấp/Nâng cao), sắp xếp Phổ biến/Mới/Ngắn, và bộ lọc bài miễn phí.",
+        "item5Title": "Tạo bài từ YouTube:",
+        "item5Desc": "AI tách câu và ước lượng CEFR, bài duyệt trước khi công khai."
+      },
+      "ytCard": {
+        "title": "Tạo bài từ video YouTube",
+        "desc": "Dán link video tiếng Anh, AI tách câu, gắn mốc thời gian và ước lượng trình độ. Bài được duyệt trước khi hiện công khai.",
+        "placeholder": "https://youtube.com/watch?v=…",
+        "createBtn": "Tạo bài",
+        "toast": "AI đang tách câu và ước lượng trình độ… Bài sẽ chờ duyệt trước khi công khai"
+      },
+      "toolbar": {
+        "searchPlaceholder": "Tìm bài học theo tên…",
+        "searchAria": "Tìm bài học",
+        "levels": {
+          "label": "Trình độ",
+          "all": "Tất cả",
+          "basic": "Cơ bản",
+          "mid": "Trung cấp",
+          "adv": "Nâng cao"
+        },
+        "sorts": {
+          "label": "Sắp xếp",
+          "pop": "Phổ biến",
+          "new": "Mới",
+          "short": "Ngắn"
+        },
+        "freeOnly": "Chỉ bài miễn phí"
+      },
+      "continue": {
+        "title": "Tiếp tục học",
+        "dictationProgress": "Nghe chép · câu {{current}}/{{total}}",
+        "shadowingProgress": "Shadowing · câu {{current}}/{{total}}",
+        "resume": "Tiếp tục {{title}}"
+      },
+      "b1Section": {
+        "title": "Hợp trình độ B1 của bạn",
+        "hint": "Gợi ý từ bài kiểm tra trình độ"
+      },
+      "topicSec": {
+        "count": "{{count}} bài",
+        "viewAll": "Xem tất cả"
+      },
+      "filterResults": {
+        "title": "Kết quả",
+        "count": "{{count}} bài",
+        "resetBtn": "Xoá bộ lọc"
+      },
+      "empty": {
+        "title": "Không có bài nào khớp",
+        "desc": "Thử bỏ bớt điều kiện hoặc tìm bằng từ khác."
+      },
+      "card": {
+        "views": "Lượt học",
+        "dictation": "Nghe chép",
+        "shadowing": "Shadowing",
+        "done": "Đã làm {{percent}}%",
+        "notStarted": "Chưa học",
+        "aria": "Bài {{title}}",
+        "sentences": "{{count}} câu"
+      },
+      "error": {
+        "title": "Không tải được thư viện bài học",
+        "desc": "Có lỗi khi kết nối tới máy chủ. Vui lòng thử lại.",
+        "retry": "Thử lại"
+      }
     },
     "lessonDetail": {
       "title": "Chi tiết bài học",
-      "description": "Trải nghiệm học tương tác, nghe transcript và làm bài tập củng cố."
+      "description": "Trải nghiệm học tương tác, nghe transcript và làm bài tập củng cố.",
+      "sentencesCount": "{{count}} câu",
+      "viewsCount": "{{count}} lượt học",
+      "recentAdded": "Thêm gần đây",
+      "descriptionFallback": "Bài thuộc chủ đề {{topic}}, dài {{duration}}, cắt sẵn {{count}} câu kèm mốc thời gian. Chọn một chế độ để luyện; tiến độ mỗi chế độ được lưu riêng.",
+      "dictation": {
+        "title": "Nghe chép",
+        "desc": "Nghe từng câu rồi gõ lại. Chấm từng từ, gắn nhãn loại lỗi.",
+        "progress": "{{current}}/{{total}} câu",
+        "notStarted": "Chưa bắt đầu",
+        "start": "Bắt đầu"
+      },
+      "shadowing": {
+        "title": "Shadowing",
+        "desc": "Luyện nói theo mẫu câu. Nhận diện ngữ điệu và phát âm.",
+        "progress": "{{current}}/{{total}} câu",
+        "notStarted": "Chưa bắt đầu",
+        "start": "Bắt đầu"
+      },
+      "transcript": {
+        "title": "Transcript chi tiết",
+        "sentencesInLesson": "Các câu trong bài",
+        "hide": "Ẩn transcript",
+        "view": "Hiện transcript",
+        "note": "Transcript ẩn sẵn để không lộ đáp án khi nghe chép.",
+        "sentence": "Câu {{index}}",
+        "listen": "Nghe câu này",
+        "shadow": "Shadowing câu này",
+        "dictate": "Nghe chép câu này",
+        "empty": "Chưa có dữ liệu câu cho bài học này.",
+        "showMore": "Xem thêm {{count}} câu",
+        "collapse": "Thu gọn",
+        "showingCount": "Đang hiện {{visible}}/{{total}} câu"
+      },
+      "notFoundTitle": "Không tìm thấy bài học",
+      "notFoundDesc": "Bài học bạn đang tìm không tồn tại hoặc đã bị gỡ.",
+      "backToLibrary": "Quay lại Thư viện",
+      "playVideo": "Phát video",
+      "aside": {
+        "progress": "Tiến độ của bạn",
+        "studyTime": "Thời gian học",
+        "vocab": "Từ vựng trong bài",
+        "saveAll": "Lưu tất cả",
+        "notes": "Ghi chú của tôi",
+        "noNotes": "Chưa có ghi chú. Trong lúc luyện, bấm N để ghi chú cho câu đang học.",
+        "add": "Thêm"
+      },
+      "related": {
+        "title": "Bài cùng chủ đề",
+        "viewTopic": "Xem cả chủ đề",
+        "exploreLessons": "Khám phá thêm bài học"
+      },
+      "errorTitle": "Không tải được bài học",
+      "errorDesc": "Có lỗi khi kết nối tới máy chủ. Vui lòng thử lại.",
+      "proRequiredTitle": "Bài học dành cho gói Pro",
+      "proRequiredDesc": "Nâng cấp lên gói Pro để xem transcript và luyện tập bài này."
     },
     "dictation": {
       "title": "Nghe chép chính tả",
@@ -42,7 +175,32 @@
     },
     "topicDetail": {
       "title": "Chi tiết chủ đề",
-      "description": "Danh sách các bài học và bộ từ vựng thuộc chủ đề này."
+      "description": "Danh sách các bài học và bộ từ vựng thuộc chủ đề này.",
+      "topicPrefix": "Chủ đề",
+      "completedLabel": "Bạn đã hoàn thành",
+      "completedCount": "{{done}}/{{total}} bài",
+      "levels": {
+        "label": "Trình độ",
+        "all": "Mọi trình độ",
+        "basic": "A1–A2",
+        "mid": "B1–B2",
+        "adv": "C1–C2"
+      },
+      "states": {
+        "label": "Trạng thái",
+        "all": "Tất cả",
+        "todo": "Chưa học",
+        "doing": "Đang học",
+        "done": "Đã xong"
+      },
+      "showingCount": "Đang hiện {{count}} / {{total}} bài",
+      "empty": {
+        "title": "Chưa có bài nào ở mục này",
+        "desc": "Đổi trình độ hoặc trạng thái để xem thêm bài."
+      },
+      "loadMore": "Xem thêm {{count}} bài",
+      "notFoundTitle": "Không tìm thấy chủ đề",
+      "notFoundDesc": "Chủ đề bạn đang tìm không tồn tại hoặc chưa được công khai."
     },
     "mywords": {
       "title": "Từ & câu đã lưu",

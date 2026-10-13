@@ -10,12 +10,10 @@
  *   .rail-foot → phần cuối sidebar (upsell card)
  */
 
-import { useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
-
-
+import { useSpotlight } from "@/hooks/useSpotlight";
 
 type NavItem = {
   id: string;
@@ -32,14 +30,35 @@ const STUDENT_NAV: NavItem[] = [
 
 const LEARN_NAV: NavItem[] = [
   { id: "lessons", icon: "books", labelKey: "lessons", to: "/student/lessons" },
-  { id: "dictation", icon: "headphones", labelKey: "dictation", to: "/student/dictation" },
-  { id: "shadowing", icon: "microphone", labelKey: "shadowing", to: "/student/shadowing" },
+  {
+    id: "dictation",
+    icon: "headphones",
+    labelKey: "dictation",
+    to: "/student/dictation",
+  },
+  {
+    id: "shadowing",
+    icon: "microphone",
+    labelKey: "shadowing",
+    to: "/student/shadowing",
+  },
   { id: "vocab", icon: "cards", labelKey: "vocab", to: "/student/vocab" },
 ];
 
 const PERSONAL_NAV: NavItem[] = [
-  { id: "mywords", icon: "bookmarks-simple", labelKey: "mywords", to: "/student/mywords", badge: 8 },
-  { id: "weakness", icon: "target", labelKey: "weakness", to: "/student/weakness" },
+  {
+    id: "mywords",
+    icon: "bookmarks-simple",
+    labelKey: "mywords",
+    to: "/student/mywords",
+    badge: 8,
+  },
+  {
+    id: "weakness",
+    icon: "target",
+    labelKey: "weakness",
+    to: "/student/weakness",
+  },
   { id: "test", icon: "exam", labelKey: "test", to: "/student/test" },
 ];
 
@@ -52,7 +71,7 @@ function NavItem({ item }: { item: NavItem }) {
       to={item.to}
       end={item.id === "today"}
       className={({ isActive }) =>
-        `relative flex items-center gap-3 w-full min-h-[44px] px-3 py-2.5 rounded-md font-medium text-[15px] transition-colors duration-150 ${
+        `relative flex items-center gap-3 w-full min-h-[44px] px-3 py-2.5 rounded-md font-medium text-base transition-colors duration-150 ${
           isActive
             ? "bg-primary-soft text-text before:content-[''] before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-0.5 before:rounded-sm before:bg-primary before:shadow-[var(--glow-primary)]"
             : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_i]:translate-x-0.5"
@@ -84,22 +103,10 @@ export default function StudentSidebar() {
   const { t } = useTranslation("layout");
   const navigate = useNavigate();
   const isPro = false; // TODO: thêm field plan vào User type khi backend ready
-  const proCardRef = useRef<HTMLDivElement>(null);
-
-  const handleSpotlightMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = proCardRef.current;
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    card.style.setProperty("--mx", `${Math.round(e.clientX - rect.left)}px`);
-    card.style.setProperty("--my", `${Math.round(e.clientY - rect.top)}px`);
-  };
-
-  const handleSpotlightLeave = () => {
-    const card = proCardRef.current;
-    if (!card) return;
-    card.style.setProperty("--mx", "-999px");
-    card.style.setProperty("--my", "-999px");
-  };
+  const {
+    onMouseMove: handleSpotlightMove,
+    onMouseLeave: handleSpotlightLeave,
+  } = useSpotlight();
 
   return (
     <aside
@@ -109,7 +116,7 @@ export default function StudentSidebar() {
       {/* Brand / Logo */}
       <button
         className="flex items-center gap-2.5 px-1 pt-1 pb-6 text-left border-0 bg-transparent cursor-pointer group select-none"
-        onClick={() => navigate("/student")}
+        onClick={() => navigate("/")}
         aria-label={t("student.sidebar.homeLabel")}
       >
         <div className="shrink-0 transition-transform duration-300 group-hover:scale-105">
@@ -126,7 +133,7 @@ export default function StudentSidebar() {
       ))}
 
       {/* Nhóm: Học */}
-      <div className="text-[11px] font-semibold tracking-[0.12em] uppercase text-text-subtle px-3 pt-5 pb-1.5 font-body">
+      <div className="text-xs font-bold tracking-[0.12em] uppercase text-text-subtle px-3 pt-5 pb-1.5 font-body">
         {t("student.sidebar.groups.learn")}
       </div>
       {LEARN_NAV.map((item) => (
@@ -134,7 +141,7 @@ export default function StudentSidebar() {
       ))}
 
       {/* Nhóm: Của tôi */}
-      <div className="text-[11px] font-semibold tracking-[0.12em] uppercase text-text-subtle px-3 pt-5 pb-1.5 font-body">
+      <div className="text-xs font-bold tracking-[0.12em] uppercase text-text-subtle px-3 pt-5 pb-1.5 font-body">
         {t("student.sidebar.groups.mine")}
       </div>
       {PERSONAL_NAV.map((item) => (
@@ -145,7 +152,6 @@ export default function StudentSidebar() {
       {!isPro && (
         <div className="mt-auto pt-4">
           <div
-            ref={proCardRef}
             className="relative p-4 rounded-lg border border-[color-mix(in_srgb,var(--primary)_35%,transparent)] shadow-[var(--shadow-card)] overflow-hidden transition-all duration-200"
             onMouseMove={handleSpotlightMove}
             onMouseLeave={handleSpotlightLeave}
@@ -155,19 +161,22 @@ export default function StudentSidebar() {
             }}
           >
             <span
-              className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-sm text-[11px] font-bold tracking-[0.06em] text-white select-none"
+              className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-sm text-xs font-bold tracking-[0.06em] text-white select-none"
               style={{
                 background: "var(--btn-primary)",
                 boxShadow: "0 2px 8px rgba(139, 92, 246, 0.35)",
               }}
             >
-              <i className="ph-fill ph-crown-simple text-[13px]" aria-hidden="true" />
+              <i
+                className="ph-fill ph-crown-simple text-[13px]"
+                aria-hidden="true"
+              />
               PRO
             </span>
-            <b className="block mt-2.5 text-[17px] font-bold leading-snug text-text">
+            <b className="block mt-2.5 text-lg font-bold leading-snug text-text">
               {t("student.sidebar.pro.price")}
             </b>
-            <p className="text-[13px] leading-relaxed text-text-muted my-1 mb-3">
+            <p className="text-sm leading-relaxed text-text-muted my-1 mb-3">
               {t("student.sidebar.pro.desc")}
             </p>
             <button

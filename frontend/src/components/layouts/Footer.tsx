@@ -30,10 +30,14 @@ export default function Footer() {
     <footer className="bg-[var(--bg-elevated)] border-t border-[var(--border)] pt-16 pb-12 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Main Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8 mb-14">
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8 mb-14">
           {/* Brand Info (2 cols on large screen) */}
           <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="inline-flex items-center gap-2.5 group" aria-label={t("footer.homeLabel")}>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2.5 group"
+              aria-label={t("footer.homeLabel")}
+            >
               <Logo size={36} showText={true} />
             </Link>
 
@@ -111,31 +115,46 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <Link to="/dictation" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link
+                  to="/dictation"
+                  className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
+                >
                   <Headphones className="w-3.5 h-3.5 text-purple-400 group-hover:scale-110 transition-transform" />
                   <span>{t("footer.practice.dictation")}</span>
                 </Link>
               </li>
               <li>
-                <Link to="/shadowing" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link
+                  to="/shadowing"
+                  className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
+                >
                   <Mic className="w-3.5 h-3.5 text-pink-400 group-hover:scale-110 transition-transform" />
                   <span>{t("footer.practice.shadowing")}</span>
                 </Link>
               </li>
               <li>
-                <Link to="/vocabulary" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link
+                  to="/vocabulary"
+                  className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
+                >
                   <BookOpen className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
                   <span>{t("footer.practice.vocab")}</span>
                 </Link>
               </li>
               <li>
-                <Link to="/practice-english-speaking" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link
+                  to="/practice-english-speaking"
+                  className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
+                >
                   <MessageSquare className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
                   <span>{t("footer.practice.speaking")}</span>
                 </Link>
               </li>
               <li>
-                <Link to="/exams/ielts" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link
+                  to="/exams/ielts"
+                  className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
+                >
                   <Award className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition-transform" />
                   <span>{t("footer.practice.ielts")}</span>
                 </Link>
@@ -150,25 +169,37 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <Link to="/mywords" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link
+                  to="/mywords"
+                  className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
+                >
                   <Bookmark className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
                   <span>{t("footer.personal.mywords")}</span>
                 </Link>
               </li>
               <li>
-                <Link to="/weakness" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link
+                  to="/weakness"
+                  className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
+                >
                   <TrendingUp className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
                   <span>{t("footer.personal.weakness")}</span>
                 </Link>
               </li>
               <li>
-                <Link to="/settings" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link
+                  to="/settings"
+                  className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
+                >
                   <User className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform" />
                   <span>{t("footer.personal.account")}</span>
                 </Link>
               </li>
               <li>
-                <Link to="/settings?id=plan" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link
+                  to="/settings?id=plan"
+                  className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
+                >
                   <Crown className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
                   <span>{t("footer.personal.upgrade")}</span>
                 </Link>
@@ -216,7 +247,10 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <Link to="/brand" className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link
+                  to="/brand"
+                  className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
+                >
                   <Sparkles className="w-3.5 h-3.5 text-fuchsia-400 group-hover:scale-110 transition-transform" />
                   <span>{t("footer.aboutUs.brand")}</span>
                 </Link>
@@ -246,7 +280,10 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             {/* System Status Indicator */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+              <span
+                className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
+                aria-hidden="true"
+              />
               <span>{t("footer.status")}</span>
             </div>
 

@@ -35,6 +35,18 @@
   --radius-md: 12px;
   --radius-lg: 20px;
   --radius-xl: 28px;
+
+  --animate-float: float 7s ease-in-out infinite;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(-12px) rotate(-6deg);
+    }
+    50% {
+      transform: translateY(12px) rotate(6deg);
+    }
+  }
 }
 
 
@@ -150,6 +162,14 @@
 }
 
 @layer utilities {
+  /* ── Background gradients ── */
+  .bg-gradient-primary {
+    background-image: var(--gradient-primary);
+  }
+  .bg-gradient-text {
+    background-image: var(--gradient-text);
+  }
+
   /* ── Text gradient ── */
   .text-gradient {
     background: var(--gradient-text);

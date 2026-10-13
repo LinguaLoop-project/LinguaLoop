@@ -22,12 +22,12 @@ export function LogoMark({ size = 32, variant = "full" }: Pick<LogoProps, "size"
   const bw = small ? 11 : size <= 48 ? 9 : 7;
 
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" aria-hidden="true" className="ll-mark">
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" aria-hidden="true" className="shrink-0">
       <defs>
         <linearGradient id={`ll-g-${id}`} x1="20" y1="88" x2="80" y2="12" gradientUnits="userSpaceOnUse">
-          <stop offset="0" className="ll-stop-1" />
-          <stop offset="0.55" className="ll-stop-2" />
-          <stop offset="1" className="ll-stop-3" />
+          <stop offset="0" stopColor="var(--ll-s1, #8b5cf6)" />
+          <stop offset="0.55" stopColor="var(--ll-s2, #c084fc)" />
+          <stop offset="1" stopColor="var(--ll-s3, #f0abfc)" />
         </linearGradient>
       </defs>
       <path d={ARC} stroke={`url(#ll-g-${id})`} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
@@ -41,11 +41,14 @@ export function LogoMark({ size = 32, variant = "full" }: Pick<LogoProps, "size"
 
 export default function Logo({ size = 32, showText = true, variant = "full", className = "" }: LogoProps) {
   return (
-    <span className={`ll-logo ${className}`} role="img" aria-label="LinguaLoop">
+    <span className={`inline-flex items-center gap-[0.35em] no-underline select-none ${className}`} role="img" aria-label="LinguaLoop">
       <LogoMark size={size} variant={variant} />
       {showText && (
-        <span className="ll-wordmark font-display" style={{ fontSize: size * 0.78 }}>
-          Lingua<span className="ll-loop">Loop</span>
+        <span
+          className="font-display font-bold tracking-[-0.035em] leading-none text-text"
+          style={{ fontSize: size * 0.78 }}
+        >
+          Lingua<span className="bg-gradient-primary bg-clip-text text-transparent">Loop</span>
         </span>
       )}
     </span>
