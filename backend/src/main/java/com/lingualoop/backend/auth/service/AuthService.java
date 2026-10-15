@@ -9,11 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.lingualoop.backend.auth.dto.AuthResponse;
-import com.lingualoop.backend.auth.dto.AuthSession;
-import com.lingualoop.backend.auth.dto.LoginRequest;
-import com.lingualoop.backend.auth.dto.RegisterRequest;
-import com.lingualoop.backend.auth.dto.RegisterResponse;
+import com.lingualoop.backend.auth.dto.request.LoginRequest;
+import com.lingualoop.backend.auth.dto.request.RegisterRequest;
+import com.lingualoop.backend.auth.dto.response.AuthResponse;
+import com.lingualoop.backend.auth.dto.response.RegisterResponse;
+import com.lingualoop.backend.auth.exception.RefreshInvalidException;
 import com.lingualoop.backend.auth.service.LoginAttemptService.FailureResult;
 import com.lingualoop.backend.auth.service.RefreshTokenService.Rotation;
 import com.lingualoop.backend.auth.service.RefreshTokenService.Session;

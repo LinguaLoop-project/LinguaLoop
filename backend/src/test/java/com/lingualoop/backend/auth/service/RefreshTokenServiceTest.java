@@ -17,9 +17,11 @@ import org.springframework.context.annotation.Import;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.auth.entity.RefreshToken;
+import com.lingualoop.backend.auth.exception.RefreshInvalidException;
 import com.lingualoop.backend.auth.repository.RefreshTokenRepository;
 import com.lingualoop.backend.auth.service.RefreshTokenService.Rotation;
 import com.lingualoop.backend.auth.service.RefreshTokenService.Session;
+import com.lingualoop.backend.auth.util.SecureTokens;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;

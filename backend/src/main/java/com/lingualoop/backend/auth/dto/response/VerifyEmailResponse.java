@@ -1,4 +1,4 @@
-package com.lingualoop.backend.auth.dto;
+package com.lingualoop.backend.auth.dto.response;
 
 /** Kết quả xác thực để UI hiện đúng thông báo: vừa xác thực xong, hay email đã được xác thực từ trước. */
 public record VerifyEmailResponse(Result result) {

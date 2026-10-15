@@ -1,4 +1,4 @@
-package com.lingualoop.backend.auth.dto;
+package com.lingualoop.backend.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 

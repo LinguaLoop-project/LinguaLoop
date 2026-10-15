@@ -28,6 +28,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.lingualoop.backend.auth.entity.EmailToken;
 import com.lingualoop.backend.auth.mail.AuthMailDispatcher;
 import com.lingualoop.backend.auth.repository.EmailTokenRepository;
+import com.lingualoop.backend.auth.util.SecureTokens;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.config.AuthProperties;

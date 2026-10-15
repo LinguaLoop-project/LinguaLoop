@@ -17,10 +17,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import com.lingualoop.backend.auth.dto.AuthSession;
 import com.lingualoop.backend.auth.google.GoogleCodeExchanger;
 import com.lingualoop.backend.auth.google.GoogleIdentity;
-import com.lingualoop.backend.auth.google.GoogleUnavailableException;
+import com.lingualoop.backend.auth.exception.GoogleUnavailableException;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.security.Role;

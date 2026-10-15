@@ -37,7 +37,7 @@ import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.auth.entity.EmailToken;
 import com.lingualoop.backend.auth.mail.AuthMailSender;
 import com.lingualoop.backend.auth.repository.EmailTokenRepository;
-import com.lingualoop.backend.auth.service.SecureTokens;
+import com.lingualoop.backend.auth.util.SecureTokens;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;
 import com.lingualoop.backend.user.dto.UserAccount;

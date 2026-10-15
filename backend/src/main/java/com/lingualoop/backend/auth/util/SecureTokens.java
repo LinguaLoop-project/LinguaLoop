@@ -1,4 +1,4 @@
-package com.lingualoop.backend.auth.service;
+package com.lingualoop.backend.auth.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

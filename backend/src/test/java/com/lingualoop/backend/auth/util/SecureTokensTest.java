@@ -1,4 +1,4 @@
-package com.lingualoop.backend.auth.service;
+package com.lingualoop.backend.auth.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

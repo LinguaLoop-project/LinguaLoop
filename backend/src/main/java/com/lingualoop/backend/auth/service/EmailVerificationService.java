@@ -9,11 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.lingualoop.backend.auth.dto.VerifyEmailResponse;
+import com.lingualoop.backend.auth.dto.response.VerifyEmailResponse;
 import com.lingualoop.backend.auth.entity.EmailToken;
 import com.lingualoop.backend.auth.mail.AuthMailDispatcher;
 import com.lingualoop.backend.auth.mail.AuthMailSender;
 import com.lingualoop.backend.auth.repository.EmailTokenRepository;
+import com.lingualoop.backend.auth.util.SecureTokens;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.config.AuthProperties;

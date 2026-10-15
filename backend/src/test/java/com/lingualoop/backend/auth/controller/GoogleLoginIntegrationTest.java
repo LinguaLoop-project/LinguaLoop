@@ -30,7 +30,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.auth.google.GoogleCodeExchanger;
 import com.lingualoop.backend.auth.google.GoogleIdentity;
-import com.lingualoop.backend.auth.google.GoogleUnavailableException;
+import com.lingualoop.backend.auth.exception.GoogleUnavailableException;
 import com.lingualoop.backend.auth.service.RefreshTokenService;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;

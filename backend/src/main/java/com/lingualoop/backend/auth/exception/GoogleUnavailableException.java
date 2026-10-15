@@ -1,4 +1,4 @@
-package com.lingualoop.backend.auth.google;
+package com.lingualoop.backend.auth.exception;
 
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;

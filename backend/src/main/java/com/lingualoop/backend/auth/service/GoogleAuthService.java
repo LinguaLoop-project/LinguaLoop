@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import com.lingualoop.backend.auth.dto.AuthSession;
 import com.lingualoop.backend.auth.google.GoogleCodeExchanger;
 import com.lingualoop.backend.auth.google.GoogleIdentity;
 import com.lingualoop.backend.common.exception.BusinessException;
