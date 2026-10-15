@@ -1,4 +1,4 @@
-package com.lingualoop.backend.lesson;
+package com.lingualoop.backend.lesson.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

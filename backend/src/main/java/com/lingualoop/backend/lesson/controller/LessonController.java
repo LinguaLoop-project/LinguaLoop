@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lingualoop.backend.common.response.ApiResponse;
 import com.lingualoop.backend.common.response.PageResponse;
-import com.lingualoop.backend.lesson.dto.LessonDetail;
-import com.lingualoop.backend.lesson.dto.LessonSummary;
-import com.lingualoop.backend.lesson.dto.LibraryOverview;
-import com.lingualoop.backend.lesson.dto.SentenceResponse;
+import com.lingualoop.backend.lesson.dto.response.LessonDetailResponse;
+import com.lingualoop.backend.lesson.dto.response.LessonSummaryResponse;
+import com.lingualoop.backend.lesson.dto.response.LibraryOverviewResponse;
+import com.lingualoop.backend.lesson.dto.response.SentenceResponse;
 import com.lingualoop.backend.lesson.enums.LessonState;
 import com.lingualoop.backend.lesson.service.LessonQueryService;
 import com.lingualoop.backend.security.CurrentUserId;
@@ -34,7 +34,7 @@ public class LessonController {
      *              (TODO: tham số {@code mode} chưa hỗ trợ cho tới khi có dữ liệu luyện tập)
      */
     @GetMapping
-    public ApiResponse<PageResponse<LessonSummary>> searchLessons(
+    public ApiResponse<PageResponse<LessonSummaryResponse>> searchLessons(
             @CurrentUserId UUID userId,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String topic,
@@ -47,12 +47,12 @@ public class LessonController {
     }
 
     @GetMapping("/overview")
-    public ApiResponse<LibraryOverview> getOverview(@CurrentUserId UUID userId) {
+    public ApiResponse<LibraryOverviewResponse> getOverview(@CurrentUserId UUID userId) {
         return ApiResponse.ok(lessonQueryService.getOverview(userId));
     }
 
     @GetMapping("/{slug}")
-    public ApiResponse<LessonDetail> getLessonDetail(@CurrentUserId UUID userId, @PathVariable String slug) {
+    public ApiResponse<LessonDetailResponse> getLessonDetail(@CurrentUserId UUID userId, @PathVariable String slug) {
         return ApiResponse.ok(lessonQueryService.getLessonDetail(slug, userId));
     }
 

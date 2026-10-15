@@ -1,4 +1,4 @@
-package com.lingualoop.backend.lesson.dto;
+package com.lingualoop.backend.lesson.dto.response;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.lingualoop.backend.lesson;
+package com.lingualoop.backend.lesson.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;

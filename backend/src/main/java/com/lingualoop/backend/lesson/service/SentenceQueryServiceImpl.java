@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class SentenceQueryServiceImpl implements SentenceQueryService {
+class SentenceQueryServiceImpl implements SentenceQueryService {
 
     private final LessonRepository lessonRepository;
     private final SentenceRepository sentenceRepository;

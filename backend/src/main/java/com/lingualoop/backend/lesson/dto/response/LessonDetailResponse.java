@@ -1,9 +1,9 @@
-package com.lingualoop.backend.lesson.dto;
+package com.lingualoop.backend.lesson.dto.response;
 
 import java.util.List;
 import java.util.UUID;
 
-public record LessonDetail(
+public record LessonDetailResponse(
     UUID id,
     String slug,
     String title,
@@ -18,7 +18,7 @@ public record LessonDetail(
     boolean pro,
     boolean locked,
     Long sentenceCount,
-    ModeProgress progress,
+    ModeProgressResponse progress,
     TopicResponse topic,
-    List<LessonSummary> relatedLessons
+    List<LessonSummaryResponse> relatedLessons
 ) {}

@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-public class LessonProgressServiceImpl implements LessonProgressService {
+class LessonProgressServiceImpl implements LessonProgressService {
 
     @Override
     public void recordActivity(UUID userId, UUID lessonId, PracticeMode mode, int timeSpentSec) {

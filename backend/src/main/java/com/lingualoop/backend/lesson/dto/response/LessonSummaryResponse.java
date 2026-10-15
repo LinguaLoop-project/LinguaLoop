@@ -1,8 +1,8 @@
-package com.lingualoop.backend.lesson.dto;
+package com.lingualoop.backend.lesson.dto.response;
 
 import java.util.UUID;
 
-public record LessonSummary(
+public record LessonSummaryResponse(
     UUID id,
     String slug,
     String title,
@@ -15,5 +15,5 @@ public record LessonSummary(
     boolean pro,
     boolean locked,
     Long sentenceCount,
-    ModeProgress progress
+    ModeProgressResponse progress
 ) {}
