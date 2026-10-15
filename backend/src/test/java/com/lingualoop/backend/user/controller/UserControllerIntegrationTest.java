@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 @SpringBootTest
@@ -36,7 +36,7 @@ class UserControllerIntegrationTest {
 
     @Test
     void me_withValidToken_returnsProfile() throws Exception {
-        UserAccount account = userAccountService.createLocal(
+        UserAccountView account = userAccountService.createLocal(
                 "me-" + UUID.randomUUID() + "@x.com", "Minh", "bcrypt-hash");
 
         mockMvc.perform(get("/api/v1/users/me").header(HttpHeaders.AUTHORIZATION, bearer(account.id())))

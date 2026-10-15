@@ -18,7 +18,7 @@ import com.lingualoop.backend.auth.util.SecureTokens;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.config.AuthProperties;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class EmailVerificationService {
     }
 
     /** Gửi thư xác thực; lỗi gửi chỉ được ghi log và trả {@code false}, không làm hỏng luồng gọi. */
-    public boolean trySendMail(UserAccount account, String rawToken) {
+    public boolean trySendMail(UserAccountView account, String rawToken) {
         try {
             authMailSender.sendVerifyEmail(account.email(), account.uiLanguage(), rawToken);
             return true;
@@ -66,7 +66,7 @@ public class EmailVerificationService {
         EmailToken token = emailTokenRepository
                 .findByTokenHashAndPurpose(SecureTokens.sha256(rawToken), EmailToken.VERIFY_EMAIL)
                 .orElseThrow(() -> new BusinessException(ErrorCode.AUTH_LINK_INVALID));
-        UserAccount account = userAccountService.findById(token.getUserId())
+        UserAccountView account = userAccountService.findById(token.getUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.AUTH_LINK_INVALID));
         if (account.emailVerified()) {
             return VerifyEmailResponse.Result.ALREADY_VERIFIED;
@@ -91,11 +91,11 @@ public class EmailVerificationService {
     }
 
     private Optional<PendingMail> prepareResend(String email) {
-        Optional<UserAccount> found = userAccountService.findByEmail(email);
+        Optional<UserAccountView> found = userAccountService.findByEmail(email);
         if (found.isEmpty() || found.get().emailVerified() || !found.get().hasPassword()) {
             return Optional.empty();
         }
-        UserAccount account = found.get();
+        UserAccountView account = found.get();
         Instant now = Instant.now(clock);
         boolean tooSoon = emailTokenRepository
                 .findFirstByUserIdAndPurposeOrderByCreatedAtDesc(account.id(), EmailToken.VERIFY_EMAIL)
@@ -108,6 +108,6 @@ public class EmailVerificationService {
         return Optional.of(new PendingMail(account, issueToken(account.id())));
     }
 
-    private record PendingMail(UserAccount account, String rawToken) {
+    private record PendingMail(UserAccountView account, String rawToken) {
     }
 }

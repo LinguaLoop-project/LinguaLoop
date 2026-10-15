@@ -33,7 +33,7 @@ import com.lingualoop.backend.lesson.repository.SentenceRepository;
 import com.lingualoop.backend.lesson.repository.TopicRepository;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import jakarta.persistence.EntityManagerFactory;
@@ -461,7 +461,7 @@ class LessonLibraryIntegrationTest {
     }
 
     private UUID newUser() {
-        UserAccount account = userAccountService.createLocal(
+        UserAccountView account = userAccountService.createLocal(
                 "lesson-" + UUID.randomUUID() + "@x.com", "Lâm", "bcrypt-hash");
         return account.id();
     }

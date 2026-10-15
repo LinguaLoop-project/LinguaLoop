@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.common.exception.NotFoundException;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
@@ -25,7 +25,7 @@ class UserAccountServiceTest {
     void createLocal_thenFindByEmailIgnoringCase() {
         String email = "svc-" + UUID.randomUUID() + "@x.com";
 
-        UserAccount created = service.createLocal(email, "Lan", "hash");
+        UserAccountView created = service.createLocal(email, "Lan", "hash");
 
         assertThat(created.emailVerified()).isFalse();
         assertThat(created.disabled()).isFalse();
@@ -37,7 +37,7 @@ class UserAccountServiceTest {
 
     @Test
     void markEmailVerified_setsFlag() {
-        UserAccount created = service.createLocal("v-" + UUID.randomUUID() + "@x.com", "Vy", "hash");
+        UserAccountView created = service.createLocal("v-" + UUID.randomUUID() + "@x.com", "Vy", "hash");
 
         service.markEmailVerified(created.id());
 
@@ -52,7 +52,7 @@ class UserAccountServiceTest {
     void createFromGoogle_thenFindByGoogleSub() {
         String sub = uniqueSub();
 
-        UserAccount created = service.createFromGoogle(sub, "g-" + UUID.randomUUID() + "@x.com", "Gia", "https://img/g.png");
+        UserAccountView created = service.createFromGoogle(sub, "g-" + UUID.randomUUID() + "@x.com", "Gia", "https://img/g.png");
 
         assertThat(created.emailVerified()).isTrue();
         assertThat(created.hasPassword()).isFalse();
@@ -65,7 +65,7 @@ class UserAccountServiceTest {
 
     @Test
     void createFromGoogle_nameBlank_usesEmailLocalPart() {
-        UserAccount created = service.createFromGoogle(uniqueSub(), "hoa.tran." + UUID.randomUUID() + "@x.com", "  ", null);
+        UserAccountView created = service.createFromGoogle(uniqueSub(), "hoa.tran." + UUID.randomUUID() + "@x.com", "  ", null);
 
         assertThat(created.displayName()).startsWith("hoa.tran.");
         assertThat(created.displayName()).doesNotContain("@");
@@ -73,19 +73,19 @@ class UserAccountServiceTest {
 
     @Test
     void createFromGoogle_longName_isCutTo50Chars() {
-        UserAccount created = service.createFromGoogle(uniqueSub(), "long-" + UUID.randomUUID() + "@x.com", "N".repeat(80), null);
+        UserAccountView created = service.createFromGoogle(uniqueSub(), "long-" + UUID.randomUUID() + "@x.com", "N".repeat(80), null);
 
         assertThat(created.displayName()).hasSize(50);
     }
 
     @Test
     void linkGoogle_unverifiedLocalAccount_clearsPasswordAndReportsIt() {
-        UserAccount local = service.createLocal("lk-" + UUID.randomUUID() + "@x.com", "Lan", "hash");
+        UserAccountView local = service.createLocal("lk-" + UUID.randomUUID() + "@x.com", "Lan", "hash");
         String sub = uniqueSub();
 
         boolean passwordCleared = service.linkGoogle(local.id(), sub);
 
-        UserAccount after = service.findById(local.id()).orElseThrow();
+        UserAccountView after = service.findById(local.id()).orElseThrow();
         assertThat(passwordCleared).isTrue();
         assertThat(after.hasPassword()).isFalse();
         assertThat(after.emailVerified()).isTrue();
@@ -95,7 +95,7 @@ class UserAccountServiceTest {
 
     @Test
     void linkGoogle_verifiedLocalAccount_keepsPassword() {
-        UserAccount local = service.createLocal("lv-" + UUID.randomUUID() + "@x.com", "Van", "hash");
+        UserAccountView local = service.createLocal("lv-" + UUID.randomUUID() + "@x.com", "Van", "hash");
         service.markEmailVerified(local.id());
 
         boolean passwordCleared = service.linkGoogle(local.id(), uniqueSub());
@@ -112,11 +112,11 @@ class UserAccountServiceTest {
 
     @Test
     void updatePasswordHash_setsHashForGoogleOnlyUser() {
-        UserAccount google = service.createFromGoogle(uniqueSub(), "up-" + UUID.randomUUID() + "@x.com", "Uyen", null);
+        UserAccountView google = service.createFromGoogle(uniqueSub(), "up-" + UUID.randomUUID() + "@x.com", "Uyen", null);
 
         service.updatePasswordHash(google.id(), "bcrypt-hash");
 
-        UserAccount after = service.findById(google.id()).orElseThrow();
+        UserAccountView after = service.findById(google.id()).orElseThrow();
         assertThat(after.hasPassword()).isTrue();
         assertThat(after.passwordHash()).isEqualTo("bcrypt-hash");
     }

@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.common.exception.NotFoundException;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
+import com.lingualoop.backend.user.dto.response.MeResponse;
 import com.lingualoop.backend.user.entity.User;
 import com.lingualoop.backend.user.mapper.UserMapper;
 import com.lingualoop.backend.user.repository.UserRepository;
@@ -28,21 +29,21 @@ class UserAccountServiceImpl implements UserAccountService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<UserAccount> findByEmail(String email) {
-        return userRepository.findByEmail(email).map(userMapper::toUserAccount);
+    public Optional<UserAccountView> findByEmail(String email) {
+        return userRepository.findByEmail(email).map(userMapper::toUserAccountView);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<UserAccount> findById(UUID id) {
-        return userRepository.findById(id).map(userMapper::toUserAccount);
+    public Optional<UserAccountView> findById(UUID id) {
+        return userRepository.findById(id).map(userMapper::toUserAccountView);
     }
 
     @Override
     @Transactional
-    public UserAccount createLocal(String email, String displayName, String passwordHash) {
+    public UserAccountView createLocal(String email, String displayName, String passwordHash) {
         User user = User.createLocal(email, displayName, passwordHash, Instant.now(clock));
-        return userMapper.toUserAccount(userRepository.saveAndFlush(user));
+        return userMapper.toUserAccountView(userRepository.saveAndFlush(user));
     }
 
     @Override
@@ -53,15 +54,15 @@ class UserAccountServiceImpl implements UserAccountService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<UserAccount> findByGoogleSub(String sub) {
-        return userRepository.findByAuthUid(sub).map(userMapper::toUserAccount);
+    public Optional<UserAccountView> findByGoogleSub(String sub) {
+        return userRepository.findByAuthUid(sub).map(userMapper::toUserAccountView);
     }
 
     @Override
     @Transactional
-    public UserAccount createFromGoogle(String sub, String email, String name, String pictureUrl) {
+    public UserAccountView createFromGoogle(String sub, String email, String name, String pictureUrl) {
         User user = User.createFromGoogle(sub, email, googleDisplayName(name, email), pictureUrl);
-        return userMapper.toUserAccount(userRepository.saveAndFlush(user));
+        return userMapper.toUserAccountView(userRepository.saveAndFlush(user));
     }
 
     @Override
@@ -91,5 +92,10 @@ class UserAccountServiceImpl implements UserAccountService {
         return base.codePointCount(0, base.length()) <= DISPLAY_NAME_MAX
                 ? base
                 : base.substring(0, base.offsetByCodePoints(0, DISPLAY_NAME_MAX));
+    }
+
+    @Override
+    public MeResponse toMe(UserAccountView account) {
+        return userMapper.toMe(account);
     }
 }

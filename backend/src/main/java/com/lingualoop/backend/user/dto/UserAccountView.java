@@ -8,7 +8,7 @@ import com.lingualoop.backend.security.Role;
  * Bản chụp tài khoản cho feature {@code auth}, không lộ entity ra ngoài feature {@code user}.
  * Có {@code passwordHash} để auth so khớp mật khẩu; không được đưa thẳng ra response.
  */
-public record UserAccount(
+public record UserAccountView(
         UUID id,
         String email,
         String displayName,
@@ -23,10 +23,5 @@ public record UserAccount(
 
     public boolean hasPassword() {
         return passwordHash != null;
-    }
-
-    public MeResponse toMe() {
-        return new MeResponse(id, email, displayName, avatarUrl, role.value(), emailVerified, onboarded,
-                hasPassword(), googleLinked);
     }
 }

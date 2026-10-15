@@ -40,7 +40,7 @@ import com.lingualoop.backend.auth.repository.EmailTokenRepository;
 import com.lingualoop.backend.auth.util.SecureTokens;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 @SpringBootTest
@@ -82,8 +82,8 @@ class ForgotPasswordIntegrationTest {
         return "forgot-" + UUID.randomUUID() + "@x.com";
     }
 
-    private UserAccount verifiedUser() {
-        UserAccount user = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode("password123"));
+    private UserAccountView verifiedUser() {
+        UserAccountView user = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode("password123"));
         userAccountService.markEmailVerified(user.id());
         return user;
     }
@@ -111,7 +111,7 @@ class ForgotPasswordIntegrationTest {
     }
 
     private List<EmailToken> resetTokensOf(String email) {
-        UserAccount user = userAccountService.findByEmail(email).orElseThrow();
+        UserAccountView user = userAccountService.findByEmail(email).orElseThrow();
         return emailTokenRepository.findAll().stream()
                 .filter(t -> t.getUserId().equals(user.id()) && EmailToken.RESET_PASSWORD.equals(t.getPurpose()))
                 .sorted(Comparator.comparing(EmailToken::getCreatedAt)).toList();
@@ -119,7 +119,7 @@ class ForgotPasswordIntegrationTest {
 
     @Test
     void forgot_existingEmail_sendsMailAndStoresOnlyTokenHash_AC33() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
 
         forgot(user.email()).andExpect(status().isAccepted());
 
@@ -134,7 +134,7 @@ class ForgotPasswordIntegrationTest {
 
     @Test
     void forgot_emailInDifferentCase_stillMatchesAccount_AC33() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
 
         forgot(user.email().toUpperCase()).andExpect(status().isAccepted());
 
@@ -153,7 +153,7 @@ class ForgotPasswordIntegrationTest {
 
     @Test
     void forgot_responseIsIdenticalForKnownAndUnknownEmail_AC34() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
 
         MvcResult known = forgot(user.email()).andReturn();
         MvcResult unknown = forgot(uniqueEmail()).andReturn();
@@ -164,7 +164,7 @@ class ForgotPasswordIntegrationTest {
 
     @Test
     void forgot_disabledAccount_returns202WithoutMail_AC34() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         jdbcTemplate.update("UPDATE users SET disabled = true WHERE id = ?", user.id());
 
         forgot(user.email()).andExpect(status().isAccepted());
@@ -201,7 +201,7 @@ class ForgotPasswordIntegrationTest {
 
     @Test
     void forgot_withinCooldown_returns202WithoutSecondMail_AC38() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         forgot(user.email()).andExpect(status().isAccepted());
         lastMailedToken(user.email(), 1);
         clock.advance(Duration.ofSeconds(59));
@@ -215,7 +215,7 @@ class ForgotPasswordIntegrationTest {
 
     @Test
     void forgot_afterCooldown_sendsNewMailAndInvalidatesOldLink_AC38() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         forgot(user.email()).andExpect(status().isAccepted());
         String oldToken = lastMailedToken(user.email(), 1);
         clock.advance(Duration.ofSeconds(61));
@@ -244,7 +244,7 @@ class ForgotPasswordIntegrationTest {
 
     @Test
     void forgot_mailSendFails_stillReturns202_AC33() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         doThrow(new IllegalStateException("smtp down")).when(authMailSender).sendResetPassword(any(), any(), any(),
                 anyBoolean());
 
@@ -253,7 +253,7 @@ class ForgotPasswordIntegrationTest {
 
     @Test
     void forgot_slowSmtp_doesNotDelayResponse_BRAUTH04() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         doAnswer(invocation -> {
             Thread.sleep(1500);
             return null;

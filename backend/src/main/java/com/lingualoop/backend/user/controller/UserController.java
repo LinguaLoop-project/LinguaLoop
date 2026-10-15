@@ -10,7 +10,8 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.response.ApiResponse;
 import com.lingualoop.backend.security.CurrentUserId;
-import com.lingualoop.backend.user.dto.MeResponse;
+import com.lingualoop.backend.user.dto.UserAccountView;
+import com.lingualoop.backend.user.dto.response.MeResponse;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,8 @@ public class UserController {
     @GetMapping("/me")
     public ApiResponse<MeResponse> me(@CurrentUserId UUID userId) {
         // Token còn hạn nhưng tài khoản đã bị xoá: coi như chưa đăng nhập.
-        return ApiResponse.ok(userAccountService.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED))
-                .toMe());
+        UserAccountView account = userAccountService.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
+        return ApiResponse.ok(userAccountService.toMe(account));
     }
 }

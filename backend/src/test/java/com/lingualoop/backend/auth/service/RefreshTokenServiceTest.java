@@ -25,7 +25,7 @@ import com.lingualoop.backend.auth.util.SecureTokens;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 @SpringBootTest
@@ -49,7 +49,7 @@ class RefreshTokenServiceTest {
     @BeforeEach
     void setUp() {
         clock.reset();
-        UserAccount user = userAccountService.createLocal("rt-" + UUID.randomUUID() + "@x.com", "Rt", "hash");
+        UserAccountView user = userAccountService.createLocal("rt-" + UUID.randomUUID() + "@x.com", "Rt", "hash");
         userId = user.id();
     }
 

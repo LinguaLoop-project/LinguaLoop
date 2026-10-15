@@ -33,7 +33,7 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.config.AuthProperties;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 class PasswordResetServiceTest {
@@ -67,12 +67,12 @@ class PasswordResetServiceTest {
                 Clock.fixed(NOW, ZoneOffset.UTC), new TransactionTemplate(txManager));
     }
 
-    private static UserAccount account(boolean disabled, String passwordHash) {
-        return new UserAccount(UUID.randomUUID(), "a@x.com", "A", null, passwordHash, Role.STUDENT, "vi", false,
+    private static UserAccountView account(boolean disabled, String passwordHash) {
+        return new UserAccountView(UUID.randomUUID(), "a@x.com", "A", null, passwordHash, Role.STUDENT, "vi", false,
                 disabled, false, false);
     }
 
-    private static EmailToken tokenOf(UserAccount account, Instant createdAt, Duration ttl) {
+    private static EmailToken tokenOf(UserAccountView account, Instant createdAt, Duration ttl) {
         return EmailToken.issue(account.id(), EmailToken.RESET_PASSWORD, SecureTokens.sha256(RAW), createdAt,
                 createdAt.plus(ttl));
     }
@@ -104,7 +104,7 @@ class PasswordResetServiceTest {
 
     @Test
     void request_lastMailWithinCooldown_doesNothing_AC38() {
-        UserAccount user = account(false, "hash");
+        UserAccountView user = account(false, "hash");
         when(accounts.findByEmail("a@x.com")).thenReturn(Optional.of(user));
         when(tokens.findFirstByUserIdAndPurposeOrderByCreatedAtDesc(user.id(), EmailToken.RESET_PASSWORD))
                 .thenReturn(Optional.of(tokenOf(user, NOW.minusSeconds(59), Duration.ofMinutes(30))));
@@ -117,7 +117,7 @@ class PasswordResetServiceTest {
 
     @Test
     void request_lastMailExactlyAtCooldown_issuesNewToken_AC38() {
-        UserAccount user = account(false, "hash");
+        UserAccountView user = account(false, "hash");
         when(accounts.findByEmail("a@x.com")).thenReturn(Optional.of(user));
         when(tokens.findFirstByUserIdAndPurposeOrderByCreatedAtDesc(user.id(), EmailToken.RESET_PASSWORD))
                 .thenReturn(Optional.of(tokenOf(user, NOW.minusSeconds(60), Duration.ofMinutes(30))));
@@ -129,7 +129,7 @@ class PasswordResetServiceTest {
 
     @Test
     void request_eligibleAccount_storesHashWith30MinuteExpiryAndMailsRawToken_AC33() {
-        UserAccount user = account(false, "hash");
+        UserAccountView user = account(false, "hash");
         when(accounts.findByEmail("a@x.com")).thenReturn(Optional.of(user));
         when(tokens.findFirstByUserIdAndPurposeOrderByCreatedAtDesc(user.id(), EmailToken.RESET_PASSWORD))
                 .thenReturn(Optional.empty());
@@ -148,7 +148,7 @@ class PasswordResetServiceTest {
 
     @Test
     void request_googleOnlyAccount_isMailedToo_AC36() {
-        UserAccount google = account(false, null);
+        UserAccountView google = account(false, null);
         when(accounts.findByEmail("a@x.com")).thenReturn(Optional.of(google));
         when(tokens.findFirstByUserIdAndPurposeOrderByCreatedAtDesc(google.id(), EmailToken.RESET_PASSWORD))
                 .thenReturn(Optional.empty());
@@ -197,7 +197,7 @@ class PasswordResetServiceTest {
 
     @Test
     void reset_usableToken_savesPasswordVerifiesEmailRevokesSessionsAndClearsLock_AC35() {
-        UserAccount user = account(false, "old");
+        UserAccountView user = account(false, "old");
         EmailToken token = tokenOf(user, NOW.minusSeconds(10), Duration.ofMinutes(30));
         givenToken(token);
         when(accounts.findById(user.id())).thenReturn(Optional.of(user));
@@ -224,7 +224,7 @@ class PasswordResetServiceTest {
 
     @Test
     void reset_accountNoLongerExists_throwsLinkInvalid_AC39() {
-        UserAccount user = account(false, "old");
+        UserAccountView user = account(false, "old");
         givenToken(tokenOf(user, NOW.minusSeconds(10), Duration.ofMinutes(30)));
         when(accounts.findById(user.id())).thenReturn(Optional.empty());
 

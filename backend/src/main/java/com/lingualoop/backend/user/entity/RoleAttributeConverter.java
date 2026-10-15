@@ -7,7 +7,7 @@ import jakarta.persistence.Converter;
 
 
 @Converter
-public class RoleConverter implements AttributeConverter<Role, String> {
+public class RoleAttributeConverter implements AttributeConverter<Role, String> {
 
     @Override
     public String convertToDatabaseColumn(Role role) {

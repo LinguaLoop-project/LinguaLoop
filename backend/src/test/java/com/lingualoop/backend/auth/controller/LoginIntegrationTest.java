@@ -31,7 +31,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 @SpringBootTest
@@ -65,8 +65,8 @@ class LoginIntegrationTest {
         return "login-" + UUID.randomUUID() + "@x.com";
     }
 
-    private UserAccount createUser(boolean verified) {
-        UserAccount account = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(PASSWORD));
+    private UserAccountView createUser(boolean verified) {
+        UserAccountView account = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(PASSWORD));
         if (verified) {
             userAccountService.markEmailVerified(account.id());
         }
@@ -80,7 +80,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_correctCredentials_returnsAccessTokenAndProfile_AC08() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
 
         MvcResult result = login(user.email(), PASSWORD)
                 .andExpect(status().isOk())
@@ -102,7 +102,7 @@ class LoginIntegrationTest {
     @ParameterizedTest
     @ValueSource(strings = { "instructor", "admin" })
     void login_nonStudentRole_isReturnedInBodyAndAccessTokenClaim_AC08(String role) throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
         jdbcTemplate.update("UPDATE users SET role = ? WHERE id = ?", role, user.id());
 
         MvcResult result = login(user.email(), PASSWORD)
@@ -118,7 +118,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_studentWithoutOnboarding_responseSaysNotOnboarded_AC11() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
 
         login(user.email(), PASSWORD)
                 .andExpect(status().isOk())
@@ -128,7 +128,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_studentWhoCompletedOnboarding_responseSaysOnboarded_AC11() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
         jdbcTemplate.update("UPDATE users SET onboarded_at = now() WHERE id = ?", user.id());
 
         MvcResult result = login(user.email(), PASSWORD)
@@ -143,14 +143,14 @@ class LoginIntegrationTest {
 
     @Test
     void login_emailInDifferentCase_succeeds_AC08() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
 
         login(user.email().toUpperCase(), PASSWORD).andExpect(status().isOk());
     }
 
     @Test
     void login_correctPasswordButEmailNotVerified_returns403AndNoSession_AC10() throws Exception {
-        UserAccount user = createUser(false);
+        UserAccountView user = createUser(false);
 
         login(user.email(), PASSWORD)
                 .andExpect(status().isForbidden())
@@ -160,7 +160,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_wrongPasswordOnUnverifiedAccount_doesNotRevealUnverified_AC10() throws Exception {
-        UserAccount user = createUser(false);
+        UserAccountView user = createUser(false);
 
         login(user.email(), "wrong-password")
                 .andExpect(status().isUnauthorized())
@@ -169,7 +169,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_wrongPassword_returns401WithRemainingAttempts_AC12() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
 
         login(user.email(), "wrong-password")
                 .andExpect(status().isUnauthorized())
@@ -181,7 +181,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_unknownEmail_getsSameResponseAsWrongPassword_AC13() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
         String unknown = uniqueEmail();
 
         for (int attempt = 1; attempt <= 3; attempt++) {
@@ -197,7 +197,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_googleOnlyAccountWithoutPassword_isReportedAsInvalidCredentials_AC13() throws Exception {
-        UserAccount user = userAccountService.createLocal(uniqueEmail(), "Gg", null);
+        UserAccountView user = userAccountService.createLocal(uniqueEmail(), "Gg", null);
         userAccountService.markEmailVerified(user.id());
 
         login(user.email(), PASSWORD)
@@ -208,7 +208,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_fifthWrongPassword_locksAccountFor15Minutes_AC14() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
         for (int i = 0; i < 4; i++) {
             login(user.email(), "wrong-password").andExpect(status().isUnauthorized());
         }
@@ -221,7 +221,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_whileLocked_rejectsEvenCorrectPassword_AC15() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
         for (int i = 0; i < 5; i++) {
             login(user.email(), "wrong-password");
         }
@@ -233,7 +233,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_after15Minutes_lockExpiresAndCorrectPasswordWorks_AC14() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
         for (int i = 0; i < 5; i++) {
             login(user.email(), "wrong-password");
         }
@@ -245,7 +245,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_successResetsFailureCounter_AC08() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
         login(user.email(), "wrong-password");
         login(user.email(), "wrong-password");
 
@@ -257,7 +257,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_disabledAccountWithCorrectPassword_returns403_AC16() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
         jdbcTemplate.update("UPDATE users SET disabled = true WHERE id = ?", user.id());
 
         login(user.email(), PASSWORD)
@@ -267,7 +267,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_disabledAccountWithWrongPassword_doesNotRevealDisabled_AC16() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
         jdbcTemplate.update("UPDATE users SET disabled = true WHERE id = ?", user.id());
 
         login(user.email(), "wrong-password")
@@ -277,7 +277,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_passwordLongerThan72Bytes_isJustWrongCredentialsNotServerError_AC12() throws Exception {
-        UserAccount user = createUser(true);
+        UserAccountView user = createUser(true);
 
         login(user.email(), "ế".repeat(100))
                 .andExpect(status().isUnauthorized())

@@ -23,7 +23,7 @@ import com.lingualoop.backend.auth.exception.GoogleUnavailableException;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 class GoogleAuthServiceTest {
@@ -46,17 +46,17 @@ class GoogleAuthServiceTest {
         authService = mock(AuthService.class);
         service = new GoogleAuthService(exchanger, users, refreshTokens, authService);
         when(exchanger.exchange("id-token")).thenReturn(IDENTITY);
-        when(authService.openSession(any(UserAccount.class), anyString())).thenReturn(session);
+        when(authService.openSession(any(UserAccountView.class), anyString())).thenReturn(session);
     }
 
-    private static UserAccount account(boolean verified, boolean disabled, boolean hasPassword, boolean googleLinked) {
-        return new UserAccount(UUID.randomUUID(), "minh@gmail.com", "Minh", null, hasPassword ? "hash" : null,
+    private static UserAccountView account(boolean verified, boolean disabled, boolean hasPassword, boolean googleLinked) {
+        return new UserAccountView(UUID.randomUUID(), "minh@gmail.com", "Minh", null, hasPassword ? "hash" : null,
                 Role.STUDENT, "vi", verified, disabled, false, googleLinked);
     }
 
     @Test
     void login_knownSub_opensSessionWithoutTouchingAccount_AC17() {
-        UserAccount existing = account(true, false, false, true);
+        UserAccountView existing = account(true, false, false, true);
         when(users.findByGoogleSub(SUB)).thenReturn(Optional.of(existing));
 
         AuthSession result = service.login("id-token", "ua");
@@ -69,7 +69,7 @@ class GoogleAuthServiceTest {
 
     @Test
     void login_unknownEmail_createsAccount_AC18() {
-        UserAccount created = account(true, false, false, true);
+        UserAccountView created = account(true, false, false, true);
         when(users.findByGoogleSub(SUB)).thenReturn(Optional.empty());
         when(users.findByEmail("minh@gmail.com")).thenReturn(Optional.empty());
         when(users.createFromGoogle(SUB, "minh@gmail.com", "Minh", "https://img/m.png")).thenReturn(created);
@@ -81,8 +81,8 @@ class GoogleAuthServiceTest {
 
     @Test
     void login_emailOfVerifiedLocalAccount_linksWithoutRevokingSessions_AC19() {
-        UserAccount local = account(true, false, true, false);
-        UserAccount linked = account(true, false, true, true);
+        UserAccountView local = account(true, false, true, false);
+        UserAccountView linked = account(true, false, true, true);
         when(users.findByGoogleSub(SUB)).thenReturn(Optional.empty());
         when(users.findByEmail("minh@gmail.com")).thenReturn(Optional.of(local));
         when(users.linkGoogle(local.id(), SUB)).thenReturn(false);
@@ -96,8 +96,8 @@ class GoogleAuthServiceTest {
 
     @Test
     void login_emailOfUnverifiedLocalAccount_linksAndRevokesAllSessions_AC20() {
-        UserAccount local = account(false, false, true, false);
-        UserAccount linked = account(true, false, false, true);
+        UserAccountView local = account(false, false, true, false);
+        UserAccountView linked = account(true, false, false, true);
         when(users.findByGoogleSub(SUB)).thenReturn(Optional.empty());
         when(users.findByEmail("minh@gmail.com")).thenReturn(Optional.of(local));
         when(users.linkGoogle(local.id(), SUB)).thenReturn(true);
@@ -144,7 +144,7 @@ class GoogleAuthServiceTest {
 
     @Test
     void login_concurrentCreate_picksUpTheAccountTheOtherRequestCreated() {
-        UserAccount created = account(true, false, false, true);
+        UserAccountView created = account(true, false, false, true);
         when(users.findByGoogleSub(SUB)).thenReturn(Optional.empty(), Optional.of(created));
         when(users.findByEmail("minh@gmail.com")).thenReturn(Optional.empty());
         when(users.createFromGoogle(eq(SUB), anyString(), any(), any())).thenThrow(new DataIntegrityViolationException("dup"));
