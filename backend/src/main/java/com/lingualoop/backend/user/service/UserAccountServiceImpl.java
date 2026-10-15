@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UserAccountServiceImpl implements UserAccountService {
+class UserAccountServiceImpl implements UserAccountService {
 
     private static final int DISPLAY_NAME_MAX = 50;
 

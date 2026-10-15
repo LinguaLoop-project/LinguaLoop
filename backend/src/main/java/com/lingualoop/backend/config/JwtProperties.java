@@ -1,4 +1,4 @@
-package com.lingualoop.backend.security;
+package com.lingualoop.backend.config;
 
 import java.time.Duration;
 
