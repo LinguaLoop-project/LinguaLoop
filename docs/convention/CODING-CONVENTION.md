@@ -33,12 +33,24 @@ Bên trong mỗi feature (ví dụ `dictation/`):
 controller/  @RestController — chỉ nhận request, validate, gọi service, trả response
 service/     business logic — nơi duy nhất được orchestrate nhiều repository; interface public cho feature khác nằm ở đây
 repository/  interface Spring Data JPA cho bảng feature này sở hữu — không viết business logic
-entity/      @Entity JPA — chỉ mapping bảng, chỉ feature này được dùng
-dto/         request, response, view trả cho feature khác — không mang logic
+entity/      @Entity JPA và AttributeConverter của entity — chỉ mapping bảng, chỉ feature này được dùng
+dto/         view trả cho feature khác (hậu tố View) — không mang logic
+dto/request/ body client gửi lên (hậu tố Request), gắn annotation validate
+dto/response/ body trả về client (hậu tố Response)
 mapper/      (nếu cần) MapStruct, chuyển đổi entity <-> DTO — không đặt logic nghiệp vụ ở đây
+exception/   (nếu cần) exception riêng của feature, kế thừa BusinessException
+util/        (nếu cần) tiện ích chỉ dùng trong feature
+web/         (nếu cần) phần phụ trợ của tầng web: cookie, Converter cho @PathVariable
 ```
 
 Tầng nào chưa cần thì chưa tạo thư mục. Phần gọi dịch vụ ngoài đặt thư mục riêng trong feature (ví dụ `shadowing/azure/`).
+
+Quy ước đặt lớp:
+- **Không tạo thư mục `impl/`.** `XxxServiceImpl` nằm cùng package với interface `XxxService` và là **package-private** (bỏ `public`), để compiler chặn feature khác import thẳng Impl. Inject luôn theo interface.
+- Chỉ tạo interface cho service mà feature khác cần gọi. Service chỉ dùng trong nội bộ feature thì để class cụ thể, không cần interface.
+- Repository Spring Data chỉ là interface, không có Impl; chỉ khi viết custom fragment mới có `XxxRepositoryCustomImpl`, đặt cùng package `repository/`.
+- Kết quả nội bộ của service (không phải body HTTP, ví dụ chứa token thô) là `record` đặt trong `service/`, không đặt trong `dto/`.
+- `@ConfigurationProperties` đặt trong `config/` và được đăng ký bằng `@ConfigurationPropertiesScan` ở `BackendApplication`, không tạo `@Configuration` chỉ để `@EnableConfigurationProperties`.
 
 Quy tắc phụ thuộc:
 - `controller -> service -> repository`. Controller không được gọi thẳng repository; service không được biết `HttpServletRequest`/DTO của tầng web.
