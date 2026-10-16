@@ -4,6 +4,7 @@ import { Button } from "./Button";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../features/auth/stores/authStore";
 import { MAX_FREE_ACTIONS } from "@/hooks/useQuota";
+import Icon from "@/components/common/Icon";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -41,12 +42,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose }) =
             aria-label={t("upgradeModal.close")}
             className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full w-8 h-8 flex items-center justify-center transition-colors"
           >
-            <i className="ph ph-x text-lg"></i>
+            <Icon name="x" className="text-lg" />
           </button>
           
           <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center transform -rotate-3">
-              <i className="ph-fill ph-crown text-2xl text-white"></i>
+              <Icon name="crown" fill className="text-2xl text-white" />
             </div>
           </div>
         </div>
@@ -68,19 +69,19 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose }) =
           <div className="space-y-3 text-left bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mb-6">
             <div className="flex items-center gap-3">
               <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
-                <i className="ph-bold ph-check text-sm"></i>
+                <Icon name="check" className="text-sm" />
               </div>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("upgradeModal.benefits.unlimited")}</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
-                <i className="ph-bold ph-check text-sm"></i>
+                <Icon name="check" className="text-sm" />
               </div>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("upgradeModal.benefits.advanced")}</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
-                <i className="ph-bold ph-check text-sm"></i>
+                <Icon name="check" className="text-sm" />
               </div>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("upgradeModal.benefits.support")}</span>
             </div>

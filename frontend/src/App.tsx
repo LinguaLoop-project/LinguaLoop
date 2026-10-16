@@ -1,7 +1,6 @@
 import { AppRoutes } from "@/app/routes";
 import { useEffect } from "react";
 import { useAuthStore } from "@/features/auth";
-import SvgSprites from "@/components/common/SvgSprites";
 
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
@@ -13,7 +12,6 @@ function App() {
 
   return (
     <>
-      <SvgSprites />
       <AppRoutes />
     </>
   );

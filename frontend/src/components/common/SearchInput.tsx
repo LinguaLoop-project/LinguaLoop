@@ -1,4 +1,5 @@
 import React from "react";
+import Icon from "@/components/common/Icon";
 
 export interface SearchInputProps {
   id?: string;
@@ -29,7 +30,7 @@ const SearchInput = ({
       className={`flex items-center gap-2.5 min-w-[220px] h-11 px-3.5 rounded-xl border border-[var(--border-strong)] bg-[var(--surface)] transition-colors duration-150 focus-within:border-[var(--primary)] focus-within:outline focus-within:outline-2 focus-within:outline-[var(--primary)] focus-within:outline-offset-2 ${className}`}
     >
       {icon || (
-        <i className="ph ph-magnifying-glass text-lg text-[var(--text-muted)]" />
+        <Icon name="search" className="text-lg text-[var(--text-muted)]" />
       )}
       <input
         type="text"

@@ -7,6 +7,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
+import Icon from "@/components/common/Icon";
 
 type InstructorNavItem = {
   id: string;
@@ -27,31 +28,31 @@ type InstructorNavGroup = {
 const INSTRUCTOR_NAV_GROUPS: InstructorNavGroup[] = [
   {
     items: [
-      { id: "dashboard", icon: "squares-four", labelKey: "dashboard", to: "/instructor" },
+      { id: "dashboard", icon: "layout-grid", labelKey: "dashboard", to: "/instructor" },
     ],
   },
   {
     groupKey: "content",
     items: [
       { id: "topics", icon: "folders", labelKey: "topics", to: "/instructor/topics" },
-      { id: "lessons", icon: "film-strip", labelKey: "lessons", to: "/instructor/lessons" },
-      { id: "decks", icon: "stack", labelKey: "decks", to: "/instructor/decks" },
+      { id: "lessons", icon: "film", labelKey: "lessons", to: "/instructor/lessons" },
+      { id: "decks", icon: "layers", labelKey: "decks", to: "/instructor/decks" },
     ],
   },
   {
     groupKey: "language",
     items: [
-      { id: "cefr", icon: "robot", labelKey: "cefr", to: "/instructor/cefr", badge: "12", badgeType: "warn" },
+      { id: "cefr", icon: "bot", labelKey: "cefr", to: "/instructor/cefr", badge: "12", badgeType: "warn" },
       { id: "dict", icon: "book-open-text", labelKey: "dict", to: "/instructor/dict" },
-      { id: "phoneme", icon: "waveform", labelKey: "phoneme", to: "/instructor/phoneme" },
-      { id: "qbank", icon: "exam", labelKey: "qbank", to: "/instructor/qbank" },
+      { id: "phoneme", icon: "audio-lines", labelKey: "phoneme", to: "/instructor/phoneme" },
+      { id: "qbank", icon: "file-check", labelKey: "qbank", to: "/instructor/qbank" },
     ],
   },
   {
     groupKey: "tracking",
     items: [
       { id: "reports", icon: "flag", labelKey: "reports", to: "/instructor/reports", badge: "3", badgeType: "bad" },
-      { id: "audit", icon: "clock-counter-clockwise", labelKey: "audit", to: "/instructor/audit" },
+      { id: "audit", icon: "history", labelKey: "audit", to: "/instructor/audit" },
     ],
   },
 ];
@@ -86,7 +87,7 @@ export default function InstructorSidebar() {
         onClick={() => navigate("/student")}
         className="flex items-center gap-2.5 w-full min-h-[44px] px-3.5 py-2.5 mb-2 rounded-xl border border-border-strong bg-primary-soft text-accent text-[14px] font-semibold transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--primary)_22%,transparent)] cursor-pointer select-none"
       >
-        <i className="ph ph-student text-xl shrink-0" aria-hidden="true" />
+        <Icon name="graduation-cap" className="text-xl shrink-0" />
         <span>{t("instructor.sidebar.viewAsStudent")}</span>
       </button>
 
@@ -108,19 +109,18 @@ export default function InstructorSidebar() {
                 `relative flex items-center gap-3 w-full min-h-[44px] px-3 py-2.5 rounded-md font-medium text-[15px] transition-colors duration-150 select-none ${
                   isActive
                     ? "bg-primary-soft text-text before:content-[''] before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-0.5 before:rounded-sm before:bg-primary before:shadow-[var(--glow-primary)]"
-                    : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_i]:translate-x-0.5"
+                    : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_svg]:translate-x-0.5"
                 }`
               }
               aria-label={t(`instructor.sidebar.items.${item.labelKey}`)}
             >
               {({ isActive }) => (
                 <>
-                  <i
-                    className={`text-2xl shrink-0 transition-transform duration-200 ${
-                      isActive ? "text-accent ph-fill" : "ph"
-                    } ph-${item.icon}`}
-                    aria-hidden="true"
-                  />
+                  <Icon
+ name={item.icon}
+ className={`text-2xl shrink-0 transition-transform duration-200 ${isActive ? "text-accent" : ""}`}
+ strokeWidth={isActive ? 2.5 : 2}
+ />
                   <span className="truncate">{t(`instructor.sidebar.items.${item.labelKey}`)}</span>
 
                   {item.badge && (

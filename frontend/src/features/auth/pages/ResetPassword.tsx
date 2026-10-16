@@ -11,6 +11,7 @@ import { resetPasswordSchema, type ResetPasswordFormData } from "../validations/
 import type { ApiError } from "../types";
 import AuthSidePanel from "../components/AuthSidePanel";
 import AuthTopBar from "../components/AuthTopBar";
+import Icon from "@/components/common/Icon";
 
 type Status = "checking" | "invalid" | "error" | "form" | "done";
 
@@ -153,7 +154,7 @@ const ResetPassword = () => {
             {status === "error" && (
               <>
                 <div className="ll-form-alert danger text-left" role="alert">
-                  <i className="ph ph-warning-circle" style={{ fontSize: 20, flexShrink: 0 }} />
+                  <Icon name="circle-alert" className="shrink-0 text-xl" />
                   <span>{checkError && errorMessage(checkError)}</span>
                 </div>
                 <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
@@ -190,7 +191,7 @@ const ResetPassword = () => {
 
                 {formError && (
                   <div className="ll-form-alert danger" role="alert">
-                    <i className="ph ph-warning-circle" style={{ fontSize: 20, flexShrink: 0 }} />
+                    <Icon name="circle-alert" className="shrink-0 text-xl" />
                     <span>{errorMessage(formError)}</span>
                   </div>
                 )}
@@ -201,7 +202,7 @@ const ResetPassword = () => {
                       {t("reset.password")}
                     </label>
                     <div className="ll-inp">
-                      <i className="ph ph-lock-simple" />
+                      <Icon name="lock" />
                       <input
                         id={`${formId}-new`}
                         type={inputType}
@@ -218,7 +219,7 @@ const ResetPassword = () => {
                         aria-label={eyeLabel}
                         aria-pressed={showPassword}
                       >
-                        <i className={showPassword ? "ph ph-eye-slash" : "ph ph-eye"} />
+                        <Icon name={showPassword ? "eye-off" : "eye"} />
                       </button>
                     </div>
 
@@ -232,7 +233,7 @@ const ResetPassword = () => {
                     <p className={`ll-hint ${errors.newPassword ? "bad" : ""}`}>
                       {errors.newPassword ? (
                         <>
-                          <i className="ph ph-warning-circle" />
+                          <Icon name="circle-alert" />
                           <span>{errors.newPassword.message}</span>
                         </>
                       ) : passwordInput ? (
@@ -251,7 +252,7 @@ const ResetPassword = () => {
                       {t("reset.confirm")}
                     </label>
                     <div className="ll-inp">
-                      <i className="ph ph-lock-simple" />
+                      <Icon name="lock" />
                       <input
                         id={`${formId}-confirm`}
                         type={inputType}

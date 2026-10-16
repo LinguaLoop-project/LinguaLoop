@@ -1,4 +1,5 @@
 import React from "react";
+import Icon from "@/components/common/Icon";
 
 export type FormAlertVariant = "success" | "danger" | "warning" | "info";
 
@@ -24,22 +25,22 @@ export const FormAlert: React.FC<FormAlertProps> = ({
     case "success":
       variantStyles =
         "bg-[color-mix(in_srgb,var(--success)_12%,transparent)] text-success border-[color-mix(in_srgb,var(--success)_28%,transparent)]";
-      defaultIcon = <i className="ph ph-check-circle text-xl shrink-0" />;
+      defaultIcon = <Icon name="circle-check" className="text-xl shrink-0" />;
       break;
     case "danger":
       variantStyles =
         "bg-[color-mix(in_srgb,var(--danger)_12%,transparent)] text-danger border-[color-mix(in_srgb,var(--danger)_28%,transparent)]";
-      defaultIcon = <i className="ph ph-warning-circle text-xl shrink-0" />;
+      defaultIcon = <Icon name="circle-alert" className="text-xl shrink-0" />;
       break;
     case "warning":
       variantStyles =
         "bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] text-warning border-[color-mix(in_srgb,var(--warning)_28%,transparent)]";
-      defaultIcon = <i className="ph ph-warning text-xl shrink-0" />;
+      defaultIcon = <Icon name="triangle-alert" className="text-xl shrink-0" />;
       break;
     case "info":
       variantStyles =
         "bg-[color-mix(in_srgb,var(--info)_12%,transparent)] text-info border-[color-mix(in_srgb,var(--info)_28%,transparent)]";
-      defaultIcon = <i className="ph ph-info text-xl shrink-0" />;
+      defaultIcon = <Icon name="info" className="text-xl shrink-0" />;
       break;
   }
 

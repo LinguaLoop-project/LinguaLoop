@@ -9,6 +9,7 @@ import { buildPasswordSchema, type PasswordFormData } from "../validations";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
 import PasswordStrengthMeter from "@/features/auth/components/PasswordStrengthMeter";
+import Icon from "@/components/common/Icon";
 
 const EMPTY: PasswordFormData = { currentPassword: "", newPassword: "", confirmPassword: "" };
 
@@ -78,7 +79,7 @@ export default function PasswordForm() {
       aria-label={eyeLabel}
       aria-pressed={show}
     >
-      <i className={show ? "ph ph-eye-slash" : "ph ph-eye"} />
+      <Icon name={show ? "eye-off" : "eye"} />
     </button>
   );
   const type = show ? "text" : "password";
@@ -119,7 +120,7 @@ export default function PasswordForm() {
               errors.currentPassword ? "border-danger focus-within:border-danger focus-within:ring-danger/20" : "border-border"
             }`}
           >
-            <i className="ph ph-lock-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+            <Icon name="lock" className="text-lg text-text-subtle mr-2.5 shrink-0" />
             <input
               id="pwCurrent"
               type={type}
@@ -147,7 +148,7 @@ export default function PasswordForm() {
             errors.newPassword ? "border-danger focus-within:border-danger focus-within:ring-danger/20" : "border-border"
           }`}
         >
-          <i className="ph ph-lock-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+          <Icon name="lock" className="text-lg text-text-subtle mr-2.5 shrink-0" />
           <input
             id="pwNew"
             type={type}
@@ -165,7 +166,7 @@ export default function PasswordForm() {
         >
           {errors.newPassword ? (
             <>
-              <i className="ph ph-warning-circle" />
+              <Icon name="circle-alert" />
               <span>{errors.newPassword.message}</span>
             </>
           ) : (
@@ -183,7 +184,7 @@ export default function PasswordForm() {
             errors.confirmPassword ? "border-danger focus-within:border-danger focus-within:ring-danger/20" : "border-border"
           }`}
         >
-          <i className="ph ph-lock-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+          <Icon name="lock" className="text-lg text-text-subtle mr-2.5 shrink-0" />
           <input
             id="pwConfirm"
             type={type}

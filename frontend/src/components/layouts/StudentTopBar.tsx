@@ -14,6 +14,7 @@ import ThemeToggle from "@/components/common/ThemeToggle";
 import { toggleTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/features/auth";
 import { useQuota } from "@/hooks/useQuota";
+import Icon from "@/components/common/Icon";
 
 function initials(name: string) {
   return (
@@ -83,7 +84,7 @@ export default function StudentTopBar() {
         aria-label={t("student.topbar.search")}
         disabled
       >
-        <i className="ph ph-magnifying-glass text-xl" aria-hidden="true" />
+        <Icon name="search" className="text-xl" />
         <span className="hidden md:inline">
           {t("student.topbar.searchPlaceholder")}
         </span>
@@ -99,10 +100,7 @@ export default function StudentTopBar() {
           className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full border border-border-strong bg-surface-glass font-semibold text-[15px] select-none"
           title={t("student.topbar.streak")}
         >
-          <i
-            className="ph-fill ph-fire text-warning text-lg"
-            aria-hidden="true"
-          />
+          <Icon name="flame" fill className="text-warning text-lg" />
           <span id="streakNum">5</span>
         </span>
 
@@ -112,10 +110,7 @@ export default function StudentTopBar() {
             className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full border border-border-strong bg-surface-glass font-semibold text-[15px] select-none"
             title={t("student.topbar.quota")}
           >
-            <i
-              className="ph-fill ph-lightning text-purple-500 text-lg"
-              aria-hidden="true"
-            />
+            <Icon name="zap" fill className="text-purple-500 text-lg" />
             <span>
               {maxActions - actionsToday}/{maxActions}
             </span>
@@ -194,19 +189,16 @@ export default function StudentTopBar() {
                 <span className="text-xs text-accent font-semibold">
                   {t("student.topbar.upgrade")}
                 </span>
-                <i
-                  className="ph ph-arrow-right ml-auto text-sm text-text-subtle"
-                  aria-hidden="true"
-                />
+                <Icon name="arrow-right" className="ml-auto text-sm text-text-subtle" />
               </button>
 
               <hr className="border-0 border-t border-border -mx-2 my-1.5" />
 
               {[
-                ["profile", "ph-user-circle"],
-                ["learning", "ph-target"],
-                ["security", "ph-shield-check"],
-                ["privacy", "ph-lock-key"],
+                ["profile", "circle-user"],
+                ["learning", "target"],
+                ["security", "shield-check"],
+                ["privacy", "lock-keyhole"],
               ].map(([tab, icon]) => (
                 <button
                   key={tab}
@@ -218,7 +210,7 @@ export default function StudentTopBar() {
                     navigate(`/student/settings?tab=${tab}`);
                   }}
                 >
-                  <i className={`ph ${icon} text-lg`} aria-hidden="true" />
+                  <Icon name={icon} className="text-lg" />
                   {t(`student.topbar.${tab}`)}
                 </button>
               ))}
@@ -232,7 +224,7 @@ export default function StudentTopBar() {
                   toggleTheme();
                 }}
               >
-                <i className="ph ph-circle-half text-lg" aria-hidden="true" />
+                <Icon name="contrast" className="text-lg" />
                 {t("theme.toggle")}
               </button>
 
@@ -247,7 +239,7 @@ export default function StudentTopBar() {
                   handleLogout();
                 }}
               >
-                <i className="ph ph-sign-out text-lg" aria-hidden="true" />
+                <Icon name="log-out" className="text-lg" />
                 {t("student.topbar.logout")}
               </button>
             </div>

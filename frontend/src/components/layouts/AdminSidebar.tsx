@@ -8,6 +8,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
+import Icon from "@/components/common/Icon";
 
 type AdminNavItem = {
   id: string;
@@ -28,7 +29,7 @@ type AdminNavGroup = {
 const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
   {
     items: [
-      { id: "dashboard", icon: "squares-four", labelKey: "dashboard", to: "/admin" },
+      { id: "dashboard", icon: "layout-grid", labelKey: "dashboard", to: "/admin" },
     ],
   },
   {
@@ -41,8 +42,8 @@ const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     groupKey: "moderation",
     items: [
       { id: "reports", icon: "flag", labelKey: "reports", to: "/admin/reports", badge: "5", badgeType: "bad" },
-      { id: "decks", icon: "stack", labelKey: "decks", to: "/admin/decks", badge: "8", badgeType: "warn" },
-      { id: "audit", icon: "clock-counter-clockwise", labelKey: "audit", to: "/admin/audit" },
+      { id: "decks", icon: "layers", labelKey: "decks", to: "/admin/decks", badge: "8", badgeType: "warn" },
+      { id: "audit", icon: "history", labelKey: "audit", to: "/admin/audit" },
     ],
   },
   {
@@ -50,7 +51,7 @@ const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     items: [
       { id: "limits", icon: "sliders-horizontal", labelKey: "limits", to: "/admin/limits" },
       { id: "subs", icon: "credit-card", labelKey: "subs", to: "/admin/subs" },
-      { id: "errors", icon: "warning-circle", labelKey: "errors", to: "/admin/errors" },
+      { id: "errors", icon: "circle-alert", labelKey: "errors", to: "/admin/errors" },
     ],
   },
 ];
@@ -97,19 +98,18 @@ export default function AdminSidebar() {
                 `relative flex items-center gap-3 w-full min-h-[44px] px-3 py-2.5 rounded-md font-medium text-[15px] transition-colors duration-150 select-none ${
                   isActive
                     ? "bg-primary-soft text-text before:content-[''] before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-0.5 before:rounded-sm before:bg-primary before:shadow-[var(--glow-primary)]"
-                    : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_i]:translate-x-0.5"
+                    : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_svg]:translate-x-0.5"
                 }`
               }
               aria-label={t(`admin.sidebar.items.${item.labelKey}`)}
             >
               {({ isActive }) => (
                 <>
-                  <i
-                    className={`text-2xl shrink-0 transition-transform duration-200 ${
-                      isActive ? "text-accent ph-fill" : "ph"
-                    } ph-${item.icon}`}
-                    aria-hidden="true"
-                  />
+                  <Icon
+ name={item.icon}
+ className={`text-2xl shrink-0 transition-transform duration-200 ${isActive ? "text-accent" : ""}`}
+ strokeWidth={isActive ? 2.5 : 2}
+ />
                   <span className="truncate">{t(`admin.sidebar.items.${item.labelKey}`)}</span>
 
                   {item.badge && (

@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import Icon from "@/components/common/Icon";
 
 export default function StudentMobileNav() {
   const { t } = useTranslation("layout");
@@ -8,13 +9,13 @@ export default function StudentMobileNav() {
     {
       to: "/student",
       end: true,
-      icon: "sun-horizon",
+      icon: "sun",
       label: t("student.sidebar.items.today", "Hôm nay"),
     },
     {
       to: "/student/lessons",
       end: false,
-      icon: "books",
+      icon: "library",
       label: t("student.sidebar.items.lessons", "Bài học"),
     },
     {
@@ -26,13 +27,13 @@ export default function StudentMobileNav() {
     {
       to: "/student/shadowing",
       end: false,
-      icon: "microphone",
+      icon: "mic",
       label: t("student.sidebar.items.shadowing", "Shadowing"),
     },
     {
       to: "/student/mywords",
       end: false,
-      icon: "bookmarks-simple",
+      icon: "bookmark",
       label: t("student.sidebar.items.mywords", "Từ của tôi"),
     },
   ];
@@ -50,12 +51,12 @@ export default function StudentMobileNav() {
           className={({ isActive }) =>
             `flex-1 min-w-[48px] h-full flex flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-medium transition-colors duration-150 ${
               isActive
-                ? "text-text font-semibold [&>i]:text-accent"
+                ? "text-text font-semibold [&>svg]:text-accent"
                 : "text-text-muted hover:text-text"
             }`
           }
         >
-          <i className={`ph ph-${item.icon} text-[22px]`} aria-hidden="true" />
+          <Icon name={item.icon} className="text-[22px]" />
           <span className="truncate max-w-[56px] text-center">{item.label}</span>
         </NavLink>
       ))}

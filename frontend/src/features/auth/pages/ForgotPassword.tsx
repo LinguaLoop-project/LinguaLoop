@@ -12,6 +12,7 @@ import {
 } from "../validations/authSchemas";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
+import Icon from "@/components/common/Icon";
 
 const ForgotPassword = () => {
   const { t } = useTranslation("auth");
@@ -57,7 +58,7 @@ const ForgotPassword = () => {
         to="/auth/login"
         className="inline-flex items-center gap-1.5 text-[13px] font-medium text-text-muted hover:text-text transition-colors w-fit"
       >
-        <i className="ph ph-arrow-left text-base" />
+        <Icon name="arrow-left" className="text-base" />
         <span>{t("forgot.backToLogin")}</span>
       </Link>
 
@@ -115,7 +116,7 @@ const ForgotPassword = () => {
                 : "border-border"
             }`}
           >
-            <i className="ph ph-envelope-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+            <Icon name="mail" className="text-lg text-text-subtle mr-2.5 shrink-0" />
             <input
               id={`${formId}-email`}
               type="email"

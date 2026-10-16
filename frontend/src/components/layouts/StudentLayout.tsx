@@ -14,7 +14,6 @@
 
 import { Outlet } from "react-router-dom";
 // import AuthGuard from "@/app/guards/AuthGuard";
-import SvgSprites from "@/components/common/SvgSprites";
 import StudentSidebar from "./StudentSidebar";
 import StudentTopBar from "./StudentTopBar";
 import StudentMobileNav from "./StudentMobileNav";
@@ -32,9 +31,6 @@ const StudentLayout = () => {
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
       />
-
-      {/* SVG sprite sheet — dùng chung cho toàn bộ trang student */}
-      <SvgSprites />
 
       {/* Background effects */}
       <div

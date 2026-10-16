@@ -8,13 +8,13 @@ import {
 } from "../hooks/useLessons";
 import { LessonCard } from "../components/LessonCard";
 import { useDebounce } from "../../../hooks/useDebounce";
-import { useSpotlight } from "@/hooks/useSpotlight";
 import Badge from "../../../components/common/Badge";
 import Chip from "../../../components/common/Chip";
 import SearchInput from "../../../components/common/SearchInput";
 import SegmentedControl from "../../../components/common/SegmentedControl";
 import Button from "../../../components/common/Button";
 import EmptyState from "../../../components/common/EmptyState";
+import Icon from "@/components/common/Icon";
 
 export const LessonLibraryPage = () => {
   const navigate = useNavigate();
@@ -29,7 +29,6 @@ export const LessonLibraryPage = () => {
   const [ytUrl, setYtUrl] = useState<string>("");
   const [showUxNotes, setShowUxNotes] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
-  const { spotlightProps } = useSpotlight();
 
   const { data: topicsData } = useTopicList();
   const topics = useMemo(() => topicsData || [], [topicsData]);
@@ -131,7 +130,7 @@ export const LessonLibraryPage = () => {
       {/* ── Toast notification if triggered ── */}
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border-strong shadow-[var(--shadow-card)] text-sm font-medium text-text animate-bounce">
-          <i className="ph ph-magic-wand text-lg text-accent"></i>
+          <Icon name="wand-sparkles" className="text-lg text-accent" />
           <span>{toastMsg}</span>
         </div>
       )}
@@ -142,7 +141,7 @@ export const LessonLibraryPage = () => {
           <div className="relative w-full max-w-lg p-6 rounded-2xl bg-surface border border-border-strong shadow-[var(--shadow-card)] text-text">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
               <div className="flex items-center gap-2">
-                <i className="ph ph-lightbulb text-xl text-accent"></i>
+                <Icon name="lightbulb" className="text-xl text-accent" />
                 <h3 className="font-semibold text-lg">
                   {t(
                     "pages:student.lessons.uxNotesTitle",
@@ -154,7 +153,7 @@ export const LessonLibraryPage = () => {
                 className="w-8 h-8 rounded-lg grid place-items-center text-text-muted hover:text-text hover:bg-surface-hover transition-colors cursor-pointer"
                 onClick={() => setShowUxNotes(false)}
               >
-                <i className="ph ph-x text-lg"></i>
+                <Icon name="x" className="text-lg" />
               </button>
             </div>
             <div className="flex flex-col gap-3 text-sm text-text-muted leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
@@ -260,38 +259,23 @@ export const LessonLibraryPage = () => {
           data-ux="lessons"
           onClick={() => setShowUxNotes(true)}
         >
-          <i className="ph ph-lightbulb"></i>
+          <Icon name="lightbulb" />
           {t("pages:student.lessons.uxNotesBtn", "Ghi chú UX")}
         </button>
       </div>
 
       {/* ── YouTube Import Card ── */}
       <div className="relative mb-8 isolate">
-        <svg
-          className="absolute hidden md:block -top-[38px] right-[5%] z-10 w-[84px] h-[84px] overflow-visible pointer-events-none drop-shadow-[0_18px_24px_color-mix(in_srgb,var(--primary)_35%,transparent)] animate-[float_7s_ease-in-out_-2s_infinite]"
-          viewBox="0 0 200 200"
-          aria-hidden="true"
-        >
-          <use href="#o-cone" />
-        </svg>
-        <svg
-          className="absolute -bottom-[26px] -left-[22px] z-10 w-[64px] h-[64px] overflow-visible pointer-events-none drop-shadow-[0_18px_24px_color-mix(in_srgb,var(--primary)_35%,transparent)] animate-[float_8s_ease-in-out_-4s_infinite]"
-          viewBox="0 0 200 200"
-          aria-hidden="true"
-        >
-          <use href="#o-orb" />
-        </svg>
 
         <div
-          {...spotlightProps}
           className="relative flex flex-wrap lg:flex-nowrap items-center gap-5 p-5 sm:p-6 rounded-4xl bg-surface-glass backdrop-blur-xl border border-border-strong shadow-[var(--shadow-card)]"
           style={{
             background:
-              "radial-gradient(circle at 85% 15%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 55%), radial-gradient(400px circle at var(--mx, -999px) var(--my, -999px), color-mix(in srgb, var(--primary) 25%, transparent), transparent 40%), var(--surface)",
+              "radial-gradient(circle at 85% 15%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 55%), var(--surface)",
           }}
         >
           <div className="w-[52px] h-[52px] rounded-md grid place-items-center text-[28px] text-danger bg-[color-mix(in_srgb,var(--danger)_14%,transparent)] shrink-0">
-            <i className="ph-fill ph-youtube-logo"></i>
+            <Icon name="video" />
           </div>
           <div className="flex-1 min-w-[260px]">
             <div className="flex items-center gap-2">
@@ -302,10 +286,10 @@ export const LessonLibraryPage = () => {
                 )}
               </h3>
               <Badge variant="primary">
-                <i className="ph-fill ph-sparkle"></i>AI
+                <Icon name="sparkles" />AI
               </Badge>
               <Badge variant="pro">
-                <i className="ph-fill ph-crown-simple"></i>PRO
+                <Icon name="crown" fill />PRO
               </Badge>
             </div>
             <p className="text-sm sm:text-[15px] text-text-muted mt-1 leading-relaxed">
@@ -323,7 +307,7 @@ export const LessonLibraryPage = () => {
                 "https://youtube.com/watch?v=…",
               )}
               ariaLabel="Link YouTube"
-              icon={<i className="ph ph-link"></i>}
+              icon={<Icon name="link" />}
               value={ytUrl}
               onChange={setYtUrl}
               onKeyDown={(e) => {
@@ -334,7 +318,7 @@ export const LessonLibraryPage = () => {
               variant="primary"
               data-act="ytCreate"
               onClick={handleYtCreate}
-              leftIcon={<i className="ph ph-magic-wand"></i>}
+              leftIcon={<Icon name="wand-sparkles" />}
               className="w-full sm:w-auto justify-center"
             >
               {t("pages:student.lessons.ytCard.createBtn", "Tạo bài")}
@@ -412,17 +396,17 @@ export const LessonLibraryPage = () => {
               {
                 value: "pop",
                 label: t("pages:student.lessons.toolbar.sorts.pop", "Phổ biến"),
-                icon: <i className="ph ph-fire"></i>,
+                icon: <Icon name="flame" />,
               },
               {
                 value: "new",
                 label: t("pages:student.lessons.toolbar.sorts.new", "Mới"),
-                icon: <i className="ph ph-clock"></i>,
+                icon: <Icon name="clock" />,
               },
               {
                 value: "short",
                 label: t("pages:student.lessons.toolbar.sorts.short", "Ngắn"),
-                icon: <i className="ph ph-timer"></i>,
+                icon: <Icon name="timer" />,
               },
             ]}
             value={sortOrder}
@@ -438,7 +422,7 @@ export const LessonLibraryPage = () => {
           onClick={() => setFreeOnly(!freeOnly)}
           className="self-start sm:self-auto"
         >
-          <i className="ph ph-lock-simple-open"></i>
+          <Icon name="lock-open" />
           {t("pages:student.lessons.toolbar.freeOnly", "Chỉ bài miễn phí")}
         </Chip>
       </div>
@@ -447,7 +431,7 @@ export const LessonLibraryPage = () => {
       <div id="lsBody">
         {isLoading ? (
           <div className="flex justify-center p-12">
-            <i className="ph ph-circle-notch text-3xl animate-spin text-primary"></i>
+            <Icon name="loader-circle" className="text-3xl animate-spin text-primary" />
           </div>
         ) : isError ? (
           <EmptyState
@@ -468,7 +452,7 @@ export const LessonLibraryPage = () => {
             <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
               <h2 className="font-display font-bold text-2xl text-text flex items-center">
                 <span className="w-8 h-8 rounded-md inline-grid place-items-center bg-primary-soft text-accent text-lg align-middle mr-2.5">
-                  <i className="ph-duotone ph-funnel" aria-hidden="true"></i>
+                  <Icon name="filter" />
                 </span>
                 {t("pages:student.lessons.filterResults.title", "Kết quả")}{" "}
                 <small className="text-sm font-medium text-text-muted ml-2">
@@ -483,7 +467,7 @@ export const LessonLibraryPage = () => {
                 data-act="lsReset"
                 onClick={handleResetFilters}
               >
-                <i className="ph ph-x"></i>
+                <Icon name="x" />
                 {t(
                   "pages:student.lessons.filterResults.resetBtn",
                   "Xoá bộ lọc",
@@ -524,10 +508,7 @@ export const LessonLibraryPage = () => {
                 <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
                   <h2 className="font-display font-bold text-2xl text-text flex items-center">
                     <span className="w-8 h-8 rounded-md inline-grid place-items-center bg-primary-soft text-accent text-lg align-middle mr-2.5">
-                      <i
-                        className="ph-duotone ph-play-circle"
-                        aria-hidden="true"
-                      ></i>
+                      <Icon name="circle-play" />
                     </span>
                     {t("pages:student.lessons.continue.title", "Tiếp tục học")}
                   </h2>
@@ -541,7 +522,7 @@ export const LessonLibraryPage = () => {
                       onClick={() => navigate(`/student/lessons/${l.slug}`)}
                     >
                       <div className="w-[88px] h-14 rounded-sm relative grid place-items-center overflow-hidden border border-border bg-[radial-gradient(120%_100%_at_25%_10%,var(--primary-soft),transparent_60%)] bg-surface-hover">
-                        <i className="ph-duotone ph-headphones relative z-10 text-2xl text-accent"></i>
+                        <Icon name="headphones" className="relative z-10 text-2xl text-accent" />
                       </div>
                       <div className="flex flex-col gap-1 min-w-0">
                         <b className="font-body font-semibold text-base leading-tight text-text truncate">
@@ -579,7 +560,7 @@ export const LessonLibraryPage = () => {
                           navigate(`/student/lessons/${l.slug}?mode=dictation`);
                         }}
                       >
-                        <i className="ph-fill ph-play ml-0.5"></i>
+                        <Icon name="play" fill className="ml-0.5" />
                       </button>
                     </article>
                   ))}
@@ -593,10 +574,7 @@ export const LessonLibraryPage = () => {
                 <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
                   <h2 className="font-display font-bold text-2xl text-text flex items-center">
                     <span className="w-8 h-8 rounded-md inline-grid place-items-center bg-primary-soft text-accent text-lg align-middle mr-2.5">
-                      <i
-                        className="ph-duotone ph-sparkle"
-                        aria-hidden="true"
-                      ></i>
+                      <Icon name="sparkles" />
                     </span>
                     {t(
                       "pages:student.lessons.b1Section.title",
@@ -629,10 +607,7 @@ export const LessonLibraryPage = () => {
                   <div className="flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-4">
                     <h2 className="font-display font-bold text-xl sm:text-2xl text-text flex items-center">
                       <span className="w-8 h-8 rounded-md inline-grid place-items-center bg-primary-soft text-accent text-lg align-middle mr-2.5">
-                        <i
-                          className={`ph-duotone ph-${sec.topic.icon || "books"}`}
-                          aria-hidden="true"
-                        ></i>
+                        <Icon name={sec.topic.icon} fallback="library" />
                       </span>
                       {i18n.language === "en"
                         ? sec.topic.name || sec.topic.nameVi
@@ -656,7 +631,7 @@ export const LessonLibraryPage = () => {
                         "pages:student.lessons.topicSec.viewAll",
                         "Xem tất cả",
                       )}
-                      <i className="ph ph-arrow-right" aria-hidden="true"></i>
+                      <Icon name="arrow-right" />
                     </button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
@@ -691,7 +666,7 @@ export const LessonLibraryPage = () => {
             onClick={() => handleTopicClick(t.slug)}
             count={t.totalLessons}
           >
-            <i className={`ph ph-${t.icon || "hash"}`}></i>
+            <Icon name={t.icon} fallback="hash" />
             {i18n.language === "en" ? t.name || t.nameVi : t.nameVi || t.name}
           </Chip>
         ))}

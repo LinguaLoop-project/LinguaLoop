@@ -5,7 +5,6 @@
  */
 
 import { Outlet } from "react-router-dom";
-import SvgSprites from "@/components/common/SvgSprites";
 import AdminSidebar from "@/components/layouts/AdminSidebar";
 import AdminTopBar from "@/components/layouts/AdminTopBar";
 import Footer from "@/components/layouts/Footer";
@@ -13,8 +12,6 @@ import Footer from "@/components/layouts/Footer";
 const AdminLayout = () => {
   return (
     <>
-      <SvgSprites />
-
       {/* Background effects */}
       <div
         className="fixed inset-0 pointer-events-none z-0 overflow-hidden"

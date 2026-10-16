@@ -11,6 +11,7 @@ import { LogoMark } from "@/components/common/Logo";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import ThemeToggle from "@/components/common/ThemeToggle";
 import { useAuth } from "@/features/auth";
+import Icon from "@/components/common/Icon";
 
 // Đường dẫn → khoá trong layout:instructor.topbar.titles
 const INSTRUCTOR_PAGE_TITLES: Record<string, string> = {
@@ -156,7 +157,7 @@ export default function InstructorTopBar() {
                     navigate("/instructor/audit");
                   }}
                 >
-                  <i className="ph ph-clock-counter-clockwise text-lg text-text-subtle" aria-hidden="true" />
+                  <Icon name="history" className="text-lg text-text-subtle" />
                   <span>{t("instructor.topbar.myHistory")}</span>
                 </button>
 
@@ -171,7 +172,7 @@ export default function InstructorTopBar() {
                     navigate("/student");
                   }}
                 >
-                  <i className="ph ph-student text-lg text-text-subtle" aria-hidden="true" />
+                  <Icon name="graduation-cap" className="text-lg text-text-subtle" />
                   <span>{t("instructor.topbar.viewAsStudent")}</span>
                 </button>
 
@@ -184,7 +185,7 @@ export default function InstructorTopBar() {
                     handleLogout();
                   }}
                 >
-                  <i className="ph ph-sign-out text-lg" aria-hidden="true" />
+                  <Icon name="log-out" className="text-lg" />
                   <span>{t("instructor.topbar.logout")}</span>
                 </button>
               </div>

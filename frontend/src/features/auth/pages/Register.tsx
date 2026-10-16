@@ -14,6 +14,7 @@ import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
 import Checkbox from "@/components/common/Checkbox";
+import Icon from "@/components/common/Icon";
 
 export const Register = () => {
   const { t } = useTranslation("auth");
@@ -129,7 +130,7 @@ export const Register = () => {
                 : "border-border"
             }`}
           >
-            <i className="ph ph-user text-lg text-text-subtle mr-2.5 shrink-0" />
+            <Icon name="user" className="text-lg text-text-subtle mr-2.5 shrink-0" />
             <input
               id={`${formId}-displayName`}
               type="text"
@@ -165,7 +166,7 @@ export const Register = () => {
                 : "border-border"
             }`}
           >
-            <i className="ph ph-envelope-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+            <Icon name="mail" className="text-lg text-text-subtle mr-2.5 shrink-0" />
             <input
               id={`${formId}-email`}
               type="email"
@@ -225,7 +226,7 @@ export const Register = () => {
                 : "border-border"
             }`}
           >
-            <i className="ph ph-lock-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+            <Icon name="lock" className="text-lg text-text-subtle mr-2.5 shrink-0" />
             <input
               id={`${formId}-password`}
               type={showPassword ? "text" : "password"}
@@ -248,9 +249,7 @@ export const Register = () => {
               }
               aria-pressed={showPassword}
             >
-              <i
-                className={showPassword ? "ph ph-eye-slash" : "ph ph-eye"}
-              />
+              <Icon name={showPassword ? "eye-off" : "eye"} />
             </button>
           </div>
 
@@ -262,7 +261,7 @@ export const Register = () => {
           >
             {errors.password ? (
               <>
-                <i className="ph ph-warning-circle" />
+                <Icon name="circle-alert" />
                 <span>{errors.password.message}</span>
               </>
             ) : passwordInput ? (
@@ -310,7 +309,7 @@ export const Register = () => {
 
         {/* Privacy / AI speech note */}
         <div className="flex items-center gap-2 p-2.5 sm:px-3 rounded-md bg-surface-hover border border-border text-xs text-text-muted">
-          <i className="ph ph-shield-check text-base text-accent shrink-0" />
+          <Icon name="shield-check" className="text-base text-accent shrink-0" />
           <span>{t("register.voiceNote")}</span>
         </div>
 

@@ -14,6 +14,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
 import { useSpotlight } from "@/hooks/useSpotlight";
+import Icon from "@/components/common/Icon";
 
 type NavItem = {
   id: string;
@@ -25,11 +26,11 @@ type NavItem = {
 };
 
 const STUDENT_NAV: NavItem[] = [
-  { id: "today", icon: "sun-horizon", labelKey: "today", to: "/student" },
+  { id: "today", icon: "sun", labelKey: "today", to: "/student" },
 ];
 
 const LEARN_NAV: NavItem[] = [
-  { id: "lessons", icon: "books", labelKey: "lessons", to: "/student/lessons" },
+  { id: "lessons", icon: "library", labelKey: "lessons", to: "/student/lessons" },
   {
     id: "dictation",
     icon: "headphones",
@@ -38,17 +39,17 @@ const LEARN_NAV: NavItem[] = [
   },
   {
     id: "shadowing",
-    icon: "microphone",
+    icon: "mic",
     labelKey: "shadowing",
     to: "/student/shadowing",
   },
-  { id: "vocab", icon: "cards", labelKey: "vocab", to: "/student/vocab" },
+  { id: "vocab", icon: "layers", labelKey: "vocab", to: "/student/vocab" },
 ];
 
 const PERSONAL_NAV: NavItem[] = [
   {
     id: "mywords",
-    icon: "bookmarks-simple",
+    icon: "bookmark",
     labelKey: "mywords",
     to: "/student/mywords",
     badge: 8,
@@ -59,14 +60,13 @@ const PERSONAL_NAV: NavItem[] = [
     labelKey: "weakness",
     to: "/student/weakness",
   },
-  { id: "test", icon: "exam", labelKey: "test", to: "/student/test" },
+  { id: "test", icon: "file-check", labelKey: "test", to: "/student/test" },
 ];
 
 function NavItem({ item }: { item: NavItem }) {
   const { t } = useTranslation("layout");
   const label = t(`student.sidebar.items.${item.labelKey}`);
-  const iconBase = item.icon.replace(/^ph-/, "");
-  return (
+    return (
     <NavLink
       to={item.to}
       end={item.id === "today"}
@@ -74,19 +74,18 @@ function NavItem({ item }: { item: NavItem }) {
         `relative flex items-center gap-3 w-full min-h-[44px] px-3 py-2.5 rounded-md font-medium text-base transition-colors duration-150 ${
           isActive
             ? "bg-primary-soft text-text before:content-[''] before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-0.5 before:rounded-sm before:bg-primary before:shadow-[var(--glow-primary)]"
-            : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_i]:translate-x-0.5"
+            : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_svg]:translate-x-0.5"
         }`
       }
       aria-label={label}
     >
       {({ isActive }) => (
         <>
-          <i
-            className={`text-2xl transition-transform duration-200 ${
-              isActive ? "text-accent ph-fill" : "ph"
-            } ph-${iconBase}`}
-            aria-hidden="true"
-          />
+          <Icon
+ name={item.icon}
+ className={`text-2xl shrink-0 transition-transform duration-200 ${isActive ? "text-accent" : ""}`}
+ strokeWidth={isActive ? 2.5 : 2}
+ />
           <span>{label}</span>
           {item.badge != null && item.badge > 0 && (
             <span className="ml-auto min-w-[22px] h-[22px] px-1.5 rounded-full grid place-items-center text-xs font-semibold bg-[rgba(251,113,133,0.18)] text-danger">
@@ -167,10 +166,7 @@ export default function StudentSidebar() {
                 boxShadow: "0 2px 8px rgba(139, 92, 246, 0.35)",
               }}
             >
-              <i
-                className="ph-fill ph-crown-simple text-[13px]"
-                aria-hidden="true"
-              />
+              <Icon name="crown" fill className="text-[13px]" />
               PRO
             </span>
             <b className="block mt-2.5 text-lg font-bold leading-snug text-text">

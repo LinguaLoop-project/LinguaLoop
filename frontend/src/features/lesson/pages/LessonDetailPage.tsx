@@ -6,6 +6,7 @@ import { toApiError } from "@/features/auth";
 import Badge from "../../../components/common/Badge";
 import Button from "../../../components/common/Button";
 import EmptyState from "../../../components/common/EmptyState";
+import Icon from "@/components/common/Icon";
 
 const fmtNum = (n: number) => {
   if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
@@ -80,7 +81,7 @@ export const LessonDetailPage = () => {
   if (isLessonLoading) {
     return (
       <div className="flex justify-center p-12">
-        <i className="ph ph-circle-notch text-3xl animate-spin text-primary"></i>
+        <Icon name="loader-circle" className="text-3xl animate-spin text-primary" />
       </div>
     );
   }
@@ -163,17 +164,17 @@ export const LessonDetailPage = () => {
   return (
     <section className="w-full" id="v-lesson">
       {/* ── Breadcrumb ── */}
-      <div className="flex flex-wrap items-center gap-1.5 text-[13px] text-text-muted mb-4 [&>a]:text-text-muted [&>a]:min-h-8 [&>a]:inline-flex [&>a]:items-center hover:[&>a]:text-text hover:[&>a]:underline [&>i]:text-[14px]">
+      <div className="flex flex-wrap items-center gap-1.5 text-[13px] text-text-muted mb-4 [&>a]:text-text-muted [&>a]:min-h-8 [&>a]:inline-flex [&>a]:items-center hover:[&>a]:text-text hover:[&>a]:underline [&>svg]:text-[14px]">
         <Link to="/student/lessons">
           {t("pages:student.lessons.title", "Bài học")}
         </Link>
-        <i className="ph ph-caret-right"></i>
+        <Icon name="chevron-right" />
         {topicSlug ? (
           <Link to={`/student/topics/${topicSlug}`}>{topicName}</Link>
         ) : (
           <span>{topicName}</span>
         )}
-        <i className="ph ph-caret-right"></i>
+        <Icon name="chevron-right" />
         <span>{lesson.title}</span>
       </div>
 
@@ -217,7 +218,7 @@ export const LessonDetailPage = () => {
                   aria-label={t("common:actions.close", "Đóng")}
                   onClick={() => setIsPlayingMedia(false)}
                 >
-                  <i className="ph ph-x text-base"></i>
+                  <Icon name="x" className="text-base" />
                 </button>
               </div>
             ) : (
@@ -230,10 +231,7 @@ export const LessonDetailPage = () => {
                   />
                 )}
                 <div className="absolute inset-0 z-10 bg-primary-soft mix-blend-luminosity transition-opacity duration-300 pointer-events-none group-hover:opacity-0"></div>
-                <i
-                  className="ph-duotone ph-headphones relative z-10 text-[44px] text-accent drop-shadow-[0_0_14px_color-mix(in_srgb,var(--primary)_60%,transparent)] transition-transform duration-500 group-hover:scale-105 flex items-center justify-center w-full h-full"
-                  aria-hidden="true"
-                ></i>
+                <Icon name="headphones" className="relative z-10 text-[44px] text-accent drop-shadow-[0_0_14px_color-mix(in_srgb,var(--primary)_60%,transparent)] transition-transform duration-500 group-hover:scale-105 flex items-center justify-center w-full h-full" />
 
                 <button
                   className="absolute z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white text-[28px] shadow-[0_0_30px_color-mix(in_srgb,var(--primary)_60%,transparent)] transition-transform duration-200 hover:scale-105 cursor-pointer"
@@ -243,7 +241,7 @@ export const LessonDetailPage = () => {
                   )}
                   onClick={() => setIsPlayingMedia(true)}
                 >
-                  <i className="ph-fill ph-play ml-1"></i>
+                  <Icon name="play" fill className="ml-1" />
                 </button>
               </div>
             )}
@@ -266,41 +264,41 @@ export const LessonDetailPage = () => {
               )}
               {lesson.pro && (
                 <Badge variant="pro">
-                  <i className="ph-fill ph-crown-simple"></i>PRO
+                  <Icon name="crown" fill />PRO
                 </Badge>
               )}
               <span>
                 {isYouTube ? (
                   <>
-                    <i className="ph-fill ph-youtube-logo text-danger"></i>
+                    <Icon name="video" className="text-danger" />
                     YouTube
                   </>
                 ) : (
                   <>
-                    <i className="ph ph-waveform"></i>Audio
+                    <Icon name="audio-lines" />Audio
                   </>
                 )}
               </span>
               <span>
-                <i className="ph ph-clock"></i>
+                <Icon name="clock" />
                 {durationText}
               </span>
               <span>
-                <i className="ph ph-list-numbers"></i>
+                <Icon name="list-ordered" />
                 {t("pages:student.lessonDetail.sentencesCount", {
                   count: lesson.sentenceCount,
                   defaultValue: `${lesson.sentenceCount} câu`,
                 })}
               </span>
               <span>
-                <i className="ph ph-headphones"></i>
+                <Icon name="headphones" />
                 {t("pages:student.lessonDetail.viewsCount", {
                   count: fmtNum(lesson.viewCount || 95482),
                   defaultValue: `${fmtNum(lesson.viewCount || 95482)} lượt học`,
                 })}
               </span>
               <span>
-                <i className="ph ph-calendar-blank"></i>
+                <Icon name="calendar" />
                 {t("pages:student.lessonDetail.recentAdded", "Thêm gần đây")}
               </span>
             </div>
@@ -338,7 +336,7 @@ export const LessonDetailPage = () => {
             >
               <div className="flex items-center justify-between">
                 <div className="w-12 h-12 rounded-md grid place-items-center text-[26px] bg-primary-soft text-accent border border-border transition-transform duration-300 group-hover:scale-105">
-                  <i className="ph ph-headphones"></i>
+                  <Icon name="headphones" />
                 </div>
               </div>
               <div>
@@ -375,7 +373,7 @@ export const LessonDetailPage = () => {
                   e.stopPropagation();
                   navigate(`/student/dictation/${lesson.slug}`);
                 }}
-                rightIcon={<i className="ph ph-arrow-right"></i>}
+                rightIcon={<Icon name="arrow-right" />}
               >
                 {t("pages:student.lessonDetail.dictation.start", "Bắt đầu")}
               </Button>
@@ -399,7 +397,7 @@ export const LessonDetailPage = () => {
             >
               <div className="flex items-center justify-between">
                 <div className="w-12 h-12 rounded-md grid place-items-center text-[26px] bg-primary-soft text-accent border border-border transition-transform duration-300 group-hover:scale-105">
-                  <i className="ph ph-microphone"></i>
+                  <Icon name="mic" />
                 </div>
               </div>
               <div>
@@ -436,7 +434,7 @@ export const LessonDetailPage = () => {
                   e.stopPropagation();
                   navigate(`/student/shadowing/${lesson.slug}`);
                 }}
-                rightIcon={<i className="ph ph-arrow-right"></i>}
+                rightIcon={<Icon name="arrow-right" />}
               >
                 {t("pages:student.lessonDetail.shadowing.start", "Bắt đầu")}
               </Button>
@@ -461,9 +459,7 @@ export const LessonDetailPage = () => {
                 aria-pressed={showTranscript}
                 onClick={() => setShowTranscript(!showTranscript)}
                 leftIcon={
-                  <i
-                    className={`ph ${showTranscript ? "ph-eye-slash" : "ph-eye"}`}
-                  ></i>
+                  <Icon name={showTranscript ? "eye-off" : "eye"} />
                 }
               >
                 {showTranscript
@@ -506,7 +502,7 @@ export const LessonDetailPage = () => {
                 />
               ) : isSentencesLoading ? (
                 <div className="flex justify-center p-6">
-                  <i className="ph ph-circle-notch text-2xl animate-spin text-primary"></i>
+                  <Icon name="loader-circle" className="text-2xl animate-spin text-primary" />
                 </div>
               ) : sentenceList.length > 0 ? (
                 <>
@@ -528,7 +524,7 @@ export const LessonDetailPage = () => {
                           </span>
                         )}
                       </div>
-                      <span className="inline-flex items-center gap-1.5 text-xs text-text-muted whitespace-nowrap [&>i]:text-base shrink-0 self-start mt-1">
+                      <span className="inline-flex items-center gap-1.5 text-xs text-text-muted whitespace-nowrap [&>svg]:text-base shrink-0 self-start mt-1">
                         <span>
                           {formatTimeMs(s.startMs)}
                         </span>
@@ -543,7 +539,7 @@ export const LessonDetailPage = () => {
                           )}
                           onClick={() => speak(s.text)}
                         >
-                          <i className="ph ph-speaker-high"></i>
+                          <Icon name="volume-2" />
                         </button>
                       </span>
                     </div>
@@ -572,7 +568,7 @@ export const LessonDetailPage = () => {
                                 (prev) => prev + SENTENCE_STEP,
                               )
                             }
-                            leftIcon={<i className="ph ph-caret-down"></i>}
+                            leftIcon={<Icon name="chevron-down" />}
                           >
                             {t(
                               "pages:student.lessonDetail.transcript.showMore",
@@ -590,7 +586,7 @@ export const LessonDetailPage = () => {
                             onClick={() =>
                               setVisibleSentenceCount(INITIAL_SENTENCE_LIMIT)
                             }
-                            leftIcon={<i className="ph ph-caret-up"></i>}
+                            leftIcon={<Icon name="chevron-up" />}
                           >
                             {t(
                               "pages:student.lessonDetail.transcript.collapse",
@@ -634,7 +630,7 @@ export const LessonDetailPage = () => {
               <div className="flex flex-col gap-2 text-xs flex-1">
                 <div className="flex items-center justify-between">
                   <span className="text-text-muted flex items-center gap-2">
-                    <i className="ph ph-headphones text-accent"></i>
+                    <Icon name="headphones" className="text-accent" />
                     {t(
                       "pages:student.lessonDetail.dictation.title",
                       "Nghe chép",
@@ -644,7 +640,7 @@ export const LessonDetailPage = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-text-muted flex items-center gap-2">
-                    <i className="ph ph-microphone text-accent"></i>
+                    <Icon name="mic" className="text-accent" />
                     {t(
                       "pages:student.lessonDetail.shadowing.title",
                       "Shadowing",
@@ -654,7 +650,7 @@ export const LessonDetailPage = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-text-muted flex items-center gap-2">
-                    <i className="ph ph-clock text-accent"></i>
+                    <Icon name="clock" className="text-accent" />
                     {t(
                       "pages:student.lessonDetail.aside.studyTime",
                       "Thời gian học",
@@ -690,7 +686,7 @@ export const LessonDetailPage = () => {
                     aria-label={`Nghe ${w.word}`}
                     onClick={() => speak(w.word)}
                   >
-                    <i className="ph ph-speaker-high"></i>
+                    <Icon name="volume-2" />
                   </button>
                   <div>
                     <b className="text-text text-sm">{w.word}</b>{" "}
@@ -708,7 +704,7 @@ export const LessonDetailPage = () => {
                     btn.classList.toggle("text-primary");
                   }}
                 >
-                  <i className="ph ph-bookmark-simple"></i>
+                  <Icon name="bookmark" />
                 </button>
               </div>
             ))}
@@ -721,7 +717,7 @@ export const LessonDetailPage = () => {
                 {t("pages:student.lessonDetail.aside.notes", "Ghi chú của tôi")}
               </div>
               <button className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer">
-                <i className="ph ph-plus"></i>
+                <Icon name="plus" />
                 {t("pages:student.lessonDetail.aside.add", "Thêm")}
               </button>
             </div>
@@ -753,7 +749,7 @@ export const LessonDetailPage = () => {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-surface-hover">
-                      <i className="ph-duotone ph-headphones text-base text-accent"></i>
+                      <Icon name="headphones" className="text-base text-accent" />
                     </div>
                   )}
                 </div>
@@ -779,7 +775,7 @@ export const LessonDetailPage = () => {
                   navigate("/student/lessons");
                 }
               }}
-              rightIcon={<i className="ph ph-arrow-right"></i>}
+              rightIcon={<Icon name="arrow-right" />}
             >
               {topicSlug
                 ? t("pages:student.lessonDetail.related.viewTopic", {

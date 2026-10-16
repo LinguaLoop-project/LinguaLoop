@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import SecuritySection from "../components/SecuritySection";
+import Icon from "@/components/common/Icon";
 
 const TABS = [
-  { id: "profile", icon: "user-circle" },
+  { id: "profile", icon: "circle-user" },
   { id: "learning", icon: "target" },
   { id: "display", icon: "palette" },
   { id: "security", icon: "shield-check" },
-  { id: "plan", icon: "crown-simple" },
-  { id: "privacy", icon: "lock-key" },
+  { id: "plan", icon: "crown" },
+  { id: "privacy", icon: "lock-keyhole" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -48,7 +49,7 @@ export default function Settings() {
                     : "bg-transparent text-text-muted hover:bg-surface-hover hover:text-text"
                 }`}
               >
-                <i className={`ph ph-${icon} text-lg ${active ? "text-accent" : ""}`} />
+                <Icon name={icon} className={`text-lg ${active ? "text-accent" : ""}`} />
                 {t(`settings.tabs.${id}`)}
               </button>
             );

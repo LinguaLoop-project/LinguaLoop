@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import GoogleLogo from "@/features/auth/components/GoogleLogo";
 import { isGoogleConfigured } from "../googleConfig";
 import { startGoogleLogin } from "../googleOAuth";
 import Button from "@/components/common/Button";
@@ -19,9 +20,7 @@ export default function GoogleSignInButton() {
         fullWidth
         onClick={startGoogleLogin}
         leftIcon={
-          <svg className="mr-1 h-5 w-5 shrink-0" aria-hidden="true">
-            <use href="#g-google" />
-          </svg>
+          <GoogleLogo className="mr-1 h-5 w-5" />
         }
       >
         <span>{t("google.continue")}</span>

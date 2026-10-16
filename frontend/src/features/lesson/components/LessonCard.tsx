@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { LessonSummary } from "../types";
 import Badge from "../../../components/common/Badge";
 import GlassTag from "../../../components/common/GlassTag";
+import Icon from "@/components/common/Icon";
 
 interface LessonCardProps {
   lesson: LessonSummary;
@@ -70,19 +71,9 @@ export const LessonCard = ({ lesson }: LessonCardProps) => {
           />
         ) : (
           <>
-            {/* ── 3D Orb Artwork Fallback (hiển thị khi không có thumbnail hoặc lỗi ảnh) ── */}
+            {/* ── Fallback khi không có thumbnail hoặc ảnh lỗi ── */}
             <div className="absolute inset-0 z-10 bg-primary-soft mix-blend-luminosity transition-opacity duration-250 pointer-events-none group-hover:opacity-0" />
-            <svg
-              className="absolute h-[74%] w-auto aspect-square left-1/2 top-[13%] -translate-x-1/2 transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
-              viewBox="0 0 200 200"
-              aria-hidden="true"
-            >
-              <use href="#o-orb" />
-            </svg>
-            <i
-              className="ph-duotone ph-headphones relative z-10 text-[42px] sm:text-[44px] text-accent drop-shadow-[0_0_14px_color-mix(in_srgb,var(--primary)_60%,transparent)] transition-transform duration-500 ease-out group-hover:scale-105"
-              aria-hidden="true"
-            />
+            <Icon name="headphones" className="relative z-10 text-[42px] sm:text-[44px] text-accent drop-shadow-[0_0_14px_color-mix(in_srgb,var(--primary)_60%,transparent)] transition-transform duration-500 ease-out group-hover:scale-105" />
           </>
         )}
 
@@ -90,14 +81,12 @@ export const LessonCard = ({ lesson }: LessonCardProps) => {
         <div className="absolute z-30 top-2.5 left-2.5 flex items-center gap-1.5">
           {isPro && (
             <Badge variant="pro">
-              <i
-                className={`ph-fill ${lesson.locked ? "ph-lock-simple" : "ph-crown-simple"}`}
-              ></i>
+              <Icon name={lesson.locked ? "lock" : "crown"} fill={!lesson.locked} />
               PRO
             </Badge>
           )}
           <GlassTag title={t("student.lessons.card.views", "Lượt học")}>
-            <i className="ph ph-headphones"></i>
+            <Icon name="headphones" />
             {fmtNum(lesson.viewCount || 0)}
           </GlassTag>
         </div>
@@ -114,11 +103,11 @@ export const LessonCard = ({ lesson }: LessonCardProps) => {
           <GlassTag>
             {isYouTube ? (
               <>
-                <i className="ph-fill ph-youtube-logo text-danger"></i>YouTube
+                <Icon name="video" className="text-danger" />YouTube
               </>
             ) : (
               <>
-                <i className="ph ph-waveform text-accent"></i>Audio
+                <Icon name="audio-lines" className="text-accent" />Audio
               </>
             )}
           </GlassTag>
@@ -126,7 +115,7 @@ export const LessonCard = ({ lesson }: LessonCardProps) => {
 
         <div className="absolute z-30 bottom-2.5 right-2.5 flex items-center gap-1.5">
           <GlassTag>
-            <i className="ph ph-clock"></i>
+            <Icon name="clock" />
             {formatDuration(lesson.durationSec ?? 0)}
           </GlassTag>
         </div>
@@ -147,23 +136,23 @@ export const LessonCard = ({ lesson }: LessonCardProps) => {
         </div>
         <div className="grid grid-cols-2 gap-2 mt-auto pt-3">
           <button
-            className="relative flex items-center justify-center gap-1.5 min-h-10 px-2 rounded-md border border-border-strong text-xs sm:text-sm font-semibold text-text-muted hover:bg-primary-soft hover:border-primary hover:text-text transition-colors duration-150 cursor-pointer [&>i]:text-base sm:[&>i]:text-lg"
+            className="relative flex items-center justify-center gap-1.5 min-h-10 px-2 rounded-md border border-border-strong text-xs sm:text-sm font-semibold text-text-muted hover:bg-primary-soft hover:border-primary hover:text-text transition-colors duration-150 cursor-pointer [&>svg]:text-base sm:[&>svg]:text-lg"
             data-start="dictation"
             data-lesson={lesson.slug}
             aria-label={`${t("student.lessons.card.dictation", "Nghe chép")}: ${lesson.title}`}
             onClick={(e) => handleStartMode(e, "dictation")}
           >
-            <i className="ph ph-headphones"></i>
+            <Icon name="headphones" />
             {t("student.lessons.card.dictation", "Nghe chép")}
           </button>
           <button
-            className="relative flex items-center justify-center gap-1.5 min-h-10 px-2 rounded-md border border-border-strong text-xs sm:text-sm font-semibold text-text-muted hover:bg-primary-soft hover:border-primary hover:text-text transition-colors duration-150 cursor-pointer [&>i]:text-base sm:[&>i]:text-lg"
+            className="relative flex items-center justify-center gap-1.5 min-h-10 px-2 rounded-md border border-border-strong text-xs sm:text-sm font-semibold text-text-muted hover:bg-primary-soft hover:border-primary hover:text-text transition-colors duration-150 cursor-pointer [&>svg]:text-base sm:[&>svg]:text-lg"
             data-start="shadowing"
             data-lesson={lesson.slug}
             aria-label={`${t("student.lessons.card.shadowing", "Shadowing")}: ${lesson.title}`}
             onClick={(e) => handleStartMode(e, "shadowing")}
           >
-            <i className="ph ph-microphone"></i>
+            <Icon name="mic" />
             {t("student.lessons.card.shadowing", "Shadowing")}
           </button>
         </div>

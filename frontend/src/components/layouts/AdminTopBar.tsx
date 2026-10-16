@@ -12,6 +12,7 @@ import { LogoMark } from "@/components/common/Logo";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import ThemeToggle from "@/components/common/ThemeToggle";
 import { useAuth } from "@/features/auth";
+import Icon from "@/components/common/Icon";
 
 // Đường dẫn → khoá trong layout:admin.topbar.titles
 const ADMIN_PAGE_TITLES: Record<string, string> = {
@@ -154,7 +155,7 @@ export default function AdminTopBar() {
                     navigate("/admin/settings");
                   }}
                 >
-                  <i className="ph ph-gear-six text-lg text-text-subtle" aria-hidden="true" />
+                  <Icon name="settings" className="text-lg text-text-subtle" />
                   <span>{t("admin.topbar.systemSettings")}</span>
                 </button>
 
@@ -169,7 +170,7 @@ export default function AdminTopBar() {
                     handleLogout();
                   }}
                 >
-                  <i className="ph ph-sign-out text-lg" aria-hidden="true" />
+                  <Icon name="log-out" className="text-lg" />
                   <span>{t("admin.topbar.logout")}</span>
                 </button>
               </div>

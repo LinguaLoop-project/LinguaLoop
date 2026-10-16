@@ -40,7 +40,6 @@ export type {
 // Brand & Assets
 export { default as Logo } from "./Logo";
 export { default as NotFound } from "./NotFound";
-export { default as SvgSprites } from "./SvgSprites";
 
 export { UpgradeModal } from './UpgradeModal';
 export { default as PlaceholderPage } from './PlaceholderPage';

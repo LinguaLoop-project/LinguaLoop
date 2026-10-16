@@ -7,6 +7,7 @@ import type { ApiError } from "../types";
 import { EMAIL_RE } from "../validations/authSchemas";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
+import Icon from "@/components/common/Icon";
 
 type VerifyStatus = "loading" | "verified" | "already" | "invalid_link" | "error";
 
@@ -169,7 +170,7 @@ const VerifyEmail = () => {
                     : "border-border"
                 }`}
               >
-                <i className="ph ph-envelope-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+                <Icon name="mail" className="text-lg text-text-subtle mr-2.5 shrink-0" />
                 <input
                   id="vfEmail"
                   type="email"

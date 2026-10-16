@@ -1,4 +1,5 @@
 import React from "react";
+import Icon from "@/components/common/Icon";
 
 export interface EmptyStateProps {
   icon?: string;
@@ -36,7 +37,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         />
       ) : icon ? (
         <div className="w-16 h-16 rounded-2xl grid place-items-center text-3xl bg-primary-soft text-accent border border-border mb-1">
-          <i className={`ph ${icon}`} aria-hidden="true" />
+          <Icon name={icon} />
         </div>
       ) : null}
 

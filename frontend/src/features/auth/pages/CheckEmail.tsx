@@ -6,6 +6,7 @@ import { errorMessage, toApiError } from "../errors";
 import type { ApiError } from "../types";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
+import Icon from "@/components/common/Icon";
 
 const RESEND_COOLDOWN_MS = 60_000;
 
@@ -116,7 +117,7 @@ const CheckEmail = () => {
         onClick={handleResend}
         disabled={sending || secondsLeft > 0}
         isLoading={sending}
-        leftIcon={<i className="ph ph-paper-plane-tilt" />}
+        leftIcon={<Icon name="send" />}
       >
         {secondsLeft > 0
           ? t("checkEmail.resendIn", { seconds: secondsLeft })

@@ -7,6 +7,7 @@ import { LessonCard } from "../components/LessonCard";
 import SegmentedControl from "../../../components/common/SegmentedControl";
 import Button from "../../../components/common/Button";
 import EmptyState from "../../../components/common/EmptyState";
+import Icon from "@/components/common/Icon";
 
 export const TopicDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -50,7 +51,7 @@ export const TopicDetailPage = () => {
   if (isTopicLoading) {
     return (
       <div className="flex justify-center p-12">
-        <i className="ph ph-circle-notch text-3xl animate-spin text-primary"></i>
+        <Icon name="loader-circle" className="text-3xl animate-spin text-primary" />
       </div>
     );
   }
@@ -89,27 +90,17 @@ export const TopicDetailPage = () => {
     <section className="w-full" id="v-topic">
       {/* ── Breadcrumb & Topic Hero ── */}
       <div id="tpHead" className="mb-6">
-        <div className="flex flex-wrap items-center gap-1.5 text-[13px] text-text-muted mb-4 [&>a]:text-text-muted [&>a]:min-h-8 [&>a]:inline-flex [&>a]:items-center hover:[&>a]:text-text hover:[&>a]:underline [&>i]:text-[14px]">
+        <div className="flex flex-wrap items-center gap-1.5 text-[13px] text-text-muted mb-4 [&>a]:text-text-muted [&>a]:min-h-8 [&>a]:inline-flex [&>a]:items-center hover:[&>a]:text-text hover:[&>a]:underline [&>svg]:text-[14px]">
           <Link to="/student/lessons">
             {t("pages:student.lessons.title", "Bài học")}
           </Link>
-          <i className="ph ph-caret-right"></i>
+          <Icon name="chevron-right" />
           <span>{topicDisplayName}</span>
         </div>
 
         <div className="relative flex flex-wrap items-center gap-6 my-2 mb-7">
-          <div className="relative w-24 h-24 shrink-0 grid place-items-center">
-            <svg
-              viewBox="0 0 200 200"
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full"
-            >
-              <use href="#o-orb" />
-            </svg>
-            <i
-              className={`ph-duotone ph-${topic.icon || "books"} relative text-[40px] text-accent`}
-              aria-hidden="true"
-            ></i>
+          <div className="relative w-24 h-24 shrink-0 grid place-items-center rounded-2xl bg-primary-soft border border-border">
+            <Icon name={topic.icon} fallback="library" className="relative text-[40px] text-accent" />
           </div>
 
           <div className="flex-1 min-w-[280px]">
@@ -206,7 +197,7 @@ export const TopicDetailPage = () => {
       {/* ── Grid of lessons ── */}
       {isLessonsLoading && lessons.length === 0 ? (
         <div className="flex justify-center p-12">
-          <i className="ph ph-circle-notch text-3xl animate-spin text-primary"></i>
+          <Icon name="loader-circle" className="text-3xl animate-spin text-primary" />
         </div>
       ) : lessons.length > 0 ? (
         <div
@@ -236,7 +227,7 @@ export const TopicDetailPage = () => {
           <Button
             variant="ghost"
             onClick={handleLoadMore}
-            rightIcon={<i className="ph ph-caret-down"></i>}
+            rightIcon={<Icon name="chevron-down" />}
           >
             {t("pages:student.topicDetail.loadMore", {
               count: matchedCount - lessons.length,

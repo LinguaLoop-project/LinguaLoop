@@ -10,6 +10,7 @@ import GoogleSignInButton from "../components/GoogleSignInButton";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
 import Checkbox from "@/components/common/Checkbox";
+import Icon from "@/components/common/Icon";
 
 export const Login = () => {
   const { t } = useTranslation("auth");
@@ -118,7 +119,7 @@ export const Login = () => {
               : "border-border"
           }`}
         >
-          <i className="ph ph-envelope-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+          <Icon name="mail" className="text-lg text-text-subtle mr-2.5 shrink-0" />
           <input
             id="liEmail"
             type="email"
@@ -162,7 +163,7 @@ export const Login = () => {
               : "border-border"
           }`}
         >
-          <i className="ph ph-lock-simple text-lg text-text-subtle mr-2.5 shrink-0" />
+          <Icon name="lock" className="text-lg text-text-subtle mr-2.5 shrink-0" />
           <input
             id="liPw"
             type={showPassword ? "text" : "password"}
@@ -183,9 +184,7 @@ export const Login = () => {
             }
             aria-pressed={showPassword}
           >
-            <i
-              className={showPassword ? "ph ph-eye-slash" : "ph ph-eye"}
-            />
+            <Icon name={showPassword ? "eye-off" : "eye"} />
           </button>
         </div>
         {errors.password && (

@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuota } from "@/hooks/useQuota";
+import Icon from "@/components/common/Icon";
 
 export interface PlaceholderPageProps {
   /** Khoá trong locales `pages` (vd "student.today"): lấy title, description và icon theo ngôn ngữ đang chọn. */
@@ -14,47 +15,47 @@ export interface PlaceholderPageProps {
 
 // Icon theo tên trang (đoạn cuối của pageKey, bỏ hậu tố "Detail")
 const PAGE_ICONS: Record<string, string> = {
-  today: "sun-horizon",
-  lesson: "books",
-  lessons: "books",
+  today: "sun",
+  lesson: "library",
+  lessons: "library",
   topic: "folders",
   topics: "folders",
-  vocab: "cards",
-  deck: "cards",
-  decks: "cards",
+  vocab: "layers",
+  deck: "layers",
+  decks: "layers",
   dictation: "headphones",
-  shadowing: "microphone",
-  phoneme: "microphone",
+  shadowing: "mic",
+  phoneme: "mic",
   users: "users",
   user: "users",
   students: "users",
   instructors: "users",
   reports: "flag",
   report: "flag",
-  test: "exam",
-  cefr: "exam",
-  qbank: "exam",
-  audit: "clock-counter-clockwise",
-  logs: "clock-counter-clockwise",
+  test: "file-check",
+  cefr: "file-check",
+  qbank: "file-check",
+  audit: "history",
+  logs: "history",
   limits: "credit-card",
   subs: "credit-card",
   subscriptions: "credit-card",
-  settings: "gear-six",
-  profile: "user-circle",
-  analytics: "chart-line-up",
-  stats: "chart-line-up",
-  progress: "chart-line-up",
-  classes: "chalkboard-teacher",
+  settings: "settings",
+  profile: "circle-user",
+  analytics: "trending-up",
+  stats: "trending-up",
+  progress: "trending-up",
+  classes: "presentation",
   dict: "book-open-text",
-  mywords: "bookmarks-simple",
+  mywords: "bookmark",
   weakness: "target",
   compose: "pencil-line",
 };
 
 function resolveIcon(pageKey?: string, customIcon?: string): string {
-  if (customIcon) return customIcon.replace(/^ph-/, "");
+  if (customIcon) return customIcon;
   const page = pageKey?.split(".").pop()?.replace(/Detail$/, "") ?? "";
-  return PAGE_ICONS[page] ?? "sparkle";
+  return PAGE_ICONS[page] ?? "sparkles";
 }
 
 export default function PlaceholderPage({
@@ -99,7 +100,7 @@ export default function PlaceholderPage({
 
         {/* Icon đại diện */}
         <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-soft border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-accent text-3xl shadow-[0_0_24px_rgba(139,92,246,0.22)] mb-4 shrink-0">
-          <i className={`ph ph-${iconBase}`} aria-hidden="true" />
+          <Icon name={iconBase} />
         </div>
 
         {/* Badge trạng thái */}
@@ -120,7 +121,7 @@ export default function PlaceholderPage({
         <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
           <div className="p-3.5 rounded-xl border border-border bg-surface/60 flex flex-col gap-1">
             <div className="flex items-center gap-1.5 text-accent text-sm font-semibold">
-              <i className="ph ph-layout text-base" aria-hidden="true" />
+              <Icon name="layout-dashboard" className="text-base" />
               <span>{t("common:placeholder.features.ui.title")}</span>
             </div>
             <p className="text-xs text-text-muted leading-snug">
@@ -130,7 +131,7 @@ export default function PlaceholderPage({
 
           <div className="p-3.5 rounded-xl border border-border bg-surface/60 flex flex-col gap-1">
             <div className="flex items-center gap-1.5 text-accent text-sm font-semibold">
-              <i className="ph ph-robot text-base" aria-hidden="true" />
+              <Icon name="bot" className="text-base" />
               <span>{t("common:placeholder.features.ai.title")}</span>
             </div>
             <p className="text-xs text-text-muted leading-snug">
@@ -140,7 +141,7 @@ export default function PlaceholderPage({
 
           <div className="p-3.5 rounded-xl border border-border bg-surface/60 flex flex-col gap-1">
             <div className="flex items-center gap-1.5 text-accent text-sm font-semibold">
-              <i className="ph ph-arrows-clockwise text-base" aria-hidden="true" />
+              <Icon name="refresh-cw" className="text-base" />
               <span>{t("common:placeholder.features.sync.title")}</span>
             </div>
             <p className="text-xs text-text-muted leading-snug">
@@ -156,7 +157,7 @@ export default function PlaceholderPage({
             onClick={() => navigate(-1)}
             className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border-strong bg-surface text-text text-sm font-semibold transition-colors duration-150 hover:bg-surface-hover hover:border-text-muted cursor-pointer select-none"
           >
-            <i className="ph ph-arrow-left text-base" aria-hidden="true" />
+            <Icon name="arrow-left" className="text-base" />
             <span>{t("common:placeholder.back")}</span>
           </button>
 
@@ -165,7 +166,7 @@ export default function PlaceholderPage({
             onClick={() => navigate(homePath)}
             className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-semibold transition-opacity duration-150 hover:opacity-90 shadow-sm cursor-pointer select-none border-0"
           >
-            <i className="ph ph-house text-base" aria-hidden="true" />
+            <Icon name="house" className="text-base" />
             <span>{homeLabel}</span>
           </button>
           
@@ -179,7 +180,7 @@ export default function PlaceholderPage({
             }}
             className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 shadow-sm cursor-pointer select-none border border-purple-200 dark:border-purple-800"
           >
-            <i className="ph-fill ph-lightning text-base" aria-hidden="true" />
+            <Icon name="zap" fill className="text-base" />
             <span>{t("common:placeholder.tryQuota")}</span>
           </button>
         </div>

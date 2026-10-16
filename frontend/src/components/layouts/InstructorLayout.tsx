@@ -5,7 +5,6 @@
  */
 
 import { Outlet } from "react-router-dom";
-import SvgSprites from "@/components/common/SvgSprites";
 import InstructorSidebar from "@/components/layouts/InstructorSidebar";
 import InstructorTopBar from "@/components/layouts/InstructorTopBar";
 import Footer from "@/components/layouts/Footer";
@@ -13,8 +12,6 @@ import Footer from "@/components/layouts/Footer";
 const InstructorLayout = () => {
   return (
     <>
-      <SvgSprites />
-
       {/* Background effects */}
       <div
         className="fixed inset-0 pointer-events-none z-0 overflow-hidden"

@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import GoogleLogo from "@/features/auth/components/GoogleLogo";
 import { useAuthStore } from "@/features/auth";
 import PasswordForm from "./PasswordForm";
 import Badge from "@/components/common/Badge";
@@ -18,9 +19,7 @@ export default function SecuritySection() {
           {t("settings.google.title")}
         </h3>
         <div className="mt-4 flex items-center gap-3">
-          <svg className="h-5 w-5 shrink-0" aria-hidden="true">
-            <use href="#g-google" />
-          </svg>
+          <GoogleLogo className="h-5 w-5" />
           <div className="min-w-0 grow">
             <b className="block text-[15px] font-semibold text-text">{t("settings.google.name")}</b>
             <span className="block truncate text-[13px] text-text-muted mt-0.5">
