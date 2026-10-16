@@ -23,8 +23,8 @@ Phần dùng chung ở cấp gốc `backend/src/main/java/com/lingualoop/backend
 common/exception/  mã lỗi, định dạng lỗi API, GlobalExceptionHandler (@RestControllerAdvice)
 common/response/   ApiResponse, PageResponse
 common/util/       tiện ích dùng chung, không phụ thuộc feature nào
-config/            @Configuration, khai báo bean — không chứa business logic
-security/          JWT, filter, phân quyền theo vai trò
+config/            @Configuration, @ConfigurationProperties (đăng ký bằng @ConfigurationPropertiesScan), khai báo bean — không chứa business logic
+security/          JWT (JwtConfig, JwtTokenService), SecurityConfig, filter, phân quyền theo vai trò — cấu hình thuộc bảo mật đặt ở đây, không đặt ở config/
 ```
 
 Bên trong mỗi feature (ví dụ `dictation/`):
@@ -53,7 +53,7 @@ Quy ước đặt lớp:
 - `@ConfigurationProperties` đặt trong `config/` và được đăng ký bằng `@ConfigurationPropertiesScan` ở `BackendApplication`, không tạo `@Configuration` chỉ để `@EnableConfigurationProperties`.
 
 Quy tắc phụ thuộc:
-- `controller -> service -> repository`. Controller không được gọi thẳng repository; service không được biết `HttpServletRequest`/DTO của tầng web.
+- `controller -> service -> repository`. Controller không được gọi thẳng repository; service không được biết `HttpServletRequest`/`HttpServletResponse`/cookie. Service được nhận DTO `request` và trả DTO `response` hoặc `View`, nhưng không được nhận hay trả entity ra ngoài feature.
 - Feature gọi feature khác **chỉ qua service interface** (danh sách ở mục 4 [planning/README.md](../../planning/README.md)), không import repository hay entity của feature khác.
 - Chỉ chủ sở hữu bảng (mục 3 planning/README.md) được ghi vào bảng đó.
 
