@@ -1,0 +1,104 @@
+/* LinguaLoop v2 — p2.css: Nghe chép, Shadowing, Từ vựng (P2)
+ * Nạp SAU app-v2.css. Mỗi trang gắn data-fn để dùng đúng màu chức năng; nút chính vẫn là tím thương hiệu.
+ * Chuyển động chỉ khi có sự kiện: ghi âm, chấm điểm, lật thẻ, hoàn thành. Không glow, không 3D.
+ */
+[data-fn="dictation"] { --fn: var(--fn-dictation); --fn-soft: var(--fn-dictation-soft); }
+[data-fn="shadowing"] { --fn: var(--fn-shadowing); --fn-soft: var(--fn-shadowing-soft); }
+[data-fn="vocab"]     { --fn: var(--fn-vocab);     --fn-soft: var(--fn-vocab-soft); }
+
+/* ── Đầu trang ── */
+[data-fn] .head .crumb { margin-bottom: 8px; }
+[data-fn] .head .overline { color: var(--fn); margin-bottom: 4px; }
+[data-fn] .text-gradient { background: none; color: var(--text); -webkit-text-fill-color: currentColor; }
+.vimg::after { display: none; }
+.vimg { background: var(--fn-soft); }
+.vimg .art { color: var(--fn); filter: none; }
+.dicon > svg:not(.ic-ph):not(.duo) { display: none; }
+.dicon > svg.duo { display: block; width: 26px; height: 26px; }
+.sec-ic .ic.duo, .sec-ic svg.duo { width: 20px; height: 20px; }
+
+/* ── Thẻ học: gọn để nút chính nằm trong màn hình đầu ── */
+[data-fn] .learn-card { padding: 24px; }
+[data-fn] .sent-dots { margin-bottom: 16px; }
+[data-fn] .sent-dots i.cur { background: var(--fn); }
+.vp { margin: 0 0 20px; }
+.vp-screen { height: 200px; max-height: none; aspect-ratio: auto; width: 100%; border-radius: 0; }
+.vp:not(.audio):not(.collapsed) { background: var(--bg-elevated); }
+.vp-center { background: var(--btn-primary); box-shadow: 0 4px 0 color-mix(in srgb, var(--btn-primary) 55%, #000); }
+.vp-center:active { transform: translateY(3px); box-shadow: none; }
+.vp-seg.cur { background: var(--fn); }
+.vp-head { background: var(--fn); }
+
+/* ── Nghe chép ── */
+#dPlay { width: 72px; height: 72px; background: var(--fn); color: var(--on-fn); box-shadow: 0 4px 0 color-mix(in srgb, var(--fn) 60%, #000);
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast); }
+#dPlay:hover { transform: none; filter: brightness(1.06); }
+#dPlay:active { transform: translateY(3px); box-shadow: none; }
+#dPlay.playing { animation: none; }
+#dPlay.playing::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--fn); animation: ripple 1.2s ease-out infinite; }
+#dPlay { position: relative; }
+.seg button.on { color: var(--fn); }
+[data-fn] .seg-thumb { background: var(--fn-soft); }
+.dict-box textarea:focus { border-color: var(--fn); box-shadow: 0 0 0 4px var(--fn-soft); }
+.dlist-it.cur { border-color: var(--fn); background: var(--fn-soft); }
+.dlist-it.cur svg { color: var(--fn); }
+.learn-card.ok-hit { border-color: var(--success); }
+#dResult { animation: result-in var(--dur-slow) var(--ease-out); }
+@keyframes result-in { from { opacity: 0; transform: translateY(8px); } }
+#dResult .m-say .mascot { animation: react var(--dur-slow) var(--ease-spring); }
+
+/* ── Shadowing ── */
+.stepper3 span.on { border-color: var(--fn); background: var(--fn-soft); }
+.stepper3 span.on b { background: var(--fn); color: var(--on-fn); }
+.karaoke { font-size: 30px; }
+.karaoke .k.lit { background: var(--fn-soft); color: var(--text); box-shadow: inset 0 -3px 0 var(--fn); }
+.mic { background: var(--fn); color: var(--on-fn); box-shadow: 0 5px 0 color-mix(in srgb, var(--fn) 60%, #000); background-size: auto;
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast); }
+.mic:hover { transform: none; filter: brightness(1.06); background-position: 0 0; }
+.mic:active { transform: translateY(4px); box-shadow: none; }
+.mic.rec { background: var(--danger); color: #fff; box-shadow: 0 5px 0 color-mix(in srgb, var(--danger) 60%, #000); }
+.mic.busy { background: var(--text-subtle); box-shadow: none; }
+.mic:focus-visible { outline: 3px solid var(--fn); outline-offset: 4px; }
+canvas.wave { height: 56px; }
+.s-ctrl { margin-top: 12px !important; }
+.mic-denied { display: flex; gap: 16px; align-items: flex-start; padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, transparent); margin-top: 16px; text-align: left; }
+.mic-denied ol { margin: 8px 0 0; padding-left: 18px; color: var(--text-muted); font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.quota-out { display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-radius: var(--radius-lg); border: 1px dashed var(--warning);
+  background: color-mix(in srgb, var(--warning) 8%, transparent); margin-top: 16px; text-align: left; }
+.w-acc .badge { flex: none; }
+
+/* ── Từ vựng ── */
+.opt:hover { border-color: var(--fn); }
+.opt kbd { background: var(--bg-elevated); }
+.fc .face { box-shadow: var(--shadow-card); }
+.fc:focus-visible { outline: 3px solid var(--fn); outline-offset: 4px; border-radius: var(--radius-xl); }
+.bar > i { background: var(--fn, var(--primary)); }
+.save.on { color: var(--fn); }
+.chip.on { border-color: var(--fn); background: var(--fn-soft); }
+.coach { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 16px 20px; border-radius: var(--radius-lg);
+  border: 1px solid var(--fn); background: var(--fn-soft); margin-bottom: 24px; }
+.coach ol { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 2px; color: var(--text-muted); font-size: 14px; }
+.p2-done { text-align: center; padding: 40px 24px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.p2-done .mascot { animation: react var(--dur-slow) var(--ease-spring); }
+.p2-done .stats { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; margin: 12px 0; }
+.p2-done .stats > div { display: flex; flex-direction: column; gap: 2px; min-width: 96px; }
+.p2-done .stats b { font: 800 28px/1 var(--font-display); }
+.p2-empty { text-align: center; padding: 48px 24px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.p2-sugg { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; width: 100%; margin-top: 16px; text-align: left; }
+
+@media (max-width: 767px) {
+  [data-fn] .learn-card { padding: 16px; }
+  .coach { grid-template-columns: minmax(0, 1fr); }
+  .karaoke { font-size: 24px; }
+  .vp-screen { max-height: 200px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #dPlay.playing::after, #dResult, #dResult .m-say .mascot, .p2-done .mascot { animation: none; }
+}
+
+.vp-screen .lthumb { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
+.vp-screen .l-thumb { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 0; }
+.vp-screen .l-thumb .ic-xl { position: absolute; left: 16px; bottom: 16px; width: 36px; height: 36px; transform: none; }
+.karaoke .k { color: var(--text-muted); }
+.karaoke .k.done, .karaoke .k.lit { color: var(--text); }

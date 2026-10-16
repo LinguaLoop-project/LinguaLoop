@@ -1,0 +1,70 @@
+/* LinguaLoop v2 — shadowing.css: bố cục Shadowing (dùng lại khung .dc-* của Nghe chép). Nạp sau dictation.css. */
+[data-fn="shadowing"] .dc-seg.cur { background: var(--fn); }
+[data-fn="shadowing"] .dc-play { background: var(--fn); }
+.dc-head .seg button { min-width: 64px; justify-content: center; }
+
+/* ── Câu cần đọc: từ + IPA ── */
+.shw-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 8px; padding: 14px 8px 6px; }
+.shw { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 8px; border-radius: var(--radius-md); border: 1px solid transparent;
+  background: none; cursor: default; color: var(--text); transition: background-color var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast); }
+.shw .w { font: 700 26px/1.25 var(--font-display); letter-spacing: -.01em; }
+.shw .ipa { font: 500 13px var(--font-ipa); color: var(--text-muted); }
+.shw.lit { background: var(--fn-soft); border-color: var(--fn); }
+.shw.sc-good .w { color: var(--success); }
+.shw.sc-mid .w { color: var(--warning); }
+.shw.sc-bad .w { color: var(--danger); text-decoration: underline wavy; text-underline-offset: 6px; }
+.shw.sc-good, .shw.sc-mid, .shw.sc-bad { cursor: pointer; }
+.shw.sc-good:hover, .shw.sc-mid:hover, .shw.sc-bad:hover { background: var(--surface-hover); }
+.shw.sel { border-color: var(--border-strong); background: var(--surface-hover); }
+.sh-vi { text-align: center; margin: 4px 0 8px; }
+
+/* ── Hàng nút: nghe mẫu · mic · giọng tôi · so sánh ── */
+.sh-actions { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; padding: 14px 0 6px; }
+.sh-micwrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sh-micwrap .mic { width: 72px; height: 72px; font-size: 28px; }
+.sh-micwrap .mic .ic { width: 28px; height: 28px; }
+.mic.busy .ic { animation: spin 0.9s linear infinite; }
+canvas.wave { margin-top: 10px; }
+.dc-work .mic-denied, .dc-work .quota-out { margin-top: 12px; }
+
+/* ── Kết quả gọn ── */
+.sh-res { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); animation: result-in var(--dur-slow) var(--ease-out); }
+.sh-pop { padding: 14px; border-radius: var(--radius-lg); border: 1px solid var(--border-strong); background: var(--bg-elevated); display: flex; flex-direction: column; gap: 12px; }
+.sh-mouth { display: none; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--radius-md); background: var(--fn-soft); color: var(--fn); }
+body.pro .sh-mouth { display: flex; }
+body.pro .sh-pop .lockbox { display: none; }
+
+/* ── Tab Xem ── */
+.sh-watch { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.sh-watch-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.sh-cap { text-align: center; font: 600 18px/1.5 var(--font-body); margin: 4px 0 0; }
+
+/* ── Danh sách câu: bản dịch ── */
+.dl-vi { font-size: 12px; font-style: italic; color: var(--text-subtle); }
+.dl-it .ic { width: 14px; height: 14px; color: var(--success); }
+
+@media (max-width: 767px) {
+  .shw .w { font-size: 20px; }
+  .sh-actions { gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .sh-res, .mic.busy .ic { animation: none; } }
+
+/* Shadowing: câu cần đọc và nút mic là trọng tâm, nên video thu nhỏ hơn Nghe chép */
+[data-fn="shadowing"] .dc-video { width: min(100%, 560px); }
+/* Tab Xem: video là trọng tâm, cho lớn */
+[data-fn="shadowing"][data-tab="watch"] .dc-video { width: min(100%, 760px); }
+
+.sh-actions { padding-top: 8px; }
+.shw-row { padding-top: 8px; }
+
+/* Thanh điều khiển gộp: ← ↻ ▶ → · tốc độ · giọng tôi · so sánh · mic */
+.dc-ctrl .sh-actions { padding: 0; margin-left: auto; gap: 10px; flex-wrap: nowrap; }
+.dc-ctrl { align-items: center; }
+.sh-micwrap .mic { width: 64px; height: 64px; }
+.sh-micwrap .small { font-size: 11px; white-space: nowrap; }
+canvas.wave[hidden] { display: none; }
+
+@media (max-width: 767px) {
+  .dc-ctrl .sh-actions { flex-wrap: wrap; margin-left: 0; width: 100%; justify-content: space-between; }
+  .dc-ctrl .grow { display: none; }
+}

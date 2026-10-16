@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bài học — LinguaLoop v2</title>
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<script>
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll2-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app-v2.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head rv">
+    <div><div class="overline" id="lsOver">Thư viện bài học</div><h1 class="h1" id="lsTitle">Bài học</h1><p class="muted" id="lsSub"></p></div>
+    <div class="row g12 wrap" style="margin-left:auto">
+      <div id="lsLoopi"></div>
+      <button class="btn" data-act="ytOpen"><i data-lucide="youtube" class="ic"></i>Tạo bài từ YouTube<span class="badge pro"><i data-lucide="crown" class="ic"></i>PRO</span></button>
+      <button class="ux-btn" data-ux="lessons"><i data-lucide="lightbulb" class="ic"></i>Ghi chú UX</button>
+    </div>
+  </div>
+
+  <div class="toolbar rv">
+    <div class="search-v2 grow"><i data-lucide="search" class="ic"></i><input id="lsSearch" placeholder="Tìm bài học theo tên…" autocomplete="off" aria-label="Tìm bài học"></div>
+    <div class="seg" id="lsLevel" role="group" aria-label="Trình độ">
+      <button data-v="all" class="on">Tất cả</button><button data-v="basic">Cơ bản (A1–A2)</button><button data-v="mid">Trung cấp (B1–B2)</button><button data-v="adv">Nâng cao (C1–C2)</button>
+    </div>
+    <div class="seg" id="lsSort" role="group" aria-label="Sắp xếp">
+      <button data-v="pop" class="on">Phổ biến</button><button data-v="new">Mới</button><button data-v="short">Ngắn</button>
+    </div>
+    <button class="chip" id="lsFree" aria-pressed="false"><i data-lucide="lock-open" class="ic"></i>Chỉ bài miễn phí</button>
+  </div>
+  <div class="chips-row sticky" id="lsTopics" aria-label="Chuyển nhanh tới chủ đề"></div>
+  <div id="lsBody"></div>
+
+</div></main>
+
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script src="shell.js"></script>
+<script src="compat.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>
+  Shell.init('lessons');
+  let ST = qs().get('state') || 'normal';
+
+  /* ─ Thẻ bài (L12): hai nút chế độ có thanh tiến độ riêng; mode đơn khi đang lọc theo chế độ (L14) ─ */
+  function lcard(L, mode = 'all') {
+    const mb = (m, ic, label, fn) => {
+      const p = m === 'dictation' ? L.d : L.s;
+      return `<button class="lmode fn-${fn}${mode !== 'all' ? ' single' : ''}${L.pro && !isPro() ? ' locked' : ''}" data-start="${m}" data-lesson="${L.slug}"
+        aria-label="${label}: ${esc(L.title)}${p != null ? ', đã làm ' + p + '%' : ''}${L.pro && !isPro() ? ', cần gói Pro' : ''}" title="${p != null ? 'Đã làm ' + p + '%' : 'Chưa học'}">
+        ${L.pro && !isPro() ? icon('lock') : icon(ic)}${label}${p === 100 ? icon('circle-check', 'ic ok') : ''}${p != null ? `<span class="pbar ${p === 100 ? 'full' : ''}" style="width:${p}%"></span>` : ''}</button>`;
+    };
+    return `<article class="card hover l-card rv" data-lesson="${L.slug}" tabindex="0" aria-label="Bài ${esc(L.title)}">
+      ${thumb(L)}
+      <div class="l-body"><h3 class="l-title">${esc(L.title)}</h3><div class="small muted">${esc(L.vi)}</div>
+        <span class="small subtle row g8" style="margin-top:4px">${icon('headphones')}${fmtNum(L.views)} lượt học</span>
+        <div class="lmodes">${mode !== 'shadowing' ? mb('dictation', 'headphones', 'Nghe chép', 'dictation') : ''}${mode !== 'dictation' ? mb('shadowing', 'mic', 'Shadowing', 'shadowing') : ''}</div>
+      </div></article>`;
+  }
+  /* ─ Thẻ "Tiếp tục học" (L9): tiến độ "câu x/n" + nút phát ─ */
+  function ccard(L, mode) {
+    const m = mode !== 'all' ? mode : L.d != null && L.d < 100 ? 'dictation' : 'shadowing', p = (m === 'dictation' ? L.d : L.s) || 0;
+    return `<article class="card hover ccard rv fn-${m}" data-lesson="${L.slug}" tabindex="0" aria-label="Tiếp tục ${esc(L.title)}">
+      ${thumb(L, false)}
+      <div class="meta"><b class="ltitle">${esc(L.title)}</b>
+        <span class="small muted">${m === 'dictation' ? 'Nghe chép' : 'Shadowing'} · câu ${Math.round(L.n * p / 100)}/${L.n}</span>
+        <div class="bar thin"><i style="--v:${p}%"></i></div></div>
+      <button class="btn icon fn" data-start="${m}" data-lesson="${L.slug}" aria-label="Tiếp tục ${esc(L.title)}">${icon('play', 'ic fill')}</button></article>`;
+  }
+  function filterLessons(list, f) {
+    const q = (f.q || '').trim().toLowerCase();
+    const r = list.filter(L => (f.level === 'all' || LV[f.level].includes(L.cefr)) && (!f.free || !L.pro) && (!q || (L.title + ' ' + L.vi).toLowerCase().includes(q)));
+    const by = { pop: (a, b) => b.views - a.views, new: (a, b) => a.age - b.age, short: (a, b) => durSec(a.dur) - durSec(b.dur) }[f.sort || 'pop'];
+    return r.sort(by);
+  }
+
+  const LF = { q: '', level: 'all', sort: 'pop', free: false, mode: 'all', jump: 'all' };
+  function renderLessons() {
+    const m = LF.mode;
+    const [over, title, sub, mood, say] = {
+      all: ['Thư viện bài học', 'Bài học', 'Nghe chép và shadowing trên video, audio thật', 'hello', 'Hôm nay học gì nào?'],
+      dictation: ['Luyện nghe', 'Nghe chép', 'Chọn bài, nghe từng câu rồi gõ lại. Hệ thống chấm từng từ và chỉ ra loại lỗi', 'listening', 'Đeo tai nghe vào nhé!'],
+      shadowing: ['Luyện nói', 'Shadowing', 'Chọn bài, nghe mẫu rồi đọc theo. AI chấm phát âm tới từng âm vị', 'speaking', 'Mình cùng đọc theo nào!'],
+    }[m];
+    $('#lsOver').textContent = over; $('#lsTitle').textContent = title;
+    $('#lsSub').textContent = `${sub} · ${fmtNum(TOPICS.reduce((a, t) => a + t.total, 0))} bài · ${TOPICS.length} chủ đề`;
+    $('#lsLoopi').innerHTML = loopiBubble(mood, say, 56);
+    $('#lsTopics').innerHTML = `<button class="chip${LF.jump === 'all' ? ' on' : ''}" data-jump="all">${icon('layout-grid')}Tất cả</button>` +
+      TOPICS.map(t => `<button class="chip${LF.jump === t.slug ? ' on' : ''}" data-jump="${t.slug}">${icon(t.icon)}${t.name}<small>${t.total}</small></button>`).join('');
+    const fr = $('#lsFree'); fr.classList.toggle('on', LF.free); fr.setAttribute('aria-pressed', LF.free);
+    const prog = (L) => m === 'dictation' ? L.d : m === 'shadowing' ? L.s : null;
+    let html = '';
+    if (LF.q.trim() || LF.level !== 'all' || LF.free) {
+      const r = filterLessons(LESSONS, LF);
+      html = secHead('filter', 'Kết quả', `${r.length} bài`, `<button class="btn text sm" data-act="lsReset">${icon('x')}Xoá bộ lọc</button>`)
+        + (r.length ? `<div class="l-grid">${r.map(L => lcard(L, m)).join('')}</div>`
+          : emptyState('Không có bài nào khớp', 'Thử bỏ bớt điều kiện hoặc tìm bằng từ khác.', `<button class="btn ghost mt16" data-act="lsReset">Xoá bộ lọc</button>`));
+    } else {
+      const cont = LESSONS.filter(L => { if (m === 'all') return started(L) && !isDone(L); const p = prog(L); return p != null && p < 100; });
+      if (cont.length) html += secHead('circle-play', 'Tiếp tục học', null) + `<div class="cont-grid">${cont.slice(0, 3).map(L => ccard(L, m)).join('')}</div>`;
+      const rec = LESSONS.filter(L => ['B1'].includes(L.cefr) && !started(L) && !L.pro).sort((a, b) => b.views - a.views).slice(0, 4);
+      html += secHead('sparkles', 'Hợp trình độ B1 của bạn', null, `<span class="small muted">Gợi ý từ bài kiểm tra trình độ</span>`) + `<div class="l-grid">${rec.map(L => lcard(L, m)).join('')}</div>`;
+      TOPICS.forEach(t => {
+        const ls = filterLessons(LESSONS.filter(L => L.topic === t.slug), LF).slice(0, 4); if (!ls.length) return;
+        html += `<div id="topic-sec-${t.slug}"></div>` + secHead(t.icon, t.name, `${t.total} bài`, `<button class="btn ghost sm" data-go="topic" data-t="${t.slug}">Xem tất cả${icon('arrow-right', 'ic arr')}</button>`)
+          + `<div class="l-grid">${ls.map(L => lcard(L, m)).join('')}</div>`;
+      });
+    }
+    $('#lsBody').innerHTML = html; refreshIcons(); reveal($('#lsBody')); spyTopics();
+  }
+
+  /* ─ Chip chủ đề: nhảy tới mục trong trang; đang lọc thì xoá lọc rồi nhảy ─ */
+  function markChips() { $$('#lsTopics .chip').forEach(c => c.classList.toggle('on', c.dataset.jump === LF.jump)); }
+  function jumpTo(slug) {
+    const filtering = LF.q.trim() || LF.level !== 'all' || LF.free;
+    if (filtering) ACT.lsReset();
+    LF.jump = slug; markChips();
+    const el = slug === 'all' ? $('#lsBody') : document.getElementById('topic-sec-' + slug);
+    if (el) el.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
+  }
+  let spy;
+  function spyTopics() {
+    if (spy) spy.disconnect();
+    spy = new IntersectionObserver((es) => {
+      es.forEach(e => {
+        if (!e.isIntersecting) return;
+        LF.jump = e.target.id.replace('topic-sec-', ''); markChips();
+        const c = $(`#lsTopics [data-jump="${LF.jump}"]`); if (c) c.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+      });
+    }, { rootMargin: '-140px 0px -70% 0px' });
+    $$('[id^="topic-sec-"]').forEach(el => spy.observe(el));
+  }
+
+  /* ─ Bấm chế độ: bài Pro khi Free thì khoá (L13) ─ */
+  function startMode(m, slug) {
+    const L = lessonOf(slug);
+    if (L && L.pro && !isPro()) { toast('Bài này dành cho gói Pro', { label: 'Dùng thử Pro', fn: () => ACT.togglePro() }, 'crown'); return; }
+    go(m, { lesson: slug });
+  }
+  Object.assign(ACT, {
+    ytOpen() {
+      const pro = isPro();
+      $('#dlgIn').innerHTML = `
+        <div class="row g16">${mascot('celebrate', 72)}<div><h2 class="h2" id="dlgTitle">Tạo bài từ video YouTube</h2>
+          <div class="row g8 mt8"><span class="badge t-pri">${icon('sparkles')}AI</span><span class="badge pro">${icon('crown')}PRO</span></div></div></div>
+        <p class="muted mt16" id="dlgBody">Dán link video tiếng Anh, AI tách câu, gắn mốc thời gian và ước lượng trình độ. Bài được duyệt trước khi hiện công khai.</p>
+        <div class="search-v2 mt16" style="min-width:0">${icon('link')}<input id="ytLink" placeholder="https://youtube.com/watch?v=…" aria-label="Link YouTube" autocomplete="off"></div>
+        ${pro ? '' : `<div class="tipbox">${icon('crown', 'ic-lg')}<span>Tạo bài từ YouTube là tính năng của gói <b>Pro</b>. Bật Pro để xem thử.</span></div>`}
+        <div class="row g12 mt24" style="justify-content:flex-end"><button class="btn ghost" data-act="close">Huỷ</button>
+          <button class="btn primary" data-act="ytCreate">${pro ? icon('wand-sparkles') + 'Tạo bài' : icon('crown') + 'Dùng thử Pro'}</button></div>`;
+      refreshIcons(); $('#dialog').classList.add('on'); $('#scrim').classList.add('on'); setTimeout(() => $('#ytLink').focus(), 60);
+    },
+    ytCreate() {
+      if (!isPro()) { ACT.togglePro(); ACT.ytOpen(); return; }
+      closeAll(); toast('AI đang tách câu và ước lượng trình độ… Bài sẽ chờ duyệt trước khi công khai', null, 'wand-sparkles');
+    },
+    lsReset() {
+      Object.assign(LF, { q: '', level: 'all', sort: 'pop', free: false }); $('#lsSearch').value = '';
+      $$('#lsLevel button, #lsSort button').forEach(b => b.classList.toggle('on', b.dataset.v === 'all' || b.dataset.v === 'pop')); segAll(); renderLessons();
+    },
+  });
+  Shell.click((t) => {
+    const jp = t.closest('[data-jump]'); if (jp) { jumpTo(jp.dataset.jump); return true; }
+    const stt = t.closest('[data-start]'); if (stt) { startMode(stt.dataset.start, stt.dataset.lesson); return true; }
+    const sg = t.closest('#lsLevel button, #lsSort button');
+    if (sg) { segPick(sg); LF[sg.closest('#lsLevel') ? 'level' : 'sort'] = sg.dataset.v; renderLessons(); return true; }
+    if (t.closest('#lsFree')) { LF.free = !LF.free; renderLessons(); return true; }
+    const card = t.closest('[data-lesson]'); if (card) { go('lesson', { l: card.dataset.lesson }); return true; }
+  });
+
+  LF.mode = qs().get('id') || 'all';
+  function applyState() {
+    const b = $('#lsBody');
+    if (ST === 'loading') { b.innerHTML = skelCards(8); }
+    else if (ST === 'error' || ST === 'network') { b.innerHTML = errorState(ST === 'network' ? 'network' : 'server', { back: null }); }
+    else if (ST === 'empty') { b.innerHTML = `<div class="card err-state">${mascot('hello', 120)}<h2 class="h2 mt8">Thư viện đang được cập nhật</h2>
+      <p class="muted mt8">Chưa có bài học nào được đăng. Quay lại sau nhé, hoặc thử tạo bài từ video YouTube của riêng bạn.</p>
+      <div class="row g12 mt24"><button class="btn primary" data-act="ytOpen">${icon('youtube')}Tạo bài từ YouTube</button></div></div>`; }
+    else return;
+    refreshIcons();
+  }
+  ACT.retry = () => { ST = 'normal'; $('#lsBody').innerHTML = skelCards(8); setTimeout(() => { renderLessons(); toast('Đã tải xong', null, 'circle-check'); }, 900); };
+  renderLessons(); applyState();
+  window.addEventListener('ll:pro', () => { if (ST === 'normal') renderLessons(); });
+  statePicker([['normal', 'Bình thường'], ['loading', 'Đang tải'], ['error', 'Lỗi máy chủ'], ['network', 'Mất mạng'], ['empty', 'Thư viện rỗng']]);
+  $('#lsSearch').addEventListener('input', e => { LF.q = e.target.value; if (ST === 'normal') renderLessons(); });
+  const q0 = qs().get('q'); if (q0) { LF.q = q0; $('#lsSearch').value = q0; renderLessons(); }
+</script>
+</body>
+</html>

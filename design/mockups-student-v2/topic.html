@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chủ đề — LinguaLoop v2</title>
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<script>
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll2-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app-v2.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div id="tpHead" class="rv"></div>
+  <div class="toolbar rv">
+    <div class="seg" id="tpLevel" role="group" aria-label="Trình độ">
+      <button data-v="all" class="on">Tất cả</button><button data-v="basic">Cơ bản (A1–A2)</button><button data-v="mid">Trung cấp (B1–B2)</button><button data-v="adv">Nâng cao (C1–C2)</button>
+    </div>
+    <div class="seg" id="tpState" role="group" aria-label="Trạng thái">
+      <button data-v="all" class="on">Tất cả</button><button data-v="todo">Chưa học</button><button data-v="doing">Đang học</button><button data-v="done">Đã xong</button>
+    </div>
+    <span class="grow"></span><span class="small muted" id="tpCount"></span>
+    <button class="ux-btn" data-ux="topic"><i data-lucide="lightbulb" class="ic"></i>Ghi chú UX</button>
+  </div>
+  <div class="l-grid" id="tpGrid"></div>
+  <div class="mt32" style="text-align:center" id="tpMore"></div>
+
+</div></main>
+
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script src="shell.js"></script>
+<script src="compat.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>
+  Shell.init('topic');
+  let ST = qs().get('state') || 'normal';
+
+  function lcard(L) {
+    const mb = (m, ic, label, fn) => { const p = m === 'dictation' ? L.d : L.s;
+      return `<button class="lmode fn-${fn}${L.pro && !isPro() ? ' locked' : ''}" data-start="${m}" data-lesson="${L.slug}" aria-label="${label}: ${esc(L.title)}${p != null ? ', đã làm ' + p + '%' : ''}">
+        ${L.pro && !isPro() ? icon('lock') : icon(ic)}${label}${p === 100 ? icon('circle-check', 'ic ok') : ''}${p != null ? `<span class="pbar ${p === 100 ? 'full' : ''}" style="width:${p}%"></span>` : ''}</button>`; };
+    return `<article class="card hover l-card rv" data-lesson="${L.slug}" tabindex="0" aria-label="Bài ${esc(L.title)}">${thumb(L)}
+      <div class="l-body"><h3 class="l-title">${esc(L.title)}</h3><div class="small muted">${esc(L.vi)}</div>
+        <span class="small subtle row g8" style="margin-top:4px">${icon('headphones')}${fmtNum(L.views)} lượt học</span>
+        <div class="lmodes">${mb('dictation', 'headphones', 'Nghe chép', 'dictation')}${mb('shadowing', 'mic', 'Shadowing', 'shadowing')}</div></div></article>`;
+  }
+  const TF = { level: 'all', state: 'all' };
+  const tParam = qs().get('t');
+  const T = topicOf(tParam) || (tParam ? null : TOPICS[0]);
+
+  function notFound() {
+    $('#tpHead').innerHTML = '';
+    $('#tpGrid').innerHTML = `<div style="grid-column:1/-1">${errorState('notfound', { retry: false, back: ['Về thư viện bài học', 'lessons'] }).replace('Không tìm thấy bài học', 'Không tìm thấy chủ đề').replace('Bài này có thể', 'Chủ đề này có thể')}</div>`;
+    $('#tpCount').textContent = ''; $('#tpMore').innerHTML = ''; refreshIcons(); reveal();
+  }
+  function render() {
+    if (!T) { notFound(); return; }
+    const all = LESSONS.filter(L => L.topic === T.slug);
+    const doneN = all.filter(isDone).length + Math.round(T.total * .06);
+    const say = doneN / T.total > .5 ? ['celebrate', 'Bạn gần xong chủ đề này rồi!'] : doneN ? ['correct', 'Tiếp tục nhé, đang tiến bộ đấy!'] : ['hello', 'Chọn một bài để bắt đầu nào!'];
+    $('#tpHead').innerHTML = `
+      <nav class="crumbs" aria-label="Đường dẫn"><button class="btn text sm" data-go="lessons">Bài học</button>${icon('chevron-right')}<span>${esc(T.name)}</span></nav>
+      <div class="tp-hero">
+        <div class="tp-ic">${icon(T.icon)}</div>
+        <div class="grow"><div class="overline">Chủ đề · ${esc(T.en)}</div><h1 class="h1">${esc(T.name)}</h1><p class="muted">${esc(T.desc)}</p>
+          <div class="mt16">${loopiBubble(say[0], say[1], 56)}</div></div>
+        <div class="card"><div class="row between small"><span class="muted">Bạn đã hoàn thành</span><b>${doneN}/${T.total} bài</b></div>
+          <div class="bar mt8"><i style="--v:${doneN / T.total * 100}%"></i></div></div>
+      </div>`;
+    let r = filterLessons(all, { level: TF.level, sort: 'pop' });
+    if (TF.state !== 'all') r = r.filter(L => stateOf(L) === TF.state);
+    $('#tpCount').textContent = `Đang hiện ${r.length} / ${T.total} bài`;
+    $('#tpGrid').innerHTML = r.length ? r.map(lcard).join('')
+      : `<div style="grid-column:1/-1">${emptyState('Chưa có bài nào ở mục này', 'Đổi trình độ hoặc trạng thái để xem thêm bài.')}</div>`;
+    $('#tpMore').innerHTML = TF.level === 'all' && TF.state === 'all' ? `<button class="btn ghost" data-act="tpMore">Xem thêm ${T.total - all.length} bài${icon('chevron-down')}</button>` : '';
+    if (ST === 'loading') $('#tpGrid').innerHTML = skelCards(8);
+    else if (ST === 'error' || ST === 'network') $('#tpGrid').innerHTML = `<div style="grid-column:1/-1">${errorState(ST === 'network' ? 'network' : 'server')}</div>`;
+    else if (ST === 'empty') $('#tpGrid').innerHTML = `<div style="grid-column:1/-1" class="card err-state">${mascot('hello', 112)}<h2 class="h2 mt8">Chủ đề này chưa có bài</h2>
+      <p class="muted mt8">Bài học mới đang được biên tập. Hãy xem các chủ đề khác trong lúc chờ.</p>
+      <div class="row g12 mt24"><button class="btn primary" data-go="lessons">Xem các chủ đề khác</button></div></div>`;
+    if (ST !== 'normal') { $('#tpMore').innerHTML = ''; $('#tpCount').textContent = ''; }
+    refreshIcons(); reveal();
+  }
+  function filterLessons(list, f) {
+    return list.filter(L => f.level === 'all' || LV[f.level].includes(L.cefr)).sort((a, b) => b.views - a.views);
+  }
+  Object.assign(ACT, { tpMore() { toast('Tải thêm bài (phân trang 24 bài mỗi lần)', null, 'arrow-down'); } });
+  Shell.click((t) => {
+    const stt = t.closest('[data-start]');
+    if (stt) { const L = lessonOf(stt.dataset.lesson);
+      if (L.pro && !isPro()) toast('Bài này dành cho gói Pro', { label: 'Dùng thử Pro', fn: () => ACT.togglePro() }, 'crown');
+      else go(stt.dataset.start, { lesson: L.slug });
+      return true; }
+    const sg = t.closest('#tpLevel button, #tpState button');
+    if (sg) { segPick(sg); TF[sg.closest('#tpLevel') ? 'level' : 'state'] = sg.dataset.v; render(); return true; }
+    const card = t.closest('[data-lesson]'); if (card) { go('lesson', { l: card.dataset.lesson }); return true; }
+  });
+  ACT.retry = () => { ST = 'normal'; $('#tpGrid').innerHTML = skelCards(8); setTimeout(() => { render(); toast('Đã tải xong', null, 'circle-check'); }, 900); };
+  render();
+  window.addEventListener('ll:pro', () => { if (ST === 'normal') render(); });
+  statePicker([['normal', 'Bình thường'], ['loading', 'Đang tải'], ['error', 'Lỗi máy chủ'], ['network', 'Mất mạng'], ['empty', 'Chủ đề rỗng']]);
+</script>
+</body>
+</html>

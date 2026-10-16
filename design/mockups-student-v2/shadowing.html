@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shadowing — LinguaLoop v2</title>
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<script>
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll2-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="ported.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app-v2.css">
+<link rel="stylesheet" href="p2.css">
+<link rel="stylesheet" href="dictation.css">
+<link rel="stylesheet" href="shadowing.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-shadowing" data-fn="shadowing">
+    <div class="dc-head">
+      <div class="dc-title">
+        <button class="crumb" data-go="lesson" data-id="airport-checkin" id="sCrumb"><i class="ph ph-arrow-left"></i><span>Bài học</span></button>
+        <div class="overline" id="sOver">Shadowing</div>
+        <h1>Nghe, đọc theo, xem lỗi</h1>
+      </div>
+      <div class="dc-tools">
+        <div class="seg" id="sTab" role="group" aria-label="Chế độ">
+          <button data-tab="watch" title="Xem video liền mạch (Alt+W)">Xem</button>
+          <button data-tab="practice" title="Luyện từng câu (Alt+P)">Luyện</button>
+        </div>
+        <div class="dc-pop-wrap">
+          <button class="btn icon ghost" id="sSetBtn" data-act="dcPop" data-pop="sSetPop" aria-label="Cài đặt" aria-expanded="false"><i class="ph ph-gear"></i></button>
+          <div class="dc-pop" id="sSetPop" role="dialog" aria-label="Cài đặt shadowing" hidden></div>
+        </div>
+        <div class="dc-pop-wrap">
+          <button class="btn icon ghost" id="sKeyBtn" data-act="dcPop" data-pop="sKeyPop" aria-label="Phím tắt" aria-expanded="false"><i class="ph ph-keyboard"></i></button>
+          <div class="dc-pop" id="sKeyPop" role="dialog" aria-label="Phím tắt" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sCoach"></div>
+
+    <div class="dc-grid">
+      <div class="dc-main">
+        <div class="dc-stage">
+          <div class="card dc-media" id="sMedia"></div>
+          <div class="card dc-work" id="sWork"></div>
+        </div>
+      </div>
+      <aside class="card dc-list" id="sListCard" aria-label="Bản chép các câu"></aside>
+    </div>
+  </section>
+
+</div></main>
+
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script src="sprite.js"></script>
+<script src="shell.js"></script>
+<script src="compat.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('shadowing');</script>
+<script src="p2.js"></script>
+<script src="js/shadowing.js"></script>
+</body>
+</html>
