@@ -29,7 +29,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import jakarta.servlet.http.Cookie;
@@ -62,15 +62,15 @@ class SessionIntegrationTest {
         clock.reset();
     }
 
-    private UserAccount verifiedUser() {
-        UserAccount user = userAccountService.createLocal("sess-" + UUID.randomUUID() + "@x.com", "Minh",
+    private UserAccountView verifiedUser() {
+        UserAccountView user = userAccountService.createLocal("sess-" + UUID.randomUUID() + "@x.com", "Minh",
                 passwordEncoder.encode(PASSWORD));
         userAccountService.markEmailVerified(user.id());
         return user;
     }
 
     /** Đăng nhập và trả về header Set-Cookie của ll_refresh. */
-    private String loginAndGetSetCookie(UserAccount user) throws Exception {
+    private String loginAndGetSetCookie(UserAccountView user) throws Exception {
         MvcResult result = mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.USER_AGENT, "JUnit-Browser/1.0")
                 .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(user.email(), PASSWORD)))
@@ -79,7 +79,7 @@ class SessionIntegrationTest {
         return result.getResponse().getHeader(HttpHeaders.SET_COOKIE);
     }
 
-    private MvcResult loginFull(UserAccount user) throws Exception {
+    private MvcResult loginFull(UserAccountView user) throws Exception {
         return mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(user.email(), PASSWORD)))
                 .andExpect(status().isOk())
@@ -98,7 +98,7 @@ class SessionIntegrationTest {
 
     @Test
     void login_setsHttpOnlyRefreshCookieScopedToAuthPath_AC08() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
 
         String setCookie = loginAndGetSetCookie(user);
 
@@ -113,7 +113,7 @@ class SessionIntegrationTest {
 
     @Test
     void login_storesRefreshTokenHashNotRawTokenWithUserAgent_AC08() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
 
         String raw = cookieValue(loginAndGetSetCookie(user));
 
@@ -126,7 +126,7 @@ class SessionIntegrationTest {
 
     @Test
     void login_failedAttempt_setsNoCookie_AC12() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
 
         mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"%s\",\"password\":\"nope\"}".formatted(user.email())))
@@ -136,7 +136,7 @@ class SessionIntegrationTest {
 
     @Test
     void refresh_validCookie_rotatesCookieAndReturnsNewSession_AC27() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String oldCookie = cookieValue(loginAndGetSetCookie(user));
 
         MvcResult result = refresh(oldCookie)
@@ -198,7 +198,7 @@ class SessionIntegrationTest {
 
     @Test
     void refresh_disabledUser_returns403AndKillsSession_AC16() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String cookie = cookieValue(loginAndGetSetCookie(user));
         jdbcTemplate.update("UPDATE users SET disabled = true WHERE id = ?", user.id());
 

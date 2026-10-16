@@ -30,12 +30,12 @@ import com.jayway.jsonpath.JsonPath;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.auth.google.GoogleCodeExchanger;
 import com.lingualoop.backend.auth.google.GoogleIdentity;
-import com.lingualoop.backend.auth.google.GoogleUnavailableException;
+import com.lingualoop.backend.auth.exception.GoogleUnavailableException;
 import com.lingualoop.backend.auth.service.RefreshTokenService;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.support.TestClockConfiguration;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import jakarta.servlet.http.Cookie;
@@ -100,7 +100,7 @@ class GoogleLoginIntegrationTest {
     @Test
     void google_returningGoogleUser_logsIntoSameAccountWithSessionClaim_AC17() throws Exception {
         String sub = uniqueSub();
-        UserAccount user = userAccountService.createFromGoogle(sub, uniqueEmail(), "Gia", null);
+        UserAccountView user = userAccountService.createFromGoogle(sub, uniqueEmail(), "Gia", null);
         tokenResolvesTo(new GoogleIdentity(sub, user.email(), "Gia", null));
 
         MvcResult result = googleLogin("tok")
@@ -140,7 +140,7 @@ class GoogleLoginIntegrationTest {
 
     @Test
     void google_emailOfVerifiedLocalAccount_linksAndKeepsPassword_AC19() throws Exception {
-        UserAccount local = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(PASSWORD));
+        UserAccountView local = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(PASSWORD));
         userAccountService.markEmailVerified(local.id());
         String sub = uniqueSub();
         tokenResolvesTo(new GoogleIdentity(sub, local.email(), "Minh G", null));
@@ -156,7 +156,7 @@ class GoogleLoginIntegrationTest {
 
     @Test
     void google_emailOfUnverifiedLocalAccount_dropsPasswordAndRevokesOldSessions_AC20() throws Exception {
-        UserAccount local = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(PASSWORD));
+        UserAccountView local = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(PASSWORD));
         String oldRefresh = refreshTokenService.startSession(local.id(), "attacker-browser").rawToken();
         tokenResolvesTo(new GoogleIdentity(uniqueSub(), local.email(), "Minh G", null));
 
@@ -195,7 +195,7 @@ class GoogleLoginIntegrationTest {
     @Test
     void google_disabledAccount_returns403_AC24() throws Exception {
         String sub = uniqueSub();
-        UserAccount user = userAccountService.createFromGoogle(sub, uniqueEmail(), "Gia", null);
+        UserAccountView user = userAccountService.createFromGoogle(sub, uniqueEmail(), "Gia", null);
         jdbcTemplate.update("UPDATE users SET disabled = true WHERE id = ?", user.id());
         tokenResolvesTo(new GoogleIdentity(sub, user.email(), "Gia", null));
 
@@ -206,7 +206,7 @@ class GoogleLoginIntegrationTest {
 
     @Test
     void google_emailAlreadyLinkedToOtherGoogleAccount_returns409_AC54() throws Exception {
-        UserAccount user = userAccountService.createFromGoogle(uniqueSub(), uniqueEmail(), "Gia", null);
+        UserAccountView user = userAccountService.createFromGoogle(uniqueSub(), uniqueEmail(), "Gia", null);
         tokenResolvesTo(new GoogleIdentity(uniqueSub(), user.email(), "Gia", null));
 
         googleLogin("tok")

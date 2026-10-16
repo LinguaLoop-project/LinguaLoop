@@ -5,12 +5,11 @@ import java.util.Optional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import com.lingualoop.backend.auth.dto.AuthSession;
 import com.lingualoop.backend.auth.google.GoogleCodeExchanger;
 import com.lingualoop.backend.auth.google.GoogleIdentity;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,7 @@ public class GoogleAuthService {
 
     public AuthSession login(String code, String userAgent) {
         GoogleIdentity identity = googleCodeExchanger.exchange(code);
-        UserAccount account = resolveAccount(identity, true);
+        UserAccountView account = resolveAccount(identity, true);
         return authService.openSession(account, userAgent);
     }
 
@@ -40,12 +39,12 @@ public class GoogleAuthService {
      * tài khoản bị khoá không bị sửa gì. {@code canRetry}: hai request cùng lúc làm trùng {@code auth_uid} hoặc
      * email thì request thua tìm lại tài khoản của request thắng, một lần.
      */
-    private UserAccount resolveAccount(GoogleIdentity identity, boolean canRetry) {
-        Optional<UserAccount> bySub = userAccountService.findByGoogleSub(identity.sub());
+    private UserAccountView resolveAccount(GoogleIdentity identity, boolean canRetry) {
+        Optional<UserAccountView> bySub = userAccountService.findByGoogleSub(identity.sub());
         if (bySub.isPresent()) {
             return requireEnabled(bySub.get());
         }
-        Optional<UserAccount> byEmail = userAccountService.findByEmail(identity.email());
+        Optional<UserAccountView> byEmail = userAccountService.findByEmail(identity.email());
         if (byEmail.isPresent()) {
             return link(requireEnabled(byEmail.get()), identity);
         }
@@ -65,7 +64,7 @@ public class GoogleAuthService {
         }
     }
 
-    private UserAccount link(UserAccount local, GoogleIdentity identity) {
+    private UserAccountView link(UserAccountView local, GoogleIdentity identity) {
         if (local.googleLinked()) {
             // đã gắn một sub khác (tìm theo sub không ra): tài khoản Google bị tạo lại với cùng email
             throw new BusinessException(ErrorCode.AUTH_GOOGLE_LINK_CONFLICT);
@@ -79,7 +78,7 @@ public class GoogleAuthService {
                 .orElseThrow(() -> new IllegalStateException("User vanished while linking Google: " + local.id()));
     }
 
-    private static UserAccount requireEnabled(UserAccount account) {
+    private static UserAccountView requireEnabled(UserAccountView account) {
         if (account.disabled()) {
             throw new BusinessException(ErrorCode.AUTH_ACCOUNT_DISABLED);
         }

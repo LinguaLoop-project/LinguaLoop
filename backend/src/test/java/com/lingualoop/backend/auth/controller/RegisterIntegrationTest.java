@@ -33,9 +33,9 @@ import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.auth.entity.EmailToken;
 import com.lingualoop.backend.auth.mail.AuthMailSender;
 import com.lingualoop.backend.auth.repository.EmailTokenRepository;
-import com.lingualoop.backend.auth.service.SecureTokens;
+import com.lingualoop.backend.auth.util.SecureTokens;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 @SpringBootTest
@@ -83,7 +83,7 @@ class RegisterIntegrationTest {
                 .andExpect(jsonPath("$.data.accessToken").doesNotExist())
                 .andExpect(header().doesNotExist("Set-Cookie"));
 
-        UserAccount user = userAccountService.findByEmail(email).orElseThrow();
+        UserAccountView user = userAccountService.findByEmail(email).orElseThrow();
         assertThat(user.role()).isEqualTo(Role.STUDENT);
         assertThat(user.emailVerified()).isFalse();
         assertThat(user.displayName()).isEqualTo("Minh");

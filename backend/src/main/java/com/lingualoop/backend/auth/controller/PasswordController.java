@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.lingualoop.backend.auth.dto.ChangePasswordRequest;
+import com.lingualoop.backend.auth.dto.request.ChangePasswordRequest;
 import com.lingualoop.backend.auth.service.PasswordService;
 import com.lingualoop.backend.security.CurrentUserId;
 import com.lingualoop.backend.security.SecurityUtils;

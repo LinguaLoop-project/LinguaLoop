@@ -12,10 +12,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.lingualoop.backend.auth.entity.EmailToken;
 import com.lingualoop.backend.auth.mail.AuthMailDispatcher;
 import com.lingualoop.backend.auth.repository.EmailTokenRepository;
+import com.lingualoop.backend.auth.util.SecureTokens;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.config.AuthProperties;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import lombok.RequiredArgsConstructor;
@@ -46,12 +47,12 @@ public class PasswordResetService {
     }
 
     private Optional<PendingMail> prepareRequest(String email) {
-        Optional<UserAccount> found = userAccountService.findByEmail(email);
+        Optional<UserAccountView> found = userAccountService.findByEmail(email);
         // Tài khoản bị khoá thì có gửi thư cũng vô ích: BR-AUTH-10 vẫn chặn đăng nhập
         if (found.isEmpty() || found.get().disabled()) {
             return Optional.empty();
         }
-        UserAccount account = found.get();
+        UserAccountView account = found.get();
         Instant now = Instant.now(clock);
         boolean tooSoon = emailTokenRepository
                 .findFirstByUserIdAndPurposeOrderByCreatedAtDesc(account.id(), EmailToken.RESET_PASSWORD)
@@ -85,7 +86,7 @@ public class PasswordResetService {
     private void applyReset(String rawToken, String newHash) {
         Instant now = Instant.now(clock);
         EmailToken token = requireUsableToken(rawToken, now);
-        UserAccount account = userAccountService.findById(token.getUserId())
+        UserAccountView account = userAccountService.findById(token.getUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.AUTH_LINK_INVALID));
 
         token.markUsed(now);
@@ -106,6 +107,6 @@ public class PasswordResetService {
         return token;
     }
 
-    private record PendingMail(UserAccount account, String rawToken) {
+    private record PendingMail(UserAccountView account, String rawToken) {
     }
 }

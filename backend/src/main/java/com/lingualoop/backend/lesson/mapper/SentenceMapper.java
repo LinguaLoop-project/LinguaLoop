@@ -1,6 +1,6 @@
 package com.lingualoop.backend.lesson.mapper;
 
-import com.lingualoop.backend.lesson.dto.SentenceResponse;
+import com.lingualoop.backend.lesson.dto.response.SentenceResponse;
 import com.lingualoop.backend.lesson.dto.SentenceView;
 import com.lingualoop.backend.lesson.entity.Sentence;
 import org.mapstruct.Mapper;

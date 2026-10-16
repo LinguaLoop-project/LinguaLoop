@@ -22,6 +22,7 @@ import org.springframework.test.context.DynamicPropertySource;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.lingualoop.backend.TestcontainersConfiguration;
+import com.lingualoop.backend.auth.exception.GoogleUnavailableException;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.config.GoogleProperties;
