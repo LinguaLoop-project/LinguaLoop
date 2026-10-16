@@ -1,7 +1,7 @@
 package com.lingualoop.backend.lesson.mapper;
 
-import com.lingualoop.backend.lesson.dto.LessonDetail;
-import com.lingualoop.backend.lesson.dto.LessonSummary;
+import com.lingualoop.backend.lesson.dto.response.LessonDetailResponse;
+import com.lingualoop.backend.lesson.dto.response.LessonSummaryResponse;
 import com.lingualoop.backend.lesson.dto.LessonView;
 import com.lingualoop.backend.lesson.entity.Lesson;
 import org.mapstruct.Mapper;
@@ -14,14 +14,14 @@ public interface LessonMapper {
     @Mapping(target = "locked", ignore = true)
     @Mapping(target = "sentenceCount", ignore = true)
     @Mapping(target = "progress", ignore = true)
-    LessonSummary toSummary(Lesson lesson);
+    LessonSummaryResponse toSummary(Lesson lesson);
 
     @Mapping(target = "locked", ignore = true)
     @Mapping(target = "sentenceCount", ignore = true)
     @Mapping(target = "progress", ignore = true)
     @Mapping(target = "relatedLessons", ignore = true)
     @Mapping(target = "topic", ignore = true)
-    LessonDetail toDetail(Lesson lesson);
+    LessonDetailResponse toDetail(Lesson lesson);
 
     /** Dạng gọn cho feature dictation/shadowing (SentenceQueryService). */
     LessonView toView(Lesson lesson);

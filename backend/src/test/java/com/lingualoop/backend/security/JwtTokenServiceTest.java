@@ -16,6 +16,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
+import com.lingualoop.backend.config.JwtProperties;
+
 class JwtTokenServiceTest {
 
     // Sinh lúc chạy thay vì viết chuỗi cố định, để Gitleaks không coi là secret thật.

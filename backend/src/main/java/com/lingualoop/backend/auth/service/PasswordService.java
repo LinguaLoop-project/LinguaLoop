@@ -12,7 +12,7 @@ import com.lingualoop.backend.auth.service.LoginAttemptService.FailureResult;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.FieldValidationException;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class PasswordService {
      *                  {@code null} (token cũ không có sid) thì thu hồi tất cả.
      */
     public void changePassword(UUID userId, UUID sessionId, String currentPassword, String newPassword) {
-        UserAccount account = userAccountService.findById(userId)
+        UserAccountView account = userAccountService.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
 
         if (account.hasPassword()) {
@@ -54,7 +54,7 @@ public class PasswordService {
         });
     }
 
-    private void verifyCurrentPassword(UserAccount account, String currentPassword) {
+    private void verifyCurrentPassword(UserAccountView account, String currentPassword) {
         loginAttemptService.assertNotLocked(account.email());
         if (currentPassword == null || currentPassword.isBlank()) {
             throw new FieldValidationException("currentPassword", "NotBlank");

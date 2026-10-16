@@ -3,23 +3,24 @@ package com.lingualoop.backend.user.service;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
+import com.lingualoop.backend.user.dto.response.MeResponse;
 
 /** Cổng duy nhất để feature khác (auth) đọc/ghi tài khoản */
 public interface UserAccountService {
 
-    Optional<UserAccount> findByEmail(String email);
+    Optional<UserAccountView> findByEmail(String email);
 
-    Optional<UserAccount> findById(UUID id);
+    Optional<UserAccountView> findById(UUID id);
 
-    UserAccount createLocal(String email, String displayName, String passwordHash);
+    UserAccountView createLocal(String email, String displayName, String passwordHash);
 
     void markEmailVerified(UUID userId);
 
-    Optional<UserAccount> findByGoogleSub(String sub);
+    Optional<UserAccountView> findByGoogleSub(String sub);
 
     /** Tạo học viên mới từ Google: email đã xác thực, chưa mật khẩu, chưa đồng ý điều khoản. */
-    UserAccount createFromGoogle(String sub, String email, String name, String pictureUrl);
+    UserAccountView createFromGoogle(String sub, String email, String name, String pictureUrl);
 
     /**
      * Gắn Google {@code sub} vào tài khoản email đã có.
@@ -29,4 +30,7 @@ public interface UserAccountService {
     boolean linkGoogle(UUID userId, String sub);
 
     void updatePasswordHash(UUID userId, String passwordHash);
+
+    /** Hồ sơ trả cho client từ bản chụp tài khoản. */
+    MeResponse toMe(UserAccountView account);
 }

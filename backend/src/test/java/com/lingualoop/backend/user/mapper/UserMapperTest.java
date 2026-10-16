@@ -10,7 +10,8 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
+import com.lingualoop.backend.user.dto.response.MeResponse;
 import com.lingualoop.backend.user.entity.User;
 
 class UserMapperTest {
@@ -24,7 +25,7 @@ class UserMapperTest {
         ReflectionTestUtils.setField(user, "id", id);
         user.markEmailVerified();
 
-        UserAccount account = mapper.toUserAccount(user);
+        UserAccountView account = mapper.toUserAccountView(user);
 
         assertThat(account.id()).isEqualTo(id);
         assertThat(account.email()).isEqualTo("a@x.com");
@@ -44,7 +45,7 @@ class UserMapperTest {
         User user = User.createLocal("g@x.com", "Gg", null, Instant.now());
         ReflectionTestUtils.setField(user, "authUid", "google-sub-123");
 
-        UserAccount account = mapper.toUserAccount(user);
+        UserAccountView account = mapper.toUserAccountView(user);
 
         assertThat(account.googleLinked()).isTrue();
         assertThat(account.hasPassword()).isFalse();
@@ -55,6 +56,37 @@ class UserMapperTest {
         User user = User.createLocal("o@x.com", "Oo", "hash", Instant.now());
         ReflectionTestUtils.setField(user, "onboardedAt", Instant.now());
 
-        assertThat(mapper.toUserAccount(user).onboarded()).isTrue();
+        assertThat(mapper.toUserAccountView(user).onboarded()).isTrue();
+    }
+
+    @Test
+    void toMe_accountWithPassword_mapsRoleValueAndHasPassword() {
+        UUID id = UUID.randomUUID();
+        UserAccountView account = new UserAccountView(id, "a@x.com", "An", "http://a/p.png", "hash", Role.ADMIN, "vi",
+                true, false, true, false);
+
+        MeResponse me = mapper.toMe(account);
+
+        assertThat(me.id()).isEqualTo(id);
+        assertThat(me.email()).isEqualTo("a@x.com");
+        assertThat(me.displayName()).isEqualTo("An");
+        assertThat(me.avatarUrl()).isEqualTo("http://a/p.png");
+        assertThat(me.role()).isEqualTo("admin");
+        assertThat(me.emailVerified()).isTrue();
+        assertThat(me.onboarded()).isTrue();
+        assertThat(me.hasPassword()).isTrue();
+        assertThat(me.googleLinked()).isFalse();
+    }
+
+    @Test
+    void toMe_googleOnlyAccount_hasNoPasswordAndIsGoogleLinked() {
+        UserAccountView account = new UserAccountView(UUID.randomUUID(), "g@x.com", "Gg", null, null, Role.STUDENT,
+                "vi", true, false, false, true);
+
+        MeResponse me = mapper.toMe(account);
+
+        assertThat(me.role()).isEqualTo("student");
+        assertThat(me.hasPassword()).isFalse();
+        assertThat(me.googleLinked()).isTrue();
     }
 }

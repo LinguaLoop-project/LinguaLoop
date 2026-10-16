@@ -32,7 +32,7 @@ import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.auth.mail.AuthMailSender;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import jakarta.servlet.http.Cookie;
@@ -71,8 +71,8 @@ class ResetPasswordIntegrationTest {
         return "reset-" + UUID.randomUUID() + "@x.com";
     }
 
-    private UserAccount verifiedUser() {
-        UserAccount user = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(OLD_PASSWORD));
+    private UserAccountView verifiedUser() {
+        UserAccountView user = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(OLD_PASSWORD));
         userAccountService.markEmailVerified(user.id());
         return user;
     }
@@ -102,7 +102,7 @@ class ResetPasswordIntegrationTest {
                 .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(email, password)));
     }
 
-    private String loginAndGetRefreshCookie(UserAccount user) throws Exception {
+    private String loginAndGetRefreshCookie(UserAccountView user) throws Exception {
         MvcResult result = login(user.email(), OLD_PASSWORD).andExpect(status().isOk()).andReturn();
         String setCookie = result.getResponse().getHeader(HttpHeaders.SET_COOKIE);
         return setCookie.split(";", 2)[0].substring(COOKIE.length() + 1);
@@ -114,7 +114,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void reset_validToken_changesPasswordAndEndsEverySession_AC35() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String sessionA = loginAndGetRefreshCookie(user);
         String sessionB = loginAndGetRefreshCookie(user);
         String token = requestResetToken(user.email());
@@ -132,7 +132,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void reset_doesNotIssueSessionOrCookie_AC35() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String token = requestResetToken(user.email());
 
         MvcResult result = reset(token, NEW_PASSWORD).andExpect(status().isNoContent()).andReturn();
@@ -143,7 +143,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void reset_unverifiedAccount_becomesVerifiedAndCanLogin_AC35() throws Exception {
-        UserAccount user = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(OLD_PASSWORD));
+        UserAccountView user = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(OLD_PASSWORD));
         assertThat(user.emailVerified()).isFalse();
         String token = requestResetToken(user.email());
 
@@ -155,7 +155,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void reset_lockedAccount_canLoginRightAway_AC35() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         for (int i = 0; i < 5; i++) {
             login(user.email(), "wrong-password");
         }
@@ -186,7 +186,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void validate_usableToken_returnsValidAndDoesNotConsumeIt_AC39() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String token = requestResetToken(user.email());
 
         validate(token).andExpect(status().isOk()).andExpect(jsonPath("$.data.valid").value(true));
@@ -205,7 +205,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void validateAndReset_tokenAlreadyUsed_returnLinkInvalidAndKeepsNewPassword_AC39() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String token = requestResetToken(user.email());
         reset(token, NEW_PASSWORD).andExpect(status().isNoContent());
 
@@ -218,7 +218,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void validateAndReset_tokenOlderThan30Minutes_returnLinkInvalid_AC39() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String token = requestResetToken(user.email());
         clock.advance(Duration.ofMinutes(30).plusSeconds(1));
 
@@ -231,7 +231,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void reset_tokenJustInsideTtl_isAccepted_AC35() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String token = requestResetToken(user.email());
 
         clock.advance(Duration.ofMinutes(29).plusSeconds(59));
@@ -255,7 +255,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void reset_passwordTooShort_returns400AndKeepsLinkUsable_AC40() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String token = requestResetToken(user.email());
 
         reset(token, "1234567").andExpect(status().isBadRequest())
@@ -269,7 +269,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void reset_passwordOver72Bytes_returns400_AC40() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String token = requestResetToken(user.email());
 
         reset(token, "a".repeat(73)).andExpect(status().isBadRequest())
@@ -279,7 +279,7 @@ class ResetPasswordIntegrationTest {
 
     @Test
     void reset_passwordWithMultibyteCharsOver72Bytes_returns400_AC40() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         String token = requestResetToken(user.email());
 
         // 40 ký tự nhưng 80 byte UTF-8: qua @Size(max=72) mà vẫn phải bị @MaxBytes chặn

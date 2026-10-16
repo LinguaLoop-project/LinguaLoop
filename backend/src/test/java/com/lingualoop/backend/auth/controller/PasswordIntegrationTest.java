@@ -28,7 +28,7 @@ import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import jakarta.servlet.http.Cookie;
@@ -65,8 +65,8 @@ class PasswordIntegrationTest {
         clock.reset();
     }
 
-    private UserAccount verifiedUser() {
-        UserAccount user = userAccountService.createLocal("pw-" + UUID.randomUUID() + "@x.com", "Minh",
+    private UserAccountView verifiedUser() {
+        UserAccountView user = userAccountService.createLocal("pw-" + UUID.randomUUID() + "@x.com", "Minh",
                 passwordEncoder.encode(PASSWORD));
         userAccountService.markEmailVerified(user.id());
         return user;
@@ -81,7 +81,7 @@ class PasswordIntegrationTest {
     private record Login(String accessToken, String refreshCookie) {
     }
 
-    private Login login(UserAccount user) throws Exception {
+    private Login login(UserAccountView user) throws Exception {
         MvcResult result = loginRequest(user.email(), PASSWORD).andExpect(status().isOk()).andReturn();
         String setCookie = result.getResponse().getHeader(HttpHeaders.SET_COOKIE);
         String cookie = setCookie.split(";", 2)[0].substring(COOKIE.length() + 1);
@@ -106,7 +106,7 @@ class PasswordIntegrationTest {
 
     @Test
     void changePassword_keepsCurrentSessionAndRevokesTheOthers_AC41() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         Login a = login(user);
         Login b = login(user);
 
@@ -122,7 +122,7 @@ class PasswordIntegrationTest {
 
     @Test
     void changePassword_googleOnlyUserCreatesPasswordWithoutCurrentOne_AC42() throws Exception {
-        UserAccount google = userAccountService.createFromGoogle("sub-" + UUID.randomUUID(),
+        UserAccountView google = userAccountService.createFromGoogle("sub-" + UUID.randomUUID(),
                 "pwg-" + UUID.randomUUID() + "@x.com", "Gia", null);
         UUID sid = refreshTokenService.startSession(google.id(), "ua").familyId();
         String token = jwtTokenService.issueAccessToken(google.id(), Role.STUDENT, sid).token();
@@ -137,7 +137,7 @@ class PasswordIntegrationTest {
 
     @Test
     void changePassword_afterCreatingOne_googleUserCanLoginWithEmailAndPassword_AC43() throws Exception {
-        UserAccount google = userAccountService.createFromGoogle("sub-" + UUID.randomUUID(),
+        UserAccountView google = userAccountService.createFromGoogle("sub-" + UUID.randomUUID(),
                 "pwl-" + UUID.randomUUID() + "@x.com", "Gia", null);
         UUID sid = refreshTokenService.startSession(google.id(), "ua").familyId();
         String token = jwtTokenService.issueAccessToken(google.id(), Role.STUDENT, sid).token();
@@ -150,7 +150,7 @@ class PasswordIntegrationTest {
 
     @Test
     void changePassword_wrongCurrentPassword_reportsRemainingAttempts_AC44() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         Login a = login(user);
 
         changePassword(a.accessToken(), body("wrong-password", NEW_PASSWORD))
@@ -165,7 +165,7 @@ class PasswordIntegrationTest {
 
     @Test
     void changePassword_fifthWrongCurrentPassword_locksAccount_AC44() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         Login a = login(user);
 
         for (int i = 0; i < 4; i++) {
@@ -194,7 +194,7 @@ class PasswordIntegrationTest {
 
     @Test
     void changePassword_newPasswordTooShort_isValidationError_AC45() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         Login a = login(user);
 
         changePassword(a.accessToken(), body(PASSWORD, "short12"))
@@ -236,7 +236,7 @@ class PasswordIntegrationTest {
 
     @Test
     void changePassword_tokenWithoutSessionClaim_revokesEverySession_AC41() throws Exception {
-        UserAccount user = verifiedUser();
+        UserAccountView user = verifiedUser();
         Login a = login(user);
         String legacyToken = jwtTokenService.issueAccessToken(user.id(), Role.STUDENT, null).token();
 

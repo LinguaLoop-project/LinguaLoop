@@ -44,7 +44,7 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private boolean disabled;
 
-    @Convert(converter = RoleConverter.class)
+    @Convert(converter = RoleAttributeConverter.class)
     @Column(nullable = false)
     private Role role = Role.STUDENT;
 

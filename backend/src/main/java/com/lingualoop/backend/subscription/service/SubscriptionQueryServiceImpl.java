@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class SubscriptionQueryServiceImpl implements SubscriptionQueryService {
+class SubscriptionQueryServiceImpl implements SubscriptionQueryService {
 
     private final UserPlanRepository userPlanRepository;
 

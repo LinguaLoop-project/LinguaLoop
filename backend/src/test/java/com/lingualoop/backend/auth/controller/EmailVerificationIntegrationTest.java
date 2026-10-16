@@ -37,7 +37,7 @@ import com.lingualoop.backend.auth.mail.AuthMailSender;
 import com.lingualoop.backend.auth.repository.EmailTokenRepository;
 import com.lingualoop.backend.support.MutableClock;
 import com.lingualoop.backend.support.TestClockConfiguration;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 @SpringBootTest
@@ -99,7 +99,7 @@ class EmailVerificationIntegrationTest {
     }
 
     private List<EmailToken> tokensOf(String email) {
-        UserAccount user = userAccountService.findByEmail(email).orElseThrow();
+        UserAccountView user = userAccountService.findByEmail(email).orElseThrow();
         return emailTokenRepository.findAll().stream().filter(t -> t.getUserId().equals(user.id()))
                 .sorted(Comparator.comparing(EmailToken::getCreatedAt)).toList();
     }

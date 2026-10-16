@@ -9,18 +9,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.lingualoop.backend.auth.dto.AuthResponse;
-import com.lingualoop.backend.auth.dto.AuthSession;
-import com.lingualoop.backend.auth.dto.LoginRequest;
-import com.lingualoop.backend.auth.dto.RegisterRequest;
-import com.lingualoop.backend.auth.dto.RegisterResponse;
+import com.lingualoop.backend.auth.dto.request.LoginRequest;
+import com.lingualoop.backend.auth.dto.request.RegisterRequest;
+import com.lingualoop.backend.auth.dto.response.AuthResponse;
+import com.lingualoop.backend.auth.dto.response.RegisterResponse;
+import com.lingualoop.backend.auth.exception.RefreshInvalidException;
 import com.lingualoop.backend.auth.service.LoginAttemptService.FailureResult;
 import com.lingualoop.backend.auth.service.RefreshTokenService.Rotation;
 import com.lingualoop.backend.auth.service.RefreshTokenService.Session;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.security.JwtTokenService;
-import com.lingualoop.backend.user.dto.UserAccount;
+import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 @Service
@@ -62,7 +62,7 @@ public class AuthService {
                 if (userAccountService.findByEmail(request.email()).isPresent()) {
                     throw new BusinessException(ErrorCode.AUTH_EMAIL_TAKEN);
                 }
-                UserAccount account = userAccountService.createLocal(request.email(), request.displayName(),
+                UserAccountView account = userAccountService.createLocal(request.email(), request.displayName(),
                         passwordHash);
                 return new PendingVerification(account, emailVerificationService.issueToken(account.id()));
             });
@@ -83,7 +83,7 @@ public class AuthService {
         String email = request.email();
         loginAttemptService.assertNotLocked(email);
 
-        UserAccount account = userAccountService.findByEmail(email).orElse(null);
+        UserAccountView account = userAccountService.findByEmail(email).orElse(null);
         if (!passwordMatches(request.password(), account)) {
             throw invalidCredentials(loginAttemptService.recordFailure(email));
         }
@@ -99,7 +99,7 @@ public class AuthService {
     }
 
     /** Mở phiên mới cho tài khoản đã được xác thực (mật khẩu hoặc Google): access token có {@code sid} + refresh token. */
-    public AuthSession openSession(UserAccount account, String userAgent) {
+    public AuthSession openSession(UserAccountView account, String userAgent) {
         Session session = refreshTokenService.startSession(account.id(), userAgent);
         return new AuthSession(accessResponse(account, session.familyId()), session.rawToken());
     }
@@ -110,7 +110,7 @@ public class AuthService {
      */
     public AuthSession refresh(String rawRefreshToken, String userAgent) {
         Rotation rotation = refreshTokenService.rotate(rawRefreshToken, userAgent);
-        UserAccount account = userAccountService.findById(rotation.userId()).orElse(null);
+        UserAccountView account = userAccountService.findById(rotation.userId()).orElse(null);
         if (account == null) {
             refreshTokenService.revokeFamily(rotation.familyId());
             throw new RefreshInvalidException();
@@ -127,13 +127,13 @@ public class AuthService {
         refreshTokenService.revokeSession(rawRefreshToken);
     }
 
-    private AuthResponse accessResponse(UserAccount account, UUID sessionId) {
+    private AuthResponse accessResponse(UserAccountView account, UUID sessionId) {
         JwtTokenService.AccessToken access = jwtTokenService.issueAccessToken(account.id(), account.role(), sessionId);
-        return new AuthResponse(access.token(), access.expiresAt(), account.toMe());
+        return new AuthResponse(access.token(), access.expiresAt(), userAccountService.toMe(account));
     }
 
     /** Luôn chạy một lần {@code matches} (với hash giả nếu cần) để thời gian phản hồi không lộ email có tồn tại. */
-    private boolean passwordMatches(String rawPassword, UserAccount account) {
+    private boolean passwordMatches(String rawPassword, UserAccountView account) {
         String hash = account != null && account.hasPassword() ? account.passwordHash() : dummyPasswordHash;
         boolean tooLong = rawPassword.getBytes(StandardCharsets.UTF_8).length > MAX_PASSWORD_BYTES;
         boolean matches = passwordEncoder.matches(tooLong ? "" : rawPassword, hash);
@@ -148,6 +148,6 @@ public class AuthService {
                 Map.of("remainingAttempts", failure.remainingAttempts()));
     }
 
-    private record PendingVerification(UserAccount account, String rawToken) {
+    private record PendingVerification(UserAccountView account, String rawToken) {
     }
 }
