@@ -136,7 +136,8 @@ Không phải mục tiêu: thêm tính năng mới (nghe chép, shadowing, từ 
 | 1 Token | Xong |
 | 2 Icon Lucide | Xong |
 | 3 Component chung | Xong: Button (primary/fn/secondary/ghost/text/danger, `buttonClasses` cho Link), Card, Badge, Mascot, Skeleton, ProgressBar, ErrorState, TextField/PasswordField; `index.css` 1.220 → ~190 dòng; ResetPassword chuyển vào `AuthLayout`. Chưa làm: `Table` dày, `EmptyState`/`Chip`/`SegmentedControl` sang token |
-| 4–7 | Chưa làm |
+| 4 Khung chung | Xong: `components/layouts/shell/` (AppShell, Sidebar, TopBar, AccountMenu, cấu hình theo vai trò); 8 file Sidebar/TopBar/MobileNav cũ đã xoá; ≥1024 đầy đủ + thu gọn được (lưu `ll-sidebar-collapsed`), 768–1023 icon, <768 ngăn kéo; breadcrumb suy từ đường dẫn thay cho 3 bảng ánh xạ |
+| 5–7 | Chưa làm |
 
 ## 8. Quyết định đã chốt (16/10/2026)
 

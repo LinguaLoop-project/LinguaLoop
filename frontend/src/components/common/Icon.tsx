@@ -1,5 +1,8 @@
 import {
   type LucideIcon,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   ArrowLeft,
   ArrowRight,
   AudioLines,
@@ -87,6 +90,9 @@ import {
 
 /** Chỉ các icon liệt kê ở đây được đóng gói; thêm icon mới thì import ở trên và thêm vào bảng. */
 const ICONS: Record<string, LucideIcon> = {
+  "menu": Menu,
+  "panel-left-close": PanelLeftClose,
+  "panel-left-open": PanelLeftOpen,
   "arrow-left": ArrowLeft,
   "arrow-right": ArrowRight,
   "audio-lines": AudioLines,

@@ -221,5 +221,11 @@
         "deckDetail": "Deck review details"
       }
     }
+  },
+  "shell": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
   }
 }

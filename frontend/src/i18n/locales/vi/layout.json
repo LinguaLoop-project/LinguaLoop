@@ -221,5 +221,11 @@
         "deckDetail": "Chi tiết duyệt bộ từ"
       }
     }
+  },
+  "shell": {
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu",
+    "collapse": "Thu gọn thanh bên",
+    "expand": "Mở rộng thanh bên"
   }
 }
