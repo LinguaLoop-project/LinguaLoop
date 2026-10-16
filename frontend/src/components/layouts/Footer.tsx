@@ -62,7 +62,7 @@ export default function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-lg bg-[var(--surface)] hover:bg-[#1877F2]/15 border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:text-[#1877F2] transition-all hover:scale-105"
+                className="w-9 h-9 rounded-lg bg-[var(--surface)] hover:bg-primary-soft border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:text-primary-text transition-all hover:scale-105"
                 aria-label="Facebook"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -73,7 +73,7 @@ export default function Footer() {
                 href="https://youtube.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-lg bg-[var(--surface)] hover:bg-[#FF0000]/15 border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:text-[#FF0000] transition-all hover:scale-105"
+                className="w-9 h-9 rounded-lg bg-[var(--surface)] hover:bg-primary-soft border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:text-primary-text transition-all hover:scale-105"
                 aria-label="YouTube"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">

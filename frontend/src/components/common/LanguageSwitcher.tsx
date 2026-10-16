@@ -13,6 +13,7 @@ const LANGUAGES: Language[] = ["vi", "en"];
 function Flag({ language }: { language: Language }) {
   return (
     <span className="inline-flex h-3 w-4 shrink-0 items-center justify-center overflow-hidden rounded-xs shadow-xs" aria-hidden="true">
+      {/* Cờ là tài sản thương hiệu quốc gia, không thuộc token màu của giao diện. */}
       {language === "vi" ? (
         <svg viewBox="0 0 30 20" className="h-full w-full">
           <rect width="30" height="20" fill="#DA251D" />

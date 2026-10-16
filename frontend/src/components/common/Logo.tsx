@@ -25,9 +25,9 @@ export function LogoMark({ size = 32, variant = "full" }: Pick<LogoProps, "size"
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" aria-hidden="true" className="shrink-0">
       <defs>
         <linearGradient id={`ll-g-${id}`} x1="20" y1="88" x2="80" y2="12" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="var(--ll-s1, #8b5cf6)" />
-          <stop offset="0.55" stopColor="var(--ll-s2, #c084fc)" />
-          <stop offset="1" stopColor="var(--ll-s3, #f0abfc)" />
+          <stop offset="0" stopColor="var(--ll-s1)" />
+          <stop offset="0.55" stopColor="var(--ll-s2)" />
+          <stop offset="1" stopColor="var(--ll-s3)" />
         </linearGradient>
       </defs>
       <path d={ARC} stroke={`url(#ll-g-${id})`} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
