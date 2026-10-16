@@ -4,6 +4,7 @@ import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
 import { AuthGuard, GuestGuard } from "@/app/guards";
 import OnboardingPlaceholder from "@/app/placeholders/OnboardingPlaceholder";
 import PlaceholderPage from "@/components/common/PlaceholderPage";
+import RouteErrorBoundary from "@/components/common/RouteErrorBoundary";
 import LoadingScreen from "@/components/common/LoadingScreen";
 
 // Mỗi layout/trang là một chunk riêng: người dùng chỉ tải phần mình cần
@@ -381,7 +382,11 @@ const getRoutesConfig = (): RouteObject[] => {
 
 export const AppRoutes = () => {
   const element = useRoutes(getRoutesConfig());
-  return <Suspense fallback={<LoadingScreen />}>{element}</Suspense>;
+  return (
+    <RouteErrorBoundary>
+      <Suspense fallback={<LoadingScreen />}>{element}</Suspense>
+    </RouteErrorBoundary>
+  );
 };
 
 export default AppRoutes;

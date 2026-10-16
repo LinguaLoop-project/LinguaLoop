@@ -137,7 +137,8 @@ Không phải mục tiêu: thêm tính năng mới (nghe chép, shadowing, từ 
 | 2 Icon Lucide | Xong |
 | 3 Component chung | Xong: Button (primary/fn/secondary/ghost/text/danger, `buttonClasses` cho Link), Card, Badge, Mascot, Skeleton, ProgressBar, ErrorState, TextField/PasswordField; `index.css` 1.220 → ~190 dòng; ResetPassword chuyển vào `AuthLayout`. Chưa làm: `Table` dày, `EmptyState`/`Chip`/`SegmentedControl` sang token |
 | 4 Khung chung | Xong: `components/layouts/shell/` (AppShell, Sidebar, TopBar, AccountMenu, cấu hình theo vai trò); 8 file Sidebar/TopBar/MobileNav cũ đã xoá; ≥1024 đầy đủ + thu gọn được (lưu `ll-sidebar-collapsed`), 768–1023 icon, <768 ngăn kéo; breadcrumb suy từ đường dẫn thay cho 3 bảng ánh xạ |
-| 5–7 | Chưa làm |
+| 5 Luồng bài học | Xong: 3 trang còn 115–184 dòng (từ 701/799/250), tách thành `features/lesson/components/{library,detail}/`; `lib/format.ts`; STATES R1 (skeleton), R2 (mã lỗi, mất mạng), R3 (lỗi danh sách chủ đề), R4 (404 không có Thử lại), R6 (`retry` 1 lần, bỏ qua 4xx), R7 (`RouteErrorBoundary`). Chưa làm: R5, R8 (trang Hôm nay, cờ người mới) |
+| 6–7 | Chưa làm |
 
 ## 8. Quyết định đã chốt (16/10/2026)
 

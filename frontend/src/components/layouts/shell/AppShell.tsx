@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import RouteErrorBoundary from "@/components/common/RouteErrorBoundary";
 import Footer from "@/components/layouts/Footer";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
@@ -59,7 +60,9 @@ export default function AppShell({ config, children }: { config: ShellConfig; ch
           <TopBar config={config} drawerOpen={drawerOpen} onOpenDrawer={() => setDrawerOpen(true)} />
           <main className={`min-w-0 overflow-x-clip ${MAIN[config.density]}`} id="main-content">
             <div className="mx-auto w-full max-w-[1200px]">
-              <Outlet />
+              <RouteErrorBoundary>
+                <Outlet />
+              </RouteErrorBoundary>
             </div>
           </main>
           <Footer />

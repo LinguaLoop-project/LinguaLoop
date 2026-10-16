@@ -52,7 +52,8 @@
         "title": "Tiếp tục học",
         "dictationProgress": "Nghe chép · câu {{current}}/{{total}}",
         "shadowingProgress": "Shadowing · câu {{current}}/{{total}}",
-        "resume": "Tiếp tục {{title}}"
+        "resume": "Tiếp tục {{title}}",
+        "sentenceOf": "câu {{current}}/{{total}}"
       },
       "b1Section": {
         "title": "Hợp trình độ B1 của bạn",
@@ -84,6 +85,10 @@
         "title": "Không tải được thư viện bài học",
         "desc": "Có lỗi khi kết nối tới máy chủ. Vui lòng thử lại.",
         "retry": "Thử lại"
+      },
+      "library": {
+        "emptyTitle": "Thư viện đang được cập nhật",
+        "emptyDesc": "Chưa có bài học nào. Bạn có thể tự tạo bài từ video YouTube ở phía trên."
       }
     },
     "lessonDetail": {
@@ -143,7 +148,8 @@
       "errorTitle": "Không tải được bài học",
       "errorDesc": "Có lỗi khi kết nối tới máy chủ. Vui lòng thử lại.",
       "proRequiredTitle": "Bài học dành cho gói Pro",
-      "proRequiredDesc": "Nâng cấp lên gói Pro để xem transcript và luyện tập bài này."
+      "proRequiredDesc": "Nâng cấp lên gói Pro để xem transcript và luyện tập bài này.",
+      "sentenceUnit": "câu"
     },
     "dictation": {
       "title": "Nghe chép chính tả",
@@ -200,7 +206,10 @@
       },
       "loadMore": "Xem thêm {{count}} bài",
       "notFoundTitle": "Không tìm thấy chủ đề",
-      "notFoundDesc": "Chủ đề bạn đang tìm không tồn tại hoặc chưa được công khai."
+      "notFoundDesc": "Chủ đề bạn đang tìm không tồn tại hoặc chưa được công khai.",
+      "noLessons": {
+        "title": "Chủ đề này chưa có bài"
+      }
     },
     "mywords": {
       "title": "Từ & câu đã lưu",

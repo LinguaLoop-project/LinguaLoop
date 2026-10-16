@@ -52,7 +52,8 @@
         "title": "Continue learning",
         "dictationProgress": "Dictation · sentence {{current}}/{{total}}",
         "shadowingProgress": "Shadowing · sentence {{current}}/{{total}}",
-        "resume": "Continue {{title}}"
+        "resume": "Continue {{title}}",
+        "sentenceOf": "sentence {{current}}/{{total}}"
       },
       "b1Section": {
         "title": "Matches your B1 level",
@@ -84,6 +85,10 @@
         "title": "Couldn't load the lesson library",
         "desc": "There was a problem reaching the server. Please try again.",
         "retry": "Try again"
+      },
+      "library": {
+        "emptyTitle": "The library is being updated",
+        "emptyDesc": "There are no lessons yet. You can create one from a YouTube video above."
       }
     },
     "lessonDetail": {
@@ -143,7 +148,8 @@
       "errorTitle": "Couldn't load this lesson",
       "errorDesc": "There was a problem reaching the server. Please try again.",
       "proRequiredTitle": "This lesson is for Pro",
-      "proRequiredDesc": "Upgrade to Pro to read the transcript and practise this lesson."
+      "proRequiredDesc": "Upgrade to Pro to read the transcript and practise this lesson.",
+      "sentenceUnit": "sentences"
     },
     "dictation": {
       "title": "Dictation",
@@ -200,7 +206,10 @@
       },
       "loadMore": "View {{count}} more lessons",
       "notFoundTitle": "Topic not found",
-      "notFoundDesc": "The topic you're looking for doesn't exist or isn't published yet."
+      "notFoundDesc": "The topic you're looking for doesn't exist or isn't published yet.",
+      "noLessons": {
+        "title": "This topic has no lessons yet"
+      }
     },
     "mywords": {
       "title": "Saved words & sentences",

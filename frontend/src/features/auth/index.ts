@@ -24,7 +24,7 @@ export { homePathFor, resolvePostLoginPath } from "./navigation";
 export type { FromLocation } from "./navigation";
 
 // Errors
-export { toApiError, errorMessage, fieldErrorMessage, applyFieldErrors } from "./errors";
+export { NETWORK_ERROR, toApiError, errorMessage, fieldErrorMessage, applyFieldErrors } from "./errors";
 
 // Hooks
 export { default as useAuth } from "./hooks/useAuth";

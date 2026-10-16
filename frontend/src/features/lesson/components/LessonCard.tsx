@@ -1,85 +1,55 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { LessonSummary } from "../types";
-import Badge from "../../../components/common/Badge";
-import GlassTag from "../../../components/common/GlassTag";
+import Badge from "@/components/common/Badge";
+import GlassTag from "@/components/common/GlassTag";
 import Icon from "@/components/common/Icon";
+import { formatCount, formatDuration } from "@/lib/format";
+import ModeButton, { type PracticeMode } from "./ModeButton";
 
 interface LessonCardProps {
   lesson: LessonSummary;
 }
 
-const fmtNum = (n: number) => {
-  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `${(n / 1e3).toFixed(1)}k`;
-  return n.toString();
-};
-
-const formatDuration = (sec: number) => {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${s < 10 ? "0" : ""}${s}`;
-};
-
 export const LessonCard = ({ lesson }: LessonCardProps) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation("pages");
 
-  const isPro = lesson.pro;
   const isYouTube = lesson.sourceType?.toLowerCase() === "youtube";
-
-  const handleCardClick = () => {
-    navigate(`/student/lessons/${lesson.slug}`);
-  };
-
-  const handleStartMode = (
-    e: React.MouseEvent,
-    mode: "dictation" | "shadowing",
-  ) => {
-    e.stopPropagation();
-    navigate(`/student/lessons/${lesson.slug}?mode=${mode}`);
-  };
+  const open = (suffix = "") => navigate(`/student/lessons/${lesson.slug}${suffix}`);
+  const modeLabel = (mode: PracticeMode) =>
+    t(`student.lessons.card.${mode}`, mode === "dictation" ? "Nghe chép" : "Shadowing");
 
   return (
     <article
-      className=" group relative isolate flex flex-col overflow-hidden rounded-[20px] p-0 bg-surface border border-border shadow-[var(--shadow-card)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--primary)_65%,var(--border))] hover:shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_20px_45px_-15px_rgba(0,0,0,0.7),0_0_35px_color-mix(in_srgb,var(--primary)_45%,transparent),0_0_70px_color-mix(in_srgb,var(--primary)_35%,transparent),0_0_110px_color-mix(in_srgb,var(--primary)_20%,transparent)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary "
+      className="group relative isolate flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)] transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-border-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       data-lesson={lesson.slug}
       tabIndex={0}
-      aria-label={t("student.lessons.card.aria", {
-        title: lesson.title,
-        defaultValue: `Bài ${lesson.title}`,
-      })}
-      onClick={handleCardClick}
+      aria-label={t("student.lessons.card.aria", { title: lesson.title, defaultValue: `Bài ${lesson.title}` })}
+      onClick={() => open()}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
           e.preventDefault();
-          handleCardClick();
+          open();
         }
       }}
     >
-      {/* ── Thumbnail ── */}
-      <div className="relative aspect-video grid place-items-center isolate overflow-hidden border-b border-border bg-[radial-gradient(120%_100%_at_25%_10%,var(--primary-soft),transparent_60%)] bg-surface-hover">
+      <div className="relative isolate grid aspect-video place-items-center overflow-hidden border-b border-border bg-primary-soft">
         {lesson.thumbnailUrl ? (
           <img
             src={lesson.thumbnailUrl}
-            alt={lesson.title}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
             onError={(e) => {
               (e.target as HTMLElement).style.display = "none";
             }}
           />
         ) : (
-          <>
-            {/* ── Fallback khi không có thumbnail hoặc ảnh lỗi ── */}
-            <div className="absolute inset-0 z-10 bg-primary-soft mix-blend-luminosity transition-opacity duration-250 pointer-events-none group-hover:opacity-0" />
-            <Icon name="headphones" className="relative z-10 text-[42px] sm:text-[44px] text-accent drop-shadow-[0_0_14px_color-mix(in_srgb,var(--primary)_60%,transparent)] transition-transform duration-500 ease-out group-hover:scale-105" />
-          </>
+          <Icon name="headphones" className="text-[44px] text-primary-text" />
         )}
 
-        {/* ── Corners ── */}
-        <div className="absolute z-30 top-2.5 left-2.5 flex items-center gap-1.5">
-          {isPro && (
+        <div className="absolute left-2.5 top-2.5 z-30 flex items-center gap-1.5">
+          {lesson.pro && (
             <Badge variant="pro">
               <Icon name={lesson.locked ? "lock" : "crown"} fill={!lesson.locked} />
               PRO
@@ -87,33 +57,31 @@ export const LessonCard = ({ lesson }: LessonCardProps) => {
           )}
           <GlassTag title={t("student.lessons.card.views", "Lượt học")}>
             <Icon name="headphones" />
-            {fmtNum(lesson.viewCount || 0)}
+            {formatCount(lesson.viewCount || 0)}
           </GlassTag>
         </div>
 
-        <div className="absolute z-30 top-2.5 right-2.5 flex items-center gap-1.5">
-          {lesson.difficulty && (
-            <Badge variant={String(lesson.difficulty)}>
-              {lesson.difficulty}
-            </Badge>
-          )}
+        <div className="absolute right-2.5 top-2.5 z-30">
+          {lesson.difficulty && <Badge variant={String(lesson.difficulty)}>{lesson.difficulty}</Badge>}
         </div>
 
-        <div className="absolute z-30 bottom-2.5 left-2.5 flex items-center gap-1.5">
+        <div className="absolute bottom-2.5 left-2.5 z-30">
           <GlassTag>
             {isYouTube ? (
               <>
-                <Icon name="video" className="text-danger" />YouTube
+                <Icon name="video" className="text-danger" />
+                YouTube
               </>
             ) : (
               <>
-                <Icon name="audio-lines" className="text-accent" />Audio
+                <Icon name="audio-lines" className="text-primary-text" />
+                Audio
               </>
             )}
           </GlassTag>
         </div>
 
-        <div className="absolute z-30 bottom-2.5 right-2.5 flex items-center gap-1.5">
+        <div className="absolute bottom-2.5 right-2.5 z-30">
           <GlassTag>
             <Icon name="clock" />
             {formatDuration(lesson.durationSec ?? 0)}
@@ -121,42 +89,44 @@ export const LessonCard = ({ lesson }: LessonCardProps) => {
         </div>
       </div>
 
-      {/* ── Body ── */}
-      <div className="flex-1 flex flex-col gap-1 p-3.5 pb-4 px-4 relative z-20">
-        <h3 className="font-body font-semibold text-[16px] sm:text-[17px] leading-[1.35] text-text line-clamp-2">
-          {lesson.title}
-        </h3>
-        <div className="text-xs sm:text-sm text-text-muted truncate">
+      <div className="relative z-20 flex flex-1 flex-col gap-1 p-4 pb-4 pt-3.5">
+        <h3 className="line-clamp-2 font-body text-[16px] font-semibold leading-[1.35] text-text sm:text-[17px]">{lesson.title}</h3>
+        <div className="truncate text-xs text-text-muted sm:text-sm">
           {i18n.language === "vi" && lesson.titleVi
             ? lesson.titleVi
-            : t("student.lessons.card.sentences", {
-                count: lesson.sentenceCount,
-                defaultValue: `${lesson.sentenceCount} câu`,
-              })}
+            : t("student.lessons.card.sentences", { count: lesson.sentenceCount, defaultValue: `${lesson.sentenceCount} câu` })}
         </div>
-        <div className="grid grid-cols-2 gap-2 mt-auto pt-3">
-          <button
-            className="relative flex items-center justify-center gap-1.5 min-h-10 px-2 rounded-md border border-border-strong text-xs sm:text-sm font-semibold text-text-muted hover:bg-primary-soft hover:border-primary hover:text-text transition-colors duration-150 cursor-pointer [&>svg]:text-base sm:[&>svg]:text-lg"
-            data-start="dictation"
-            data-lesson={lesson.slug}
-            aria-label={`${t("student.lessons.card.dictation", "Nghe chép")}: ${lesson.title}`}
-            onClick={(e) => handleStartMode(e, "dictation")}
-          >
-            <Icon name="headphones" />
-            {t("student.lessons.card.dictation", "Nghe chép")}
-          </button>
-          <button
-            className="relative flex items-center justify-center gap-1.5 min-h-10 px-2 rounded-md border border-border-strong text-xs sm:text-sm font-semibold text-text-muted hover:bg-primary-soft hover:border-primary hover:text-text transition-colors duration-150 cursor-pointer [&>svg]:text-base sm:[&>svg]:text-lg"
-            data-start="shadowing"
-            data-lesson={lesson.slug}
-            aria-label={`${t("student.lessons.card.shadowing", "Shadowing")}: ${lesson.title}`}
-            onClick={(e) => handleStartMode(e, "shadowing")}
-          >
-            <Icon name="mic" />
-            {t("student.lessons.card.shadowing", "Shadowing")}
-          </button>
+        <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
+          {(["dictation", "shadowing"] as const).map((mode) => (
+            <ModeButton
+              key={mode}
+              mode={mode}
+              label={modeLabel(mode)}
+              ariaLabel={`${modeLabel(mode)}: ${lesson.title}`}
+              percent={mode === "dictation" ? lesson.progress.dictationPercent : lesson.progress.shadowingPercent}
+              onClick={(e) => {
+                e.stopPropagation();
+                open(`?mode=${mode}`);
+              }}
+            />
+          ))}
         </div>
       </div>
     </article>
   );
 };
+
+/** Khung chờ cùng hình dạng thẻ bài để trang không nhảy bố cục khi dữ liệu về. */
+export const LessonCardSkeleton = () => (
+  <div aria-hidden="true" className="overflow-hidden rounded-2xl border border-border bg-surface">
+    <div className="skeleton aspect-video bg-surface-hover" />
+    <div className="flex flex-col gap-2.5 p-4">
+      <div className="skeleton h-4 w-4/5 rounded bg-surface-hover" />
+      <div className="skeleton h-3 w-2/5 rounded bg-surface-hover" />
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <div className="skeleton h-10 rounded-md bg-surface-hover" />
+        <div className="skeleton h-10 rounded-md bg-surface-hover" />
+      </div>
+    </div>
+  </div>
+);
