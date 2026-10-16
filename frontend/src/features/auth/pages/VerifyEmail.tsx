@@ -102,7 +102,7 @@ const VerifyEmail = () => {
       {(status === "verified" || status === "already") && (
         <>
           <img
-            src="/loopi-hello.svg"
+            src="/mascot/loopi-hello.svg"
             width={120}
             height={120}
             alt=""

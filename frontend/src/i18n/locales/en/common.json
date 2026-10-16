@@ -2,7 +2,6 @@
   "language": {
     "label": "Language",
     "display": "Display language",
-    "switchTo": "Switch to {{language}}",
     "names": {
       "vi": "Tiếng Việt",
       "en": "English"
@@ -14,7 +13,6 @@
     "close": "Close",
     "viewAll": "View all",
     "create": "Create",
-    "clearFilters": "Clear filters",
     "start": "Start",
     "back": "Back",
     "cancel": "Cancel",

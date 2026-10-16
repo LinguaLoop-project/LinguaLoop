@@ -2,7 +2,6 @@
   "language": {
     "label": "Ngôn ngữ",
     "display": "Ngôn ngữ hiển thị",
-    "switchTo": "Chuyển sang {{language}}",
     "names": {
       "vi": "Tiếng Việt",
       "en": "English"
@@ -14,7 +13,6 @@
     "close": "Đóng",
     "viewAll": "Xem tất cả",
     "create": "Tạo bài",
-    "clearFilters": "Xoá bộ lọc",
     "start": "Bắt đầu",
     "back": "Quay lại",
     "cancel": "Huỷ",

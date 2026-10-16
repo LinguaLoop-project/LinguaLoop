@@ -15,9 +15,6 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
 
-  --color-txt: var(--text);
-  --color-txt-muted: var(--text-muted);
-  --color-txt-subtle: var(--text-subtle);
 
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);

@@ -9,20 +9,6 @@
       "description": "Kho bài học đa phương tiện phân tầng từ A1 đến C2 kèm video, audio và phụ đề.",
       "overline": "Thư viện bài học",
       "subtitle": "Nghe chép và shadowing trên video, audio thật · {{total}} bài · {{topics}} chủ đề",
-      "uxNotesBtn": "Ghi chú UX",
-      "uxNotesTitle": "Ghi chú UX — Thư viện bài học",
-      "uxNotes": {
-        "item1Title": "parroto.app/topics · YouTube:",
-        "item1Desc": "Thẻ bài hiển thị đầy đủ thông tin: trình độ CEFR, thời lượng, nguồn YouTube/Audio, lượt học, PRO.",
-        "item2Title": "Hai chế độ ngay trên thẻ:",
-        "item2Desc": "Nút Nghe chép / Shadowing ngay trên thẻ cho phép bấm thẳng vào luyện tập nhanh.",
-        "item3Title": "Tiếp tục học + gợi ý theo trình độ:",
-        "item3Desc": "“Tiếp tục học” đặt trên cùng. Hàng “Hợp trình độ B1” gợi ý từ bài kiểm tra trình độ.",
-        "item4Title": "Lọc & tìm:",
-        "item4Desc": "Tìm kiếm tức thì với debounce 300ms, lọc 3 cấp độ (Cơ bản/Trung cấp/Nâng cao), sắp xếp Phổ biến/Mới/Ngắn, và bộ lọc bài miễn phí.",
-        "item5Title": "Tạo bài từ YouTube:",
-        "item5Desc": "AI tách câu và ước lượng CEFR, bài duyệt trước khi công khai."
-      },
       "ytCard": {
         "title": "Tạo bài từ video YouTube",
         "desc": "Dán link video tiếng Anh, AI tách câu, gắn mốc thời gian và ước lượng trình độ. Bài được duyệt trước khi hiện công khai.",
@@ -52,8 +38,6 @@
       },
       "continue": {
         "title": "Tiếp tục học",
-        "dictationProgress": "Nghe chép · câu {{current}}/{{total}}",
-        "shadowingProgress": "Shadowing · câu {{current}}/{{total}}",
         "resume": "Tiếp tục {{title}}",
         "sentenceOf": "câu {{current}}/{{total}}"
       },
@@ -125,8 +109,6 @@
       "description": "Trải nghiệm học tương tác, nghe transcript và làm bài tập củng cố.",
       "sentencesCount": "{{count}} câu",
       "viewsCount": "{{count}} lượt học",
-      "recentAdded": "Thêm gần đây",
-      "descriptionFallback": "Bài thuộc chủ đề {{topic}}, dài {{duration}}, cắt sẵn {{count}} câu kèm mốc thời gian. Chọn một chế độ để luyện; tiến độ mỗi chế độ được lưu riêng.",
       "dictation": {
         "title": "Nghe chép",
         "desc": "Nghe từng câu rồi gõ lại. Chấm từng từ, gắn nhãn loại lỗi.",
@@ -150,14 +132,11 @@
         "sentence": "Câu {{index}}",
         "listen": "Nghe câu này",
         "shadow": "Shadowing câu này",
-        "dictate": "Nghe chép câu này",
         "empty": "Chưa có dữ liệu câu cho bài học này.",
         "showMore": "Xem thêm {{count}} câu",
         "collapse": "Thu gọn",
         "showingCount": "Đang hiện {{visible}}/{{total}} câu"
       },
-      "notFoundTitle": "Không tìm thấy bài học",
-      "notFoundDesc": "Bài học bạn đang tìm không tồn tại hoặc đã bị gỡ.",
       "backToLibrary": "Quay lại Thư viện",
       "playVideo": "Phát video",
       "aside": {
@@ -174,8 +153,6 @@
         "viewTopic": "Xem cả chủ đề",
         "exploreLessons": "Khám phá thêm bài học"
       },
-      "errorTitle": "Không tải được bài học",
-      "errorDesc": "Có lỗi khi kết nối tới máy chủ. Vui lòng thử lại.",
       "proRequiredTitle": "Bài học dành cho gói Pro",
       "proRequiredDesc": "Nâng cấp lên gói Pro để xem transcript và luyện tập bài này.",
       "sentenceUnit": "câu"
@@ -228,14 +205,11 @@
         "doing": "Đang học",
         "done": "Đã xong"
       },
-      "showingCount": "Đang hiện {{count}} / {{total}} bài",
+      "showingCount": "Bài {{from}}–{{to}} / {{total}}",
       "empty": {
         "title": "Chưa có bài nào ở mục này",
         "desc": "Đổi trình độ hoặc trạng thái để xem thêm bài."
       },
-      "loadMore": "Xem thêm {{count}} bài",
-      "notFoundTitle": "Không tìm thấy chủ đề",
-      "notFoundDesc": "Chủ đề bạn đang tìm không tồn tại hoặc chưa được công khai.",
       "noLessons": {
         "title": "Chủ đề này chưa có bài"
       }

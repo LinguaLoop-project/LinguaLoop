@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
@@ -11,11 +11,12 @@ import Skeleton from "@/components/common/Skeleton";
 import { useLessonSearch, useTopicDetail } from "../hooks/useLessons";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { LessonGrid, LessonGridSkeleton } from "../components/LessonGrid";
+import Pagination from "../components/Pagination";
 import QueryError from "../components/QueryError";
 import type { LessonState } from "../types";
 import { difficultyParam, localizedName } from "../utils";
 
-const PAGE_STEP = 24;
+const PAGE_SIZE = 12;
 
 const BackToLibrary = () => {
   const { t } = useTranslation("pages");
@@ -31,17 +32,57 @@ export const TopicDetailPage = () => {
   const { t, i18n } = useTranslation("pages");
   const isEn = i18n.language === "en";
 
-  const [levelFilter, setLevelFilter] = useState("all");
-  const [stateFilter, setStateFilter] = useState("all");
-  const [pageSize, setPageSize] = useState(PAGE_STEP);
+  const [levelFilter, setLevelFilterRaw] = useState("all");
+  const [stateFilter, setStateFilterRaw] = useState("all");
+  // Số trang nằm trên URL (`?page=3`, đánh số từ 1) để tải lại hoặc gửi link vẫn đúng trang.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageParam = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  const page = Number.isFinite(pageParam) && pageParam > 1 ? pageParam - 1 : 0;
+  const setPage = (p: number) =>
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (p > 0) next.set("page", String(p + 1));
+      else next.delete("page");
+      return next;
+    });
+
+  // Đổi bộ lọc thì về trang đầu.
+  const setLevelFilter = (v: string) => {
+    setLevelFilterRaw(v);
+    setPage(0);
+  };
+  const setStateFilter = (v: string) => {
+    setStateFilterRaw(v);
+    setPage(0);
+  };
+  const goToPage = (p: number) => {
+    setPage(p);
+    document.getElementById("tpHead")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const topicQuery = useTopicDetail(slug);
   const lessonsQuery = useLessonSearch({
     topic: slug,
     difficulty: difficultyParam(levelFilter),
     state: stateFilter === "all" ? undefined : (stateFilter as LessonState),
-    size: pageSize,
+    page,
+    size: PAGE_SIZE,
   });
+
+  // Link có `?page=` vượt số trang thật (bài bị gỡ, bộ lọc đổi): lùi về trang cuối.
+  const totalPages = lessonsQuery.data?.totalPages ?? 0;
+  useEffect(() => {
+    if (totalPages > 0 && page >= totalPages)
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (totalPages > 1) next.set("page", String(totalPages));
+          else next.delete("page");
+          return next;
+        },
+        { replace: true },
+      );
+  }, [page, totalPages, setSearchParams]);
 
   const topic = topicQuery.data?.topic;
   const lessons = useMemo(() => lessonsQuery.data?.items ?? [], [lessonsQuery.data]);
@@ -94,7 +135,15 @@ export const TopicDetailPage = () => {
   return (
     <section className="w-full" id="v-topic">
       <div id="tpHead">
-        <Breadcrumbs items={[{ label: t("student.lessons.title", "Bài học"), to: "/student/lessons" }, { label: name }]} />
+        <Breadcrumbs
+          items={[
+            {
+              label: t("student.lessons.title", "Bài học"),
+              to: "/student/lessons",
+            },
+            { label: name },
+          ]}
+        />
 
         <div className="mb-6 grid grid-cols-[72px_minmax(0,1fr)] items-center gap-5 lg:grid-cols-[72px_minmax(0,1fr)_280px]">
           <div className="grid h-[72px] w-[72px] place-items-center rounded-lg bg-primary-soft text-primary-text">
@@ -113,7 +162,13 @@ export const TopicDetailPage = () => {
           <div className="col-span-full rounded-lg border border-border bg-surface p-5 shadow-[var(--shadow-card)] lg:col-span-1">
             <div className="flex items-center justify-between text-[13px]">
               <span className="text-text-muted">{t("student.topicDetail.completedLabel", "Bạn đã hoàn thành")}</span>
-              <b>{t("student.topicDetail.completedCount", { done: doneCount, total: totalCount, defaultValue: `${doneCount}/${totalCount} bài` })}</b>
+              <b>
+                {t("student.topicDetail.completedCount", {
+                  done: doneCount,
+                  total: totalCount,
+                  defaultValue: `${doneCount}/${totalCount} bài`,
+                })}
+              </b>
             </div>
             <ProgressBar value={ratio * 100} label={t("student.topicDetail.completedLabel", "Bạn đã hoàn thành")} className="mt-2" />
           </div>
@@ -126,10 +181,22 @@ export const TopicDetailPage = () => {
           value={levelFilter}
           onChange={setLevelFilter}
           options={[
-            { value: "all", label: t("student.topicDetail.levels.all", "Tất cả") },
-            { value: "basic", label: t("student.lessons.toolbar.levels.basic", "Cơ bản (A1–A2)") },
-            { value: "mid", label: t("student.lessons.toolbar.levels.mid", "Trung cấp (B1–B2)") },
-            { value: "adv", label: t("student.lessons.toolbar.levels.adv", "Nâng cao (C1–C2)") },
+            {
+              value: "all",
+              label: t("student.topicDetail.levels.all", "Tất cả"),
+            },
+            {
+              value: "basic",
+              label: t("student.lessons.toolbar.levels.basic", "Cơ bản (A1–A2)"),
+            },
+            {
+              value: "mid",
+              label: t("student.lessons.toolbar.levels.mid", "Trung cấp (B1–B2)"),
+            },
+            {
+              value: "adv",
+              label: t("student.lessons.toolbar.levels.adv", "Nâng cao (C1–C2)"),
+            },
           ]}
         />
         <SegmentedControl
@@ -137,15 +204,32 @@ export const TopicDetailPage = () => {
           value={stateFilter}
           onChange={setStateFilter}
           options={[
-            { value: "all", label: t("student.topicDetail.states.all", "Tất cả") },
-            { value: "todo", label: t("student.topicDetail.states.todo", "Chưa học") },
-            { value: "doing", label: t("student.topicDetail.states.doing", "Đang học") },
-            { value: "done", label: t("student.topicDetail.states.done", "Đã xong") },
+            {
+              value: "all",
+              label: t("student.topicDetail.states.all", "Tất cả"),
+            },
+            {
+              value: "todo",
+              label: t("student.topicDetail.states.todo", "Chưa học"),
+            },
+            {
+              value: "doing",
+              label: t("student.topicDetail.states.doing", "Đang học"),
+            },
+            {
+              value: "done",
+              label: t("student.topicDetail.states.done", "Đã xong"),
+            },
           ]}
         />
         <span className="flex-1" />
         <span className="text-[13px] leading-normal text-text-muted" id="tpCount">
-          {t("student.topicDetail.showingCount", { count: lessons.length, total: matchedCount, defaultValue: `Đang hiện ${lessons.length} / ${matchedCount} bài` })}
+          {t("student.topicDetail.showingCount", {
+            from: matchedCount ? page * PAGE_SIZE + 1 : 0,
+            to: page * PAGE_SIZE + lessons.length,
+            total: matchedCount,
+            defaultValue: `Bài ${matchedCount ? page * PAGE_SIZE + 1 : 0}–${page * PAGE_SIZE + lessons.length} / ${matchedCount}`,
+          })}
         </span>
       </div>
 
@@ -174,14 +258,7 @@ export const TopicDetailPage = () => {
         </div>
       )}
 
-      {lessons.length < matchedCount && (
-        <div className="mt-8 text-center" id="tpMore">
-          <Button variant="ghost" onClick={() => setPageSize((prev) => prev + PAGE_STEP)} isLoading={lessonsQuery.isFetching}>
-            {t("student.topicDetail.loadMore", { count: matchedCount - lessons.length, defaultValue: `Xem thêm ${matchedCount - lessons.length} bài` })}
-            <Icon name="chevron-down" className="text-xl" />
-          </Button>
-        </div>
-      )}
+      <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
     </section>
   );
 };

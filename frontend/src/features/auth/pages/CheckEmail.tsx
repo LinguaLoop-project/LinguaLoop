@@ -66,7 +66,7 @@ const CheckEmail = () => {
   return (
     <section className="flex flex-col gap-5 text-center items-center w-full">
       <img
-        src="/loopi-hello.svg"
+        src="/mascot/loopi-hello.svg"
         width={120}
         height={120}
         alt=""
