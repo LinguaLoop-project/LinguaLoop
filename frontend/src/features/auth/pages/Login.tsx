@@ -10,14 +10,13 @@ import GoogleSignInButton from "../components/GoogleSignInButton";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
 import Checkbox from "@/components/common/Checkbox";
-import Icon from "@/components/common/Icon";
+import { PasswordField, TextField } from "@/components/common/TextField";
 
 export const Login = () => {
   const { t } = useTranslation("auth");
   const navigate = useNavigate();
   // Trang đặt lại mật khẩu chuyển về đây kèm state để báo thành công (AC-AUTH-35)
   const passwordReset = (useLocation().state as { passwordReset?: boolean } | null)?.passwordReset === true;
-  const [showPassword, setShowPassword] = useState(false);
 
   const login = useAuthStore((state) => state.login);
   const loading = useAuthStore((state) => state.loading);
@@ -105,97 +104,33 @@ export const Login = () => {
       <GoogleSignInButton />
 
       {/* Email */}
-      <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="liEmail"
-          className="text-[13px] font-semibold text-text"
-        >
-          {t("login.email")}
-        </label>
-        <div
-          className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-            errors.email
-              ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
-              : "border-border"
-          }`}
-        >
-          <Icon name="mail" className="text-lg text-text-subtle mr-2.5 shrink-0" />
-          <input
-            id="liEmail"
-            type="email"
-            autoComplete="email"
-            placeholder={t("login.emailPlaceholder")}
-            aria-describedby="liEmailErr"
-            className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-            {...register("email")}
-          />
-        </div>
-        {errors.email && (
-          <p
-            id="liEmailErr"
-            className="text-xs font-medium text-danger mt-0.5"
-          >
-            {errors.email.message}
-          </p>
-        )}
-      </div>
+      <TextField
+        id="liEmail"
+        label={t("login.email")}
+        icon="mail"
+        type="email"
+        autoComplete="email"
+        placeholder={t("login.emailPlaceholder")}
+        error={errors.email?.message}
+        {...register("email")}
+      />
 
       {/* Password */}
-      <div className="flex flex-col gap-1.5">
-        <div className="flex justify-between items-center">
-          <label
-            htmlFor="liPw"
-            className="text-[13px] font-semibold text-text"
-          >
-            {t("login.password")}
-          </label>
-          <Link
-            to="/auth/forgot-password"
-            className="text-accent hover:underline text-[13px] font-medium transition-colors"
-          >
+      <PasswordField
+        id="liPw"
+        label={t("login.password")}
+        autoComplete="current-password"
+        placeholder={t("login.passwordPlaceholder")}
+        showLabel={t("login.showPassword")}
+        hideLabel={t("login.hidePassword")}
+        labelAside={
+          <Link to="/auth/forgot-password" className="text-primary-text hover:underline text-[13px] font-medium transition-colors">
             {t("login.forgotPassword")}
           </Link>
-        </div>
-        <div
-          className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-            errors.password
-              ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
-              : "border-border"
-          }`}
-        >
-          <Icon name="lock" className="text-lg text-text-subtle mr-2.5 shrink-0" />
-          <input
-            id="liPw"
-            type={showPassword ? "text" : "password"}
-            autoComplete="current-password"
-            placeholder={t("login.passwordPlaceholder")}
-            aria-describedby="liPwErr"
-            className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-            {...register("password")}
-          />
-          <button
-            type="button"
-            className="shrink-0 p-1 text-lg text-text-subtle hover:text-text cursor-pointer transition-colors border-0 bg-transparent"
-            onClick={() => setShowPassword(!showPassword)}
-            aria-label={
-              showPassword
-                ? t("login.hidePassword")
-                : t("login.showPassword")
-            }
-            aria-pressed={showPassword}
-          >
-            <Icon name={showPassword ? "eye-off" : "eye"} />
-          </button>
-        </div>
-        {errors.password && (
-          <p
-            id="liPwErr"
-            className="text-xs font-medium text-danger mt-0.5"
-          >
-            {errors.password.message as string}
-          </p>
-        )}
-      </div>
+        }
+        error={errors.password?.message as string | undefined}
+        {...register("password")}
+      />
 
       {/* Remember me */}
       <Checkbox

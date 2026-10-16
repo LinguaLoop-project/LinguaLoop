@@ -62,5 +62,21 @@
     "homeStudent": "Về Hôm nay",
     "tryQuota": "Thử Action (Quota)",
     "quotaSuccess": "Đã thực hiện một hành động thành công!"
+  },
+  "error": {
+    "retry": "Thử lại",
+    "code": "Mã lỗi: {{code}}",
+    "server": {
+      "title": "Không tải được dữ liệu",
+      "desc": "Đây không phải lỗi của bạn. Tiến độ học của bạn vẫn an toàn, hãy thử lại sau ít phút."
+    },
+    "network": {
+      "title": "Mất kết nối mạng",
+      "desc": "Hãy kiểm tra Wi-Fi hoặc mạng di động rồi thử lại. Tiến độ học của bạn vẫn an toàn."
+    },
+    "notFound": {
+      "title": "Không tìm thấy nội dung",
+      "desc": "Đường dẫn có thể đã đổi hoặc nội dung đã bị gỡ."
+    }
   }
 }

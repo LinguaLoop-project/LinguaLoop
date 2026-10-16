@@ -110,7 +110,7 @@ export default function StudentTopBar() {
             className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full border border-border-strong bg-surface-glass font-semibold text-[15px] select-none"
             title={t("student.topbar.quota")}
           >
-            <Icon name="zap" fill className="text-purple-500 text-lg" />
+            <Icon name="zap" fill className="text-primary-text text-lg" />
             <span>
               {maxActions - actionsToday}/{maxActions}
             </span>
@@ -121,7 +121,7 @@ export default function StudentTopBar() {
         <span
           className={`hidden md:inline-flex items-center justify-center h-10 px-3.5 rounded-full border border-border-strong font-semibold text-[15px] cursor-pointer hover:bg-surface-hover transition-colors ${
             isPro
-              ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+              ? "bg-primary-soft text-primary-text"
               : "bg-surface-glass text-text"
           }`}
           id="planPill"

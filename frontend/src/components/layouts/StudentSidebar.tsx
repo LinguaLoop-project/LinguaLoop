@@ -13,8 +13,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LogoMark } from "@/components/common/Logo";
-import { useSpotlight } from "@/hooks/useSpotlight";
 import Icon from "@/components/common/Icon";
+import Badge from "@/components/common/Badge";
+import Button from "@/components/common/Button";
 
 type NavItem = {
   id: string;
@@ -73,7 +74,7 @@ function NavItem({ item }: { item: NavItem }) {
       className={({ isActive }) =>
         `relative flex items-center gap-3 w-full min-h-[44px] px-3 py-2.5 rounded-md font-medium text-base transition-colors duration-150 ${
           isActive
-            ? "bg-primary-soft text-text before:content-[''] before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-0.5 before:rounded-sm before:bg-primary before:shadow-[var(--glow-primary)]"
+            ? "bg-primary-soft text-text before:content-[''] before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-0.5 before:rounded-sm before:bg-primary"
             : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_svg]:translate-x-0.5"
         }`
       }
@@ -88,7 +89,7 @@ function NavItem({ item }: { item: NavItem }) {
  />
           <span>{label}</span>
           {item.badge != null && item.badge > 0 && (
-            <span className="ml-auto min-w-[22px] h-[22px] px-1.5 rounded-full grid place-items-center text-xs font-semibold bg-[rgba(251,113,133,0.18)] text-danger">
+            <span className="ml-auto min-w-[22px] h-[22px] px-1.5 rounded-full grid place-items-center text-xs font-semibold bg-danger/15 text-danger">
               {item.badge}
             </span>
           )}
@@ -102,10 +103,6 @@ export default function StudentSidebar() {
   const { t } = useTranslation("layout");
   const navigate = useNavigate();
   const isPro = false; // TODO: thêm field plan vào User type khi backend ready
-  const {
-    onMouseMove: handleSpotlightMove,
-    onMouseLeave: handleSpotlightLeave,
-  } = useSpotlight();
 
   return (
     <aside
@@ -150,41 +147,20 @@ export default function StudentSidebar() {
       {/* Phần cuối: upsell nếu Free */}
       {!isPro && (
         <div className="mt-auto pt-4">
-          <div
-            className="relative p-4 rounded-lg border border-[color-mix(in_srgb,var(--primary)_35%,transparent)] shadow-[var(--shadow-card)] overflow-hidden transition-all duration-200"
-            onMouseMove={handleSpotlightMove}
-            onMouseLeave={handleSpotlightLeave}
-            style={{
-              background:
-                "radial-gradient(circle at 85% 15%, rgba(139, 92, 246, 0.22), transparent 55%), radial-gradient(400px circle at var(--mx, -999px) var(--my, -999px), rgba(139, 92, 246, 0.25), transparent 40%), var(--surface)",
-            }}
-          >
-            <span
-              className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-sm text-xs font-bold tracking-[0.06em] text-white select-none"
-              style={{
-                background: "var(--btn-primary)",
-                boxShadow: "0 2px 8px rgba(139, 92, 246, 0.35)",
-              }}
-            >
+          <div className="rounded-lg border-2 border-primary bg-surface p-4 shadow-[var(--shadow-card)]">
+            <Badge variant="pro">
               <Icon name="crown" fill className="text-[13px]" />
               PRO
-            </span>
+            </Badge>
             <b className="block mt-2.5 text-lg font-bold leading-snug text-text">
               {t("student.sidebar.pro.price")}
             </b>
             <p className="text-sm leading-relaxed text-text-muted my-1 mb-3">
               {t("student.sidebar.pro.desc")}
             </p>
-            <button
-              type="button"
-              className="w-full h-9 inline-flex items-center justify-center gap-2 px-4 rounded-md text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer border-0"
-              style={{
-                background: "var(--btn-primary)",
-              }}
-              onClick={() => navigate("/pricing")}
-            >
+            <Button size="sm" fullWidth onClick={() => navigate("/pricing")}>
               {t("student.sidebar.pro.cta")}
-            </button>
+            </Button>
           </div>
         </div>
       )}

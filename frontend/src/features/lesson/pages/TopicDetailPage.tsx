@@ -131,7 +131,7 @@ export const TopicDetailPage = () => {
             </div>
             <div className="h-2 rounded-full bg-border overflow-hidden mt-2.5">
               <div
-                className="h-full rounded-full bg-gradient-primary transition-all duration-500 ease-out"
+                className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                 style={{
                   width: `${totalCount ? Math.min(100, Math.round((doneN / totalCount) * 100)) : 0}%`,
                 }}

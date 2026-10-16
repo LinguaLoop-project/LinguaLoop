@@ -15,13 +15,13 @@ import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
 import Checkbox from "@/components/common/Checkbox";
 import Icon from "@/components/common/Icon";
+import { PasswordField, TextField } from "@/components/common/TextField";
 
 export const Register = () => {
   const { t } = useTranslation("auth");
   const formId = useId();
   const navigate = useNavigate();
 
-  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [emailTaken, setEmailTaken] = useState(false);
@@ -116,167 +116,74 @@ export const Register = () => {
         noValidate
       >
         {/* Display name */}
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor={`${formId}-displayName`}
-            className="text-[13px] font-semibold text-text"
-          >
-            {t("register.displayName")}
-          </label>
-          <div
-            className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-              errors.displayName
-                ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
-                : "border-border"
-            }`}
-          >
-            <Icon name="user" className="text-lg text-text-subtle mr-2.5 shrink-0" />
-            <input
-              id={`${formId}-displayName`}
-              type="text"
-              autoComplete="name"
-              placeholder={t("register.displayNamePlaceholder")}
-              className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-              {...register("displayName")}
-            />
-          </div>
-          {errors.displayName ? (
-            <p className="text-xs font-medium text-danger mt-0.5">
-              {errors.displayName.message}
-            </p>
-          ) : (
-            <p className="text-xs text-text-muted mt-0.5">
-              {t("register.displayNameHint")}
-            </p>
-          )}
-        </div>
+        <TextField
+          id={`${formId}-displayName`}
+          label={t("register.displayName")}
+          icon="user"
+          autoComplete="name"
+          placeholder={t("register.displayNamePlaceholder")}
+          error={errors.displayName?.message}
+          hint={t("register.displayNameHint")}
+          {...register("displayName")}
+        />
 
         {/* Email */}
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor={`${formId}-email`}
-            className="text-[13px] font-semibold text-text"
-          >
-            {t("register.email")}
-          </label>
-          <div
-            className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-              errors.email
-                ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
-                : "border-border"
-            }`}
-          >
-            <Icon name="mail" className="text-lg text-text-subtle mr-2.5 shrink-0" />
-            <input
-              id={`${formId}-email`}
-              type="email"
-              autoComplete="email"
-              placeholder={t("register.emailPlaceholder")}
-              className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-              {...register("email")}
-            />
-          </div>
-          {errors.email && (
-            <p className="text-xs font-medium text-danger mt-0.5">
-              {errors.email.message}
-            </p>
-          )}
-          {emailTaken && (
-            <p className="text-xs text-text-muted mt-0.5">
-              <Link
-                to="/auth/login"
-                className="text-accent hover:underline font-medium"
-              >
-                {t("register.emailTakenLogin")}
-              </Link>
-              {" · "}
-              <Link
-                to="/auth/forgot-password"
-                className="text-accent hover:underline font-medium"
-              >
-                {t("register.emailTakenForgot")}
-              </Link>
-              {" · "}
-              <Link
-                to="/auth/check-email"
-                state={{
-                  email: getValues("email").trim(),
-                  mailSent: null,
-                }}
-                className="text-accent hover:underline font-medium"
-              >
-                {t("register.emailTakenResend")}
-              </Link>
-            </p>
-          )}
-        </div>
+        <TextField
+          id={`${formId}-email`}
+          label={t("register.email")}
+          icon="mail"
+          type="email"
+          autoComplete="email"
+          placeholder={t("register.emailPlaceholder")}
+          error={errors.email?.message}
+          footer={
+            emailTaken && (
+              <p className="text-xs text-text-muted mt-0.5">
+                <Link to="/auth/login" className="text-primary-text hover:underline font-medium">
+                  {t("register.emailTakenLogin")}
+                </Link>
+                {" · "}
+                <Link to="/auth/forgot-password" className="text-primary-text hover:underline font-medium">
+                  {t("register.emailTakenForgot")}
+                </Link>
+                {" · "}
+                <Link
+                  to="/auth/check-email"
+                  state={{ email: getValues("email").trim(), mailSent: null }}
+                  className="text-primary-text hover:underline font-medium"
+                >
+                  {t("register.emailTakenResend")}
+                </Link>
+              </p>
+            )
+          }
+          {...register("email")}
+        />
 
         {/* Password */}
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor={`${formId}-password`}
-            className="text-[13px] font-semibold text-text"
-          >
-            {t("register.password")}
-          </label>
-          <div
-            className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-              errors.password
-                ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
-                : "border-border"
-            }`}
-          >
-            <Icon name="lock" className="text-lg text-text-subtle mr-2.5 shrink-0" />
-            <input
-              id={`${formId}-password`}
-              type={showPassword ? "text" : "password"}
-              autoComplete="new-password"
-              placeholder={t("register.passwordPlaceholder")}
-              className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-              {...register("password", {
-                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                  setPasswordInput(e.target.value),
-              })}
-            />
-            <button
-              type="button"
-              className="shrink-0 p-1 text-lg text-text-subtle hover:text-text cursor-pointer transition-colors border-0 bg-transparent"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={
-                showPassword
-                  ? t("register.hidePassword")
-                  : t("register.showPassword")
-              }
-              aria-pressed={showPassword}
-            >
-              <Icon name={showPassword ? "eye-off" : "eye"} />
-            </button>
-          </div>
-
-          <PasswordStrengthMeter score={pwScore} />
-
-          {/* Password hint */}
-          <p
-            className={`text-xs mt-0.5 ${errors.password ? "text-danger flex items-center gap-1 font-medium" : "text-text-muted"}`}
-          >
-            {errors.password ? (
-              <>
-                <Icon name="circle-alert" />
-                <span>{errors.password.message}</span>
-              </>
-            ) : passwordInput ? (
+        <PasswordField
+          id={`${formId}-password`}
+          label={t("register.password")}
+          autoComplete="new-password"
+          placeholder={t("register.passwordPlaceholder")}
+          showLabel={t("register.showPassword")}
+          hideLabel={t("register.hidePassword")}
+          error={errors.password?.message}
+          below={<PasswordStrengthMeter score={pwScore} />}
+          hint={
+            passwordInput ? (
               <span>
-                {t("register.strength")}{" "}
-                <b className="text-text">
-                  {t(`register.strengthLevels.${pwScore}`)}
-                </b>
+                {t("register.strength")} <b className="text-text">{t(`register.strengthLevels.${pwScore}`)}</b>
                 {!pwValid && t("register.strengthNeedMin")}
               </span>
             ) : (
-              <span>{t("register.passwordHelp")}</span>
-            )}
-          </p>
-        </div>
+              t("register.passwordHelp")
+            )
+          }
+          {...register("password", {
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setPasswordInput(e.target.value),
+          })}
+        />
 
         {/* Accept terms */}
         <div className="flex flex-col gap-1">

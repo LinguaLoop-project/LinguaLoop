@@ -178,7 +178,7 @@ export default function PlaceholderPage({
                 alert(t("common:placeholder.quotaSuccess"));
               }
             }}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 shadow-sm cursor-pointer select-none border border-purple-200 dark:border-purple-800"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary-soft text-primary-text text-sm font-semibold transition-opacity duration-150 hover:opacity-90 cursor-pointer select-none border border-primary/30"
           >
             <Icon name="zap" fill className="text-base" />
             <span>{t("common:placeholder.tryQuota")}</span>

@@ -29,82 +29,56 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose }) =
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-        
-        {/* Header Image/Gradient */}
-        <div className="h-32 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 relative">
-          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay"></div>
-          <button 
-            type="button"
-            onClick={onClose}
-            aria-label={t("upgradeModal.close")}
-            className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full w-8 h-8 flex items-center justify-center transition-colors"
-          >
-            <Icon name="x" className="text-lg" />
-          </button>
-          
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center transform -rotate-3">
-              <Icon name="crown" fill className="text-2xl text-white" />
-            </div>
-          </div>
-        </div>
+  const benefits = ["unlimited", "advanced", "support"] as const;
 
-        {/* Content */}
-        <div className="pt-12 pb-8 px-6 text-center">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="upgrade-title">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border-strong bg-surface shadow-[var(--shadow-card)]">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t("upgradeModal.close")}
+          className="absolute right-4 top-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-text-muted transition-colors hover:bg-surface-hover hover:text-text"
+        >
+          <Icon name="x" className="text-lg" />
+        </button>
+
+        <div className="px-6 pb-8 pt-8 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-soft text-primary-text">
+            <Icon name="crown" fill className="text-2xl" />
+          </div>
+          <h3 id="upgrade-title" className="mb-2 font-display text-2xl font-bold text-text">
             {t("upgradeModal.title")}
           </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
+          <p className="mb-6 text-text-muted">
             <Trans
               t={t}
               i18nKey="upgradeModal.description"
               values={{ count: MAX_FREE_ACTIONS }}
-              components={{ b: <span className="font-semibold text-purple-600 dark:text-purple-400" /> }}
+              components={{ b: <span className="font-semibold text-primary-text" /> }}
             />
           </p>
-          
-          <div className="space-y-3 text-left bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
-                <Icon name="check" className="text-sm" />
-              </div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("upgradeModal.benefits.unlimited")}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
-                <Icon name="check" className="text-sm" />
-              </div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("upgradeModal.benefits.advanced")}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
-                <Icon name="check" className="text-sm" />
-              </div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("upgradeModal.benefits.support")}</span>
-            </div>
-          </div>
+
+          <ul className="mb-6 space-y-3 rounded-xl border border-border bg-surface-hover p-4 text-left">
+            {benefits.map((key) => (
+              <li key={key} className="flex items-center gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success/15 text-success">
+                  <Icon name="check" className="text-sm" strokeWidth={3} />
+                </span>
+                <span className="text-sm font-medium text-text">{t(`upgradeModal.benefits.${key}`)}</span>
+              </li>
+            ))}
+          </ul>
 
           <div className="flex flex-col gap-3">
-            <Button 
-              variant="primary" 
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-0"
-              onClick={handleUpgrade}
-            >
+            <Button variant="primary" fullWidth onClick={handleUpgrade}>
               {t("upgradeModal.upgrade")}
             </Button>
-            <Button 
-              variant="secondary" 
-              className="w-full"
-              onClick={onClose}
-            >
+            <Button variant="secondary" fullWidth onClick={onClose}>
               {t("upgradeModal.later")}
             </Button>
           </div>
         </div>
-        
       </div>
     </div>
   );

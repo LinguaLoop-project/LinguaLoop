@@ -47,11 +47,11 @@ export default function Footer() {
 
             <div className="flex items-center gap-2 pt-1 text-xs text-[var(--text-subtle)]">
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--surface)] border border-[var(--border)]">
-                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                <Sparkles className="w-3.5 h-3.5 text-primary-text" />
                 <span>{t("footer.badgeAi")}</span>
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--surface)] border border-[var(--border)]">
-                <Headphones className="w-3.5 h-3.5 text-pink-400" />
+                <Headphones className="w-3.5 h-3.5 text-fn-dictation" />
                 <span>{t("footer.badgeVideo")}</span>
               </span>
             </div>
@@ -91,7 +91,7 @@ export default function Footer() {
               </a>
               <a
                 href="mailto:support@lingualoop.app"
-                className="w-9 h-9 rounded-lg bg-[var(--surface)] hover:bg-purple-500/15 border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:text-purple-400 transition-all hover:scale-105"
+                className="w-9 h-9 rounded-lg bg-[var(--surface)] hover:bg-primary-soft border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:text-primary-text transition-all hover:scale-105"
                 aria-label={t("footer.emailAria")}
               >
                 <Mail className="w-4 h-4" />
@@ -119,7 +119,7 @@ export default function Footer() {
                   to="/dictation"
                   className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
                 >
-                  <Headphones className="w-3.5 h-3.5 text-purple-400 group-hover:scale-110 transition-transform" />
+                  <Headphones className="w-3.5 h-3.5 text-fn-dictation group-hover:scale-110 transition-transform" />
                   <span>{t("footer.practice.dictation")}</span>
                 </Link>
               </li>
@@ -128,7 +128,7 @@ export default function Footer() {
                   to="/shadowing"
                   className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
                 >
-                  <Mic className="w-3.5 h-3.5 text-pink-400 group-hover:scale-110 transition-transform" />
+                  <Mic className="w-3.5 h-3.5 text-fn-shadowing group-hover:scale-110 transition-transform" />
                   <span>{t("footer.practice.shadowing")}</span>
                 </Link>
               </li>
@@ -155,7 +155,7 @@ export default function Footer() {
                   to="/exams/ielts"
                   className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
                 >
-                  <Award className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition-transform" />
+                  <Award className="w-3.5 h-3.5 text-fn-assessment group-hover:scale-110 transition-transform" />
                   <span>{t("footer.practice.ielts")}</span>
                 </Link>
               </li>
@@ -173,7 +173,7 @@ export default function Footer() {
                   to="/mywords"
                   className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors"
                 >
-                  <Bookmark className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
+                  <Bookmark className="w-3.5 h-3.5 text-fn-vocab group-hover:scale-110 transition-transform" />
                   <span>{t("footer.personal.mywords")}</span>
                 </Link>
               </li>
@@ -227,7 +227,7 @@ export default function Footer() {
               </li>
               <li>
                 <button className="group flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors text-left">
-                  <AlertCircle className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition-transform" />
+                  <AlertCircle className="w-3.5 h-3.5 text-danger group-hover:scale-110 transition-transform" />
                   <span>{t("footer.support.reportContent")}</span>
                 </button>
               </li>

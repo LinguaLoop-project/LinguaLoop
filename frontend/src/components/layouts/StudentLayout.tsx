@@ -32,15 +32,6 @@ const StudentLayout = () => {
         onClose={() => setShowUpgradeModal(false)}
       />
 
-      {/* Background effects */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
-        aria-hidden="true"
-      >
-        <div className="absolute left-0 md:left-[248px] right-0 top-0 h-[760px] bg-[var(--hero-radial)] animate-[pulse_8s_ease-in-out_infinite]" />
-        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(var(--text)_1px,transparent_1.2px)] [background-size:24px_24px] [mask-image:linear-gradient(180deg,#000,transparent_75%)]" />
-      </div>
-
       {/* Shell: sidebar + page */}
       <div className="relative z-[1] grid grid-cols-1 md:grid-cols-[248px_minmax(0,1fr)] min-h-screen">
         {/* Sidebar */}

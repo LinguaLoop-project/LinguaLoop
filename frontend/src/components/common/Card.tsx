@@ -1,84 +1,27 @@
 import React, { forwardRef } from "react";
-import { useSpotlight } from "@/hooks/useSpotlight";
 
 export type CardVariant = "standard" | "glass" | "highlight" | "elevated";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: CardVariant;
   hoverable?: boolean;
-  spotlight?: boolean;
 }
 
+const BASE = "rounded-2xl p-6 transition-[transform,border-color] duration-200";
+
+/** Hai bề mặt chính của DESIGN.v2 §5: `card` (standard) và `glass`; "highlight" dùng viền primary 2px thay viền gradient. */
+const VARIANTS: Record<CardVariant, string> = {
+  standard: "bg-surface border border-border shadow-[var(--shadow-card)]",
+  glass: "bg-surface-glass backdrop-blur-xl border border-border-strong shadow-[var(--shadow-card)]",
+  highlight: "bg-surface border-2 border-primary shadow-[var(--shadow-card)]",
+  elevated: "bg-bg-elevated border border-border shadow-[var(--shadow-card)]",
+};
+
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  (
-    {
-      variant = "standard",
-      hoverable = false,
-      spotlight = false,
-      children,
-      className = "",
-      onMouseMove,
-      onMouseLeave,
-      style,
-      ...props
-    },
-    ref,
-  ) => {
-    const {
-      onMouseMove: handleSpotlightMove,
-      onMouseLeave: handleSpotlightLeave,
-      style: spotlightStyle,
-    } = useSpotlight({
-      color: "color-mix(in srgb, var(--primary) 18%, transparent)",
-      stopPercent: "60%",
-    });
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (spotlight) {
-        handleSpotlightMove(e);
-      }
-      onMouseMove?.(e);
-    };
-
-    const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (spotlight) {
-        handleSpotlightLeave(e);
-      }
-      onMouseLeave?.(e);
-    };
-
-    // Variant classes mapping
-    let variantClass = "bg-surface border border-border rounded-2xl shadow-[var(--shadow-card)] p-6 transition-all duration-200";
-    if (variant === "glass") {
-      variantClass = "bg-surface-glass backdrop-blur-xl border border-border-strong rounded-2xl shadow-[var(--shadow-card)] p-6 transition-all duration-200";
-    } else if (variant === "highlight") {
-      variantClass = "relative bg-surface border border-accent/30 rounded-2xl shadow-[var(--shadow-card)] p-6 transition-all duration-200";
-    } else if (variant === "elevated") {
-      variantClass = "bg-bg-elevated border border-border rounded-2xl shadow-[var(--shadow-card)] p-6 transition-all duration-200";
-    }
-
-    const hoverClass = hoverable
-      ? "hover:-translate-y-1 hover:border-border-strong hover:shadow-2xl cursor-pointer"
-      : "";
-
-    const dynamicStyle: React.CSSProperties = spotlight
-      ? ({
-          ...spotlightStyle,
-          ...style,
-        } as React.CSSProperties)
-      : (style || {});
-
+  ({ variant = "standard", hoverable = false, children, className = "", ...props }, ref) => {
+    const hoverClass = hoverable ? "hover:-translate-y-0.5 hover:border-border-strong cursor-pointer" : "";
     return (
-      <div
-        ref={ref}
-        className={[variantClass, hoverClass, className]
-          .filter(Boolean)
-          .join(" ")}
-        style={dynamicStyle}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        {...props}
-      >
+      <div ref={ref} className={[BASE, VARIANTS[variant], hoverClass, className].filter(Boolean).join(" ")} {...props}>
         {children}
       </div>
     );

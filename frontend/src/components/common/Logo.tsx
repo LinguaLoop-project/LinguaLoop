@@ -48,7 +48,7 @@ export default function Logo({ size = 32, showText = true, variant = "full", cla
           className="font-display font-bold tracking-[-0.035em] leading-none text-text"
           style={{ fontSize: size * 0.78 }}
         >
-          Lingua<span className="bg-gradient-primary bg-clip-text text-transparent">Loop</span>
+          Lingua<span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(90deg, var(--ll-s1), var(--ll-s2) 55%, var(--ll-s3))" }}>Loop</span>
         </span>
       )}
     </span>

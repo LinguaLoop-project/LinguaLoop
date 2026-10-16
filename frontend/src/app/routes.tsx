@@ -72,13 +72,15 @@ const getRoutesConfig = (): RouteObject[] => {
     },
     // Đích Google chuyển về sau khi người dùng đồng ý (redirect URI khai trong Google Console)
     { path: "authenticate", element: <GoogleCallback /> },
-    // Đích của link trong thư xác thực (backend gửi frontend-url + /verify-email?token=...)
+    // Đích của link trong thư xác thực và thư đặt lại mật khẩu (backend gửi frontend-url + /verify-email?token=..., /reset-password?token=...).
+    // Không bọc GuestGuard để người đã đăng nhập vẫn mở được link.
     {
       element: <AuthLayout />,
-      children: [{ path: "verify-email", element: <VerifyEmail /> }],
+      children: [
+        { path: "verify-email", element: <VerifyEmail /> },
+        { path: "reset-password", element: <ResetPassword /> },
+      ],
     },
-    // Đích của link trong thư đặt lại mật khẩu (backend gửi frontend-url + /reset-password?token=...)
-    { path: "reset-password", element: <ResetPassword /> },
     // ── Redirect shorthands ──
     { path: "login", element: <Navigate to="/auth/login" replace /> },
     { path: "register", element: <Navigate to="/auth/register" replace /> },

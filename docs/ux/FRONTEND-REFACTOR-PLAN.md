@@ -128,7 +128,17 @@ Không phải mục tiêu: thêm tính năng mới (nghe chép, shadowing, từ 
 | Thay icon sai nghĩa | Dùng bảng `PH2LU` đã kiểm chứng ở mockup; rà mắt từng màn |
 | DESIGN.v2 chưa được duyệt mà đã code | Giai đoạn 0 là điểm dừng bắt buộc |
 
-## 7. Quyết định đã chốt (16/10/2026)
+## 7. Tiến độ
+
+| Giai đoạn | Trạng thái |
+|---|---|
+| 0 Duyệt DESIGN.v2 | Xong (16/10/2026) |
+| 1 Token | Xong |
+| 2 Icon Lucide | Xong |
+| 3 Component chung | Xong: Button (primary/fn/secondary/ghost/text/danger, `buttonClasses` cho Link), Card, Badge, Mascot, Skeleton, ProgressBar, ErrorState, TextField/PasswordField; `index.css` 1.220 → ~190 dòng; ResetPassword chuyển vào `AuthLayout`. Chưa làm: `Table` dày, `EmptyState`/`Chip`/`SegmentedControl` sang token |
+| 4–7 | Chưa làm |
+
+## 8. Quyết định đã chốt (16/10/2026)
 
 1. Khung chung làm **cả 3 vai trò** ở giai đoạn 4.
 2. DESIGN.v2 §14 **đã chốt**: giai đoạn 0 xong, DESIGN.v2 thành bản có hiệu lực.

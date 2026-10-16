@@ -544,7 +544,7 @@ export const LessonLibraryPage = () => {
                         </span>
                         <div className="h-1.5 w-full rounded-full bg-border overflow-hidden relative mt-0.5">
                           <div
-                            className="h-full rounded-full bg-gradient-primary transition-all duration-500 ease-out"
+                            className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                             style={{ width: "40%" }}
                           ></div>
                         </div>

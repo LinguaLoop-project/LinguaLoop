@@ -7,7 +7,7 @@ import type { ApiError } from "../types";
 import { EMAIL_RE } from "../validations/authSchemas";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
-import Icon from "@/components/common/Icon";
+import { TextField } from "@/components/common/TextField";
 
 type VerifyStatus = "loading" | "verified" | "already" | "invalid_link" | "error";
 
@@ -156,42 +156,20 @@ const VerifyEmail = () => {
             onSubmit={handleResend}
             noValidate
           >
-            <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="vfEmail"
-                className="text-[13px] font-semibold text-text"
-              >
-                {t("verify.email")}
-              </label>
-              <div
-                className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-                  emailError
-                    ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
-                    : "border-border"
-                }`}
-              >
-                <Icon name="mail" className="text-lg text-text-subtle mr-2.5 shrink-0" />
-                <input
-                  id="vfEmail"
-                  type="email"
-                  autoComplete="email"
-                  placeholder={t("verify.emailPlaceholder")}
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (emailError) setEmailError(null);
-                  }}
-                  className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-                />
-              </div>
-              {emailError && (
-                <p className="text-xs font-medium text-danger mt-0.5">
-                  {emailError === "format"
-                    ? t("validation.emailFormat")
-                    : errorMessage(emailError)}
-                </p>
-              )}
-            </div>
+            <TextField
+              id="vfEmail"
+              label={t("verify.email")}
+              icon="mail"
+              type="email"
+              autoComplete="email"
+              placeholder={t("verify.emailPlaceholder")}
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) setEmailError(null);
+              }}
+              error={emailError ? (emailError === "format" ? t("validation.emailFormat") : errorMessage(emailError)) : undefined}
+            />
             <Button
               type="submit"
               variant="primary"

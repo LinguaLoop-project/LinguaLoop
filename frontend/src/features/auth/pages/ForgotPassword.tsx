@@ -13,6 +13,7 @@ import {
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
 import Icon from "@/components/common/Icon";
+import { TextField } from "@/components/common/TextField";
 
 const ForgotPassword = () => {
   const { t } = useTranslation("auth");
@@ -102,36 +103,16 @@ const ForgotPassword = () => {
         className="flex flex-col gap-5"
         noValidate
       >
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor={`${formId}-email`}
-            className="text-[13px] font-semibold text-text"
-          >
-            {t("forgot.email")}
-          </label>
-          <div
-            className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-              errors.email
-                ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
-                : "border-border"
-            }`}
-          >
-            <Icon name="mail" className="text-lg text-text-subtle mr-2.5 shrink-0" />
-            <input
-              id={`${formId}-email`}
-              type="email"
-              autoComplete="email"
-              placeholder={t("forgot.emailPlaceholder")}
-              className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-              {...register("email")}
-            />
-          </div>
-          {errors.email && (
-            <p className="text-xs font-medium text-danger mt-0.5">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
+        <TextField
+          id={`${formId}-email`}
+          label={t("forgot.email")}
+          icon="mail"
+          type="email"
+          autoComplete="email"
+          placeholder={t("forgot.emailPlaceholder")}
+          error={errors.email?.message}
+          {...register("email")}
+        />
 
         {/* Submit button */}
         <Button

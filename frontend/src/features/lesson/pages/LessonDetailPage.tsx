@@ -362,7 +362,7 @@ export const LessonDetailPage = () => {
                 </div>
                 <div className="h-1 mt-1.5 rounded-full bg-border overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-primary transition-all duration-500 ease-out"
+                    className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                     style={{ width: "0%" }}
                   ></div>
                 </div>
@@ -423,7 +423,7 @@ export const LessonDetailPage = () => {
                 </div>
                 <div className="h-1 mt-1.5 rounded-full bg-border overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-primary transition-all duration-500 ease-out"
+                    className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                     style={{ width: "0%" }}
                   ></div>
                 </div>

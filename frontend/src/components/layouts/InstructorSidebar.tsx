@@ -108,7 +108,7 @@ export default function InstructorSidebar() {
               className={({ isActive }) =>
                 `relative flex items-center gap-3 w-full min-h-[44px] px-3 py-2.5 rounded-md font-medium text-[15px] transition-colors duration-150 select-none ${
                   isActive
-                    ? "bg-primary-soft text-text before:content-[''] before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-0.5 before:rounded-sm before:bg-primary before:shadow-[var(--glow-primary)]"
+                    ? "bg-primary-soft text-text before:content-[''] before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-0.5 before:rounded-sm before:bg-primary"
                     : "text-text-muted hover:bg-surface-hover hover:text-text [&:hover_svg]:translate-x-0.5"
                 }`
               }

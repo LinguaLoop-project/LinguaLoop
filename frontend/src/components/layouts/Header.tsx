@@ -78,7 +78,7 @@ export default function Header() {
                 }`
               }
             >
-              <Headphones className="w-4 h-4 text-purple-400 shrink-0" />
+              <Headphones className="w-4 h-4 text-fn-dictation shrink-0" />
               <span>{t("header.nav.listening")}</span>
             </NavLink>
           </div>
@@ -95,7 +95,7 @@ export default function Header() {
                 }`
               }
             >
-              <Mic className="w-4 h-4 text-pink-400 shrink-0" />
+              <Mic className="w-4 h-4 text-fn-shadowing shrink-0" />
               <span>{t("header.nav.pronunciation")}</span>
             </NavLink>
           </div>
@@ -148,7 +148,7 @@ export default function Header() {
               >
                 <Award className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>IELTS Exams</span>
-                <span className="inline-flex absolute top-1.5 right-1.5 items-center rounded-full bg-gradient-to-r from-rose-500 to-orange-500 px-1.5 py-0.5 text-[9px] font-bold leading-none text-white shadow-sm animate-pulse tracking-wide">
+                <span className="inline-flex absolute top-1.5 right-1.5 items-center rounded-full bg-danger px-1.5 py-0.5 text-[9px] font-bold leading-none text-white shadow-sm animate-pulse tracking-wide">
                   NEW
                 </span>
               </NavLink>
@@ -181,7 +181,7 @@ export default function Header() {
                   onClick={() => setIsMoreOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--text)] hover:bg-[var(--surface-hover)] transition-colors group"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                  <div className="w-8 h-8 rounded-lg bg-primary-soft flex items-center justify-center text-primary-text group-hover:scale-110 transition-transform">
                     <Layers className="w-4 h-4" />
                   </div>
                   <div>
@@ -199,7 +199,7 @@ export default function Header() {
                   onClick={() => setIsMoreOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--text)] hover:bg-[var(--surface-hover)] transition-colors group"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
+                  <div className="w-8 h-8 rounded-lg bg-danger/10 flex items-center justify-center text-danger group-hover:scale-110 transition-transform">
                     <TrendingUp className="w-4 h-4" />
                   </div>
                   <div>
@@ -311,7 +311,7 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
             >
-              <Headphones className="w-4 h-4 text-purple-400" />
+              <Headphones className="w-4 h-4 text-fn-dictation" />
               <span>{t("header.nav.listening")}</span>
             </Link>
             <Link
@@ -319,7 +319,7 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
             >
-              <Mic className="w-4 h-4 text-pink-400" />
+              <Mic className="w-4 h-4 text-fn-shadowing" />
               <span>{t("header.nav.pronunciation")}</span>
             </Link>
             <Link
@@ -347,7 +347,7 @@ export default function Header() {
                 <Award className="w-4 h-4 text-emerald-400" />
                 <span>{t("header.nav.ielts")}</span>
               </div>
-              <span className="inline-flex items-center rounded-full bg-gradient-to-r from-rose-500 to-orange-500 px-1.5 py-0.5 text-[9px] font-bold leading-none text-white shadow-sm">
+              <span className="inline-flex items-center rounded-full bg-danger px-1.5 py-0.5 text-[9px] font-bold leading-none text-white shadow-sm">
                 {t("header.badgeNew")}
               </span>
             </Link> */}

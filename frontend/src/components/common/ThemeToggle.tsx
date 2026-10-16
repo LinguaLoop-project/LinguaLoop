@@ -24,7 +24,7 @@ export default function ThemeToggle({ sizeClass = "size-9" }: ThemeToggleProps) 
       {isDark ? (
         <Sun className="h-4 w-4 text-amber-400 transition-transform hover:rotate-45" />
       ) : (
-        <Moon className="h-4 w-4 text-purple-600 transition-transform hover:-rotate-12" />
+        <Moon className="h-4 w-4 text-primary-text transition-transform hover:-rotate-12" />
       )}
     </button>
   );
