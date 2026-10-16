@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useQuota } from "@/hooks/useQuota";
 import { useTheme } from "@/hooks/useTheme";
 import AccountMenu from "./AccountMenu";
@@ -43,7 +44,7 @@ export interface TopBarProps {
 /** Thanh trên theo mockup v2 (`.topbar`): cao 64, nền bg-base 82% + mờ, ô tìm nhanh, chuỗi ngày, gói, đổi giao diện, tài khoản. */
 export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette }: TopBarProps) {
   const { t } = useTranslation("layout");
-  const { isPro } = useQuota();
+  const { isPro, actionsToday, maxActions } = useQuota();
   const { isDark, toggleTheme } = useTheme();
   const learner = config.topBar.kind === "learner";
 
@@ -86,6 +87,14 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
             <Icon name="flame" />
             <span className="font-display tabular-nums">4</span>
           </span>
+          {!isPro && (
+            <span className={`${PILL} max-md:hidden`} title={t("student.topbar.quota")} aria-label={`${t("student.topbar.quota")}: ${actionsToday}/${maxActions}`}>
+              <Icon name="zap" />
+              <span className="font-display tabular-nums">
+                {actionsToday}/{maxActions}
+              </span>
+            </span>
+          )}
           <span
             className={`${PILL} hidden md:inline-flex ${isPro ? "border-warning text-warning" : ""}`}
             title={t("student.topbar.plan")}
@@ -102,6 +111,9 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
         </>
       )}
 
+      <span className="max-sm:hidden">
+        <LanguageSwitcher />
+      </span>
       <Button variant="ghost" iconOnly onClick={toggleTheme} aria-label={t("theme.toggle")} title={isDark ? t("theme.toLight") : t("theme.toDark")}>
         <Icon name={isDark ? "sun" : "moon"} />
       </Button>

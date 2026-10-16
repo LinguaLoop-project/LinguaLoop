@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import LoadingScreen from "@/components/common/LoadingScreen";
 import Card from "@/components/common/Card";
 import FormAlert from "@/components/common/FormAlert";
+import { buttonClasses } from "@/components/common/buttonStyles";
 import { errorMessage, toApiError } from "../errors";
 import { consumeGoogleState } from "../googleOAuth";
 import { homePathFor } from "../navigation";
@@ -69,7 +70,7 @@ export default function GoogleCallback() {
         <Link
           to="/auth/login"
           replace
-          className="inline-flex items-center justify-center font-semibold select-none rounded-xl transition-all duration-200 cursor-pointer h-12 px-6 text-sm bg-[var(--btn-primary)] hover:bg-[var(--btn-primary-hover)] text-white shadow-[0_2px_12px_rgba(123,77,232,0.35)] hover:shadow-[0_4px_16px_rgba(123,77,232,0.45)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] w-full"
+          className={buttonClasses({ size: "lg", fullWidth: true })}
         >
           {t("google.backToLogin")}
         </Link>

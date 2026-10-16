@@ -43,16 +43,16 @@ export default function AppShell({ config, children }: { config: ShellConfig; ch
       <ToastHost />
       <CommandPalette config={config} open={paletteOpen} onOpenChange={setPaletteOpen} />
 
-      {drawerOpen && (
-        <button
-          type="button"
-          aria-label={t("shell.closeMenu")}
-          onClick={() => setDrawerOpen(false)}
-          className="fixed inset-0 z-40 cursor-default border-0 bg-black/50 md:hidden"
-        />
-      )}
-
       <div className={`relative z-[1] grid min-h-screen grid-cols-1 ${COLUMNS[`${collapsed}`]}`}>
+        {drawerOpen && (
+          <button
+            type="button"
+            aria-label={t("shell.closeMenu")}
+            onClick={() => setDrawerOpen(false)}
+            className="fixed inset-0 z-40 cursor-default border-0 bg-black/50 md:hidden"
+          />
+        )}
+
         <Sidebar
           config={config}
           collapsed={collapsed}

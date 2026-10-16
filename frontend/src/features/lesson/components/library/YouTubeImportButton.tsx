@@ -1,3 +1,4 @@
+import YouTubeLogo from "@/components/common/YouTubeLogo";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -32,7 +33,7 @@ export default function YouTubeImportButton() {
   return (
     <>
       <Button variant="secondary" onClick={() => setOpen(true)}>
-        <Icon name="youtube" className="text-xl" />
+        <YouTubeLogo className="h-5 w-5" />
         {t(`${p}.openBtn`, "Tạo bài từ YouTube")}
         <Badge variant="pro">
           <Icon name="crown" />

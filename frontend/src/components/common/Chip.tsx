@@ -7,12 +7,14 @@ export interface ChipProps {
   onClick?: () => void;
   className?: string;
   count?: number | string;
+  title?: string;
 }
 
 /** `.chip` của mockup: cao 32, bo tròn, viền border-strong; hover/đang chọn viền primary + nền primary-soft. */
-const Chip = ({ id, children, active = false, onClick, className = "", count }: ChipProps) => (
+const Chip = ({ id, children, active = false, onClick, className = "", count, title }: ChipProps) => (
   <button
     id={id}
+    title={title}
     type="button"
     onClick={onClick}
     aria-pressed={active}

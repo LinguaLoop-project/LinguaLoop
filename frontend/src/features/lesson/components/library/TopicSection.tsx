@@ -8,7 +8,7 @@ import { LessonGrid } from "../LessonGrid";
 import type { PracticeMode } from "../ModeButton";
 import SectionHeading from "../SectionHeading";
 
-const PREVIEW_COUNT = 4;
+const PREVIEW_COUNT = 6;
 
 /** Một hàng theo chủ đề: tên, số bài, "Xem tất cả" và 4 bài đầu. `id` là đích cuộn của chip chủ đề (cách trên 140px để không bị thanh dán che). */
 export default function TopicSection({ row, mode = "all" }: { row: TopicRow; mode?: PracticeMode | "all" }) {

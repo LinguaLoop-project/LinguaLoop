@@ -19,7 +19,7 @@ import YouTubeImportButton from "../components/library/YouTubeImportButton";
 import type { LessonSummary } from "../types";
 import { DEFAULT_FILTERS, difficultyParam, isFiltered, sortParam } from "../utils";
 
-const RECOMMEND_COUNT = 4;
+const RECOMMEND_COUNT = 6;
 
 const MOODS: Record<PracticeMode | "all", MascotMood> = { all: "hello", dictation: "listening", shadowing: "speaking" };
 
@@ -41,7 +41,7 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
     difficulty: difficultyParam(filters.level),
     free: filters.freeOnly ? true : undefined,
     sort: sortParam(filters.sort),
-    size: 40,
+    size: 60,
   });
 
   const results = useMemo(() => search.data?.items ?? [], [search.data]);
@@ -176,8 +176,8 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
   const m = `pages:student.lessons.modes.${mode}`;
   return (
     <section className="w-full" id="v-lessons">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4 lg:flex-nowrap">
+        <div className="min-w-0 lg:flex-1">
           <div className="mb-1 block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text" id="lsOver">
             {t(`${m}.overline`, "Thư viện bài học")}
           </div>
@@ -192,7 +192,7 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
             })}
           </p>
         </div>
-        <div className="ml-auto flex flex-wrap items-center gap-3">
+        <div className="ml-auto flex shrink-0 flex-wrap items-center gap-3">
           <LoopiSay mood={MOODS[mode]} text={t(`${m}.say`, "Hôm nay học gì nào?")} />
           <YouTubeImportButton />
         </div>

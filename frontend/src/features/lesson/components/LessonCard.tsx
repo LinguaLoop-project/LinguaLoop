@@ -29,14 +29,14 @@ export const LessonCard = ({ lesson, mode = "all" }: LessonCardProps) => {
       });
       return;
     }
-    open(`?mode=${m}`);
+    navigate(`/student/${m}/${lesson.slug}`);
   };
 
   const modes: PracticeMode[] = mode === "all" ? ["dictation", "shadowing"] : [mode];
 
   return (
     <article
-      className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-card)] transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-border-strong"
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-card)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--primary)_65%,var(--border))] hover:shadow-[0_20px_45px_-15px_rgba(0,0,0,0.5),0_0_30px_color-mix(in_srgb,var(--primary)_40%,transparent),0_0_70px_color-mix(in_srgb,var(--primary)_25%,transparent)] focus-visible:outline-2 focus-visible:outline-primary"
       data-lesson={lesson.slug}
       tabIndex={0}
       aria-label={t("student.lessons.card.aria", { title: lesson.title, defaultValue: `Bài ${lesson.title}` })}
@@ -63,7 +63,7 @@ export const LessonCard = ({ lesson, mode = "all" }: LessonCardProps) => {
             defaultValue: `${formatCount(lesson.viewCount || 0, locale)} lượt học`,
           })}
         </span>
-        <div className="mt-2.5 grid grid-cols-2 gap-2">
+        <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
           {modes.map((m) => {
             const percent = m === "dictation" ? lesson.progress.dictationPercent : lesson.progress.shadowingPercent;
             return (
@@ -92,12 +92,12 @@ export const LessonCard = ({ lesson, mode = "all" }: LessonCardProps) => {
 /** Khung chờ cùng hình dạng thẻ bài (`.skel-card`) để trang không nhảy bố cục khi dữ liệu về. */
 export const LessonCardSkeleton = () => (
   <div aria-hidden="true" className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-card)]">
-    <div className="skeleton h-28 bg-surface-hover" />
+    <div className="skeleton aspect-video bg-surface-hover" />
     <div className="flex flex-col gap-2 p-4">
       <div className="skeleton h-[18px] w-[85%] rounded-sm bg-surface-hover" />
       <div className="skeleton h-3.5 w-[55%] rounded-sm bg-surface-hover" />
       <div className="skeleton h-3 w-2/5 rounded-sm bg-surface-hover" />
-      <div className="mt-2.5 grid grid-cols-2 gap-2">
+      <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
         <div className="skeleton h-10 rounded-md bg-surface-hover" />
         <div className="skeleton h-10 rounded-md bg-surface-hover" />
       </div>

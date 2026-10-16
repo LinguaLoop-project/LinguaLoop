@@ -139,7 +139,8 @@ Không phải mục tiêu: thêm tính năng mới (nghe chép, shadowing, từ 
 | 4 Khung chung | Xong: `components/layouts/shell/` (AppShell, Sidebar, TopBar, AccountMenu, cấu hình theo vai trò); 8 file Sidebar/TopBar/MobileNav cũ đã xoá; ≥1024 đầy đủ + thu gọn được (lưu `ll-sidebar-collapsed`), 768–1023 icon, <768 ngăn kéo; breadcrumb suy từ đường dẫn thay cho 3 bảng ánh xạ |
 | 5 Luồng bài học | Xong: 3 trang còn 115–184 dòng (từ 701/799/250), tách thành `features/lesson/components/{library,detail}/`; `lib/format.ts`; STATES R1 (skeleton), R2 (mã lỗi, mất mạng), R3 (lỗi danh sách chủ đề), R4 (404 không có Thử lại), R6 (`retry` 1 lần, bỏ qua 4xx), R7 (`RouteErrorBoundary`). Chưa làm: R5, R8 (trang Hôm nay, cờ người mới) |
 | 5b Đối chiếu mockup v2 (17/10/2026) | Khung, thư viện bài, chủ đề, chi tiết bài, auth, cài đặt đã chỉnh theo số đo của mockup (nút 44px đáy 3px, huy hiệu 24px, ô nhập 48px, thanh bên 248/76px, chân trang 5 cột, ô tìm Ctrl K, toast, hộp thoại YouTube, nghe chép/shadowing mở thư viện lọc theo chế độ). Chưa làm: trang Hôm nay, màn luyện nghe chép/shadowing/từ vựng và các trang P3 (React chưa có), các tab Hồ sơ/Học tập/Giao diện/Gói/Riêng tư của Cài đặt |
-| 6–7 | Một phần (auth và Settings đã đổi giao diện cùng 5b); chưa chạy Lighthouse |
+| 6 | Xong: mọi trang auth (kể cả GoogleCallback) và Settings dùng component mới; không chạm store, service, luồng Google. Các tab Hồ sơ, Học tập, Giao diện, Gói, Riêng tư vẫn "sắp có" vì cần backend |
+| 7 | Chưa chạy Lighthouse |
 
 ## 8. Quyết định đã chốt (16/10/2026)
 

@@ -1,3 +1,4 @@
+import YouTubeLogo from "@/components/common/YouTubeLogo";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
@@ -89,7 +90,7 @@ export default function LessonHead({ lesson }: { lesson: LessonDetail }) {
             </Badge>
           )}
           <span className={meta}>
-            <Icon name={isYouTube ? "youtube" : "audio-lines"} />
+            {isYouTube ? <YouTubeLogo /> : <Icon name="audio-lines" />}
             {isYouTube ? "YouTube" : "Audio"}
           </span>
           <span className={meta}>

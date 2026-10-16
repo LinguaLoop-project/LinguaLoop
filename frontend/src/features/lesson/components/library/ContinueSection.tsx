@@ -60,7 +60,7 @@ export default function ContinueSection({ lessons, mode: filter = "all" }: { les
                 aria-label={t("student.lessons.continue.resume", { title: l.title, defaultValue: `Tiếp tục ${l.title}` })}
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/student/lessons/${l.slug}?mode=${mode}`);
+                  navigate(`/student/${mode}/${l.slug}`);
                 }}
               >
                 <Icon name="play" fill />

@@ -1,3 +1,4 @@
+import YouTubeLogo from "@/components/common/YouTubeLogo";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Icon from "@/components/common/Icon";
@@ -11,7 +12,7 @@ export default function LessonThumb({ lesson, corners = true, compact = false, c
   const { t } = useTranslation("pages");
   const isYouTube = lesson.sourceType?.toLowerCase() === "youtube";
   return (
-    <div className={`relative grid h-28 place-items-center overflow-hidden bg-[linear-gradient(135deg,var(--primary-soft),transparent)] text-primary-text ${className}`}>
+    <div className={`relative grid aspect-video place-items-center overflow-hidden bg-[linear-gradient(135deg,var(--primary-soft),transparent)] text-primary-text ${className}`}>
       {lesson.thumbnailUrl ? (
         <img
           src={lesson.thumbnailUrl}
@@ -28,15 +29,15 @@ export default function LessonThumb({ lesson, corners = true, compact = false, c
         <>
           <span className="absolute left-2.5 top-2.5 flex gap-1.5">
             {lesson.pro && (
-              <Badge variant="pro">
+              <Badge variant="pro" solid>
                 <Icon name="crown" />
                 PRO
               </Badge>
             )}
-            {lesson.difficulty && <Badge variant={String(lesson.difficulty)}>{lesson.difficulty}</Badge>}
+            {lesson.difficulty && <Badge variant={String(lesson.difficulty)} solid>{lesson.difficulty}</Badge>}
           </span>
           <span className={`${TAG} bottom-2 left-2`}>
-            <Icon name={isYouTube ? "youtube" : "audio-lines"} />
+            {isYouTube ? <YouTubeLogo /> : <Icon name="audio-lines" />}
             {isYouTube ? "YouTube" : t("student.lessons.card.audio", "Audio")}
           </span>
           <span className={`${TAG} bottom-2 right-2`}>

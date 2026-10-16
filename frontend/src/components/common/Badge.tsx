@@ -24,6 +24,8 @@ export interface BadgeProps {
   tone?: BadgeTone;
   children: React.ReactNode;
   className?: string;
+  /** Nền tối đặc có viền màu, dùng trên ảnh bìa để dễ đọc. */
+  solid?: boolean;
 }
 
 /** Màu của huy hiệu: chữ theo `--_c`, nền là `--_c` pha 14% (`.badge` trong mockup v2). Class viết nguyên văn để Tailwind nhận ra. */
@@ -68,9 +70,11 @@ function toneOf(variant: string, tone?: BadgeTone) {
   }
 }
 
-const Badge = ({ variant = "default", tone, children, className = "" }: BadgeProps) => (
+const Badge = ({ variant = "default", tone, children, className = "", solid = false }: BadgeProps) => (
   <span
-    className={`inline-flex h-6 items-center gap-1 whitespace-nowrap rounded-sm px-2 text-xs font-semibold text-[var(--_c)] bg-[color-mix(in_srgb,var(--_c)_14%,transparent)] [&>svg]:h-3.5 [&>svg]:w-3.5 ${toneOf(String(variant), tone)} ${className}`}
+    className={`inline-flex h-6 items-center gap-1 whitespace-nowrap rounded-sm px-2 text-xs font-bold text-[var(--_c)] ${
+      solid ? "border border-[var(--_c)] bg-[#0B0B14]/90 shadow-[0_1px_4px_rgba(0,0,0,.4)]" : "bg-[color-mix(in_srgb,var(--_c)_14%,transparent)] font-semibold"
+    } [&>svg]:h-3.5 [&>svg]:w-3.5 ${toneOf(String(variant), tone)} ${className}`}
   >
     {children}
   </span>
