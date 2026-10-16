@@ -1,16 +1,38 @@
-import AuthLayout from "@/components/layouts/AuthLayout";
-import MainLayout from "@/components/layouts/MainLayout";
-import StudentLayout from "@/components/layouts/StudentLayout";
-import InstructorLayout from "@/components/layouts/InstructorLayout";
-import AdminLayout from "@/components/layouts/AdminLayout";
-import { Login, Register, ForgotPassword, CheckEmail, VerifyEmail, ResetPassword, GoogleCallback } from "@/features/auth";
-import { Settings } from "@/features/user";
-import { LessonLibraryPage, LessonDetailPage, TopicDetailPage } from "@/features/lesson";
+import { lazy, Suspense } from "react";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
 import { AuthGuard, GuestGuard } from "@/app/guards";
 import OnboardingPlaceholder from "@/app/placeholders/OnboardingPlaceholder";
 import PlaceholderPage from "@/components/common/PlaceholderPage";
+import LoadingScreen from "@/components/common/LoadingScreen";
+
+// Mỗi layout/trang là một chunk riêng: người dùng chỉ tải phần mình cần
+// (khách không phải tải layout admin, học viên không tải layout giảng viên...).
+const AuthLayout = lazy(() => import("@/components/layouts/AuthLayout"));
+const MainLayout = lazy(() => import("@/components/layouts/MainLayout"));
+const StudentLayout = lazy(() => import("@/components/layouts/StudentLayout"));
+const InstructorLayout = lazy(() => import("@/components/layouts/InstructorLayout"));
+const AdminLayout = lazy(() => import("@/components/layouts/AdminLayout"));
+
+const Login = lazy(() => import("@/features/auth/pages/Login"));
+const Register = lazy(() => import("@/features/auth/pages/Register"));
+const ForgotPassword = lazy(() => import("@/features/auth/pages/ForgotPassword"));
+const CheckEmail = lazy(() => import("@/features/auth/pages/CheckEmail"));
+const VerifyEmail = lazy(() => import("@/features/auth/pages/VerifyEmail"));
+const ResetPassword = lazy(() => import("@/features/auth/pages/ResetPassword"));
+const GoogleCallback = lazy(() => import("@/features/auth/pages/GoogleCallback"));
+
+const Settings = lazy(() => import("@/features/user/pages/Settings"));
+
+const LessonLibraryPage = lazy(() =>
+  import("@/features/lesson/pages/LessonLibraryPage").then((m) => ({ default: m.LessonLibraryPage })),
+);
+const LessonDetailPage = lazy(() =>
+  import("@/features/lesson/pages/LessonDetailPage").then((m) => ({ default: m.LessonDetailPage })),
+);
+const TopicDetailPage = lazy(() =>
+  import("@/features/lesson/pages/TopicDetailPage").then((m) => ({ default: m.TopicDetailPage })),
+);
 
 const getRoutesConfig = (): RouteObject[] => {
   const publicRoutes: RouteObject[] = [
@@ -356,7 +378,8 @@ const getRoutesConfig = (): RouteObject[] => {
 };
 
 export const AppRoutes = () => {
-  return useRoutes(getRoutesConfig());
+  const element = useRoutes(getRoutesConfig());
+  return <Suspense fallback={<LoadingScreen />}>{element}</Suspense>;
 };
 
 export default AppRoutes;
