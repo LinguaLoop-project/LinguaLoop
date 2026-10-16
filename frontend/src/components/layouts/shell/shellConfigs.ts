@@ -18,7 +18,7 @@ const studentGroups: NavGroup[] = [
   {
     titleKey: "student.sidebar.groups.mine",
     items: [
-      { id: "mywords", icon: "bookmark", labelKey: k("student", "sidebar.items", "mywords"), to: "/student/mywords", tone: "vocab", badge: 8, badgeType: "bad" },
+      { id: "mywords", icon: "bookmark", labelKey: k("student", "sidebar.items", "mywords"), to: "/student/mywords", tone: "vocab", badge: 8 },
       { id: "weakness", icon: "target", labelKey: k("student", "sidebar.items", "weakness"), to: "/student/weakness", tone: "assessment" },
       { id: "test", icon: "file-check", labelKey: k("student", "sidebar.items", "test"), to: "/student/test", tone: "assessment" },
     ],

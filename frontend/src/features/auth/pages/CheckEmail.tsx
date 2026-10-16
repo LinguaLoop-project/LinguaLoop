@@ -75,13 +75,13 @@ const CheckEmail = () => {
       />
 
       <div>
-        <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+        <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
           {t("checkEmail.overline")}
         </span>
-        <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+        <h1 className="text-[30px] font-bold leading-[48px] text-text">
           {t("checkEmail.title")}
         </h1>
-        <p className="text-[15px] text-text-muted mt-1 leading-relaxed">
+        <p className="text-[15px] text-text-muted leading-relaxed">
           <Trans
             t={t}
             i18nKey={introKey}
@@ -128,14 +128,14 @@ const CheckEmail = () => {
         {t("checkEmail.wrongEmail")}{" "}
         <Link
           to="/auth/register"
-          className="text-accent hover:underline font-medium"
+          className="font-semibold text-primary-text hover:underline"
         >
           {t("checkEmail.registerAgain")}
         </Link>
         {" · "}
         <Link
           to="/auth/login"
-          className="text-accent hover:underline font-medium"
+          className="font-semibold text-primary-text hover:underline"
         >
           {t("checkEmail.backToLogin")}
         </Link>

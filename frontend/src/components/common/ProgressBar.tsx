@@ -14,11 +14,13 @@ export interface ProgressBarProps {
   value: number;
   tone?: ProgressTone;
   label: string;
+  /** Thanh mảnh 6px (`.bar.thin`); mặc định 8px (`.bar`). */
+  thin?: boolean;
   className?: string;
 }
 
 /** Thanh tiến độ: nền `--border`, phần đầy theo màu chức năng, tăng mượt 400ms (DESIGN.v2 §7.5). */
-export default function ProgressBar({ value, tone = "primary", label, className = "" }: ProgressBarProps) {
+export default function ProgressBar({ value, tone = "primary", label, thin = false, className = "" }: ProgressBarProps) {
   const pct = Math.min(100, Math.max(0, Math.round(value)));
   return (
     <div
@@ -27,7 +29,7 @@ export default function ProgressBar({ value, tone = "primary", label, className 
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={pct}
-      className={`h-1.5 w-full overflow-hidden rounded-full bg-border-strong/40 ${className}`}
+      className={`w-full overflow-hidden rounded-full bg-border ${thin ? "h-1.5" : "h-2"} ${className}`}
     >
       <div
         className={`h-full rounded-full transition-[width] duration-[400ms] ease-out ${FILL[tone]}`}

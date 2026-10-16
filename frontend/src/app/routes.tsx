@@ -119,7 +119,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "dictation",
-          element: <PlaceholderPage pageKey="student.dictation" />,
+          element: <LessonLibraryPage mode="dictation" />,
         },
         {
           path: "dictation/:id",
@@ -127,7 +127,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "shadowing",
-          element: <PlaceholderPage pageKey="student.shadowing" />,
+          element: <LessonLibraryPage mode="shadowing" />,
         },
         {
           path: "shadowing/:id",

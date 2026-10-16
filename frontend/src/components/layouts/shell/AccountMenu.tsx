@@ -19,7 +19,7 @@ function initials(name: string) {
 }
 
 const ITEM =
-  "flex w-full min-h-[40px] cursor-pointer items-center gap-2.5 rounded-md border-0 bg-transparent px-2.5 text-left text-sm font-medium transition-colors duration-150";
+  "flex w-full min-h-10 cursor-pointer items-center gap-2.5 rounded-sm border-0 bg-transparent px-3 text-left text-[15px] transition-colors duration-150 hover:bg-surface-hover";
 
 /** Menu tài khoản dùng chung; mục riêng của từng vai trò lấy từ `config.menu`. */
 export default function AccountMenu({ config }: { config: ShellConfig }) {
@@ -54,7 +54,7 @@ export default function AccountMenu({ config }: { config: ShellConfig }) {
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="grid h-10 w-10 cursor-pointer select-none place-items-center rounded-full border border-border-strong bg-primary-soft text-sm font-semibold text-text transition-colors hover:bg-surface-hover"
+        className="grid h-10 w-10 cursor-pointer select-none place-items-center rounded-full border border-border-strong bg-primary-soft text-sm font-bold text-primary-text"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -69,18 +69,18 @@ export default function AccountMenu({ config }: { config: ShellConfig }) {
           id="account-menu"
           role="menu"
           aria-label={t(`${config.ns}.topbar.menuAria`)}
-          className="absolute right-0 top-[calc(100%+8px)] z-50 flex min-w-[260px] flex-col gap-0.5 rounded-lg border border-border-strong bg-surface p-2 shadow-[var(--shadow-card)]"
+          className="absolute right-0 top-[52px] z-[70] flex w-[300px] animate-[menu-in_200ms_var(--ease-out)] flex-col gap-0.5 rounded-lg border border-border-strong bg-surface p-2 shadow-[0_24px_48px_-16px_rgba(0,0,0,.55),0_0_0_1px_var(--border)]"
         >
-          <div className="flex items-center gap-3 p-2 pb-3">
+          <div className="flex items-center gap-3 px-2 pb-3 pt-2">
             <span
               aria-hidden="true"
-              className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-border-strong bg-primary-soft text-base font-semibold text-text"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border-strong bg-primary-soft text-sm font-bold text-primary-text"
             >
               {initials(displayName)}
             </span>
             <div className="min-w-0 flex-1">
-              <b className="block truncate text-sm font-bold text-text">{displayName}</b>
-              <div className="truncate text-xs text-text-muted">{email}</div>
+              <b className="block truncate">{displayName}</b>
+              <div className="truncate text-[13px] text-text-muted">{email}</div>
             </div>
           </div>
 
@@ -89,19 +89,17 @@ export default function AccountMenu({ config }: { config: ShellConfig }) {
               <button
                 type="button"
                 role="menuitem"
-                className="flex w-full cursor-pointer items-center gap-2.5 rounded-md border border-border bg-surface-hover p-2.5 text-sm font-medium text-text transition-colors hover:border-border-strong"
+                className="mx-1 flex min-h-10 w-[calc(100%-0.5rem)] cursor-pointer items-center justify-between gap-2.5 rounded-sm border border-border bg-transparent px-3 text-left text-[15px] hover:bg-surface-hover"
                 onClick={() => {
                   setOpen(false);
                   navigate("/student/settings?tab=plan");
                 }}
               >
-                <span className="inline-flex items-center rounded border border-border-strong bg-surface px-2 py-0.5 text-[11px] font-bold text-text-muted">
-                  Free
-                </span>
-                <span className="text-xs font-semibold text-primary-text">{t("student.topbar.upgrade")}</span>
-                <Icon name="arrow-right" className="ml-auto text-sm text-text-subtle" />
+                <span className="inline-flex h-6 items-center rounded-sm bg-[color-mix(in_srgb,var(--text-muted)_14%,transparent)] px-2 text-xs font-semibold text-text-muted">Free</span>
+                <span className="text-[13px]">{t("student.topbar.upgrade")}</span>
+                <Icon name="arrow-right" />
               </button>
-              <hr className="-mx-2 my-1.5 border-0 border-t border-border" />
+              <hr className="my-1 border-0 border-t border-border" />
             </>
           )}
 
@@ -110,7 +108,7 @@ export default function AccountMenu({ config }: { config: ShellConfig }) {
               key={item.labelKey}
               type="button"
               role="menuitem"
-              className={`${ITEM} text-text-muted hover:bg-surface-hover hover:text-text`}
+              className={`${ITEM} text-text`}
               onClick={() => {
                 setOpen(false);
                 if (item.action === "theme") toggleTheme();
@@ -122,12 +120,12 @@ export default function AccountMenu({ config }: { config: ShellConfig }) {
             </button>
           ))}
 
-          <hr className="-mx-2 my-1.5 border-0 border-t border-border" />
+          <hr className="my-1 border-0 border-t border-border" />
 
           <button
             type="button"
             role="menuitem"
-            className={`${ITEM} text-danger hover:bg-danger/10`}
+            className={`${ITEM} text-danger`}
             onClick={() => {
               setOpen(false);
               handleLogout();

@@ -72,12 +72,12 @@ export default function PasswordForm() {
   const prefix = hasPassword ? "change" : "create";
   return (
     <form
-      className="p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-card)] flex flex-col gap-5"
+      className="p-5 rounded-lg bg-surface border border-border shadow-[var(--shadow-card)] flex flex-col gap-5"
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
       <div>
-        <h3 className="text-lg font-semibold font-display text-text">
+        <h3 className="text-lg font-bold leading-[1.4]">
           {t(`settings.password.${prefix}Title`)}
         </h3>
         <p className="mt-1 text-[13px] text-text-muted">

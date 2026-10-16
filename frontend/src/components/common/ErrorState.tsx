@@ -18,26 +18,28 @@ export interface ErrorStateProps {
   className?: string;
 }
 
-/** Thẻ lỗi thay vùng dữ liệu, giữ nguyên khung trang (docs/ux/STATES.md §2). */
+/** `.err-state` của mockup: thẻ giữa trang có mascot 120, h2, mô tả, mã lỗi và nút (docs/ux/STATES.md §2). */
 export default function ErrorState({ kind = "server", code, onRetry, retrying = false, action, className = "" }: ErrorStateProps) {
   const { t } = useTranslation("common");
   return (
     <div
       role="alert"
-      className={`flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-8 text-center sm:p-12 ${className}`}
+      className={`flex flex-col items-center rounded-lg border border-border bg-surface px-6 py-12 text-center shadow-[var(--shadow-card)] ${className}`}
     >
-      <Mascot mood="encourage" size={96} alt="" />
-      <h3 className="text-lg font-semibold text-text">{t(`error.${kind}.title`)}</h3>
-      <p className="max-w-sm text-sm leading-relaxed text-text-muted">{t(`error.${kind}.desc`)}</p>
-      <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
-        {onRetry && (
-          <Button variant="secondary" size="sm" onClick={onRetry} isLoading={retrying} leftIcon={<Icon name="refresh-cw" />}>
-            {t("error.retry")}
-          </Button>
-        )}
-        {action}
-      </div>
-      {code && <span className="text-xs text-text-subtle">{t("error.code", { code })}</span>}
+      <Mascot mood="encourage" size={120} alt="" />
+      <h2 className="mt-2 font-display text-2xl font-bold">{t(`error.${kind}.title`)}</h2>
+      <p className="mt-2 max-w-md text-text-muted">{t(`error.${kind}.desc`)}</p>
+      {code && <p className="mt-2 text-[13px] text-text-subtle">{t("error.code", { code })}</p>}
+      {(onRetry || action) && (
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {onRetry && (
+            <Button onClick={onRetry} isLoading={retrying} leftIcon={<Icon name="rotate-cw" />}>
+              {t("error.retry")}
+            </Button>
+          )}
+          {action}
+        </div>
+      )}
     </div>
   );
 }

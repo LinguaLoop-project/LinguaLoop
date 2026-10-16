@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import Icon from "@/components/common/Icon";
 import { useTranslation } from "react-i18next";
 import { DEFAULT_LANGUAGE, isLanguage, setLanguage, type Language } from "@/i18n";
 
 export interface LanguageSwitcherProps {
   /** Chiều cao nút, mặc định `h-9` như Header trang chủ. */
   heightClass?: string;
+  /** "chip": viên thuốc có icon quả địa cầu, dùng ở chân trang (mockup v2). */
+  variant?: "default" | "chip";
 }
 
 const LANGUAGES: Language[] = ["vi", "en"];
@@ -33,7 +36,8 @@ function Flag({ language }: { language: Language }) {
 }
 
 /** Menu chọn ngôn ngữ (cờ + tên) dùng chung cho Header trang chủ, các topbar và trang đăng nhập. */
-export default function LanguageSwitcher({ heightClass = "h-9" }: LanguageSwitcherProps) {
+export default function LanguageSwitcher({ heightClass = "h-9", variant = "default" }: LanguageSwitcherProps) {
+  const chip = variant === "chip";
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -62,24 +66,30 @@ export default function LanguageSwitcher({ heightClass = "h-9" }: LanguageSwitch
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-[var(--border)] px-3 text-sm font-medium text-[var(--text)] transition-all hover:bg-[var(--surface-hover)] cursor-pointer ${heightClass}`}
+        className={`inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap text-sm text-[var(--text)] transition-all ${
+          chip
+            ? "h-8 rounded-full border border-border-strong bg-surface px-3 hover:border-primary hover:bg-primary-soft"
+            : `rounded-lg border border-[var(--border)] px-3 font-medium hover:bg-[var(--surface-hover)] ${heightClass}`
+        }`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("language.label")}
       >
-        <Flag language={current} />
+        {chip ? <Icon name="globe" className="text-xl" /> : <Flag language={current} />}
         {/* Màn hình hẹp chỉ hiện cờ để thanh trên không bị tràn */}
-        <span className="hidden sm:inline">{t(`language.names.${current}`)}</span>
-        <ChevronDown
-          className={`h-3.5 w-3.5 text-[var(--text-subtle)] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-        />
+        <span className={chip ? "" : "hidden sm:inline"}>{t(`language.names.${current}`)}</span>
+        {!chip && (
+          <ChevronDown
+            className={`h-3.5 w-3.5 text-[var(--text-subtle)] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          />
+        )}
       </button>
 
       {open && (
         <div
           role="listbox"
           aria-label={t("language.label")}
-          className="absolute right-0 z-50 mt-2 w-36 rounded-xl border border-[var(--border-strong)] bg-[var(--surface)] p-1.5 shadow-xl"
+          className={`absolute right-0 z-50 w-36 rounded-xl border border-[var(--border-strong)] bg-[var(--surface)] p-1.5 shadow-xl ${chip ? "bottom-full mb-2" : "mt-2"}`}
         >
           {LANGUAGES.map((language) => (
             <button

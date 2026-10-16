@@ -95,10 +95,10 @@ export const Register = () => {
     <section className="flex flex-col gap-5 w-full">
       {/* Header info */}
       <div>
-        <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+        <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
           {t("register.overline")}
         </span>
-        <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+        <h1 className="text-[30px] font-bold leading-[48px] text-text">
           {t("register.title")}
         </h1>
         <p className="text-[14px] leading-relaxed text-text-muted">
@@ -177,7 +177,7 @@ export const Register = () => {
                 {!pwValid && t("register.strengthNeedMin")}
               </span>
             ) : (
-              t("register.passwordHelp")
+              t("register.passwordHint")
             )
           }
           {...register("password", {
@@ -189,20 +189,20 @@ export const Register = () => {
         <div className="flex flex-col gap-1">
           <Checkbox
             id={`${formId}-terms`}
-            label={t("register.terms")}
+            label={t("register.acceptTerms")}
             {...register("acceptTerms")}
           />
           <p className="text-[13px] pl-7 text-text-muted">
             <button
               type="button"
-              className="text-accent hover:underline font-medium cursor-pointer bg-transparent border-0"
+              className="font-semibold text-primary-text hover:underline cursor-pointer bg-transparent border-0"
             >
               {t("register.readTerms")}
             </button>
             {" · "}
             <button
               type="button"
-              className="text-accent hover:underline font-medium cursor-pointer bg-transparent border-0"
+              className="font-semibold text-primary-text hover:underline cursor-pointer bg-transparent border-0"
             >
               {t("register.readPolicy")}
             </button>
@@ -237,7 +237,7 @@ export const Register = () => {
           {t("register.haveAccount")}{" "}
           <Link
             to="/auth/login"
-            className="text-accent hover:underline font-medium"
+            className="font-semibold text-primary-text hover:underline"
           >
             {t("register.login")}
           </Link>

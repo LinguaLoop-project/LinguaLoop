@@ -1,5 +1,6 @@
-import { Fragment } from "react";
+import { Fragment, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { buttonClasses } from "@/components/common/buttonStyles";
 import Icon from "@/components/common/Icon";
 
 export interface Crumb {
@@ -8,15 +9,15 @@ export interface Crumb {
   to?: string;
 }
 
-/** Đường dẫn "Bài học › Chủ đề › Bài" dùng cho trang chủ đề và chi tiết bài. */
-export default function Breadcrumbs({ items }: { items: Crumb[] }) {
+/** `.crumbs` của mockup: các mục trước là nút chữ màu primary, mục cuối là chữ muted; `aside` đặt sát phải. */
+export default function Breadcrumbs({ items, aside }: { items: Crumb[]; aside?: ReactNode }) {
   return (
-    <nav aria-label="breadcrumb" className="mb-4 flex flex-wrap items-center gap-1.5 text-[13px] text-text-muted">
+    <nav aria-label="breadcrumb" className="mb-4 flex items-center gap-1.5 text-sm text-text-muted">
       {items.map((item, index) => (
         <Fragment key={`${index}-${item.label}`}>
-          {index > 0 && <Icon name="chevron-right" className="text-[14px]" />}
+          {index > 0 && <Icon name="chevron-right" className="text-xl" />}
           {item.to ? (
-            <Link to={item.to} className="inline-flex min-h-8 items-center text-text-muted hover:text-text hover:underline">
+            <Link to={item.to} className={buttonClasses({ variant: "text", size: "sm" })}>
               {item.label}
             </Link>
           ) : (
@@ -24,6 +25,7 @@ export default function Breadcrumbs({ items }: { items: Crumb[] }) {
           )}
         </Fragment>
       ))}
+      {aside && <span className="ml-auto">{aside}</span>}
     </nav>
   );
 }

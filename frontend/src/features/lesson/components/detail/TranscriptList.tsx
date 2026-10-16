@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import EmptyState from "@/components/common/EmptyState";
 import Icon from "@/components/common/Icon";
@@ -20,6 +21,9 @@ function speak(text: string) {
   }
 }
 
+/** Màu điểm câu: ≥80 tốt, ≥60 trung bình, còn lại cần làm lại (`scoreTone` của mockup). */
+const scoreVariant = (score: number) => (score >= 80 ? "success" : score >= 60 ? "warning" : "danger");
+
 export interface TranscriptListProps {
   sentences: SentenceResponse[];
   /** Bài Pro mà người dùng chưa có gói Pro. */
@@ -28,10 +32,12 @@ export interface TranscriptListProps {
   error: unknown;
   onRetry: () => void;
   retrying: boolean;
+  /** Đã học dở bài này: câu đầu tiên chưa có điểm được đánh dấu "Đang ở câu này". */
+  started: boolean;
 }
 
-/** Danh sách câu của bài; transcript ẩn sẵn để không lộ đáp án khi nghe chép. */
-export default function TranscriptList({ sentences, locked, loading, error, onRetry, retrying }: TranscriptListProps) {
+/** Danh sách câu của bài (`.sentlist`): số câu, điểm tốt nhất, mốc thời gian, nút nghe. Transcript ẩn (làm mờ) sẵn để không lộ đáp án khi nghe chép. */
+export default function TranscriptList({ sentences, locked, loading, error, onRetry, retrying, started }: TranscriptListProps) {
   const { t } = useTranslation("pages");
   const p = "student.lessonDetail.transcript";
   const [revealed, setRevealed] = useState(false);
@@ -39,6 +45,7 @@ export default function TranscriptList({ sentences, locked, loading, error, onRe
 
   const shown = sentences.slice(0, visible);
   const remaining = sentences.length - visible;
+  const currentIndex = started ? sentences.findIndex((s) => s.myBestScore == null) : -1;
 
   const body = () => {
     if (locked) {
@@ -52,56 +59,68 @@ export default function TranscriptList({ sentences, locked, loading, error, onRe
     if (error) return <QueryError error={error} onRetry={onRetry} retrying={retrying} />;
     if (loading) {
       return (
-        <div className="flex flex-col gap-3 py-2" aria-busy="true">
+        <div className="flex flex-col gap-3" aria-busy="true">
           {Array.from({ length: 4 }, (_, i) => (
-            <Skeleton key={i} className="h-10 w-full" />
+            <Skeleton key={i} className="h-9 w-full" />
           ))}
         </div>
       );
     }
     if (sentences.length === 0) {
-      return <p className="py-4 text-center text-xs text-text-muted">{t(`${p}.empty`, "Chưa có dữ liệu câu cho bài này.")}</p>;
+      return <p className="py-4 text-center text-[13px] text-text-muted">{t(`${p}.empty`, "Chưa có dữ liệu câu cho bài này.")}</p>;
     }
     return (
       <>
-        <div id="sentList" className={revealed ? "" : "pointer-events-none select-none blur-xs transition-[filter] duration-200"}>
-          {shown.map((s, idx) => (
-            <div key={s.id || idx} className="grid grid-cols-[32px_1fr_auto] items-center gap-3 border-t border-border py-3 first:border-t-0">
-              <span className="mt-0.5 grid h-7 w-7 shrink-0 self-start place-items-center rounded-sm bg-surface-hover text-xs font-semibold text-text-muted">
-                {idx + 1}
-              </span>
-              <div className="flex min-w-0 flex-col gap-0.5">
-                <span className="font-medium leading-snug text-text">{s.text}</span>
-                {s.ipa && <span className="select-text font-mono text-[12px] tracking-wide text-text-muted">/{s.ipa.replace(/^\/|\/$/g, "")}/</span>}
-              </div>
-              <span className="mt-1 inline-flex shrink-0 items-center gap-1.5 self-start whitespace-nowrap text-xs text-text-muted">
-                <span>{formatTimeMs(s.startMs)}</span>
-                <button
-                  type="button"
-                  className="grid h-8 w-8 cursor-pointer place-items-center rounded-full border border-border bg-primary-soft text-primary-text transition-colors duration-150 hover:bg-primary hover:text-white"
-                  aria-label={t(`${p}.listen`, { index: idx + 1, defaultValue: `Nghe câu ${idx + 1}` })}
-                  onClick={() => speak(s.text)}
+        <div id="sentList">
+          {shown.map((s, idx) => {
+            const scored = s.myBestScore != null;
+            return (
+              <div key={s.id || idx} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-3 border-b border-border px-1 py-3.5 last:border-b-0">
+                <span
+                  className={`grid h-7 w-7 place-items-center rounded-full text-xs font-bold ${
+                    scored ? "bg-success/20 text-success" : "bg-border text-text-muted"
+                  }`}
                 >
-                  <Icon name="volume-2" />
-                </button>
-              </span>
-            </div>
-          ))}
+                  {idx + 1}
+                </span>
+                <div className="min-w-0">
+                  <span className={`font-semibold transition-[filter] duration-200 ${revealed ? "" : "select-none blur-[6px]"}`}>{s.text}</span>
+                  {revealed && s.ipa && <div className="select-text text-[13px] text-text-subtle">/{s.ipa.replace(/^\/|\/$/g, "")}/</div>}
+                </div>
+                <span className="flex items-center gap-2 text-[13px] text-text-subtle">
+                  {scored ? (
+                    <Badge variant={scoreVariant(s.myBestScore!)}>{s.myBestScore}</Badge>
+                  ) : idx === currentIndex ? (
+                    <Badge variant="primary">{t(`${p}.current`, "Đang ở câu này")}</Badge>
+                  ) : null}
+                  {formatTimeMs(s.startMs)}
+                  <Button
+                    variant="ghost"
+                    iconOnly
+                    aria-label={t(`${p}.listen`, { index: idx + 1, defaultValue: `Nghe câu ${idx + 1}` })}
+                    onClick={() => speak(s.text)}
+                  >
+                    <Icon name="volume-2" />
+                  </Button>
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         {sentences.length > INITIAL_LIMIT && (
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
-            <span className="text-xs font-medium text-text-muted">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <span className="text-[13px] text-text-muted">
               {t(`${p}.showingCount`, { visible: shown.length, total: sentences.length, defaultValue: `Đang hiện ${shown.length}/${sentences.length} câu` })}
             </span>
             <div className="flex items-center gap-2">
               {remaining > 0 && (
-                <Button variant="secondary" size="sm" leftIcon={<Icon name="chevron-down" />} onClick={() => setVisible((v) => v + STEP)}>
+                <Button variant="ghost" size="sm" leftIcon={<Icon name="chevron-down" />} onClick={() => setVisible((v) => v + STEP)}>
                   {t(`${p}.showMore`, { count: Math.min(STEP, remaining), defaultValue: `Xem thêm ${Math.min(STEP, remaining)} câu` })}
                 </Button>
               )}
               {visible > INITIAL_LIMIT && (
-                <Button variant="ghost" size="sm" leftIcon={<Icon name="chevron-up" />} onClick={() => setVisible(INITIAL_LIMIT)}>
+                <Button variant="text" size="sm" leftIcon={<Icon name="chevron-up" />} onClick={() => setVisible(INITIAL_LIMIT)}>
                   {t(`${p}.collapse`, "Thu gọn")}
                 </Button>
               )}
@@ -113,22 +132,16 @@ export default function TranscriptList({ sentences, locked, loading, error, onRe
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6">
+    <div className="rounded-lg border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-lg font-semibold text-text">
-          {t(`${p}.sentencesInLesson`, "Các câu trong bài")} <span className="text-xs font-normal text-text-muted">({sentences.length})</span>
+        <h3 className="text-lg font-bold leading-[1.4]">
+          {t(`${p}.sentencesInLesson`, "Các câu trong bài")} <span className="text-[13px] font-normal text-text-muted">({sentences.length})</span>
         </h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-pressed={revealed}
-          onClick={() => setRevealed(!revealed)}
-          leftIcon={<Icon name={revealed ? "eye-off" : "eye"} />}
-        >
+        <Button variant="ghost" size="sm" aria-pressed={revealed} onClick={() => setRevealed(!revealed)} leftIcon={<Icon name={revealed ? "eye-off" : "eye"} />}>
           {revealed ? t(`${p}.hide`, "Ẩn transcript") : t(`${p}.view`, "Hiện transcript")}
         </Button>
       </div>
-      <p className="my-2 text-xs text-text-muted">{t(`${p}.note`, "Transcript ẩn sẵn để không lộ đáp án khi nghe chép.")}</p>
+      <p className="mb-4 mt-2 text-[13px] leading-normal text-text-muted">{t(`${p}.note`, "Transcript ẩn sẵn để không lộ đáp án khi nghe chép.")}</p>
       {body()}
     </div>
   );

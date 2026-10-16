@@ -1,6 +1,11 @@
+import type { ReactNode } from "react";
 import {
   type LucideIcon,
   Menu,
+  Moon,
+  Music2,
+  Upload,
+  RotateCw,
   PanelLeftClose,
   PanelLeftOpen,
   ArrowLeft,
@@ -91,6 +96,10 @@ import {
 /** Chỉ các icon liệt kê ở đây được đóng gói; thêm icon mới thì import ở trên và thêm vào bảng. */
 const ICONS: Record<string, LucideIcon> = {
   "menu": Menu,
+  "moon": Moon,
+  "music-2": Music2,
+  "upload": Upload,
+  "rotate-cw": RotateCw,
   "panel-left-close": PanelLeftClose,
   "panel-left-open": PanelLeftOpen,
   "arrow-left": ArrowLeft,
@@ -178,6 +187,18 @@ const ICONS: Record<string, LucideIcon> = {
   "zap": Zap,
 };
 
+
+/** Icon thương hiệu mà Lucide 1.x không còn; vẽ cùng kiểu nét 24px của Lucide 0.468 (mockup v2). */
+const BRAND_PATHS: Record<string, ReactNode> = {
+  facebook: <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />,
+  youtube: (
+    <>
+      <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
+      <path d="m10 15 5-3-5-3z" />
+    </>
+  ),
+};
+
 /** Cột `topics.icon` do backend lưu theo tên Phosphor cũ; ánh xạ sang Lucide cho tới khi dữ liệu được cập nhật. */
 const LEGACY_ALIASES: Record<string, string> = {
   "chats-circle": "messages-square",
@@ -213,6 +234,26 @@ export interface IconProps {
 /** Icon dùng chung. Mặc định cao bằng cỡ chữ hiện tại (1em) nên đổi cỡ bằng `text-*`. */
 export default function Icon({ name, fallback = "hash", className, fill = false, strokeWidth }: IconProps) {
   const key = name ? (LEGACY_ALIASES[name] ?? name) : fallback;
+  const brand = BRAND_PATHS[key];
+  if (brand) {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        width="1em"
+        height="1em"
+        fill={fill ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth={strokeWidth ?? 2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={`shrink-0 ${className ?? ""}`.trim()}
+        aria-hidden="true"
+        focusable="false"
+      >
+        {brand}
+      </svg>
+    );
+  }
   const Component = ICONS[key] ?? ICONS[fallback] ?? ICONS.hash;
   return (
     <Component

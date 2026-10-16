@@ -3,40 +3,40 @@ export type ButtonSize = "sm" | "md" | "lg";
 /** Màu chức năng (DESIGN.v2 §2.2) dùng cho variant "fn". */
 export type ButtonFn = "dictation" | "shadowing" | "vocab" | "assessment";
 
+/** Giá trị lấy từ mockup v2 (`.btn` trong app.css): cao 44, bo md, viền 1px, đáy 3px, nhấn thì đáy nén xuống. */
 const BASE =
-  "inline-flex items-center justify-center font-body font-semibold select-none rounded-md transition-[background-color,border-color,color,transform,box-shadow] duration-150 cursor-pointer no-underline disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base";
+  "inline-flex items-center justify-center gap-2 rounded-md border font-semibold whitespace-nowrap select-none cursor-pointer no-underline " +
+  "transition-[background-color,border-color,transform,box-shadow] duration-150 active:translate-y-[3px] " +
+  "disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base";
 
 const SIZES: Record<ButtonSize, string> = {
-  sm: "gap-1.5 h-9 px-3 text-sm",
-  md: "gap-2 h-11 px-4.5 text-[15px]",
-  lg: "gap-2.5 h-[52px] px-6 text-base",
+  sm: "h-9 px-3.5 text-sm",
+  md: "h-11 px-[18px] text-[15px]",
+  lg: "h-[52px] px-7 text-base",
 };
 
+/** Nút chỉ có icon: 40×40 như `.btn.icon` của mockup. */
 const ICON_SIZES: Record<ButtonSize, string> = {
-  sm: "w-9 h-9 p-0 text-base",
-  md: "w-11 h-11 p-0 text-lg",
-  lg: "w-[50px] h-[50px] p-0 text-xl",
+  sm: "h-9 w-9 p-0 text-base",
+  md: "h-10 w-10 p-0 text-lg",
+  lg: "h-[50px] w-[50px] p-0 text-xl",
 };
 
-/** Nút "nổi" có đáy dày 4px; nhấn thì đáy nén xuống (DESIGN.v2 §7.1). */
-const RAISED = "active:translate-y-[3px]";
+const shadow = (colorVar: string, pct = 55) => `shadow-[0_3px_0_color-mix(in_srgb,var(${colorVar})_${pct}%,#000)] active:shadow-none`;
 
 const VARIANTS: Record<Exclude<ButtonVariant, "fn">, string> = {
-  primary: `bg-[var(--btn-primary)] text-white hover:brightness-110 shadow-[0_4px_0_color-mix(in_srgb,var(--btn-primary)_68%,black)] active:shadow-[0_1px_0_color-mix(in_srgb,var(--btn-primary)_68%,black)] ${RAISED}`,
-  secondary:
-    "bg-surface text-text border border-border-strong hover:bg-surface-hover active:scale-[0.98]",
-  ghost:
-    "bg-transparent text-text-muted hover:text-text hover:bg-surface-hover border border-border hover:border-border-strong active:scale-[0.98]",
-  text: "bg-transparent text-text-muted hover:text-text hover:bg-surface-hover border-0",
-  danger:
-    "bg-danger/15 text-danger border border-danger/30 hover:bg-danger hover:text-white active:scale-[0.98]",
+  primary: `bg-[var(--btn-primary)] border-transparent text-white hover:bg-[var(--btn-primary-hover)] ${shadow("--btn-primary")}`,
+  secondary: "bg-surface border-border-strong text-text hover:bg-surface-hover",
+  ghost: "bg-transparent border-border-strong text-text hover:bg-surface-hover",
+  text: "!h-auto !px-1.5 py-1 bg-transparent border-transparent text-primary-text hover:bg-surface-hover active:!translate-y-0",
+  danger: `bg-danger border-transparent text-white hover:brightness-110 ${shadow("--danger", 60)}`,
 };
 
 const FN: Record<ButtonFn, string> = {
-  dictation: `bg-fn-dictation text-on-fn hover:brightness-110 shadow-[0_4px_0_color-mix(in_srgb,var(--fn-dictation)_65%,black)] active:shadow-[0_1px_0_color-mix(in_srgb,var(--fn-dictation)_65%,black)] ${RAISED}`,
-  shadowing: `bg-fn-shadowing text-on-fn hover:brightness-110 shadow-[0_4px_0_color-mix(in_srgb,var(--fn-shadowing)_65%,black)] active:shadow-[0_1px_0_color-mix(in_srgb,var(--fn-shadowing)_65%,black)] ${RAISED}`,
-  vocab: `bg-fn-vocab text-on-fn hover:brightness-110 shadow-[0_4px_0_color-mix(in_srgb,var(--fn-vocab)_65%,black)] active:shadow-[0_1px_0_color-mix(in_srgb,var(--fn-vocab)_65%,black)] ${RAISED}`,
-  assessment: `bg-fn-assessment text-on-fn hover:brightness-110 shadow-[0_4px_0_color-mix(in_srgb,var(--fn-assessment)_65%,black)] active:shadow-[0_1px_0_color-mix(in_srgb,var(--fn-assessment)_65%,black)] ${RAISED}`,
+  dictation: `bg-fn-dictation border-transparent text-on-fn hover:bg-[color-mix(in_srgb,var(--fn-dictation)_88%,#fff)] ${shadow("--fn-dictation", 60)}`,
+  shadowing: `bg-fn-shadowing border-transparent text-on-fn hover:bg-[color-mix(in_srgb,var(--fn-shadowing)_88%,#fff)] ${shadow("--fn-shadowing", 60)}`,
+  vocab: `bg-fn-vocab border-transparent text-on-fn hover:bg-[color-mix(in_srgb,var(--fn-vocab)_88%,#fff)] ${shadow("--fn-vocab", 60)}`,
+  assessment: `bg-fn-assessment border-transparent text-on-fn hover:bg-[color-mix(in_srgb,var(--fn-assessment)_88%,#fff)] ${shadow("--fn-assessment", 60)}`,
 };
 
 export interface ButtonStyleOptions {

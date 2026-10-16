@@ -26,38 +26,38 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
     return (
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <label htmlFor={id} className="text-[13px] font-semibold text-text">
+          <label htmlFor={id} className="text-sm font-semibold text-text">
             {label}
           </label>
           {labelAside}
         </div>
         <div
-          className={`relative flex h-11 items-center rounded-md border bg-surface px-3.5 text-text transition-colors duration-150 focus-within:ring-2 ${
+          className={`relative flex h-12 min-w-0 items-center gap-2.5 rounded-md border bg-surface px-3.5 text-text transition-[border-color,box-shadow] duration-150 focus-within:shadow-[0_0_0_3px_var(--primary-soft)] ${
             error
-              ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
-              : "border-border focus-within:border-primary focus-within:ring-primary/20"
+              ? "border-danger focus-within:border-danger focus-within:shadow-[0_0_0_3px_color-mix(in_srgb,var(--danger)_22%,transparent)]"
+              : "border-border-strong focus-within:border-primary"
           }`}
         >
-          {icon && <Icon name={icon} className="mr-2.5 text-lg text-text-subtle" />}
+          {icon && <Icon name={icon} className="text-xl text-text-subtle" />}
           <input
             ref={ref}
             id={id}
             aria-invalid={error ? true : undefined}
             aria-describedby={error || hint ? messageId : undefined}
-            className={`h-full w-full border-0 bg-transparent text-sm text-text outline-none placeholder:text-text-subtle ${className}`}
+            className={`h-full min-w-0 flex-1 border-0 bg-transparent text-[15px] leading-[1.4] text-text outline-none placeholder:text-text-subtle ${className}`}
             {...props}
           />
           {trailing}
         </div>
         {below}
         {error ? (
-          <p id={messageId} className="mt-0.5 flex items-center gap-1 text-xs font-medium text-danger">
+          <p id={messageId} className="flex items-center gap-1.5 text-[13px] text-danger">
             <Icon name="circle-alert" />
             <span>{error}</span>
           </p>
         ) : (
           hint && (
-            <p id={messageId} className="mt-0.5 text-xs leading-normal text-text-muted">
+            <p id={messageId} className="text-[13px] leading-normal text-text-subtle">
               {hint}
             </p>
           )
@@ -91,7 +91,7 @@ export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
         trailing={
           <button
             type="button"
-            className="shrink-0 cursor-pointer border-0 bg-transparent p-1 text-lg text-text-subtle transition-colors hover:text-text"
+            className="-mr-2 grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-sm border-0 bg-transparent text-xl text-text-muted transition-colors hover:bg-surface-hover hover:text-text"
             onClick={toggle}
             aria-label={shown ? hideLabel : showLabel}
             aria-pressed={shown}

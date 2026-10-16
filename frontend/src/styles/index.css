@@ -152,14 +152,14 @@
     font-size: 15px;
     line-height: 1.6;
     background-color: var(--bg-base);
-    background-image: var(--page-wash);
-    background-repeat: no-repeat;
-    background-size: 100% 520px;
     color: var(--text);
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
     overflow-x: clip;
   }
+
+  /* Lớp tím mờ tĩnh ở đầu trang (DESIGN.v2 §2.1) */
+  body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 480px; background: var(--page-wash); pointer-events: none; z-index: 0; }
 
   button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
   input, textarea { font: inherit; color: inherit; }
@@ -172,6 +172,8 @@
 }
 
 @layer utilities {
+  @keyframes menu-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
   /* Khối chờ tải: shimmer ngắn, tắt khi người dùng bật giảm chuyển động */
   .skeleton {
     background-image: linear-gradient(90deg, transparent 0%, var(--border) 50%, transparent 100%);

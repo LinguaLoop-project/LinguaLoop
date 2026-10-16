@@ -14,8 +14,8 @@ export default function SecuritySection() {
     <div className="flex flex-col gap-6">
       <PasswordForm />
 
-      <section className="p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-card)]">
-        <h3 className="text-lg font-semibold font-display text-text">
+      <section className="p-5 rounded-lg bg-surface border border-border shadow-[var(--shadow-card)]">
+        <h3 className="text-lg font-bold leading-[1.4]">
           {t("settings.google.title")}
         </h3>
         <div className="mt-4 flex items-center gap-3">

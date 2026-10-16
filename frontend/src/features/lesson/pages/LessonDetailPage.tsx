@@ -6,42 +6,80 @@ import { useLessonDetail, useLessonSentences } from "../hooks/useLessons";
 import Breadcrumbs from "../components/Breadcrumbs";
 import QueryError from "../components/QueryError";
 import { NotesCard, ProgressCard, RelatedLessons, VocabCard } from "../components/detail/AsideCards";
-import LessonInfo from "../components/detail/LessonInfo";
-import LessonMedia from "../components/detail/LessonMedia";
+import LessonHead from "../components/detail/LessonHead";
 import PracticeModeCard from "../components/detail/PracticeModeCard";
 import TranscriptList from "../components/detail/TranscriptList";
+import type { PracticeMode } from "../components/ModeButton";
 import { localizedName } from "../utils";
 
 const BackToLibrary = () => {
   const { t } = useTranslation("pages");
   return (
     <Link to="/student/lessons">
-      <Button variant="secondary">{t("student.lessonDetail.backToLibrary", "Quay lại Thư viện")}</Button>
+      <Button variant="ghost">{t("student.lessonDetail.backToLibrary", "Về thư viện bài học")}</Button>
     </Link>
   );
 };
 
-/** Skeleton cùng bố cục hai cột của trang thật. */
+/** Skeleton cùng bố cục hai cột của trang thật (`lessonSkeleton` của mockup). */
 const DetailSkeleton = () => (
   <section className="w-full" aria-busy="true">
     <Skeleton className="mb-4 h-4 w-64" />
-    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[7fr_5fr]">
+    <div className="grid grid-cols-1 items-start gap-6 min-[1100px]:grid-cols-[minmax(0,1fr)_340px]">
       <div className="flex flex-col gap-6">
-        <Skeleton className="aspect-video w-full rounded-xl" />
-        <Skeleton className="h-8 w-3/4" />
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Skeleton className="h-52 rounded-2xl" />
-          <Skeleton className="h-52 rounded-2xl" />
+        <div className="grid items-center gap-6 rounded-lg border border-border bg-surface p-5 md:grid-cols-[260px_1fr]">
+          <Skeleton className="h-[164px] rounded-lg" />
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-4 w-3/5" />
+            <Skeleton className="h-[34px] w-[85%]" />
+            <Skeleton className="h-4 w-[45%]" />
+          </div>
         </div>
-        <Skeleton className="h-72 rounded-2xl" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {[0, 1].map((i) => (
+            <div key={i} className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-5">
+              <Skeleton className="h-12 w-12 rounded-md" />
+              <Skeleton className="h-5 w-1/2" />
+              <Skeleton className="h-3.5 w-[90%]" />
+              <Skeleton className="h-2 w-full" />
+              <Skeleton className="h-11 w-full rounded-md" />
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-5">
+          <Skeleton className="h-5 w-[35%]" />
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-full" />
+        </div>
       </div>
       <div className="flex flex-col gap-6">
-        <Skeleton className="h-36 rounded-2xl" />
-        <Skeleton className="h-56 rounded-2xl" />
+        <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
+          <Skeleton className="h-3.5 w-1/2" />
+          <Skeleton className="h-[88px] w-full rounded-md" />
+        </div>
+        <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
+          <Skeleton className="h-3.5 w-3/5" />
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-11 w-full" />
+        </div>
       </div>
     </div>
   </section>
 );
+
+/** Chế độ gợi ý (lesson.html): đang học dở (tiến độ cao hơn) > chưa học (ưu tiên nghe chép) > không gợi ý nếu cả hai đã xong. */
+function recommendedMode(d: number, s: number): PracticeMode | null {
+  const doing = (["dictation", "shadowing"] as const)
+    .filter((m) => {
+      const p = m === "dictation" ? d : s;
+      return p > 0 && p < 100;
+    })
+    .sort((a, b) => (b === "dictation" ? d : s) - (a === "dictation" ? d : s));
+  if (doing[0]) return doing[0];
+  const todo = (["dictation", "shadowing"] as const).filter((m) => (m === "dictation" ? d : s) === 0);
+  return todo.length === 2 ? "dictation" : (todo[0] ?? null);
+}
 
 export const LessonDetailPage = () => {
   const { slug = "" } = useParams<{ slug: string }>();
@@ -57,8 +95,8 @@ export const LessonDetailPage = () => {
 
   if (lessonQuery.isError || !lesson) {
     return (
-      <div className="py-10">
-        {/* 404: QueryError tự bỏ nút Thử lại, chỉ còn "Về thư viện" */}
+      <div className="py-6">
+        {/* 404: QueryError tự bỏ nút Thử lại, chỉ còn "Về thư viện bài học" */}
         <QueryError
           error={lessonQuery.error}
           kind={lessonQuery.error ? undefined : "notFound"}
@@ -71,7 +109,10 @@ export const LessonDetailPage = () => {
   }
 
   const topicSlug = lesson.topic?.slug ?? "";
-  const topicName = localizedName(i18n.language === "en", lesson.topic, i18n.language === "en" ? "Topic" : "Chủ đề");
+  const isEn = i18n.language === "en";
+  const topicName = localizedName(isEn, lesson.topic, isEn ? "Topic" : "Chủ đề");
+  const { dictationPercent: d, shadowingPercent: s } = lesson.progress;
+  const rec = recommendedMode(d, s);
 
   return (
     <section className="w-full" id="v-lesson">
@@ -83,14 +124,13 @@ export const LessonDetailPage = () => {
         ]}
       />
 
-      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[7fr_5fr]">
-        <div className="flex flex-col gap-6">
-          <LessonMedia lesson={lesson} />
-          <LessonInfo lesson={lesson} topicName={topicName} />
+      <div className="grid grid-cols-1 items-start gap-6 min-[1100px]:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <LessonHead lesson={lesson} />
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <PracticeModeCard mode="dictation" slug={lesson.slug} sentenceCount={lesson.sentenceCount} percent={lesson.progress.dictationPercent} />
-            <PracticeModeCard mode="shadowing" slug={lesson.slug} sentenceCount={lesson.sentenceCount} percent={lesson.progress.shadowingPercent} />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <PracticeModeCard mode="dictation" slug={lesson.slug} sentenceCount={lesson.sentenceCount} percent={d} recommended={rec === "dictation"} locked={lesson.locked} />
+            <PracticeModeCard mode="shadowing" slug={lesson.slug} sentenceCount={lesson.sentenceCount} percent={s} recommended={rec === "shadowing"} locked={lesson.locked} />
           </div>
 
           <TranscriptList
@@ -100,14 +140,15 @@ export const LessonDetailPage = () => {
             error={sentencesQuery.error}
             onRetry={() => void sentencesQuery.refetch()}
             retrying={sentencesQuery.isFetching}
+            started={d > 0}
           />
         </div>
 
-        <aside className="flex flex-col gap-6">
+        <aside className="flex min-w-0 flex-col gap-6">
           <ProgressCard progress={lesson.progress} />
           <VocabCard />
           <NotesCard />
-          <RelatedLessons lessons={lesson.relatedLessons ?? []} topicSlug={topicSlug} topicName={topicName} />
+          <RelatedLessons lessons={lesson.relatedLessons ?? []} topicSlug={topicSlug} />
         </aside>
       </div>
     </section>

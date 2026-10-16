@@ -1,5 +1,6 @@
 import React from "react";
 import Icon from "@/components/common/Icon";
+import Button from "./Button";
 
 export interface EmptyStateProps {
   icon?: string;
@@ -12,6 +13,7 @@ export interface EmptyStateProps {
   className?: string;
 }
 
+/** `.empty` của mockup: không khung, căn giữa, mascot 120 (hoặc icon), h3 + mô tả nhỏ + nút ghost. */
 export const EmptyState: React.FC<EmptyStateProps> = ({
   icon,
   mascotSrc = "/mascot/loopi-encourage.svg",
@@ -21,47 +23,24 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   onAction,
   children,
   className = "",
-}) => {
-  return (
-    <div
-      className={`flex flex-col items-center justify-center text-center p-8 sm:p-12 gap-3 rounded-2xl border border-dashed border-border-strong bg-surface/50 text-text-muted ${className}`}
-    >
-      {mascotSrc ? (
-        <img
-          className="w-24 h-24 mb-1 select-none pointer-events-none"
-          src={mascotSrc}
-          width={96}
-          height={96}
-          alt="Loopi"
-          draggable={false}
-        />
-      ) : icon ? (
-        <div className="w-16 h-16 rounded-2xl grid place-items-center text-3xl bg-primary-soft text-accent border border-border mb-1">
-          <Icon name={icon} />
-        </div>
-      ) : null}
-
-      <h3 className="font-semibold text-lg text-text">{title}</h3>
-
-      {description && (
-        <p className="text-sm text-text-muted max-w-sm leading-relaxed">
-          {description}
-        </p>
-      )}
-
-      {actionText && onAction && (
-        <button
-          type="button"
-          onClick={onAction}
-          className="mt-2 inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-md border border-border bg-transparent hover:bg-surface-hover text-text text-sm font-semibold transition-colors duration-150 cursor-pointer"
-        >
-          {actionText}
-        </button>
-      )}
-
-      {children}
-    </div>
-  );
-};
+}) => (
+  <div className={`flex flex-col items-center px-4 py-12 text-center ${className}`}>
+    {mascotSrc ? (
+      <img className="mb-3 h-[120px] w-[120px] select-none" src={mascotSrc} width={120} height={120} alt="" draggable={false} />
+    ) : icon ? (
+      <div className="mb-3 grid h-16 w-16 place-items-center rounded-lg border border-border bg-primary-soft text-3xl text-primary-text">
+        <Icon name={icon} />
+      </div>
+    ) : null}
+    <h3 className="text-lg font-bold">{title}</h3>
+    {description && <p className="mt-1 max-w-sm text-[13px] leading-normal text-text-muted">{description}</p>}
+    {actionText && onAction && (
+      <Button variant="ghost" className="mt-4" onClick={onAction}>
+        {actionText}
+      </Button>
+    )}
+    {children && <div className="mt-4">{children}</div>}
+  </div>
+);
 
 export default EmptyState;

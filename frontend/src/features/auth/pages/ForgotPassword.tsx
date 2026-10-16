@@ -65,10 +65,10 @@ const ForgotPassword = () => {
 
       {/* Header info */}
       <div>
-        <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+        <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
           {t("forgot.overline")}
         </span>
-        <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+        <h1 className="text-[30px] font-bold leading-[48px] text-text">
           {t("forgot.title")}
         </h1>
         <p className="text-[14px] leading-relaxed text-text-muted">

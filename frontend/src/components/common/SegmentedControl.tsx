@@ -15,39 +15,34 @@ export interface SegmentedControlProps {
   ariaLabel?: string;
 }
 
-const SegmentedControl = ({
-  id,
-  options,
-  value,
-  onChange,
-  className = "",
-  ariaLabel,
-}: SegmentedControlProps) => {
-  return (
-    <div
-      id={id}
-      className={`relative inline-flex p-1 gap-0.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] ${className}`}
-      role="group"
-      aria-label={ariaLabel}
-    >
-      {options.map((option) => (
+/** `.seg` của mockup: khay bo md, nút cao 36; nút đang chọn nền primary-soft + viền trong border-strong. */
+const SegmentedControl = ({ id, options, value, onChange, className = "", ariaLabel }: SegmentedControlProps) => (
+  <div
+    id={id}
+    role="group"
+    aria-label={ariaLabel}
+    className={`inline-flex gap-0.5 rounded-md border border-border bg-surface p-1 ${className}`}
+  >
+    {options.map((option) => {
+      const on = value === option.value;
+      return (
         <button
           key={option.value}
           type="button"
           onClick={() => onChange(option.value)}
-          className={`relative z-10 inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors duration-150 ${
-            value === option.value
-              ? "text-[var(--text)] bg-[var(--primary-soft)] shadow-[inset_0_0_0_1px_var(--border-strong)]"
-              : "text-[var(--text-muted)] hover:text-[var(--text)]"
+          aria-pressed={on}
+          className={`inline-flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-sm border-0 px-3.5 transition-colors duration-150 ${
+            on
+              ? "bg-primary-soft font-semibold text-text shadow-[inset_0_0_0_1px_var(--border-strong)]"
+              : "bg-transparent font-medium text-text-muted hover:text-text"
           }`}
-          aria-pressed={value === option.value}
         >
           {option.icon && <span className="text-lg">{option.icon}</span>}
           {option.label}
         </button>
-      ))}
-    </div>
-  );
-};
+      );
+    })}
+  </div>
+);
 
 export default SegmentedControl;

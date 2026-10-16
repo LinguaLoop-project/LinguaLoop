@@ -7,47 +7,22 @@ export interface ChipProps {
   onClick?: () => void;
   className?: string;
   count?: number | string;
-  lift?: boolean;
 }
 
-const Chip = ({
-  id,
-  children,
-  active = false,
-  onClick,
-  className = "",
-  count,
-  lift = false,
-}: ChipProps) => {
-  const baseClasses =
-    "inline-flex items-center gap-1.5 h-8.5 px-3.5 rounded-full text-[14.5px] font-medium border bg-[var(--surface-hover)] text-[var(--text-muted)] transition-all duration-250 ease-out";
-
-  const activeClasses = active
-    ? "bg-[var(--primary-soft)] border-[var(--primary)] text-[var(--text)]"
-    : "border-[var(--border)]";
-
-  const hoverClasses = onClick
-    ? "hover:-translate-y-0.5 hover:border-[var(--primary)] hover:text-[var(--text)] cursor-pointer"
-    : "";
-
-  const liftClasses = lift ? "hover:-translate-y-0.5" : "";
-
-  return (
-    <button
-      id={id}
-      type="button"
-      className={`${baseClasses} ${activeClasses} ${hoverClasses} ${liftClasses} ${onClick ? "min-h-9" : ""} ${className}`}
-      onClick={onClick}
-      aria-pressed={active}
-    >
-      {children}
-      {count !== undefined && (
-        <small className="text-[13px] font-semibold text-[var(--text-subtle)] ml-1">
-          {count}
-        </small>
-      )}
-    </button>
-  );
-};
+/** `.chip` của mockup: cao 32, bo tròn, viền border-strong; hover/đang chọn viền primary + nền primary-soft. */
+const Chip = ({ id, children, active = false, onClick, className = "", count }: ChipProps) => (
+  <button
+    id={id}
+    type="button"
+    onClick={onClick}
+    aria-pressed={active}
+    className={`inline-flex h-8 flex-none cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-sm text-text transition-colors duration-150 hover:border-primary hover:bg-primary-soft ${
+      active ? "border-primary bg-primary-soft" : "border-border-strong bg-surface"
+    } ${className}`}
+  >
+    {children}
+    {count !== undefined && <small className="font-semibold text-text-subtle">{count}</small>}
+  </button>
+);
 
 export default Chip;

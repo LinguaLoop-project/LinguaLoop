@@ -28,7 +28,9 @@
         "desc": "Dán link video tiếng Anh, AI tách câu, gắn mốc thời gian và ước lượng trình độ. Bài được duyệt trước khi hiện công khai.",
         "placeholder": "https://youtube.com/watch?v=…",
         "createBtn": "Tạo bài",
-        "toast": "AI đang tách câu và ước lượng trình độ… Bài sẽ chờ duyệt trước khi công khai"
+        "toast": "AI đang tách câu và ước lượng trình độ… Bài sẽ chờ duyệt trước khi công khai",
+        "openBtn": "Tạo bài từ YouTube",
+        "proOnly": "Tạo bài từ YouTube là tính năng của gói Pro."
       },
       "toolbar": {
         "searchPlaceholder": "Tìm bài học theo tên…",
@@ -36,9 +38,9 @@
         "levels": {
           "label": "Trình độ",
           "all": "Tất cả",
-          "basic": "Cơ bản",
-          "mid": "Trung cấp",
-          "adv": "Nâng cao"
+          "basic": "Cơ bản (A1–A2)",
+          "mid": "Trung cấp (B1–B2)",
+          "adv": "Nâng cao (C1–C2)"
         },
         "sorts": {
           "label": "Sắp xếp",
@@ -79,7 +81,9 @@
         "done": "Đã làm {{percent}}%",
         "notStarted": "Chưa học",
         "aria": "Bài {{title}}",
-        "sentences": "{{count}} câu"
+        "sentences": "{{count}} câu",
+        "viewsCount": "{{count}} lượt học",
+        "audio": "Audio"
       },
       "error": {
         "title": "Không tải được thư viện bài học",
@@ -88,7 +92,32 @@
       },
       "library": {
         "emptyTitle": "Thư viện đang được cập nhật",
-        "emptyDesc": "Chưa có bài học nào. Bạn có thể tự tạo bài từ video YouTube ở phía trên."
+        "emptyDesc": "Chưa có bài học nào. Bạn có thể tự tạo bài từ video YouTube ở phía trên.",
+        "stats": "{{sub}} · {{total}} bài · {{topics}} chủ đề"
+      },
+      "lockedToast": "Bài này dành cho gói Pro",
+      "tryPro": "Dùng thử Pro",
+      "cancel": "Huỷ",
+      "jumpTo": "Chuyển nhanh tới chủ đề",
+      "modes": {
+        "all": {
+          "overline": "Thư viện bài học",
+          "title": "Bài học",
+          "subtitle": "Nghe chép và shadowing trên video, audio thật",
+          "say": "Hôm nay học gì nào?"
+        },
+        "dictation": {
+          "overline": "Luyện nghe",
+          "title": "Nghe chép",
+          "subtitle": "Chọn bài, nghe từng câu rồi gõ lại. Hệ thống chấm từng từ và chỉ ra loại lỗi",
+          "say": "Đeo tai nghe vào nhé!"
+        },
+        "shadowing": {
+          "overline": "Luyện nói",
+          "title": "Shadowing",
+          "subtitle": "Chọn bài, nghe mẫu rồi đọc theo. AI chấm phát âm tới từng âm vị",
+          "say": "Mình cùng đọc theo nào!"
+        }
       }
     },
     "lessonDetail": {
@@ -187,7 +216,7 @@
       "completedCount": "{{done}}/{{total}} bài",
       "levels": {
         "label": "Trình độ",
-        "all": "Mọi trình độ",
+        "all": "Tất cả",
         "basic": "A1–A2",
         "mid": "B1–B2",
         "adv": "C1–C2"

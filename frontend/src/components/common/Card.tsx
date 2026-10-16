@@ -7,12 +7,12 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverable?: boolean;
 }
 
-const BASE = "rounded-2xl p-6 transition-[transform,border-color] duration-200";
+const BASE = "rounded-lg p-5 transition-[transform,border-color] duration-200";
 
 /** Hai bề mặt chính của DESIGN.v2 §5: `card` (standard) và `glass`; "highlight" dùng viền primary 2px thay viền gradient. */
 const VARIANTS: Record<CardVariant, string> = {
   standard: "bg-surface border border-border shadow-[var(--shadow-card)]",
-  glass: "bg-surface-glass backdrop-blur-xl border border-border-strong shadow-[var(--shadow-card)]",
+  glass: "rounded-xl bg-surface-glass backdrop-blur-xl border border-border-strong shadow-[var(--shadow-card)]",
   highlight: "bg-surface border-2 border-primary shadow-[var(--shadow-card)]",
   elevated: "bg-bg-elevated border border-border shadow-[var(--shadow-card)]",
 };

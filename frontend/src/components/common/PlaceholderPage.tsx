@@ -91,7 +91,7 @@ export default function PlaceholderPage({
 
   return (
     <div className="w-full py-8 md:py-12 px-4 flex justify-center items-center">
-      <div className="relative w-full max-w-2xl p-7 md:p-10 rounded-2xl bg-surface-glass backdrop-blur-xl border border-border-strong shadow-[var(--shadow-card)] overflow-hidden text-center flex flex-col items-center">
+      <div className="relative w-full max-w-2xl p-7 md:p-10 rounded-lg bg-surface-glass backdrop-blur-xl border border-border-strong shadow-[var(--shadow-card)] overflow-hidden text-center flex flex-col items-center">
         {/* Glow hiệu ứng nền */}
         <div
           className="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.18)_0%,transparent_70%)] pointer-events-none"
@@ -99,7 +99,7 @@ export default function PlaceholderPage({
         />
 
         {/* Icon đại diện */}
-        <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-soft border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-accent text-3xl shadow-[0_0_24px_rgba(139,92,246,0.22)] mb-4 shrink-0">
+        <div className="relative flex items-center justify-center w-16 h-16 rounded-lg bg-primary-soft border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-accent text-3xl shadow-[0_0_24px_rgba(139,92,246,0.22)] mb-4 shrink-0">
           <Icon name={iconBase} />
         </div>
 

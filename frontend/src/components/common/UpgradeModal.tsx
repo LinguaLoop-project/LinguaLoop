@@ -33,7 +33,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose }) =
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="upgrade-title">
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border-strong bg-surface shadow-[var(--shadow-card)]">
+      <div className="relative w-full max-w-md overflow-hidden rounded-lg border border-border-strong bg-surface shadow-[var(--shadow-card)]">
         <button
           type="button"
           onClick={onClose}
@@ -44,7 +44,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose }) =
         </button>
 
         <div className="px-6 pb-8 pt-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-soft text-primary-text">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-primary-soft text-primary-text">
             <Icon name="crown" fill className="text-2xl" />
           </div>
           <h3 id="upgrade-title" className="mb-2 font-display text-2xl font-bold text-text">

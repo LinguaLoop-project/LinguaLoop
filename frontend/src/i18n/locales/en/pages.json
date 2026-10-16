@@ -28,7 +28,9 @@
         "desc": "Paste an English video URL. AI transcribes sentences, sets timestamps, and estimates CEFR level. Reviewed before public release.",
         "placeholder": "https://youtube.com/watch?v=…",
         "createBtn": "Create lesson",
-        "toast": "AI is extracting sentences and estimating level… Lesson will be reviewed before going public"
+        "toast": "AI is extracting sentences and estimating level… Lesson will be reviewed before going public",
+        "openBtn": "Create lesson from YouTube",
+        "proOnly": "Creating lessons from YouTube is a Pro feature."
       },
       "toolbar": {
         "searchPlaceholder": "Search lessons by title…",
@@ -36,9 +38,9 @@
         "levels": {
           "label": "Level",
           "all": "All",
-          "basic": "Basic",
-          "mid": "Intermediate",
-          "adv": "Advanced"
+          "basic": "Basic (A1–A2)",
+          "mid": "Intermediate (B1–B2)",
+          "adv": "Advanced (C1–C2)"
         },
         "sorts": {
           "label": "Sort by",
@@ -76,10 +78,12 @@
         "views": "Views",
         "dictation": "Dictation",
         "shadowing": "Shadowing",
-        "done": "Done {{percent}}%",
+        "done": "{{percent}}% done",
         "notStarted": "Not started",
         "aria": "Lesson {{title}}",
-        "sentences": "{{count}} sentences"
+        "sentences": "{{count}} sentences",
+        "viewsCount": "{{count}} learners",
+        "audio": "Audio"
       },
       "error": {
         "title": "Couldn't load the lesson library",
@@ -88,7 +92,32 @@
       },
       "library": {
         "emptyTitle": "The library is being updated",
-        "emptyDesc": "There are no lessons yet. You can create one from a YouTube video above."
+        "emptyDesc": "There are no lessons yet. You can create one from a YouTube video above.",
+        "stats": "{{sub}} · {{total}} lessons · {{topics}} topics"
+      },
+      "lockedToast": "This lesson is for Pro members",
+      "tryPro": "Try Pro",
+      "cancel": "Cancel",
+      "jumpTo": "Jump to topic",
+      "modes": {
+        "all": {
+          "overline": "Lesson library",
+          "title": "Lessons",
+          "subtitle": "Dictation and shadowing on real videos and audio",
+          "say": "What shall we learn today?"
+        },
+        "dictation": {
+          "overline": "Listening practice",
+          "title": "Dictation",
+          "subtitle": "Pick a lesson, listen to each sentence and type it back. Every word is scored and errors are labelled",
+          "say": "Put your headphones on!"
+        },
+        "shadowing": {
+          "overline": "Speaking practice",
+          "title": "Shadowing",
+          "subtitle": "Pick a lesson, listen to the model and repeat. AI scores pronunciation down to each phoneme",
+          "say": "Let us read along!"
+        }
       }
     },
     "lessonDetail": {
@@ -187,7 +216,7 @@
       "completedCount": "{{done}}/{{total}} lessons",
       "levels": {
         "label": "Level",
-        "all": "All levels",
+        "all": "All",
         "basic": "A1–A2",
         "mid": "B1–B2",
         "adv": "C1–C2"

@@ -17,9 +17,9 @@ export default function LibraryToolbar({ filters, onChange }: LibraryToolbarProp
   const p = "student.lessons.toolbar";
 
   return (
-    <div className="mb-5 flex flex-col flex-wrap items-stretch gap-2.5 sm:flex-row sm:items-center sm:gap-3">
+    <div className="mb-6 flex flex-col flex-wrap items-stretch gap-3 sm:flex-row sm:items-center">
       <SearchInput
-        className="w-full min-w-[200px] sm:flex-1"
+        className="w-full min-w-[220px] sm:flex-1"
         id="lsSearch"
         placeholder={t(`${p}.searchPlaceholder`, "Tìm bài học theo tên…")}
         ariaLabel={t(`${p}.searchAria`, "Tìm bài học")}
@@ -27,7 +27,7 @@ export default function LibraryToolbar({ filters, onChange }: LibraryToolbarProp
         onChange={(v) => set("search", v)}
       />
 
-      <div className="max-w-full overflow-x-auto scrollbar-none">
+      <div className="max-w-full overflow-x-auto [scrollbar-width:none]">
         <SegmentedControl
           id="lsLevel"
           ariaLabel={t(`${p}.levels.label`, "Trình độ")}
@@ -42,14 +42,14 @@ export default function LibraryToolbar({ filters, onChange }: LibraryToolbarProp
         />
       </div>
 
-      <div className="max-w-full overflow-x-auto scrollbar-none">
+      <div className="max-w-full overflow-x-auto [scrollbar-width:none]">
         <SegmentedControl
           id="lsSort"
           ariaLabel={t(`${p}.sorts.label`, "Sắp xếp")}
           options={[
-            { value: "pop", label: t(`${p}.sorts.pop`, "Phổ biến"), icon: <Icon name="flame" /> },
-            { value: "new", label: t(`${p}.sorts.new`, "Mới"), icon: <Icon name="clock" /> },
-            { value: "short", label: t(`${p}.sorts.short`, "Ngắn"), icon: <Icon name="timer" /> },
+            { value: "pop", label: t(`${p}.sorts.pop`, "Phổ biến") },
+            { value: "new", label: t(`${p}.sorts.new`, "Mới") },
+            { value: "short", label: t(`${p}.sorts.short`, "Ngắn") },
           ]}
           value={filters.sort}
           onChange={(v) => set("sort", v)}
@@ -57,7 +57,7 @@ export default function LibraryToolbar({ filters, onChange }: LibraryToolbarProp
       </div>
 
       <Chip id="lsFree" active={filters.freeOnly} onClick={() => set("freeOnly", !filters.freeOnly)} className="self-start sm:self-auto">
-        <Icon name="lock-open" />
+        <Icon name="lock-open" className="text-xl" />
         {t(`${p}.freeOnly`, "Chỉ bài miễn phí")}
       </Chip>
     </div>

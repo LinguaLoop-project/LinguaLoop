@@ -1,15 +1,16 @@
 import type { ReactNode } from "react";
 import type { LessonSummary } from "../types";
 import { LessonCard, LessonCardSkeleton } from "./LessonCard";
+import type { PracticeMode } from "./ModeButton";
 
-/** Lưới thẻ bài dùng chung: bốn cột từ 1280px, một cột trên màn nhỏ. */
-const GRID = "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4";
+/** `.l-grid` của mockup: tự chia cột, mỗi thẻ rộng tối thiểu 290px, khoảng cách 20px. */
+const GRID = "grid grid-cols-[repeat(auto-fill,minmax(290px,1fr))] gap-5";
 
-export function LessonGrid({ lessons, id, className = "" }: { lessons: LessonSummary[]; id?: string; className?: string }): ReactNode {
+export function LessonGrid({ lessons, id, className = "", mode = "all" }: { lessons: LessonSummary[]; id?: string; className?: string; mode?: PracticeMode | "all" }): ReactNode {
   return (
     <div id={id} className={`${GRID} ${className}`}>
       {lessons.map((lesson) => (
-        <LessonCard key={lesson.id} lesson={lesson} />
+        <LessonCard key={lesson.id} lesson={lesson} mode={mode} />
       ))}
     </div>
   );

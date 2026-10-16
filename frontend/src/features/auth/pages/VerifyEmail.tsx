@@ -93,7 +93,7 @@ const VerifyEmail = () => {
             role="status"
             aria-label={t("verify.verifying")}
           />
-          <h1 className="text-2xl font-bold font-display text-text">
+          <h1 className="text-[30px] font-bold leading-[48px] text-text">
             {t("verify.verifyingTitle")}
           </h1>
         </>
@@ -110,17 +110,17 @@ const VerifyEmail = () => {
             className="select-none pointer-events-none"
           />
           <div>
-            <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+            <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
               {status === "verified"
                 ? t("verify.success")
                 : t("verify.alreadyOverline")}
             </span>
-            <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+            <h1 className="text-[30px] font-bold leading-[48px] text-text">
               {status === "verified"
                 ? t("verify.verifiedTitle")
                 : t("verify.alreadyTitle")}
             </h1>
-            <p className="text-[15px] text-text-muted mt-1 leading-relaxed">
+            <p className="text-[15px] text-text-muted leading-relaxed">
               {status === "verified"
                 ? t("verify.verifiedDesc")
                 : t("verify.alreadyDesc")}
@@ -143,10 +143,10 @@ const VerifyEmail = () => {
           </FormAlert>
 
           <div>
-            <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+            <h1 className="text-[30px] font-bold leading-[48px] text-text">
               {t("verify.resendTitle")}
             </h1>
-            <p className="text-[15px] text-text-muted mt-1 leading-relaxed">
+            <p className="text-[15px] text-text-muted leading-relaxed">
               {t("verify.resendDesc")}
             </p>
           </div>
@@ -185,7 +185,7 @@ const VerifyEmail = () => {
           <p className="text-[13px] text-text-muted">
             <Link
               to="/auth/login"
-              className="text-accent hover:underline font-medium"
+              className="font-semibold text-primary-text hover:underline"
             >
               {t("verify.backToLogin")}
             </Link>

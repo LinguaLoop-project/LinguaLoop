@@ -1,15 +1,13 @@
-/** 1.234 → "1.2k", 2.500.000 → "2.5M". */
-export function formatCount(n: number): string {
-  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `${(n / 1e3).toFixed(1)}k`;
-  return n.toString();
+/** Số có dấu phân cách theo ngôn ngữ (vd 95482 → "95.482" ở tiếng Việt), như `fmtNum` của mockup. */
+export function formatCount(n: number, locale = "vi-VN"): string {
+  return n.toLocaleString(locale);
 }
 
-/** Giây → "m:ss" (vd 125 → "2:05"). */
+/** Giây → "mm:ss" (vd 125 → "02:05"), như thời lượng trên thẻ bài của mockup. */
 export function formatDuration(sec: number): string {
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
-  return `${m}:${s < 10 ? "0" : ""}${s}`;
+  return `${m < 10 ? "0" : ""}${m}:${s < 10 ? "0" : ""}${s}`;
 }
 
 /** Mili giây → "mm:ss", dùng cho mốc thời gian của câu. */

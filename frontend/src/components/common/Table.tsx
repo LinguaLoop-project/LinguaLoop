@@ -25,7 +25,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(
     }
 
     return (
-      <div className={`w-full overflow-x-auto border border-border rounded-2xl bg-surface shadow-[var(--shadow-card)] ${containerClassName}`}>
+      <div className={`w-full overflow-x-auto border border-border rounded-lg bg-surface shadow-[var(--shadow-card)] ${containerClassName}`}>
         {tableElement}
       </div>
     );

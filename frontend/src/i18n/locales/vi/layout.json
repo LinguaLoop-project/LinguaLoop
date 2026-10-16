@@ -98,7 +98,8 @@
         "price": "Từ 33k/tháng",
         "desc": "Chấm không giới hạn, nhận xét AI, video khẩu hình.",
         "cta": "Dùng thử Pro"
-      }
+      },
+      "loopi": "Giữ chuỗi hôm nay nhé!"
     },
     "topbar": {
       "search": "Mở tìm kiếm nhanh",
@@ -112,7 +113,8 @@
       "learning": "Cài đặt học tập",
       "security": "Bảo mật & đăng nhập",
       "privacy": "Quyền riêng tư & dữ liệu",
-      "logout": "Đăng xuất"
+      "logout": "Đăng xuất",
+      "plan": "Gói hiện tại"
     }
   },
   "instructor": {
@@ -226,6 +228,50 @@
     "openMenu": "Mở menu",
     "closeMenu": "Đóng menu",
     "collapse": "Thu gọn thanh bên",
-    "expand": "Mở rộng thanh bên"
+    "expand": "Mở rộng thanh bên",
+    "footer": {
+      "tagline": "Luyện nghe chép và phát âm tiếng Anh trên video thật. Mỗi ngày 15 phút, đúng vào điểm yếu của bạn.",
+      "copyright": "© 2026 LinguaLoop. Video bài học thuộc bản quyền của kênh gốc, chỉ dùng để học.",
+      "status": "Hệ thống hoạt động bình thường",
+      "soon": "Trang này chưa có",
+      "cols": {
+        "learn": "Học",
+        "mine": "Của tôi",
+        "support": "Hỗ trợ",
+        "about": "Về LinguaLoop"
+      },
+      "links": {
+        "lessons": "Bài học",
+        "dictation": "Nghe chép",
+        "shadowing": "Shadowing",
+        "vocab": "Từ vựng",
+        "test": "Kiểm tra trình độ",
+        "mywords": "Từ & câu đã lưu",
+        "weakness": "Điểm yếu",
+        "settings": "Cài đặt tài khoản",
+        "pro": "Gói Pro",
+        "guide": "Hướng dẫn bắt đầu",
+        "faq": "Câu hỏi thường gặp",
+        "report": "Báo lỗi nội dung",
+        "contact": "Liên hệ góp ý",
+        "brand": "Logo & mascot",
+        "terms": "Điều khoản sử dụng",
+        "privacy": "Chính sách quyền riêng tư",
+        "voiceData": "Dữ liệu giọng nói"
+      },
+      "social": {
+        "facebook": "Facebook LinguaLoop",
+        "youtube": "Kênh YouTube LinguaLoop",
+        "tiktok": "TikTok LinguaLoop",
+        "mail": "Email hỗ trợ"
+      }
+    },
+    "palette": {
+      "label": "Tìm kiếm nhanh",
+      "placeholder": "Tìm từ, bài học, màn hình…",
+      "goTo": "Đi tới",
+      "actions": "Thao tác",
+      "none": "Không có kết quả cho “{{q}}”"
+    }
   }
 }

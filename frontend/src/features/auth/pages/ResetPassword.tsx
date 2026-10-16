@@ -98,9 +98,9 @@ const ResetPassword = () => {
   const pwScore = getPwScore(passwordInput);
   const pwValid = isPwValid(passwordInput);
   const overline = (text: string) => (
-    <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">{text}</span>
+    <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">{text}</span>
   );
-  const heading = (text: string) => <h1 className="font-display text-[28px] font-bold leading-tight mb-2 text-text">{text}</h1>;
+  const heading = (text: string) => <h1 className="text-[30px] font-bold leading-[48px] text-text">{text}</h1>;
 
   return (
     <section
@@ -114,7 +114,7 @@ const ResetPassword = () => {
             role="status"
             aria-label={t("reset.checking")}
           />
-          <h1 className="font-display text-2xl font-bold text-text">{t("reset.checkingTitle")}</h1>
+          <h1 className="text-[30px] font-bold leading-[48px] text-text">{t("reset.checkingTitle")}</h1>
         </>
       )}
 

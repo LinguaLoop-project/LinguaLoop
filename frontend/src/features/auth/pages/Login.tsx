@@ -65,13 +65,13 @@ export const Login = () => {
     >
       {/* Heading */}
       <div>
-        <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+        <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
           {t("login.overline")}
         </span>
-        <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+        <h1 className="text-[30px] font-bold leading-[48px] text-text">
           {t("login.title")}
         </h1>
-        <p className="text-[15px] text-text-muted mt-1">
+        <p className="text-[15px] text-text-muted">
           {t("login.subtitle")}
         </p>
       </div>
@@ -91,7 +91,7 @@ export const Login = () => {
               {" "}
               <Link
                 to="/auth/forgot-password"
-                className="text-accent underline font-medium"
+                className="font-semibold text-primary-text underline"
               >
                 {t("login.resetPassword")}
               </Link>
@@ -156,7 +156,7 @@ export const Login = () => {
         {t("login.noAccount")}{" "}
         <Link
           to="/auth/register"
-          className="text-accent hover:underline font-medium"
+          className="font-semibold text-primary-text hover:underline"
         >
           {t("login.registerFree")}
         </Link>
