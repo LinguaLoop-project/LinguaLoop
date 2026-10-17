@@ -12,11 +12,8 @@
       "listening": "Nghe chép",
       "pronunciation": "Shadowing",
       "vocabulary": "Từ vựng",
-      "speaking": "Luyện nói",
-      "ielts": "Luyện thi IELTS",
       "more": "Xem thêm"
     },
-    "badgeNew": "MỚI",
     "more": {
       "lessons": {
         "title": "Kho bài học video",
@@ -31,50 +28,10 @@
         "desc": "Đánh giá chuẩn khung CEFR"
       }
     },
-    "mobileWeakness": "Điểm yếu & Cần luyện",
     "login": "Đăng nhập",
     "logout": "Đăng xuất",
     "start": "Bắt đầu",
     "learnNow": "Học ngay"
-  },
-  "footer": {
-    "homeLabel": "LinguaLoop, về trang chủ",
-    "about": "Nền tảng luyện nghe chép chính tả (Dictation) và phát âm (Shadowing) trên video thực tế. Mỗi ngày 15 phút, giải quyết tận gốc các điểm yếu ngữ âm của bạn.",
-    "badgeAi": "AI Phát âm chuẩn",
-    "badgeVideo": "Video thực tế",
-    "emailAria": "Gửi email cho LinguaLoop",
-    "telegramAria": "Cộng đồng Telegram",
-    "practice": {
-      "title": "Luyện tập",
-      "dictation": "Nghe chép chính tả",
-      "shadowing": "Phát âm Shadowing",
-      "vocab": "Kho từ vựng & SRS",
-      "speaking": "Luyện nói giao tiếp",
-      "ielts": "Luyện thi IELTS"
-    },
-    "personal": {
-      "title": "Cá nhân",
-      "mywords": "Từ & câu đã lưu",
-      "weakness": "Chẩn đoán điểm yếu",
-      "account": "Tài khoản cá nhân",
-      "upgrade": "Nâng cấp gói Pro"
-    },
-    "support": {
-      "title": "Hỗ trợ",
-      "gettingStarted": "Hướng dẫn bắt đầu",
-      "faq": "Câu hỏi thường gặp",
-      "reportContent": "Báo lỗi nội dung",
-      "feedback": "Góp ý phát triển"
-    },
-    "aboutUs": {
-      "title": "Về LinguaLoop",
-      "brand": "Bộ nhận diện & Loopi",
-      "terms": "Điều khoản dịch vụ",
-      "privacy": "Chính sách bảo mật"
-    },
-    "copyright": "© 2026 LinguaLoop. Video bài học thuộc bản quyền của kênh gốc, chỉ dùng cho mục đích giáo dục.",
-    "status": "Hệ thống bình thường",
-    "languagePill": "Tiếng Việt (VN)"
   },
   "student": {
     "sidebar": {

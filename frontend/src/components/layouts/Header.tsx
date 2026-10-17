@@ -1,448 +1,192 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {
-  DEFAULT_LANGUAGE,
-  isLanguage,
-  setLanguage,
-  type Language,
-} from "@/i18n";
-import Logo from "@/components/common/Logo";
+import Button from "@/components/common/Button";
+import { buttonClasses } from "@/components/common/buttonStyles";
+import Icon from "@/components/common/Icon";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
-import ThemeToggle from "@/components/common/ThemeToggle";
-import {
-  ChevronDown,
-  Menu,
-  X,
-  Headphones,
-  Mic,
-  BookOpen,
-  Sparkles,
-  Layers,
-  GraduationCap,
-  TrendingUp,
-  LogIn,
-  LogOut,
-} from "lucide-react";
+import Logo from "@/components/common/Logo";
 import { useAuth } from "@/features/auth";
+import { useTheme } from "@/hooks/useTheme";
 
+interface NavEntry {
+  to: string;
+  icon: string;
+  /** Khoá trong `header.nav`. */
+  labelKey: string;
+  /** Màu chức năng của icon (DESIGN.v2 §3.2). */
+  iconClass: string;
+}
+
+interface MoreEntry {
+  to: string;
+  icon: string;
+  /** Khoá trong `header.more`. */
+  key: "lessons" | "weakness" | "test";
+  iconClass: string;
+}
+
+const NAV: NavEntry[] = [
+  { to: "/student/dictation", icon: "headphones", labelKey: "listening", iconClass: "text-fn-dictation" },
+  { to: "/student/shadowing", icon: "mic", labelKey: "pronunciation", iconClass: "text-fn-shadowing" },
+  { to: "/student/vocab", icon: "layers", labelKey: "vocabulary", iconClass: "text-fn-vocab" },
+];
+
+const MORE: MoreEntry[] = [
+  { to: "/student/lessons", icon: "library", key: "lessons", iconClass: "bg-primary-soft text-primary-text" },
+  { to: "/student/weakness", icon: "target", key: "weakness", iconClass: "bg-fn-assessment-soft text-fn-assessment" },
+  { to: "/student/test", icon: "file-check", key: "test", iconClass: "bg-fn-assessment-soft text-fn-assessment" },
+];
+
+const LINK =
+  "flex h-10 items-center gap-2 rounded-md px-3 text-[15px] font-medium transition-colors duration-150 [&>svg]:h-5 [&>svg]:w-5";
+const LINK_IDLE = "text-text-muted hover:bg-surface-hover hover:text-text";
+const LINK_ON = "bg-primary-soft text-text";
+
+/** Thanh trên của các trang công khai (trang chủ, bảng giá): cao 64, nền bg-base 82% + mờ như `.topbar` của mockup v2. */
 export default function Header() {
-  const { t, i18n } = useTranslation("layout");
+  const { t } = useTranslation("layout");
   const { isAuthenticated, handleLogout } = useAuth();
-  const lang: Language = isLanguage(i18n.resolvedLanguage) ? i18n.resolvedLanguage : DEFAULT_LANGUAGE;
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
+  const { pathname } = useLocation();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [prevPath, setPrevPath] = useState(pathname);
+  const moreRef = useRef<HTMLDivElement>(null);
 
-  const moreDropdownRef = useRef<HTMLDivElement>(null);
+  // Đổi trang thì đóng menu (điều chỉnh state ngay khi render, không cần effect).
+  if (pathname !== prevPath) {
+    setPrevPath(pathname);
+    setMoreOpen(false);
+    setMobileOpen(false);
+  }
 
-  // Close dropdowns on outside click
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        moreDropdownRef.current &&
-        !moreDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsMoreOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    if (!moreOpen) return;
+    const onPointerDown = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMoreOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [moreOpen]);
+
+  const themeButton = (
+    <Button variant="ghost" iconOnly onClick={toggleTheme} aria-label={t("theme.toggle")} title={isDark ? t("theme.toLight") : t("theme.toDark")}>
+      <Icon name={isDark ? "sun" : "moon"} />
+    </Button>
+  );
+
+  const authButton = isAuthenticated ? (
+    <Button variant="ghost" onClick={() => void handleLogout()} leftIcon={<Icon name="log-out" />}>
+      {t("header.logout")}
+    </Button>
+  ) : (
+    <Link to="/auth/login" className={buttonClasses({ variant: "ghost" })}>
+      {t("header.login")}
+    </Link>
+  );
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[var(--bg-base)]/90 backdrop-blur-md shadow-md border-b border-[var(--border)] supports-[backdrop-filter]:bg-[var(--bg-base)]/75 transition-colors duration-200">
-      <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
-        {/* Left: Brand Logo */}
-        <Link
-          to="/"
-          className="flex items-center shrink-0 group py-1 mr-4 lg:mr-8"
-          aria-label={t("header.homeLabel")}
-        >
-          <Logo size={34} showText={true} />
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-[color-mix(in_srgb,var(--bg-base)_82%,transparent)] backdrop-blur-[12px]">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
+        <Link to="/" className="mr-2 flex shrink-0 items-center lg:mr-6" aria-label={t("header.homeLabel")}>
+          <Logo size={34} showText />
         </Link>
 
-        {/* Center: Desktop Navigation Links */}
-        <nav
-          className="hidden lg:flex items-center gap-1 xl:gap-2 mr-auto"
-          aria-label={t("header.mainMenu")}
-        >
-          {/* Listening */}
-          <div className="relative">
-            <NavLink
-              to="/student/dictation"
-              className={({ isActive }) =>
-                `flex relative items-center gap-2 text-sm font-medium transition-all py-1.5 px-3 h-10 rounded-lg ${
-                  isActive
-                    ? "bg-[var(--surface-hover)] text-white shadow-sm"
-                    : "text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-white"
-                }`
-              }
-            >
-              <Headphones className="w-4 h-4 text-fn-dictation shrink-0" />
-              <span>{t("header.nav.listening")}</span>
+        <nav className="hidden flex-1 items-center gap-1 lg:flex" aria-label={t("header.mainMenu")}>
+          {NAV.map((item) => (
+            <NavLink key={item.to} to={item.to} className={({ isActive }) => `${LINK} ${isActive ? LINK_ON : LINK_IDLE}`}>
+              <Icon name={item.icon} className={item.iconClass} />
+              {t(`header.nav.${item.labelKey}`)}
             </NavLink>
-          </div>
+          ))}
 
-          {/* Pronunciation */}
-          <div className="relative">
-            <NavLink
-              to="/student/shadowing"
-              className={({ isActive }) =>
-                `flex relative items-center gap-2 text-sm font-medium transition-all py-1.5 px-3 h-10 rounded-lg ${
-                  isActive
-                    ? "bg-[var(--surface-hover)] text-white shadow-sm"
-                    : "text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-white"
-                }`
-              }
-            >
-              <Mic className="w-4 h-4 text-fn-shadowing shrink-0" />
-              <span>{t("header.nav.pronunciation")}</span>
-            </NavLink>
-          </div>
-
-          {/* Vocabulary */}
-          <div className="relative">
-            <NavLink
-              to="/student/vocab"
-              className={({ isActive }) =>
-                `flex relative items-center gap-2 text-sm font-medium transition-all py-1.5 px-3 h-10 rounded-lg ${
-                  isActive
-                    ? "bg-[var(--surface-hover)] text-white shadow-sm"
-                    : "text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-white"
-                }`
-              }
-            >
-              <BookOpen className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>{t("header.nav.vocabulary")}</span>
-            </NavLink>
-          </div>
-
-          {/* Speaking */}
-          {/* <div className="relative">
-              <NavLink
-                to="/practice-english-speaking"
-                className={({ isActive }) =>
-                  `flex relative items-center gap-2 text-sm font-medium transition-all py-1.5 px-3 h-10 rounded-lg ${
-                    isActive
-                      ? "bg-[var(--surface-hover)] text-white shadow-sm"
-                      : "text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-white"
-                  }`
-                }
-              >
-                <MessageSquare className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span>Speaking</span>
-              </NavLink>
-            </div> */}
-
-          {/* IELTS Exams with NEW Badge */}
-          {/* <div className="relative">
-              <NavLink
-                to="/exams/ielts"
-                className={({ isActive }) =>
-                  `flex relative items-center gap-2 text-sm font-medium transition-all py-1.5 px-3 h-10 rounded-lg pr-9 ${
-                    isActive
-                      ? "bg-[var(--surface-hover)] text-white shadow-sm"
-                      : "text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-white"
-                  }`
-                }
-              >
-                <Award className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>IELTS Exams</span>
-                <span className="inline-flex absolute top-1.5 right-1.5 items-center rounded-full bg-danger px-1.5 py-0.5 text-[9px] font-bold leading-none text-white shadow-sm animate-pulse tracking-wide">
-                  NEW
-                </span>
-              </NavLink>
-            </div> */}
-
-          {/* More Dropdown */}
-          <div className="relative" ref={moreDropdownRef}>
+          <div className="relative" ref={moreRef}>
             <button
               type="button"
-              onClick={() => setIsMoreOpen(!isMoreOpen)}
-              className={`relative flex items-center gap-1 text-sm font-medium transition-colors py-1.5 px-3 h-10 rounded-lg ${
-                isMoreOpen
-                  ? "bg-[var(--surface-hover)] text-white"
-                  : "text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-white"
-              }`}
+              onClick={() => setMoreOpen((v) => !v)}
               aria-haspopup="menu"
-              aria-expanded={isMoreOpen}
+              aria-expanded={moreOpen}
+              className={`${LINK} cursor-pointer border-0 bg-transparent ${moreOpen ? LINK_ON : LINK_IDLE}`}
             >
-              <span>{t("header.nav.more")}</span>
-              <ChevronDown
-                className={`h-4 w-4 transition-transform duration-200 ${isMoreOpen ? "rotate-180" : ""}`}
-              />
+              {t("header.nav.more")}
+              <Icon name="chevron-down" className={`transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`} />
             </button>
-
-            {/* Dropdown Menu */}
-            {isMoreOpen && (
-              <div className="absolute left-0 mt-2 w-64 rounded-xl bg-[var(--surface)] border border-[var(--border-strong)] shadow-xl p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                <Link
-                  to="/student/lessons"
-                  onClick={() => setIsMoreOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--text)] hover:bg-[var(--surface-hover)] transition-colors group"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-primary-soft flex items-center justify-center text-primary-text group-hover:scale-110 transition-transform">
-                    <Layers className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-medium">
-                      {t("header.more.lessons.title")}
-                    </div>
-                    <div className="text-xs text-[var(--text-subtle)]">
-                      {t("header.more.lessons.desc")}
-                    </div>
-                  </div>
-                </Link>
-
-                <Link
-                  to="/student/weakness"
-                  onClick={() => setIsMoreOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--text)] hover:bg-[var(--surface-hover)] transition-colors group"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-danger/10 flex items-center justify-center text-danger group-hover:scale-110 transition-transform">
-                    <TrendingUp className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-medium">
-                      {t("header.more.weakness.title")}
-                    </div>
-                    <div className="text-xs text-[var(--text-subtle)]">
-                      {t("header.more.weakness.desc")}
-                    </div>
-                  </div>
-                </Link>
-
-                <Link
-                  to="/student/test"
-                  onClick={() => setIsMoreOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--text)] hover:bg-[var(--surface-hover)] transition-colors group"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
-                    <GraduationCap className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-medium">
-                      {t("header.more.test.title")}
-                    </div>
-                    <div className="text-xs text-[var(--text-subtle)]">
-                      {t("header.more.test.desc")}
-                    </div>
-                  </div>
-                </Link>
+            {moreOpen && (
+              <div role="menu" className="absolute left-0 top-full z-50 mt-2 w-72 animate-[menu-in_0.15s_ease-out] rounded-lg border border-border-strong bg-surface p-2 shadow-[var(--shadow-card)]">
+                {MORE.map((m) => (
+                  <Link key={m.to} to={m.to} role="menuitem" className="flex items-center gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-surface-hover">
+                    <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-sm ${m.iconClass}`}>
+                      <Icon name={m.icon} className="text-xl" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[15px] font-medium text-text">{t(`header.more.${m.key}.title`)}</span>
+                      <span className="block text-[13px] leading-normal text-text-subtle">{t(`header.more.${m.key}.desc`)}</span>
+                    </span>
+                  </Link>
+                ))}
               </div>
             )}
           </div>
         </nav>
 
-        {/* Right Side Actions: Streak, Theme Toggle, Language, Login */}
-        <div className="hidden lg:flex items-center space-x-2.5 shrink-0">
-          <nav className="flex items-center space-x-2">
-            {/* Streak Counter Pill */}
-            {/* <div
-              className="flex items-center gap-1.5 h-9 px-3 bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border)] rounded-full text-xs font-semibold text-[var(--warning)] cursor-pointer transition-colors shadow-sm"
-              title="Chuỗi 5 ngày học liên tiếp"
-            >
-              <Flame className="w-4 h-4 fill-[var(--warning)] text-[var(--warning)] animate-bounce" />
-              <span>5 ngày</span>
-            </div> */}
-
-            <ThemeToggle />
-
-            <LanguageSwitcher />
-
-            {/* Login / Logout Button */}
-            {isAuthenticated ? (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-[var(--border-strong)] hover:bg-[var(--surface-hover)] text-[var(--text)] h-9 px-3.5 py-1.5 text-sm font-medium transition-all cursor-pointer"
-              >
-                <LogOut className="w-4 h-4 text-[var(--text-subtle)]" />
-                <span>{t("header.logout", "Đăng xuất")}</span>
-              </button>
-            ) : (
-              <Link
-                to="/auth/login"
-                className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-[var(--border-strong)] hover:bg-[var(--surface-hover)] text-[var(--text)] h-9 px-3.5 py-1.5 text-sm font-medium transition-all"
-              >
-                <LogIn className="w-4 h-4 text-[var(--text-subtle)]" />
-                <span>{t("header.login")}</span>
-              </Link>
-            )}
-
-            {/* Quick Action: Start Learning */}
-            <Link
-              to="/student/lessons"
-              className="inline-flex items-center justify-center gap-1.5 h-9 px-4 text-sm font-semibold rounded-lg text-white shadow-sm transition-all hover:opacity-95 active:scale-[0.98]"
-              style={{ background: "var(--btn-primary)" }}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{t("header.start")}</span>
-            </Link>
-          </nav>
+        <div className="hidden shrink-0 items-center gap-2 lg:flex">
+          {themeButton}
+          <LanguageSwitcher heightClass="h-10" />
+          {authButton}
+          <Link to="/student/lessons" className={buttonClasses({})}>
+            <Icon name="sparkles" />
+            {t("header.start")}
+          </Link>
         </div>
 
-        {/* Mobile Header Controls */}
-        <div className="flex items-center gap-2 lg:hidden">
-          <ThemeToggle />
-
-          {/* Hamburger Menu Button */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-[var(--text-muted)] hover:text-white hover:bg-[var(--surface)] transition-colors border border-[var(--border)] size-9 flex items-center justify-center"
+        <div className="ml-auto flex items-center gap-2 lg:hidden">
+          {themeButton}
+          <Button
+            variant="ghost"
+            iconOnly
+            onClick={() => setMobileOpen((v) => !v)}
             aria-label={t("header.toggleMenu")}
+            aria-expanded={mobileOpen}
+            aria-controls="public-mobile-menu"
           >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
+            <Icon name={mobileOpen ? "x" : "menu"} />
+          </Button>
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-[var(--border-strong)] bg-[var(--bg-elevated)] px-4 py-4 space-y-3 animate-in fade-in slide-in-from-top-4 duration-200">
-          <nav className="flex flex-col space-y-1">
-            <Link
-              to="/student/dictation"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
-            >
-              <Headphones className="w-4 h-4 text-fn-dictation" />
-              <span>{t("header.nav.listening")}</span>
-            </Link>
-            <Link
-              to="/student/shadowing"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
-            >
-              <Mic className="w-4 h-4 text-fn-shadowing" />
-              <span>{t("header.nav.pronunciation")}</span>
-            </Link>
-            <Link
-              to="/student/vocab"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
-            >
-              <BookOpen className="w-4 h-4 text-amber-400" />
-              <span>{t("header.nav.vocabulary")}</span>
-            </Link>
-            {/* <Link
-              to="/practice-english-speaking"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
-            >
-              <MessageSquare className="w-4 h-4 text-cyan-400" />
-              <span>{t("header.nav.speaking")}</span>
-            </Link>
-            <Link
-              to="/exams/ielts"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)]"
-            >
-              <div className="flex items-center gap-3">
-                <Award className="w-4 h-4 text-emerald-400" />
-                <span>{t("header.nav.ielts")}</span>
-              </div>
-              <span className="inline-flex items-center rounded-full bg-danger px-1.5 py-0.5 text-[9px] font-bold leading-none text-white shadow-sm">
-                {t("header.badgeNew")}
-              </span>
-            </Link> */}
-
-            <div className="pt-2 border-t border-[var(--border)]">
-              <Link
-                to="/student/lessons"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--surface-hover)]"
-              >
-                <Layers className="w-4 h-4" />
-                <span>{t("header.more.lessons.title")}</span>
-              </Link>
-              <Link
-                to="/student/weakness"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--surface-hover)]"
-              >
-                <TrendingUp className="w-4 h-4" />
-                <span>{t("header.mobileWeakness")}</span>
-              </Link>
-              <Link
-                to="/student/test"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--surface-hover)]"
-              >
-                <GraduationCap className="w-4 h-4" />
-                <span>{t("header.more.test.title")}</span>
-              </Link>
-            </div>
+      {mobileOpen && (
+        <div id="public-mobile-menu" className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-bg-elevated px-4 py-4 lg:hidden">
+          <nav className="flex flex-col gap-1" aria-label={t("header.mainMenu")}>
+            {NAV.map((item) => (
+              <NavLink key={item.to} to={item.to} className={({ isActive }) => `${LINK} min-h-11 ${isActive ? LINK_ON : LINK_IDLE}`}>
+                <Icon name={item.icon} className={item.iconClass} />
+                {t(`header.nav.${item.labelKey}`)}
+              </NavLink>
+            ))}
+            <div className="my-2 h-px bg-border" />
+            {MORE.map((m) => (
+              <NavLink key={m.to} to={m.to} className={({ isActive }) => `${LINK} min-h-11 ${isActive ? LINK_ON : LINK_IDLE}`}>
+                <Icon name={m.icon} />
+                {t(`header.more.${m.key}.title`)}
+              </NavLink>
+            ))}
           </nav>
 
-          {/* Mobile Bottom Options */}
-          <div className="pt-3 border-t border-[var(--border)] flex flex-col gap-2.5">
-            <div className="flex items-center justify-between px-2">
-              <span className="text-xs text-[var(--text-subtle)] font-medium">
-                {t("common:language.display")}
-              </span>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => void setLanguage("vi")}
-                  className={`px-2 py-1 rounded text-xs font-medium ${
-                    lang === "vi"
-                      ? "bg-[var(--primary)] text-white"
-                      : "text-[var(--text-muted)] hover:bg-[var(--surface)]"
-                  }`}
-                >
-                  {t("common:language.names.vi")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void setLanguage("en")}
-                  className={`px-2 py-1 rounded text-xs font-medium ${
-                    lang === "en"
-                      ? "bg-[var(--primary)] text-white"
-                      : "text-[var(--text-muted)] hover:bg-[var(--surface)]"
-                  }`}
-                >
-                  {t("common:language.names.en")}
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              {isAuthenticated ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    void handleLogout();
-                  }}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)] text-center cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>{t("header.logout", "Đăng xuất")}</span>
-                </button>
-              ) : (
-                <Link
-                  to="/auth/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--text)] hover:bg-[var(--surface-hover)] text-center"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>{t("header.login")}</span>
-                </Link>
-              )}
-              <Link
-                to="/student/lessons"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-semibold text-center text-white shadow-sm transition-all hover:opacity-95 active:scale-[0.98]"
-                style={{ background: "var(--btn-primary)" }}
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>{t("header.learnNow")}</span>
+          <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4">
+            <LanguageSwitcher heightClass="h-11" />
+            <div className="grid grid-cols-2 gap-2">
+              {authButton}
+              <Link to="/student/lessons" className={buttonClasses({})}>
+                <Icon name="sparkles" />
+                {t("header.learnNow")}
               </Link>
             </div>
           </div>

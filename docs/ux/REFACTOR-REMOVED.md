@@ -37,3 +37,9 @@ Kiểm tra bằng cách dò import từ `main.tsx` (file nào không ai import t
 - Token `--ease-spring`, `--dur-fast`: thuộc DESIGN.v2.
 - Khoá `auth: settings.password.*`: được gọi động theo `prefix`.
 - Khoá số nhiều `_other`: i18next chọn theo `count`.
+
+## Đợt MainLayout (khung công khai)
+- `frontend/src/components/layouts/Footer.tsx` (300 dòng, chân trang kiểu cũ): thay bằng `AppFooter` của khung học viên.
+- `frontend/src/components/common/ThemeToggle.tsx`: chỉ `Header` cũ dùng; nay dùng nút `Button` giống thanh trên của khung.
+- Khoá i18n `layout`: toàn bộ nhóm `footer.*` (bản cũ; chân trang mới dùng `shell.footer.*`), `header.badgeNew`, `header.mobileWeakness`, `header.nav.speaking`, `header.nav.ielts`.
+- Trong `Header.tsx`: khối mã đã bị comment (Speaking, IELTS Exams, đếm chuỗi ngày) và các class màu tuỳ ý (`amber-400`, `cyan-400`, `bg-[var(--btn-primary)]` inline) bị bỏ khi viết lại.
