@@ -1,4 +1,12 @@
 spring:
+  # Đọc biến từ file .env (định dạng KEY=VALUE) để dùng được trong ${...} của mọi file yml, khỏi phải đặt
+  # từng biến vào IDE hay terminal. Mặc định tìm ./.env (chạy trong backend/) rồi backend/.env (chạy từ
+  # thư mục gốc); đặt DOTENV_DIR để chỉ định thư mục khác. Biến môi trường thật của hệ điều hành và tham số
+  # dòng lệnh luôn thắng .env. Thiếu file thì bỏ qua (CI, production). File .env bị .gitignore, không commit.
+  config:
+    import:
+      - optional:file:${DOTENV_DIR:.}/.env[.properties]
+      - optional:file:${DOTENV_DIR:backend}/.env[.properties]
   application:
     name: backend
   profiles:

@@ -352,6 +352,11 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<argLine>@{argLine} -Duser.timezone=UTC</argLine>
+					<!-- Test không đọc backend/.env của máy dev (application.yml import .env từ ${DOTENV_DIR}), để kết quả
+					     test giống nhau trên mọi máy và CI. Thư mục này không tồn tại nên import bị bỏ qua. -->
+					<environmentVariables>
+						<DOTENV_DIR>./khong-doc-dotenv-khi-test</DOTENV_DIR>
+					</environmentVariables>
 				</configuration>
 			</plugin>
 
