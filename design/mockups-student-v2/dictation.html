@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nghe chép — LinguaLoop v2</title>
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<script>
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll2-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="ported.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app-v2.css">
+<link rel="stylesheet" href="p2.css">
+<link rel="stylesheet" href="dictation.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+      <section class="view on" id="v-dictation" data-fn="dictation">
+    <div class="dc-head">
+      <div class="dc-title">
+        <button class="crumb" data-go="lesson" data-id="ordering-coffee" id="dCrumb"><i class="ph ph-arrow-left"></i><span>Bài học</span></button>
+        <div class="overline" id="dOver">Nghe chép</div>
+        <h1>Nghe rồi gõ lại</h1>
+      </div>
+      <div class="dc-tools">
+        <div class="seg" id="dLevel" role="group" aria-label="Mức độ">
+          <button data-lv="easy" title="Điền các từ còn thiếu (Alt+1)">Easy</button>
+          <button data-lv="normal" title="Gõ cả câu, có ô độ dài từng từ (Alt+2)">Normal</button>
+          <button data-lv="hard" title="Gõ cả câu, không biết số từ (Alt+3)">Hard</button>
+        </div>
+        <div class="dc-pop-wrap">
+          <button class="btn icon ghost" id="dSetBtn" data-act="dcPop" data-pop="dSetPop" aria-label="Cài đặt" aria-expanded="false"><i class="ph ph-gear"></i></button>
+          <div class="dc-pop" id="dSetPop" role="dialog" aria-label="Cài đặt nghe chép" hidden></div>
+        </div>
+        <div class="dc-pop-wrap">
+          <button class="btn icon ghost" id="dKeyBtn" data-act="dcPop" data-pop="dKeyPop" aria-label="Phím tắt" aria-expanded="false"><i class="ph ph-keyboard"></i></button>
+          <div class="dc-pop" id="dKeyPop" role="dialog" aria-label="Phím tắt" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dCoach"></div>
+
+    <div class="dc-grid">
+      <div class="dc-main">
+        <div class="dc-stage">
+          <div class="card dc-media" id="dMedia"></div>
+          <div class="card dc-work" id="dWork"></div>
+        </div>
+      </div>
+      <aside class="card dc-list" id="dListCard" aria-label="Bản chép các câu"></aside>
+    </div>
+  </section>
+
+</div></main>
+
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script src="sprite.js"></script>
+<script src="shell.js"></script>
+<script src="compat.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>Shell.init('dictation');</script>
+<script src="p2.js"></script>
+<script src="js/dictation.js"></script>
+</body>
+</html>

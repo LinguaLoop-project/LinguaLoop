@@ -1,173 +1,106 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import Icon from "@/components/common/Icon";
+import { toast } from "@/stores/toastStore";
+import { formatCount } from "@/lib/format";
 import type { LessonSummary } from "../types";
-import Badge from "../../../components/common/Badge";
-import GlassTag from "../../../components/common/GlassTag";
+import LessonThumb from "./LessonThumb";
+import ModeButton, { type PracticeMode } from "./ModeButton";
 
 interface LessonCardProps {
   lesson: LessonSummary;
+  /** Khi thư viện đang lọc theo một chế độ: chỉ hiện nút của chế độ đó. */
+  mode?: PracticeMode | "all";
 }
 
-const fmtNum = (n: number) => {
-  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `${(n / 1e3).toFixed(1)}k`;
-  return n.toString();
-};
-
-const formatDuration = (sec: number) => {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${s < 10 ? "0" : ""}${s}`;
-};
-
-export const LessonCard = ({ lesson }: LessonCardProps) => {
+/** Thẻ bài học (`.card.hover.l-card` trong mockup v2, DESIGN.v2 §7.2). */
+export const LessonCard = ({ lesson, mode = "all" }: LessonCardProps) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation("pages");
+  const locale = i18n.language === "vi" ? "vi-VN" : "en-US";
+  const open = (suffix = "") => navigate(`/student/lessons/${lesson.slug}${suffix}`);
+  const modeLabel = (m: PracticeMode) => t(`student.lessons.card.${m}`, m === "dictation" ? "Nghe chép" : "Shadowing");
 
-  const isPro = lesson.pro;
-  const isYouTube = lesson.sourceType?.toLowerCase() === "youtube";
-
-  const handleCardClick = () => {
-    navigate(`/student/lessons/${lesson.slug}`);
+  const start = (m: PracticeMode) => {
+    if (lesson.locked) {
+      toast(t("student.lessons.lockedToast", "Bài này dành cho gói Pro"), {
+        icon: "crown",
+        action: { label: t("student.lessons.tryPro", "Dùng thử Pro"), onClick: () => navigate("/pricing") },
+      });
+      return;
+    }
+    navigate(`/student/${m}/${lesson.slug}`);
   };
 
-  const handleStartMode = (
-    e: React.MouseEvent,
-    mode: "dictation" | "shadowing",
-  ) => {
-    e.stopPropagation();
-    navigate(`/student/lessons/${lesson.slug}?mode=${mode}`);
-  };
+  const modes: PracticeMode[] = mode === "all" ? ["dictation", "shadowing"] : [mode];
 
   return (
     <article
-      className=" group relative isolate flex flex-col overflow-hidden rounded-[20px] p-0 bg-surface border border-border shadow-[var(--shadow-card)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--primary)_65%,var(--border))] hover:shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_20px_45px_-15px_rgba(0,0,0,0.7),0_0_35px_color-mix(in_srgb,var(--primary)_45%,transparent),0_0_70px_color-mix(in_srgb,var(--primary)_35%,transparent),0_0_110px_color-mix(in_srgb,var(--primary)_20%,transparent)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary "
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-card)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--primary)_65%,var(--border))] hover:shadow-[0_20px_45px_-15px_rgba(0,0,0,0.5),0_0_30px_color-mix(in_srgb,var(--primary)_40%,transparent),0_0_70px_color-mix(in_srgb,var(--primary)_25%,transparent)] focus-visible:outline-2 focus-visible:outline-primary"
       data-lesson={lesson.slug}
       tabIndex={0}
-      aria-label={t("student.lessons.card.aria", {
-        title: lesson.title,
-        defaultValue: `Bài ${lesson.title}`,
-      })}
-      onClick={handleCardClick}
+      aria-label={t("student.lessons.card.aria", { title: lesson.title, defaultValue: `Bài ${lesson.title}` })}
+      onClick={() => open()}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
           e.preventDefault();
-          handleCardClick();
+          open();
         }
       }}
     >
-      {/* ── Thumbnail ── */}
-      <div className="relative aspect-video grid place-items-center isolate overflow-hidden border-b border-border bg-[radial-gradient(120%_100%_at_25%_10%,var(--primary-soft),transparent_60%)] bg-surface-hover">
-        {lesson.thumbnailUrl ? (
-          <img
-            src={lesson.thumbnailUrl}
-            alt={lesson.title}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            onError={(e) => {
-              (e.target as HTMLElement).style.display = "none";
-            }}
-          />
-        ) : (
-          <>
-            {/* ── 3D Orb Artwork Fallback (hiển thị khi không có thumbnail hoặc lỗi ảnh) ── */}
-            <div className="absolute inset-0 z-10 bg-primary-soft mix-blend-luminosity transition-opacity duration-250 pointer-events-none group-hover:opacity-0" />
-            <svg
-              className="absolute h-[74%] w-auto aspect-square left-1/2 top-[13%] -translate-x-1/2 transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
-              viewBox="0 0 200 200"
-              aria-hidden="true"
-            >
-              <use href="#o-orb" />
-            </svg>
-            <i
-              className="ph-duotone ph-headphones relative z-10 text-[42px] sm:text-[44px] text-accent drop-shadow-[0_0_14px_color-mix(in_srgb,var(--primary)_60%,transparent)] transition-transform duration-500 ease-out group-hover:scale-105"
-              aria-hidden="true"
-            />
-          </>
-        )}
-
-        {/* ── Corners ── */}
-        <div className="absolute z-30 top-2.5 left-2.5 flex items-center gap-1.5">
-          {isPro && (
-            <Badge variant="pro">
-              <i
-                className={`ph-fill ${lesson.locked ? "ph-lock-simple" : "ph-crown-simple"}`}
-              ></i>
-              PRO
-            </Badge>
-          )}
-          <GlassTag title={t("student.lessons.card.views", "Lượt học")}>
-            <i className="ph ph-headphones"></i>
-            {fmtNum(lesson.viewCount || 0)}
-          </GlassTag>
-        </div>
-
-        <div className="absolute z-30 top-2.5 right-2.5 flex items-center gap-1.5">
-          {lesson.difficulty && (
-            <Badge variant={String(lesson.difficulty)}>
-              {lesson.difficulty}
-            </Badge>
-          )}
-        </div>
-
-        <div className="absolute z-30 bottom-2.5 left-2.5 flex items-center gap-1.5">
-          <GlassTag>
-            {isYouTube ? (
-              <>
-                <i className="ph-fill ph-youtube-logo text-danger"></i>YouTube
-              </>
-            ) : (
-              <>
-                <i className="ph ph-waveform text-accent"></i>Audio
-              </>
-            )}
-          </GlassTag>
-        </div>
-
-        <div className="absolute z-30 bottom-2.5 right-2.5 flex items-center gap-1.5">
-          <GlassTag>
-            <i className="ph ph-clock"></i>
-            {formatDuration(lesson.durationSec ?? 0)}
-          </GlassTag>
-        </div>
-      </div>
-
-      {/* ── Body ── */}
-      <div className="flex-1 flex flex-col gap-1 p-3.5 pb-4 px-4 relative z-20">
-        <h3 className="font-body font-semibold text-[16px] sm:text-[17px] leading-[1.35] text-text line-clamp-2">
-          {lesson.title}
-        </h3>
-        <div className="text-xs sm:text-sm text-text-muted truncate">
+      <LessonThumb lesson={lesson} />
+      <div className="flex flex-1 flex-col gap-1 p-4">
+        <h3 className="line-clamp-2 text-lg font-bold leading-[1.35]">{lesson.title}</h3>
+        <div className="text-[13px] leading-normal text-text-muted">
           {i18n.language === "vi" && lesson.titleVi
             ? lesson.titleVi
-            : t("student.lessons.card.sentences", {
-                count: lesson.sentenceCount,
-                defaultValue: `${lesson.sentenceCount} câu`,
-              })}
+            : t("student.lessons.card.sentences", { count: lesson.sentenceCount, defaultValue: `${lesson.sentenceCount} câu` })}
         </div>
-        <div className="grid grid-cols-2 gap-2 mt-auto pt-3">
-          <button
-            className="relative flex items-center justify-center gap-1.5 min-h-10 px-2 rounded-md border border-border-strong text-xs sm:text-sm font-semibold text-text-muted hover:bg-primary-soft hover:border-primary hover:text-text transition-colors duration-150 cursor-pointer [&>i]:text-base sm:[&>i]:text-lg"
-            data-start="dictation"
-            data-lesson={lesson.slug}
-            aria-label={`${t("student.lessons.card.dictation", "Nghe chép")}: ${lesson.title}`}
-            onClick={(e) => handleStartMode(e, "dictation")}
-          >
-            <i className="ph ph-headphones"></i>
-            {t("student.lessons.card.dictation", "Nghe chép")}
-          </button>
-          <button
-            className="relative flex items-center justify-center gap-1.5 min-h-10 px-2 rounded-md border border-border-strong text-xs sm:text-sm font-semibold text-text-muted hover:bg-primary-soft hover:border-primary hover:text-text transition-colors duration-150 cursor-pointer [&>i]:text-base sm:[&>i]:text-lg"
-            data-start="shadowing"
-            data-lesson={lesson.slug}
-            aria-label={`${t("student.lessons.card.shadowing", "Shadowing")}: ${lesson.title}`}
-            onClick={(e) => handleStartMode(e, "shadowing")}
-          >
-            <i className="ph ph-microphone"></i>
-            {t("student.lessons.card.shadowing", "Shadowing")}
-          </button>
+        <span className="mt-1 flex items-center gap-2 text-[13px] text-text-subtle">
+          <Icon name="headphones" />
+          {t("student.lessons.card.viewsCount", {
+            count: formatCount(lesson.viewCount || 0, locale),
+            defaultValue: `${formatCount(lesson.viewCount || 0, locale)} lượt học`,
+          })}
+        </span>
+        <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
+          {modes.map((m) => {
+            const percent = m === "dictation" ? lesson.progress.dictationPercent : lesson.progress.shadowingPercent;
+            return (
+              <ModeButton
+                key={m}
+                mode={m}
+                label={modeLabel(m)}
+                ariaLabel={`${modeLabel(m)}: ${lesson.title}${percent > 0 ? `, ${percent}%` : ""}${lesson.locked ? ", Pro" : ""}`}
+                title={percent > 0 ? t("student.lessons.card.done", { percent, defaultValue: `Đã làm ${percent}%` }) : t("student.lessons.card.notStarted", "Chưa học")}
+                percent={percent}
+                locked={lesson.locked}
+                single={mode !== "all"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  start(m);
+                }}
+              />
+            );
+          })}
         </div>
       </div>
     </article>
   );
 };
+
+/** Khung chờ cùng hình dạng thẻ bài (`.skel-card`) để trang không nhảy bố cục khi dữ liệu về. */
+export const LessonCardSkeleton = () => (
+  <div aria-hidden="true" className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-card)]">
+    <div className="skeleton aspect-video bg-surface-hover" />
+    <div className="flex flex-col gap-2 p-4">
+      <div className="skeleton h-[18px] w-[85%] rounded-sm bg-surface-hover" />
+      <div className="skeleton h-3.5 w-[55%] rounded-sm bg-surface-hover" />
+      <div className="skeleton h-3 w-2/5 rounded-sm bg-surface-hover" />
+      <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
+        <div className="skeleton h-10 rounded-md bg-surface-hover" />
+        <div className="skeleton h-10 rounded-md bg-surface-hover" />
+      </div>
+    </div>
+  </div>
+);

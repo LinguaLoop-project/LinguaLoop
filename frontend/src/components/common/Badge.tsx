@@ -24,60 +24,60 @@ export interface BadgeProps {
   tone?: BadgeTone;
   children: React.ReactNode;
   className?: string;
+  /** Nền tối đặc có viền màu, dùng trên ảnh bìa để dễ đọc. */
+  solid?: boolean;
 }
 
-const Badge = ({ variant = "default", tone, children, className = "" }: BadgeProps) => {
-  const getVariantClasses = () => {
-    const key = variant?.toString().toUpperCase() || "DEFAULT";
+/** Màu của huy hiệu: chữ theo `--_c`, nền là `--_c` pha 14% (`.badge` trong mockup v2). Class viết nguyên văn để Tailwind nhận ra. */
+const TONE = {
+  success: "[--_c:var(--success)]",
+  info: "[--_c:var(--info)]",
+  accent: "[--_c:var(--accent-2)]",
+  warning: "[--_c:var(--warning)]",
+  danger: "[--_c:var(--danger)]",
+  primary: "[--_c:var(--primary-text)]",
+  muted: "[--_c:var(--text-muted)]",
+} as const;
 
-    switch (key) {
-      case "PRO":
-        return "bg-gradient-to-r from-purple-500 via-purple-400 to-pink-400 text-white shadow-[0_2px_8px_color-mix(in_srgb,var(--primary)_35%,transparent)]";
+function toneOf(variant: string, tone?: BadgeTone) {
+  switch (variant.toUpperCase()) {
+    case "A1":
+    case "A2":
+    case "BEGINNER":
+    case "SUCCESS":
+      return TONE.success;
+    case "B1":
+    case "B2":
+    case "INTERMEDIATE":
+    case "MID":
+    case "INFO":
+      return TONE.info;
+    case "C1":
+    case "C2":
+    case "ADVANCED":
+    case "ADV":
+    case "ACCENT":
+      return TONE.accent;
+    case "PRO":
+    case "WARNING":
+      return TONE.warning;
+    case "DANGER":
+      return TONE.danger;
+    case "PRIMARY":
+      return TONE.primary;
+    default:
+      return tone ? TONE[tone === "accent" ? "accent" : tone] : TONE.muted;
+  }
+}
 
-      // ── CEFR Difficulty Levels ──
-      case "A1":
-      case "A2":
-      case "BEGINNER":
-        return "bg-[color-mix(in_srgb,var(--success)_24%,var(--bg-base))] text-success border border-success/60 shadow-[0_2px_8px_color-mix(in_srgb,var(--success)_25%,transparent)] font-black";
-
-      case "B1":
-      case "B2":
-      case "INTERMEDIATE":
-      case "MID":
-        return "bg-[color-mix(in_srgb,var(--info)_24%,var(--bg-base))] text-info border border-info/60 shadow-[0_2px_8px_color-mix(in_srgb,var(--info)_25%,transparent)] font-black";
-
-      case "C1":
-      case "C2":
-      case "ADVANCED":
-      case "ADV":
-        return "bg-[color-mix(in_srgb,var(--accent-2)_24%,var(--bg-base))] text-accent-2 border border-accent-2/60 shadow-[0_2px_8px_color-mix(in_srgb,var(--accent-2)_25%,transparent)] font-black";
-
-      case "SUCCESS":
-        return "bg-[color-mix(in_srgb,var(--success)_20%,var(--bg-base))] text-success border border-success/40";
-      case "WARNING":
-        return "bg-[color-mix(in_srgb,var(--warning)_20%,var(--bg-base))] text-warning border border-warning/40";
-      case "DANGER":
-        return "bg-[color-mix(in_srgb,var(--danger)_20%,var(--bg-base))] text-danger border border-danger/40";
-      case "INFO":
-        return "bg-[color-mix(in_srgb,var(--info)_20%,var(--bg-base))] text-info border border-info/40";
-      case "PRIMARY":
-        return "bg-[color-mix(in_srgb,var(--primary)_20%,var(--bg-base))] text-accent border border-primary/40";
-      case "ACCENT":
-        return "bg-[color-mix(in_srgb,var(--accent-2)_20%,var(--bg-base))] text-accent-2 border border-accent-2/40";
-      default:
-        return tone 
-          ? `bg-[color-mix(in_srgb,var(--${tone})_20%,var(--bg-base))] text-[var(--${tone})] border border-[var(--${tone})]/40`
-          : "bg-[color-mix(in_srgb,var(--bg-base)_80%,transparent)] text-text border border-border backdrop-blur-md";
-    }
-  };
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1 h-[26px] px-2.5 rounded-md text-xs tracking-[0.06em] whitespace-nowrap backdrop-blur-md ${getVariantClasses()} ${className}`}
-    >
-      {children}
-    </span>
-  );
-};
+const Badge = ({ variant = "default", tone, children, className = "", solid = false }: BadgeProps) => (
+  <span
+    className={`inline-flex h-6 items-center gap-1 whitespace-nowrap rounded-sm px-2 text-xs font-bold text-[var(--_c)] ${
+      solid ? "border border-[var(--_c)] bg-[#0B0B14]/90 shadow-[0_1px_4px_rgba(0,0,0,.4)]" : "bg-[color-mix(in_srgb,var(--_c)_14%,transparent)] font-semibold"
+    } [&>svg]:h-3.5 [&>svg]:w-3.5 ${toneOf(String(variant), tone)} ${className}`}
+  >
+    {children}
+  </span>
+);
 
 export default Badge;

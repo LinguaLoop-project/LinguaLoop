@@ -7,6 +7,7 @@ import type { ApiError } from "../types";
 import { EMAIL_RE } from "../validations/authSchemas";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
+import { TextField } from "@/components/common/TextField";
 
 type VerifyStatus = "loading" | "verified" | "already" | "invalid_link" | "error";
 
@@ -92,7 +93,7 @@ const VerifyEmail = () => {
             role="status"
             aria-label={t("verify.verifying")}
           />
-          <h1 className="text-2xl font-bold font-display text-text">
+          <h1 className="text-[30px] font-bold leading-[48px] text-text">
             {t("verify.verifyingTitle")}
           </h1>
         </>
@@ -101,7 +102,7 @@ const VerifyEmail = () => {
       {(status === "verified" || status === "already") && (
         <>
           <img
-            src="/loopi-hello.svg"
+            src="/mascot/loopi-hello.svg"
             width={120}
             height={120}
             alt=""
@@ -109,17 +110,17 @@ const VerifyEmail = () => {
             className="select-none pointer-events-none"
           />
           <div>
-            <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+            <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
               {status === "verified"
                 ? t("verify.success")
                 : t("verify.alreadyOverline")}
             </span>
-            <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+            <h1 className="text-[30px] font-bold leading-[48px] text-text">
               {status === "verified"
                 ? t("verify.verifiedTitle")
                 : t("verify.alreadyTitle")}
             </h1>
-            <p className="text-[15px] text-text-muted mt-1 leading-relaxed">
+            <p className="text-[15px] text-text-muted leading-relaxed">
               {status === "verified"
                 ? t("verify.verifiedDesc")
                 : t("verify.alreadyDesc")}
@@ -142,10 +143,10 @@ const VerifyEmail = () => {
           </FormAlert>
 
           <div>
-            <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+            <h1 className="text-[30px] font-bold leading-[48px] text-text">
               {t("verify.resendTitle")}
             </h1>
-            <p className="text-[15px] text-text-muted mt-1 leading-relaxed">
+            <p className="text-[15px] text-text-muted leading-relaxed">
               {t("verify.resendDesc")}
             </p>
           </div>
@@ -155,42 +156,20 @@ const VerifyEmail = () => {
             onSubmit={handleResend}
             noValidate
           >
-            <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="vfEmail"
-                className="text-[13px] font-semibold text-text"
-              >
-                {t("verify.email")}
-              </label>
-              <div
-                className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-                  emailError
-                    ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
-                    : "border-border"
-                }`}
-              >
-                <i className="ph ph-envelope-simple text-lg text-text-subtle mr-2.5 shrink-0" />
-                <input
-                  id="vfEmail"
-                  type="email"
-                  autoComplete="email"
-                  placeholder={t("verify.emailPlaceholder")}
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (emailError) setEmailError(null);
-                  }}
-                  className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-                />
-              </div>
-              {emailError && (
-                <p className="text-xs font-medium text-danger mt-0.5">
-                  {emailError === "format"
-                    ? t("validation.emailFormat")
-                    : errorMessage(emailError)}
-                </p>
-              )}
-            </div>
+            <TextField
+              id="vfEmail"
+              label={t("verify.email")}
+              icon="mail"
+              type="email"
+              autoComplete="email"
+              placeholder={t("verify.emailPlaceholder")}
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) setEmailError(null);
+              }}
+              error={emailError ? (emailError === "format" ? t("validation.emailFormat") : errorMessage(emailError)) : undefined}
+            />
             <Button
               type="submit"
               variant="primary"
@@ -206,7 +185,7 @@ const VerifyEmail = () => {
           <p className="text-[13px] text-text-muted">
             <Link
               to="/auth/login"
-              className="text-accent hover:underline font-medium"
+              className="font-semibold text-primary-text hover:underline"
             >
               {t("verify.backToLogin")}
             </Link>

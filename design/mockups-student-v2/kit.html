@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bộ component — LinguaLoop v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<style> body::before { display: none; } .page { max-width: 1280px; margin: 0 auto; padding: 24px; } </style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head"><div><div class="overline">Mockup v2 · bước B</div><h1 class="h1">Bộ component</h1>
+    <p class="muted">Mỗi cột hiển thị cùng một bộ ở chế độ tối và sáng. Nguồn: DESIGN.v2 §2, §7, §8.</p></div></div>
+  <div class="kit-grid" id="kit"></div>
+</div>
+
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script>
+  const ic = (n, c = 'ic') => `<i data-lucide="${n}" class="${c}"></i>`;
+  const panel = (theme) => `
+  <section class="kit-panel" data-theme="${theme}">
+    <h2 class="h2">${theme === 'dark' ? 'Chế độ tối' : 'Chế độ sáng'}</h2>
+
+    <div class="overline mt24">Màu chức năng</div>
+    <div class="row g8 wrap mt8">
+      <div class="swatch fn-primary" style="flex:1">Bài học</div>
+      <div class="swatch fn-dictation" style="flex:1">Nghe chép</div>
+      <div class="swatch fn-shadowing" style="flex:1">Shadowing</div>
+      <div class="swatch fn-vocab" style="flex:1">Từ vựng</div>
+      <div class="swatch fn-assessment" style="flex:1">Đánh giá</div>
+    </div>
+
+    <div class="overline mt24">Nút</div>
+    <div class="row g12 wrap mt8">
+      <button class="btn primary">${ic('play')}Primary</button>
+      <button class="btn fn fn-dictation">${ic('headphones')}Nghe chép</button>
+      <button class="btn fn fn-shadowing">${ic('mic')}Shadowing</button>
+      <button class="btn fn fn-vocab">${ic('layers')}Từ vựng</button>
+      <button class="btn">Secondary</button>
+      <button class="btn ghost">Ghost</button>
+      <button class="btn icon ghost" aria-label="Âm lượng">${ic('volume-2')}</button>
+      <button class="btn primary" disabled>Disabled</button>
+    </div>
+
+    <div class="overline mt24">Huy hiệu</div>
+    <div class="row g8 wrap mt8">
+      <span class="badge cefr-a">A2</span><span class="badge cefr-b">B1</span><span class="badge cefr-c">C1</span>
+      <span class="badge pro">${ic('crown')}PRO</span>
+      <span class="badge ok">${ic('circle-check')}Đúng</span><span class="badge bad">${ic('circle-x')}Sai</span><span class="badge warn">${ic('triangle-alert')}Cảnh báo</span>
+      <span class="badge fn fn-dictation">${ic('headphones')}Nghe chép</span>
+      <span class="badge fn fn-shadowing">${ic('mic')}Shadowing</span>
+    </div>
+
+    <div class="overline mt24">Tiến độ</div>
+    <div class="col g12 mt8">
+      <div class="bar fn-dictation"><i style="--v:70%"></i></div>
+      <div class="bar fn-shadowing"><i style="--v:45%"></i></div>
+      <div class="bar fn-primary"><i style="--v:20%"></i></div>
+    </div>
+
+    <div class="overline mt24">Phân đoạn · input</div>
+    <div class="row g12 wrap mt8">
+      <div class="seg"><button class="on">Tất cả</button><button>Đang học</button><button>Đã xong</button></div>
+      <span class="chip">${ic('tag')}present</span>
+    </div>
+    <div class="field mt16"><label>Email</label><input class="input" placeholder="ban@email.com"><span class="hint">Gợi ý nhỏ dưới ô nhập</span></div>
+    <div class="field mt16"><label>Mật khẩu</label><input class="input err" value="123"><span class="hint err">${ic('circle-alert')}Mật khẩu cần ít nhất 8 ký tự</span></div>
+
+    <div class="overline mt24">Phản hồi học tập</div>
+    <div class="col g12 mt8">
+      <div class="card row g12" style="border-color:var(--success)"><span style="color:var(--success)">${ic('circle-check', 'ic-lg')}</span><div><b>Chính xác</b><div class="small muted">Đúng cả câu, giữ chuỗi nhé!</div></div></div>
+      <div class="card row g12" style="border-color:var(--danger)"><span style="color:var(--danger)">${ic('circle-x', 'ic-lg')}</span><div><b>Chưa đúng</b><div class="small muted">Bạn bỏ sót từ “a”. Thử lại nhé.</div></div></div>
+    </div>
+
+    <div class="overline mt24">Mascot</div>
+    <div class="row g12 mt8">
+      ${['hello','listening','speaking','correct','encourage','celebrate'].map(m => `<img src="../loopi-mascot/svg/loopi-${m}.svg" alt="Loopi ${m}" width="64" height="64">`).join('')}
+    </div>
+
+    <div class="overline mt24">Bảng gọn (giáo viên/admin)</div>
+    <table class="table mt8"><thead><tr><th>Bài</th><th>Cấp</th><th>Câu</th></tr></thead>
+      <tbody><tr><td>Ordering Coffee</td><td><span class="badge cefr-a">A2</span></td><td>12</td></tr>
+      <tr><td>Airport Check-in</td><td><span class="badge cefr-b">B1</span></td><td>18</td></tr></tbody></table>
+  </section>`;
+  document.getElementById('kit').innerHTML = panel('dark') + panel('light');
+  lucide.createIcons();
+</script>
+</body>
+</html>

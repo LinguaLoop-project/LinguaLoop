@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hôm nay — LinguaLoop v2</title>
+<meta name="description" content="Kế hoạch mỗi ngày, chuỗi ngày học, điểm yếu tuần này.">
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<script>
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll2-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app-v2.css">
+</head>
+<body>
+<main class="main"><div class="wrap">
+
+  <div class="page-head rv">
+    <div><div class="overline">Thứ Hai · 28/09/2026</div><h1 class="h1" id="greet"></h1></div>
+    <button class="ux-btn" data-ux="today"><i data-lucide="lightbulb" class="ic"></i>Ghi chú UX</button>
+  </div>
+
+  <section class="card glass hero fn-primary rv" aria-label="Kế hoạch hôm nay">
+    <div id="heroMascot"></div>
+    <div>
+      <span class="bubble" id="bubble"></span>
+      <h2 class="hero-title" id="heroTitle"></h2>
+      <p class="muted mt8" id="heroText">Làm liền một mạch, không phải chọn gì cả. Xong bài này hệ thống tự chuyển sang bài tiếp theo.</p>
+      <div class="row wrap mt24">
+        <button class="btn primary lg" data-act="startFocus" id="startBtn"></button>
+        <button class="btn ghost lg" id="durBtn"></button>
+      </div>
+    </div>
+    <div id="heroRing"></div>
+  </section>
+
+  <div class="g-main">
+    <section class="card rv" aria-label="Các việc hôm nay">
+      <div class="row between"><h3 class="h3">Các việc hôm nay</h3><span class="small muted" id="planMeta"></span></div>
+      <div class="mt16" id="taskList"></div>
+    </section>
+
+    <div class="col g24">
+      <section class="card rv" aria-label="Chuỗi ngày học">
+        <div class="row between"><span class="overline">Chuỗi ngày học</span><span class="small muted" id="bestLbl">Kỷ lục 12</span></div>
+        <div class="streak-head"><span id="flame"></span><span class="big-num num" id="streakBig"></span><span class="muted">ngày liên tiếp</span></div>
+        <div class="days" id="streakDays"></div>
+        <p class="small muted mt16" id="streakHint"></p>
+      </section>
+
+      <section class="card rv fn-assessment" aria-label="Điểm yếu tuần này">
+        <div class="row between"><h3 class="h3">Điểm yếu tuần này</h3><button class="btn text sm" data-go="weakness">Xem hết<i data-lucide="arrow-right" class="ic arr"></i></button></div>
+        <div class="col g16 mt16" id="weak"></div>
+      </section>
+
+      <section class="card rv fn-assessment" aria-label="Trình độ">
+        <div class="row between"><h3 class="h3">Trình độ</h3><button class="btn text sm" data-go="test">Kiểm tra lại<i data-lucide="arrow-right" class="ic arr"></i></button></div>
+        <div class="col g12 mt16" id="levels"></div>
+        <p class="small muted mt16">Kiểm tra lại sau 6 ngày nữa</p>
+      </section>
+    </div>
+  </div>
+
+</div></main>
+
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script src="shell.js"></script>
+<script src="compat.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>
+  Shell.init('today');
+  let ST = qs().get('state') || 'normal';
+  const FN_OF = { vocab: 'vocab', shadowing: 'shadowing', dictation: 'dictation' };
+  const DAYS = ['T3', 'T4', 'T5', 'T6', 'T7', 'CN', 'T2'];
+  const WEAK = [['/θ/ think', 42], ['/ð/ this', 35], ['Từ chức năng', 31]];
+  const LEVELS = [['book-open-text', 'Từ vựng', 'B1', 'b'], ['headphones', 'Nghe chép', 'A2', 'a'], ['mic', 'Nói', 'B1', 'b']];
+
+  function heroWords() {
+    const t = $('#heroTitle'), words = `Kế hoạch ${state.dur} phút`.split(' ');
+    t.innerHTML = words.map((w, i) => `<span class="w" style="animation-delay:${100 + i * 70}ms">${esc(w)}</span>`).join(' ');
+  }
+  let lastDone = state.done.size;
+  function renderNewUser() {
+    $('#greet').textContent = 'Chào mừng, ' + ME.name;
+    $('#heroMascot').innerHTML = mascot('hello', 168, 'breathe');
+    $('#bubble').textContent = 'Mình là Loopi! Mình sẽ lập kế hoạch học riêng cho bạn.';
+    $('#heroTitle').innerHTML = 'Bắt đầu bằng bài kiểm tra 5 phút';
+    $('#heroText').textContent = 'Bài kiểm tra giúp Loopi biết bạn đang ở trình độ nào để chọn bài và đặt kế hoạch mỗi ngày. Bạn cũng có thể thử một bài ngắn trước.';
+    const sb = $('#startBtn'); sb.removeAttribute('data-act'); sb.setAttribute('data-go', 'test'); sb.disabled = false;
+    sb.innerHTML = `${icon('file-check')}Làm bài kiểm tra trình độ`;
+    $('#durBtn').classList.add('state-hide'); $('#heroRing').innerHTML = '';
+    const steps = [
+      ['assessment', 'file-check', 'Làm bài kiểm tra trình độ', 'Khoảng 5 phút, giúp Loopi lập kế hoạch hợp với bạn', 'test', null],
+      ['dictation', 'headphones', 'Thử một bài nghe chép ngắn', 'Bài A1 dưới 2 phút, chưa cần kiểm tra trình độ', 'lessons', 'dictation'],
+      ['vocab', 'bookmark', 'Lưu từ đầu tiên của bạn', 'Từ đã lưu sẽ vào lịch ôn thẻ để không quên', 'lessons', null],
+    ];
+    $('#planMeta').textContent = '0/3 bước';
+    $('#taskList').innerHTML = steps.map(([fn, ic, t, why, go, id], i) => `<div class="onboard-step fn-${fn}${i === 0 ? ' next' : ''}">
+      <span class="num">${i + 1}</span><div><div class="t-title">${t}</div><div class="why">${icon('lightbulb')}${why}</div></div>
+      <button class="btn sm ${i === 0 ? 'fn' : 'ghost'}" data-go="${go}"${id ? ` data-id="${id}"` : ''}>${i === 0 ? 'Bắt đầu' : 'Mở'}${icon('arrow-right', 'ic arr')}</button></div>`).join('');
+    $('#streakBig').textContent = 0; $('#streakNum').textContent = 0; $('#bestLbl').textContent = 'Chưa có kỷ lục';
+    $('#flame').innerHTML = icon('flame', 'flame ic-lg');
+    $('#streakDays').innerHTML = DAYS.map((d, i) => `<div class="${i === 6 ? 'today' : ''}"><b></b>${d}</div>`).join('');
+    $('#streakHint').textContent = 'Làm xong một việc để bắt đầu chuỗi ngày học đầu tiên.';
+    $('#weak').innerHTML = `<div class="empty-mini">${mascot('listening', 56)}<p class="small muted">Chưa đủ dữ liệu. Luyện khoảng 5 câu, Loopi sẽ chỉ ra âm và loại lỗi bạn hay gặp.</p></div>`;
+    $('#levels').innerHTML = `<div class="empty-mini">${icon('file-check', 'ic-lg')}<p class="small muted">Chưa có trình độ. Làm bài kiểm tra để biết bạn ở mức A1 đến C2.</p></div>`;
+    refreshIcons();
+  }
+  function renderToday() {
+    if (ST === 'new') { renderNewUser(); return; }
+    const total = PLAN.reduce((a, t) => a + t.min, 0), doneMin = PLAN.filter(t => state.done.has(t.id)).reduce((a, t) => a + t.min, 0);
+    const nextIdx = PLAN.findIndex(t => !state.done.has(t.id)), all = nextIdx === -1, n = state.done.size;
+    const mood = all ? 'celebrate' : n ? 'correct' : 'hello';
+    $('#greet').textContent = 'Chào ' + ME.name;
+    $('#heroMascot').innerHTML = mascot(mood, 168, 'breathe' + (n !== lastDone ? ' react' : ''));
+    lastDone = n;
+    $('#bubble').textContent = all ? 'Xong hết rồi! Mai mình gặp lại nhé.' : n ? `Tốt lắm! Còn ${PLAN.length - n} việc nữa thôi.` : `Chào ${ME.name}! Hôm nay mình sửa âm /θ/ nhé.`;
+    $('#startBtn').innerHTML = all ? `${icon('circle-check')}Đã xong hôm nay` : `${icon('play', 'ic fill')}${state.focus ? 'Phiên đang chạy' : n ? 'Tiếp tục phiên' : 'Bắt đầu phiên'}`;
+    $('#startBtn').disabled = all;
+    $('#durBtn').innerHTML = `${icon('timer')}<span>${state.dur} phút</span>`;
+    ring($('#heroRing'), doneMin, { size: 148, max: total, label: `/ ${total} phút`, fn: 'fn-primary' });
+    $('#planMeta').textContent = `${n}/${PLAN.length} việc`;
+
+    $('#taskList').innerHTML = PLAN.map((t, i) => {
+      const d = state.done.has(t.id), nx = i === nextIdx;
+      return `<div class="task fn-${FN_OF[t.go] || 'primary'}${d ? ' done' : ''}${nx ? ' next' : ''}">
+        <div class="dot">${icon(d ? 'circle-check' : t.icon, 'ic-lg')}</div>
+        <div><div class="t-title">${esc(t.title)}</div><div class="why">${icon('lightbulb')}${esc(t.why)} · ${t.min} phút</div></div>
+        <button class="btn sm ${nx ? 'fn' : 'ghost'}" data-task="${t.id}">${d ? 'Làm lại' : 'Bắt đầu' + icon('arrow-right', 'ic arr')}</button>
+      </div>`;
+    }).join('') + (all ? `<div class="tipbox">${icon('party-popper', 'ic-lg')}<span>Xong kế hoạch hôm nay! Muốn học thêm? Thử <b>Kiểm tra trình độ</b> hoặc ôn thêm thẻ.</span></div>` : '');
+
+    const streak = streakNow(), on = [0, 0, 1, 1, 1, 1, n > 0 ? 1 : 0];
+    $('#streakBig').textContent = streak;
+    $('#flame').innerHTML = icon('flame', 'flame ic-lg');
+    $('#streakDays').innerHTML = DAYS.map((d, i) => `<div class="${on[i] ? 'on' : ''}${i === 6 ? ' today' : ''}"><b>${on[i] ? icon('flame') : ''}</b>${d}</div>`).join('');
+    $('#streakHint').textContent = n > 0 ? 'Hôm nay đã giữ chuỗi. Mai quay lại nhé!' : 'Xong 1 việc bất kỳ hôm nay để lên 5 ngày.';
+
+    $('#weak').innerHTML = WEAK.map(([nm, r]) => `<div><div class="row between small" style="margin-bottom:6px"><b>${esc(nm)}</b>
+      <span class="badge bad">${icon('trending-down')}${r}% lỗi</span></div><div class="bar" style="--fn:var(--danger)"><i style="--v:${r}%"></i></div></div>`).join('');
+    $('#levels').innerHTML = LEVELS.map(([ic, nm, lv, c]) => `<div class="row between"><span class="row g8">${icon(ic)}${nm}</span><span class="badge cefr-${c}">${lv}</span></div>`).join('');
+    refreshIcons();
+  }
+  $('#durBtn').addEventListener('click', () => {
+    const opts = [10, 15, 20, 30]; state.dur = opts[(opts.indexOf(state.dur) + 1) % opts.length]; store.set('ll2-dur', state.dur);
+    $('#durBtn span').textContent = state.dur + ' phút'; heroWords(); toast(`Kế hoạch ${state.dur} phút`, null, 'timer');
+  });
+  const todaySkeleton = () => `<div aria-busy="true" aria-label="Đang tải">
+    <div class="card" style="padding:28px;display:grid;grid-template-columns:168px 1fr;gap:28px;align-items:center">${skel('168px', 168, '50%')}
+      <div class="col g12">${skel('70%', 20)}${skel('85%', 40)}${skel('60%', 16)}${skel('220px', 52, 'var(--radius-md)')}</div></div>
+    <div class="g-main"><div class="card col g16">${skel('40%', 20)}${skel('100%', 64, 'var(--radius-md)')}${skel('100%', 64, 'var(--radius-md)')}${skel('100%', 64, 'var(--radius-md)')}</div>
+      <div class="col g24"><div class="card col g12">${skel('50%', 14)}${skel('30%', 44)}${skel('100%', 36)}</div><div class="card col g12">${skel('60%', 18)}${skel('100%', 10)}${skel('100%', 10)}</div></div></div></div>`;
+  const body = () => $$('.wrap > :not(.page-head):not(.focusbar):not(#stateSlot)');
+  function showSlot(html) {
+    body().forEach(e => e.classList.add('state-hide'));
+    let slot = $('#stateSlot'); if (!slot) { slot = document.createElement('div'); slot.id = 'stateSlot'; $('.page-head').after(slot); }
+    slot.innerHTML = html; refreshIcons();
+  }
+  function hideSlot() { const slot = $('#stateSlot'); if (slot) slot.remove(); $$('.wrap > .state-hide').forEach(e => e.classList.remove('state-hide')); }
+  ACT.retry = () => { ST = 'normal'; showSlot(todaySkeleton()); setTimeout(() => { hideSlot(); renderToday(); heroWords(); reveal(); toast('Đã tải xong', null, 'circle-check'); }, 900); };
+  $('#greet').textContent = 'Chào ' + ME.name;
+  if (ST === 'loading') showSlot(todaySkeleton());
+  else if (ST === 'error' || ST === 'network') showSlot(errorState(ST === 'network' ? 'network' : 'server', { back: null }));
+  else { renderToday(); if (ST !== 'new') heroWords(); }
+  reveal();
+  statePicker([['normal', 'Bình thường'], ['new', 'Người mới'], ['loading', 'Đang tải'], ['error', 'Lỗi máy chủ'], ['network', 'Mất mạng']]);
+</script>
+</body>
+</html>

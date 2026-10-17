@@ -25,9 +25,9 @@ export function LogoMark({ size = 32, variant = "full" }: Pick<LogoProps, "size"
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" aria-hidden="true" className="shrink-0">
       <defs>
         <linearGradient id={`ll-g-${id}`} x1="20" y1="88" x2="80" y2="12" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="var(--ll-s1, #8b5cf6)" />
-          <stop offset="0.55" stopColor="var(--ll-s2, #c084fc)" />
-          <stop offset="1" stopColor="var(--ll-s3, #f0abfc)" />
+          <stop offset="0" stopColor="var(--ll-s1)" />
+          <stop offset="0.55" stopColor="var(--ll-s2)" />
+          <stop offset="1" stopColor="var(--ll-s3)" />
         </linearGradient>
       </defs>
       <path d={ARC} stroke={`url(#ll-g-${id})`} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
@@ -48,7 +48,7 @@ export default function Logo({ size = 32, showText = true, variant = "full", cla
           className="font-display font-bold tracking-[-0.035em] leading-none text-text"
           style={{ fontSize: size * 0.78 }}
         >
-          Lingua<span className="bg-gradient-primary bg-clip-text text-transparent">Loop</span>
+          Lingua<span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(90deg, var(--ll-s1), var(--ll-s2) 55%, var(--ll-s3))" }}>Loop</span>
         </span>
       )}
     </span>

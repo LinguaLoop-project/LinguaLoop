@@ -51,7 +51,7 @@ import lombok.RequiredArgsConstructor;
 class LessonQueryServiceImpl implements LessonQueryService {
 
     private static final int CONTINUE_LIMIT = 3;
-    private static final int POPULAR_PER_TOPIC = 4;
+    private static final int POPULAR_PER_TOPIC = 6;
     private static final int RELATED_LIMIT = 3;
 
     // TODO(contract): lấy phần trăm tiến độ thật từ user_lesson_mode_progress + sentence_attempts khi

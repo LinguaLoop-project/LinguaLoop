@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi tiết bài — LinguaLoop v2</title>
+<link rel="icon" href="../lingualoop-logo/favicon.ico" sizes="any">
+<script>
+  (function () {
+    var t = null; try { t = JSON.parse(localStorage.getItem('ll2-theme')); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app-v2.css">
+</head>
+<body>
+<main class="main"><div class="wrap" id="lsnBody"></div></main>
+
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script src="shell.js"></script>
+<script src="compat.js"></script>
+<script src="data.js"></script>
+<script src="ux-notes.js"></script>
+<script>
+  Shell.init('lesson');
+  let ST = qs().get('state') || 'normal';
+
+  function renderLesson(slug) {
+    const L = lessonOf(slug) || LESSONS[0], t = topicOf(L.topic);
+    const sents = SENT_BANK[L.slug] || SENT_GENERIC, dDone = Math.round(L.n * (L.d || 0) / 100);
+    const lock = L.pro && !isPro();
+    // Chế độ được gợi ý: đang học dở (tiến độ cao hơn) > chưa học (ưu tiên nghe chép) > không gợi ý nếu cả hai đã xong
+    const prog = { dictation: L.d, shadowing: L.s };
+    const doing = ['dictation', 'shadowing'].filter(m => prog[m] != null && prog[m] < 100).sort((a, b) => prog[b] - prog[a]);
+    const todo = ['dictation', 'shadowing'].filter(m => prog[m] == null);
+    const rec = doing[0] || (todo.length === 2 ? 'dictation' : todo[0]) || null;
+    const modeCard = (m) => {
+      const p = prog[m], n = p != null ? Math.round(L.n * p / 100) : 0, isRec = m === rec;
+      const cta = lock ? icon('crown') + 'Mở với Pro'
+        : (p == null ? 'Bắt đầu' : p < 100 ? `Tiếp tục từ câu ${n + 1}` : 'Luyện lại') + icon('arrow-right', 'ic arr');
+      return `<div class="card hover mode-card rv fn-${m}${isRec ? ' rec' : ''}" data-start="${m}" data-lesson="${L.slug}">
+        <div class="row between"><div class="mode-ic">${icon(m === 'dictation' ? 'headphones' : 'mic', 'ic-lg')}</div>
+          ${p === 100 ? `<span class="badge t-ok">${icon('check')}Đã xong</span>` : p != null ? '<span class="badge t-pri">Đang học</span>' : isRec ? `<span class="badge t-pri">${icon('sparkles')}Gợi ý bắt đầu</span>` : ''}</div>
+        <div><h3>${m === 'dictation' ? 'Nghe chép' : 'Shadowing'}</h3>
+          <p class="small muted">${m === 'dictation' ? 'Nghe từng câu rồi gõ lại. Chấm từng từ, gắn nhãn loại lỗi.' : 'Nghe mẫu rồi đọc theo. AI chấm phát âm tới từng âm vị.'}</p></div>
+        <div><div class="row between small"><span class="muted">${n}/${L.n} câu</span><span class="muted">${p != null ? 'Điểm TB ' + (m === 'dictation' ? 76 : 71) : 'Chưa bắt đầu'}</span></div>
+          <div class="bar thin mt8"><i style="--v:${p || 0}%"></i></div></div>
+        <button class="btn ${isRec || lock ? 'fn' : 'ghost'}" data-start="${m}" data-lesson="${L.slug}">${cta}</button></div>`;
+    };
+    const words = LESSON_WORDS[L.topic] || ['reliable', 'although', 'thin'];
+    const notes = NOTES.filter(n => n.l === L.slug);
+    const rel = LESSONS.filter(x => x.topic === L.topic && x.slug !== L.slug).slice(0, 3);
+    const say = started(L) ? (isDone(L) ? ['celebrate', 'Bài này bạn xong rồi, luyện lại cho chắc nhé!'] : ['correct', 'Bạn đang học dở bài này, tiếp tục thôi!']) : ['hello', 'Chọn một chế độ để bắt đầu nhé!'];
+
+    $('#lsnBody').innerHTML = `
+      <nav class="crumbs rv" aria-label="Đường dẫn"><button class="btn text sm" data-go="lessons">Bài học</button>${icon('chevron-right')}
+        <button class="btn text sm" data-go="topic" data-t="${t.slug}">${esc(t.name)}</button>${icon('chevron-right')}<span>${esc(L.title)}</span>
+        <span class="grow"></span><button class="ux-btn" data-ux="lesson">${icon('lightbulb')}Ghi chú UX</button></nav>
+      <div class="g-vocab">
+        <div class="col g24">
+          <section class="card l-head rv">
+            <div class="l-head-media">${thumb(L)}<button class="play-big sm" data-say="${esc(sents[0])}" data-lang="en-US" aria-label="Nghe thử câu đầu">${icon('play', 'ic fill')}</button></div>
+            <div class="grow">
+              <div class="meta-row">${L.pro ? `<span class="badge pro">${icon('crown')}PRO</span>` : ''}
+                <span>${icon(L.src === 'youtube' ? 'youtube' : 'audio-lines')}${L.src === 'youtube' ? 'YouTube' : 'Audio'}</span><span>${icon('clock')}${L.dur}</span>
+                <span>${icon('list-ordered')}${L.n} câu</span><span>${icon('headphones')}${fmtNum(L.views)} lượt học</span><span>${icon('calendar')}Thêm ${L.age} ngày trước</span></div>
+              <h1 class="h1 mt8">${esc(L.title)}</h1><p class="muted">${esc(L.vi)}</p>
+              <div class="mt16">${loopiBubble(say[0], say[1], 56)}</div>
+            </div>
+          </section>
+          <div class="mode-grid">${modeCard('dictation')}${modeCard('shadowing')}</div>
+          <div class="card rv">
+            <div class="row between wrap"><h3 class="h3">Các câu trong bài <span class="muted small">(${L.n})</span></h3>
+              <button class="btn ghost sm" data-act="toggleTx" aria-pressed="false">${icon('eye')}<span>Hiện transcript</span></button></div>
+            <p class="small muted mt8">Transcript ẩn sẵn để không lộ đáp án khi nghe chép.</p>
+            <div class="sentlist masked mt16" id="sentList">${sents.map((s, i) => { const sc = i < dDone ? SCORES[i % SCORES.length] : null;
+              return `<div class="sent${sc != null ? ' done' : ''}"><span class="n">${i + 1}</span><span class="tx">${esc(s)}</span>
+                <span class="st">${sc != null ? `<span class="badge ${scoreTone(sc)}">${sc}</span>` : i === dDone && L.d != null ? `<span class="badge t-pri">Đang ở câu này</span>` : ''}${fmtT(i * 4 + 1)}
+                <button class="btn icon ghost" data-say="${esc(s)}" data-lang="en-US" aria-label="Nghe câu ${i + 1}">${icon('volume-2')}</button></span></div>`; }).join('')}</div>
+            ${L.n > sents.length ? `<p class="small muted mt16">… và ${L.n - sents.length} câu nữa</p>` : ''}
+          </div>
+        </div>
+        <aside class="col g24">
+          <div class="card rv"><div class="overline">Tiến độ của bạn</div>
+            <div class="row g16 mt16"><div id="lsnRing"></div><div class="col g8 small grow">
+              <div class="row between"><span class="muted row g8">${icon('headphones')}Nghe chép</span><b>${L.d != null ? L.d + '%' : '—'}</b></div>
+              <div class="row between"><span class="muted row g8">${icon('mic')}Shadowing</span><b>${L.s != null ? L.s + '%' : '—'}</b></div>
+              <div class="row between"><span class="muted row g8">${icon('clock')}Thời gian học</span><b>${started(L) ? '18 phút' : '—'}</b></div></div></div></div>
+          <div class="card rv fn-vocab"><div class="row between"><div class="overline">Từ vựng trong bài</div><button class="btn text sm" data-act="saveAll">Lưu tất cả</button></div>
+            ${words.map(w => `<div class="fam"><div class="row g8"><button class="btn icon ghost" data-say="${w}" aria-label="Nghe ${w}">${icon('volume-2')}</button>
+              <div><b>${w}</b> <span class="badge cefr-${DICT[w].cefr[0].toLowerCase()}">${DICT[w].cefr}</span><div class="small muted">${firstVi(w)}</div></div></div>
+              <button class="save" data-save="${w}#all" aria-label="Lưu từ ${w}">${icon('bookmark')}</button></div>`).join('')}</div>
+          <div class="card rv"><div class="row between"><div class="overline">Ghi chú của tôi</div><button class="btn text sm" data-act="addNote">${icon('plus')}Thêm</button></div>
+            ${notes.length ? notes.map(n => `<div class="note mt16"><q>${esc(n.s)}</q><span class="small">${n.t}</span></div>`).join('')
+              : '<p class="small muted mt8">Chưa có ghi chú. Trong lúc luyện, bấm <kbd>N</kbd> để ghi chú cho câu đang học.</p>'}</div>
+          <div class="card rv"><div class="overline">Bài cùng chủ đề</div>
+            ${rel.map(x => `<div class="rel" data-lesson="${x.slug}" tabindex="0">${thumb(x, false)}<div class="grow"><b class="ltitle small">${esc(x.title)}</b><div class="small muted">${x.cefr} · ${x.dur}</div></div></div>`).join('')}
+            <button class="btn text sm mt8" data-go="topic" data-t="${t.slug}">Xem cả chủ đề${icon('arrow-right', 'ic arr')}</button></div>
+        </aside>
+      </div>`;
+    ring($('#lsnRing'), Math.round(((L.d || 0) + (L.s || 0)) / 2), { size: 88, label: '%', fn: 'fn-primary' });
+    syncSaves(); refreshIcons(); reveal();
+  }
+
+  Object.assign(ACT, {
+    toggleTx(b) {
+      const on = $('#sentList').classList.toggle('masked'); b.setAttribute('aria-pressed', !on);
+      b.innerHTML = `${icon(on ? 'eye' : 'eye-off')}<span>${on ? 'Hiện transcript' : 'Ẩn transcript'}</span>`; refreshIcons();
+    },
+    saveAll() { $$('#lsnBody .save[data-save]').filter(b => !b.classList.contains('on')).forEach(b => b.click()); },
+    addNote() { toast('Mở ô ghi chú cho câu đang chọn', null, 'pencil'); },
+  });
+  Shell.click((t) => {
+    const stt = t.closest('[data-start]');
+    if (stt) { const L = lessonOf(stt.dataset.lesson);
+      if (L.pro && !isPro()) toast('Bài này dành cho gói Pro', { label: 'Dùng thử Pro', fn: () => ACT.togglePro() }, 'crown');
+      else go(stt.dataset.start, { lesson: L.slug });
+      return true; }
+    const rel = t.closest('.rel[data-lesson]'); if (rel) { go('lesson', { l: rel.dataset.lesson }); return true; }
+  });
+  const lessonSkeleton = () => `<div aria-busy="true" aria-label="Đang tải bài học"><div class="g-vocab"><div class="col g24">
+      <div class="card l-head">${skel('100%', 164, 'var(--radius-lg)')}<div class="col g12">${skel('60%', 16)}${skel('85%', 34)}${skel('45%', 16)}</div></div>
+      <div class="mode-grid">${[0, 1].map(() => `<div class="card col g16">${skel('48px', 48, 'var(--radius-md)')}${skel('50%', 20)}${skel('90%', 14)}${skel('100%', 8)}${skel('100%', 44, 'var(--radius-md)')}</div>`).join('')}</div>
+      <div class="card col g16">${skel('35%', 20)}${skel('100%', 36)}${skel('100%', 36)}${skel('100%', 36)}</div></div>
+      <div class="col g24"><div class="card col g12">${skel('50%', 14)}${skel('100%', 88, 'var(--radius-md)')}</div><div class="card col g12">${skel('60%', 14)}${skel('100%', 44)}${skel('100%', 44)}</div></div></div></div>`;
+  function bootLesson() {
+    const slug = qs().get('l');
+    if (ST === 'loading') { $('#lsnBody').innerHTML = lessonSkeleton(); return; }
+    if (ST === 'error' || ST === 'network') { $('#lsnBody').innerHTML = errorState(ST === 'network' ? 'network' : 'server'); refreshIcons(); return; }
+    if (ST === 'notfound' || (slug && !lessonOf(slug))) { $('#lsnBody').innerHTML = errorState('notfound', { retry: false }); refreshIcons(); return; }
+    renderLesson(slug || 'ordering-coffee');
+  }
+  ACT.retry = () => { ST = 'normal'; $('#lsnBody').innerHTML = lessonSkeleton(); setTimeout(() => { bootLesson(); toast('Đã tải xong', null, 'circle-check'); }, 900); };
+  window.addEventListener('ll:pro', () => { if (ST === 'normal') bootLesson(); });
+  bootLesson();
+  statePicker([['normal', 'Bình thường'], ['loading', 'Đang tải'], ['error', 'Lỗi máy chủ'], ['network', 'Mất mạng'], ['notfound', 'Không tìm thấy']]);
+</script>
+</body>
+</html>

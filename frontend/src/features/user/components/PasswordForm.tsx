@@ -9,6 +9,7 @@ import { buildPasswordSchema, type PasswordFormData } from "../validations";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
 import PasswordStrengthMeter from "@/features/auth/components/PasswordStrengthMeter";
+import { PasswordField } from "@/components/common/TextField";
 
 const EMPTY: PasswordFormData = { currentPassword: "", newPassword: "", confirmPassword: "" };
 
@@ -69,28 +70,14 @@ export default function PasswordForm() {
   };
 
   const prefix = hasPassword ? "change" : "create";
-  const eyeLabel = show ? t("settings.password.hide") : t("settings.password.show");
-  const eye = (
-    <button
-      type="button"
-      className="shrink-0 p-1 text-lg text-text-subtle hover:text-text cursor-pointer transition-colors border-0 bg-transparent"
-      onClick={() => setShow(!show)}
-      aria-label={eyeLabel}
-      aria-pressed={show}
-    >
-      <i className={show ? "ph ph-eye-slash" : "ph ph-eye"} />
-    </button>
-  );
-  const type = show ? "text" : "password";
-
   return (
     <form
-      className="p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-card)] flex flex-col gap-5"
+      className="p-5 rounded-lg bg-surface border border-border shadow-[var(--shadow-card)] flex flex-col gap-5"
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
       <div>
-        <h3 className="text-lg font-semibold font-display text-text">
+        <h3 className="text-lg font-bold leading-[1.4]">
           {t(`settings.password.${prefix}Title`)}
         </h3>
         <p className="mt-1 text-[13px] text-text-muted">
@@ -110,95 +97,44 @@ export default function PasswordForm() {
       )}
 
       {hasPassword && (
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="pwCurrent" className="text-[13px] font-semibold text-text">
-            {t("settings.password.current")}
-          </label>
-          <div
-            className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-              errors.currentPassword ? "border-danger focus-within:border-danger focus-within:ring-danger/20" : "border-border"
-            }`}
-          >
-            <i className="ph ph-lock-simple text-lg text-text-subtle mr-2.5 shrink-0" />
-            <input
-              id="pwCurrent"
-              type={type}
-              autoComplete="current-password"
-              aria-describedby="pwCurrentErr"
-              className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-              {...register("currentPassword")}
-            />
-            {eye}
-          </div>
-          {errors.currentPassword && (
-            <p id="pwCurrentErr" className="text-xs font-medium text-danger mt-0.5">
-              {errors.currentPassword.message}
-            </p>
-          )}
-        </div>
+        <PasswordField
+          id="pwCurrent"
+          label={t("settings.password.current")}
+          autoComplete="current-password"
+          showLabel={t("settings.password.show")}
+          hideLabel={t("settings.password.hide")}
+          visible={show}
+          onVisibleChange={setShow}
+          error={errors.currentPassword?.message}
+          {...register("currentPassword")}
+        />
       )}
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="pwNew" className="text-[13px] font-semibold text-text">
-          {t("settings.password.new")}
-        </label>
-        <div
-          className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-            errors.newPassword ? "border-danger focus-within:border-danger focus-within:ring-danger/20" : "border-border"
-          }`}
-        >
-          <i className="ph ph-lock-simple text-lg text-text-subtle mr-2.5 shrink-0" />
-          <input
-            id="pwNew"
-            type={type}
-            autoComplete="new-password"
-            aria-describedby="pwNewHint"
-            className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-            {...register("newPassword", { onChange: (e: React.ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value) })}
-          />
-          {eye}
-        </div>
-        <PasswordStrengthMeter score={pwScore} />
-        <p
-          id="pwNewHint"
-          className={`text-xs mt-0.5 leading-normal ${errors.newPassword ? "text-danger flex items-center gap-1 font-medium" : "text-text-muted"}`}
-        >
-          {errors.newPassword ? (
-            <>
-              <i className="ph ph-warning-circle" />
-              <span>{errors.newPassword.message}</span>
-            </>
-          ) : (
-            t("settings.password.newHint")
-          )}
-        </p>
-      </div>
+      <PasswordField
+        id="pwNew"
+        label={t("settings.password.new")}
+        autoComplete="new-password"
+        showLabel={t("settings.password.show")}
+        hideLabel={t("settings.password.hide")}
+        visible={show}
+        onVisibleChange={setShow}
+        error={errors.newPassword?.message}
+        below={<PasswordStrengthMeter score={pwScore} />}
+        hint={t("settings.password.newHint")}
+        {...register("newPassword", { onChange: (e: React.ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value) })}
+      />
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="pwConfirm" className="text-[13px] font-semibold text-text">
-          {t("settings.password.confirm")}
-        </label>
-        <div
-          className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-            errors.confirmPassword ? "border-danger focus-within:border-danger focus-within:ring-danger/20" : "border-border"
-          }`}
-        >
-          <i className="ph ph-lock-simple text-lg text-text-subtle mr-2.5 shrink-0" />
-          <input
-            id="pwConfirm"
-            type={type}
-            autoComplete="new-password"
-            aria-describedby="pwConfirmErr"
-            className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-            {...register("confirmPassword")}
-          />
-        </div>
-        {errors.confirmPassword && (
-          <p id="pwConfirmErr" className="text-xs font-medium text-danger mt-0.5">
-            {errors.confirmPassword.message}
-          </p>
-        )}
-      </div>
+      <PasswordField
+        id="pwConfirm"
+        label={t("settings.password.confirm")}
+        autoComplete="new-password"
+        showLabel={t("settings.password.show")}
+        hideLabel={t("settings.password.hide")}
+        visible={show}
+        onVisibleChange={setShow}
+        error={errors.confirmPassword?.message}
+        {...register("confirmPassword")}
+      />
 
       <div className="flex justify-end pt-1">
         <Button type="submit" variant="primary" disabled={isSubmitting} isLoading={isSubmitting}>

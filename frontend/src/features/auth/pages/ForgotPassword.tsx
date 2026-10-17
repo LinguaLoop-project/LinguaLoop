@@ -12,6 +12,8 @@ import {
 } from "../validations/authSchemas";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
+import Icon from "@/components/common/Icon";
+import { TextField } from "@/components/common/TextField";
 
 const ForgotPassword = () => {
   const { t } = useTranslation("auth");
@@ -57,16 +59,16 @@ const ForgotPassword = () => {
         to="/auth/login"
         className="inline-flex items-center gap-1.5 text-[13px] font-medium text-text-muted hover:text-text transition-colors w-fit"
       >
-        <i className="ph ph-arrow-left text-base" />
+        <Icon name="arrow-left" className="text-base" />
         <span>{t("forgot.backToLogin")}</span>
       </Link>
 
       {/* Header info */}
       <div>
-        <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+        <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
           {t("forgot.overline")}
         </span>
-        <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+        <h1 className="text-[30px] font-bold leading-[48px] text-text">
           {t("forgot.title")}
         </h1>
         <p className="text-[14px] leading-relaxed text-text-muted">
@@ -101,36 +103,16 @@ const ForgotPassword = () => {
         className="flex flex-col gap-5"
         noValidate
       >
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor={`${formId}-email`}
-            className="text-[13px] font-semibold text-text"
-          >
-            {t("forgot.email")}
-          </label>
-          <div
-            className={`relative flex items-center h-11 px-3.5 rounded-md border bg-surface-glass text-text transition-colors duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${
-              errors.email
-                ? "border-danger focus-within:border-danger focus-within:ring-danger/20"
-                : "border-border"
-            }`}
-          >
-            <i className="ph ph-envelope-simple text-lg text-text-subtle mr-2.5 shrink-0" />
-            <input
-              id={`${formId}-email`}
-              type="email"
-              autoComplete="email"
-              placeholder={t("forgot.emailPlaceholder")}
-              className="w-full h-full bg-transparent border-0 outline-none text-text text-sm placeholder:text-text-subtle"
-              {...register("email")}
-            />
-          </div>
-          {errors.email && (
-            <p className="text-xs font-medium text-danger mt-0.5">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
+        <TextField
+          id={`${formId}-email`}
+          label={t("forgot.email")}
+          icon="mail"
+          type="email"
+          autoComplete="email"
+          placeholder={t("forgot.emailPlaceholder")}
+          error={errors.email?.message}
+          {...register("email")}
+        />
 
         {/* Submit button */}
         <Button

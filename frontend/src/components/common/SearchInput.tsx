@@ -1,4 +1,5 @@
 import React from "react";
+import Icon from "@/components/common/Icon";
 
 export interface SearchInputProps {
   id?: string;
@@ -12,6 +13,7 @@ export interface SearchInputProps {
   autoComplete?: string;
 }
 
+/** Ô tìm `.search-v2` của mockup: cao 44, bo md, viền border-strong, icon bên trái. */
 const SearchInput = ({
   id,
   placeholder = "Search...",
@@ -24,13 +26,10 @@ const SearchInput = ({
   autoComplete = "off",
 }: SearchInputProps) => {
   return (
-    <div
-      id={id}
-      className={`flex items-center gap-2.5 min-w-[220px] h-11 px-3.5 rounded-xl border border-[var(--border-strong)] bg-[var(--surface)] transition-colors duration-150 focus-within:border-[var(--primary)] focus-within:outline focus-within:outline-2 focus-within:outline-[var(--primary)] focus-within:outline-offset-2 ${className}`}
-    >
-      {icon || (
-        <i className="ph ph-magnifying-glass text-lg text-[var(--text-muted)]" />
-      )}
+    <div id={id} className={`relative min-w-[220px] flex-1 ${className}`}>
+      <span className="pointer-events-none absolute left-3.5 top-3 text-xl text-text-subtle">
+        {icon || <Icon name="search" />}
+      </span>
       <input
         type="text"
         placeholder={placeholder}
@@ -39,7 +38,7 @@ const SearchInput = ({
         onKeyDown={onKeyDown}
         aria-label={ariaLabel}
         autoComplete={autoComplete}
-        className="flex-1 min-w-0 border-0 bg-none text-[15px] text-[var(--text)] focus:outline-none placeholder:text-[var(--text-subtle)]"
+        className="h-11 w-full rounded-md border border-border-strong bg-surface pl-[42px] pr-3.5 text-text outline-none transition-colors placeholder:text-text-subtle focus:border-primary"
       />
     </div>
   );

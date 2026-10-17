@@ -10,13 +10,10 @@
     "toggleMenu": "Mở/đóng menu",
     "nav": {
       "listening": "Nghe chép",
-      "pronunciation": "Phát âm",
+      "pronunciation": "Shadowing",
       "vocabulary": "Từ vựng",
-      "speaking": "Luyện nói",
-      "ielts": "Luyện thi IELTS",
       "more": "Xem thêm"
     },
-    "badgeNew": "MỚI",
     "more": {
       "lessons": {
         "title": "Kho bài học video",
@@ -31,50 +28,10 @@
         "desc": "Đánh giá chuẩn khung CEFR"
       }
     },
-    "mobileWeakness": "Điểm yếu & Cần luyện",
     "login": "Đăng nhập",
     "logout": "Đăng xuất",
     "start": "Bắt đầu",
     "learnNow": "Học ngay"
-  },
-  "footer": {
-    "homeLabel": "LinguaLoop, về trang chủ",
-    "about": "Nền tảng luyện nghe chép chính tả (Dictation) và phát âm (Shadowing) trên video thực tế. Mỗi ngày 15 phút, giải quyết tận gốc các điểm yếu ngữ âm của bạn.",
-    "badgeAi": "AI Phát âm chuẩn",
-    "badgeVideo": "Video thực tế",
-    "emailAria": "Gửi email cho LinguaLoop",
-    "telegramAria": "Cộng đồng Telegram",
-    "practice": {
-      "title": "Luyện tập",
-      "dictation": "Nghe chép chính tả",
-      "shadowing": "Phát âm Shadowing",
-      "vocab": "Kho từ vựng & SRS",
-      "speaking": "Luyện nói giao tiếp",
-      "ielts": "Luyện thi IELTS"
-    },
-    "personal": {
-      "title": "Cá nhân",
-      "mywords": "Từ & câu đã lưu",
-      "weakness": "Chẩn đoán điểm yếu",
-      "account": "Tài khoản cá nhân",
-      "upgrade": "Nâng cấp gói Pro"
-    },
-    "support": {
-      "title": "Hỗ trợ",
-      "gettingStarted": "Hướng dẫn bắt đầu",
-      "faq": "Câu hỏi thường gặp",
-      "reportContent": "Báo lỗi nội dung",
-      "feedback": "Góp ý phát triển"
-    },
-    "aboutUs": {
-      "title": "Về LinguaLoop",
-      "brand": "Bộ nhận diện & Loopi",
-      "terms": "Điều khoản dịch vụ",
-      "privacy": "Chính sách bảo mật"
-    },
-    "copyright": "© 2026 LinguaLoop. Video bài học thuộc bản quyền của kênh gốc, chỉ dùng cho mục đích giáo dục.",
-    "status": "Hệ thống bình thường",
-    "languagePill": "Tiếng Việt (VN)"
   },
   "student": {
     "sidebar": {
@@ -98,7 +55,8 @@
         "price": "Từ 33k/tháng",
         "desc": "Chấm không giới hạn, nhận xét AI, video khẩu hình.",
         "cta": "Dùng thử Pro"
-      }
+      },
+      "loopi": "Giữ chuỗi hôm nay nhé!"
     },
     "topbar": {
       "search": "Mở tìm kiếm nhanh",
@@ -112,7 +70,8 @@
       "learning": "Cài đặt học tập",
       "security": "Bảo mật & đăng nhập",
       "privacy": "Quyền riêng tư & dữ liệu",
-      "logout": "Đăng xuất"
+      "logout": "Đăng xuất",
+      "plan": "Gói hiện tại"
     }
   },
   "instructor": {
@@ -220,6 +179,56 @@
         "reportDetail": "Chi tiết báo cáo lỗi",
         "deckDetail": "Chi tiết duyệt bộ từ"
       }
+    }
+  },
+  "shell": {
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu",
+    "collapse": "Thu gọn thanh bên",
+    "expand": "Mở rộng thanh bên",
+    "footer": {
+      "tagline": "Luyện nghe chép và phát âm tiếng Anh trên video thật. Mỗi ngày 15 phút, đúng vào điểm yếu của bạn.",
+      "copyright": "© 2026 LinguaLoop. Video bài học thuộc bản quyền của kênh gốc, chỉ dùng để học.",
+      "status": "Hệ thống hoạt động bình thường",
+      "soon": "Trang này chưa có",
+      "cols": {
+        "learn": "Học",
+        "mine": "Của tôi",
+        "support": "Hỗ trợ",
+        "about": "Về LinguaLoop"
+      },
+      "links": {
+        "lessons": "Bài học",
+        "dictation": "Nghe chép",
+        "shadowing": "Shadowing",
+        "vocab": "Từ vựng",
+        "test": "Kiểm tra trình độ",
+        "mywords": "Từ & câu đã lưu",
+        "weakness": "Điểm yếu",
+        "settings": "Cài đặt tài khoản",
+        "pro": "Gói Pro",
+        "guide": "Hướng dẫn bắt đầu",
+        "faq": "Câu hỏi thường gặp",
+        "report": "Báo lỗi nội dung",
+        "contact": "Liên hệ góp ý",
+        "brand": "Logo & mascot",
+        "terms": "Điều khoản sử dụng",
+        "privacy": "Chính sách quyền riêng tư",
+        "voiceData": "Dữ liệu giọng nói"
+      },
+      "social": {
+        "facebook": "Facebook LinguaLoop",
+        "youtube": "Kênh YouTube LinguaLoop",
+        "tiktok": "TikTok LinguaLoop",
+        "mail": "Email hỗ trợ"
+      }
+    },
+    "palette": {
+      "label": "Tìm kiếm nhanh",
+      "placeholder": "Tìm từ, bài học, màn hình…",
+      "goTo": "Đi tới",
+      "actions": "Thao tác",
+      "none": "Không có kết quả cho “{{q}}”"
     }
   }
 }

@@ -6,6 +6,7 @@ import { errorMessage, toApiError } from "../errors";
 import type { ApiError } from "../types";
 import Button from "@/components/common/Button";
 import FormAlert from "@/components/common/FormAlert";
+import Icon from "@/components/common/Icon";
 
 const RESEND_COOLDOWN_MS = 60_000;
 
@@ -65,7 +66,7 @@ const CheckEmail = () => {
   return (
     <section className="flex flex-col gap-5 text-center items-center w-full">
       <img
-        src="/loopi-hello.svg"
+        src="/mascot/loopi-hello.svg"
         width={120}
         height={120}
         alt=""
@@ -74,13 +75,13 @@ const CheckEmail = () => {
       />
 
       <div>
-        <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1 block">
+        <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
           {t("checkEmail.overline")}
         </span>
-        <h1 className="text-2xl sm:text-[28px] font-bold font-display text-text leading-tight mb-2">
+        <h1 className="text-[30px] font-bold leading-[48px] text-text">
           {t("checkEmail.title")}
         </h1>
-        <p className="text-[15px] text-text-muted mt-1 leading-relaxed">
+        <p className="text-[15px] text-text-muted leading-relaxed">
           <Trans
             t={t}
             i18nKey={introKey}
@@ -116,7 +117,7 @@ const CheckEmail = () => {
         onClick={handleResend}
         disabled={sending || secondsLeft > 0}
         isLoading={sending}
-        leftIcon={<i className="ph ph-paper-plane-tilt" />}
+        leftIcon={<Icon name="send" />}
       >
         {secondsLeft > 0
           ? t("checkEmail.resendIn", { seconds: secondsLeft })
@@ -127,14 +128,14 @@ const CheckEmail = () => {
         {t("checkEmail.wrongEmail")}{" "}
         <Link
           to="/auth/register"
-          className="text-accent hover:underline font-medium"
+          className="font-semibold text-primary-text hover:underline"
         >
           {t("checkEmail.registerAgain")}
         </Link>
         {" · "}
         <Link
           to="/auth/login"
-          className="text-accent hover:underline font-medium"
+          className="font-semibold text-primary-text hover:underline"
         >
           {t("checkEmail.backToLogin")}
         </Link>

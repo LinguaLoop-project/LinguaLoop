@@ -1,250 +1,264 @@
-import { useState, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useTopicDetail, useLessonSearch } from "../hooks/useLessons";
+import Button from "@/components/common/Button";
+import Icon from "@/components/common/Icon";
+import LoopiSay from "@/components/common/LoopiSay";
+import type { MascotMood } from "@/components/common/Mascot";
+import ProgressBar from "@/components/common/ProgressBar";
+import SegmentedControl from "@/components/common/SegmentedControl";
+import Skeleton from "@/components/common/Skeleton";
+import { useLessonSearch, useTopicDetail } from "../hooks/useLessons";
+import Breadcrumbs from "../components/Breadcrumbs";
+import { LessonGrid, LessonGridSkeleton } from "../components/LessonGrid";
+import Pagination from "../components/Pagination";
+import QueryError from "../components/QueryError";
 import type { LessonState } from "../types";
-import { LessonCard } from "../components/LessonCard";
-import SegmentedControl from "../../../components/common/SegmentedControl";
-import Button from "../../../components/common/Button";
-import EmptyState from "../../../components/common/EmptyState";
+import { difficultyParam, localizedName } from "../utils";
+
+const PAGE_SIZE = 12;
+
+const BackToLibrary = () => {
+  const { t } = useTranslation("pages");
+  return (
+    <Link to="/student/lessons">
+      <Button variant="ghost">{t("student.lessonDetail.backToLibrary", "Về thư viện bài học")}</Button>
+    </Link>
+  );
+};
 
 export const TopicDetailPage = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const topicSlug = slug || "";
-  const { t, i18n } = useTranslation(["pages", "common", "layout"]);
+  const { slug = "" } = useParams<{ slug: string }>();
+  const { t, i18n } = useTranslation("pages");
+  const isEn = i18n.language === "en";
 
-  const [levelFilter, setLevelFilter] = useState<string>("all");
-  const [stateFilter, setStateFilter] = useState<string>("all");
-  const [pageSize, setPageSize] = useState<number>(24);
+  const [levelFilter, setLevelFilterRaw] = useState("all");
+  const [stateFilter, setStateFilterRaw] = useState("all");
+  // Số trang nằm trên URL (`?page=3`, đánh số từ 1) để tải lại hoặc gửi link vẫn đúng trang.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageParam = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  const page = Number.isFinite(pageParam) && pageParam > 1 ? pageParam - 1 : 0;
+  const setPage = (p: number) =>
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (p > 0) next.set("page", String(p + 1));
+      else next.delete("page");
+      return next;
+    });
 
-  const { data: topicRow, isLoading: isTopicLoading } =
-    useTopicDetail(topicSlug);
-
-  const topic = topicRow?.topic;
-
-  const getDifficulty = (lvl: string) => {
-    if (lvl === "basic") return "A1,A2";
-    if (lvl === "mid") return "B1,B2";
-    if (lvl === "adv") return "C1,C2";
-    return undefined;
+  // Đổi bộ lọc thì về trang đầu.
+  const setLevelFilter = (v: string) => {
+    setLevelFilterRaw(v);
+    setPage(0);
+  };
+  const setStateFilter = (v: string) => {
+    setStateFilterRaw(v);
+    setPage(0);
+  };
+  const goToPage = (p: number) => {
+    setPage(p);
+    document.getElementById("tpHead")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const { data: searchResults, isLoading: isLessonsLoading } = useLessonSearch({
-    topic: topicSlug,
-    difficulty: getDifficulty(levelFilter),
+  const topicQuery = useTopicDetail(slug);
+  const lessonsQuery = useLessonSearch({
+    topic: slug,
+    difficulty: difficultyParam(levelFilter),
     state: stateFilter === "all" ? undefined : (stateFilter as LessonState),
-    size: pageSize,
+    page,
+    size: PAGE_SIZE,
   });
 
-  const lessons = useMemo(() => searchResults?.items ?? [], [searchResults]);
+  // Link có `?page=` vượt số trang thật (bài bị gỡ, bộ lọc đổi): lùi về trang cuối.
+  const totalPages = lessonsQuery.data?.totalPages ?? 0;
+  useEffect(() => {
+    if (totalPages > 0 && page >= totalPages)
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (totalPages > 1) next.set("page", String(totalPages));
+          else next.delete("page");
+          return next;
+        },
+        { replace: true },
+      );
+  }, [page, totalPages, setSearchParams]);
 
-  // Số bài khớp bộ lọc (dùng cho "đang hiện" và "xem thêm"); tiến độ chủ đề tính trên toàn bộ bài của chủ đề.
-  const matchedCount = searchResults?.totalElements ?? 0;
+  const topic = topicQuery.data?.topic;
+  const lessons = useMemo(() => lessonsQuery.data?.items ?? [], [lessonsQuery.data]);
+  // Số bài khớp bộ lọc dùng cho "đang hiện" và "xem thêm"; tiến độ chủ đề tính trên toàn bộ bài của chủ đề.
+  const matchedCount = lessonsQuery.data?.totalElements ?? 0;
   const totalCount = topic?.totalLessons ?? 0;
-  const doneN = topic?.completedLessons ?? 0;
+  const doneCount = topic?.completedLessons ?? 0;
 
-  const handleLoadMore = () => {
-    setPageSize((prev) => prev + 24);
-  };
-
-  if (isTopicLoading) {
+  if (topicQuery.isLoading) {
     return (
-      <div className="flex justify-center p-12">
-        <i className="ph ph-circle-notch text-3xl animate-spin text-primary"></i>
+      <section className="w-full" aria-busy="true">
+        <Skeleton className="mb-4 h-4 w-48" />
+        <div className="mb-6 grid grid-cols-[72px_minmax(0,1fr)] items-center gap-5 lg:grid-cols-[72px_minmax(0,1fr)_280px]">
+          <Skeleton className="h-[72px] w-[72px] rounded-lg" />
+          <div>
+            <Skeleton className="mb-2 h-3 w-24" />
+            <Skeleton className="h-9 w-72" />
+          </div>
+        </div>
+        <LessonGridSkeleton />
+      </section>
+    );
+  }
+
+  if (topicQuery.isError || !topic) {
+    return (
+      <div className="py-6">
+        <QueryError
+          error={topicQuery.error}
+          kind={topicQuery.error ? undefined : "notFound"}
+          onRetry={() => void topicQuery.refetch()}
+          retrying={topicQuery.isFetching}
+          action={<BackToLibrary />}
+        />
       </div>
     );
   }
 
-  if (!topic) {
-    return (
-      <div className="py-16">
-        <EmptyState
-          mascotSrc="/mascot/loopi-encourage.svg"
-          title={t(
-            "pages:student.topicDetail.notFoundTitle",
-            "Không tìm thấy chủ đề",
-          )}
-          description={t(
-            "pages:student.topicDetail.notFoundDesc",
-            "Chủ đề bạn đang tìm không tồn tại hoặc chưa được công khai.",
-          )}
-        >
-          <Link to="/student/lessons">
-            <Button variant="primary">
-              {t("pages:student.lessonDetail.backToLibrary", "Quay lại Thư viện")}
-            </Button>
-          </Link>
-        </EmptyState>
-      </div>
-    );
-  }
-
-  const isEn = i18n.language === "en";
-  const topicDisplayName = isEn
-    ? topic?.name || topic?.nameVi || topicSlug
-    : topic?.nameVi || topic?.name || topicSlug;
-  const topicSecondaryName = isEn ? topic?.name : topic?.nameVi;
+  const name = localizedName(isEn, topic, slug);
+  const secondaryName = isEn ? topic.nameVi : topic.name;
+  const filteredOut = levelFilter !== "all" || stateFilter !== "all";
+  const ratio = totalCount ? doneCount / totalCount : 0;
+  const mood: [MascotMood, string] =
+    ratio > 0.5
+      ? ["celebrate", t("student.topicDetail.say.almost", "Bạn gần xong chủ đề này rồi!")]
+      : doneCount
+        ? ["correct", t("student.topicDetail.say.going", "Tiếp tục nhé, đang tiến bộ đấy!")]
+        : ["hello", t("student.topicDetail.say.start", "Chọn một bài để bắt đầu nào!")];
 
   return (
     <section className="w-full" id="v-topic">
-      {/* ── Breadcrumb & Topic Hero ── */}
-      <div id="tpHead" className="mb-6">
-        <div className="flex flex-wrap items-center gap-1.5 text-[13px] text-text-muted mb-4 [&>a]:text-text-muted [&>a]:min-h-8 [&>a]:inline-flex [&>a]:items-center hover:[&>a]:text-text hover:[&>a]:underline [&>i]:text-[14px]">
-          <Link to="/student/lessons">
-            {t("pages:student.lessons.title", "Bài học")}
-          </Link>
-          <i className="ph ph-caret-right"></i>
-          <span>{topicDisplayName}</span>
-        </div>
+      <div id="tpHead">
+        <Breadcrumbs
+          items={[
+            {
+              label: t("student.lessons.title", "Bài học"),
+              to: "/student/lessons",
+            },
+            { label: name },
+          ]}
+        />
 
-        <div className="relative flex flex-wrap items-center gap-6 my-2 mb-7">
-          <div className="relative w-24 h-24 shrink-0 grid place-items-center">
-            <svg
-              viewBox="0 0 200 200"
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full"
-            >
-              <use href="#o-orb" />
-            </svg>
-            <i
-              className={`ph-duotone ph-${topic.icon || "books"} relative text-[40px] text-accent`}
-              aria-hidden="true"
-            ></i>
+        <div className="mb-6 grid grid-cols-[72px_minmax(0,1fr)] items-center gap-5 lg:grid-cols-[72px_minmax(0,1fr)_280px]">
+          <div className="grid h-[72px] w-[72px] place-items-center rounded-lg bg-primary-soft text-primary-text">
+            <Icon name={topic.icon} fallback="library" className="h-9 w-9" />
           </div>
 
-          <div className="flex-1 min-w-[280px]">
-            <div className="text-[11px] font-bold tracking-[0.12em] uppercase text-accent mb-1">
-              {t("pages:student.topicDetail.topicPrefix", "Chủ đề")}
-              {topicSecondaryName ? ` · ${topicSecondaryName}` : ""}
+          <div className="min-w-0">
+            <div className="mb-1 text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
+              {t("student.topicDetail.topicPrefix", "Chủ đề")}
+              {secondaryName ? ` · ${secondaryName}` : ""}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-text font-display">
-              {topicDisplayName}
-            </h1>
+            <h1 className="font-display text-4xl font-bold leading-[1.15] tracking-[-0.02em]">{name}</h1>
+            <LoopiSay mood={mood[0]} text={mood[1]} className="mt-4" />
           </div>
 
-          <div className="p-4 rounded-xl bg-surface border border-border shadow-[var(--shadow-card)] min-w-[240px]">
-            <div className="flex items-center justify-between text-xs text-text-muted">
-              <span>
-                {t(
-                  "pages:student.topicDetail.completedLabel",
-                  "Bạn đã hoàn thành",
-                )}
-              </span>
-              <b className="font-semibold text-text">
-                {t("pages:student.topicDetail.completedCount", {
-                  done: doneN,
+          <div className="col-span-full rounded-lg border border-border bg-surface p-5 shadow-[var(--shadow-card)] lg:col-span-1">
+            <div className="flex items-center justify-between text-[13px]">
+              <span className="text-text-muted">{t("student.topicDetail.completedLabel", "Bạn đã hoàn thành")}</span>
+              <b>
+                {t("student.topicDetail.completedCount", {
+                  done: doneCount,
                   total: totalCount,
-                  defaultValue: `${doneN}/${totalCount} bài`,
+                  defaultValue: `${doneCount}/${totalCount} bài`,
                 })}
               </b>
             </div>
-            <div className="h-2 rounded-full bg-border overflow-hidden mt-2.5">
-              <div
-                className="h-full rounded-full bg-gradient-primary transition-all duration-500 ease-out"
-                style={{
-                  width: `${totalCount ? Math.min(100, Math.round((doneN / totalCount) * 100)) : 0}%`,
-                }}
-              ></div>
-            </div>
+            <ProgressBar value={ratio * 100} label={t("student.topicDetail.completedLabel", "Bạn đã hoàn thành")} className="mt-2" />
           </div>
         </div>
       </div>
 
-      {/* ── Toolbar: Level & State Filter ── */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        {/* Level segment */}
+      <div className="mb-6 flex flex-wrap items-center gap-3">
         <SegmentedControl
-          ariaLabel={t("pages:student.topicDetail.levels.label", "Trình độ")}
+          ariaLabel={t("student.topicDetail.levels.label", "Trình độ")}
           value={levelFilter}
           onChange={setLevelFilter}
           options={[
             {
               value: "all",
-              label: t("pages:student.topicDetail.levels.all", "Mọi trình độ"),
+              label: t("student.topicDetail.levels.all", "Tất cả"),
             },
-            { value: "basic", label: "A1–A2" },
-            { value: "mid", label: "B1–B2" },
-            { value: "adv", label: "C1–C2" },
+            {
+              value: "basic",
+              label: t("student.lessons.toolbar.levels.basic", "Cơ bản (A1–A2)"),
+            },
+            {
+              value: "mid",
+              label: t("student.lessons.toolbar.levels.mid", "Trung cấp (B1–B2)"),
+            },
+            {
+              value: "adv",
+              label: t("student.lessons.toolbar.levels.adv", "Nâng cao (C1–C2)"),
+            },
           ]}
         />
-
-        {/* State segment */}
         <SegmentedControl
-          ariaLabel={t("pages:student.topicDetail.states.label", "Trạng thái")}
+          ariaLabel={t("student.topicDetail.states.label", "Trạng thái")}
           value={stateFilter}
           onChange={setStateFilter}
           options={[
             {
               value: "all",
-              label: t("pages:student.topicDetail.states.all", "Tất cả"),
+              label: t("student.topicDetail.states.all", "Tất cả"),
             },
             {
               value: "todo",
-              label: t("pages:student.topicDetail.states.todo", "Chưa học"),
+              label: t("student.topicDetail.states.todo", "Chưa học"),
             },
             {
               value: "doing",
-              label: t("pages:student.topicDetail.states.doing", "Đang học"),
+              label: t("student.topicDetail.states.doing", "Đang học"),
             },
             {
               value: "done",
-              label: t("pages:student.topicDetail.states.done", "Đã xong"),
+              label: t("student.topicDetail.states.done", "Đã xong"),
             },
           ]}
         />
-
-        <span className="flex-1"></span>
-        <span className="text-xs text-text-muted" id="tpCount">
-          {t("pages:student.topicDetail.showingCount", {
-            count: lessons.length,
+        <span className="flex-1" />
+        <span className="text-[13px] leading-normal text-text-muted" id="tpCount">
+          {t("student.topicDetail.showingCount", {
+            from: matchedCount ? page * PAGE_SIZE + 1 : 0,
+            to: page * PAGE_SIZE + lessons.length,
             total: matchedCount,
-            defaultValue: `Đang hiện ${lessons.length} / ${matchedCount} bài`,
+            defaultValue: `Bài ${matchedCount ? page * PAGE_SIZE + 1 : 0}–${page * PAGE_SIZE + lessons.length} / ${matchedCount}`,
           })}
         </span>
       </div>
 
-      {/* ── Grid of lessons ── */}
-      {isLessonsLoading && lessons.length === 0 ? (
-        <div className="flex justify-center p-12">
-          <i className="ph ph-circle-notch text-3xl animate-spin text-primary"></i>
-        </div>
+      {lessonsQuery.isError ? (
+        <QueryError error={lessonsQuery.error} onRetry={() => void lessonsQuery.refetch()} retrying={lessonsQuery.isFetching} />
+      ) : lessonsQuery.isLoading ? (
+        <LessonGridSkeleton count={8} />
       ) : lessons.length > 0 ? (
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
-          id="tpGrid"
-        >
-          {lessons.map((lesson) => (
-            <LessonCard key={lesson.id} lesson={lesson} />
-          ))}
+        <LessonGrid id="tpGrid" lessons={lessons} />
+      ) : filteredOut ? (
+        <div className="flex flex-col items-center px-4 py-12 text-center">
+          <img src="/mascot/loopi-encourage.svg" alt="" width={120} height={120} className="mb-3 select-none" draggable={false} />
+          <h3 className="text-lg font-bold">{t("student.topicDetail.empty.title", "Chưa có bài nào ở mục này")}</h3>
+          <p className="mt-1 text-[13px] leading-normal text-text-muted">{t("student.topicDetail.empty.desc", "Đổi trình độ hoặc trạng thái để xem thêm bài.")}</p>
         </div>
       ) : (
-        <EmptyState
-          title={t(
-            "pages:student.topicDetail.empty.title",
-            "Chưa có bài nào ở mục này",
-          )}
-          description={t(
-            "pages:student.topicDetail.empty.desc",
-            "Đổi trình độ hoặc trạng thái để xem thêm bài.",
-          )}
-        />
-      )}
-
-      {/* ── Load more button ── */}
-      {lessons.length < matchedCount && (
-        <div className="text-center mt-8" id="tpMore">
-          <Button
-            variant="ghost"
-            onClick={handleLoadMore}
-            rightIcon={<i className="ph ph-caret-down"></i>}
-          >
-            {t("pages:student.topicDetail.loadMore", {
-              count: matchedCount - lessons.length,
-              defaultValue: `Xem thêm ${matchedCount - lessons.length} bài`,
-            })}
-          </Button>
+        <div className="flex flex-col items-center rounded-lg border border-border bg-surface px-6 py-12 text-center shadow-[var(--shadow-card)]">
+          <img src="/mascot/loopi-hello.svg" alt="" width={112} height={112} className="select-none" draggable={false} />
+          <h2 className="mt-2 font-display text-2xl font-bold">{t("student.topicDetail.noLessons.title", "Chủ đề này chưa có bài")}</h2>
+          <p className="mt-2 max-w-md text-text-muted">{t("student.topicDetail.noLessons.desc", "Bài học mới đang được biên tập. Hãy xem các chủ đề khác trong lúc chờ.")}</p>
+          <div className="mt-6">
+            <Link to="/student/lessons">
+              <Button>{t("student.topicDetail.noLessons.action", "Xem các chủ đề khác")}</Button>
+            </Link>
+          </div>
         </div>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
     </section>
   );
 };

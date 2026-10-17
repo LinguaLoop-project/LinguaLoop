@@ -7,7 +7,15 @@ const STORAGE_KEY = "ll3-theme";
 const LEGACY_KEY = "ll_theme";
 const isTheme = (value: unknown): value is Theme => value === "dark" || value === "light";
 
-/** Theme đã lưu; chưa chọn thì dark (mặc định của design system). */
+function systemTheme(): Theme {
+  try {
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  } catch {
+    return "dark";
+  }
+}
+
+/** Theme đã lưu; chưa chọn thì theo cài đặt hệ thống (DESIGN.v2 §9). */
 function readStoredTheme(): Theme {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -20,7 +28,7 @@ function readStoredTheme(): Theme {
   } catch {
     // localStorage bị chặn hoặc JSON hỏng: dùng mặc định
   }
-  return "dark";
+  return systemTheme();
 }
 
 // Một nguồn duy nhất cho mọi nút đổi theme, nên bấm ở đâu thì các nút khác cũng đổi theo.
