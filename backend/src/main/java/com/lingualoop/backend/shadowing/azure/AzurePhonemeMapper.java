@@ -63,7 +63,22 @@ public final class AzurePhonemeMapper {
         if (mapped != null) {
             return mapped;
         }
-        return IDENTICAL.contains(symbol) ? symbol : null;
+        if (IDENTICAL.contains(symbol)) {
+            return symbol;
+        }
+        return convertRColoured(symbol);
+    }
+
+    /**
+     * Azure còn trả nguyên âm kèm r thành MỘT âm (vd "ɔɹ" trong "morning", "ɪɹ" trong "near"). Chuyển theo nguyên
+     * âm: "ɔɹ"→ɔː, "ɑɹ"→ɑː, "ɪɹ"→ɪə, "ɛɹ"→eə, "ʊɹ"→ʊə. Âm r đã nằm trong âm gộp nên không tách riêng.
+     */
+    private static String convertRColoured(String symbol) {
+        if (symbol.length() < 2 || !isR(symbol.substring(symbol.length() - 1))) {
+            return null;
+        }
+        String vowel = convert(symbol.substring(0, symbol.length() - 1));
+        return vowel == null ? null : BEFORE_R.getOrDefault(vowel, vowel);
     }
 
     private static boolean isR(String symbol) {

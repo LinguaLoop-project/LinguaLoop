@@ -21,7 +21,9 @@ class AzurePhonemeMapperTest {
     private static final List<String> AZURE_EN_US = List.of(
             "b", "d", "dʒ", "ð", "f", "g", "ɡ", "h", "j", "k", "l", "m", "n", "ŋ", "p", "ɹ", "s", "ʃ", "t", "tʃ",
             "θ", "v", "w", "z", "ʒ",
-            "ə", "ɚ", "æ", "aɪ", "aʊ", "ɑ", "ɛ", "eɪ", "ɝ", "ɪ", "i", "oʊ", "ɔ", "ɔɪ", "ʊ", "u", "ʌ");
+            "ə", "ɚ", "æ", "aɪ", "aʊ", "ɑ", "ɛ", "eɪ", "ɝ", "ɪ", "i", "oʊ", "ɔ", "ɔɪ", "ʊ", "u", "ʌ",
+            // nguyên âm kèm r thành một âm (đo được từ Azure thật: "ɔɹ" ở "morning")
+            "ɔɹ", "ɑɹ", "ɛɹ", "ɪɹ", "ʊɹ");
 
     private static List<String> map(String... azure) {
         return AzurePhonemeMapper.toTableSymbols(Arrays.asList(azure));
@@ -55,6 +57,16 @@ class AzurePhonemeMapperTest {
         assertThat(map("n", "ɪ", "ɹ")).containsExactly("n", "ɪə", "r");      // near
         assertThat(map("s", "k", "w", "ɛ", "ɹ")).containsExactly("s", "k", "w", "eə", "r"); // square
         assertThat(map("k", "j", "ʊ", "ɹ")).containsExactly("k", "j", "ʊə", "r");           // cure
+    }
+
+    @Test
+    void rColouredVowelAsOneSymbol_mapsToVowelWithoutExtraR_AC_SHADOW_13() {
+        assertThat(map("m", "ɔɹ", "n")).containsExactly("m", "ɔː", "n");     // morning (đo từ Azure thật)
+        assertThat(map("ɑɹ")).containsExactly("ɑː");                          // car
+        assertThat(map("n", "ɪɹ")).containsExactly("n", "ɪə");                // near
+        assertThat(map("w", "ɛɹ")).containsExactly("w", "eə");                // where
+        assertThat(map("p", "ʊɹ")).containsExactly("p", "ʊə");                // pure
+        assertThat(map("ˈɔɹ")).containsExactly("ɔː");                          // có dấu trọng âm
     }
 
     @Test
