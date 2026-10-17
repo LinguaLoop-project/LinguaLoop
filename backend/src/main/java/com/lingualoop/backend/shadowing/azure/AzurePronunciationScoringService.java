@@ -1,0 +1,162 @@
+package com.lingualoop.backend.shadowing.azure;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lingualoop.backend.common.exception.BusinessException;
+import com.lingualoop.backend.common.exception.ErrorCode;
+import com.lingualoop.backend.config.AzureSpeechProperties;
+import com.microsoft.cognitiveservices.speech.CancellationDetails;
+import com.microsoft.cognitiveservices.speech.PronunciationAssessmentConfig;
+import com.microsoft.cognitiveservices.speech.PronunciationAssessmentGradingSystem;
+import com.microsoft.cognitiveservices.speech.PronunciationAssessmentGranularity;
+import com.microsoft.cognitiveservices.speech.PronunciationAssessmentResult;
+import com.microsoft.cognitiveservices.speech.PropertyId;
+import com.microsoft.cognitiveservices.speech.ResultReason;
+import com.microsoft.cognitiveservices.speech.SpeechConfig;
+import com.microsoft.cognitiveservices.speech.SpeechRecognitionResult;
+import com.microsoft.cognitiveservices.speech.SpeechRecognizer;
+import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+/** Chấm bằng Azure Speech (Pronunciation Assessment, mức âm vị, IPA, en-US). Chuyển từ demo azure-pronunciation-demo. */
+@Slf4j
+@Service
+@RequiredArgsConstructor
+class AzurePronunciationScoringService implements PronunciationScoringService {
+
+    private static final String LOCALE = "en-US";
+    private static final ObjectMapper JSON = new ObjectMapper();
+
+    private final AzureSpeechProperties properties;
+
+    @Override
+    public PronunciationAssessment assess(byte[] wav, String referenceText) {
+        if (!properties.configured()) {
+            log.error("Azure Speech chưa cấu hình (AZURE_SPEECH_KEY trống)");
+            throw new BusinessException(ErrorCode.SHADOWING_SCORING_UNAVAILABLE);
+        }
+        Path tempFile = null;
+        try {
+            // SDK đọc WAV từ đường dẫn; tệp tạm xoá ngay sau khi chấm.
+            tempFile = Files.createTempFile("shadowing-", ".wav");
+            Files.write(tempFile, wav);
+            return recognize(tempFile, referenceText);
+        } catch (BusinessException e) {
+            throw e;
+        } catch (IOException | ExecutionException | RuntimeException e) {
+            log.error("Azure chấm phát âm lỗi", e);
+            throw new BusinessException(ErrorCode.SHADOWING_SCORING_UNAVAILABLE);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new BusinessException(ErrorCode.SHADOWING_SCORING_UNAVAILABLE);
+        } finally {
+            deleteQuietly(tempFile);
+        }
+    }
+
+    private PronunciationAssessment recognize(Path wavPath, String referenceText)
+            throws ExecutionException, InterruptedException {
+        try (SpeechConfig speechConfig = SpeechConfig.fromSubscription(properties.key(), properties.region());
+                AudioConfig audioConfig = AudioConfig.fromWavFileInput(wavPath.toString());
+                PronunciationAssessmentConfig assessmentConfig = new PronunciationAssessmentConfig(
+                        referenceText,
+                        PronunciationAssessmentGradingSystem.HundredMark,
+                        PronunciationAssessmentGranularity.Phoneme,
+                        true)) {
+            speechConfig.setSpeechRecognitionLanguage(LOCALE);
+            assessmentConfig.enableProsodyAssessment();
+            // IPA (θ, ð, ʃ…) thay cho SAPI mặc định (th, dh, sh…) để chuyển được sang bảng phonemes.
+            assessmentConfig.setPhonemeAlphabet("IPA");
+
+            try (SpeechRecognizer recognizer = new SpeechRecognizer(speechConfig, audioConfig)) {
+                assessmentConfig.applyTo(recognizer);
+                SpeechRecognitionResult result = recognizer.recognizeOnceAsync().get();
+
+                if (result.getReason() == ResultReason.RecognizedSpeech) {
+                    return toAssessment(result);
+                }
+                if (result.getReason() == ResultReason.NoMatch) {
+                    throw new BusinessException(ErrorCode.SHADOWING_NO_SPEECH);
+                }
+                if (result.getReason() == ResultReason.Canceled) {
+                    CancellationDetails details = CancellationDetails.fromResult(result);
+                    log.error("Azure huỷ nhận dạng: {} - {}", details.getReason(), details.getErrorDetails());
+                } else {
+                    log.error("Azure trả kết quả không mong đợi: {}", result.getReason());
+                }
+                throw new BusinessException(ErrorCode.SHADOWING_SCORING_UNAVAILABLE);
+            }
+        }
+    }
+
+    private PronunciationAssessment toAssessment(SpeechRecognitionResult result) {
+        PronunciationAssessmentResult overall = PronunciationAssessmentResult.fromResult(result);
+        Double prosody = null;
+        try {
+            prosody = overall.getProsodyScore();
+        } catch (RuntimeException e) {
+            log.debug("Không có điểm ngữ điệu");
+        }
+        return new PronunciationAssessment(
+                result.getText(),
+                overall.getPronunciationScore(),
+                overall.getAccuracyScore(),
+                overall.getFluencyScore(),
+                overall.getCompletenessScore(),
+                prosody,
+                parseWords(result.getProperties().getProperty(PropertyId.SpeechServiceResponse_JsonResult)));
+    }
+
+    /** Đọc {@code NBest[0].Words[]} trong JSON đầy đủ của Azure (SDK không expose âm vị theo kiểu). */
+    static List<PronunciationAssessment.WordResult> parseWords(String json) {
+        List<PronunciationAssessment.WordResult> words = new ArrayList<>();
+        if (json == null || json.isBlank()) {
+            return words;
+        }
+        try {
+            JsonNode best = JSON.readTree(json).path("NBest");
+            if (!best.isArray() || best.isEmpty()) {
+                return words;
+            }
+            for (JsonNode wordNode : best.get(0).path("Words")) {
+                JsonNode assessment = wordNode.path("PronunciationAssessment");
+                List<PronunciationAssessment.PhonemeResult> phonemes = new ArrayList<>();
+                for (JsonNode phoneNode : wordNode.path("Phonemes")) {
+                    phonemes.add(new PronunciationAssessment.PhonemeResult(
+                            phoneNode.path("Phoneme").asText(),
+                            phoneNode.path("PronunciationAssessment").path("AccuracyScore").asDouble(0)));
+                }
+                words.add(new PronunciationAssessment.WordResult(
+                        wordNode.path("Word").asText(),
+                        assessment.path("AccuracyScore").asDouble(0),
+                        PronunciationAssessment.ErrorType.fromAzure(assessment.path("ErrorType").asText(null)),
+                        phonemes));
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Không đọc được JSON kết quả chấm của Azure", e);
+        }
+        return words;
+    }
+
+    private static void deleteQuietly(Path path) {
+        if (path == null) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            log.warn("Không xoá được tệp tạm {}", path);
+        }
+    }
+}

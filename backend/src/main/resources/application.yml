@@ -15,6 +15,11 @@ spring:
     locations: classpath:db/migration
   jackson:
     time-zone: UTC
+  servlet:
+    multipart:
+      # ghi âm shadowing tối đa 30 giây ~ 0,94 MB (BR-SHADOW-03)
+      max-file-size: 2MB
+      max-request-size: 2MB
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT:587}
@@ -68,3 +73,10 @@ app:
     redirect-uri: ${GOOGLE_REDIRECT_URI:}
     oauth-url: https://oauth2.googleapis.com
     user-info-url: https://openidconnect.googleapis.com
+  usage:
+    # ngày của hạn mức đổi lúc 00:00 theo múi giờ này (BR-SHADOW-01)
+    zone: Asia/Ho_Chi_Minh
+  azure:
+    speech:
+      key: ${AZURE_SPEECH_KEY:}
+      region: ${AZURE_SPEECH_REGION:southeastasia}
