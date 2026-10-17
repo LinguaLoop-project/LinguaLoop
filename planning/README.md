@@ -35,7 +35,7 @@ Việc ít quan trọng (Could) nằm ở tuần 10–11. Nếu trễ, cắt ở
 
 ## 3. Ai sở hữu bảng dữ liệu
 
-Chỉ chủ sở hữu được sửa cấu trúc và ghi vào bảng. Người kia đọc qua service hoặc view đã thoả thuận.
+Chủ sở hữu là người **duyệt và chịu trách nhiệm** bảng, không phải người duy nhất được viết code (thống nhất 2026-10-17). Ai cần thì tự viết service, phần cài đặt hoặc migration trong feature của người kia rồi gửi PR cho chủ duyệt. Migration phải báo chủ trước khi tạo file để tránh trùng version và sửa cùng ràng buộc. Gọi chéo giữa các feature vẫn chỉ qua interface service, không import repository hay entity của feature khác. Commit và PR đứng tên người viết để rõ đóng góp.
 
 | Chủ | Nhóm | Bảng (tên trong database) |
 |---|---|---|
@@ -79,6 +79,9 @@ Nếu muốn đổi interface sau khi đã merge, báo người kia trước.
 | Kế | Lâm | Chấm phát âm một đoạn ghi âm (`PronunciationScoringService`, dùng chung Azure với shadowing) | Tuần 7: kiểm tra trình độ, phần nói | Tuần 5 |
 | Kế | Lâm | Gợi ý mức CEFR cho câu (`CefrSuggestService`: nhận câu, trả mức CEFR và độ tin cậy) | Tuần 11: nút "Nhờ AI gợi ý CEFR" trong soạn bài và màn duyệt CEFR | Tuần 10 |
 | Kế | Lâm | View số lượt chấm và AI theo ngày | Tuần 11: tổng quan admin | Tuần 10 |
+| Kế | Lâm | Ghi và đọc lượt nghe chép kèm kết quả từng từ (`PracticeAttemptService`; Kế viết giúp, Lâm duyệt) | Tuần 3: nghe chép lưu lượt, hiện kết quả gần nhất của từng câu | Tuần 2 |
+| Kế | Lâm | Số cơ hội và lỗi theo nhóm từ của người dùng (`DictationStatsQueryService`; Kế viết giúp, Lâm duyệt) | Tuần 3: nghe chép mức Easy khoét ô theo điểm yếu | Tuần 2 |
+| Lâm | Kế | Tách và phân loại từ của một câu (`SentenceTokenService`) | Tuần 9: chọn câu có nhiều từ thuộc nhóm điểm yếu | Tuần 3 |
 
 ## 5. Quy ước
 
