@@ -83,6 +83,13 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 | 8 | Mất mạng hoặc server lỗi lúc chấm | Báo lỗi, nút thử lại; số lượt còn lại không đổi |
 | 9 | Đóng bài rồi mở lại | Hiện "Tiếp tục từ câu x · đã đọc y/z" và điểm cũ của từng câu |
 | 10 | Slug sai, bài Pro với Free | Trang "không tìm thấy bài" / hộp nâng cấp |
+| 11 | Bấm một câu trong danh sách (tab Luyện) | Chọn câu đó và phát ngay đoạn mẫu: video tua tới đúng đoạn, hoặc tệp âm thanh phát từ đúng giây, hoặc giọng tổng hợp nếu không có |
+| 12 | Danh sách ở tab Luyện | Câu chưa đọc bị che chữ (chỉ còn dấu câu); câu đã đọc hiện chữ, điểm cao nhất và số lần |
+| 13 | Bấm "Xem" (hoặc Alt+W) | Danh sách hiện chữ mọi câu; bấm "Xem từ câu n" phát liền mạch, câu đang nói sáng và danh sách tự cuộn theo; "Dừng" dừng lại |
+| 14 | Ở tab Xem, bấm một câu trong danh sách | Tua tới câu đó và xem tiếp từ đây |
+| 15 | Bấm ⚙ Cài đặt | Có ba công tắc: hiện phiên âm, hiện bản dịch, phụ đề khi xem. Đổi thì giao diện đổi ngay và giữ nguyên sau khi tải lại trang |
+| 16 | Bấm "Ẩn video" (bài YouTube) | Khung video thu về 0 nhưng âm thanh vẫn phát; "Hiện video" khôi phục |
+| 17 | Phím tắt ở tab Luyện | Space ghi âm/dừng, nhả Ctrl nghe mẫu, R nghe lại giọng mình, C so sánh; Alt+←/→ đổi câu; Alt+W/Alt+P đổi tab. Không kích hoạt khi đang gõ vào ô nhập; Space nhường cho nút đang được focus |
 
 ---
 
@@ -92,5 +99,5 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 - Hàng đợi ôn câu làm kém (`user_sentence_review`), điền `myBestScore` ở danh sách câu, `completed_at` mức bài (cần thống nhất với nghe chép).
 - Hộp thoại xin đồng ý lần ghi âm đầu và API `/me/consents` (Kế).
 - Nhận xét AI, Mẹo sửa, video khẩu hình (lát B); Phiên gia sư (lát C).
-- Phần của mockup chưa làm ở trang luyện: tab "Xem" (phát liền mạch), cài đặt (IPA, bản dịch, phụ đề), phím tắt, ẩn video, đoạn thanh thời gian trên video.
+- Phần của mockup chưa làm ở trang luyện: thanh thời gian chia đoạn trên video, công tắc "Gia sư" (lát C).
 - Phát câu mẫu: video YouTube hoặc tệp âm thanh của bài, cắt theo thời gian của câu; không có thì dùng giọng tổng hợp của trình duyệt.
