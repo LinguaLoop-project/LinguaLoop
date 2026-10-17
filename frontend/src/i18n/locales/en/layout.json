@@ -230,5 +230,9 @@
       "actions": "Actions",
       "none": "No results for “{{q}}”"
     }
+  },
+  "dev": {
+    "title": "Dev tools: switch Free/Pro, reset today's usage",
+    "resetUsage": "Reset today's usage"
   }
 }

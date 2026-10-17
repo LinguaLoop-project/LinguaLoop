@@ -4,6 +4,8 @@ import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useQuota } from "@/hooks/useQuota";
+import DevPlanSwitch from "@/features/subscription/components/DevPlanSwitch";
+import { DEV_TOOLS_ENABLED } from "@/features/subscription/devTools";
 import { useTheme } from "@/hooks/useTheme";
 import AccountMenu from "./AccountMenu";
 import type { ShellConfig } from "./shellConfig";
@@ -83,6 +85,7 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
 
       {learner && (
         <>
+          {DEV_TOOLS_ENABLED && <DevPlanSwitch />}
           <span className={`${PILL} max-sm:hidden`} title={t("student.topbar.streak")}>
             <Icon name="flame" />
             <span className="font-display tabular-nums">4</span>
