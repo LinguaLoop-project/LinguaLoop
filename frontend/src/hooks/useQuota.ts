@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useAuthStore } from "../features/auth/stores/authStore";
+import { useMyPlan } from "../features/subscription/hooks/useMyPlan";
 import { useQuotaStore } from "../stores/quotaStore";
 
 export const MAX_FREE_ACTIONS = 5;
@@ -28,6 +29,7 @@ function getStoredCount(userId?: string): number {
 export function useQuota() {
   const { user } = useAuthStore();
   const { showUpgradeModal, setShowUpgradeModal } = useQuotaStore();
+  const { data: myPlan } = useMyPlan();
 
   const [actionsToday, setActionsToday] = useState(() =>
     getStoredCount(user?.id),
@@ -40,11 +42,11 @@ export function useQuota() {
     setActionsToday(getStoredCount(user?.id));
   }
 
-  // Consider users with missing plan as 'free'
+  // Gói do server tính; chưa tải xong hoặc lỗi thì coi là 'free'
   const isPro =
     user?.role === "admin" ||
     user?.role === "instructor" ||
-    (user as Record<string, unknown>)?.plan === "pro";
+    myPlan?.plan === "pro";
 
   const checkQuota = useCallback((): boolean => {
     if (isPro) return true;

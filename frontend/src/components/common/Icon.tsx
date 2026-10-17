@@ -90,6 +90,7 @@ import {
   Video,
   Volume2,
   WandSparkles,
+  Wrench,
   X,
   Zap,
 } from "lucide-react";
@@ -101,6 +102,7 @@ const ICONS: Record<string, LucideIcon> = {
   "music-2": Music2,
   "upload": Upload,
   "rotate-cw": RotateCw,
+  "wrench": Wrench,
   "panel-left-close": PanelLeftClose,
   "panel-left-open": PanelLeftOpen,
   "arrow-left": ArrowLeft,
