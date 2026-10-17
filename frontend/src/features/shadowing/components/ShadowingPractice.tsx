@@ -13,6 +13,8 @@ import { useQuota } from "@/hooks/useQuota";
 import { toast } from "@/stores/toastStore";
 import { useAssessAttempt } from "../hooks/useShadowing";
 import { useModelPlayer } from "../hooks/useModelPlayer";
+import { useShadowingHotkeys, type ShadowingTab } from "../hooks/useShadowingHotkeys";
+import { RATES, useShadowingSettings } from "../hooks/useShadowingSettings";
 import { useWavRecorder } from "../hooks/useWavRecorder";
 import type { LatestAttempt, SentenceRecord } from "../types";
 import { recordFromAttempt, toneOf, youtubeId } from "../utils";
@@ -21,10 +23,12 @@ import { MessageNote, MicDeniedNote, QuotaOutNote } from "./Notes";
 import QuotaChip from "./QuotaChip";
 import SentenceList from "./SentenceList";
 import SentenceWords from "./SentenceWords";
+import { SettingsPanel, ShortcutsPanel } from "./ToolbarPanels";
+import ToolbarPopover from "./ToolbarPopover";
+import WatchPanel from "./WatchPanel";
 import WordDetail from "./WordDetail";
 
 const K = "student.shadowingPractice";
-const RATES = ["0.5", "0.75", "1"];
 
 type Phase = "idle" | "recording" | "scoring";
 
@@ -81,7 +85,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     const first = sentences.findIndex((s) => !latest.some((l) => l.sentenceId === s.id));
     return Math.max(0, first);
   });
-  const [rate, setRate] = useState("0.75");
+  const { settings, update: updateSettings } = useShadowingSettings();
+  const [tab, setTab] = useState<ShadowingTab>("practice");
   const [phase, setPhase] = useState<Phase>("idle");
   const [note, setNote] = useState<Note | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
@@ -98,11 +103,12 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     hostRef: videoHostRef,
     playing: modelPlaying,
     play: playModel,
+    watch: watchAll,
     stop: stopPlayer,
     showVideo,
     videoFailed,
     retryVideo,
-  } = useModelPlayer({ videoId, mediaUrl, rate: Number(rate) });
+  } = useModelPlayer({ videoId, mediaUrl, rate: Number(settings.rate) });
 
   const sentence = sentences[index];
   const record = records[sentence.id];
@@ -231,6 +237,33 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     setNote(null);
   };
 
+  /** Bấm một câu trong danh sách: chọn câu và chiếu luôn đoạn mẫu của câu đó (video tua tới đúng đoạn). */
+  const pickFromList = (i: number) => {
+    if (busy) return;
+    if (tab === "watch") {
+      // Tab Xem: tua tới câu đó và xem tiếp từ đây
+      setIndex(i);
+      watchAll(sentences, i, setIndex);
+      return;
+    }
+    goTo(i);
+    playModel(sentences[i]);
+  };
+
+  const toggleWatch = () => {
+    if (modelPlaying) stopPlayer();
+    else watchAll(sentences, index, setIndex);
+  };
+
+  const switchTab = (next: ShadowingTab) => {
+    if (next === tab || busy) return;
+    stopPlayer();
+    mineAudioRef.current?.pause();
+    setSelected(null);
+    setNote(null);
+    setTab(next);
+  };
+
   const goNext = () => {
     const after = sentences.findIndex((s, j) => j > index && !records[s.id]);
     const before = sentences.findIndex((s) => !records[s.id]);
@@ -238,6 +271,24 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     else if (before >= 0) goTo(before);
     else if (index < sentences.length - 1) goTo(index + 1);
   };
+
+  useShadowingHotkeys(
+    {
+      toggleRecord: onMicClick,
+      playModel: listen,
+      playMine,
+      compare,
+      prev: () => {
+        if (index > 0) goTo(index - 1);
+      },
+      next: () => {
+        if (index < sentences.length - 1) goTo(index + 1);
+      },
+      setTab: switchTab,
+    },
+    tab,
+    true,
+  );
 
   const micLabel =
     phase === "recording"
@@ -269,7 +320,24 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
             {t(`${K}.title`)}
           </h1>
         </div>
-        <QuotaChip />
+        <div className="flex flex-wrap items-center gap-2">
+          <SegmentedControl
+            ariaLabel={t(`${K}.tabs.label`)}
+            options={[
+              { value: "watch", label: t(`${K}.tabs.watch`), icon: <Icon name="play" /> },
+              { value: "practice", label: t(`${K}.tabs.practice`), icon: <Icon name="mic" /> },
+            ]}
+            value={tab}
+            onChange={(v) => switchTab(v as ShadowingTab)}
+          />
+          <ToolbarPopover label={t(`${K}.toolbar.settings`)} icon="settings">
+            <SettingsPanel settings={settings} onChange={updateSettings} />
+          </ToolbarPopover>
+          <ToolbarPopover label={t(`${K}.toolbar.shortcuts`)} icon="keyboard">
+            <ShortcutsPanel />
+          </ToolbarPopover>
+          <QuotaChip />
+        </div>
       </header>
 
       <div className="grid grid-cols-1 items-start gap-6 min-[1100px]:grid-cols-[minmax(0,1fr)_320px]">
@@ -278,12 +346,25 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
           <div className="rounded-lg border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
             <div className="mb-3 flex items-center gap-2 text-sm text-text-muted">
               <Icon name={showVideo ? "video" : "headphones"} />
-              {showVideo ? t(`${K}.video.badge`) : t(`${K}.video.audioBadge`)}
+              <span className="flex-1">{showVideo ? t(`${K}.video.badge`) : t(`${K}.video.audioBadge`)}</span>
+              {showVideo && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-pressed={settings.hideVideo}
+                  onClick={() => updateSettings({ hideVideo: !settings.hideVideo })}
+                  leftIcon={<Icon name={settings.hideVideo ? "eye" : "eye-off"} />}
+                >
+                  {settings.hideVideo ? t(`${K}.video.show`) : t(`${K}.video.hide`)}
+                </Button>
+              )}
             </div>
             {showVideo && (
               <div
                 ref={videoHostRef}
-                className="aspect-video w-full overflow-hidden rounded-md bg-bg-elevated [&_iframe]:h-full [&_iframe]:w-full"
+                className={`w-full overflow-hidden rounded-md bg-bg-elevated [&_iframe]:h-full [&_iframe]:w-full ${
+                  settings.hideVideo ? "h-0" : "aspect-video"
+                }`}
               />
             )}
             {videoFailed && (
@@ -308,10 +389,21 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
               {sentence.cefrLevel && <Badge variant={sentence.cefrLevel}>{sentence.cefrLevel}</Badge>}
             </div>
 
+            {tab === "watch" ? (
+              <WatchPanel
+                playing={modelPlaying}
+                sentenceNo={index + 1}
+                subtitles={settings.subs}
+                caption={sentence.text}
+                onToggle={toggleWatch}
+                onPractice={() => switchTab("practice")}
+              />
+            ) : (
+              <>
             <div className="flex flex-col gap-2">
               <SentenceWords text={sentence.text} words={record?.words ?? []} selected={selected} onSelect={setSelected} />
-              {sentence.ipa && <p className="text-sm text-text-subtle">{sentence.ipa}</p>}
-              {sentence.textVi && <p className="text-sm text-text-muted">{sentence.textVi}</p>}
+              {settings.ipa && sentence.ipa && <p className="text-sm text-text-subtle">{sentence.ipa}</p>}
+              {settings.vi && sentence.textVi && <p className="text-sm text-text-muted">{sentence.textVi}</p>}
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -346,8 +438,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
               <SegmentedControl
                 ariaLabel={t(`${K}.speed`)}
                 options={RATES.map((r) => ({ value: r, label: `${r}×` }))}
-                value={rate}
-                onChange={setRate}
+                value={settings.rate}
+                onChange={(rate) => updateSettings({ rate })}
               />
             </div>
 
@@ -416,6 +508,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                 {t(`${K}.next`)}
               </Button>
             </div>
+              </>
+            )}
           </div>
 
           {finished && (
@@ -432,7 +526,12 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
           )}
         </div>
 
-        <SentenceList sentences={sentences} records={records} current={index} disabled={busy} onGo={goTo} />
+        <SentenceList sentences={sentences} records={records} current={index}
+          disabled={busy}
+          revealAll={tab === "watch"}
+          showVi={settings.vi}
+          onGo={pickFromList}
+        />
       </div>
     </section>
   );

@@ -228,6 +228,97 @@ export function useModelPlayer({
     [mediaFailed, rate, stop, videoFailed, videoReady],
   );
 
+  /**
+   * Tab Xem: phát liền mạch từ câu `from` tới hết bài, gọi `onIndex` mỗi khi sang câu mới để danh sách sáng
+   * theo lời nói. Nguồn phát như {@link play}: video, tệp âm thanh, hoặc đọc lần lượt từng câu.
+   */
+  const watch = useCallback(
+    (segments: ModelSegment[], from: number, onIndex: (index: number) => void, onDone?: () => void) => {
+      stop();
+      const run = runRef.current;
+      setPlaying(true);
+      const finish = () => {
+        if (runRef.current !== run) return;
+        stop();
+        onDone?.();
+      };
+      const last = segments[segments.length - 1];
+      let current = from;
+      onIndex(from);
+      const follow = (seconds: number) => {
+        const k = segments.findIndex((s) => seconds >= s.startMs / 1000 && seconds < s.endMs / 1000);
+        if (k >= 0 && k !== current) {
+          current = k;
+          onIndex(k);
+        }
+      };
+
+      const speakFrom = (k: number) => {
+        if (runRef.current !== run) return;
+        if (k >= segments.length) {
+          finish();
+          return;
+        }
+        current = k;
+        onIndex(k);
+        speakSegment(segments[k].text, 1, () => speakFrom(k + 1));
+      };
+
+      const player = playerRef.current;
+      if (player && videoReady && !videoFailed) {
+        try {
+          player.setPlaybackRate(1);
+          player.seekTo(segments[from].startMs / 1000, true);
+          player.playVideo();
+          timerRef.current = window.setInterval(() => {
+            let t = 0;
+            try {
+              t = player.getCurrentTime();
+            } catch {
+              // chờ lần sau
+            }
+            follow(t);
+            if (t >= last.endMs / 1000) {
+              try {
+                player.pauseVideo();
+              } catch {
+                // bỏ qua
+              }
+              finish();
+            }
+          }, 120);
+          return;
+        } catch {
+          setVideoFailed(true);
+        }
+      }
+
+      const audio = audioRef.current;
+      if (audio && !mediaFailed) {
+        audio.playbackRate = 1;
+        audio.currentTime = segments[from].startMs / 1000;
+        audio
+          .play()
+          .then(() => {
+            timerRef.current = window.setInterval(() => {
+              follow(audio.currentTime);
+              if (audio.currentTime >= last.endMs / 1000 || audio.ended) {
+                audio.pause();
+                finish();
+              }
+            }, 120);
+          })
+          .catch(() => {
+            setMediaFailed(true);
+            speakFrom(from);
+          });
+        return;
+      }
+      speakFrom(from);
+    },
+    [mediaFailed, stop, videoFailed, videoReady],
+  );
+
   const retryVideo = useCallback(() => {
     setVideoFailed(false);
     setVideoReady(false);
@@ -238,6 +329,7 @@ export function useModelPlayer({
     hostRef,
     playing,
     play,
+    watch,
     stop,
     showVideo: !!videoId && !videoFailed,
     videoFailed: !!videoId && videoFailed,

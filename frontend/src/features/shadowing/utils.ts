@@ -69,6 +69,9 @@ export function recordFromAttempt(
   };
 }
 
+/** Che chữ của câu chưa đọc trong danh sách (chỉ giữ dấu câu), để người học nghe trước rồi mới nhìn chữ. */
+export const maskText = (text: string): string => text.replace(/[A-Za-z0-9']/g, "*");
+
 /** ID video từ liên kết YouTube (watch, youtu.be, embed, shorts); null nếu không phải YouTube. */
 export function youtubeId(url: string | null | undefined): string | null {
   if (!url) return null;

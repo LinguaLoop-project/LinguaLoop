@@ -325,13 +325,57 @@
         "failBody": "You can still practise: the model sentence will be read by a synthetic voice.",
         "retry": "Reload video",
         "badge": "YouTube",
-        "audioBadge": "Audio lesson"
+        "audioBadge": "Audio lesson",
+        "hide": "Hide video",
+        "show": "Show video"
       },
       "locked": {
         "title": "This lesson is for Pro",
         "body": "Upgrade to practise shadowing with this lesson.",
         "upgrade": "Unlock with Pro",
         "back": "Back to lesson library"
+      },
+      "tabs": {
+        "label": "Mode",
+        "watch": "Watch",
+        "practice": "Practise"
+      },
+      "toolbar": {
+        "settings": "Settings",
+        "shortcuts": "Shortcuts"
+      },
+      "watching": "Watching",
+      "watch": {
+        "title": "Watch mode",
+        "hint": "Watch the whole lesson in one go; the sentence list lights up as it is spoken.",
+        "playFrom": "Watch from sentence {{n}}",
+        "pause": "Pause",
+        "practiceThis": "Practise this sentence",
+        "subsOff": "Subtitles are off. Turn them on in ⚙ if you need them."
+      },
+      "settings": {
+        "title": "Settings",
+        "ipa": {
+          "label": "Show pronunciation",
+          "hint": "American phonetic transcription of the sentence"
+        },
+        "vi": {
+          "label": "Show Vietnamese translation",
+          "hint": "Under the sentence and in the list"
+        },
+        "subs": {
+          "label": "Subtitles while watching",
+          "hint": "Watch tab only; off by default to keep it tidy"
+        }
+      },
+      "shortcuts": {
+        "title": "Shortcuts",
+        "record": "Record / stop",
+        "model": "Hear the model (on release)",
+        "mine": "My voice",
+        "compare": "Compare",
+        "step": "Previous / next sentence",
+        "tabs": "Watch / Practise tab"
       }
     }
   },

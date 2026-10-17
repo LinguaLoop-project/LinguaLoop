@@ -325,13 +325,57 @@
         "failBody": "Bạn vẫn luyện được: câu mẫu sẽ được đọc bằng giọng mô phỏng.",
         "retry": "Tải lại video",
         "badge": "YouTube",
-        "audioBadge": "Bài nghe"
+        "audioBadge": "Bài nghe",
+        "hide": "Ẩn video",
+        "show": "Hiện video"
       },
       "locked": {
         "title": "Bài này dành cho gói Pro",
         "body": "Nâng cấp để luyện shadowing với bài này.",
         "upgrade": "Mở với Pro",
         "back": "Về thư viện bài học"
+      },
+      "tabs": {
+        "label": "Chế độ",
+        "watch": "Xem",
+        "practice": "Luyện"
+      },
+      "toolbar": {
+        "settings": "Cài đặt",
+        "shortcuts": "Phím tắt"
+      },
+      "watching": "Đang xem",
+      "watch": {
+        "title": "Chế độ Xem",
+        "hint": "Xem cả bài liền mạch; danh sách câu bên cạnh sáng theo lời nói.",
+        "playFrom": "Xem từ câu {{n}}",
+        "pause": "Dừng",
+        "practiceThis": "Luyện câu này",
+        "subsOff": "Phụ đề đang tắt. Bật trong ⚙ nếu bạn cần."
+      },
+      "settings": {
+        "title": "Cài đặt",
+        "ipa": {
+          "label": "Hiện phiên âm",
+          "hint": "Phiên âm Mỹ của câu, giúp biết câu đọc thế nào"
+        },
+        "vi": {
+          "label": "Hiện bản dịch tiếng Việt",
+          "hint": "Dưới câu và trong danh sách"
+        },
+        "subs": {
+          "label": "Phụ đề khi xem",
+          "hint": "Chỉ ở tab Xem; mặc định tắt cho gọn"
+        }
+      },
+      "shortcuts": {
+        "title": "Phím tắt",
+        "record": "Ghi âm / dừng",
+        "model": "Nghe mẫu (nhả phím)",
+        "mine": "Giọng tôi",
+        "compare": "So sánh",
+        "step": "Câu trước / sau",
+        "tabs": "Tab Xem / Luyện"
       }
     }
   },
