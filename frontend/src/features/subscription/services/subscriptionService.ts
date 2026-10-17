@@ -1,10 +1,15 @@
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/lesson/types";
-import type { PlanCode, PlanResponse } from "../types";
+import type { PlanCode, PlanResponse, UsageResponse } from "../types";
 
 export const subscriptionService = {
   getMyPlan: async (): Promise<PlanResponse> => {
     const response = await axiosClient.get<ApiResponse<PlanResponse>>("/subscriptions/me");
+    return response.data.data;
+  },
+
+  getUsage: async (): Promise<UsageResponse> => {
+    const response = await axiosClient.get<ApiResponse<UsageResponse>>("/me/usage");
     return response.data.data;
   },
 

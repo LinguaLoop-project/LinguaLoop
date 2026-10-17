@@ -35,6 +35,8 @@ const TopicDetailPage = lazy(() =>
   import("@/features/lesson/pages/TopicDetailPage").then((m) => ({ default: m.TopicDetailPage })),
 );
 
+const ShadowingPage = lazy(() => import("@/features/shadowing/pages/ShadowingPage"));
+
 const getRoutesConfig = (): RouteObject[] => {
   const publicRoutes: RouteObject[] = [
     {
@@ -130,8 +132,8 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <LessonLibraryPage mode="shadowing" />,
         },
         {
-          path: "shadowing/:id",
-          element: <PlaceholderPage pageKey="student.shadowingDetail" />,
+          path: "shadowing/:slug",
+          element: <ShadowingPage />,
         },
         {
           path: "vocab",

@@ -241,6 +241,142 @@
     "stats": {
       "title": "Learning statistics",
       "description": "Charts of study time, words mastered and your progress."
+    },
+    "shadowingPractice": {
+      "overline": "Shadowing",
+      "title": "Listen, repeat, spot mistakes",
+      "back": "Lesson",
+      "sentenceOf": "Sentence {{n}}/{{total}}",
+      "quotaLeft": "{{remaining}}/{{limit}} shadowing attempts left today",
+      "quotaTitle": "Free plan: {{limit}} shadowing attempts per day",
+      "quotaUnlimited": "Unlimited",
+      "listen": "Hear model",
+      "stop": "Stop",
+      "speed": "Speed",
+      "mic": {
+        "idle": "Tap to read",
+        "again": "Read again",
+        "rec": "Recording… tap to stop",
+        "busy": "Scoring pronunciation…"
+      },
+      "mine": "Play my recording",
+      "compare": "Compare",
+      "compareHint": "Model first, then your voice",
+      "needRecording": "Read this sentence once first",
+      "prev": "Previous",
+      "next": "Next",
+      "score": "points",
+      "metrics": {
+        "accuracy": "Accuracy",
+        "fluency": "Fluency",
+        "completeness": "Completeness",
+        "prosody": "Intonation"
+      },
+      "verdict": {
+        "good": "Great pronunciation! On to the next one.",
+        "mid": "Pretty good. Try again to reach 80.",
+        "bad": "Not there yet. Listen to the model, then read slowly word by word."
+      },
+      "attemptInfo": "Attempt {{count}} · best {{best}}",
+      "wordsToFix": "Words to practise",
+      "nothingToFix": "No word is below {{score}} points.",
+      "word": {
+        "omitted": "skipped",
+        "inserted": "extra",
+        "clickHint": "Tap a word to see each sound"
+      },
+      "detail": {
+        "close": "Close",
+        "badPhoneme": "The sound /{{symbol}}/ is off. Listen to the model, then say it slowly.",
+        "goodWord": "This word is good. Keep the rhythm and stress of the model.",
+        "omittedWord": "You skipped this word. Listen to the model and read every word.",
+        "noPhonemes": "Sound-by-sound detail is only available right after reading. Read the sentence again to see it.",
+        "slowWord": "Listen to this word again and say each sound slowly, then put it back into the sentence."
+      },
+      "restored": "Continuing from sentence {{n}} · {{done}}/{{total}} read",
+      "listTitle": "Sentences",
+      "times": "{{count}}×",
+      "current": "Practising",
+      "finished": {
+        "title": "Lesson complete!",
+        "body": "Average score {{avg}}. Re-read the sentences under 80 to lock them in.",
+        "backToLesson": "Back to lesson"
+      },
+      "notes": {
+        "micTitle": "Microphone unavailable",
+        "micBody": "Your browser is blocking LinguaLoop from using the microphone.",
+        "micStep1": "Click the lock icon next to the address.",
+        "micStep2": "Choose “Microphone” → “Allow”, then reload the page.",
+        "retry": "Try again",
+        "listenFirst": "Listen to the model first, record later",
+        "quotaTitle": "You have used all {{limit}} shadowing attempts today",
+        "quotaBody": "New attempts open at 00:00. You can still record to listen back and compare, but it will not be scored.",
+        "upgrade": "Unlock with Pro",
+        "errorTitle": "Could not score this",
+        "errorBody": "This attempt was not counted. Please try again.",
+        "errorOffline": "Connection lost. This attempt was not counted, try again when you are online.",
+        "noSpeech": "No speech was detected. Speak louder and try again.",
+        "tooShort": "The recording is too short. Read the whole sentence.",
+        "tooLong": "The recording is over 30 seconds. Read one sentence at a time.",
+        "consent": "You need to allow AI processing of your voice to get scored."
+      },
+      "video": {
+        "failTitle": "Could not load the video",
+        "failBody": "You can still practise: the model sentence will be read by a synthetic voice.",
+        "retry": "Reload video",
+        "badge": "YouTube",
+        "audioBadge": "Audio lesson",
+        "hide": "Hide video",
+        "show": "Show video"
+      },
+      "locked": {
+        "title": "This lesson is for Pro",
+        "body": "Upgrade to practise shadowing with this lesson.",
+        "upgrade": "Unlock with Pro",
+        "back": "Back to lesson library"
+      },
+      "tabs": {
+        "label": "Mode",
+        "watch": "Watch",
+        "practice": "Practise"
+      },
+      "toolbar": {
+        "settings": "Settings",
+        "shortcuts": "Shortcuts"
+      },
+      "watching": "Watching",
+      "watch": {
+        "title": "Watch mode",
+        "hint": "Watch the whole lesson in one go; the sentence list lights up as it is spoken.",
+        "playFrom": "Watch from sentence {{n}}",
+        "pause": "Pause",
+        "practiceThis": "Practise this sentence",
+        "subsOff": "Subtitles are off. Turn them on in ⚙ if you need them."
+      },
+      "settings": {
+        "title": "Settings",
+        "ipa": {
+          "label": "Show pronunciation",
+          "hint": "American phonetic transcription of the sentence"
+        },
+        "vi": {
+          "label": "Show Vietnamese translation",
+          "hint": "Under the sentence and in the list"
+        },
+        "subs": {
+          "label": "Subtitles while watching",
+          "hint": "Watch tab only; off by default to keep it tidy"
+        }
+      },
+      "shortcuts": {
+        "title": "Shortcuts",
+        "record": "Record / stop",
+        "model": "Hear the model (on release)",
+        "mine": "My voice",
+        "compare": "Compare",
+        "step": "Previous / next sentence",
+        "tabs": "Watch / Practise tab"
+      }
     }
   },
   "instructor": {

@@ -241,6 +241,142 @@
     "stats": {
       "title": "Thống kê học tập",
       "description": "Biểu đồ phân tích thời gian học, số từ đã thuộc và mức độ tiến bộ."
+    },
+    "shadowingPractice": {
+      "overline": "Shadowing",
+      "title": "Nghe, đọc theo, xem lỗi",
+      "back": "Bài học",
+      "sentenceOf": "Câu {{n}}/{{total}}",
+      "quotaLeft": "Còn {{remaining}}/{{limit}} lượt shadowing hôm nay",
+      "quotaTitle": "Gói Free: {{limit}} lượt shadowing mỗi ngày",
+      "quotaUnlimited": "Không giới hạn",
+      "listen": "Nghe mẫu",
+      "stop": "Dừng",
+      "speed": "Tốc độ",
+      "mic": {
+        "idle": "Bấm để đọc",
+        "again": "Đọc lại",
+        "rec": "Đang ghi… bấm để dừng",
+        "busy": "Đang chấm phát âm…"
+      },
+      "mine": "Nghe lại của tôi",
+      "compare": "So sánh",
+      "compareHint": "Nghe mẫu, rồi đến giọng bạn",
+      "needRecording": "Hãy đọc câu này một lần trước nhé",
+      "prev": "Câu trước",
+      "next": "Câu tiếp",
+      "score": "điểm",
+      "metrics": {
+        "accuracy": "Chính xác",
+        "fluency": "Trôi chảy",
+        "completeness": "Đầy đủ",
+        "prosody": "Ngữ điệu"
+      },
+      "verdict": {
+        "good": "Phát âm tốt lắm! Sang câu tiếp nhé.",
+        "mid": "Khá ổn. Thử đọc lại để lên 80 điểm.",
+        "bad": "Chưa chuẩn. Nghe mẫu rồi đọc chậm từng từ nhé."
+      },
+      "attemptInfo": "Lần đọc thứ {{count}} · cao nhất {{best}}",
+      "wordsToFix": "Từ cần luyện thêm",
+      "nothingToFix": "Không có từ nào dưới {{score}} điểm.",
+      "word": {
+        "omitted": "bị bỏ sót",
+        "inserted": "thừa",
+        "clickHint": "Bấm vào một từ để xem từng âm"
+      },
+      "detail": {
+        "close": "Đóng",
+        "badPhoneme": "Âm /{{symbol}}/ chưa chuẩn. Nghe mẫu rồi đọc chậm âm này.",
+        "goodWord": "Từ này đọc tốt. Giữ nhịp và trọng âm như câu mẫu.",
+        "omittedWord": "Bạn đã bỏ sót từ này. Nghe mẫu và đọc đủ từ.",
+        "noPhonemes": "Chi tiết từng âm chỉ có ngay sau lượt đọc. Đọc lại câu để xem.",
+        "slowWord": "Nghe lại từ này rồi đọc chậm từng âm, sau đó nối vào câu."
+      },
+      "restored": "Tiếp tục từ câu {{n}} · đã đọc {{done}}/{{total}}",
+      "listTitle": "Các câu trong bài",
+      "times": "{{count}} lần",
+      "current": "Đang luyện",
+      "finished": {
+        "title": "Hoàn thành bài!",
+        "body": "Điểm trung bình {{avg}}. Đọc lại các câu dưới 80 điểm cho chắc hơn.",
+        "backToLesson": "Về bài học"
+      },
+      "notes": {
+        "micTitle": "Chưa dùng được micro",
+        "micBody": "Trình duyệt đang chặn quyền micro của LinguaLoop.",
+        "micStep1": "Bấm biểu tượng ổ khoá cạnh địa chỉ trang.",
+        "micStep2": "Chọn “Micro” → “Cho phép”, rồi tải lại trang.",
+        "retry": "Thử lại",
+        "listenFirst": "Nghe mẫu trước, ghi âm sau",
+        "quotaTitle": "Hết {{limit}} lượt shadowing hôm nay",
+        "quotaBody": "Lượt mới mở lại lúc 00:00. Bạn vẫn ghi âm để tự nghe lại và so sánh, chỉ chưa chấm điểm.",
+        "upgrade": "Mở với Pro",
+        "errorTitle": "Chưa chấm được",
+        "errorBody": "Lượt này không bị tính. Hãy thử lại.",
+        "errorOffline": "Mất kết nối. Lượt này không bị tính, hãy thử lại khi có mạng.",
+        "noSpeech": "Không nghe thấy giọng nói. Hãy đọc to hơn rồi thử lại.",
+        "tooShort": "Bản ghi quá ngắn. Hãy đọc cả câu.",
+        "tooLong": "Bản ghi dài quá 30 giây. Hãy đọc từng câu.",
+        "consent": "Bạn cần đồng ý xử lý giọng nói bằng AI để được chấm điểm."
+      },
+      "video": {
+        "failTitle": "Không tải được video",
+        "failBody": "Bạn vẫn luyện được: câu mẫu sẽ được đọc bằng giọng mô phỏng.",
+        "retry": "Tải lại video",
+        "badge": "YouTube",
+        "audioBadge": "Bài nghe",
+        "hide": "Ẩn video",
+        "show": "Hiện video"
+      },
+      "locked": {
+        "title": "Bài này dành cho gói Pro",
+        "body": "Nâng cấp để luyện shadowing với bài này.",
+        "upgrade": "Mở với Pro",
+        "back": "Về thư viện bài học"
+      },
+      "tabs": {
+        "label": "Chế độ",
+        "watch": "Xem",
+        "practice": "Luyện"
+      },
+      "toolbar": {
+        "settings": "Cài đặt",
+        "shortcuts": "Phím tắt"
+      },
+      "watching": "Đang xem",
+      "watch": {
+        "title": "Chế độ Xem",
+        "hint": "Xem cả bài liền mạch; danh sách câu bên cạnh sáng theo lời nói.",
+        "playFrom": "Xem từ câu {{n}}",
+        "pause": "Dừng",
+        "practiceThis": "Luyện câu này",
+        "subsOff": "Phụ đề đang tắt. Bật trong ⚙ nếu bạn cần."
+      },
+      "settings": {
+        "title": "Cài đặt",
+        "ipa": {
+          "label": "Hiện phiên âm",
+          "hint": "Phiên âm Mỹ của câu, giúp biết câu đọc thế nào"
+        },
+        "vi": {
+          "label": "Hiện bản dịch tiếng Việt",
+          "hint": "Dưới câu và trong danh sách"
+        },
+        "subs": {
+          "label": "Phụ đề khi xem",
+          "hint": "Chỉ ở tab Xem; mặc định tắt cho gọn"
+        }
+      },
+      "shortcuts": {
+        "title": "Phím tắt",
+        "record": "Ghi âm / dừng",
+        "model": "Nghe mẫu (nhả phím)",
+        "mine": "Giọng tôi",
+        "compare": "So sánh",
+        "step": "Câu trước / sau",
+        "tabs": "Tab Xem / Luyện"
+      }
     }
   },
   "instructor": {

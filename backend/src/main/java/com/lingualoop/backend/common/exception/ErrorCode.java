@@ -40,6 +40,11 @@ public enum ErrorCode {
 
     LESSON_PRO_REQUIRED(HttpStatus.FORBIDDEN, "Bạn cần gói Pro để xem nội dung này"),
 
+    AI_CONSENT_REQUIRED(HttpStatus.FORBIDDEN, "Bạn cần đồng ý cho phép xử lý giọng nói bằng AI để dùng tính năng này"),
+    SHADOWING_AUDIO_INVALID(HttpStatus.BAD_REQUEST, "Bản ghi âm không hợp lệ"),
+    SHADOWING_NO_SPEECH(HttpStatus.UNPROCESSABLE_CONTENT, "Không nghe thấy giọng nói trong bản ghi âm"),
+    SHADOWING_SCORING_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "Dịch vụ chấm phát âm tạm thời không dùng được"),
+
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi hệ thống, vui lòng thử lại sau");
 
     private final HttpStatus status;

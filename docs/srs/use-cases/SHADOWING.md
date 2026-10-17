@@ -1,0 +1,103 @@
+# Đặc tả Use Case — Module SHADOWING (Luyện nói theo)
+
+Trạng thái: **Nháp**, chờ duyệt. Người phụ trách: Lâm.
+
+Phạm vi lát A: học viên ghi âm đọc lại một câu, nhận điểm do Azure chấm ở mức câu, từ và âm vị, xem hạn mức trong ngày và tiếp tục bài đang dở. **Chưa gồm** Nhận xét AI, Mẹo sửa, video khẩu hình (lát B) và Phiên gia sư (lát C). Thuật ngữ theo `CONTEXT.md`: Lượt shadowing, Kết quả chấm phát âm.
+
+Quy ước: mọi endpoint yêu cầu đăng nhập. "Gói" là kết quả của `SubscriptionQueryService`. Mã `AC-SHADOW-xx` được tham chiếu trong tên test tích hợp (`ShadowingAttemptIntegrationTest`, `ShadowingUsageIntegrationTest`) và test đơn vị (`AzurePhonemeMapperTest`, `WavAudioTest`, `UsageServiceTest`).
+
+Đồng ý xử lý bằng AI (`ai_processing`) do module Người dùng của Kế cung cấp qua `ConsentService`. Đến khi có bản thật, hệ thống dùng bản tạm `StubConsentService` luôn trả "đã đồng ý" (xem BR-SHADOW-06); Kế thay bản tạm bằng bản đọc `user_consents` mà không đổi interface.
+
+---
+
+### UC-SHADOW-01: Chấm một lượt đọc
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Học viên |
+| Mô tả | Gửi bản ghi âm đọc lại một câu của bài; hệ thống chấm bằng Azure, lưu Lượt shadowing và trả kết quả. |
+| Điều kiện tiên quyết | Tác nhân đã đăng nhập, câu thuộc bài hiển thị, tác nhân được phép luyện bài (bài Pro cần gói Pro). |
+| Điều kiện sau | Có một dòng `sentence_attempts` (chế độ shadowing) kèm kết quả từng từ và từng âm vị; bộ đếm `shadowing_assess` của ngày tăng 1; tiến độ bài được cập nhật. |
+| Tiêu chí chấp nhận | **AC-SHADOW-01 — Chấm và lưu**<br>Given: Câu hợp lệ, tác nhân còn lượt, đã đồng ý, ghi âm WAV hợp lệ.<br>When: Gửi ghi âm.<br>Then: Trả 200 với điểm câu, độ chính xác, độ trôi chảy, độ đầy đủ, ngữ điệu (nếu có), văn bản nhận dạng, danh sách từ (điểm, loại lỗi, âm vị) và số lượt còn lại; lưu đúng một lượt, các từ theo thứ tự, các âm vị đã chuyển được.<br><br>**AC-SHADOW-02 — Loại lỗi của từ**<br>Given: Azure báo từ đúng, đọc sai, bỏ sót, thừa.<br>When: Lưu kết quả từng từ.<br>Then: Lưu lần lượt `correct`, `mispronounced`, `omitted` (không có từ thực tế), `inserted` (không có từ mong đợi).<br><br>**AC-SHADOW-03 — Hết lượt Free**<br>Given: Gói Free đã dùng đủ lượt trong ngày.<br>When: Gửi ghi âm.<br>Then: Trả 429 `QUOTA_EXCEEDED` kèm `feature` và `limit`; không gọi Azure, không lưu lượt.<br><br>**AC-SHADOW-04 — Pro không bị chặn ở lượt thứ 6**<br>Given: Gói Pro, đã chấm 5 lượt trong ngày.<br>When: Gửi ghi âm thứ 6.<br>Then: Chấm bình thường.<br><br>**AC-SHADOW-05 — Trả lượt khi Azure lỗi**<br>Given: Dịch vụ chấm báo lỗi.<br>When: Gửi ghi âm.<br>Then: Trả 502 `SHADOWING_SCORING_UNAVAILABLE`; bộ đếm về giá trị trước đó; không lưu lượt.<br><br>**AC-SHADOW-06 — Không nghe thấy tiếng nói**<br>Given: Azure không nhận dạng được lời nói.<br>When: Gửi ghi âm.<br>Then: Trả 422 `SHADOWING_NO_SPEECH`; trả lại lượt; không lưu lượt.<br><br>**AC-SHADOW-07 — Ghi âm không hợp lệ**<br>Given: Tệp rỗng, không phải WAV, không phải PCM 16-bit mono 16 kHz, ngắn hơn 0,5 giây hoặc dài hơn 30 giây.<br>When: Gửi ghi âm.<br>Then: Trả 400 `SHADOWING_AUDIO_INVALID`; không gọi Azure, không trừ lượt.<br><br>**AC-SHADOW-08 — Chưa đồng ý xử lý bằng AI**<br>Given: `ConsentService` báo chưa đồng ý.<br>When: Gửi ghi âm.<br>Then: Trả 403 `AI_CONSENT_REQUIRED`; không trừ lượt, không gọi Azure.<br><br>**AC-SHADOW-09 — Câu hoặc bài không hợp lệ**<br>Given: Câu không tồn tại, hoặc câu thuộc bài Pro còn tác nhân là Free.<br>When: Gửi ghi âm.<br>Then: Lần lượt trả 404 `NOT_FOUND` và 403 `LESSON_PRO_REQUIRED`; không trừ lượt.<br><br>**AC-SHADOW-10 — Yêu cầu đăng nhập**<br>Given: Yêu cầu không có token.<br>When: Gọi bất kỳ endpoint của module.<br>Then: Trả 401.<br><br>**AC-SHADOW-11 — Đồng thời không vượt hạn mức**<br>Given: Gói Free còn đúng 1 lượt.<br>When: Hai yêu cầu chấm gửi cùng lúc.<br>Then: Đúng một yêu cầu được chấm, yêu cầu kia nhận 429. |
+| Độ ưu tiên | Cao |
+
+---
+
+### UC-SHADOW-02: Chuyển âm vị của Azure sang bảng âm vị
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Hệ thống (nội bộ) |
+| Mô tả | Âm vị giọng Mỹ Azure trả về được chuyển sang bảng `phonemes` để lưu (ADR 0004). Kết quả trả cho học viên vẫn dùng ký hiệu của Azure. |
+| Tiêu chí chấp nhận | **AC-SHADOW-12 — Phủ toàn bộ bộ âm en-US**<br>Given: Mọi âm vị mà Azure có thể trả cho en-US.<br>When: Chuyển đổi.<br>Then: Mỗi âm cho ra một ký hiệu có trong bảng `phonemes`.<br><br>**AC-SHADOW-13 — Quy tắc theo ngữ cảnh**<br>Given: Chuỗi âm của từ có nguyên âm đứng trước `ɹ` (vd `n ɪ ɹ`).<br>When: Chuyển đổi.<br>Then: Nguyên âm đổi thành nguyên âm đôi tương ứng (`ɪ→ɪə`, `ɛ→eə`, `ʊ→ʊə`); âm `r` vẫn giữ riêng.<br>Given: Azure trả nguyên âm kèm r thành một âm duy nhất (vd `ɔɹ` ở "morning", đo từ Azure thật).<br>Then: Chuyển theo nguyên âm (`ɔɹ→ɔː`, `ɑɹ→ɑː`, `ɪɹ→ɪə`, `ɛɹ→eə`, `ʊɹ→ʊə`), không tách thêm âm `r`.<br><br>**AC-SHADOW-14 — Âm lạ**<br>Given: Ký hiệu không có trong bảng chuyển đổi.<br>When: Lưu kết quả.<br>Then: Âm đó vẫn nằm trong phản hồi cho học viên nhưng không được lưu; hệ thống ghi cảnh báo; phần còn lại của lượt vẫn lưu bình thường. |
+| Độ ưu tiên | Cao |
+
+---
+
+### UC-SHADOW-03: Tiếp tục bài đang dở
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Học viên |
+| Mô tả | Mở lại bài và thấy điểm cũ của từng câu. |
+| Tiêu chí chấp nhận | **AC-SHADOW-15 — Lượt mới nhất của từng câu**<br>Given: Tác nhân đã đọc vài câu của bài, có câu đọc nhiều lần.<br>When: Gọi `GET /lessons/{slug}/shadowing-attempts/latest`.<br>Then: Với mỗi câu đã đọc trả lượt mới nhất (điểm, thời điểm, các từ kèm điểm và loại lỗi), điểm cao nhất và số lần đọc; câu chưa đọc không xuất hiện; không lẫn dữ liệu của người khác hay của chế độ nghe chép.<br><br>**AC-SHADOW-16 — Bài không hợp lệ**<br>Given: Slug không tồn tại, hoặc bài Pro với tác nhân Free.<br>When: Gọi endpoint trên.<br>Then: Trả 404 hoặc 403 `LESSON_PRO_REQUIRED`. |
+| Độ ưu tiên | Cao |
+
+---
+
+### UC-SHADOW-04: Xem hạn mức trong ngày
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Học viên |
+| Mô tả | Xem số lượt đã dùng, giới hạn và số còn lại của các tính năng có hạn mức. |
+| Tiêu chí chấp nhận | **AC-SHADOW-17 — Hạn mức theo gói**<br>Given: Tác nhân Free đã chấm 2 lượt hôm nay.<br>When: Gọi `GET /me/usage`.<br>Then: `shadowing_assess` có `used=2`, `limit=5`, `remaining=3`; tác nhân Pro nhận giới hạn của gói Pro; tính năng không giới hạn có `limit` và `remaining` rỗng.<br><br>**AC-SHADOW-18 — Sang ngày mới**<br>Given: Tác nhân đã dùng hết lượt hôm qua (theo giờ Việt Nam).<br>When: Sang 00:00.<br>Then: Số lượt đã dùng bắt đầu lại từ 0. |
+| Độ ưu tiên | Cao |
+
+---
+
+### UC-SHADOW-05: Cập nhật tiến độ bài
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Hệ thống (nội bộ, qua `LessonProgressService.recordActivity`) |
+| Mô tả | Mỗi Lượt shadowing ghi nhận tiến độ của bài ở chế độ shadowing. |
+| Tiêu chí chấp nhận | **AC-SHADOW-19 — Lượt đầu tiên**<br>Given: Tác nhân chưa luyện bài này.<br>When: Chấm xong lượt đầu.<br>Then: Có dòng tiến độ bài và tiến độ chế độ shadowing; `last_activity_at` là thời điểm vừa chấm.<br><br>**AC-SHADOW-20 — Hoàn thành chế độ**<br>Given: Bài có N câu, tác nhân đã đọc N−1 câu.<br>When: Chấm lượt cho câu còn lại.<br>Then: Tiến độ chế độ shadowing có `completed_at`; đọc lại một câu không đổi `completed_at`. |
+| Độ ưu tiên | Trung bình |
+
+---
+
+### UC-SHADOW-06: Trang luyện shadowing (giao diện)
+
+Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`, ở cả gói Free và Pro (nút thử ở thanh trên).
+
+| # | Kịch bản | Kỳ vọng |
+|---|---|---|
+| 1 | Mở bài lần đầu | Hiện danh sách câu, chip "Còn 5/5 lượt shadowing hôm nay"; chưa có điểm |
+| 2 | Bấm mic, cấp quyền, đọc, dừng | Có trạng thái đang ghi (đồng hồ, sóng), rồi "đang chấm", rồi điểm câu và các từ tô theo điểm |
+| 3 | Bấm một từ | Mở ô chi tiết: âm vị kèm điểm, âm nào dưới 60 được đánh dấu |
+| 4 | "Nghe lại của tôi" / "So sánh" | Phát bản ghi gần nhất trong trình duyệt, rồi câu mẫu |
+| 5 | Đọc đến lượt cuối của Free | Chip đổi sang trạng thái hết lượt, hộp "Hết 5 lượt shadowing hôm nay" với nút "Mở với Pro"; vẫn ghi âm và nghe lại được, không chấm |
+| 6 | Chuyển sang Pro bằng nút thử | Chip "Không giới hạn" ngay, không cần tải lại trang |
+| 7 | Từ chối quyền micro | Hiện hướng dẫn cấp quyền, nút thử lại |
+| 8 | Mất mạng hoặc server lỗi lúc chấm | Báo lỗi, nút thử lại; số lượt còn lại không đổi |
+| 9 | Đóng bài rồi mở lại | Hiện "Tiếp tục từ câu x · đã đọc y/z" và điểm cũ của từng câu |
+| 10 | Slug sai, bài Pro với Free | Trang "không tìm thấy bài" / hộp nâng cấp |
+| 11 | Bấm một câu trong danh sách (tab Luyện) | Chọn câu đó và phát ngay đoạn mẫu: video tua tới đúng đoạn, hoặc tệp âm thanh phát từ đúng giây, hoặc giọng tổng hợp nếu không có |
+| 12 | Danh sách ở tab Luyện | Câu chưa đọc bị che chữ (chỉ còn dấu câu); câu đã đọc hiện chữ, điểm cao nhất và số lần |
+| 13 | Bấm "Xem" (hoặc Alt+W) | Danh sách hiện chữ mọi câu; bấm "Xem từ câu n" phát liền mạch, câu đang nói sáng và danh sách tự cuộn theo; "Dừng" dừng lại |
+| 14 | Ở tab Xem, bấm một câu trong danh sách | Tua tới câu đó và xem tiếp từ đây |
+| 15 | Bấm ⚙ Cài đặt | Có ba công tắc: hiện phiên âm, hiện bản dịch, phụ đề khi xem. Đổi thì giao diện đổi ngay và giữ nguyên sau khi tải lại trang |
+| 16 | Bấm "Ẩn video" (bài YouTube) | Khung video thu về 0 nhưng âm thanh vẫn phát; "Hiện video" khôi phục |
+| 17 | Phím tắt ở tab Luyện | Space ghi âm/dừng, nhả Ctrl nghe mẫu, R nghe lại giọng mình, C so sánh; Alt+←/→ đổi câu; Alt+W/Alt+P đổi tab. Không kích hoạt khi đang gõ vào ô nhập; Space nhường cho nút đang được focus |
+
+---
+
+### Chưa thuộc phạm vi
+
+- Lưu file ghi âm lên server, `is_baseline`, tự xoá khi hết hạn (cần `voice_storage`).
+- Hàng đợi ôn câu làm kém (`user_sentence_review`), điền `myBestScore` ở danh sách câu, `completed_at` mức bài (cần thống nhất với nghe chép).
+- Hộp thoại xin đồng ý lần ghi âm đầu và API `/me/consents` (Kế).
+- Nhận xét AI, Mẹo sửa, video khẩu hình (lát B); Phiên gia sư (lát C).
+- Phần của mockup chưa làm ở trang luyện: thanh thời gian chia đoạn trên video, công tắc "Gia sư" (lát C).
+- Phát câu mẫu: video YouTube hoặc tệp âm thanh của bài, cắt theo thời gian của câu; không có thì dùng giọng tổng hợp của trình duyệt.

@@ -1,80 +1,48 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../features/auth/stores/authStore";
 import { useMyPlan } from "../features/subscription/hooks/useMyPlan";
+import { USAGE_QUERY_KEY, useFeatureUsage } from "../features/subscription/hooks/useUsage";
+import { FEATURE_SHADOWING } from "../features/subscription/types";
 import { useQuotaStore } from "../stores/quotaStore";
 
+/** Số lượt Free dự phòng để hiển thị khi chưa tải được hạn mức từ server. */
 export const MAX_FREE_ACTIONS = 5;
 
-function getStoredCount(userId?: string): number {
-  if (!userId) return 0;
-  const key = `quota_${userId}`;
-  const stored = localStorage.getItem(key);
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed.date === today) {
-        return parsed.count;
-      }
-    } catch {
-      // Ignore invalid JSON
-    }
-  }
-
-  localStorage.setItem(key, JSON.stringify({ date: today, count: 0 }));
-  return 0;
-}
-
+/**
+ * Hạn mức hiển thị ở thanh trên và hộp nâng cấp. Số lượt do server đếm (`GET /me/usage`, tính năng
+ * shadowing_assess); không còn bộ đếm cục bộ.
+ */
 export function useQuota() {
   const { user } = useAuthStore();
   const { showUpgradeModal, setShowUpgradeModal } = useQuotaStore();
   const { data: myPlan } = useMyPlan();
-
-  const [actionsToday, setActionsToday] = useState(() =>
-    getStoredCount(user?.id),
-  );
-  const [prevUserId, setPrevUserId] = useState(user?.id);
-
-  // Sync state when user changes (React recommended pattern to avoid useEffect cascading renders)
-  if (user?.id !== prevUserId) {
-    setPrevUserId(user?.id);
-    setActionsToday(getStoredCount(user?.id));
-  }
+  const queryClient = useQueryClient();
+  const shadowing = useFeatureUsage(FEATURE_SHADOWING);
 
   // Gói do server tính; chưa tải xong hoặc lỗi thì coi là 'free'
-  const isPro =
-    user?.role === "admin" ||
-    user?.role === "instructor" ||
-    myPlan?.plan === "pro";
+  const isPro = user?.role === "admin" || user?.role === "instructor" || myPlan?.plan === "pro";
+
+  const actionsToday = shadowing?.used ?? 0;
+  const maxActions = shadowing?.limit ?? MAX_FREE_ACTIONS;
+  /** null: không giới hạn hoặc chưa biết. */
+  const remaining = shadowing?.remaining ?? null;
 
   const checkQuota = useCallback((): boolean => {
-    if (isPro) return true;
-    if (actionsToday < MAX_FREE_ACTIONS) return true;
-
+    if (isPro || remaining === null || remaining > 0) return true;
     setShowUpgradeModal(true);
     return false;
-  }, [isPro, actionsToday, setShowUpgradeModal]);
+  }, [isPro, remaining, setShowUpgradeModal]);
 
+  /** Server đã tự đếm; chỉ cần đọc lại số liệu. */
   const incrementQuota = useCallback(() => {
-    if (isPro) return;
-
-    const newCount = actionsToday + 1;
-    setActionsToday(newCount);
-
-    if (user) {
-      const key = `quota_${user.id}`;
-      const today = new Date().toISOString().split("T")[0];
-      localStorage.setItem(
-        key,
-        JSON.stringify({ date: today, count: newCount }),
-      );
-    }
-  }, [actionsToday, isPro, user]);
+    void queryClient.invalidateQueries({ queryKey: USAGE_QUERY_KEY });
+  }, [queryClient]);
 
   return {
     actionsToday,
-    maxActions: MAX_FREE_ACTIONS,
+    maxActions,
+    remaining,
     isPro,
     checkQuota,
     incrementQuota,
