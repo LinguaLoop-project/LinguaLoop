@@ -1,8 +1,6 @@
 package com.lingualoop.backend.shadowing.azure;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -25,6 +23,8 @@ import com.microsoft.cognitiveservices.speech.SpeechConfig;
 import com.microsoft.cognitiveservices.speech.SpeechRecognitionResult;
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer;
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
+import com.microsoft.cognitiveservices.speech.audio.AudioStreamFormat;
+import com.microsoft.cognitiveservices.speech.audio.PushAudioInputStream;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,35 +46,34 @@ class AzurePronunciationScoringService implements PronunciationScoringService {
             log.error("Azure Speech chưa cấu hình (AZURE_SPEECH_KEY trống)");
             throw new BusinessException(ErrorCode.SHADOWING_SCORING_UNAVAILABLE);
         }
-        Path tempFile = null;
         try {
-            // SDK đọc WAV từ đường dẫn; tệp tạm xoá ngay sau khi chấm.
-            tempFile = Files.createTempFile("shadowing-", ".wav");
-            Files.write(tempFile, wav);
-            return recognize(tempFile, referenceText);
+            return recognize(WavPcm.extract(wav), referenceText);
         } catch (BusinessException e) {
             throw e;
-        } catch (IOException | ExecutionException | RuntimeException e) {
+        } catch (ExecutionException | RuntimeException e) {
             log.error("Azure chấm phát âm lỗi", e);
             throw new BusinessException(ErrorCode.SHADOWING_SCORING_UNAVAILABLE);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BusinessException(ErrorCode.SHADOWING_SCORING_UNAVAILABLE);
-        } finally {
-            deleteQuietly(tempFile);
         }
     }
 
-    private PronunciationAssessment recognize(Path wavPath, String referenceText)
+    /** Đẩy PCM thô thẳng vào SDK qua luồng đẩy, nên không ghi tệp tạm ra đĩa. */
+    private PronunciationAssessment recognize(byte[] pcm, String referenceText)
             throws ExecutionException, InterruptedException {
         try (SpeechConfig speechConfig = SpeechConfig.fromSubscription(properties.key(), properties.region());
-                AudioConfig audioConfig = AudioConfig.fromWavFileInput(wavPath.toString());
+                PushAudioInputStream pushStream = PushAudioInputStream.create(
+                        AudioStreamFormat.getWaveFormatPCM(16_000, (short) 16, (short) 1));
+                AudioConfig audioConfig = AudioConfig.fromStreamInput(pushStream);
                 PronunciationAssessmentConfig assessmentConfig = new PronunciationAssessmentConfig(
                         referenceText,
                         PronunciationAssessmentGradingSystem.HundredMark,
                         PronunciationAssessmentGranularity.Phoneme,
                         true)) {
             speechConfig.setSpeechRecognitionLanguage(LOCALE);
+            pushStream.write(pcm);
+            pushStream.close(); // báo hết dữ liệu để Azure kết thúc nhận dạng
             assessmentConfig.enableProsodyAssessment();
             // IPA (θ, ð, ʃ…) thay cho SAPI mặc định (th, dh, sh…) để chuyển được sang bảng phonemes.
             assessmentConfig.setPhonemeAlphabet("IPA");
@@ -147,16 +146,5 @@ class AzurePronunciationScoringService implements PronunciationScoringService {
             throw new IllegalStateException("Không đọc được JSON kết quả chấm của Azure", e);
         }
         return words;
-    }
-
-    private static void deleteQuietly(Path path) {
-        if (path == null) {
-            return;
-        }
-        try {
-            Files.deleteIfExists(path);
-        } catch (IOException e) {
-            log.warn("Không xoá được tệp tạm {}", path);
-        }
     }
 }
