@@ -29,3 +29,8 @@ yarn-error.log*
 .env.*.local
 .env.prod
 *.log
+
+# Tài liệu làm việc nội bộ, không đưa lên GitHub
+docs/ux/
+CONTEXT.md
+.playwright-mcp/
