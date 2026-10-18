@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.stereotype.Service;
 
@@ -36,6 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 class AzurePronunciationScoringService implements PronunciationScoringService {
 
     private static final String LOCALE = "en-US";
+    /** Quá thời gian này mà Azure chưa trả lời thì coi như dịch vụ lỗi (kết nối treo không giữ luồng mãi). */
+    private static final long RECOGNIZE_TIMEOUT_SECONDS = 20;
     private static final ObjectMapper JSON = new ObjectMapper();
 
     private final AzureSpeechProperties properties;
@@ -50,7 +54,7 @@ class AzurePronunciationScoringService implements PronunciationScoringService {
             return recognize(WavPcm.extract(wav), referenceText);
         } catch (BusinessException e) {
             throw e;
-        } catch (ExecutionException | RuntimeException e) {
+        } catch (ExecutionException | TimeoutException | RuntimeException e) {
             log.error("Azure chấm phát âm lỗi", e);
             throw new BusinessException(ErrorCode.SHADOWING_SCORING_UNAVAILABLE);
         } catch (InterruptedException e) {
@@ -61,7 +65,7 @@ class AzurePronunciationScoringService implements PronunciationScoringService {
 
     /** Đẩy PCM thô thẳng vào SDK qua luồng đẩy, nên không ghi tệp tạm ra đĩa. */
     private PronunciationAssessment recognize(byte[] pcm, String referenceText)
-            throws ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException, TimeoutException {
         try (SpeechConfig speechConfig = SpeechConfig.fromSubscription(properties.key(), properties.region());
                 PushAudioInputStream pushStream = PushAudioInputStream.create(
                         AudioStreamFormat.getWaveFormatPCM(16_000, (short) 16, (short) 1));
@@ -80,7 +84,7 @@ class AzurePronunciationScoringService implements PronunciationScoringService {
 
             try (SpeechRecognizer recognizer = new SpeechRecognizer(speechConfig, audioConfig)) {
                 assessmentConfig.applyTo(recognizer);
-                SpeechRecognitionResult result = recognizer.recognizeOnceAsync().get();
+                SpeechRecognitionResult result = recognizer.recognizeOnceAsync().get(RECOGNIZE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
                 if (result.getReason() == ResultReason.RecognizedSpeech) {
                     return toAssessment(result);

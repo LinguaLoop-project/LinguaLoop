@@ -7,7 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -103,6 +110,43 @@ class ShadowingUsageIntegrationTest {
         usageService.refund(free, ticket);
 
         assertThat(usageService.usageOf(free, FEATURE).used()).isZero();
+    }
+
+    @Test
+    void concurrentRequests_neverExceedTheDailyLimit_AC_SHADOW_17() throws Exception {
+        UUID free = newUser();
+        int requests = 12;
+        ExecutorService pool = Executors.newFixedThreadPool(requests);
+        CountDownLatch start = new CountDownLatch(1);
+        AtomicInteger granted = new AtomicInteger();
+        AtomicInteger rejected = new AtomicInteger();
+        try {
+            List<Future<?>> futures = new ArrayList<>();
+            for (int i = 0; i < requests; i++) {
+                futures.add(pool.submit(() -> {
+                    start.await();
+                    try {
+                        usageService.tryConsume(free, FEATURE);
+                        granted.incrementAndGet();
+                    } catch (BusinessException e) {
+                        assertThat(e.getErrorCode()).isEqualTo(ErrorCode.QUOTA_EXCEEDED);
+                        rejected.incrementAndGet();
+                    }
+                    return null;
+                }));
+            }
+            start.countDown();
+            for (Future<?> f : futures) {
+                f.get();
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+
+        // gói Free có 5 lượt mỗi ngày: đúng 5 yêu cầu được lượt, 7 yêu cầu còn lại bị từ chối
+        assertThat(granted.get()).isEqualTo(5);
+        assertThat(rejected.get()).isEqualTo(requests - 5);
+        assertThat(usageService.usageOf(free, FEATURE).used()).isEqualTo(5);
     }
 
     @Test

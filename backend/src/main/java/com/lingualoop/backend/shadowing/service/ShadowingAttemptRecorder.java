@@ -1,6 +1,5 @@
 package com.lingualoop.backend.shadowing.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -12,10 +11,10 @@ import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.lesson.service.LessonProgressService;
 import com.lingualoop.backend.shadowing.azure.AzurePhonemeMapper;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
+import com.lingualoop.backend.shadowing.entity.AttemptWord;
+import com.lingualoop.backend.shadowing.entity.SentenceAttempt;
+import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository;
-import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository.AttemptRow;
-import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository.PhonemeRow;
-import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository.WordRow;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,21 +29,21 @@ import lombok.extern.slf4j.Slf4j;
 class ShadowingAttemptRecorder {
 
     private final ShadowingAttemptRepository repository;
+    private final PhonemeRepository phonemeRepository;
     private final LessonProgressService lessonProgressService;
 
     @Transactional
     public long save(UUID userId, UUID lessonId, UUID sentenceId, PronunciationAssessment assessment, int durationMs) {
-        long attemptId = repository.insertAttempt(new AttemptRow(userId, sentenceId, assessment.pronunciationScore(),
+        SentenceAttempt attempt = SentenceAttempt.azureShadowing(userId, sentenceId, assessment.pronunciationScore(),
                 assessment.accuracyScore(), assessment.fluencyScore(), assessment.completenessScore(),
-                assessment.prosodyScore(), durationMs));
+                assessment.prosodyScore(), durationMs);
 
-        Map<String, Short> phonemeIds = repository.phonemeIdsBySymbol();
+        Map<String, Short> phonemeIds = phonemeRepository.idsBySymbol();
         int position = 0;
         for (PronunciationAssessment.WordResult word : assessment.words()) {
-            long wordId = repository.insertWord(attemptId, toWordRow(position, word));
-            repository.insertPhonemes(wordId, toPhonemeRows(word, phonemeIds));
-            position++;
+            addWord(attempt, position++, word, phonemeIds);
         }
+        long attemptId = repository.save(attempt).getId();
 
         lessonProgressService.recordActivity(userId, lessonId, PracticeMode.shadowing, (durationMs + 999) / 1000);
         return attemptId;
@@ -60,17 +59,15 @@ class ShadowingAttemptRecorder {
         };
     }
 
-    private static WordRow toWordRow(int position, PronunciationAssessment.WordResult word) {
+    /** Ràng buộc của DB: từ thừa không có từ mong đợi, từ bỏ sót không có từ thực tế. */
+    private void addWord(SentenceAttempt attempt, int position, PronunciationAssessment.WordResult word,
+            Map<String, Short> phonemeIds) {
         String outcome = outcomeOf(word.errorType());
-        String expected = "inserted".equals(outcome) ? null : word.word();
-        String actual = "omitted".equals(outcome) ? null : word.word();
-        return new WordRow(position, expected, actual, outcome, word.accuracyScore());
-    }
+        AttemptWord row = attempt.addWord(position, "inserted".equals(outcome) ? null : word.word(),
+                "omitted".equals(outcome) ? null : word.word(), outcome, word.accuracyScore());
 
-    private List<PhonemeRow> toPhonemeRows(PronunciationAssessment.WordResult word, Map<String, Short> phonemeIds) {
         List<String> azure = word.phonemes().stream().map(PronunciationAssessment.PhonemeResult::symbol).toList();
         List<String> table = AzurePhonemeMapper.toTableSymbols(azure);
-        List<PhonemeRow> rows = new ArrayList<>();
         for (int i = 0; i < table.size(); i++) {
             Short id = table.get(i) == null ? null : phonemeIds.get(table.get(i));
             if (id == null) {
@@ -78,8 +75,7 @@ class ShadowingAttemptRecorder {
                         azure.get(i), word.word());
                 continue;
             }
-            rows.add(new PhonemeRow(i, id, word.phonemes().get(i).accuracyScore()));
+            row.addPhoneme(i, id, word.phonemes().get(i).accuracyScore());
         }
-        return rows;
     }
 }

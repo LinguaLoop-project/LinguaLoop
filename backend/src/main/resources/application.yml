@@ -88,3 +88,10 @@ app:
     speech:
       key: ${AZURE_SPEECH_KEY:}
       region: ${AZURE_SPEECH_REGION:southeastasia}
+  shadowing:
+    scoring:
+      # circuit breaker quanh lời gọi Azure (BR-SHADOW-09): trong cửa sổ 10 lượt, đủ 5 lượt mà lỗi từ 50% thì mở mạch 30 giây
+      window-size: 10
+      minimum-calls: 5
+      failure-rate-percent: 50
+      open-for: 30s

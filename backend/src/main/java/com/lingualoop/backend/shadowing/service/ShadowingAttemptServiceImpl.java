@@ -1,6 +1,9 @@
 package com.lingualoop.backend.shadowing.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -16,7 +19,10 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.shadowing.dto.LatestAttemptResponse;
 import com.lingualoop.backend.shadowing.dto.ShadowingAttemptResponse;
+import com.lingualoop.backend.shadowing.entity.AttemptWord;
+import com.lingualoop.backend.shadowing.repository.AttemptWordRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository;
+import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository.LatestHead;
 import com.lingualoop.backend.subscription.dto.UsageTicket;
 import com.lingualoop.backend.subscription.service.UsageService;
 import com.lingualoop.backend.user.service.ConsentService;
@@ -40,6 +46,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
     private final PronunciationScoringService scoringService;
     private final ShadowingAttemptRecorder recorder;
     private final ShadowingAttemptRepository repository;
+    private final AttemptWordRepository wordRepository;
 
     @Override
     public ShadowingAttemptResponse assess(UUID userId, UUID sentenceId, byte[] wav) {
@@ -68,7 +75,22 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         LessonView lesson = sentenceQueryService.findLessonBySlug(lessonSlug)
                 .orElseThrow(() -> new NotFoundException("Lesson not found"));
         sentenceQueryService.assertCanPractice(userId, lesson.id());
-        return repository.findLatestByLesson(userId, lesson.id());
+        List<LatestHead> heads = repository.findLatestByLesson(userId, lesson.id());
+        if (heads.isEmpty()) {
+            return List.of();
+        }
+        Map<Long, List<LatestAttemptResponse.WordSummary>> wordsByAttempt = new HashMap<>();
+        for (AttemptWord w : wordRepository.findByAttemptIds(heads.stream().map(LatestHead::getAttemptId).toList())) {
+            wordsByAttempt.computeIfAbsent(w.getAttempt().getId(), k -> new ArrayList<>())
+                    .add(new LatestAttemptResponse.WordSummary(w.getPosition(),
+                            w.getExpectedWord() != null ? w.getExpectedWord() : w.getActualWord(),
+                            w.getAccuracyScore().doubleValue(), w.getOutcome()));
+        }
+        return heads.stream()
+                .map(h -> new LatestAttemptResponse(h.getSentenceId(), h.getAttemptId(), h.getScore().doubleValue(),
+                        h.getAttemptedAt(), h.getBestScore().doubleValue(), h.getAttemptCount().intValue(),
+                        wordsByAttempt.getOrDefault(h.getAttemptId(), List.of())))
+                .toList();
     }
 
     private static ShadowingAttemptResponse toResponse(long attemptId, UUID sentenceId,

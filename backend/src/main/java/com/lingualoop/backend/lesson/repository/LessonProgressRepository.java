@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,16 @@ import com.lingualoop.backend.lesson.entity.UserLessonProgressId;
 
 @Repository
 public interface LessonProgressRepository extends JpaRepository<UserLessonProgress, UserLessonProgressId> {
+
+    /**
+     * Tạo dòng tiến độ bài (nếu chưa có) hoặc đẩy mốc hoạt động. Một câu lệnh nên hai yêu cầu đầu tiên đồng thời
+     * của cùng một người dùng không đụng khoá chính.
+     */
+    @Modifying
+    @Query(nativeQuery = true, value = """
+            INSERT INTO user_lesson_progress (user_id, lesson_id) VALUES (:userId, :lessonId)
+            ON CONFLICT (user_id, lesson_id) DO UPDATE SET last_activity_at = now()""")
+    int touch(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId);
 
     @Query("""
             SELECT COUNT(ulp) FROM UserLessonProgress ulp
