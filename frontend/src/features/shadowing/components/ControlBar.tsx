@@ -42,7 +42,7 @@ function Waveform({ levels }: { levels: number[] }) {
 /** Thanh điều khiển gộp (`dc-ctrl`): ← ↻ ▶ → · tốc độ · giọng tôi · so sánh · mic. */
 export default function ControlBar(p: ControlBarProps) {
   const { t } = useTranslation("pages");
-  const micIcon = p.phase === "scoring" ? "loader-circle" : p.phase === "recording" ? "square" : "mic-vocal";
+  const micIcon = p.phase === "scoring" ? "loader-circle" : p.phase === "recording" ? "square" : "mic";
 
   return (
     <div className="mb-4 flex flex-col gap-3 border-b border-border pb-4">
@@ -63,7 +63,7 @@ export default function ControlBar(p: ControlBarProps) {
           {p.playing && (
             <span aria-hidden="true" className="animate-ripple pointer-events-none absolute -inset-1.5 rounded-full border-2 border-fn-shadowing" />
           )}
-          <Icon name={p.playing ? "pause" : "play"} fill />
+          <Icon name={p.playing ? "pause" : "play"} />
         </button>
         <Button variant="ghost" iconOnly disabled={p.isLast || p.navDisabled} onClick={p.onNext} aria-label={t(`${K}.next`)}>
           <Icon name="chevron-right" />
@@ -90,8 +90,8 @@ export default function ControlBar(p: ControlBarProps) {
             onClick={p.onMic}
             disabled={p.phase === "scoring"}
             aria-label={p.micLabel}
-            className={`relative grid h-16 w-16 shrink-0 cursor-pointer place-items-center rounded-full border-0 text-[28px] text-white transition-transform duration-200 ease-[var(--ease-spring)] hover:scale-105 disabled:cursor-wait ${
-              p.phase === "recording" ? "bg-danger" : p.phase === "scoring" ? "bg-text-subtle" : "bg-primary"
+            className={`relative grid h-[60px] w-[60px] shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-fn-shadowing text-[26px] text-on-fn shadow-[0_4px_0_color-mix(in_srgb,var(--fn-shadowing)_60%,#000)] transition-[transform,box-shadow] duration-150 active:translate-y-[3px] active:shadow-none focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-fn-shadowing disabled:cursor-not-allowed disabled:opacity-60 md:h-[75px] md:w-[75px] ${
+              p.phase === "recording" ? "bg-danger" : p.phase === "scoring" ? "bg-text-subtle" : "bg-fn-shadowing"
             }`}
           >
             {p.phase === "recording" && (

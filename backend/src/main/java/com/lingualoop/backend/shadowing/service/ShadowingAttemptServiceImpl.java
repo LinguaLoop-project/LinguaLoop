@@ -11,6 +11,7 @@ import com.lingualoop.backend.common.exception.NotFoundException;
 import com.lingualoop.backend.lesson.dto.LessonView;
 import com.lingualoop.backend.lesson.dto.SentenceView;
 import com.lingualoop.backend.lesson.service.SentenceQueryService;
+import com.lingualoop.backend.shadowing.azure.AzurePhonemeMapper;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.shadowing.dto.LatestAttemptResponse;
@@ -75,11 +76,17 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         List<ShadowingAttemptResponse.WordResult> words = new java.util.ArrayList<>();
         int position = 0;
         for (PronunciationAssessment.WordResult w : a.words()) {
+            // Ký hiệu trả về cùng hệ với IPA mẫu của câu (bảng phonemes); âm chưa chuyển được giữ nguyên ký hiệu Azure
+            List<String> table = AzurePhonemeMapper.toTableSymbols(
+                    w.phonemes().stream().map(PronunciationAssessment.PhonemeResult::symbol).toList());
+            List<ShadowingAttemptResponse.PhonemeResult> phonemes = new java.util.ArrayList<>();
+            for (int i = 0; i < w.phonemes().size(); i++) {
+                PronunciationAssessment.PhonemeResult p = w.phonemes().get(i);
+                phonemes.add(new ShadowingAttemptResponse.PhonemeResult(
+                        table.get(i) != null ? table.get(i) : p.symbol(), p.accuracyScore()));
+            }
             words.add(new ShadowingAttemptResponse.WordResult(position++, w.word(), w.accuracyScore(),
-                    ShadowingAttemptRecorder.outcomeOf(w.errorType()),
-                    w.phonemes().stream()
-                            .map(p -> new ShadowingAttemptResponse.PhonemeResult(p.symbol(), p.accuracyScore()))
-                            .toList()));
+                    ShadowingAttemptRecorder.outcomeOf(w.errorType()), phonemes));
         }
         return new ShadowingAttemptResponse(attemptId, sentenceId, a.pronunciationScore(), a.accuracyScore(),
                 a.fluencyScore(), a.completenessScore(), a.prosodyScore(), a.recognizedText(), words, usage);

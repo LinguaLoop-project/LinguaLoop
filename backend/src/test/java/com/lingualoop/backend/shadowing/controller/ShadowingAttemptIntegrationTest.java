@@ -94,8 +94,8 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data.words.length()").value(2))
                 .andExpect(jsonPath("$.data.words[0].word").value("hello"))
                 .andExpect(jsonPath("$.data.words[0].outcome").value("correct"))
-                // phản hồi giữ ký hiệu Azure, không phải ký hiệu bảng phonemes
-                .andExpect(jsonPath("$.data.words[0].phonemes[3].symbol").value("oʊ"))
+                // phản hồi dùng ký hiệu bảng phonemes (cùng hệ với IPA mẫu của câu), không phải ký hiệu Azure
+                .andExpect(jsonPath("$.data.words[0].phonemes[3].symbol").value("əʊ"))
                 .andExpect(jsonPath("$.data.words[1].outcome").value("mispronounced"))
                 .andExpect(jsonPath("$.data.usage.feature").value("shadowing_assess"))
                 .andExpect(jsonPath("$.data.usage.used").value(1))

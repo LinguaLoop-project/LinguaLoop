@@ -8,11 +8,13 @@ import { PHONEME_ERROR_BELOW, TONE_BOX, TONE_TEXT, toneOf } from "../utils";
 
 export interface WordDetailProps {
   word: WordResult;
+  /** Phiên âm mẫu của từ trong câu; null khi dữ liệu câu không có hoặc không khớp. */
+  ipa: string | null;
   onClose: () => void;
 }
 
 /** Chi tiết một từ: điểm, từng âm vị kèm điểm, âm dưới 60 được đánh dấu (UC-SHADOW-06 kịch bản 3). */
-export default function WordDetail({ word, onClose }: WordDetailProps) {
+export default function WordDetail({ word, ipa, onClose }: WordDetailProps) {
   const { t } = useTranslation("pages");
   const k = "student.shadowingPractice";
   const omitted = word.outcome === "omitted";
@@ -34,6 +36,7 @@ export default function WordDetail({ word, onClose }: WordDetailProps) {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <b className="font-display text-xl">{word.word}</b>
+          {ipa && <span className="text-base text-text-muted">/{ipa}/</span>}
           {omitted && <span className="text-sm text-danger">{t(`${k}.word.omitted`)}</span>}
           <Button
             variant="ghost"

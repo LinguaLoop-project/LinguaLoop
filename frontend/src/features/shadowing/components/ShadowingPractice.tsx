@@ -16,7 +16,7 @@ import { useShadowingHotkeys, type ShadowingTab } from "../hooks/useShadowingHot
 import { useShadowingSettings } from "../hooks/useShadowingSettings";
 import { useWavRecorder } from "../hooks/useWavRecorder";
 import type { LatestAttempt, SentenceRecord } from "../types";
-import { litTokenIndex, recordFromAttempt, sentenceAt, wordIpa, youtubeId } from "../utils";
+import { alignWords, litTokenIndex, recordFromAttempt, sentenceAt, wordIpa, youtubeId } from "../utils";
 import AttemptResult from "./AttemptResult";
 import ControlBar from "./ControlBar";
 import MediaBar from "./MediaBar";
@@ -319,6 +319,9 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const isLastDone = finished && index === sentences.length - 1;
 
   // Đồng hồ, thanh các câu và từ đang sáng bám theo vị trí phát
+  const selectedToken =
+    selectedWord === null ? -1 : alignWords(sentence.text, record?.words ?? []).find((d) => d.result === selectedWord)?.tokenIndex ?? -1;
+  const selectedIpa = selectedToken >= 0 ? (wordIpa(sentence.text, sentence.ipa)?.[selectedToken] ?? null) : null;
   const wordPhonetics = settings.ipa ? wordIpa(sentence.text, sentence.ipa) : null;
   const lit =
     positionMs !== null && modelPlaying
@@ -385,7 +388,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
               <div
                 ref={videoHostRef}
                 className={`mx-auto w-full overflow-hidden rounded-lg bg-black transition-shadow [&_iframe]:h-full [&_iframe]:w-full ${
-                  tab === "watch" ? "max-w-[760px]" : "max-w-[560px]"
+                  tab === "watch" ? "max-w-[960px]" : "max-w-[660px]"
                 } ${settings.hideVideo ? "h-0" : "aspect-video"} ${modelPlaying ? "ring-2 ring-fn-shadowing" : ""}`}
               />
             )}
@@ -490,7 +493,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                     />
                     {selectedWord && (
                       <div className="mt-4">
-                        <WordDetail word={selectedWord} onClose={() => setSelected(null)} />
+                        <WordDetail word={selectedWord} ipa={selectedIpa} onClose={() => setSelected(null)} />
                       </div>
                     )}
                   </>
