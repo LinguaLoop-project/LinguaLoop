@@ -38,15 +38,17 @@ export default function WordDetail({ word, ipa, onClose }: WordDetailProps) {
           <b className="font-display text-xl">{word.word}</b>
           {ipa && <span className="text-base text-text-muted">/{ipa}/</span>}
           {omitted && <span className="text-sm text-danger">{t(`${k}.word.omitted`)}</span>}
-          <Button
-            variant="ghost"
-            size="sm"
-            iconOnly
+          <button
+            type="button"
             onClick={() => speakSegment(word.word, 0.8, () => undefined)}
             aria-label={t(`${k}.word.speak`, { word: word.word })}
+            className="inline-flex h-11 cursor-pointer items-center gap-2.5 rounded-full border border-info bg-surface py-0 pl-1.5 pr-4 text-sm font-bold text-text transition-colors hover:bg-surface-hover"
           >
-            <Icon name="volume-2" />
-          </Button>
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-info text-lg text-on-fn">
+              <Icon name="volume-2" />
+            </span>
+            {t(`${k}.word.listen`)}
+          </button>
         </div>
         <div className="flex items-center gap-2">
           <Badge tone={tone === "good" ? "success" : tone === "mid" ? "warning" : "danger"}>

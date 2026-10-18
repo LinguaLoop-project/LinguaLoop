@@ -1,6 +1,8 @@
 package com.lingualoop.backend.lesson.repository;
 
+import java.util.Collection;
 import java.util.UUID;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -39,4 +41,18 @@ public interface LessonModeProgressRepository extends JpaRepository<UserLessonMo
                         WHERE a.user_id = :userId AND a.sentence_id = s.id AND a.mode = :mode))""")
     int completeIfAllSentencesAttempted(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId,
             @Param("mode") String mode);
+
+    /** Tổng thời gian học (giây) của người học trên mỗi bài, cộng cả hai chế độ. */
+    interface StudyTime {
+        UUID getLessonId();
+
+        long getSeconds();
+    }
+
+    @Query("""
+            SELECT p.lessonId AS lessonId, SUM(p.totalTimeSec) AS seconds
+            FROM UserLessonModeProgress p
+            WHERE p.userId = :userId AND p.lessonId IN :lessonIds
+            GROUP BY p.lessonId""")
+    List<StudyTime> sumStudyTime(@Param("userId") UUID userId, @Param("lessonIds") Collection<UUID> lessonIds);
 }

@@ -142,6 +142,7 @@
       "aside": {
         "progress": "Tiến độ của bạn",
         "studyTime": "Thời gian học",
+        "minutes": "phút",
         "vocab": "Từ vựng trong bài",
         "saveAll": "Lưu tất cả",
         "notes": "Ghi chú của tôi",
@@ -285,6 +286,7 @@
         "inserted": "thừa",
         "clickHint": "Bấm vào một từ để xem từng âm",
         "speak": "Nghe phát âm “{{word}}”",
+        "listen": "Nghe mẫu từ",
         "insertedHint": "Từ thừa: Azure nghe thấy “{{word}}” mà câu mẫu không có",
         "omittedHint": "Azure không nghe thấy từ này"
       },

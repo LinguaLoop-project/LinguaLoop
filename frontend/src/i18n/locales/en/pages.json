@@ -142,6 +142,7 @@
       "aside": {
         "progress": "Your progress",
         "studyTime": "Study time",
+        "minutes": "min",
         "vocab": "Vocabulary in lesson",
         "saveAll": "Save all",
         "notes": "My notes",
@@ -285,6 +286,7 @@
         "inserted": "extra",
         "clickHint": "Tap a word to see each sound",
         "speak": "Hear “{{word}}”",
+        "listen": "Hear the word",
         "insertedHint": "Extra word: Azure heard “{{word}}”, which is not in the model sentence",
         "omittedHint": "Azure did not hear this word"
       },

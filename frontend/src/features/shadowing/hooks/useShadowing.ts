@@ -19,6 +19,10 @@ export const useAssessAttempt = () => {
     mutationFn: ({ sentenceId, wav }: { sentenceId: string; wav: Blob }) => shadowingService.assess(sentenceId, wav),
     onSuccess: (result) => {
       // Phản hồi đã kèm số lượt mới: cập nhật thẳng thay vì gọi lại /me/usage
+      // Tiến độ bài học (trang chi tiết, thư viện) đã đổi sau lượt này: đánh dấu cũ để lần mở sau tải lại
+      for (const key of ["detail", "overview", "search"]) {
+        void queryClient.invalidateQueries({ queryKey: ["lessons", key], exact: false });
+      }
       queryClient.setQueryData<UsageResponse>(USAGE_QUERY_KEY, (old) =>
         old ? { features: old.features.map((f) => (f.feature === result.usage.feature ? result.usage : f)) } : old,
       );

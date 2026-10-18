@@ -23,6 +23,10 @@ function AsideCard({ title, aside, children }: { title: string; aside?: ReactNod
   );
 }
 
+/** 0 giây hiện "—"; dưới 1 phút vẫn hiện 1 phút để người học thấy mình đã có thời gian học. */
+const studyTime = (sec: number, t: (key: string, fallback: string) => string) =>
+  sec > 0 ? `${Math.max(1, Math.round(sec / 60))} ${t("student.lessonDetail.aside.minutes", "phút")}` : "—";
+
 const pct = (n: number) => (n > 0 ? `${Math.round(n)}%` : "—");
 
 /** Tiến độ tổng (trung bình hai chế độ) và từng chế độ. */
@@ -55,7 +59,7 @@ export function ProgressCard({ progress }: { progress: ModeProgress }) {
               <Icon name="clock" />
               {t("student.lessonDetail.aside.studyTime", "Thời gian học")}
             </span>
-            <b>—</b>
+            <b>{studyTime(progress.studyTimeSec, t)}</b>
           </div>
         </div>
       </div>

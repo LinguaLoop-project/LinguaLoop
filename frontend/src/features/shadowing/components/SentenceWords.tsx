@@ -79,6 +79,9 @@ export default function SentenceWords({ text, words, ipa, lit, selected, onSelec
               {d.text}
             </span>
             {ipaLine}
+            <span className={`text-xs font-semibold tabular-nums ${TONE_TEXT[tone]}`} aria-hidden="true">
+              {omitted ? "—" : Math.round(r.accuracy)}
+            </span>
           </button>
         );
       })}
