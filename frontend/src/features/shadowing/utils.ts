@@ -126,8 +126,11 @@ export function weakPhonemes(records: Record<string, SentenceRecord>, limit = 3)
 
 /** 00:02.0 */
 export function fmtClock(ms: number): string {
-  const sec = Math.max(0, ms) / 1000;
-  return `${String(Math.floor(sec / 60)).padStart(2, "0")}:${(sec % 60).toFixed(1).padStart(4, "0")}`;
+  // Làm tròn tới 0,1 giây trước khi tách phút, để 59,96 giây không hiện thành "00:60.0"
+  const tenths = Math.round(Math.max(0, ms) / 100);
+  const minutes = Math.floor(tenths / 600);
+  const seconds = (tenths % 600) / 10;
+  return `${String(minutes).padStart(2, "0")}:${seconds.toFixed(1).padStart(4, "0")}`;
 }
 
 /** 00:50 */

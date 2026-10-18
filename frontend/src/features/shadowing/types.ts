@@ -4,7 +4,7 @@ import type { FeatureUsage } from "@/features/subscription/types";
 
 export type WordOutcome = "correct" | "mispronounced" | "omitted" | "inserted";
 
-/** Ký hiệu âm vị giữ như Azure trả về (IPA giọng Mỹ), không phải ký hiệu trong bảng phonemes (ADR 0004). */
+/** Ký hiệu âm vị đã đổi sang bảng phonemes (ADR 0004, cùng hệ với IPA mẫu); âm chưa đổi được giữ ký hiệu Azure. */
 export interface PhonemeResult {
   symbol: string;
   accuracy: number;
