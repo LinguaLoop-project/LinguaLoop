@@ -135,3 +135,17 @@ export function fmtDuration(ms: number): string {
   const sec = Math.round(Math.max(0, ms) / 1000);
   return `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
 }
+
+/** Câu chứa mốc `ms`; mốc nằm trong khoảng lặng giữa hai câu thì lấy câu gần nhất. */
+export function sentenceAt(segments: { startMs: number; endMs: number }[], ms: number): number {
+  let best = 0;
+  let bestGap = Number.POSITIVE_INFINITY;
+  segments.forEach((s, i) => {
+    const gap = ms < s.startMs ? s.startMs - ms : ms > s.endMs ? ms - s.endMs : 0;
+    if (gap < bestGap) {
+      best = i;
+      bestGap = gap;
+    }
+  });
+  return best;
+}

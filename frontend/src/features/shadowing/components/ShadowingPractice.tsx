@@ -368,7 +368,10 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
             disabled={busy}
             hideVideo={settings.hideVideo}
             onToggleVideo={() => updateSettings({ hideVideo: !settings.hideVideo })}
-            onPick={pickFromList}
+            onScrub={(i) => {
+              if (i !== index) goTo(i);
+            }}
+            onCommit={pickFromList}
           >
             {showVideo && (
               <div

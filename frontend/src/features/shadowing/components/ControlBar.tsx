@@ -58,8 +58,11 @@ export default function ControlBar(p: ControlBarProps) {
           onClick={p.onTogglePlay}
           disabled={p.phase === "recording"}
           aria-label={p.playing ? t(`${K}.controls.pause`) : t(`${K}.controls.play`)}
-          className="grid h-12 w-12 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-fn-shadowing text-2xl text-on-fn shadow-[0_6px_16px_-6px_var(--fn-shadowing)] transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
+          className="relative grid h-[52px] w-[52px] shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-fn-shadowing text-[26px] text-on-fn shadow-[0_4px_0_color-mix(in_srgb,var(--fn-shadowing)_60%,#000)] transition-[transform,box-shadow] duration-150 active:translate-y-[3px] active:shadow-none focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-fn-shadowing disabled:cursor-not-allowed disabled:opacity-60 md:h-[60px] md:w-[60px]"
         >
+          {p.playing && (
+            <span aria-hidden="true" className="animate-ripple pointer-events-none absolute -inset-1.5 rounded-full border-2 border-fn-shadowing" />
+          )}
           <Icon name={p.playing ? "pause" : "play"} fill />
         </button>
         <Button variant="ghost" iconOnly disabled={p.isLast || p.navDisabled} onClick={p.onNext} aria-label={t(`${K}.next`)}>
@@ -87,12 +90,13 @@ export default function ControlBar(p: ControlBarProps) {
             onClick={p.onMic}
             disabled={p.phase === "scoring"}
             aria-label={p.micLabel}
-            className={`grid h-16 w-16 shrink-0 cursor-pointer place-items-center rounded-full border-0 text-[28px] transition-transform hover:scale-105 disabled:cursor-wait disabled:opacity-70 ${
-              p.phase === "recording"
-                ? "animate-pulse bg-danger text-white"
-                : "bg-fn-shadowing text-on-fn shadow-[0_8px_20px_-8px_var(--fn-shadowing)]"
+            className={`relative grid h-16 w-16 shrink-0 cursor-pointer place-items-center rounded-full border-0 text-[28px] text-white transition-transform duration-200 ease-[var(--ease-spring)] hover:scale-105 disabled:cursor-wait ${
+              p.phase === "recording" ? "bg-danger" : p.phase === "scoring" ? "bg-text-subtle" : "bg-primary"
             }`}
           >
+            {p.phase === "recording" && (
+              <span aria-hidden="true" className="animate-ripple pointer-events-none absolute -inset-2.5 rounded-full border-[3px] border-danger" />
+            )}
             <Icon name={micIcon} className={p.phase === "scoring" ? "animate-spin" : ""} fill={p.phase === "idle"} />
           </button>
           <span role="status" aria-live="polite" className="whitespace-nowrap text-[11px] text-text-muted">
