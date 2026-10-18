@@ -284,6 +284,7 @@
         "omitted": "bị bỏ sót",
         "inserted": "thừa",
         "clickHint": "Bấm vào một từ để xem từng âm",
+        "speak": "Nghe phát âm “{{word}}”",
         "insertedHint": "Từ thừa: Azure nghe thấy “{{word}}” mà câu mẫu không có",
         "omittedHint": "Azure không nghe thấy từ này"
       },

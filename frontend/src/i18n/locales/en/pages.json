@@ -284,6 +284,7 @@
         "omitted": "skipped",
         "inserted": "extra",
         "clickHint": "Tap a word to see each sound",
+        "speak": "Hear “{{word}}”",
         "insertedHint": "Extra word: Azure heard “{{word}}”, which is not in the model sentence",
         "omittedHint": "Azure did not hear this word"
       },

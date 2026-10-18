@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
+import { speakSegment } from "../hooks/useModelPlayer";
 import type { WordResult } from "../types";
 import { PHONEME_ERROR_BELOW, TONE_BOX, TONE_TEXT, toneOf } from "../utils";
 
@@ -31,9 +32,18 @@ export default function WordDetail({ word, onClose }: WordDetailProps) {
   return (
     <div role="region" aria-label={word.word} className="rounded-lg border border-border-strong bg-bg-elevated p-4">
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-baseline gap-3">
+        <div className="flex items-center gap-3">
           <b className="font-display text-xl">{word.word}</b>
           {omitted && <span className="text-sm text-danger">{t(`${k}.word.omitted`)}</span>}
+          <Button
+            variant="ghost"
+            size="sm"
+            iconOnly
+            onClick={() => speakSegment(word.word, 0.8, () => undefined)}
+            aria-label={t(`${k}.word.speak`, { word: word.word })}
+          >
+            <Icon name="volume-2" />
+          </Button>
         </div>
         <div className="flex items-center gap-2">
           <Badge tone={tone === "good" ? "success" : tone === "mid" ? "warning" : "danger"}>

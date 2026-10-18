@@ -42,7 +42,7 @@ function Waveform({ levels }: { levels: number[] }) {
 /** Thanh điều khiển gộp (`dc-ctrl`): ← ↻ ▶ → · tốc độ · giọng tôi · so sánh · mic. */
 export default function ControlBar(p: ControlBarProps) {
   const { t } = useTranslation("pages");
-  const micIcon = p.phase === "scoring" ? "loader-circle" : p.phase === "recording" ? "square" : "mic";
+  const micIcon = p.phase === "scoring" ? "loader-circle" : p.phase === "recording" ? "square" : "mic-vocal";
 
   return (
     <div className="mb-4 flex flex-col gap-3 border-b border-border pb-4">
@@ -97,7 +97,7 @@ export default function ControlBar(p: ControlBarProps) {
             {p.phase === "recording" && (
               <span aria-hidden="true" className="animate-ripple pointer-events-none absolute -inset-2.5 rounded-full border-[3px] border-danger" />
             )}
-            <Icon name={micIcon} className={p.phase === "scoring" ? "animate-spin" : ""} fill={p.phase === "idle"} />
+            <Icon name={micIcon} className={p.phase === "scoring" ? "animate-spin" : ""} />
           </button>
           <span role="status" aria-live="polite" className="whitespace-nowrap text-[11px] text-text-muted">
             {p.micLabel}

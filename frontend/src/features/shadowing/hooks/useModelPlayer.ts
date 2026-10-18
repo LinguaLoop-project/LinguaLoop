@@ -36,7 +36,7 @@ export interface ModelSegment {
 const API_TIMEOUT_MS = 9000;
 
 /** Đọc chữ của câu bằng giọng tổng hợp của trình duyệt (phương án cuối khi không có video hay tệp âm thanh). */
-function speakSegment(text: string, rate: number, finish: () => void) {
+export function speakSegment(text: string, rate: number, finish: () => void) {
   if (!("speechSynthesis" in window)) {
     finish();
     return;
@@ -59,10 +59,13 @@ export function useModelPlayer({
   videoId,
   mediaUrl,
   rate,
+  onSeek,
 }: {
   videoId: string | null;
   mediaUrl: string | null;
   rate: number;
+  /** Người học tự tua hoặc tự bấm phát bằng thanh điều khiển của YouTube: báo vị trí (mili giây) để chọn câu tương ứng. */
+  onSeek?: (ms: number) => void;
 }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YTPlayer | null>(null);
@@ -76,6 +79,13 @@ export function useModelPlayer({
   /** Vị trí phát hiện tại (mili giây) khi đang phát, null khi dừng. */
   const [positionMs, setPositionMs] = useState<number | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const playingRef = useRef(false);
+  const lastMsRef = useRef(0);
+  const onSeekRef = useRef(onSeek);
+  useEffect(() => {
+    onSeekRef.current = onSeek;
+    playingRef.current = playing;
+  });
 
   useEffect(() => {
     const host = hostRef.current;
@@ -89,7 +99,7 @@ export function useModelPlayer({
       try {
         playerRef.current = new window.YT.Player(mount, {
           videoId,
-          playerVars: { controls: 0, disablekb: 1, rel: 0, playsinline: 1, modestbranding: 1, fs: 0, origin: location.origin },
+          playerVars: { controls: 1, disablekb: 1, rel: 0, playsinline: 1, modestbranding: 1, fs: 1, origin: location.origin },
           events: {
             onReady: () => {
               if (!cancelled) setVideoReady(true);
@@ -138,6 +148,24 @@ export function useModelPlayer({
     };
   }, [videoId, attempt]);
 
+  // Thanh điều khiển của YouTube: theo dõi vị trí khi người học tự tua hoặc tự phát (lúc app không phát mẫu)
+  useEffect(() => {
+    if (!videoReady) return;
+    const id = window.setInterval(() => {
+      const player = playerRef.current;
+      if (!player || playingRef.current) return;
+      let ms: number;
+      try {
+        ms = Math.round(player.getCurrentTime() * 1000);
+      } catch {
+        return;
+      }
+      if (Math.abs(ms - lastMsRef.current) > 250) onSeekRef.current?.(ms);
+      lastMsRef.current = ms;
+    }, 300);
+    return () => window.clearInterval(id);
+  }, [videoReady]);
+
   // Tệp âm thanh của bài: nạp sẵn để bấm "Nghe mẫu" là phát ngay
   useEffect(() => {
     if (!mediaUrl) return;
@@ -184,6 +212,7 @@ export function useModelPlayer({
       if (player && videoReady && !videoFailed) {
         try {
           player.setPlaybackRate(rate);
+          lastMsRef.current = segment.startMs;
           player.seekTo(segment.startMs / 1000, true);
           player.playVideo();
           const startedAt = performance.now();
@@ -195,7 +224,8 @@ export function useModelPlayer({
             } catch {
               // chờ lần sau
             }
-            setPositionMs(Math.round(t * 1000));
+            lastMsRef.current = Math.round(t * 1000);
+            setPositionMs(lastMsRef.current);
             if (t >= segment.endMs / 1000 - 0.05 || performance.now() - startedAt > maxMs) finish();
           }, 100);
           return;
@@ -273,6 +303,7 @@ export function useModelPlayer({
       if (player && videoReady && !videoFailed) {
         try {
           player.setPlaybackRate(1);
+          lastMsRef.current = segments[from].startMs;
           player.seekTo(segments[from].startMs / 1000, true);
           player.playVideo();
           timerRef.current = window.setInterval(() => {
@@ -283,7 +314,8 @@ export function useModelPlayer({
               // chờ lần sau
             }
             follow(t);
-            setPositionMs(Math.round(t * 1000));
+            lastMsRef.current = Math.round(t * 1000);
+            setPositionMs(lastMsRef.current);
             if (t >= last.endMs / 1000) {
               try {
                 player.pauseVideo();

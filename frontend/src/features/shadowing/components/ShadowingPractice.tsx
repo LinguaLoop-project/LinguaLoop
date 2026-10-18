@@ -16,7 +16,7 @@ import { useShadowingHotkeys, type ShadowingTab } from "../hooks/useShadowingHot
 import { useShadowingSettings } from "../hooks/useShadowingSettings";
 import { useWavRecorder } from "../hooks/useWavRecorder";
 import type { LatestAttempt, SentenceRecord } from "../types";
-import { litTokenIndex, recordFromAttempt, wordIpa, youtubeId } from "../utils";
+import { litTokenIndex, recordFromAttempt, sentenceAt, wordIpa, youtubeId } from "../utils";
 import AttemptResult from "./AttemptResult";
 import ControlBar from "./ControlBar";
 import MediaBar from "./MediaBar";
@@ -91,6 +91,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const videoId = lesson.sourceType === "youtube" ? youtubeId(lesson.sourceUrl) : null;
   // Bài âm thanh/video tải lên: phát đoạn của câu từ chính tệp đó
   const mediaUrl = lesson.sourceType === "youtube" ? null : lesson.sourceUrl;
+  const seekRef = useRef<(ms: number) => void>(() => undefined);
   const {
     hostRef: videoHostRef,
     playing: modelPlaying,
@@ -101,7 +102,12 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     showVideo,
     videoFailed,
     retryVideo,
-  } = useModelPlayer({ videoId, mediaUrl, rate: Number(settings.rate) });
+  } = useModelPlayer({
+    videoId,
+    mediaUrl,
+    rate: Number(settings.rate),
+    onSeek: (ms) => seekRef.current(ms),
+  });
 
   const sentence = sentences[index];
   const record = records[sentence.id];
@@ -220,6 +226,20 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     playModel(sentence, () => window.setTimeout(playMine, 250));
   };
 
+  // Người học tự tua / tự phát bằng thanh YouTube: hiện câu chứa vị trí đó (không dừng video)
+  useEffect(() => {
+    seekRef.current = (ms) => {
+      if (phase !== "idle") return;
+      const i = sentenceAt(sentences, ms);
+      if (i === index) return;
+      mineAudioRef.current?.pause();
+      replaceMine(null);
+      setIndex(i);
+      setSelected(null);
+      setNote(null);
+    };
+  });
+
   const goTo = (i: number) => {
     if (busy) return;
     stopPlayer();
@@ -299,9 +319,6 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const isLastDone = finished && index === sentences.length - 1;
 
   // Đồng hồ, thanh các câu và từ đang sáng bám theo vị trí phát
-  const durationMs = lesson.durationSec ? lesson.durationSec * 1000 : (sentences[sentences.length - 1]?.endMs ?? 0);
-  const clockMs = positionMs ?? sentence.startMs;
-  const segments = sentences.map((s) => ({ startMs: s.startMs, endMs: s.endMs, done: !!records[s.id] }));
   const wordPhonetics = settings.ipa ? wordIpa(sentence.text, sentence.ipa) : null;
   const lit =
     positionMs !== null && modelPlaying
@@ -361,17 +378,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
         <div className="flex min-w-0 flex-col gap-4">
           <MediaBar
             video={showVideo}
-            positionMs={clockMs}
-            durationMs={durationMs}
-            segments={segments}
-            current={index}
-            disabled={busy}
             hideVideo={settings.hideVideo}
             onToggleVideo={() => updateSettings({ hideVideo: !settings.hideVideo })}
-            onScrub={(i) => {
-              if (i !== index) goTo(i);
-            }}
-            onCommit={pickFromList}
           >
             {showVideo && (
               <div
