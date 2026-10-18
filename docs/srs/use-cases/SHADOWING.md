@@ -89,6 +89,10 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 | 14 | Ở tab Xem, bấm một câu trong danh sách | Tua tới câu đó và xem tiếp từ đây |
 | 15 | Bấm ⚙ Cài đặt | Có ba công tắc: hiện phiên âm, hiện bản dịch, phụ đề khi xem. Đổi thì giao diện đổi ngay và giữ nguyên sau khi tải lại trang |
 | 16 | Bấm "Ẩn video" (bài YouTube) | Khung video thu về 0 nhưng âm thanh vẫn phát; "Hiện video" khôi phục |
+| 18 | Mở bài có phiên âm của câu | Mỗi từ hiện phiên âm ngay bên dưới (`/ɪf/`, `/θɪŋz/`…) khi số từ phiên âm bằng số từ của câu; lệch số từ thì hiện phiên âm cả câu thành một dòng; tắt công tắc "Hiện phiên âm" thì ẩn |
+| 19 | Thanh phía trên video | Có nguồn phát, đồng hồ `00:02.0 / 00:50`, thanh các câu trên trục thời gian (câu đang chọn màu nhấn, câu đã đọc màu xanh, bấm vào một đoạn để chuyển và phát câu đó), nút "Ẩn video" |
+| 20 | Hàng điều khiển ở tab Luyện | Một hàng: ← ↻ ▶ → · tốc độ · Giọng tôi · So sánh · nút mic; từ được tô sáng theo lời đang phát; màn hình hẹp thì tự xuống dòng, không cuộn ngang |
+| 21 | Sau khi chấm | Khối điểm, chip Cao nhất / số lần đọc / các chỉ số, chip lỗi (từ bỏ sót, từ thừa, âm dưới 60), lời nhắn, "Nghe mẫu" và "Câu tiếp" (câu cuối thì "Hoàn thành"); danh sách bên phải có tiến độ cả bài và các âm hay sai |
 | 17 | Phím tắt ở tab Luyện | Space ghi âm/dừng, nhả Ctrl nghe mẫu, R nghe lại giọng mình, C so sánh; Alt+←/→ đổi câu; Alt+W/Alt+P đổi tab. Không kích hoạt khi đang gõ vào ô nhập; Space nhường cho nút đang được focus |
 
 ---

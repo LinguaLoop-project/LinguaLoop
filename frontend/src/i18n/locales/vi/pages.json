@@ -259,7 +259,7 @@
         "rec": "Đang ghi… bấm để dừng",
         "busy": "Đang chấm phát âm…"
       },
-      "mine": "Nghe lại của tôi",
+      "mine": "Giọng tôi",
       "compare": "So sánh",
       "compareHint": "Nghe mẫu, rồi đến giọng bạn",
       "needRecording": "Hãy đọc câu này một lần trước nhé",
@@ -283,7 +283,9 @@
       "word": {
         "omitted": "bị bỏ sót",
         "inserted": "thừa",
-        "clickHint": "Bấm vào một từ để xem từng âm"
+        "clickHint": "Bấm vào một từ để xem từng âm",
+        "insertedHint": "Từ thừa: Azure nghe thấy “{{word}}” mà câu mẫu không có",
+        "omittedHint": "Azure không nghe thấy từ này"
       },
       "detail": {
         "close": "Đóng",
@@ -376,6 +378,28 @@
         "compare": "So sánh",
         "step": "Câu trước / sau",
         "tabs": "Tab Xem / Luyện"
+      },
+      "readCount": "Đã đọc {{count}} lần",
+      "unread": "Chưa đọc",
+      "controls": {
+        "label": "Điều khiển phát",
+        "replay": "Nghe lại mẫu",
+        "play": "Nghe mẫu",
+        "pause": "Dừng"
+      },
+      "result": {
+        "best": "Cao nhất {{best}}",
+        "noIssues": "Không có âm nào dưới 60",
+        "omitted": "Bỏ sót từ ×{{n}}",
+        "inserted": "Thừa từ ×{{n}}",
+        "badPhoneme": "Âm /{{symbol}}/ chưa chuẩn ×{{n}}",
+        "finish": "Hoàn thành",
+        "timeline": "Các câu trong bài"
+      },
+      "list": {
+        "title": "Bản chép",
+        "progress": "{{done}}/{{total}} · {{pct}}%",
+        "weak": "Âm hay sai:"
       }
     }
   },

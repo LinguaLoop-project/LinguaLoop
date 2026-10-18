@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
-import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
@@ -14,11 +13,13 @@ import { toast } from "@/stores/toastStore";
 import { useAssessAttempt } from "../hooks/useShadowing";
 import { useModelPlayer } from "../hooks/useModelPlayer";
 import { useShadowingHotkeys, type ShadowingTab } from "../hooks/useShadowingHotkeys";
-import { RATES, useShadowingSettings } from "../hooks/useShadowingSettings";
+import { useShadowingSettings } from "../hooks/useShadowingSettings";
 import { useWavRecorder } from "../hooks/useWavRecorder";
 import type { LatestAttempt, SentenceRecord } from "../types";
-import { recordFromAttempt, toneOf, youtubeId } from "../utils";
+import { litTokenIndex, recordFromAttempt, wordIpa, youtubeId } from "../utils";
 import AttemptResult from "./AttemptResult";
+import ControlBar from "./ControlBar";
+import MediaBar from "./MediaBar";
 import { MessageNote, MicDeniedNote, QuotaOutNote } from "./Notes";
 import QuotaChip from "./QuotaChip";
 import SentenceList from "./SentenceList";
@@ -63,18 +64,9 @@ function recordsFromLatest(latest: LatestAttempt[]): Record<string, SentenceReco
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
-function Waveform({ levels }: { levels: number[] }) {
-  return (
-    <div className="flex h-9 items-center gap-[3px]" aria-hidden="true">
-      {levels.map((l, i) => (
-        <span key={i} className="w-[3px] rounded-full bg-danger" style={{ height: `${Math.max(10, l * 100)}%` }} />
-      ))}
-    </div>
-  );
-}
-
 export default function ShadowingPractice({ lesson, sentences, latest }: ShadowingPracticeProps) {
   const { t } = useTranslation("pages");
+  const navigate = useNavigate();
   const { isPro, remaining, maxActions, setShowUpgradeModal } = useQuota();
   const assess = useAssessAttempt();
   const recorder = useWavRecorder();
@@ -102,6 +94,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const {
     hostRef: videoHostRef,
     playing: modelPlaying,
+    positionMs,
     play: playModel,
     watch: watchAll,
     stop: stopPlayer,
@@ -303,6 +296,29 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const average = Math.round(
     sentences.reduce((sum, s) => sum + (records[s.id]?.best ?? 0), 0) / Math.max(1, sentences.length),
   );
+  const isLastDone = finished && index === sentences.length - 1;
+
+  // Đồng hồ, thanh các câu và từ đang sáng bám theo vị trí phát
+  const durationMs = lesson.durationSec ? lesson.durationSec * 1000 : (sentences[sentences.length - 1]?.endMs ?? 0);
+  const clockMs = positionMs ?? sentence.startMs;
+  const segments = sentences.map((s) => ({ startMs: s.startMs, endMs: s.endMs, done: !!records[s.id] }));
+  const wordPhonetics = settings.ipa ? wordIpa(sentence.text, sentence.ipa) : null;
+  const lit =
+    positionMs !== null && modelPlaying
+      ? litTokenIndex(
+          sentence.text,
+          clamp((positionMs - sentence.startMs) / Math.max(500, sentence.endMs - sentence.startMs), 0, 1),
+        )
+      : -1;
+  const quotaNote = (
+    <QuotaOutNote
+      limit={maxActions}
+      showUpgrade={!isPro}
+      onUpgrade={() => setShowUpgradeModal(true)}
+      onNext={goNext}
+      nextLabel={t(`${K}.next`)}
+    />
+  );
 
   return (
     <section className="w-full" aria-labelledby="sh-title">
@@ -313,7 +329,9 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
             className="mb-1 inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary-text"
           >
             <Icon name="arrow-left" />
-            <span className="truncate">{t(`${K}.back`)}: {lesson.title}</span>
+            <span className="truncate">
+              {t(`${K}.back`)}: {lesson.title}
+            </span>
           </Link>
           <div className="text-xs font-semibold uppercase tracking-wider text-fn-shadowing">{t(`${K}.overline`)}</div>
           <h1 id="sh-title" className="font-display text-2xl font-bold">
@@ -336,35 +354,28 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
           <ToolbarPopover label={t(`${K}.toolbar.shortcuts`)} icon="keyboard">
             <ShortcutsPanel />
           </ToolbarPopover>
-          <QuotaChip />
         </div>
       </header>
 
-      <div className="grid grid-cols-1 items-start gap-6 min-[1100px]:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid grid-cols-1 items-start gap-6 min-[1100px]:grid-cols-[minmax(0,1fr)_340px]">
         <div className="flex min-w-0 flex-col gap-4">
-          {/* Câu mẫu: video YouTube hoặc giọng tổng hợp */}
-          <div className="rounded-lg border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
-            <div className="mb-3 flex items-center gap-2 text-sm text-text-muted">
-              <Icon name={showVideo ? "video" : "headphones"} />
-              <span className="flex-1">{showVideo ? t(`${K}.video.badge`) : t(`${K}.video.audioBadge`)}</span>
-              {showVideo && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  aria-pressed={settings.hideVideo}
-                  onClick={() => updateSettings({ hideVideo: !settings.hideVideo })}
-                  leftIcon={<Icon name={settings.hideVideo ? "eye" : "eye-off"} />}
-                >
-                  {settings.hideVideo ? t(`${K}.video.show`) : t(`${K}.video.hide`)}
-                </Button>
-              )}
-            </div>
+          <MediaBar
+            video={showVideo}
+            positionMs={clockMs}
+            durationMs={durationMs}
+            segments={segments}
+            current={index}
+            disabled={busy}
+            hideVideo={settings.hideVideo}
+            onToggleVideo={() => updateSettings({ hideVideo: !settings.hideVideo })}
+            onPick={pickFromList}
+          >
             {showVideo && (
               <div
                 ref={videoHostRef}
-                className={`w-full overflow-hidden rounded-md bg-bg-elevated [&_iframe]:h-full [&_iframe]:w-full ${
-                  settings.hideVideo ? "h-0" : "aspect-video"
-                }`}
+                className={`mx-auto w-full overflow-hidden rounded-lg bg-black transition-shadow [&_iframe]:h-full [&_iframe]:w-full ${
+                  tab === "watch" ? "max-w-[760px]" : "max-w-[560px]"
+                } ${settings.hideVideo ? "h-0" : "aspect-video"} ${modelPlaying ? "ring-2 ring-fn-shadowing" : ""}`}
               />
             )}
             {videoFailed && (
@@ -379,14 +390,16 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                 </Button>
               </div>
             )}
-          </div>
+          </MediaBar>
 
-          <div className="flex flex-col gap-5 rounded-lg border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-sm font-semibold text-text-muted">
-                {t(`${K}.sentenceOf`, { n: index + 1, total: sentences.length })}
+          <div className="rounded-xl border border-border bg-surface px-[18px] py-3.5 shadow-[var(--shadow-card)] md:p-5">
+            <div className="mb-3 flex flex-wrap items-center gap-2.5">
+              <b className="text-base">{t(`${K}.sentenceOf`, { n: index + 1, total: sentences.length })}</b>
+              <span className="text-sm text-text-muted">
+                {record ? t(`${K}.readCount`, { count: record.count }) : t(`${K}.unread`)}
               </span>
-              {sentence.cefrLevel && <Badge variant={sentence.cefrLevel}>{sentence.cefrLevel}</Badge>}
+              <span className="flex-1" />
+              {tab === "practice" && <QuotaChip />}
             </div>
 
             {tab === "watch" ? (
@@ -400,120 +413,86 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
               />
             ) : (
               <>
-            <div className="flex flex-col gap-2">
-              <SentenceWords text={sentence.text} words={record?.words ?? []} selected={selected} onSelect={setSelected} />
-              {settings.ipa && sentence.ipa && <p className="text-sm text-text-subtle">{sentence.ipa}</p>}
-              {settings.vi && sentence.textVi && <p className="text-sm text-text-muted">{sentence.textVi}</p>}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4">
-              <Button
-                variant="secondary"
-                onClick={listen}
-                disabled={phase === "recording"}
-                leftIcon={<Icon name={modelPlaying ? "pause" : "volume-2"} />}
-              >
-                {modelPlaying ? t(`${K}.stop`) : t(`${K}.listen`)}
-              </Button>
-
-              <button
-                type="button"
-                onClick={onMicClick}
-                disabled={phase === "scoring"}
-                aria-label={micLabel}
-                className={`grid h-16 w-16 shrink-0 cursor-pointer place-items-center rounded-full border-0 text-3xl transition-transform hover:scale-105 disabled:cursor-wait disabled:opacity-70 ${
-                  phase === "recording" ? "animate-pulse bg-danger text-white" : "bg-fn-shadowing text-on-fn"
-                }`}
-              >
-                <Icon
-                  name={phase === "scoring" ? "loader-circle" : phase === "recording" ? "square" : "mic"}
-                  className={phase === "scoring" ? "animate-spin" : ""}
+                <ControlBar
+                  isFirst={index === 0}
+                  isLast={index === sentences.length - 1}
+                  playing={modelPlaying}
+                  rate={settings.rate}
+                  phase={phase}
+                  micLabel={micLabel}
+                  levels={recorder.levels}
+                  canPlayMine={!!mine}
+                  navDisabled={busy}
+                  onPrev={() => goTo(index - 1)}
+                  onNext={() => goTo(index + 1)}
+                  onReplay={() => playModel(sentence)}
+                  onTogglePlay={listen}
+                  onRate={(rate) => updateSettings({ rate })}
+                  onMine={playMine}
+                  onCompare={compare}
+                  onMic={onMicClick}
                 />
-              </button>
-              <div className="min-w-0 flex-1" role="status" aria-live="polite">
-                <div className="text-sm font-medium">{micLabel}</div>
-                {phase === "recording" && <Waveform levels={recorder.levels} />}
-              </div>
 
-              <SegmentedControl
-                ariaLabel={t(`${K}.speed`)}
-                options={RATES.map((r) => ({ value: r, label: `${r}×` }))}
-                value={settings.rate}
-                onChange={(rate) => updateSettings({ rate })}
-              />
-            </div>
+                <SentenceWords
+                  text={sentence.text}
+                  words={record?.words ?? []}
+                  ipa={wordPhonetics}
+                  lit={lit}
+                  selected={selected}
+                  onSelect={setSelected}
+                />
+                {settings.ipa && sentence.ipa && !wordPhonetics && (
+                  <p className="mt-1 text-center text-sm text-text-subtle">{sentence.ipa}</p>
+                )}
+                {settings.vi && sentence.textVi && (
+                  <p className="mb-2 mt-1 text-center text-sm text-text-muted">{sentence.textVi}</p>
+                )}
 
-            <div className="flex flex-wrap gap-2">
-              <Button variant="ghost" size="sm" onClick={playMine} disabled={!mine || busy}>
-                {t(`${K}.mine`)}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={compare} disabled={!mine || busy}>
-                {t(`${K}.compare`)}
-              </Button>
-            </div>
+                <div className="mt-3 flex flex-col gap-3 empty:hidden">
+                  {note?.kind === "mic" && (
+                    <MicDeniedNote
+                      onRetry={() => void startRecording()}
+                      onListen={() => {
+                        setNote(null);
+                        playModel(sentence);
+                      }}
+                    />
+                  )}
+                  {note?.kind === "quota" && quotaNote}
+                  {note?.kind === "message" && (
+                    <MessageNote
+                      title={note.title}
+                      body={note.body}
+                      onRetry={note.retry ? () => retryRef.current?.() : undefined}
+                    />
+                  )}
+                  {!note && outOfAttempts && phase === "idle" && !record && quotaNote}
+                </div>
 
-            {note?.kind === "mic" && (
-              <MicDeniedNote
-                onRetry={() => void startRecording()}
-                onListen={() => {
-                  setNote(null);
-                  playModel(sentence);
-                }}
-              />
-            )}
-            {note?.kind === "quota" && (
-              <QuotaOutNote
-                limit={maxActions}
-                showUpgrade={!isPro}
-                onUpgrade={() => setShowUpgradeModal(true)}
-                onNext={goNext}
-                nextLabel={t(`${K}.next`)}
-              />
-            )}
-            {note?.kind === "message" && (
-              <MessageNote
-                title={note.title}
-                body={note.body}
-                onRetry={note.retry ? () => retryRef.current?.() : undefined}
-              />
-            )}
-            {!note && outOfAttempts && phase === "idle" && !record && (
-              <QuotaOutNote
-                limit={maxActions}
-                showUpgrade={!isPro}
-                onUpgrade={() => setShowUpgradeModal(true)}
-                onNext={goNext}
-                nextLabel={t(`${K}.next`)}
-              />
-            )}
-
-            {record && (
-              <>
-                <AttemptResult record={record} selected={selected} onSelectWord={setSelected} />
-                {selectedWord && <WordDetail word={selectedWord} onClose={() => setSelected(null)} />}
-              </>
-            )}
-
-            <div className="flex items-center justify-between gap-2 border-t border-border pt-4">
-              <Button variant="ghost" size="sm" disabled={index === 0 || busy} onClick={() => goTo(index - 1)} leftIcon={<Icon name="arrow-left" />}>
-                {t(`${K}.prev`)}
-              </Button>
-              <Button
-                variant={record && toneOf(record.score) === "good" ? "primary" : "ghost"}
-                size="sm"
-                disabled={busy || (finished && index === sentences.length - 1)}
-                onClick={goNext}
-                rightIcon={<Icon name="arrow-right" />}
-              >
-                {t(`${K}.next`)}
-              </Button>
-            </div>
+                {record && (
+                  <>
+                    <AttemptResult
+                      record={record}
+                      isFinish={isLastDone}
+                      onListen={listen}
+                      onNext={isLastDone ? () => navigate(`/student/lessons/${lesson.slug}`) : goNext}
+                    />
+                    {selectedWord && (
+                      <div className="mt-4">
+                        <WordDetail word={selectedWord} onClose={() => setSelected(null)} />
+                      </div>
+                    )}
+                  </>
+                )}
               </>
             )}
           </div>
 
           {finished && (
-            <div role="status" className="flex flex-wrap items-center gap-4 rounded-lg border border-success/40 bg-success/10 p-5">
+            <div
+              role="status"
+              className="flex flex-wrap items-center gap-4 rounded-xl border border-success/40 bg-success/10 p-5"
+            >
               <Mascot mood="celebrate" size={72} alt="" />
               <div className="min-w-48 flex-1">
                 <b className="font-display text-lg">{t(`${K}.finished.title`)}</b>
@@ -526,7 +505,10 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
           )}
         </div>
 
-        <SentenceList sentences={sentences} records={records} current={index}
+        <SentenceList
+          sentences={sentences}
+          records={records}
+          current={index}
           disabled={busy}
           revealAll={tab === "watch"}
           showVi={settings.vi}

@@ -73,6 +73,8 @@ export function useModelPlayer({
   const [videoReady, setVideoReady] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
   const [playing, setPlaying] = useState(false);
+  /** Vị trí phát hiện tại (mili giây) khi đang phát, null khi dừng. */
+  const [positionMs, setPositionMs] = useState<number | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
@@ -162,6 +164,7 @@ export function useModelPlayer({
     audioRef.current?.pause();
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     setPlaying(false);
+    setPositionMs(null);
   }, []);
 
   useEffect(() => stop, [stop]);
@@ -192,6 +195,7 @@ export function useModelPlayer({
             } catch {
               // chờ lần sau
             }
+            setPositionMs(Math.round(t * 1000));
             if (t >= segment.endMs / 1000 - 0.05 || performance.now() - startedAt > maxMs) finish();
           }, 100);
           return;
@@ -210,6 +214,7 @@ export function useModelPlayer({
             const startedAt = performance.now();
             const maxMs = (segment.endMs - segment.startMs) / rate + 4000;
             timerRef.current = window.setInterval(() => {
+              setPositionMs(Math.round(audio.currentTime * 1000));
               if (audio.currentTime >= segment.endMs / 1000 - 0.05 || audio.ended || performance.now() - startedAt > maxMs) {
                 audio.pause();
                 finish();
@@ -278,6 +283,7 @@ export function useModelPlayer({
               // chờ lần sau
             }
             follow(t);
+            setPositionMs(Math.round(t * 1000));
             if (t >= last.endMs / 1000) {
               try {
                 player.pauseVideo();
@@ -302,6 +308,7 @@ export function useModelPlayer({
           .then(() => {
             timerRef.current = window.setInterval(() => {
               follow(audio.currentTime);
+              setPositionMs(Math.round(audio.currentTime * 1000));
               if (audio.currentTime >= last.endMs / 1000 || audio.ended) {
                 audio.pause();
                 finish();
@@ -328,6 +335,7 @@ export function useModelPlayer({
   return {
     hostRef,
     playing,
+    positionMs,
     play,
     watch,
     stop,

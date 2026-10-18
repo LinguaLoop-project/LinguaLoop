@@ -1,22 +1,54 @@
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import Button from "@/components/common/Button";
+import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
 import type { SentenceRecord } from "../types";
-import { TONE_TEXT, WORD_REVIEW_BELOW, toneOf } from "../utils";
+import { PHONEME_ERROR_BELOW, TONE_TEXT, toneOf } from "../utils";
+
+const K = "student.shadowingPractice";
+
+type PillTone = "neutral" | "bad" | "warn" | "ok";
+
+const PILL_TONE: Record<PillTone, string> = {
+  neutral: "border-border-strong text-text",
+  bad: "border-danger/40 bg-danger/10 text-danger",
+  warn: "border-warning/40 bg-warning/10 text-warning",
+  ok: "border-success/40 bg-success/10 text-success",
+};
+
+function Pill({ tone = "neutral", children }: { tone?: PillTone; children: ReactNode }) {
+  return (
+    <span className={`inline-flex h-7 items-center gap-1.5 rounded-full border px-3 text-xs font-medium ${PILL_TONE[tone]}`}>
+      {children}
+    </span>
+  );
+}
 
 export interface AttemptResultProps {
   record: SentenceRecord;
-  selected: number | null;
-  onSelectWord: (position: number) => void;
+  /** Đây là câu cuối và mọi câu đã có điểm: nút chuyển thành "Hoàn thành". */
+  isFinish: boolean;
+  onListen: () => void;
+  onNext: () => void;
 }
 
-/** Điểm câu, các chỉ số và danh sách từ cần luyện thêm sau một Lượt shadowing. */
-export default function AttemptResult({ record, selected, onSelectWord }: AttemptResultProps) {
+/** Kết quả gọn sau một Lượt shadowing (`sh-res`): điểm, các chip tóm tắt lỗi, lời nhắn, nghe mẫu và câu tiếp. */
+export default function AttemptResult({ record, isFinish, onListen, onNext }: AttemptResultProps) {
   const { t } = useTranslation("pages");
-  const k = "student.shadowingPractice";
   const tone = toneOf(record.score);
-  const weakWords = record.words
-    .filter((w) => w.outcome !== "inserted" && (w.outcome === "omitted" || w.accuracy < WORD_REVIEW_BELOW))
-    .sort((a, b) => a.accuracy - b.accuracy);
+
+  const omitted = record.words.filter((w) => w.outcome === "omitted").length;
+  const inserted = record.words.filter((w) => w.outcome === "inserted").length;
+  const hasPhonemes = record.words.some((w) => w.phonemes.length > 0);
+  const badPhonemes = new Map<string, number>();
+  for (const w of record.words) {
+    for (const p of w.phonemes) {
+      if (p.accuracy < PHONEME_ERROR_BELOW) badPhonemes.set(p.symbol, (badPhonemes.get(p.symbol) ?? 0) + 1);
+    }
+  }
+  const phonemeChips = [...badPhonemes.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const noIssues = hasPhonemes && omitted === 0 && inserted === 0 && phonemeChips.length === 0;
 
   const metrics = [
     ["accuracy", record.accuracy],
@@ -26,63 +58,60 @@ export default function AttemptResult({ record, selected, onSelectWord }: Attemp
   ] as const;
 
   return (
-    <section aria-live="polite" className="flex flex-col gap-4 border-t border-border pt-5">
-      <div className="flex flex-wrap items-center gap-5">
-        <div className="text-center">
-          <div className={`font-display text-5xl leading-none tabular-nums ${TONE_TEXT[tone]}`}>
+    <section aria-live="polite" className="mt-4 flex flex-col gap-4 border-t border-border pt-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="w-full shrink-0 rounded-lg bg-surface-hover py-2.5 text-center sm:w-[88px]">
+          <b className={`block font-display text-4xl font-extrabold leading-tight tabular-nums ${TONE_TEXT[tone]}`}>
             {Math.round(record.score)}
-          </div>
-          <div className="mt-1 text-xs text-text-muted">{t(`${k}.score`)}</div>
+          </b>
+          <span className="text-xs text-text-muted">{t(`${K}.score`)}</span>
         </div>
 
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <Mascot mood={tone === "good" ? "correct" : "encourage"} size={56} alt="" />
-          <div className="min-w-0">
-            <p className="font-medium">{t(`${k}.verdict.${tone}`)}</p>
-            <p className="text-sm text-text-muted">
-              {t(`${k}.attemptInfo`, { count: record.count, best: Math.round(record.best) })}
-            </p>
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Pill>{t(`${K}.result.best`, { best: Math.round(record.best) })}</Pill>
+            <Pill>{t(`${K}.readCount`, { count: record.count })}</Pill>
+            {metrics.map(([key, value]) =>
+              value === null ? null : (
+                <Pill key={key}>
+                  {t(`${K}.metrics.${key}`)} <b className={`tabular-nums ${TONE_TEXT[toneOf(value)]}`}>{Math.round(value)}</b>
+                </Pill>
+              ),
+            )}
           </div>
+
+          <div className="flex flex-wrap gap-2">
+            {omitted > 0 && <Pill tone="bad">{t(`${K}.result.omitted`, { n: omitted })}</Pill>}
+            {inserted > 0 && <Pill tone="warn">{t(`${K}.result.inserted`, { n: inserted })}</Pill>}
+            {phonemeChips.map(([symbol, n]) => (
+              <Pill key={symbol} tone="bad">
+                {t(`${K}.result.badPhoneme`, { symbol, n })}
+              </Pill>
+            ))}
+            {noIssues && (
+              <Pill tone="ok">
+                <Icon name="circle-check" />
+                {t(`${K}.result.noIssues`)}
+              </Pill>
+            )}
+          </div>
+          <p className="text-sm text-text-muted">{t(`${K}.word.clickHint`)}</p>
         </div>
       </div>
 
-      {record.accuracy !== null && (
-        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {metrics.map(([key, value]) =>
-            value === null ? null : (
-              <div key={key} className="rounded-md border border-border bg-bg-elevated px-3 py-2">
-                <dt className="text-xs text-text-muted">{t(`${k}.metrics.${key}`)}</dt>
-                <dd className={`font-display text-xl tabular-nums ${TONE_TEXT[toneOf(value)]}`}>{Math.round(value)}</dd>
-              </div>
-            ),
-          )}
-        </dl>
-      )}
+      <div className="flex items-center gap-3">
+        <Mascot mood={tone === "good" ? "correct" : "encourage"} size={48} alt="" />
+        <p className="text-sm font-medium">{t(`${K}.verdict.${tone}`)}</p>
+      </div>
 
-      <div>
-        <h3 className="mb-2 text-sm font-semibold">{t(`${k}.wordsToFix`)}</h3>
-        {weakWords.length === 0 ? (
-          <p className="text-sm text-text-muted">{t(`${k}.nothingToFix`, { score: WORD_REVIEW_BELOW })}</p>
-        ) : (
-          <ul className="flex flex-wrap gap-2">
-            {weakWords.map((w) => (
-              <li key={w.position}>
-                <button
-                  type="button"
-                  aria-pressed={selected === w.position}
-                  onClick={() => onSelectWord(w.position)}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border-strong bg-surface px-3 py-1 text-sm hover:border-primary aria-pressed:border-primary aria-pressed:bg-primary-soft"
-                >
-                  <b>{w.word}</b>
-                  <span className={`tabular-nums ${TONE_TEXT[w.outcome === "omitted" ? "bad" : toneOf(w.accuracy)]}`}>
-                    {Math.round(w.accuracy)}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="mt-2 text-xs text-text-subtle">{t(`${k}.word.clickHint`)}</p>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="ghost" size="sm" onClick={onListen} leftIcon={<Icon name="volume-2" />}>
+          {t(`${K}.listen`)}
+        </Button>
+        <span className="flex-1" />
+        <Button onClick={onNext} rightIcon={<Icon name={isFinish ? "check" : "arrow-right"} />}>
+          {isFinish ? t(`${K}.result.finish`) : t(`${K}.next`)}
+        </Button>
       </div>
     </section>
   );

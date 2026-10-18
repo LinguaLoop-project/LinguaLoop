@@ -1,5 +1,6 @@
 import type { SentenceRecord, WordResult } from "./types";
 
+
 export type Tone = "good" | "mid" | "bad";
 
 /** BR-SHADOW-04: từ 80 là tốt, từ 60 là khá, dưới 60 cần sửa. */
@@ -26,6 +27,8 @@ export interface DisplayWord {
   key: string;
   text: string;
   result: WordResult | null;
+  /** Số thứ tự của từ trong câu mẫu (để lấy phiên âm); -1 khi không ghép được với câu mẫu. */
+  tokenIndex: number;
 }
 
 /**
@@ -35,15 +38,15 @@ export interface DisplayWord {
 export function alignWords(sentence: string, words: WordResult[]): DisplayWord[] {
   const tokens = sentence.split(/\s+/).filter(Boolean);
   if (words.length === 0) {
-    return tokens.map((text, i) => ({ key: `t${i}`, text, result: null }));
+    return tokens.map((text, i) => ({ key: `t${i}`, text, result: null, tokenIndex: i }));
   }
   const matches = words.filter((w) => w.outcome !== "inserted").length === tokens.length;
   let next = 0;
-  return words.map((w) => ({
-    key: `w${w.position}`,
-    text: matches && w.outcome !== "inserted" ? tokens[next++] : w.word,
-    result: w,
-  }));
+  return words.map((w) => {
+    const aligned = matches && w.outcome !== "inserted";
+    const tokenIndex = aligned ? next : -1;
+    return { key: `w${w.position}`, text: aligned ? tokens[next++] : w.word, result: w, tokenIndex };
+  });
 }
 
 export function recordFromAttempt(
@@ -77,4 +80,58 @@ export function youtubeId(url: string | null | undefined): string | null {
   if (!url) return null;
   const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
   return m ? m[1] : null;
+}
+
+/**
+ * Phiên âm của từng từ, tách từ phiên âm cả câu (các từ cách nhau bởi khoảng trắng). Chỉ dùng khi số từ phiên âm
+ * bằng số từ của câu; lệch (dữ liệu biên tập thiếu từ) thì trả null để hiện phiên âm cả câu thay vì gán sai từ.
+ */
+export function wordIpa(sentenceText: string, ipa: string | null | undefined): string[] | null {
+  if (!ipa) return null;
+  const words = sentenceText.split(/\s+/).filter(Boolean);
+  const parts = ipa
+    .split(/\s+/)
+    .map((p) => p.replace(/^\/+|\/+$/g, "").replace(/[,.;:!?]+$/g, ""))
+    .filter(Boolean);
+  return parts.length === words.length ? parts : null;
+}
+
+/** Từ nào của câu đang được đọc ở thời điểm `fraction` (0..1), xấp xỉ theo độ dài từ. */
+export function litTokenIndex(sentenceText: string, fraction: number): number {
+  const words = sentenceText.split(/\s+/).filter(Boolean);
+  const total = words.reduce((sum, w) => sum + w.length + 1, 0);
+  let acc = 0;
+  for (let i = 0; i < words.length; i++) {
+    acc += (words[i].length + 1) / total;
+    if (fraction <= acc) return i;
+  }
+  return words.length - 1;
+}
+
+/** Âm vị hay sai nhất qua các câu đã chấm trong phiên này (chỉ lượt có âm vị, tức không phải lượt khôi phục). */
+export function weakPhonemes(records: Record<string, SentenceRecord>, limit = 3): string[] {
+  const counts = new Map<string, number>();
+  for (const rec of Object.values(records)) {
+    for (const w of rec.words) {
+      for (const p of w.phonemes) {
+        if (p.accuracy < PHONEME_ERROR_BELOW) counts.set(p.symbol, (counts.get(p.symbol) ?? 0) + 1);
+      }
+    }
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([symbol]) => symbol);
+}
+
+/** 00:02.0 */
+export function fmtClock(ms: number): string {
+  const sec = Math.max(0, ms) / 1000;
+  return `${String(Math.floor(sec / 60)).padStart(2, "0")}:${(sec % 60).toFixed(1).padStart(4, "0")}`;
+}
+
+/** 00:50 */
+export function fmtDuration(ms: number): string {
+  const sec = Math.round(Math.max(0, ms) / 1000);
+  return `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
 }

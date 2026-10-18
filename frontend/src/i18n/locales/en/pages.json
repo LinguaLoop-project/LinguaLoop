@@ -259,7 +259,7 @@
         "rec": "Recording… tap to stop",
         "busy": "Scoring pronunciation…"
       },
-      "mine": "Play my recording",
+      "mine": "My voice",
       "compare": "Compare",
       "compareHint": "Model first, then your voice",
       "needRecording": "Read this sentence once first",
@@ -283,7 +283,9 @@
       "word": {
         "omitted": "skipped",
         "inserted": "extra",
-        "clickHint": "Tap a word to see each sound"
+        "clickHint": "Tap a word to see each sound",
+        "insertedHint": "Extra word: Azure heard “{{word}}”, which is not in the model sentence",
+        "omittedHint": "Azure did not hear this word"
       },
       "detail": {
         "close": "Close",
@@ -376,6 +378,28 @@
         "compare": "Compare",
         "step": "Previous / next sentence",
         "tabs": "Watch / Practise tab"
+      },
+      "readCount": "Read {{count}}×",
+      "unread": "Not read yet",
+      "controls": {
+        "label": "Playback controls",
+        "replay": "Replay model",
+        "play": "Hear model",
+        "pause": "Stop"
+      },
+      "result": {
+        "best": "Best {{best}}",
+        "noIssues": "No sound is below 60",
+        "omitted": "Skipped words ×{{n}}",
+        "inserted": "Extra words ×{{n}}",
+        "badPhoneme": "Sound /{{symbol}}/ is off ×{{n}}",
+        "finish": "Finish",
+        "timeline": "Sentences in the lesson"
+      },
+      "list": {
+        "title": "Transcript",
+        "progress": "{{done}}/{{total}} · {{pct}}%",
+        "weak": "Weak sounds:"
       }
     }
   },

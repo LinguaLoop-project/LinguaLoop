@@ -6,37 +6,56 @@ export interface SentenceWordsProps {
   text: string;
   /** Rỗng khi câu chưa được chấm. */
   words: WordResult[];
+  /** Phiên âm từng từ theo thứ tự trong câu; null khi không có hoặc không khớp số từ. */
+  ipa: string[] | null;
+  /** Từ đang được đọc khi phát mẫu (thứ tự trong câu), -1 nếu không có. */
+  lit: number;
   selected: number | null;
   onSelect: (position: number) => void;
 }
 
-/** Chữ của câu; sau khi chấm, mỗi từ tô theo điểm và bấm được để xem từng âm. */
-export default function SentenceWords({ text, words, selected, onSelect }: SentenceWordsProps) {
+const WORD_BASE =
+  "inline-flex flex-col items-center gap-0.5 rounded-md border px-2 py-1 transition-colors duration-150";
+
+/** Câu cần đọc: mỗi từ kèm phiên âm bên dưới; sau khi chấm, từ tô theo điểm và bấm được để xem từng âm. */
+export default function SentenceWords({ text, words, ipa, lit, selected, onSelect }: SentenceWordsProps) {
   const { t } = useTranslation("pages");
   const display = alignWords(text, words);
 
   return (
-    <p className="flex flex-wrap items-baseline gap-x-2 gap-y-2 font-display text-2xl leading-snug md:text-3xl">
+    <div className="flex flex-wrap justify-center gap-x-2 gap-y-1.5 px-2 pb-1.5 pt-3">
       {display.map((d) => {
         const r = d.result;
+        const phonetic = ipa && d.tokenIndex >= 0 ? ipa[d.tokenIndex] : null;
+        const isLit = d.tokenIndex >= 0 && d.tokenIndex === lit;
+        const ipaLine = phonetic ? (
+          <span className="font-body text-[13px] font-medium text-text-muted">/{phonetic}/</span>
+        ) : null;
+
         if (!r) {
           return (
-            <span key={d.key} className="text-text">
-              {d.text}
+            <span
+              key={d.key}
+              className={`${WORD_BASE} text-text ${isLit ? "border-fn-shadowing bg-fn-shadowing-soft" : "border-transparent"}`}
+            >
+              <span className="font-display text-[22px] font-bold leading-tight tracking-tight md:text-[26px]">{d.text}</span>
+              {ipaLine}
             </span>
           );
         }
+
         if (r.outcome === "inserted") {
           return (
             <span
               key={d.key}
-              title={t("student.shadowingPractice.word.inserted")}
-              className="rounded-sm border border-dashed border-warning/60 px-1.5 text-base text-warning"
+              title={t("student.shadowingPractice.word.insertedHint", { word: d.text })}
+              className="self-start rounded-md border border-dashed border-warning/60 px-1.5 py-0.5 text-sm text-warning"
             >
               + {d.text}
             </span>
           );
         }
+
         const omitted = r.outcome === "omitted";
         const tone = omitted ? "bad" : toneOf(r.accuracy);
         const isSelected = selected === r.position;
@@ -45,16 +64,24 @@ export default function SentenceWords({ text, words, selected, onSelect }: Sente
             key={d.key}
             type="button"
             aria-pressed={isSelected}
-            title={omitted ? t("student.shadowingPractice.word.omitted") : `${Math.round(r.accuracy)}`}
+            aria-label={`${d.text}, ${omitted ? t("student.shadowingPractice.word.omitted") : Math.round(r.accuracy)}`}
+            title={omitted ? t("student.shadowingPractice.word.omittedHint") : undefined}
             onClick={() => onSelect(r.position)}
-            className={`cursor-pointer rounded-sm border-0 px-1 underline decoration-2 underline-offset-[6px] transition-colors hover:bg-primary-soft ${
-              TONE_TEXT[tone]
-            } ${omitted ? "line-through opacity-80" : ""} ${isSelected ? "bg-primary-soft" : "bg-transparent"}`}
+            className={`${WORD_BASE} cursor-pointer bg-transparent hover:bg-surface-hover ${
+              isSelected ? "border-border-strong bg-surface-hover" : isLit ? "border-fn-shadowing bg-fn-shadowing-soft" : "border-transparent"
+            }`}
           >
-            {d.text}
+            <span
+              className={`font-display text-[22px] font-bold leading-tight tracking-tight md:text-[26px] ${TONE_TEXT[tone]} ${
+                tone === "bad" ? "underline decoration-wavy underline-offset-[6px]" : ""
+              } ${omitted ? "line-through opacity-80" : ""}`}
+            >
+              {d.text}
+            </span>
+            {ipaLine}
           </button>
         );
       })}
-    </p>
+    </div>
   );
 }
