@@ -68,6 +68,8 @@ export function useModelPlayer({
   onSeek?: (ms: number) => void;
 }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
+  /** Chỗ gắn thanh phát âm thanh của trình duyệt khi bài là tệp âm thanh. */
+  const audioHostRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YTPlayer | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [mediaFailed, setMediaFailed] = useState(false);
@@ -148,15 +150,17 @@ export function useModelPlayer({
     };
   }, [videoId, attempt]);
 
-  // Thanh điều khiển của YouTube: theo dõi vị trí khi người học tự tua hoặc tự phát (lúc app không phát mẫu)
+  // Thanh điều khiển của YouTube hoặc của thẻ audio: theo dõi vị trí khi người học tự tua hoặc tự phát (lúc app không phát mẫu)
   useEffect(() => {
-    if (!videoReady) return;
+    if (!videoReady && !mediaUrl) return;
     const id = window.setInterval(() => {
-      const player = playerRef.current;
-      if (!player || playingRef.current) return;
+      if (playingRef.current) return;
       let ms: number;
       try {
-        ms = Math.round(player.getCurrentTime() * 1000);
+        const player = playerRef.current;
+        if (player) ms = Math.round(player.getCurrentTime() * 1000);
+        else if (audioRef.current) ms = Math.round(audioRef.current.currentTime * 1000);
+        else return;
       } catch {
         return;
       }
@@ -164,7 +168,7 @@ export function useModelPlayer({
       lastMsRef.current = ms;
     }, 300);
     return () => window.clearInterval(id);
-  }, [videoReady]);
+  }, [videoReady, mediaUrl]);
 
   // Tệp âm thanh của bài: nạp sẵn để bấm "Nghe mẫu" là phát ngay
   useEffect(() => {
@@ -173,10 +177,14 @@ export function useModelPlayer({
     audio.preload = "auto";
     audio.src = mediaUrl;
     audio.onerror = () => setMediaFailed(true);
+    // Hiện thanh phát của trình duyệt để người học tự phát, tua và chỉnh âm lượng như với video
+    audio.controls = true;
+    audioHostRef.current?.replaceChildren(audio);
     audioRef.current = audio;
     return () => {
       audio.pause();
       audio.removeAttribute("src");
+      audio.remove();
       audioRef.current = null;
     };
   }, [mediaUrl]);
@@ -366,6 +374,8 @@ export function useModelPlayer({
 
   return {
     hostRef,
+    audioHostRef,
+    showAudio: !!mediaUrl && !mediaFailed,
     playing,
     positionMs,
     play,

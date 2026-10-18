@@ -94,6 +94,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const seekRef = useRef<(ms: number) => void>(() => undefined);
   const {
     hostRef: videoHostRef,
+    audioHostRef,
+    showAudio,
     playing: modelPlaying,
     positionMs,
     play: playModel,
@@ -343,7 +345,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   return (
     <section className="w-full" aria-labelledby="sh-title">
       <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
+        <div className="flex flex-col gap-2 min-w-0">
           <Link
             to={`/student/lessons/${lesson.slug}`}
             className="mb-1 inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary-text"
@@ -354,7 +356,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
             </span>
           </Link>
           <div className="text-xs font-semibold uppercase tracking-wider text-fn-shadowing">{t(`${K}.overline`)}</div>
-          <h1 id="sh-title" className="font-display text-2xl font-bold">
+          <h1 id="sh-title" className="font-display text-3xl font-bold">
             {t(`${K}.title`)}
           </h1>
         </div>
@@ -379,6 +381,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 
       <div className="grid grid-cols-1 items-start gap-6 min-[1100px]:grid-cols-[minmax(0,1fr)_340px]">
         <div className="flex min-w-0 flex-col gap-4">
+          {(showVideo || videoFailed || showAudio) && (
           <MediaBar
             video={showVideo}
             hideVideo={settings.hideVideo}
@@ -391,6 +394,9 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                   tab === "watch" ? "max-w-[960px]" : "max-w-[660px]"
                 } ${settings.hideVideo ? "h-0" : "aspect-video"} ${modelPlaying ? "ring-2 ring-fn-shadowing" : ""}`}
               />
+            )}
+            {showAudio && (
+              <div ref={audioHostRef} className="mx-auto w-full max-w-[660px] [&_audio]:block [&_audio]:w-full" />
             )}
             {videoFailed && (
               <div role="status" className="flex flex-wrap items-center gap-3 rounded-md bg-bg-elevated p-3">
@@ -405,6 +411,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
               </div>
             )}
           </MediaBar>
+          )}
 
           <div className="rounded-xl border border-border bg-surface px-[18px] py-3.5 shadow-[var(--shadow-card)] md:p-5">
             <div className="mb-3 flex flex-wrap items-center gap-2.5">
