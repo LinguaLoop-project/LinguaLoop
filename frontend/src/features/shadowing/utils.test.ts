@@ -153,6 +153,7 @@ describe("sentenceAt", () => {
 
 describe("weakPhonemes", () => {
   const rec = (words: WordResult[]): SentenceRecord => ({
+    attemptId: 1,
     score: 70,
     best: 70,
     count: 1,
@@ -188,6 +189,7 @@ describe("weakPhonemes", () => {
 
 describe("recordFromAttempt", () => {
   const attempt = {
+    attemptId: 1,
     score: 70,
     accuracy: 71,
     fluency: 72,
@@ -198,6 +200,11 @@ describe("recordFromAttempt", () => {
 
   it("lượt đầu: điểm cao nhất bằng điểm lượt, số lần là 1", () => {
     expect(recordFromAttempt(undefined, attempt)).toMatchObject({ score: 70, best: 70, count: 1, prosody: null });
+  });
+
+  it("ghi nhớ lượt gần nhất để xin nhận xét AI đúng lượt", () => {
+    const first = recordFromAttempt(undefined, attempt);
+    expect(recordFromAttempt(first, { ...attempt, attemptId: 2 }).attemptId).toBe(2);
   });
 
   it("lượt sau thấp hơn: giữ điểm cao nhất cũ, cộng số lần", () => {

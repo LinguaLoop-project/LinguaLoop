@@ -17,6 +17,7 @@ import { useShadowingSettings } from "../hooks/useShadowingSettings";
 import { useWavRecorder } from "../hooks/useWavRecorder";
 import type { LatestAttempt, SentenceRecord } from "../types";
 import { alignWords, litTokenIndex, recordFromAttempt, sentenceAt, wordIpa, youtubeId } from "../utils";
+import AiFeedbackCard from "./AiFeedbackCard";
 import AttemptResult from "./AttemptResult";
 import ControlBar from "./ControlBar";
 import MediaBar from "./MediaBar";
@@ -49,6 +50,7 @@ function recordsFromLatest(latest: LatestAttempt[]): Record<string, SentenceReco
   const records: Record<string, SentenceRecord> = {};
   for (const l of latest) {
     records[l.sentenceId] = {
+      attemptId: l.attemptId,
       score: l.score,
       best: l.bestScore,
       count: l.attemptCount,
@@ -497,6 +499,11 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                       isFinish={isLastDone}
                       onListen={listen}
                       onNext={isLastDone ? () => navigate(`/student/lessons/${lesson.slug}`) : goNext}
+                    />
+                    <AiFeedbackCard
+                      key={record.attemptId}
+                      attemptId={record.attemptId}
+                      onUpgrade={() => setShowUpgradeModal(true)}
                     />
                     {selectedWord && (
                       <div className="mt-4">

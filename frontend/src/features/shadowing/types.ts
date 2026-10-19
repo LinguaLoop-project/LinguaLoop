@@ -53,6 +53,8 @@ export interface LatestAttempt {
 
 /** Kết quả của một câu trong trang luyện: lượt gần nhất + điểm cao nhất + số lần đọc. */
 export interface SentenceRecord {
+  /** Lượt gần nhất của câu (để xin Nhận xét AI cho đúng lượt này). */
+  attemptId: number;
   score: number;
   best: number;
   count: number;
@@ -61,4 +63,13 @@ export interface SentenceRecord {
   completeness: number | null;
   prosody: number | null;
   words: WordResult[];
+}
+
+/** Nhận xét AI của một lượt; `cached` là true khi lượt đã có nhận xét từ trước (không trừ thêm lượt). */
+export interface AiFeedback {
+  attemptId: number;
+  content: string;
+  createdAt: string;
+  cached: boolean;
+  usage: FeatureUsage;
 }

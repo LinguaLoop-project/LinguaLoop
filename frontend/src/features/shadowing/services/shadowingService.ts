@@ -1,6 +1,6 @@
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/lesson/types";
-import type { AttemptResponse, LatestAttempt } from "../types";
+import type { AiFeedback, AttemptResponse, LatestAttempt } from "../types";
 
 export const shadowingService = {
   /** Gửi bản ghi WAV (16 kHz mono) của một câu đi chấm. */
@@ -11,6 +11,12 @@ export const shadowingService = {
       `/sentences/${sentenceId}/shadowing-attempts`,
       form,
     );
+    return response.data.data;
+  },
+
+  /** Nhận xét AI cho một lượt; lượt đã có nhận xét thì server trả lại bản đã lưu. */
+  getAiFeedback: async (attemptId: number): Promise<AiFeedback> => {
+    const response = await axiosClient.post<ApiResponse<AiFeedback>>(`/shadowing-attempts/${attemptId}/ai-feedback`);
     return response.data.data;
   },
 

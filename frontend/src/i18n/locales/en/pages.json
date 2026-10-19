@@ -244,6 +244,18 @@
       "description": "Charts of study time, words mastered and your progress."
     },
     "shadowingPractice": {
+      "ai": {
+        "title": "AI feedback",
+        "hint": "AI reads this attempt's scores and writes a few short lines of feedback.",
+        "ask": "Get AI feedback",
+        "writing": "AI is writing feedback…",
+        "failed": "Could not write feedback right now. You were not charged, try again later.",
+        "retry": "Try again",
+        "consent": "You need to allow AI processing to see feedback.",
+        "quotaOut": "You have used all AI feedback for today.",
+        "upgrade": "Unlock with Pro",
+        "remaining": "{{remaining}}/{{limit}} left today"
+      },
       "mouth": {
         "title": "Mouth video for /{{symbol}}/",
         "unlock": "Unlock with Pro",

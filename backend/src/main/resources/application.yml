@@ -88,6 +88,12 @@ app:
     speech:
       key: ${AZURE_SPEECH_KEY:}
       region: ${AZURE_SPEECH_REGION:southeastasia}
+  ai:
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      # model văn bản cho Nhận xét AI; đổi bằng GEMINI_TEXT_MODEL khi Google ngừng model này
+      text-model: ${GEMINI_TEXT_MODEL:gemini-2.5-flash}
+      timeout: 20s
   shadowing:
     scoring:
       # circuit breaker quanh lời gọi Azure (BR-SHADOW-09): trong cửa sổ 10 lượt, đủ 5 lượt mà lỗi từ 50% thì mở mạch 30 giây

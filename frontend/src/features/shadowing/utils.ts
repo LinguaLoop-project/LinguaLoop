@@ -52,6 +52,7 @@ export function alignWords(sentence: string, words: WordResult[]): DisplayWord[]
 export function recordFromAttempt(
   prev: SentenceRecord | undefined,
   a: {
+    attemptId: number;
     score: number;
     accuracy: number;
     fluency: number;
@@ -61,6 +62,7 @@ export function recordFromAttempt(
   },
 ): SentenceRecord {
   return {
+    attemptId: a.attemptId,
     score: a.score,
     best: Math.max(prev?.best ?? 0, a.score),
     count: (prev?.count ?? 0) + 1,

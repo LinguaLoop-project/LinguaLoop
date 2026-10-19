@@ -17,8 +17,10 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.response.ApiResponse;
 import com.lingualoop.backend.security.CurrentUserId;
+import com.lingualoop.backend.shadowing.dto.AiFeedbackResponse;
 import com.lingualoop.backend.shadowing.dto.LatestAttemptResponse;
 import com.lingualoop.backend.shadowing.dto.ShadowingAttemptResponse;
+import com.lingualoop.backend.shadowing.service.AiFeedbackService;
 import com.lingualoop.backend.shadowing.service.ShadowingAttemptService;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class ShadowingController {
 
     private final ShadowingAttemptService shadowingAttemptService;
+    private final AiFeedbackService aiFeedbackService;
 
     @PostMapping(value = "/sentences/{sentenceId}/shadowing-attempts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<ShadowingAttemptResponse> assess(
@@ -45,5 +48,11 @@ public class ShadowingController {
     @GetMapping("/lessons/{slug}/shadowing-attempts/latest")
     public ApiResponse<List<LatestAttemptResponse>> latest(@CurrentUserId UUID userId, @PathVariable String slug) {
         return ApiResponse.ok(shadowingAttemptService.latestByLesson(userId, slug));
+    }
+
+    /** Nhận xét AI cho một lượt; lượt đã có nhận xét thì trả lại bản đã lưu (không trừ thêm lượt). */
+    @PostMapping("/shadowing-attempts/{attemptId}/ai-feedback")
+    public ApiResponse<AiFeedbackResponse> aiFeedback(@CurrentUserId UUID userId, @PathVariable long attemptId) {
+        return ApiResponse.ok(aiFeedbackService.feedbackFor(userId, attemptId));
     }
 }

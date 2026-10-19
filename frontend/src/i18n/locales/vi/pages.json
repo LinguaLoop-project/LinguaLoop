@@ -244,6 +244,18 @@
       "description": "Biểu đồ phân tích thời gian học, số từ đã thuộc và mức độ tiến bộ."
     },
     "shadowingPractice": {
+      "ai": {
+        "title": "Nhận xét AI",
+        "hint": "AI đọc điểm của lượt này và viết vài dòng nhận xét ngắn.",
+        "ask": "Xem nhận xét AI",
+        "writing": "AI đang viết nhận xét…",
+        "failed": "Chưa viết được nhận xét lúc này. Lượt của bạn không bị trừ, thử lại sau nhé.",
+        "retry": "Thử lại",
+        "consent": "Bạn cần đồng ý cho phép xử lý bằng AI để xem nhận xét.",
+        "quotaOut": "Bạn đã dùng hết lượt nhận xét AI hôm nay.",
+        "upgrade": "Mở với Pro",
+        "remaining": "Còn {{remaining}}/{{limit}} lượt hôm nay"
+      },
       "mouth": {
         "title": "Video khẩu hình âm /{{symbol}}/",
         "unlock": "Mở với Pro",
