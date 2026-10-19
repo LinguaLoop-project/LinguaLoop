@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -96,18 +97,16 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         }
         List<Long> attemptIds = heads.stream().map(LatestHead::getAttemptId).toList();
 
-        // Ký hiệu âm theo id, và các âm yếu để tra mẹo sửa một lần cho cả bài
+        // Ký hiệu âm theo id, và mọi âm của bài để tra mẹo, video một lần (bấm âm nào cũng có)
         Map<Short, String> symbolById = new HashMap<>();
         phonemeRepository.findAll().forEach(p -> symbolById.put(p.getId(), p.getSymbol()));
         Map<Long, List<AttemptPhoneme>> phonemesByWord = new HashMap<>();
-        Set<String> weak = new HashSet<>();
+        Set<String> symbols = new HashSet<>();
         for (AttemptPhoneme p : attemptPhonemeRepository.findByAttemptIds(attemptIds)) {
             phonemesByWord.computeIfAbsent(p.getWord().getId(), k -> new ArrayList<>()).add(p);
-            if (p.getAccuracyScore().doubleValue() < PronunciationHints.WEAK_BELOW) {
-                weak.add(symbolById.getOrDefault(p.getPhonemeId(), "?"));
-            }
+            symbols.add(symbolById.getOrDefault(p.getPhonemeId(), "?"));
         }
-        Map<String, PronunciationHints.Hint> hintBySymbol = hintsFor(userId, weak);
+        Map<String, PronunciationHints.Hint> hintBySymbol = hintsFor(userId, symbols);
 
         Map<Long, List<ShadowingAttemptResponse.WordResult>> wordsByAttempt = new HashMap<>();
         for (AttemptWord w : wordRepository.findByAttemptIds(attemptIds)) {
@@ -115,7 +114,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             for (AttemptPhoneme p : phonemesByWord.getOrDefault(w.getId(), List.of())) {
                 String symbol = symbolById.getOrDefault(p.getPhonemeId(), "?");
                 double accuracy = p.getAccuracyScore().doubleValue();
-                PronunciationHints.Hint hint = accuracy < PronunciationHints.WEAK_BELOW ? hintBySymbol.get(symbol) : null;
+                PronunciationHints.Hint hint = hintBySymbol.get(symbol);
                 phonemes.add(new ShadowingAttemptResponse.PhonemeResult(symbol, accuracy,
                         hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
             }
@@ -154,16 +153,9 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
                 .map(w -> AzurePhonemeMapper.toTableSymbols(
                         w.phonemes().stream().map(PronunciationAssessment.PhonemeResult::symbol).toList()))
                 .toList();
-        Set<String> weak = new HashSet<>();
-        for (int w = 0; w < a.words().size(); w++) {
-            for (int i = 0; i < symbols.get(w).size(); i++) {
-                if (symbols.get(w).get(i) != null && a.words().get(w).phonemes().get(i).accuracyScore()
-                        < PronunciationHints.WEAK_BELOW) {
-                    weak.add(symbols.get(w).get(i));
-                }
-            }
-        }
-        Map<String, PronunciationHints.Hint> hints = hintsFor(userId, weak);
+        Set<String> all = new HashSet<>();
+        symbols.forEach(list -> list.stream().filter(Objects::nonNull).forEach(all::add));
+        Map<String, PronunciationHints.Hint> hints = hintsFor(userId, all);
 
         List<ShadowingAttemptResponse.WordResult> words = new ArrayList<>();
         int position = 0;
@@ -173,8 +165,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             for (int i = 0; i < word.phonemes().size(); i++) {
                 PronunciationAssessment.PhonemeResult p = word.phonemes().get(i);
                 String mapped = symbols.get(w).get(i);
-                PronunciationHints.Hint hint = p.accuracyScore() < PronunciationHints.WEAK_BELOW && mapped != null
-                        ? hints.get(mapped) : null;
+                PronunciationHints.Hint hint = mapped != null ? hints.get(mapped) : null;
                 phonemes.add(new ShadowingAttemptResponse.PhonemeResult(mapped != null ? mapped : p.symbol(),
                         p.accuracyScore(), hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
             }

@@ -510,6 +510,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                     {selectedWord && (
                       <div className="mt-4">
                         <WordDetail
+                          key={`${selectedWord.position}-${selectedWord.word}`}
                           word={selectedWord}
                           ipa={selectedIpa}
                           onClose={() => setSelected(null)}

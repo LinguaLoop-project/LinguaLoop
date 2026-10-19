@@ -106,7 +106,7 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 | Tác nhân | Học viên |
 | Mô tả | Âm vị nào đọc dưới 60 điểm thì kết quả chấm kèm một mẹo ngắn bằng tiếng Việt (vị trí lưỡi, môi, hơi) lấy từ bảng `phoneme_confusions` theo âm đích. Mẹo hiện trong ô chi tiết của từ. |
 | Điều kiện tiên quyết | Có Kết quả chấm của một lượt (UC-SHADOW-01). Mẹo có ở cả gói Free và Pro. |
-| Tiêu chí chấp nhận | **AC-SHADOW-21 — Mẹo theo âm đích**<br>Given: Một âm có trong bảng mẹo (vd `θ`) đọc dưới 60 điểm.<br>When: Chấm lượt.<br>Then: Âm đó có trường `tip`; âm đạt điểm hoặc âm không có mẹo thì `tip` rỗng. Bảng mẹo phủ các âm người Việt hay sai: `θ ð ʃ ʒ z v r s t d l ɪ iː æ`. |
+| Tiêu chí chấp nhận | **AC-SHADOW-21 — Mẹo theo âm đích**<br>Given: Một âm có trong bảng mẹo (vd `θ`).<br>When: Chấm lượt.<br>Then: Mọi âm có mẹo đều có trường `tip` và `mouthVideo` (kể cả âm đạt điểm), âm không có mẹo thì rỗng. Giao diện mặc định chọn âm yếu đầu tiên; người học bấm âm nào thì xem mẹo và video của âm đó. Bảng mẹo phủ các âm người Việt hay sai: `θ ð ʃ ʒ z v r s t d l ɪ iː æ`. |
 | Độ ưu tiên | Trung bình |
 
 ---
@@ -119,7 +119,7 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 | Mô tả | Âm đọc dưới 60 điểm có video khẩu hình riêng. Gói Pro xem được; gói Free thấy hộp khoá kèm nút mở với Pro. |
 | Điều kiện tiên quyết | Âm có `mouth_video_url` trong bảng `phonemes`; quyền xem theo hạn mức tính năng `mouth_video` của gói. |
 | Điều kiện sau | Không có bộ đếm: Pro không giới hạn. |
-| Tiêu chí chấp nhận | **AC-SHADOW-22 — Khoá ở server**<br>Given: Âm yếu có video.<br>When: Gói Free chấm lượt.<br>Then: `mouthVideo` có `locked = true` và `url` rỗng, không bao giờ lộ đường dẫn.<br>Given: Gói Pro.<br>Then: `mouthVideo.locked = false` và có `url`.<br><br>**AC-SHADOW-23 — Mẹo lỗi không làm mất kết quả**<br>Given: Tra mẹo hoặc video gặp lỗi.<br>When: Chấm lượt.<br>Then: Kết quả chấm vẫn được trả bình thường, chỉ thiếu mẹo và video; lượt không bị hoàn. |
+| Tiêu chí chấp nhận | **AC-SHADOW-22 — Khoá ở server**<br>Given: Âm có video.<br>When: Gói Free chấm lượt.<br>Then: `mouthVideo` có `locked = true` và `url` rỗng, không bao giờ lộ đường dẫn.<br>Given: Gói Pro.<br>Then: `mouthVideo.locked = false` và có `url`.<br><br>**AC-SHADOW-23 — Mẹo lỗi không làm mất kết quả**<br>Given: Tra mẹo hoặc video gặp lỗi.<br>When: Chấm lượt.<br>Then: Kết quả chấm vẫn được trả bình thường, chỉ thiếu mẹo và video; lượt không bị hoàn. |
 | Độ ưu tiên | Trung bình |
 
 ---

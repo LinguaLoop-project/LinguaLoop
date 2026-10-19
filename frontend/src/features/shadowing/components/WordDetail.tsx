@@ -21,13 +21,18 @@ export default function WordDetail({ word, ipa, onClose, onUpgrade }: WordDetail
   const { t } = useTranslation("pages");
   const k = "student.shadowingPractice";
   const omitted = word.outcome === "omitted";
-  const weak = word.phonemes.find((p) => p.accuracy < PHONEME_ERROR_BELOW);
+  const weakIndex = word.phonemes.findIndex((p) => p.accuracy < PHONEME_ERROR_BELOW);
+  const weak = weakIndex >= 0 ? word.phonemes[weakIndex] : undefined;
+  // Mặc định là âm yếu đầu tiên; người học bấm âm khác thì xem mẹo và video của âm đó
+  const [picked, setPicked] = useState<number | null>(null);
+  const active = picked ?? weakIndex;
+  const sel = active >= 0 ? word.phonemes[active] : undefined;
   const tone = omitted ? "bad" : toneOf(word.accuracy);
   const [videoOpen, setVideoOpen] = useState(false);
-  const video = weak?.mouthVideo ?? null;
+  const video = sel?.mouthVideo ?? null;
   const embedId = video?.url ? youtubeId(video.url) : null;
 
-  const tip = weak?.tip ? weak.tip : omitted
+  const tip = sel?.tip ? sel.tip : omitted
     ? t(`${k}.detail.omittedWord`)
     : weak
       ? t(`${k}.detail.badPhoneme`, { symbol: weak.symbol })
@@ -72,13 +77,20 @@ export default function WordDetail({ word, ipa, onClose, onUpgrade }: WordDetail
             const pt = toneOf(p.accuracy);
             const bad = p.accuracy < PHONEME_ERROR_BELOW;
             return (
-              <li
-                key={`${p.symbol}-${i}`}
-                className={`min-w-14 rounded-md border px-3 py-2 text-center ${TONE_BOX[pt]}`}
-                aria-label={`${p.symbol} ${Math.round(p.accuracy)}${bad ? " !" : ""}`}
-              >
-                <div className="font-display text-lg">{p.symbol}</div>
-                <div className={`text-xs font-semibold tabular-nums ${TONE_TEXT[pt]}`}>{Math.round(p.accuracy)}</div>
+              <li key={`${p.symbol}-${i}`}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPicked(i);
+                    setVideoOpen(false);
+                  }}
+                  aria-pressed={i === active}
+                  aria-label={`${p.symbol} ${Math.round(p.accuracy)}${bad ? " !" : ""}`}
+                  className={`min-w-14 cursor-pointer rounded-md border px-3 py-2 text-center transition-shadow ${TONE_BOX[pt]} ${i === active ? "ring-2 ring-primary" : "hover:ring-1 hover:ring-border-strong"}`}
+                >
+                  <div className="font-display text-lg">{p.symbol}</div>
+                  <div className={`text-xs font-semibold tabular-nums ${TONE_TEXT[pt]}`}>{Math.round(p.accuracy)}</div>
+                </button>
               </li>
             );
           })}
@@ -90,7 +102,7 @@ export default function WordDetail({ word, ipa, onClose, onUpgrade }: WordDetail
         <p>{tip}</p>
       </div>
 
-      {weak && video && (
+      {sel && video && (
         <div className="mt-3">
           {video.locked ? (
             <div className="relative flex max-w-[340px] items-center gap-3 overflow-hidden rounded-lg border border-border-strong bg-surface p-3">
@@ -102,7 +114,7 @@ export default function WordDetail({ word, ipa, onClose, onUpgrade }: WordDetail
                   <Icon name="crown" />
                   PRO
                 </Badge>
-                <b className="text-sm">{t(`${k}.mouth.title`, { symbol: weak.symbol })}</b>
+                <b className="text-sm">{t(`${k}.mouth.title`, { symbol: sel.symbol })}</b>
                 <Button size="sm" onClick={onUpgrade}>
                   {t(`${k}.mouth.unlock`)}
                 </Button>
@@ -111,7 +123,7 @@ export default function WordDetail({ word, ipa, onClose, onUpgrade }: WordDetail
           ) : (
             <>
               <Button variant="ghost" size="sm" onClick={() => setVideoOpen((v) => !v)} aria-expanded={videoOpen} leftIcon={<Icon name="video" />}>
-                {videoOpen ? t(`${k}.mouth.hide`) : t(`${k}.mouth.title`, { symbol: weak.symbol })}
+                {videoOpen ? t(`${k}.mouth.hide`) : t(`${k}.mouth.title`, { symbol: sel.symbol })}
               </Button>
               {videoOpen &&
                 (embedId ? (
@@ -119,7 +131,7 @@ export default function WordDetail({ word, ipa, onClose, onUpgrade }: WordDetail
                     <iframe
                       className="h-full w-full"
                       src={`https://www.youtube.com/embed/${embedId}`}
-                      title={t(`${k}.mouth.title`, { symbol: weak.symbol })}
+                      title={t(`${k}.mouth.title`, { symbol: sel.symbol })}
                       allow="encrypted-media; picture-in-picture"
                       allowFullScreen
                     />

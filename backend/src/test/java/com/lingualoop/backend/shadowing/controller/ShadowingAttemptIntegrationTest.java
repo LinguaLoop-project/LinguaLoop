@@ -335,13 +335,12 @@ class ShadowingAttemptIntegrationTest {
 
         post(free, s.getId(), WavFixtures.valid(1_000))
                 .andExpect(status().isOk())
-                // θ dưới 60: có mẹo; video bị khoá nên không có đường dẫn
+                // θ: có mẹo; video bị khoá nên không có đường dẫn
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].tip").isNotEmpty())
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo.locked").value(true))
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo.url").value((Object) null))
-                // ɪ đạt điểm: không có mẹo, không có video
-                .andExpect(jsonPath("$.data.words[0].phonemes[1].tip").value((Object) null))
-                .andExpect(jsonPath("$.data.words[0].phonemes[1].mouthVideo").value((Object) null))
+                // ɪ đạt điểm vẫn có mẹo để người học bấm vào xem
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].tip").isNotEmpty())
                 // âm không có trong bảng: không có mẹo, không có video
                 .andExpect(jsonPath("$.data.words[0].phonemes[2].tip").value((Object) null))
                 .andExpect(jsonPath("$.data.words[0].phonemes[2].mouthVideo").value((Object) null));
@@ -429,7 +428,7 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.locked").value(true))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.url").value((Object) null))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[1].symbol").value("ɪ"))
-                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].tip").value((Object) null))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].tip").isNotEmpty())
                 .andExpect(jsonPath("$.data[0].aiFeedback").value((Object) null));
 
         mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(pro)))

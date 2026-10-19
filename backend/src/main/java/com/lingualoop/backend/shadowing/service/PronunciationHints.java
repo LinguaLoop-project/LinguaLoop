@@ -18,7 +18,7 @@ import com.lingualoop.backend.subscription.service.UsageService;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Mẹo sửa và video khẩu hình cho các âm đọc yếu. Mẹo lấy từ {@code phoneme_confusions} theo âm đích; video chỉ mở
+ * Mẹo sửa và video khẩu hình cho các âm của lượt (bấm âm nào cũng xem được). Mẹo lấy từ {@code phoneme_confusions} theo âm đích; video chỉ mở
  * cho gói có tính năng {@code mouth_video} (hạn mức 0 thì khoá ở server: không bao giờ trả đường dẫn cho Free).
  */
 @Service
