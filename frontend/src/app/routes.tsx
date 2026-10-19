@@ -34,6 +34,7 @@ const LessonDetailPage = lazy(() =>
 const TopicDetailPage = lazy(() =>
   import("@/features/lesson/pages/TopicDetailPage").then((m) => ({ default: m.TopicDetailPage })),
 );
+const DictationPage = lazy(() => import("@/features/dictation/pages/DictationPage"));
 
 const getRoutesConfig = (): RouteObject[] => {
   const publicRoutes: RouteObject[] = [
@@ -122,8 +123,8 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <LessonLibraryPage mode="dictation" />,
         },
         {
-          path: "dictation/:id",
-          element: <PlaceholderPage pageKey="student.dictationDetail" />,
+          path: "dictation/:slug",
+          element: <DictationPage />,
         },
         {
           path: "shadowing",
