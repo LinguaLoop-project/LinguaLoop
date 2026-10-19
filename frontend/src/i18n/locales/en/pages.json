@@ -131,6 +131,12 @@
         "note": "Transcript is hidden by default so answers are not revealed during dictation.",
         "sentence": "Sentence {{index}}",
         "listen": "Listen to sentence",
+        "mouth": {
+          "title": "Mouth video for /{{symbol}}/",
+          "unlock": "Unlock with Pro",
+          "hide": "Hide video",
+          "open": "Open mouth video"
+        },
         "shadow": "Shadow sentence",
         "empty": "No sentence data available for this lesson.",
         "showMore": "Show {{count}} more sentences",

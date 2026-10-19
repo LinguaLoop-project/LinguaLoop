@@ -2,7 +2,7 @@
 
 Trạng thái: **Nháp**, chờ duyệt. Người phụ trách: Lâm.
 
-Phạm vi lát A: học viên ghi âm đọc lại một câu, nhận điểm do Azure chấm ở mức câu, từ và âm vị, xem hạn mức trong ngày và tiếp tục bài đang dở. **Chưa gồm** Nhận xét AI, Mẹo sửa, video khẩu hình (lát B) và Phiên gia sư (lát C). Thuật ngữ theo `CONTEXT.md`: Lượt shadowing, Kết quả chấm phát âm.
+Phạm vi lát A: học viên ghi âm đọc lại một câu, nhận điểm do Azure chấm ở mức câu, từ và âm vị, xem hạn mức trong ngày và tiếp tục bài đang dở. **Chưa gồm** Phiên gia sư (lát C). Lát B (Mẹo sửa, video khẩu hình, Nhận xét AI) có ở UC-SHADOW-07 trở đi. Thuật ngữ theo `CONTEXT.md`: Lượt shadowing, Kết quả chấm phát âm.
 
 Quy ước: mọi endpoint yêu cầu đăng nhập. "Gói" là kết quả của `SubscriptionQueryService`. Mã `AC-SHADOW-xx` được tham chiếu trong tên test tích hợp (`ShadowingAttemptIntegrationTest`, `ShadowingUsageIntegrationTest`) và test đơn vị (`AzurePhonemeMapperTest`, `WavAudioTest`, `UsageServiceTest`).
 
@@ -28,7 +28,7 @@ Quy ước: mọi endpoint yêu cầu đăng nhập. "Gói" là kết quả củ
 | Mục | Nội dung |
 |---|---|
 | Tác nhân | Hệ thống (nội bộ) |
-| Mô tả | Âm vị giọng Mỹ Azure trả về được chuyển sang bảng `phonemes` để lưu (ADR 0004). Kết quả trả cho học viên vẫn dùng ký hiệu của Azure. |
+| Mô tả | Âm vị giọng Mỹ Azure trả về được chuyển sang bảng `phonemes` để lưu (ADR 0004). Kết quả trả cho học viên cũng dùng ký hiệu của bảng `phonemes` (cùng hệ với IPA mẫu của câu); âm chưa chuyển được giữ ký hiệu Azure. |
 | Tiêu chí chấp nhận | **AC-SHADOW-12 — Phủ toàn bộ bộ âm en-US**<br>Given: Mọi âm vị mà Azure có thể trả cho en-US.<br>When: Chuyển đổi.<br>Then: Mỗi âm cho ra một ký hiệu có trong bảng `phonemes`.<br><br>**AC-SHADOW-13 — Quy tắc theo ngữ cảnh**<br>Given: Chuỗi âm của từ có nguyên âm đứng trước `ɹ` (vd `n ɪ ɹ`).<br>When: Chuyển đổi.<br>Then: Nguyên âm đổi thành nguyên âm đôi tương ứng (`ɪ→ɪə`, `ɛ→eə`, `ʊ→ʊə`); âm `r` vẫn giữ riêng.<br>Given: Azure trả nguyên âm kèm r thành một âm duy nhất (vd `ɔɹ` ở "morning", đo từ Azure thật).<br>Then: Chuyển theo nguyên âm (`ɔɹ→ɔː`, `ɑɹ→ɑː`, `ɪɹ→ɪə`, `ɛɹ→eə`, `ʊɹ→ʊə`), không tách thêm âm `r`.<br><br>**AC-SHADOW-14 — Âm lạ**<br>Given: Ký hiệu không có trong bảng chuyển đổi.<br>When: Lưu kết quả.<br>Then: Âm đó vẫn nằm trong phản hồi cho học viên nhưng không được lưu; hệ thống ghi cảnh báo; phần còn lại của lượt vẫn lưu bình thường. |
 | Độ ưu tiên | Cao |
 
@@ -93,7 +93,33 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 | 19 | Thanh phía trên video | Có nguồn phát, đồng hồ `00:02.0 / 00:50`, thanh các câu trên trục thời gian (câu đang chọn màu nhấn, câu đã đọc màu xanh, bấm vào một đoạn để chuyển và phát câu đó), nút "Ẩn video" |
 | 20 | Hàng điều khiển ở tab Luyện | Một hàng: ← ↻ ▶ → · tốc độ · Giọng tôi · So sánh · nút mic; từ được tô sáng theo lời đang phát; màn hình hẹp thì tự xuống dòng, không cuộn ngang |
 | 21 | Sau khi chấm | Khối điểm, chip Cao nhất / số lần đọc / các chỉ số, chip lỗi (từ bỏ sót, từ thừa, âm dưới 60), lời nhắn, "Nghe mẫu" và "Câu tiếp" (câu cuối thì "Hoàn thành"); danh sách bên phải có tiến độ cả bài và các âm hay sai |
+| 22 | Chi tiết một từ có âm yếu | Dưới tên từ và phiên âm có hộp mẹo sửa (biểu tượng bóng đèn); Pro thấy nút "Video khẩu hình âm /x/" mở video ngay trong ô; Free thấy hộp khoá có nhãn PRO và nút "Mở với Pro" mở hộp mời nâng cấp |
 | 17 | Phím tắt ở tab Luyện | Space ghi âm/dừng, nhả Ctrl nghe mẫu, R nghe lại giọng mình, C so sánh; Alt+←/→ đổi câu; Alt+W/Alt+P đổi tab. Không kích hoạt khi đang gõ vào ô nhập; Space nhường cho nút đang được focus |
+
+---
+
+### UC-SHADOW-07: Mẹo sửa cho âm đọc yếu
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Học viên |
+| Mô tả | Âm vị nào đọc dưới 60 điểm thì kết quả chấm kèm một mẹo ngắn bằng tiếng Việt (vị trí lưỡi, môi, hơi) lấy từ bảng `phoneme_confusions` theo âm đích. Mẹo hiện trong ô chi tiết của từ. |
+| Điều kiện tiên quyết | Có Kết quả chấm của một lượt (UC-SHADOW-01). Mẹo có ở cả gói Free và Pro. |
+| Tiêu chí chấp nhận | **AC-SHADOW-21 — Mẹo theo âm đích**<br>Given: Một âm có trong bảng mẹo (vd `θ`) đọc dưới 60 điểm.<br>When: Chấm lượt.<br>Then: Âm đó có trường `tip`; âm đạt điểm hoặc âm không có mẹo thì `tip` rỗng. Bảng mẹo phủ các âm người Việt hay sai: `θ ð ʃ ʒ z v r s t d l ɪ iː æ`. |
+| Độ ưu tiên | Trung bình |
+
+---
+
+### UC-SHADOW-08: Video khẩu hình (nội dung Pro)
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Học viên |
+| Mô tả | Âm đọc dưới 60 điểm có video khẩu hình riêng. Gói Pro xem được; gói Free thấy hộp khoá kèm nút mở với Pro. |
+| Điều kiện tiên quyết | Âm có `mouth_video_url` trong bảng `phonemes`; quyền xem theo hạn mức tính năng `mouth_video` của gói. |
+| Điều kiện sau | Không có bộ đếm: Pro không giới hạn. |
+| Tiêu chí chấp nhận | **AC-SHADOW-22 — Khoá ở server**<br>Given: Âm yếu có video.<br>When: Gói Free chấm lượt.<br>Then: `mouthVideo` có `locked = true` và `url` rỗng, không bao giờ lộ đường dẫn.<br>Given: Gói Pro.<br>Then: `mouthVideo.locked = false` và có `url`.<br><br>**AC-SHADOW-23 — Mẹo lỗi không làm mất kết quả**<br>Given: Tra mẹo hoặc video gặp lỗi.<br>When: Chấm lượt.<br>Then: Kết quả chấm vẫn được trả bình thường, chỉ thiếu mẹo và video; lượt không bị hoàn. |
+| Độ ưu tiên | Trung bình |
 
 ---
 
@@ -102,6 +128,6 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 - Lưu file ghi âm lên server, `is_baseline`, tự xoá khi hết hạn (cần `voice_storage`).
 - Hàng đợi ôn câu làm kém (`user_sentence_review`), điền `myBestScore` ở danh sách câu, `completed_at` mức bài (cần thống nhất với nghe chép).
 - Hộp thoại xin đồng ý lần ghi âm đầu và API `/me/consents` (Kế).
-- Nhận xét AI, Mẹo sửa, video khẩu hình (lát B); Phiên gia sư (lát C).
+- Nhận xét AI (lát B, phần sau); Phiên gia sư (lát C). Mẹo riêng cho cặp "đọc A thành B" (Azure không trả âm bị nhầm thành gì).
 - Phần của mockup chưa làm ở trang luyện: thanh thời gian chia đoạn trên video, công tắc "Gia sư" (lát C).
 - Phát câu mẫu: video YouTube hoặc tệp âm thanh của bài, cắt theo thời gian của câu; không có thì dùng giọng tổng hợp của trình duyệt.

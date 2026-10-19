@@ -1,27 +1,33 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import { speakSegment } from "../hooks/useModelPlayer";
 import type { WordResult } from "../types";
-import { PHONEME_ERROR_BELOW, TONE_BOX, TONE_TEXT, toneOf } from "../utils";
+import { PHONEME_ERROR_BELOW, TONE_BOX, TONE_TEXT, toneOf, youtubeId } from "../utils";
 
 export interface WordDetailProps {
   word: WordResult;
   /** Phiên âm mẫu của từ trong câu; null khi dữ liệu câu không có hoặc không khớp. */
   ipa: string | null;
   onClose: () => void;
+  /** Mở hộp mời nâng cấp Pro (video khẩu hình bị khoá với gói Free). */
+  onUpgrade: () => void;
 }
 
 /** Chi tiết một từ: điểm, từng âm vị kèm điểm, âm dưới 60 được đánh dấu (UC-SHADOW-06 kịch bản 3). */
-export default function WordDetail({ word, ipa, onClose }: WordDetailProps) {
+export default function WordDetail({ word, ipa, onClose, onUpgrade }: WordDetailProps) {
   const { t } = useTranslation("pages");
   const k = "student.shadowingPractice";
   const omitted = word.outcome === "omitted";
   const weak = word.phonemes.find((p) => p.accuracy < PHONEME_ERROR_BELOW);
   const tone = omitted ? "bad" : toneOf(word.accuracy);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const video = weak?.mouthVideo ?? null;
+  const embedId = video?.url ? youtubeId(video.url) : null;
 
-  const tip = omitted
+  const tip = weak?.tip ? weak.tip : omitted
     ? t(`${k}.detail.omittedWord`)
     : weak
       ? t(`${k}.detail.badPhoneme`, { symbol: weak.symbol })
@@ -79,7 +85,54 @@ export default function WordDetail({ word, ipa, onClose }: WordDetailProps) {
         </ul>
       )}
 
-      <p className="mt-3 text-sm text-text-muted">{tip}</p>
+      <div className="mt-3 flex items-start gap-2 rounded-md bg-surface-hover px-3 py-2.5 text-sm text-text-muted">
+        <Icon name="lightbulb" className="mt-0.5 shrink-0 text-warning" />
+        <p>{tip}</p>
+      </div>
+
+      {weak && video && (
+        <div className="mt-3">
+          {video.locked ? (
+            <div className="relative flex max-w-[340px] items-center gap-3 overflow-hidden rounded-lg border border-border-strong bg-surface p-3">
+              <div aria-hidden="true" className="grid h-14 w-20 shrink-0 place-items-center rounded-md bg-bg-elevated text-2xl text-text-subtle blur-[1.5px]">
+                <Icon name="circle-play" />
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col items-start gap-1.5">
+                <Badge variant="pro">
+                  <Icon name="crown" />
+                  PRO
+                </Badge>
+                <b className="text-sm">{t(`${k}.mouth.title`, { symbol: weak.symbol })}</b>
+                <Button size="sm" onClick={onUpgrade}>
+                  {t(`${k}.mouth.unlock`)}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => setVideoOpen((v) => !v)} aria-expanded={videoOpen} leftIcon={<Icon name="video" />}>
+                {videoOpen ? t(`${k}.mouth.hide`) : t(`${k}.mouth.title`, { symbol: weak.symbol })}
+              </Button>
+              {videoOpen &&
+                (embedId ? (
+                  <div className="mt-2 aspect-video w-full max-w-[420px] overflow-hidden rounded-lg bg-black">
+                    <iframe
+                      className="h-full w-full"
+                      src={`https://www.youtube.com/embed/${embedId}`}
+                      title={t(`${k}.mouth.title`, { symbol: weak.symbol })}
+                      allow="encrypted-media; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <a className="mt-2 inline-block text-sm text-primary-text underline" href={video.url ?? undefined} target="_blank" rel="noreferrer">
+                    {t(`${k}.mouth.open`)}
+                  </a>
+                ))}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

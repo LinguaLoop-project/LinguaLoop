@@ -8,6 +8,15 @@ export type WordOutcome = "correct" | "mispronounced" | "omitted" | "inserted";
 export interface PhonemeResult {
   symbol: string;
   accuracy: number;
+  /** Mẹo sửa cho âm đọc dưới 60 điểm (khi bảng mẹo có dữ liệu). */
+  tip?: string | null;
+  mouthVideo?: MouthVideo | null;
+}
+
+/** Video khẩu hình (nội dung Pro): Free nhận `url` null kèm `locked: true`. */
+export interface MouthVideo {
+  url: string | null;
+  locked: boolean;
 }
 
 export interface WordResult {
