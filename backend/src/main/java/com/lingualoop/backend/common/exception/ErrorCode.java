@@ -40,6 +40,8 @@ public enum ErrorCode {
 
     LESSON_PRO_REQUIRED(HttpStatus.FORBIDDEN, "Bạn cần gói Pro để xem nội dung này"),
 
+    DICTATION_EASY_UNAVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Câu này chưa có ô nào để điền, hãy chọn mức khác"),
+
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi hệ thống, vui lòng thử lại sau");
 
     private final HttpStatus status;
