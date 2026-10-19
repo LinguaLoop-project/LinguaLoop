@@ -251,6 +251,7 @@
         "writing": "AI đang viết nhận xét…",
         "failed": "Chưa viết được nhận xét lúc này. Lượt của bạn không bị trừ, thử lại sau nhé.",
         "retry": "Thử lại",
+        "busy": "AI đang bận, bạn thử lại sau ít phút nhé. Lượt của bạn không bị trừ.",
         "consent": "Bạn cần đồng ý cho phép xử lý bằng AI để xem nhận xét.",
         "quotaOut": "Bạn đã dùng hết lượt nhận xét AI hôm nay.",
         "upgrade": "Mở với Pro",

@@ -23,7 +23,7 @@ class GeminiFeedbackGeneratorExternalTest {
     @Test
     void realGemini_writesAShortVietnameseFeedback() {
         var properties = new GeminiProperties(System.getenv("GEMINI_API_KEY"), System.getenv("GEMINI_TEXT_MODEL"),
-                Duration.ofSeconds(30));
+                System.getenv("GEMINI_FALLBACK_MODEL"), Duration.ofSeconds(30));
         var generator = new GeminiFeedbackGenerator(properties);
 
         GeneratedFeedback feedback = generator.generate(new FeedbackRequest("Think about it", 72, 70.0, 80.0, 100.0,

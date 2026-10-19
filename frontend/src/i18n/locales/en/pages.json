@@ -251,6 +251,7 @@
         "writing": "AI is writing feedback…",
         "failed": "Could not write feedback right now. You were not charged, try again later.",
         "retry": "Try again",
+        "busy": "AI is busy, please try again in a few minutes. You were not charged.",
         "consent": "You need to allow AI processing to see feedback.",
         "quotaOut": "You have used all AI feedback for today.",
         "upgrade": "Unlock with Pro",

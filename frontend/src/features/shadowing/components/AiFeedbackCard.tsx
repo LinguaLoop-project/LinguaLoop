@@ -58,7 +58,11 @@ export default function AiFeedbackCard({ attemptId, onUpgrade }: AiFeedbackCardP
       ) : error ? (
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <p className="min-w-48 flex-1 text-sm text-text-muted">
-            {code === "AI_CONSENT_REQUIRED" ? t(`${K}.consent`) : t(`${K}.failed`)}
+            {code === "AI_CONSENT_REQUIRED"
+              ? t(`${K}.consent`)
+              : code === "AI_FEEDBACK_BUSY"
+                ? t(`${K}.busy`)
+                : t(`${K}.failed`)}
           </p>
           {code !== "AI_CONSENT_REQUIRED" && (
             <Button

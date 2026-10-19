@@ -60,6 +60,7 @@ class GuardedAiFeedbackGenerator implements AiFeedbackGenerator {
             return false;
         }
         return !(error instanceof BusinessException business)
-                || business.getErrorCode() == ErrorCode.AI_FEEDBACK_UNAVAILABLE;
+                || business.getErrorCode() == ErrorCode.AI_FEEDBACK_UNAVAILABLE
+                || business.getErrorCode() == ErrorCode.AI_FEEDBACK_BUSY;
     }
 }

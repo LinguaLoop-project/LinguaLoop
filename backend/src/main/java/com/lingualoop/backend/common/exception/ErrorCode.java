@@ -45,6 +45,7 @@ public enum ErrorCode {
     SHADOWING_NO_SPEECH(HttpStatus.UNPROCESSABLE_CONTENT, "Không nghe thấy giọng nói trong bản ghi âm"),
     SHADOWING_SCORING_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "Dịch vụ chấm phát âm tạm thời không dùng được"),
     AI_FEEDBACK_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "Dịch vụ nhận xét AI tạm thời không dùng được"),
+    AI_FEEDBACK_BUSY(HttpStatus.SERVICE_UNAVAILABLE, "AI đang bận, vui lòng thử lại sau ít phút"),
 
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi hệ thống, vui lòng thử lại sau");
 

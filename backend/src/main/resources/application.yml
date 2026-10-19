@@ -93,6 +93,8 @@ app:
       api-key: ${GEMINI_API_KEY:}
       # model văn bản cho Nhận xét AI; đổi bằng GEMINI_TEXT_MODEL khi Google ngừng model này
       text-model: ${GEMINI_TEXT_MODEL:gemini-2.5-flash}
+      # model dùng cho lần thử lại khi model chính quá tải (503/429); để trống thì thử lại bằng model chính
+      fallback-model: ${GEMINI_FALLBACK_MODEL:}
       timeout: 20s
   shadowing:
     scoring:
