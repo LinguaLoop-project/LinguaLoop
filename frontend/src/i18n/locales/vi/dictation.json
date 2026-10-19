@@ -1,0 +1,134 @@
+{
+  "title": "Nghe rồi gõ lại",
+  "overline": "Nghe chép",
+  "overlineWithLevel": "Nghe chép · {{cefr}}",
+  "backToLessons": "Về thư viện bài học",
+  "backToLesson": "Về bài học",
+  "level": {
+    "label": "Mức độ",
+    "easy": "Easy",
+    "normal": "Normal",
+    "hard": "Hard",
+    "easyHelp": "Điền các từ còn thiếu",
+    "normalHelp": "Gõ cả câu, ô từ cho biết độ dài",
+    "hardHelp": "Gõ cả câu, không biết số từ",
+    "easySoon": "Mức Easy sẽ có trong bản cập nhật tới",
+    "changed": "Mức {{level}}",
+    "changedNext": "Mức {{level}} sẽ áp dụng từ câu tiếp theo"
+  },
+  "media": {
+    "youtube": "YouTube",
+    "audio": "Bài nghe",
+    "hideVideo": "Ẩn video",
+    "showVideo": "Hiện video",
+    "sentences": "Các câu trong bài",
+    "sentenceN": "Câu {{n}}",
+    "failTitle": "Không tải được video",
+    "failDesc": "Bạn vẫn làm bài được nhưng chưa nghe được tiếng. Thử tải lại nhé.",
+    "blockedTitle": "Không phát được âm thanh",
+    "blockedDesc": "Trình duyệt đang chặn tiếng hoặc video chưa tải xong. Bấm phát lại một lần nữa hoặc tải lại.",
+    "noSourceTitle": "Bài này chưa có nguồn phát",
+    "noSourceDesc": "Bạn vẫn xem được danh sách câu, nhưng chưa nghe được. Báo giảng viên của bài nếu lỗi kéo dài.",
+    "reload": "Tải lại"
+  },
+  "controls": {
+    "group": "Điều khiển phát",
+    "prev": "Câu trước (Alt+←)",
+    "replay": "Phát lại (Ctrl)",
+    "play": "Phát câu (Ctrl)",
+    "pause": "Dừng",
+    "next": "Câu sau (Alt+→)",
+    "rate": "Tốc độ phát"
+  },
+  "meta": {
+    "sentence": "Câu {{n}}/{{total}}",
+    "replays_other": "Đã nghe {{count}} lần"
+  },
+  "input": {
+    "label": "Câu bạn nghe được",
+    "placeholder": "Gõ những gì bạn nghe được…",
+    "slots": "Số chữ cái của từng từ",
+    "submit": "Kiểm tra",
+    "submitting": "Đang chấm…",
+    "enterHint": "kiểm tra",
+    "empty": "Gõ câu bạn nghe được trước nhé"
+  },
+  "result": {
+    "score": "điểm",
+    "perfect": "Chính xác tuyệt đối!",
+    "again": "Làm lại câu",
+    "listenAgain": "Nghe lại",
+    "next": "Câu tiếp",
+    "finish": "Hoàn thành",
+    "translation": "Dịch nghĩa",
+    "noDetail": "Chi tiết từng từ chỉ hiện ngay sau khi bạn làm xong câu trong lượt này. Bấm “Làm lại câu” để thử lại.",
+    "moodGreat": "Tai bạn bắt tốt lắm!",
+    "moodOk": "Gần đúng rồi. Nghe lại để ý mấy từ tô màu.",
+    "moodHard": "Câu này khó thật. Thử tốc độ chậm hơn rồi làm lại nhé."
+  },
+  "legend": {
+    "correct": "Đúng",
+    "omitted": "Bỏ sót",
+    "substituted": "Nhầm từ",
+    "misspelled": "Sai chính tả",
+    "inserted": "Thừa"
+  },
+  "tip": {
+    "inserted": "Thừa từ",
+    "youTyped": "bạn gõ “{{word}}”",
+    "fallback": "Sai"
+  },
+  "category": {
+    "function_omitted": "Bỏ sót từ chức năng",
+    "function_substituted": "Nhầm từ chức năng",
+    "function_misspelled": "Sai chính tả từ chức năng",
+    "content_omitted": "Bỏ sót từ nội dung",
+    "content_substituted": "Nhầm từ nội dung",
+    "content_misspelled": "Sai chính tả từ nội dung",
+    "inflected_omitted": "Bỏ sót từ biến đổi",
+    "inflected_substituted": "Sai đuôi từ (-s, -ed, -ing)",
+    "inflected_misspelled": "Sai chính tả dạng biến đổi",
+    "number_omitted": "Bỏ sót số",
+    "number_substituted": "Nghe nhầm số",
+    "number_misspelled": "Viết sai số",
+    "proper_omitted": "Bỏ sót tên riêng",
+    "proper_substituted": "Nghe nhầm tên riêng",
+    "proper_misspelled": "Viết sai tên riêng"
+  },
+  "list": {
+    "title": "Bản chép",
+    "aria": "Bản chép các câu",
+    "doing": "Đang làm",
+    "words_other": "{{count}} từ"
+  },
+  "settings": {
+    "open": "Cài đặt",
+    "title": "Cài đặt nghe chép",
+    "autoNext": "Tự phát câu tiếp theo",
+    "autoNextDesc": "Tắt: chờ bạn đọc kết quả rồi bấm phát",
+    "translation": "Hiện bản dịch tiếng Việt",
+    "translationDesc": "Sau khi chấm, trong mục Dịch nghĩa"
+  },
+  "shortcuts": {
+    "open": "Phím tắt",
+    "title": "Phím tắt",
+    "play": "Phát / phát lại",
+    "playKeys": "Ctrl (nhả ra)",
+    "submit": "Kiểm tra · câu tiếp",
+    "newline": "Xuống dòng",
+    "prevNext": "Câu trước / sau",
+    "level": "Mức Easy / Normal / Hard"
+  },
+  "state": {
+    "loading": "Đang tải bài nghe chép",
+    "offline": "Bạn đang mất mạng. Chữ bạn gõ vẫn được giữ lại, hãy nộp lại khi có mạng.",
+    "submitFailed": "Chưa nộp được câu này. Kiểm tra kết nối rồi thử lại.",
+    "retry": "Thử lại",
+    "resumed": "Tiếp tục từ câu {{n}} · đã làm {{done}}/{{total}}",
+    "firstSentence": "Đây là câu đầu tiên",
+    "proTitle": "Bài này dành cho gói Pro",
+    "proDesc": "Nâng cấp lên Pro để nghe chép bài này.",
+    "emptyTitle": "Bài này chưa có câu nào",
+    "emptyDesc": "Giảng viên chưa cắt câu cho bài này nên chưa thể nghe chép."
+  }
+}

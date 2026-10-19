@@ -1,0 +1,136 @@
+{
+  "title": "Listen, then type it",
+  "overline": "Dictation",
+  "overlineWithLevel": "Dictation · {{cefr}}",
+  "backToLessons": "Back to the library",
+  "backToLesson": "Back to the lesson",
+  "level": {
+    "label": "Level",
+    "easy": "Easy",
+    "normal": "Normal",
+    "hard": "Hard",
+    "easyHelp": "Fill in the missing words",
+    "normalHelp": "Type the whole sentence, slots show each word's length",
+    "hardHelp": "Type the whole sentence, no hints",
+    "easySoon": "Easy level is coming in an upcoming update",
+    "changed": "{{level}} level",
+    "changedNext": "{{level}} level applies from the next sentence"
+  },
+  "media": {
+    "youtube": "YouTube",
+    "audio": "Audio",
+    "hideVideo": "Hide video",
+    "showVideo": "Show video",
+    "sentences": "Sentences in this lesson",
+    "sentenceN": "Sentence {{n}}",
+    "failTitle": "Couldn't load the video",
+    "failDesc": "You can still do the exercise, but you can't hear the audio. Try reloading.",
+    "blockedTitle": "Couldn't play the audio",
+    "blockedDesc": "Your browser may be blocking sound, or the video hasn't finished loading. Press play again or reload.",
+    "noSourceTitle": "This lesson has no audio source",
+    "noSourceDesc": "You can still see the sentence list, but you can't listen yet. Tell the lesson's instructor if this continues.",
+    "reload": "Reload"
+  },
+  "controls": {
+    "group": "Playback controls",
+    "prev": "Previous sentence (Alt+←)",
+    "replay": "Replay (Ctrl)",
+    "play": "Play sentence (Ctrl)",
+    "pause": "Stop",
+    "next": "Next sentence (Alt+→)",
+    "rate": "Playback speed"
+  },
+  "meta": {
+    "sentence": "Sentence {{n}}/{{total}}",
+    "replays_one": "Listened {{count}} time",
+    "replays_other": "Listened {{count}} times"
+  },
+  "input": {
+    "label": "What you heard",
+    "placeholder": "Type what you hear…",
+    "slots": "Letter count of each word",
+    "submit": "Check",
+    "submitting": "Checking…",
+    "enterHint": "check",
+    "empty": "Type the sentence you heard first"
+  },
+  "result": {
+    "score": "points",
+    "perfect": "Perfect!",
+    "again": "Redo sentence",
+    "listenAgain": "Listen again",
+    "next": "Next sentence",
+    "finish": "Finish",
+    "translation": "Translation",
+    "noDetail": "The word-by-word breakdown only shows right after you finish a sentence in this session. Press “Redo sentence” to try again.",
+    "moodGreat": "Your ears are sharp!",
+    "moodOk": "Almost there. Listen again and look at the colored words.",
+    "moodHard": "That one is tough. Try a slower speed and redo it."
+  },
+  "legend": {
+    "correct": "Correct",
+    "omitted": "Missed",
+    "substituted": "Wrong word",
+    "misspelled": "Misspelled",
+    "inserted": "Extra"
+  },
+  "tip": {
+    "inserted": "Extra word",
+    "youTyped": "you typed “{{word}}”",
+    "fallback": "Wrong"
+  },
+  "category": {
+    "function_omitted": "Missed function word",
+    "function_substituted": "Wrong function word",
+    "function_misspelled": "Misspelled function word",
+    "content_omitted": "Missed content word",
+    "content_substituted": "Wrong content word",
+    "content_misspelled": "Misspelled content word",
+    "inflected_omitted": "Missed inflected word",
+    "inflected_substituted": "Wrong word ending (-s, -ed, -ing)",
+    "inflected_misspelled": "Misspelled inflected word",
+    "number_omitted": "Missed number",
+    "number_substituted": "Misheard number",
+    "number_misspelled": "Misspelled number",
+    "proper_omitted": "Missed proper name",
+    "proper_substituted": "Misheard proper name",
+    "proper_misspelled": "Misspelled proper name"
+  },
+  "list": {
+    "title": "Transcript",
+    "aria": "Sentence transcript",
+    "doing": "In progress",
+    "words_one": "{{count}} word",
+    "words_other": "{{count}} words"
+  },
+  "settings": {
+    "open": "Settings",
+    "title": "Dictation settings",
+    "autoNext": "Auto-play the next sentence",
+    "autoNextDesc": "Off: wait until you've read the result, then press play",
+    "translation": "Show Vietnamese translation",
+    "translationDesc": "After checking, in the Translation section"
+  },
+  "shortcuts": {
+    "open": "Keyboard shortcuts",
+    "title": "Keyboard shortcuts",
+    "play": "Play / replay",
+    "playKeys": "Ctrl (release)",
+    "submit": "Check · next sentence",
+    "newline": "New line",
+    "prevNext": "Previous / next sentence",
+    "level": "Easy / Normal / Hard level"
+  },
+  "state": {
+    "loading": "Loading dictation lesson",
+    "offline": "You're offline. What you typed is kept, submit again when you're back online.",
+    "submitFailed": "Couldn't submit this sentence. Check your connection and try again.",
+    "retry": "Try again",
+    "resumed": "Continuing from sentence {{n}} · {{done}}/{{total}} done",
+    "firstSentence": "This is the first sentence",
+    "proTitle": "This lesson is for Pro",
+    "proDesc": "Upgrade to Pro to practice this lesson.",
+    "emptyTitle": "This lesson has no sentences yet",
+    "emptyDesc": "The instructor hasn't split this lesson into sentences yet, so dictation isn't available."
+  }
+}
