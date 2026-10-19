@@ -131,12 +131,6 @@
         "note": "Transcript ẩn sẵn để không lộ đáp án khi nghe chép.",
         "sentence": "Câu {{index}}",
         "listen": "Nghe câu này",
-        "mouth": {
-          "title": "Video khẩu hình âm /{{symbol}}/",
-          "unlock": "Mở với Pro",
-          "hide": "Ẩn video",
-          "open": "Mở video khẩu hình"
-        },
         "shadow": "Shadowing câu này",
         "empty": "Chưa có dữ liệu câu cho bài học này.",
         "showMore": "Xem thêm {{count}} câu",
@@ -250,6 +244,12 @@
       "description": "Biểu đồ phân tích thời gian học, số từ đã thuộc và mức độ tiến bộ."
     },
     "shadowingPractice": {
+      "mouth": {
+        "title": "Video khẩu hình âm /{{symbol}}/",
+        "unlock": "Mở với Pro",
+        "hide": "Ẩn video",
+        "open": "Mở video khẩu hình"
+      },
       "overline": "Shadowing",
       "title": "Nghe, đọc theo, xem lỗi",
       "back": "Bài học",
