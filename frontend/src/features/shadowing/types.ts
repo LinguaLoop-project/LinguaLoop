@@ -24,7 +24,7 @@ export interface WordResult {
   word: string;
   accuracy: number;
   outcome: WordOutcome;
-  /** Rỗng khi kết quả được khôi phục từ lượt cũ (DB không giữ ký hiệu Azure). */
+  /** Rỗng khi từ bị bỏ sót hoặc từ thừa (không có âm để chấm). */
   phonemes: PhonemeResult[];
 }
 
@@ -45,14 +45,23 @@ export interface LatestAttempt {
   sentenceId: string;
   attemptId: number;
   score: number;
+  accuracy: number | null;
+  fluency: number | null;
+  completeness: number | null;
+  prosody: number | null;
   attemptedAt: string;
   bestScore: number;
   attemptCount: number;
-  words: { position: number; word: string; accuracy: number; outcome: WordOutcome }[];
+  /** Đủ từng từ và từng âm (kèm mẹo sửa, video khẩu hình) như lúc vừa chấm. */
+  words: WordResult[];
+  /** Nhận xét AI đã lưu của lượt, null nếu chưa có. */
+  aiFeedback: { content: string; createdAt: string } | null;
 }
 
 /** Kết quả của một câu trong trang luyện: lượt gần nhất + điểm cao nhất + số lần đọc. */
 export interface SentenceRecord {
+  /** Nhận xét AI đã lưu của lượt gần nhất (khôi phục lúc mở lại bài); null nếu chưa có. */
+  aiFeedback: string | null;
   /** Lượt gần nhất của câu (để xin Nhận xét AI cho đúng lượt này). */
   attemptId: number;
   score: number;

@@ -39,8 +39,8 @@ Quy ước: mọi endpoint yêu cầu đăng nhập. "Gói" là kết quả củ
 | Mục | Nội dung |
 |---|---|
 | Tác nhân | Học viên |
-| Mô tả | Mở lại bài và thấy điểm cũ của từng câu. |
-| Tiêu chí chấp nhận | **AC-SHADOW-15 — Lượt mới nhất của từng câu**<br>Given: Tác nhân đã đọc vài câu của bài, có câu đọc nhiều lần.<br>When: Gọi `GET /lessons/{slug}/shadowing-attempts/latest`.<br>Then: Với mỗi câu đã đọc trả lượt mới nhất (điểm, thời điểm, các từ kèm điểm và loại lỗi), điểm cao nhất và số lần đọc; câu chưa đọc không xuất hiện; không lẫn dữ liệu của người khác hay của chế độ nghe chép.<br><br>**AC-SHADOW-16 — Bài không hợp lệ**<br>Given: Slug không tồn tại, hoặc bài Pro với tác nhân Free.<br>When: Gọi endpoint trên.<br>Then: Trả 404 hoặc 403 `LESSON_PRO_REQUIRED`. |
+| Mô tả | Mở lại bài và thấy lại đầy đủ kết quả của từng câu như lúc vừa chấm: điểm tổng và điểm thành phần, từng từ, từng âm vị kèm mẹo sửa và video khẩu hình (theo gói), cùng nhận xét AI đã lưu. |
+| Tiêu chí chấp nhận | **AC-SHADOW-15 — Lượt mới nhất của từng câu**<br>Given: Tác nhân đã đọc vài câu của bài, có câu đọc nhiều lần.<br>When: Gọi `GET /lessons/{slug}/shadowing-attempts/latest`.<br>Then: Với mỗi câu đã đọc trả lượt mới nhất (điểm, thời điểm, các từ kèm điểm và loại lỗi), điểm cao nhất và số lần đọc; câu chưa đọc không xuất hiện; không lẫn dữ liệu của người khác hay của chế độ nghe chép.<br><br>**AC-SHADOW-33 — Khôi phục đầy đủ**<br>Given: Lượt đã chấm, có âm yếu, có thể đã có nhận xét AI.<br>When: Gọi `GET /lessons/{slug}/shadowing-attempts/latest`.<br>Then: Mỗi câu kèm điểm chính xác, trôi chảy, đầy đủ, ngữ điệu; từng từ có danh sách âm vị (ký hiệu bảng phonemes, điểm), âm dưới 60 kèm mẹo sửa và `mouthVideo` (Free: khoá, không lộ đường dẫn); `aiFeedback` là nhận xét đã lưu hoặc rỗng.<br><br>**AC-SHADOW-16 — Bài không hợp lệ**<br>Given: Slug không tồn tại, hoặc bài Pro với tác nhân Free.<br>When: Gọi endpoint trên.<br>Then: Trả 404 hoặc 403 `LESSON_PRO_REQUIRED`. |
 | Độ ưu tiên | Cao |
 
 ---

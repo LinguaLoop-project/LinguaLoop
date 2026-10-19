@@ -403,6 +403,44 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
+    void latest_restoresEverythingTheAttemptResponseHad_AC_SHADOW_33() throws Exception {
+        UUID free = newUser();
+        UUID pro = newUser();
+        makePro(pro);
+        Lesson lesson = lesson("restore", false);
+        Sentence s = sentence(lesson, 0, "Think");
+        givenWeakAndStrongPhonemes();
+        post(free, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+        post(pro, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+        long proAttempt = jdbc.queryForObject("SELECT id FROM sentence_attempts WHERE user_id = ?", Long.class, pro);
+        jdbc.update("INSERT INTO ai_feedback (attempt_id, content, model, prompt_version) VALUES (?, ?, 'm', 'v1')",
+                proAttempt, "Bạn đọc khá tốt.");
+
+        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(free)))
+                .andExpect(status().isOk())
+                // điểm thành phần
+                .andExpect(jsonPath("$.data[0].accuracy").value(70.0))
+                .andExpect(jsonPath("$.data[0].fluency").value(70.0))
+                .andExpect(jsonPath("$.data[0].completeness").value(70.0))
+                // âm vị theo bảng phonemes, mẹo sửa cho âm yếu, video bị khoá với gói Free
+                .andExpect(jsonPath("$.data[0].words[0].phonemes.length()").value(2))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].symbol").value("θ"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].tip").isNotEmpty())
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.locked").value(true))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.url").value((Object) null))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].symbol").value("ɪ"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].tip").value((Object) null))
+                .andExpect(jsonPath("$.data[0].aiFeedback").value((Object) null));
+
+        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(pro)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.locked").value(false))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.url").isNotEmpty())
+                // nhận xét AI đã lưu được trả kèm
+                .andExpect(jsonPath("$.data[0].aiFeedback.content").value("Bạn đọc khá tốt."));
+    }
+
+    @Test
     void latest_unknownOrProLesson_AC_SHADOW_16() throws Exception {
         UUID user = newUser();
         Lesson paid = lesson("latest-paid", true);

@@ -62,6 +62,7 @@ export function recordFromAttempt(
   },
 ): SentenceRecord {
   return {
+    aiFeedback: null,
     attemptId: a.attemptId,
     score: a.score,
     best: Math.max(prev?.best ?? 0, a.score),
@@ -110,7 +111,7 @@ export function litTokenIndex(sentenceText: string, fraction: number): number {
   return words.length - 1;
 }
 
-/** Âm vị hay sai nhất qua các câu đã chấm trong phiên này (chỉ lượt có âm vị, tức không phải lượt khôi phục). */
+/** Âm vị hay sai nhất qua các câu đã chấm (kể cả các câu khôi phục khi mở lại bài). */
 export function weakPhonemes(records: Record<string, SentenceRecord>, limit = 3): string[] {
   const counts = new Map<string, number>();
   for (const rec of Object.values(records)) {

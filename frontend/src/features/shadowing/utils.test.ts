@@ -153,6 +153,7 @@ describe("sentenceAt", () => {
 
 describe("weakPhonemes", () => {
   const rec = (words: WordResult[]): SentenceRecord => ({
+    aiFeedback: null,
     attemptId: 1,
     score: 70,
     best: 70,

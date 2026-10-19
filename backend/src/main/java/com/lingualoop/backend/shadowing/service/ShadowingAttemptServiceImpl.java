@@ -1,5 +1,6 @@
 package com.lingualoop.backend.shadowing.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,8 +22,13 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.shadowing.dto.LatestAttemptResponse;
 import com.lingualoop.backend.shadowing.dto.ShadowingAttemptResponse;
+import com.lingualoop.backend.shadowing.entity.AiFeedback;
+import com.lingualoop.backend.shadowing.entity.AttemptPhoneme;
 import com.lingualoop.backend.shadowing.entity.AttemptWord;
+import com.lingualoop.backend.shadowing.repository.AiFeedbackRepository;
+import com.lingualoop.backend.shadowing.repository.AttemptPhonemeRepository;
 import com.lingualoop.backend.shadowing.repository.AttemptWordRepository;
+import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository.LatestHead;
 import com.lingualoop.backend.subscription.dto.FeatureUsage;
@@ -53,6 +59,9 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
     private final ShadowingAttemptRepository repository;
     private final AttemptWordRepository wordRepository;
     private final PronunciationHints hints;
+    private final PhonemeRepository phonemeRepository;
+    private final AttemptPhonemeRepository attemptPhonemeRepository;
+    private final AiFeedbackRepository aiFeedbackRepository;
 
     @Override
     public ShadowingAttemptResponse assess(UUID userId, UUID sentenceId, byte[] wav) {
@@ -85,18 +94,57 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         if (heads.isEmpty()) {
             return List.of();
         }
-        Map<Long, List<LatestAttemptResponse.WordSummary>> wordsByAttempt = new HashMap<>();
-        for (AttemptWord w : wordRepository.findByAttemptIds(heads.stream().map(LatestHead::getAttemptId).toList())) {
-            wordsByAttempt.computeIfAbsent(w.getAttempt().getId(), k -> new ArrayList<>())
-                    .add(new LatestAttemptResponse.WordSummary(w.getPosition(),
-                            w.getExpectedWord() != null ? w.getExpectedWord() : w.getActualWord(),
-                            w.getAccuracyScore().doubleValue(), w.getOutcome()));
+        List<Long> attemptIds = heads.stream().map(LatestHead::getAttemptId).toList();
+
+        // Ký hiệu âm theo id, và các âm yếu để tra mẹo sửa một lần cho cả bài
+        Map<Short, String> symbolById = new HashMap<>();
+        phonemeRepository.findAll().forEach(p -> symbolById.put(p.getId(), p.getSymbol()));
+        Map<Long, List<AttemptPhoneme>> phonemesByWord = new HashMap<>();
+        Set<String> weak = new HashSet<>();
+        for (AttemptPhoneme p : attemptPhonemeRepository.findByAttemptIds(attemptIds)) {
+            phonemesByWord.computeIfAbsent(p.getWord().getId(), k -> new ArrayList<>()).add(p);
+            if (p.getAccuracyScore().doubleValue() < PronunciationHints.WEAK_BELOW) {
+                weak.add(symbolById.getOrDefault(p.getPhonemeId(), "?"));
+            }
         }
+        Map<String, PronunciationHints.Hint> hintBySymbol = hintsFor(userId, weak);
+
+        Map<Long, List<ShadowingAttemptResponse.WordResult>> wordsByAttempt = new HashMap<>();
+        for (AttemptWord w : wordRepository.findByAttemptIds(attemptIds)) {
+            List<ShadowingAttemptResponse.PhonemeResult> phonemes = new ArrayList<>();
+            for (AttemptPhoneme p : phonemesByWord.getOrDefault(w.getId(), List.of())) {
+                String symbol = symbolById.getOrDefault(p.getPhonemeId(), "?");
+                double accuracy = p.getAccuracyScore().doubleValue();
+                PronunciationHints.Hint hint = accuracy < PronunciationHints.WEAK_BELOW ? hintBySymbol.get(symbol) : null;
+                phonemes.add(new ShadowingAttemptResponse.PhonemeResult(symbol, accuracy,
+                        hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
+            }
+            wordsByAttempt.computeIfAbsent(w.getAttempt().getId(), k -> new ArrayList<>())
+                    .add(new ShadowingAttemptResponse.WordResult(w.getPosition(),
+                            w.getExpectedWord() != null ? w.getExpectedWord() : w.getActualWord(),
+                            w.getAccuracyScore().doubleValue(), w.getOutcome(), phonemes));
+        }
+
+        Map<Long, AiFeedback> feedbackByAttempt = new HashMap<>();
+        aiFeedbackRepository.findByAttemptIdIn(attemptIds).forEach(f -> feedbackByAttempt.put(f.getAttemptId(), f));
+
         return heads.stream()
                 .map(h -> new LatestAttemptResponse(h.getSentenceId(), h.getAttemptId(), h.getScore().doubleValue(),
-                        h.getAttemptedAt(), h.getBestScore().doubleValue(), h.getAttemptCount().intValue(),
-                        wordsByAttempt.getOrDefault(h.getAttemptId(), List.of())))
+                        nullable(h.getAccuracyScore()), nullable(h.getFluencyScore()),
+                        nullable(h.getCompletenessScore()), nullable(h.getProsodyScore()), h.getAttemptedAt(),
+                        h.getBestScore().doubleValue(), h.getAttemptCount().intValue(),
+                        wordsByAttempt.getOrDefault(h.getAttemptId(), List.of()),
+                        savedFeedback(feedbackByAttempt.get(h.getAttemptId()))))
                 .toList();
+    }
+
+    private static Double nullable(BigDecimal score) {
+        return score == null ? null : score.doubleValue();
+    }
+
+    private static LatestAttemptResponse.SavedAiFeedback savedFeedback(AiFeedback feedback) {
+        return feedback == null ? null
+                : new LatestAttemptResponse.SavedAiFeedback(feedback.getContent(), feedback.getCreatedAt());
     }
 
     private ShadowingAttemptResponse toResponse(UUID userId, long attemptId, UUID sentenceId,
