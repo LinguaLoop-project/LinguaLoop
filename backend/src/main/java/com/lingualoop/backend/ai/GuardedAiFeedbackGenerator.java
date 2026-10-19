@@ -1,6 +1,8 @@
 package com.lingualoop.backend.ai;
 
+import java.io.UncheckedIOException;
 import java.time.Duration;
+import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,8 +35,7 @@ class GuardedAiFeedbackGenerator implements AiFeedbackGenerator {
             Duration openFor) {
         this.delegate = delegate;
         this.guard = new ExternalCallGuard("gemini-feedback", windowSize, minimumCalls, failureRatePercent, openFor,
-                error -> !(error instanceof BusinessException business)
-                        || business.getErrorCode() == ErrorCode.AI_FEEDBACK_UNAVAILABLE);
+                GuardedAiFeedbackGenerator::isServiceFailure);
     }
 
     @Override
@@ -43,7 +44,22 @@ class GuardedAiFeedbackGenerator implements AiFeedbackGenerator {
                 () -> new BusinessException(ErrorCode.AI_FEEDBACK_UNAVAILABLE));
     }
 
+    @Override
+    public GeneratedFeedback generate(FeedbackRequest request, Consumer<String> onText) {
+        return guard.call(() -> delegate.generate(request, onText),
+                () -> new BusinessException(ErrorCode.AI_FEEDBACK_UNAVAILABLE));
+    }
+
     CircuitBreaker.State state() {
         return guard.state();
+    }
+
+    /** Người học đóng trang giữa chừng ({@link UncheckedIOException}) và lỗi nghiệp vụ khác không phải lỗi của Gemini. */
+    private static boolean isServiceFailure(Throwable error) {
+        if (error instanceof UncheckedIOException) {
+            return false;
+        }
+        return !(error instanceof BusinessException business)
+                || business.getErrorCode() == ErrorCode.AI_FEEDBACK_UNAVAILABLE;
     }
 }

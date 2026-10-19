@@ -1,6 +1,7 @@
 package com.lingualoop.backend.shadowing.service;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -41,18 +42,31 @@ class AiFeedbackServiceImpl implements AiFeedbackService {
 
     @Override
     public AiFeedbackResponse feedbackFor(UUID userId, long attemptId) {
+        return feedbackFor(userId, attemptId, null);
+    }
+
+    @Override
+    public AiFeedbackResponse streamFeedbackFor(UUID userId, long attemptId, Consumer<String> onText) {
+        return feedbackFor(userId, attemptId, onText);
+    }
+
+    /** @param onText null nếu không cần phát dần */
+    private AiFeedbackResponse feedbackFor(UUID userId, long attemptId, Consumer<String> onText) {
         FeedbackRequest request = loader.load(userId, attemptId);
         if (!consentService.hasConsent(userId, ConsentType.AI_PROCESSING)) {
             throw new BusinessException(ErrorCode.AI_CONSENT_REQUIRED);
         }
         var existing = repository.findByAttemptId(attemptId);
         if (existing.isPresent()) {
+            if (onText != null) {
+                onText.accept(existing.get().getContent());
+            }
             return toResponse(existing.get(), true, userId);
         }
 
         UsageTicket ticket = usageService.tryConsume(userId, FEATURE);
         try {
-            GeneratedFeedback generated = generator.generate(request);
+            GeneratedFeedback generated = onText == null ? generator.generate(request) : generator.generate(request, onText);
             AiFeedback saved = recorder.save(attemptId, generated);
             return toResponse(saved, false, userId);
         } catch (DataIntegrityViolationException duplicate) {

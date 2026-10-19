@@ -18,7 +18,7 @@ export interface AiFeedbackCardProps {
  */
 export default function AiFeedbackCard({ attemptId, onUpgrade }: AiFeedbackCardProps) {
   const { t } = useTranslation("pages");
-  const { mutate, data, error, isPending, reset } = useAiFeedback();
+  const { mutate, data, error, isPending, reset, text } = useAiFeedback();
   const code = error ? toApiError(error).code : null;
 
   return (
@@ -37,6 +37,12 @@ export default function AiFeedbackCard({ attemptId, onUpgrade }: AiFeedbackCardP
 
       {data ? (
         <p className="mt-2 whitespace-pre-line text-sm leading-relaxed">{data.content}</p>
+      ) : isPending && text ? (
+        // Chữ chạy ra ngay khi AI viết; con trỏ nhấp nháy cho biết còn đang viết
+        <p className="mt-2 whitespace-pre-line text-sm leading-relaxed">
+          {text}
+          <span aria-hidden="true" className="ml-0.5 inline-block h-4 w-0.5 translate-y-0.5 animate-pulse bg-text" />
+        </p>
       ) : isPending ? (
         <p className="mt-2 flex items-center gap-2 text-sm text-text-muted">
           <Icon name="loader-circle" className="animate-spin" />

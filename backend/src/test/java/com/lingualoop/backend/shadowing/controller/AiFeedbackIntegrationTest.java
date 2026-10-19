@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -220,6 +222,98 @@ class AiFeedbackIntegrationTest {
         assertThat(used(user)).isEqualTo(1);
     }
 
+    // ── Phát dần (Server-Sent Events) ───────────────────────────────────────────────
+
+    @SuppressWarnings("unchecked")
+    private void generatesInTwoPieces() {
+        when(generator.generate(any(), any())).thenAnswer(invocation -> {
+            Consumer<String> onText = invocation.getArgument(1);
+            onText.accept("Bạn đọc ");
+            onText.accept("khá tốt.");
+            return new GeneratedFeedback("Bạn đọc khá tốt.", "gemini-test", "shadowing-feedback-v1", 120, 40);
+        });
+    }
+
+    private String body(ResultActions result) throws Exception {
+        return result.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    void stream_sendsTextPiecesThenTheFullFeedbackAndStoresIt_AC_SHADOW_30() throws Exception {
+        UUID user = newUser();
+        long attempt = attempt(user, sentence("stream"));
+        generatesInTwoPieces();
+
+        ResultActions result = streamOf(user, attempt)
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .contentTypeCompatibleWith("text/event-stream"));
+        String body = body(result);
+
+        assertThat(body).contains("event: delta\ndata: {\"text\":\"Bạn đọc \"}\n\n");
+        assertThat(body).contains("event: delta\ndata: {\"text\":\"khá tốt.\"}\n\n");
+        assertThat(body.indexOf("khá tốt.")).isLessThan(body.indexOf("event: done"));
+        assertThat(body).contains("\"content\":\"Bạn đọc khá tốt.\"").contains("\"cached\":false");
+        assertThat(used(user)).isEqualTo(1);
+        assertThat(count("ai_feedback WHERE attempt_id = ?", attempt)).isEqualTo(1);
+    }
+
+    @Test
+    void stream_ofAnAttemptWithFeedback_sendsTheStoredTextOnceAndDoesNotCharge_AC_SHADOW_30() throws Exception {
+        UUID user = newUser();
+        long attempt = attempt(user, sentence("stream-cached"));
+        feedback(user, attempt).andExpect(status().isOk());
+
+        String body = body(streamOf(user, attempt).andExpect(status().isOk()));
+
+        assertThat(body).contains("event: delta").contains(FEEDBACK.content()).contains("\"cached\":true");
+        assertThat(used(user)).isEqualTo(1);
+        verify(generator, times(1)).generate(any());
+    }
+
+    @Test
+    void stream_whenAiFailsBeforeAnyText_returnsTheNormalErrorStatus_AC_SHADOW_31() throws Exception {
+        UUID user = newUser();
+        long attempt = attempt(user, sentence("stream-fail-early"));
+        when(generator.generate(any(), any())).thenThrow(new BusinessException(ErrorCode.AI_FEEDBACK_UNAVAILABLE));
+
+        streamOf(user, attempt)
+                .andExpect(status().isBadGateway())
+                .andExpect(jsonPath("$.code").value("AI_FEEDBACK_UNAVAILABLE"));
+
+        assertThat(used(user)).isZero();
+    }
+
+    @Test
+    void stream_whenAiFailsAfterSomeText_endsWithAnErrorEventAndGivesTheAttemptBack_AC_SHADOW_31() throws Exception {
+        UUID user = newUser();
+        long attempt = attempt(user, sentence("stream-fail-late"));
+        when(generator.generate(any(), any())).thenAnswer(invocation -> {
+            Consumer<String> onText = invocation.getArgument(1);
+            onText.accept("Bạn đọc ");
+            throw new BusinessException(ErrorCode.AI_FEEDBACK_UNAVAILABLE);
+        });
+
+        String body = body(streamOf(user, attempt).andExpect(status().isOk()));
+
+        assertThat(body).contains("event: delta").contains("event: error").contains("AI_FEEDBACK_UNAVAILABLE");
+        assertThat(body).doesNotContain("event: done");
+        assertThat(used(user)).isZero();
+        assertThat(count("ai_feedback WHERE attempt_id = ?", attempt)).isZero();
+    }
+
+    @Test
+    void stream_withoutAiConsentOrOfAnotherUser_isRejectedBeforeStreaming_AC_SHADOW_31() throws Exception {
+        UUID owner = newUser();
+        long attempt = attempt(owner, sentence("stream-guard"));
+
+        streamOf(newUser(), attempt).andExpect(status().isNotFound());
+        when(consent.hasConsent(any(), any())).thenReturn(false);
+        streamOf(owner, attempt).andExpect(status().isForbidden());
+
+        verify(generator, times(0)).generate(any(), any());
+    }
+
     @Test
     void feedback_withoutToken_returns401() throws Exception {
         mockMvc.perform(post("/api/v1/shadowing-attempts/1/ai-feedback")).andExpect(status().isUnauthorized());
@@ -229,6 +323,11 @@ class AiFeedbackIntegrationTest {
 
     private ResultActions feedback(UUID user, long attemptId) throws Exception {
         return mockMvc.perform(post("/api/v1/shadowing-attempts/{id}/ai-feedback", attemptId).headers(auth(user)));
+    }
+
+    private ResultActions streamOf(UUID user, long attemptId) throws Exception {
+        return mockMvc.perform(
+                post("/api/v1/shadowing-attempts/{id}/ai-feedback/stream", attemptId).headers(auth(user)));
     }
 
     private HttpHeaders auth(UUID user) {

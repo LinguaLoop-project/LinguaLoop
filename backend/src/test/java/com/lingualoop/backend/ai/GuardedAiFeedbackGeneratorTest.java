@@ -3,6 +3,7 @@ package com.lingualoop.backend.ai;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -65,5 +66,28 @@ class GuardedAiFeedbackGeneratorTest {
         }
 
         assertThat(guard.state()).isEqualTo(CircuitBreaker.State.CLOSED);
+    }
+
+    @Test
+    void learnerClosingThePage_isNotAServiceFailure() {
+        var guard = guard(request -> {
+            throw new UncheckedIOException(new java.io.IOException("client closed"));
+        });
+
+        for (int i = 0; i < 10; i++) {
+            assertThatThrownBy(() -> guard.generate(REQUEST)).isInstanceOf(UncheckedIOException.class);
+        }
+
+        assertThat(guard.state()).isEqualTo(CircuitBreaker.State.CLOSED);
+    }
+
+    @Test
+    void streamingCallsAreGuardedToo() {
+        var guard = guard(request -> OK);
+        var pieces = new java.util.ArrayList<String>();
+
+        assertThat(guard.generate(REQUEST, pieces::add)).isSameAs(OK);
+
+        assertThat(pieces).containsExactly("tốt"); // bản không phát dần báo một lần với cả nhận xét
     }
 }
