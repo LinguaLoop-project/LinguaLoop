@@ -17,6 +17,9 @@ public interface DictationService {
     /** Đề của một câu ở mức đã chọn; Easy chọn ô trống mới ở mỗi lần gọi. */
     PromptResponse getPrompt(UUID userId, UUID sentenceId, DictationLevel level);
 
+    /** Kết quả từng từ của lượt gần nhất của câu, để mở lại câu đã làm; 404 nếu chưa làm câu này. */
+    AttemptResultResponse getLatestAttempt(UUID userId, UUID sentenceId);
+
     /** Lộ một từ của câu để làm gợi ý. Không lưu gì: từ đã lộ chỉ được tính khi nộp qua revealedPositions. */
     RevealWordResponse revealWord(UUID userId, UUID sentenceId, RevealWordRequest request);
 

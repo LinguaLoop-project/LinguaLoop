@@ -1,6 +1,7 @@
 package com.lingualoop.backend.practice.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,6 +24,14 @@ public interface SentenceAttemptRepository extends JpaRepository<SentenceAttempt
             ORDER BY t.sentence_order""", nativeQuery = true)
     List<SentenceAttempt> findLatestDictationPerSentence(@Param("userId") UUID userId,
             @Param("lessonId") UUID lessonId);
+
+    /** Lượt nghe chép mới nhất của một câu (cùng thời điểm thì lấy lượt có id lớn hơn). */
+    @Query(value = """
+            SELECT * FROM sentence_attempts
+            WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = 'dictation'
+            ORDER BY attempted_at DESC, id DESC LIMIT 1""", nativeQuery = true)
+    Optional<SentenceAttempt> findLatestDictationOfSentence(@Param("userId") UUID userId,
+            @Param("sentenceId") UUID sentenceId);
 
     /** Các lượt Easy gần nhất của một câu, mới nhất trước. */
     @Query(value = """

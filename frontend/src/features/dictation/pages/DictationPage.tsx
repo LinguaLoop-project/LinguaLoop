@@ -23,6 +23,7 @@ import {
   useDictationLesson,
   useDictationPrompt,
   useDictationSettings,
+  useLatestAttempt,
   useOnlineStatus,
   useRevealWord,
   useSubmitAttempt,
@@ -46,17 +47,13 @@ import {
   isNetworkError,
   MAX_DURATION_MS,
   mergeRevealed,
+  resultContext,
   submitErrorKind,
   type SubmitErrorKind,
 } from "../utils";
 
 const AUTOPLAY_DELAY_MS = 300;
 
-/** Kết quả một câu làm trong phiên này; `context` là đề Easy của lượt đó để hiện cả câu ở màn kết quả. */
-interface SessionResult {
-  attempt: AttemptResult;
-  context: PromptToken[] | null;
-}
 
 const SUBMIT_ERROR_TEXT: Record<SubmitErrorKind, (t: TFunction<"dictation">) => string> = {
   offline: (t) => t("state.offline"),
@@ -102,7 +99,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   /** Các câu đang được làm lại; lượt nộp tiếp theo của chúng gửi `retry = true`. */
   const [redo, setRedo] = useState<ReadonlySet<string>>(() => new Set());
   /** Kết quả từng từ của các câu làm trong phiên này (backend chưa trả lại chi tiết của lượt cũ). */
-  const [results, setResults] = useState<Record<string, SessionResult>>({});
+  const [results, setResults] = useState<Record<string, AttemptResult>>({});
 
   const startedAt = useRef<number | null>(null);
   const autoplayTimer = useRef<number | undefined>(undefined);
@@ -119,8 +116,9 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
 
   const sentence = sentences[index];
   const mode: "work" | "review" = sentence.latest && !redo.has(sentence.id) ? "review" : "work";
-  const result = results[sentence.id]?.attempt ?? null;
-  const resultContext = results[sentence.id]?.context ?? null;
+  /** Câu đã làm trước phiên này (hoặc đã quay lại): lấy chi tiết từng từ của lượt gần nhất từ backend. */
+  const history = useLatestAttempt(sentence.id, mode === "review" && !results[sentence.id]);
+  const result = results[sentence.id] ?? history.data ?? null;
   const canPlay = player.status === "ready" || player.status === "blocked";
   const nothingLeft = firstUndoneIndex(sentences, index, redo) < 0;
 
@@ -193,7 +191,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
 
   const onAttemptDone = (attempt: AttemptResult) => {
     player.stop();
-    setResults((prev) => ({ ...prev, [sentence.id]: { attempt, context: workLevel === "easy" ? easyTokens : null } }));
+    setResults((prev) => ({ ...prev, [sentence.id]: attempt }));
     setRedo((prev) => new Set([...prev].filter((id) => id !== sentence.id)));
   };
 
@@ -493,8 +491,9 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
                     score={result?.score ?? sentence.latest?.score ?? 0}
                     level={shownLevel}
                     words={result?.words ?? null}
-                    context={resultContext}
+                    context={resultContext(result)}
                     gaveUp={result?.gaveUp ?? sentence.latest?.gaveUp ?? false}
+                  detailLoading={history.isLoading}
                     text={result?.text ?? sentence.text}
                     textVi={result?.textVi ?? sentence.textVi}
                     showTranslation={settings.showTranslation}

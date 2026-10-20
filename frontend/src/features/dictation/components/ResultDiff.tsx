@@ -13,6 +13,8 @@ export interface ResultDiffProps {
   /** Đề Easy của lượt này: có thì hiện cả câu, từ hiện sẵn để nguyên và các ô trống tô theo kết quả. */
   context: PromptToken[] | null;
   gaveUp: boolean;
+  /** Đang tải chi tiết từng từ của lượt cũ: chưa hiện ghi chú "không có chi tiết". */
+  detailLoading: boolean;
   text: string | null;
   textVi: string | null;
   showTranslation: boolean;
@@ -91,7 +93,17 @@ function Token({ word }: { word: GradedWord }) {
 }
 
 /** Kết quả một câu (`resultHtml` của mockup): điểm, câu tô màu, chip lỗi theo nhóm, chú thích màu, lời Loopi, bản dịch. */
-export default function ResultDiff({ score, level, words, context, gaveUp, text, textVi, showTranslation }: ResultDiffProps) {
+export default function ResultDiff({
+  score,
+  level,
+  words,
+  context,
+  gaveUp,
+  detailLoading,
+  text,
+  textVi,
+  showTranslation,
+}: ResultDiffProps) {
   const { t } = useTranslation("dictation");
   const tone = scoreTone(score);
   const { mood, key } = moodFor(score);
@@ -150,7 +162,7 @@ export default function ResultDiff({ score, level, words, context, gaveUp, text,
           ) : (
             <>
               {text && <p className="text-[19px] font-semibold leading-[1.9]">{text}</p>}
-              <p className="text-[13px] text-text-muted">{t("result.noDetail")}</p>
+              {!detailLoading && <p className="text-[13px] text-text-muted">{t("result.noDetail")}</p>}
             </>
           )}
           {counts.size > 0 && (
