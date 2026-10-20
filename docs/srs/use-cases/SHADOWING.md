@@ -106,7 +106,7 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 | Tác nhân | Học viên |
 | Mô tả | Âm vị nào đọc dưới 60 điểm thì kết quả chấm kèm một mẹo ngắn bằng tiếng Việt (vị trí lưỡi, môi, hơi) lấy từ bảng `phoneme_confusions` theo âm đích. Mẹo hiện trong ô chi tiết của từ. |
 | Điều kiện tiên quyết | Có Kết quả chấm của một lượt (UC-SHADOW-01). Mẹo có ở cả gói Free và Pro. |
-| Tiêu chí chấp nhận | **AC-SHADOW-21 — Mẹo theo âm đích**<br>Given: Một âm có trong bảng mẹo (vd `θ`).<br>When: Chấm lượt.<br>Then: Mọi âm có mẹo đều có trường `tip` và `mouthVideo` (kể cả âm đạt điểm), âm không có mẹo thì rỗng. Giao diện mặc định chọn âm yếu đầu tiên; người học bấm âm nào thì xem mẹo và video của âm đó. Bảng mẹo phủ các âm người Việt hay sai: `θ ð ʃ ʒ z v r s t d l ɪ iː æ`. |
+| Tiêu chí chấp nhận | **AC-SHADOW-21 — Mẹo theo âm đích**<br>Given: Một âm có trong bảng mẹo (vd `θ`).<br>When: Chấm lượt.<br>Then: Mọi âm có mẹo đều có trường `tip` và `mouthVideo` (kể cả âm đạt điểm), âm không có mẹo thì rỗng. Giao diện mặc định chọn âm yếu đầu tiên; người học bấm âm nào thì xem mẹo và video của âm đó. Bảng mẹo phủ đủ 44 âm của bảng `phonemes` (14 âm người Việt hay sai có mẹo riêng từ đầu: `θ ð ʃ ʒ z v r s t d l ɪ iː æ`; 30 âm còn lại được rút gọn từ hướng dẫn phát âm, bỏ các câu nói riêng về giọng Anh, chờ người có chuyên môn ngữ âm duyệt). |
 | Độ ưu tiên | Trung bình |
 
 ---

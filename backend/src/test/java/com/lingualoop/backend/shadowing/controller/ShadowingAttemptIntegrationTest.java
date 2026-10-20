@@ -493,11 +493,15 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
-    void tipTable_coversTheCommonVietnameseProblemSounds_AC_SHADOW_21() {
+    void tipTable_coversAll44Phonemes_AC_SHADOW_21() {
         List<String> withTip = jdbc.queryForList("""
                 SELECT p.symbol FROM phoneme_confusions c JOIN phonemes p ON p.id = c.target_phoneme_id
                 WHERE c.l1 = 'vi' AND c.produced_phoneme_id IS NULL""", String.class);
         assertThat(withTip).contains("θ", "ð", "ʃ", "ʒ", "z", "v", "r", "s", "t", "d", "l", "ɪ", "iː", "æ");
+        // Mọi âm của bảng phonemes đều có mẹo, và không mẹo nào nói riêng về giọng Anh
+        assertThat(withTip).hasSameSizeAs(jdbc.queryForList("SELECT symbol FROM phonemes", String.class));
+        assertThat(jdbc.queryForList("SELECT tip_vi FROM phoneme_confusions WHERE tip_vi ILIKE '%Anh-Anh%'", String.class))
+                .isEmpty();
     }
 
     // ── UC-SHADOW-03 ────────────────────────────────────────────────────────────────
