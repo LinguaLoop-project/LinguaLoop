@@ -81,6 +81,7 @@ class AzurePronunciationScoringService implements PronunciationScoringService {
             assessmentConfig.enableProsodyAssessment();
             // IPA (θ, ð, ʃ…) thay cho SAPI mặc định (th, dh, sh…) để chuyển được sang bảng phonemes.
             assessmentConfig.setPhonemeAlphabet("IPA");
+            assessmentConfig.setNBestPhonemeCount(5); // ứng viên âm để biết người học đọc gần âm nào
 
             try (SpeechRecognizer recognizer = new SpeechRecognizer(speechConfig, audioConfig)) {
                 assessmentConfig.applyTo(recognizer);
@@ -136,9 +137,15 @@ class AzurePronunciationScoringService implements PronunciationScoringService {
                 JsonNode assessment = wordNode.path("PronunciationAssessment");
                 List<PronunciationAssessment.PhonemeResult> phonemes = new ArrayList<>();
                 for (JsonNode phoneNode : wordNode.path("Phonemes")) {
+                    JsonNode phoneAssessment = phoneNode.path("PronunciationAssessment");
+                    List<PronunciationAssessment.Candidate> candidates = new ArrayList<>();
+                    for (JsonNode candidate : phoneAssessment.path("NBestPhonemes")) {
+                        candidates.add(new PronunciationAssessment.Candidate(
+                                candidate.path("Phoneme").asText(), candidate.path("Score").asDouble(0)));
+                    }
                     phonemes.add(new PronunciationAssessment.PhonemeResult(
                             phoneNode.path("Phoneme").asText(),
-                            phoneNode.path("PronunciationAssessment").path("AccuracyScore").asDouble(0)));
+                            phoneAssessment.path("AccuracyScore").asDouble(0), candidates));
                 }
                 words.add(new PronunciationAssessment.WordResult(
                         wordNode.path("Word").asText(),

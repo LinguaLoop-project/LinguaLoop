@@ -66,8 +66,35 @@ public final class ExpectedPhonemes {
             i += hit.length();
         }
         // Cùng bộ chuyển đổi với âm Azure trả về nên hai bên so được với nhau
-        List<String> out = AzurePhonemeMapper.toTableSymbols(raw);
+        List<String> out = AzurePhonemeMapper.toTableSymbols(mergeRColoured(raw));
         return out.contains(null) ? null : out;
+    }
+
+    /** Nguyên âm Mỹ mà Azure gộp với "ɹ" đứng sau thành một âm (đo từ Azure thật: "ɑɹ" ở park, "ɪɹ" ở near). */
+    private static final List<String> R_COLOURED_VOWELS = List.of("ɑ", "ɔ", "ɪ", "ɛ", "ʊ");
+
+    /** Âm đứng sau "ɹ" mà Azure vẫn tách riêng "ɹ" ("ɛ ɹ i" ở carry). */
+    private static final List<String> RAW_VOWELS = List.of(
+            "i", "ɪ", "e", "ɛ", "æ", "ʌ", "ɑ", "ɔ", "ʊ", "u", "ə", "ɝ", "ɚ", "ɜ", "eɪ", "aɪ", "ɔɪ", "aʊ", "oʊ");
+
+    /**
+     * Gộp nguyên âm với "ɹ" đứng ngay sau khi sau đó là phụ âm hoặc hết từ, giống cách Azure chia âm; nếu không gộp
+     * thì số âm mẫu lệch số âm Azure ở mọi từ như "park", "car", "near" và không ghép được.
+     * shortcut: dựa vào quy tắc quan sát được trên vài từ, khi nào gặp từ lệch thì bổ sung bằng dữ liệu Azure thật.
+     */
+    private static List<String> mergeRColoured(List<String> raw) {
+        List<String> out = new ArrayList<>();
+        for (int i = 0; i < raw.size(); i++) {
+            boolean merge = R_COLOURED_VOWELS.contains(raw.get(i)) && i + 1 < raw.size() && "ɹ".equals(raw.get(i + 1))
+                    && (i + 2 >= raw.size() || !RAW_VOWELS.contains(raw.get(i + 2)));
+            if (merge) {
+                out.add(raw.get(i) + "ɹ");
+                i++;
+            } else {
+                out.add(raw.get(i));
+            }
+        }
+        return out;
     }
 
     /**

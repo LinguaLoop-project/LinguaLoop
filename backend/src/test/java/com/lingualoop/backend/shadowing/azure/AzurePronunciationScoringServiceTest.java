@@ -39,6 +39,24 @@ class AzurePronunciationScoringServiceTest {
     }
 
     @Test
+    void parseWords_readsNBestPhonemesMeasuredFromAzure() {
+        // Rút gọn từ JSON Azure thật khi đọc "iv" với lời mẫu "if" (en-US, NBestPhonemeCount = 5)
+        String json = """
+                {"NBest":[{"Words":[{"Word":"if","PronunciationAssessment":{"AccuracyScore":100.0,"ErrorType":"None"},
+                  "Phonemes":[
+                   {"Phoneme":"ɪ","PronunciationAssessment":{"AccuracyScore":100.0,"NBestPhonemes":[
+                      {"Phoneme":"ɪ","Score":100.0},{"Phoneme":"eɪ","Score":46.0}]}},
+                   {"Phoneme":"v","PronunciationAssessment":{"AccuracyScore":100.0,"NBestPhonemes":[
+                      {"Phoneme":"v","Score":100.0},{"Phoneme":"f","Score":43.0}]}}]}]}]}""";
+
+        PronunciationAssessment.PhonemeResult v = AzurePronunciationScoringService.parseWords(json).get(0).phonemes().get(1);
+
+        assertThat(v.symbol()).isEqualTo("v");
+        assertThat(v.alternatives()).extracting(PronunciationAssessment.Candidate::symbol).containsExactly("v", "f");
+        assertThat(v.alternatives().get(1).score()).isEqualTo(43.0);
+    }
+
+    @Test
     void parseWords_toleratesMissingOrEmptyJson() {
         assertThat(AzurePronunciationScoringService.parseWords(null)).isEmpty();
         assertThat(AzurePronunciationScoringService.parseWords(" ")).isEmpty();

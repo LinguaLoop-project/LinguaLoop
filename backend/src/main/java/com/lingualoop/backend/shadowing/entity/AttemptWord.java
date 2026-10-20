@@ -64,7 +64,9 @@ public class AttemptWord {
         this.accuracyScore = accuracyScore;
     }
 
-    public void addPhoneme(int position, short phonemeId, double accuracy) {
-        phonemes.add(new AttemptPhoneme(this, position, phonemeId, SentenceAttempt.scale(accuracy)));
+    public void addPhoneme(int position, Short phonemeId, String azureSymbol, Short targetPhonemeId,
+            Short producedPhonemeId, Double producedScore, double accuracy) {
+        phonemes.add(new AttemptPhoneme(this, position, phonemeId, azureSymbol, targetPhonemeId, producedPhonemeId,
+                producedScore == null ? null : SentenceAttempt.scale(producedScore), SentenceAttempt.scale(accuracy)));
     }
 }

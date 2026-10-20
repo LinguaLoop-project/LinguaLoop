@@ -43,6 +43,20 @@ public record PronunciationAssessment(
         }
     }
 
-    public record PhonemeResult(String symbol, double accuracyScore) {
+    /**
+     * {@code alternatives}: ứng viên âm (NBestPhonemes) kèm điểm, rỗng nếu Azure không trả.
+     */
+    public record PhonemeResult(String symbol, double accuracyScore, List<Candidate> alternatives) {
+
+        public PhonemeResult {
+            alternatives = alternatives == null ? List.of() : List.copyOf(alternatives);
+        }
+
+        public PhonemeResult(String symbol, double accuracyScore) {
+            this(symbol, accuracyScore, List.of());
+        }
+    }
+
+    public record Candidate(String symbol, double score) {
     }
 }
