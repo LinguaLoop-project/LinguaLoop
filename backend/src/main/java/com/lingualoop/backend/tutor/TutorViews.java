@@ -27,6 +27,16 @@ class TutorViews {
                 TutorDtos.wire(w.getStatus()), phoneme == null ? null : tipCatalog.tipFor(phoneme).orElse(null));
     }
 
+    PracticeWord practice(TutorSessionWord w, Map<Short, String> symbolById) {
+        String phoneme = w.getFocusPhonemeId() == null ? null : symbolById.get(w.getFocusPhonemeId());
+        return new PracticeWord(w.getWord(), phoneme, w.getScoreBefore().doubleValue(),
+                phoneme == null ? null : tipCatalog.tipFor(phoneme).orElse(null));
+    }
+
+    WordProgress progress(TutorSessionWord w, Map<Short, String> symbolById) {
+        return new WordProgress(practice(w, symbolById), w.getAttempts(), w.getStatus(), w.best());
+    }
+
     List<TutorDtos.WordView> words(TutorSession session) {
         Map<Short, String> symbolById = symbolById();
         return session.getWords().stream().map(w -> word(w, symbolById)).toList();

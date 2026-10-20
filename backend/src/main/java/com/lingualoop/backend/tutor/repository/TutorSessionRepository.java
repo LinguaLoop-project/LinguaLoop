@@ -26,6 +26,11 @@ public interface TutorSessionRepository extends JpaRepository<TutorSession, UUID
     @Query("SELECT s FROM TutorSession s WHERE s.id = :id AND s.userId = :userId")
     Optional<TutorSession> lockByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
 
+    /** Như {@link #lockByIdAndUserId} nhưng không theo người dùng: chỉ cho job dọn. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM TutorSession s WHERE s.id = :id")
+    Optional<TutorSession> lockById(@Param("id") UUID id);
+
     /** Phiên còn mở mà chưa started, tạo trước {@code cutoff}: job dọn kết thúc chúng là connect_failed. */
     @Query("""
             SELECT s FROM TutorSession s

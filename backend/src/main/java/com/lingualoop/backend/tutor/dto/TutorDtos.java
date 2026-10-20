@@ -56,6 +56,43 @@ public final class TutorDtos {
             List<WordView> words, String currentWord, Limits limits) {
     }
 
+    public record SwitchRequest(@NotBlank String word) {
+    }
+
+    /** @param instruction chuyển nguyên cho gia sư làm kết quả tool switch_word */
+    public record SwitchResponse(WordView currentWord, int attemptsLeft, String instruction, List<WordView> words) {
+    }
+
+    /**
+     * @param word        từ vừa chấm; null khi chấm cả câu
+     * @param nextStep    retry_word, next_word, sentence hoặc end
+     * @param nextWord    từ gia sư chuyển sang; null khi không đổi từ
+     * @param outcome     có giá trị khi backend đã kết thúc phiên (đọc cả câu xong)
+     * @param instruction chuyển nguyên cho gia sư làm kết quả tool request_retry
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record AttemptResponse(int attemptNumber, String target, String word, double score, double accuracyScore,
+            boolean passed, String wordStatus, String nextStep, String nextWord, String outcome, String instruction,
+            List<WordView> words) {
+    }
+
+    /**
+     * @param type    {@code topic} (cần topic) hoặc {@code end} (cần outcome)
+     * @param topic   {@code on_topic} hoặc {@code off_topic}
+     * @param outcome learner_exit, idle, timeout, connect_failed...
+     */
+    public record EventRequest(@NotBlank String type, String topic, String outcome) {
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record EventResponse(Integer offTopicStreak, Boolean ended, String instruction, String outcome) {
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record SessionSummary(UUID sessionId, Instant createdAt, Instant startedAt, Instant endedAt, String outcome,
+            boolean charged, List<WordView> words) {
+    }
+
     public static String wire(Enum<?> value) {
         return value == null ? null : value.name().toLowerCase(Locale.ROOT);
     }

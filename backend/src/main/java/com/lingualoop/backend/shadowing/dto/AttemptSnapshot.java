@@ -7,8 +7,8 @@ import java.util.UUID;
  * Kết quả đã lưu của một Lượt shadowing, dạng gọn cho module khác (Phiên gia sư) đọc: từng từ và từng âm theo âm đích
  * (ADR 0005), kèm quy tắc "cần sửa". Không có mẹo và video.
  */
-public record AttemptSnapshot(long attemptId, UUID lessonId, UUID sentenceId, String sentenceText, double accuracy,
-        List<Word> words) {
+public record AttemptSnapshot(long attemptId, UUID lessonId, UUID sentenceId, String sentenceText,
+        String sentenceIpa, double accuracy, List<Word> words) {
 
     /** {@code outcome}: correct, mispronounced, omitted hoặc inserted. */
     public record Word(String text, double accuracy, String outcome, List<Phoneme> phonemes) {

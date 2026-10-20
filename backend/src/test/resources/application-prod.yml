@@ -9,6 +9,8 @@ spring:
       mail.smtp.starttls.enable: false
 
 app:
+  scheduling:
+    enabled: false
   jwt:
     secret: test-only-secret-change-me-0123456789-0123456789
   cors:
