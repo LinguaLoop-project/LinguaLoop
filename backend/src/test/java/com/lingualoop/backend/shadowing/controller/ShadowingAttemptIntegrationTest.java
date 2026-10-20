@@ -361,6 +361,62 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
+    void assess_heardSoundDiffersFromModel_hintFollowsTheModelSound_AC_SHADOW_34() throws Exception {
+        UUID pro = newUser();
+        makePro(pro);
+        Sentence s = sentence(lesson("expected-live", false), 0, "if");
+        s.setIpa("/ɪf/");
+        sentences.save(s);
+        // Người học đọc thành "iv": Azure trả ɪ và v
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 70, 70, 70, 70, null,
+                List.of(new WordResult("if", 40, ErrorType.MISPRONUNCIATION,
+                        List.of(new PhonemeResult("ɪ", 50), new PhonemeResult("v", 38))))));
+
+        post(pro, s.getId(), WavFixtures.valid(1_000))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].symbol").value("v"))
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].expected").value("f"))
+                // video của âm cần sửa (f), không phải âm nghe được (v)
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].mouthVideo.url")
+                        .value("https://youtu.be/vE12RFyH-hY"));
+    }
+
+    @Test
+    void latest_heardSoundDiffersFromModel_hintFollowsTheModelSound_AC_SHADOW_34() throws Exception {
+        UUID pro = newUser();
+        makePro(pro);
+        Lesson lesson = lesson("expected-restore", false);
+        Sentence s = sentence(lesson, 0, "if");
+        s.setIpa("/ɪf/");
+        sentences.save(s);
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 70, 70, 70, 70, null,
+                List.of(new WordResult("if", 40, ErrorType.MISPRONUNCIATION,
+                        List.of(new PhonemeResult("ɪ", 50), new PhonemeResult("v", 38))))));
+        post(pro, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(pro)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].expected").value("ɪ"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].symbol").value("v"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].expected").value("f"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].mouthVideo.url")
+                        .value("https://youtu.be/vE12RFyH-hY"));
+    }
+
+    @Test
+    void assess_noModelIpa_expectedIsEmptyAndHintFollowsHeardSound_AC_SHADOW_34() throws Exception {
+        UUID pro = newUser();
+        makePro(pro);
+        Sentence s = sentence(lesson("expected-none", false), 0, "Think");
+        givenWeakAndStrongPhonemes();
+
+        post(pro, s.getId(), WavFixtures.valid(1_000))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].expected").value((Object) null))
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].tip").isNotEmpty());
+    }
+
+    @Test
     void tipTable_coversTheCommonVietnameseProblemSounds_AC_SHADOW_21() {
         List<String> withTip = jdbc.queryForList("""
                 SELECT p.symbol FROM phoneme_confusions c JOIN phonemes p ON p.id = c.target_phoneme_id

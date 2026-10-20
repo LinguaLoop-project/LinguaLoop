@@ -6,9 +6,12 @@ export type WordOutcome = "correct" | "mispronounced" | "omitted" | "inserted";
 
 /** Ký hiệu âm vị đã đổi sang bảng phonemes (ADR 0004, cùng hệ với IPA mẫu); âm chưa đổi được giữ ký hiệu Azure. */
 export interface PhonemeResult {
+  /** Âm Azure nghe được từ người học. */
   symbol: string;
+  /** Âm mẫu ở vị trí đó; null khi không ghép được (câu thiếu phiên âm, hoặc lệch số âm). */
+  expected?: string | null;
   accuracy: number;
-  /** Mẹo sửa cho âm đọc dưới 60 điểm (khi bảng mẹo có dữ liệu). */
+  /** Mẹo sửa của âm cần đọc (`expected`, hoặc `symbol` khi không có) khi bảng mẹo có dữ liệu. */
   tip?: string | null;
   mouthVideo?: MouthVideo | null;
 }

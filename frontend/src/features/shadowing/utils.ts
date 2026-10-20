@@ -85,6 +85,13 @@ export function youtubeId(url: string | null | undefined): string | null {
   return m ? m[1] : null;
 }
 
+/** Giây bắt đầu của liên kết YouTube (`t=4490s`, `t=75`, `start=75`); null nếu không có. */
+export function youtubeStart(url: string | null | undefined): number | null {
+  if (!url) return null;
+  const m = url.match(/[?&#](?:t|start)=(\d+)/);
+  return m ? Number(m[1]) : null;
+}
+
 /**
  * Phiên âm của từng từ, tách từ phiên âm cả câu (các từ cách nhau bởi khoảng trắng). Chỉ dùng khi số từ phiên âm
  * bằng số từ của câu; lệch (dữ liệu biên tập thiếu từ) thì trả null để hiện phiên âm cả câu thay vì gán sai từ.

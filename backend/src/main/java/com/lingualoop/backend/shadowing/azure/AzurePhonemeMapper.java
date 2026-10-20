@@ -25,7 +25,7 @@ public final class AzurePhonemeMapper {
             Map.entry("oʊ", "əʊ"));
 
     /** Ký hiệu đã có sẵn trong bảng {@code phonemes}, giữ nguyên. */
-    private static final List<String> IDENTICAL = List.of(
+    static final List<String> IDENTICAL = List.of(
             "p", "b", "t", "d", "k", "g", "f", "v", "θ", "ð", "s", "z", "ʃ", "ʒ", "h", "tʃ", "dʒ",
             "m", "n", "ŋ", "l", "r", "j", "w",
             "iː", "ɪ", "e", "æ", "ʌ", "ɑː", "ɒ", "ɔː", "ʊ", "uː", "ɜː", "ə",

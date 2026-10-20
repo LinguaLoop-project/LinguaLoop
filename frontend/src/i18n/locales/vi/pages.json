@@ -311,7 +311,7 @@
       },
       "detail": {
         "modelIpa": "Mẫu",
-        "heard": "Âm Azure nghe được từ bạn (chọn một âm để xem mẹo)",
+        "heard": "Mỗi ô là âm mẫu và điểm; dòng nhỏ → là âm Azure nghe được khi khác mẫu. Chọn một âm để xem mẹo và video.",
         "close": "Đóng",
         "badPhoneme": "Âm /{{symbol}}/ chưa chuẩn. Nghe mẫu rồi đọc chậm âm này.",
         "goodWord": "Từ này đọc tốt. Giữ nhịp và trọng âm như câu mẫu.",

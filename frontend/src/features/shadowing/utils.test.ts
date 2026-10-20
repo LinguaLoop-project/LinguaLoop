@@ -12,6 +12,7 @@ import {
   weakPhonemes,
   wordIpa,
   youtubeId,
+  youtubeStart,
 } from "./utils";
 
 const word = (position: number, text: string, extra: Partial<WordResult> = {}): WordResult => ({
@@ -222,6 +223,21 @@ describe("recordFromAttempt", () => {
 describe("maskText", () => {
   it("thay chữ và số bằng dấu sao, giữ dấu câu và khoảng trắng", () => {
     expect(maskText("Don't stop, ok?")).toBe("***** ****, **?");
+  });
+});
+
+describe("youtubeStart", () => {
+  it.each([
+    ["https://www.youtube.com/watch?v=QxQUapA-2w4&t=4490s", 4490],
+    ["https://youtu.be/QxQUapA-2w4?t=75", 75],
+    ["https://www.youtube.com/watch?v=QxQUapA-2w4&start=12", 12],
+  ])("lấy được giây bắt đầu từ %s", (url, sec) => {
+    expect(youtubeStart(url)).toBe(sec);
+  });
+
+  it("không có thời điểm thì trả null", () => {
+    expect(youtubeStart("https://youtu.be/QxQUapA-2w4")).toBeNull();
+    expect(youtubeStart(null)).toBeNull();
   });
 });
 

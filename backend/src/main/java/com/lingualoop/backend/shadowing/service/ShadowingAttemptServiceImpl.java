@@ -19,6 +19,7 @@ import com.lingualoop.backend.lesson.dto.LessonView;
 import com.lingualoop.backend.lesson.dto.SentenceView;
 import com.lingualoop.backend.lesson.service.SentenceQueryService;
 import com.lingualoop.backend.shadowing.azure.AzurePhonemeMapper;
+import com.lingualoop.backend.shadowing.azure.ExpectedPhonemes;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.shadowing.dto.LatestAttemptResponse;
@@ -78,7 +79,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         try {
             PronunciationAssessment assessment = scoringService.assess(wav, sentence.text());
             long attemptId = recorder.save(userId, sentence.lessonId(), sentenceId, assessment, audio.durationMs());
-            return toResponse(userId, attemptId, sentenceId, assessment, usageService.usageOf(userId, FEATURE));
+            return toResponse(userId, attemptId, sentence, assessment, usageService.usageOf(userId, FEATURE));
         } catch (RuntimeException e) {
             // Chưa có kết quả nào đến tay người học: trả lại lượt.
             usageService.refund(userId, ticket);
@@ -106,16 +107,43 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             phonemesByWord.computeIfAbsent(p.getWord().getId(), k -> new ArrayList<>()).add(p);
             symbols.add(symbolById.getOrDefault(p.getPhonemeId(), "?"));
         }
+
+        // Âm mẫu theo từng từ của từng câu, để ghép với âm đã lưu (theo vị trí âm trong từ)
+        Map<UUID, List<List<String>>> expectedBySentence = new HashMap<>();
+        for (SentenceView sv : sentenceQueryService.findSentences(lesson.id())) {
+            expectedBySentence.put(sv.id(), ExpectedPhonemes.ofSentence(sv.text(), sv.ipa()));
+        }
+        Map<Long, UUID> sentenceByAttempt = new HashMap<>();
+        heads.forEach(h -> sentenceByAttempt.put(h.getAttemptId(), h.getSentenceId()));
+        Map<Long, List<String>> expectedByWord = new HashMap<>();
+        Map<Long, Integer> refIndexByAttempt = new HashMap<>();
+        List<AttemptWord> words = wordRepository.findByAttemptIds(attemptIds);
+        for (AttemptWord w : words) {
+            if (w.getExpectedWord() == null) {
+                continue; // từ thừa không có trong câu mẫu
+            }
+            int ref = refIndexByAttempt.merge(w.getAttempt().getId(), 1, Integer::sum) - 1;
+            List<List<String>> sentenceExpected = expectedBySentence.get(sentenceByAttempt.get(w.getAttempt().getId()));
+            if (sentenceExpected != null && ref < sentenceExpected.size() && sentenceExpected.get(ref) != null) {
+                expectedByWord.put(w.getId(), sentenceExpected.get(ref));
+                symbols.addAll(sentenceExpected.get(ref));
+            }
+        }
         Map<String, PronunciationHints.Hint> hintBySymbol = hintsFor(userId, symbols);
 
         Map<Long, List<ShadowingAttemptResponse.WordResult>> wordsByAttempt = new HashMap<>();
-        for (AttemptWord w : wordRepository.findByAttemptIds(attemptIds)) {
+        for (AttemptWord w : words) {
             List<ShadowingAttemptResponse.PhonemeResult> phonemes = new ArrayList<>();
-            for (AttemptPhoneme p : phonemesByWord.getOrDefault(w.getId(), List.of())) {
+            List<AttemptPhoneme> stored = phonemesByWord.getOrDefault(w.getId(), List.of());
+            // Âm không chuyển được không được lưu nhưng vị trí vẫn giữ: số âm nghe được là vị trí lớn nhất + 1
+            int heardCount = stored.stream().mapToInt(p -> p.getPosition() + 1).max().orElse(0);
+            List<String> expected = ExpectedPhonemes.align(expectedByWord.get(w.getId()), heardCount);
+            for (AttemptPhoneme p : stored) {
                 String symbol = symbolById.getOrDefault(p.getPhonemeId(), "?");
                 double accuracy = p.getAccuracyScore().doubleValue();
-                PronunciationHints.Hint hint = hintBySymbol.get(symbol);
-                phonemes.add(new ShadowingAttemptResponse.PhonemeResult(symbol, accuracy,
+                String target = ExpectedPhonemes.reconcile(symbol, expected.get(p.getPosition()));
+                PronunciationHints.Hint hint = hintBySymbol.get(target != null ? target : symbol);
+                phonemes.add(new ShadowingAttemptResponse.PhonemeResult(symbol, target, accuracy,
                         hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
             }
             wordsByAttempt.computeIfAbsent(w.getAttempt().getId(), k -> new ArrayList<>())
@@ -146,15 +174,28 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
                 : new LatestAttemptResponse.SavedAiFeedback(feedback.getContent(), feedback.getCreatedAt());
     }
 
-    private ShadowingAttemptResponse toResponse(UUID userId, long attemptId, UUID sentenceId,
+    private ShadowingAttemptResponse toResponse(UUID userId, long attemptId, SentenceView sentence,
             PronunciationAssessment a, FeatureUsage usage) {
         // Ký hiệu trả về cùng hệ với IPA mẫu của câu (bảng phonemes); âm chưa chuyển được giữ nguyên ký hiệu Azure
         List<List<String>> symbols = a.words().stream()
                 .map(w -> AzurePhonemeMapper.toTableSymbols(
                         w.phonemes().stream().map(PronunciationAssessment.PhonemeResult::symbol).toList()))
                 .toList();
+        // Âm mẫu theo từ của câu; Azure có thể chèn từ thừa nên chỉ đếm các từ không phải từ thừa
+        List<List<String>> reference = ExpectedPhonemes.ofSentence(sentence.text(), sentence.ipa());
+        List<List<String>> expectedByWord = new ArrayList<>();
+        int refIndex = 0;
+        for (PronunciationAssessment.WordResult word : a.words()) {
+            List<String> ref = null;
+            if (word.errorType() != PronunciationAssessment.ErrorType.INSERTION) {
+                ref = reference != null && refIndex < reference.size() ? reference.get(refIndex) : null;
+                refIndex++;
+            }
+            expectedByWord.add(ExpectedPhonemes.align(ref, word.phonemes().size()));
+        }
         Set<String> all = new HashSet<>();
         symbols.forEach(list -> list.stream().filter(Objects::nonNull).forEach(all::add));
+        expectedByWord.forEach(list -> list.stream().filter(Objects::nonNull).forEach(all::add));
         Map<String, PronunciationHints.Hint> hints = hintsFor(userId, all);
 
         List<ShadowingAttemptResponse.WordResult> words = new ArrayList<>();
@@ -165,14 +206,16 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             for (int i = 0; i < word.phonemes().size(); i++) {
                 PronunciationAssessment.PhonemeResult p = word.phonemes().get(i);
                 String mapped = symbols.get(w).get(i);
-                PronunciationHints.Hint hint = mapped != null ? hints.get(mapped) : null;
-                phonemes.add(new ShadowingAttemptResponse.PhonemeResult(mapped != null ? mapped : p.symbol(),
+                String target = ExpectedPhonemes.reconcile(mapped, expectedByWord.get(w).get(i));
+                String hintKey = target != null ? target : mapped;
+                PronunciationHints.Hint hint = hintKey != null ? hints.get(hintKey) : null;
+                phonemes.add(new ShadowingAttemptResponse.PhonemeResult(mapped != null ? mapped : p.symbol(), target,
                         p.accuracyScore(), hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
             }
             words.add(new ShadowingAttemptResponse.WordResult(position++, word.word(), word.accuracyScore(),
                     ShadowingAttemptRecorder.outcomeOf(word.errorType()), phonemes));
         }
-        return new ShadowingAttemptResponse(attemptId, sentenceId, a.pronunciationScore(), a.accuracyScore(),
+        return new ShadowingAttemptResponse(attemptId, sentence.id(), a.pronunciationScore(), a.accuracyScore(),
                 a.fluencyScore(), a.completenessScore(), a.prosodyScore(), a.recognizedText(), words, usage);
     }
 
