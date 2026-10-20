@@ -96,6 +96,10 @@ app:
       # model dùng cho lần thử lại khi model chính quá tải (503/429); để trống thì thử lại bằng model chính
       fallback-model: ${GEMINI_FALLBACK_MODEL:}
       timeout: 20s
+    gemini-live:
+      # model realtime của Phiên gia sư (bản preview, tên có thể đổi); giọng nói tuỳ chọn
+      model: ${GEMINI_LIVE_MODEL:gemini-3.1-flash-live-preview}
+      voice: ${GEMINI_VOICE:}
   shadowing:
     scoring:
       # circuit breaker quanh lời gọi Azure (BR-SHADOW-09): trong cửa sổ 10 lượt, đủ 5 lượt mà lỗi từ 50% thì mở mạch 30 giây

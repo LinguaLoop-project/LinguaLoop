@@ -22,6 +22,11 @@ final class PhonemeRules {
         if (accuracy < WEAK_BELOW) {
             return true;
         }
+        return mismatch(heard, expected);
+    }
+
+    /** Azure báo một phụ âm khác âm đích (vd cần /f/ nhưng báo /v/). */
+    static boolean mismatch(String heard, String expected) {
         return expected != null && !expected.equals(heard)
                 && ExpectedPhonemes.isConsonant(heard) && ExpectedPhonemes.isConsonant(expected);
     }
