@@ -108,42 +108,30 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             symbols.add(symbolById.getOrDefault(p.getPhonemeId(), "?"));
         }
 
-        // Âm mẫu theo từng từ của từng câu, để ghép với âm đã lưu (theo vị trí âm trong từ)
-        Map<UUID, List<List<String>>> expectedBySentence = new HashMap<>();
-        for (SentenceView sv : sentenceQueryService.findSentences(lesson.id())) {
-            expectedBySentence.put(sv.id(), ExpectedPhonemes.ofSentence(sv.text(), sv.ipa()));
-        }
-        Map<Long, UUID> sentenceByAttempt = new HashMap<>();
-        heads.forEach(h -> sentenceByAttempt.put(h.getAttemptId(), h.getSentenceId()));
-        Map<Long, List<String>> expectedByWord = new HashMap<>();
-        Map<Long, Integer> refIndexByAttempt = new HashMap<>();
+        // Âm mẫu theo từng từ của từng lượt, để ghép với âm đã lưu (theo vị trí âm trong từ)
+        Map<UUID, SentenceView> sentenceById = new HashMap<>();
+        sentenceQueryService.findSentences(lesson.id()).forEach(sv -> sentenceById.put(sv.id(), sv));
         List<AttemptWord> words = wordRepository.findByAttemptIds(attemptIds);
-        for (AttemptWord w : words) {
-            if (w.getExpectedWord() == null) {
-                continue; // từ thừa không có trong câu mẫu
-            }
-            int ref = refIndexByAttempt.merge(w.getAttempt().getId(), 1, Integer::sum) - 1;
-            List<List<String>> sentenceExpected = expectedBySentence.get(sentenceByAttempt.get(w.getAttempt().getId()));
-            if (sentenceExpected != null && ref < sentenceExpected.size() && sentenceExpected.get(ref) != null) {
-                expectedByWord.put(w.getId(), sentenceExpected.get(ref));
-                symbols.addAll(sentenceExpected.get(ref));
-            }
-        }
+        Map<Long, List<AttemptWord>> wordsOfAttempt = new HashMap<>();
+        words.forEach(w -> wordsOfAttempt.computeIfAbsent(w.getAttempt().getId(), k -> new ArrayList<>()).add(w));
+        Map<Long, List<String>> expectedByWord = new HashMap<>();
+        heads.forEach(h -> expectedByWord.putAll(PhonemeTargets.expectedByWordId(
+                sentenceById.get(h.getSentenceId()), wordsOfAttempt.getOrDefault(h.getAttemptId(), List.of()))));
+        expectedByWord.values().forEach(symbols::addAll);
         Map<String, PronunciationHints.Hint> hintBySymbol = hintsFor(userId, symbols);
 
         Map<Long, List<ShadowingAttemptResponse.WordResult>> wordsByAttempt = new HashMap<>();
         for (AttemptWord w : words) {
             List<ShadowingAttemptResponse.PhonemeResult> phonemes = new ArrayList<>();
             List<AttemptPhoneme> stored = phonemesByWord.getOrDefault(w.getId(), List.of());
-            // Âm không chuyển được không được lưu nhưng vị trí vẫn giữ: số âm nghe được là vị trí lớn nhất + 1
-            int heardCount = stored.stream().mapToInt(p -> p.getPosition() + 1).max().orElse(0);
-            List<String> expected = ExpectedPhonemes.align(expectedByWord.get(w.getId()), heardCount);
+            List<String> expected = ExpectedPhonemes.align(expectedByWord.get(w.getId()), PhonemeTargets.heardCount(stored));
             for (AttemptPhoneme p : stored) {
                 String symbol = symbolById.getOrDefault(p.getPhonemeId(), "?");
                 double accuracy = p.getAccuracyScore().doubleValue();
                 String target = expected.get(p.getPosition());
                 PronunciationHints.Hint hint = hintBySymbol.get(target != null ? target : symbol);
                 phonemes.add(new ShadowingAttemptResponse.PhonemeResult(symbol, target, accuracy,
+                        PhonemeRules.needsFix(accuracy, symbol, target),
                         hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
             }
             wordsByAttempt.computeIfAbsent(w.getAttempt().getId(), k -> new ArrayList<>())
@@ -209,8 +197,10 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
                 String target = expectedByWord.get(w).get(i);
                 String hintKey = target != null ? target : mapped;
                 PronunciationHints.Hint hint = hintKey != null ? hints.get(hintKey) : null;
-                phonemes.add(new ShadowingAttemptResponse.PhonemeResult(mapped != null ? mapped : p.symbol(), target,
-                        p.accuracyScore(), hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
+                String heard = mapped != null ? mapped : p.symbol();
+                phonemes.add(new ShadowingAttemptResponse.PhonemeResult(heard, target, p.accuracyScore(),
+                        PhonemeRules.needsFix(p.accuracyScore(), heard, target),
+                        hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
             }
             words.add(new ShadowingAttemptResponse.WordResult(position++, word.word(), word.accuracyScore(),
                     ShadowingAttemptRecorder.outcomeOf(word.errorType()), phonemes));

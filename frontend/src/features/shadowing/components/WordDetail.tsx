@@ -6,7 +6,6 @@ import Icon from "@/components/common/Icon";
 import { speakSegment } from "../hooks/useModelPlayer";
 import type { WordResult } from "../types";
 import {
-  PHONEME_ERROR_BELOW,
   TONE_BOX,
   TONE_TEXT,
   toneOf,
@@ -33,9 +32,7 @@ export default function WordDetail({
   const { t } = useTranslation("pages");
   const k = "student.shadowingPractice";
   const omitted = word.outcome === "omitted";
-  const weakIndex = word.phonemes.findIndex(
-    (p) => p.accuracy < PHONEME_ERROR_BELOW,
-  );
+  const weakIndex = word.phonemes.findIndex((p) => p.needsFix);
   const weak = weakIndex >= 0 ? word.phonemes[weakIndex] : undefined;
   // Mặc định là âm yếu đầu tiên; người học bấm âm khác thì xem mẹo và video của âm đó
   const [picked, setPicked] = useState<number | null>(null);
@@ -127,7 +124,7 @@ export default function WordDetail({
           <ul className="mt-1.5 flex flex-wrap gap-2">
             {word.phonemes.map((p, i) => {
               const pt = toneOf(p.accuracy);
-              const bad = p.accuracy < PHONEME_ERROR_BELOW;
+              const bad = p.needsFix;
               const heardOther = p.expected != null && p.expected !== p.symbol;
               return (
                 <li key={`${p.symbol}-${i}`}>

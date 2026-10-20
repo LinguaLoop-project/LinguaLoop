@@ -26,10 +26,12 @@ public record ShadowingAttemptResponse(
     }
 
     /**
-     * {@code symbol} là âm Azure nghe được từ người học; {@code expected} là âm mẫu ở vị trí đó (null khi không ghép
-     * được). {@code tip} và {@code mouthVideo} là của âm cần sửa ({@code expected}, hoặc {@code symbol} khi không có).
+     * {@code symbol} là cách đọc Azure báo (thường là âm mẫu, nhưng Azure có thể báo một biến thể và vẫn chấm cao);
+     * {@code expected} là âm mẫu ở vị trí đó (null khi không ghép được). {@code needsFix}: điểm thấp, hoặc phụ âm khác
+     * âm mẫu. {@code tip} và {@code mouthVideo} là của âm cần đọc ({@code expected}, hoặc {@code symbol} khi không có).
      */
-    public record PhonemeResult(String symbol, String expected, double accuracy, String tip, MouthVideo mouthVideo) {
+    public record PhonemeResult(String symbol, String expected, double accuracy, boolean needsFix, String tip,
+            MouthVideo mouthVideo) {
     }
 
     /** Video khẩu hình của một âm (nội dung Pro): Free nhận {@code url} null kèm {@code locked = true}. */

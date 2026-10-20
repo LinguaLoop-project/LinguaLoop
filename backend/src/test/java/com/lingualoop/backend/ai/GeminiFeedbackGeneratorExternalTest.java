@@ -28,7 +28,7 @@ class GeminiFeedbackGeneratorExternalTest {
 
         GeneratedFeedback feedback = generator.generate(new FeedbackRequest("Think about it", 72, 70.0, 80.0, 100.0,
                 null, List.of(new FeedbackRequest.Word("think", 45, "mispronounced",
-                        List.of(new FeedbackRequest.Phoneme("θ", 30))))));
+                        List.of(new FeedbackRequest.Phoneme("θ", null, 30))))));
 
         assertThat(feedback.content()).isNotBlank();
         assertThat(feedback.promptVersion()).isEqualTo(FeedbackPromptBuilder.VERSION);

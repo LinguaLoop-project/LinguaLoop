@@ -165,7 +165,12 @@ describe("weakPhonemes", () => {
     prosody: null,
     words,
   });
-  const ph = (symbol: string, accuracy: number) => ({ symbol, accuracy });
+  const ph = (symbol: string, accuracy: number, expected?: string) => ({
+    symbol,
+    expected,
+    accuracy,
+    needsFix: accuracy < 60 || (expected != null && expected !== symbol),
+  });
 
   it("chỉ tính âm dưới 60 điểm, sắp theo số lần sai giảm dần", () => {
     const records = {
@@ -175,6 +180,11 @@ describe("weakPhonemes", () => {
     };
     // θ sai 2 lần; ŋ và r mỗi âm 1 lần (giữ thứ tự gặp)
     expect(weakPhonemes(records)).toEqual(["θ", "ŋ", "r"]);
+  });
+
+  it("âm khác âm mẫu dù điểm cao vẫn tính, và tính cho âm mẫu", () => {
+    const records = { a: rec([word(0, "if", { phonemes: [ph("ɪ", 100, "ɪ"), ph("v", 100, "f")] })]) };
+    expect(weakPhonemes(records)).toEqual(["f"]);
   });
 
   it("giới hạn số âm trả về", () => {

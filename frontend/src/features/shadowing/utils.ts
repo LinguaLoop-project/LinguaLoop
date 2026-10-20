@@ -18,8 +18,6 @@ export const TONE_BOX: Record<Tone, string> = {
   bad: "border-danger/40 bg-danger/10",
 };
 
-/** Âm vị dưới ngưỡng này được coi là lỗi. */
-export const PHONEME_ERROR_BELOW = 60;
 /** Từ dưới ngưỡng này được liệt kê ở "từ cần luyện thêm". */
 export const WORD_REVIEW_BELOW = 75;
 
@@ -124,7 +122,7 @@ export function weakPhonemes(records: Record<string, SentenceRecord>, limit = 3)
   for (const rec of Object.values(records)) {
     for (const w of rec.words) {
       for (const p of w.phonemes) {
-        if (p.accuracy < PHONEME_ERROR_BELOW) counts.set(p.symbol, (counts.get(p.symbol) ?? 0) + 1);
+        if (p.needsFix) counts.set(p.expected ?? p.symbol, (counts.get(p.expected ?? p.symbol) ?? 0) + 1);
       }
     }
   }

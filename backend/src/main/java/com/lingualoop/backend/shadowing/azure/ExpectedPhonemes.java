@@ -19,7 +19,16 @@ public final class ExpectedPhonemes {
                     AzurePhonemeMapper.IDENTICAL.stream(), AzurePhonemeMapper.SINGLE.keySet().stream())
             .distinct().sorted(Comparator.comparingInt(String::length).reversed()).toList();
 
+    /** 24 phụ âm của bảng phonemes. */
+    private static final List<String> CONSONANTS = List.of(
+            "p", "b", "t", "d", "k", "g", "f", "v", "θ", "ð", "s", "z", "ʃ", "ʒ", "h", "tʃ", "dʒ",
+            "m", "n", "ŋ", "l", "r", "j", "w");
+
     private ExpectedPhonemes() {
+    }
+
+    public static boolean isConsonant(String symbol) {
+        return CONSONANTS.contains(symbol);
     }
 
     /**

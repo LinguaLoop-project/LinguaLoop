@@ -13,6 +13,7 @@ public record FeedbackRequest(String sentenceText, double score, Double accuracy
     public record Word(String text, double accuracy, String outcome, List<Phoneme> weakPhonemes) {
     }
 
-    public record Phoneme(String symbol, double accuracy) {
+    /** {@code expected}: âm mẫu khi khác {@code symbol}; null nếu trùng hoặc không biết. */
+    public record Phoneme(String symbol, String expected, double accuracy) {
     }
 }

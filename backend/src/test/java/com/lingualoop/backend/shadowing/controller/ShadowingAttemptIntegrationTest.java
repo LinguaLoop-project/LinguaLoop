@@ -382,6 +382,24 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
+    void assess_consonantDiffersFromModelButScoresHigh_isStillFlaggedNeedsFix_AC_SHADOW_35() throws Exception {
+        UUID user = newUser();
+        Sentence s = sentence(lesson("needs-fix", false), 0, "if");
+        s.setIpa("/ɪf/");
+        sentences.save(s);
+        // Azure chấm 100 cho cách đọc "iv" (đo từ Azure thật), nhưng /f/ vẫn cần sửa
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 100, 100, 100, 100, null,
+                List.of(new WordResult("if", 100, ErrorType.NONE,
+                        List.of(new PhonemeResult("ɪ", 100), new PhonemeResult("v", 100))))));
+
+        post(user, s.getId(), WavFixtures.valid(1_000))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].needsFix").value(false))
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].needsFix").value(true))
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].expected").value("f"));
+    }
+
+    @Test
     void latest_heardSoundDiffersFromModel_hintFollowsTheModelSound_AC_SHADOW_34() throws Exception {
         UUID pro = newUser();
         makePro(pro);

@@ -40,7 +40,9 @@ public final class FeedbackPromptBuilder {
                     .append(outcome(w.outcome()));
             if (!w.weakPhonemes().isEmpty()) {
                 sb.append(", âm yếu: ").append(w.weakPhonemes().stream()
-                        .map(p -> "/" + p.symbol() + "/ " + round(p.accuracy()))
+                        .map(p -> p.expected() == null
+                                ? "/" + p.symbol() + "/ " + round(p.accuracy())
+                                : "cần /" + p.expected() + "/ nhưng nghe giống /" + p.symbol() + "/ " + round(p.accuracy()))
                         .collect(Collectors.joining(", ")));
             }
             sb.append('\n');

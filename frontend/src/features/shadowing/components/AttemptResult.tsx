@@ -4,7 +4,7 @@ import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
 import type { SentenceRecord } from "../types";
-import { PHONEME_ERROR_BELOW, TONE_TEXT, toneOf } from "../utils";
+import { TONE_TEXT, toneOf } from "../utils";
 
 const K = "student.shadowingPractice";
 
@@ -44,7 +44,10 @@ export default function AttemptResult({ record, isFinish, onListen, onNext }: At
   const badPhonemes = new Map<string, number>();
   for (const w of record.words) {
     for (const p of w.phonemes) {
-      if (p.accuracy < PHONEME_ERROR_BELOW) badPhonemes.set(p.symbol, (badPhonemes.get(p.symbol) ?? 0) + 1);
+      if (p.needsFix) {
+        const key = p.expected ?? p.symbol;
+        badPhonemes.set(key, (badPhonemes.get(key) ?? 0) + 1);
+      }
     }
   }
   const phonemeChips = [...badPhonemes.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);

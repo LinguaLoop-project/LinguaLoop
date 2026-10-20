@@ -11,7 +11,7 @@ class FeedbackPromptBuilderTest {
     private static FeedbackRequest request() {
         return new FeedbackRequest("Think about it", 72.5, 70.0, 80.0, 100.0, null, List.of(
                 new FeedbackRequest.Word("think", 45, "mispronounced", List.of(
-                        new FeedbackRequest.Phoneme("θ", 30), new FeedbackRequest.Phoneme("ŋ", 52))),
+                        new FeedbackRequest.Phoneme("θ", null, 30), new FeedbackRequest.Phoneme("ŋ", null, 52))),
                 new FeedbackRequest.Word("about", 0, "omitted", List.of()),
                 new FeedbackRequest.Word("uh", 0, "inserted", List.of())));
     }
