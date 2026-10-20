@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -63,9 +64,17 @@ public class TutorOfferService {
                 .decline(clock.instant()));
     }
 
-    /** @throws IllegalArgumentException {@code event} không thuộc {@link TutorLessonEvent#EVENTS} */
+    /**
+     * @throws IllegalArgumentException {@code event} không thuộc {@link TutorLessonEvent#EVENTS}
+     * @throws NotFoundException không có bài {@code lessonId}
+     */
     public void recordLessonEvent(UUID userId, UUID lessonId, String event) {
-        lessonEvents.save(TutorLessonEvent.of(userId, lessonId, event, clock.instant()));
+        TutorLessonEvent saved = TutorLessonEvent.of(userId, lessonId, event, clock.instant());
+        try {
+            lessonEvents.save(saved);
+        } catch (DataIntegrityViolationException e) {
+            throw new NotFoundException("Lesson not found"); // khoá ngoại tới lessons
+        }
     }
 
     /** Số lượt đã đọc kể từ lượt của lần mời gần nhất trong bài, tính cả lượt hiện tại; null nếu chưa mời lần nào. */

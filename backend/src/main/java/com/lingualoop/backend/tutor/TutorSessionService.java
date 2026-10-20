@@ -1,6 +1,8 @@
 package com.lingualoop.backend.tutor;
 
 import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +15,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.NotFoundException;
+import com.lingualoop.backend.config.UsageProperties;
 import com.lingualoop.backend.shadowing.dto.AttemptSnapshot;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
 import com.lingualoop.backend.shadowing.service.AttemptSnapshots;
@@ -52,6 +55,7 @@ public class TutorSessionService {
     private final PhonemeRepository phonemes;
     private final TutorViews views;
     private final LockedSessions locked;
+    private final UsageProperties usageProperties;
     private final TransactionTemplate tx;
     private final Clock clock;
 
@@ -60,8 +64,9 @@ public class TutorSessionService {
      * hạn mức, lượt được trừ khi {@code started} (UC-TUTOR-04).
      *
      * @param offerId null khi học viên tự bấm "Hỏi gia sư"
-     * @throws NotFoundException lượt hoặc lời mời không phải của người gọi
-     * @throws BusinessException chưa đồng ý AI, hết lượt, hoặc không cấp được token (kèm Danh sách từ lỗi)
+     * @throws NotFoundException lượt hoặc lời mời không phải của người gọi, hoặc lời mời không thuộc lượt này
+     * @throws BusinessException chưa đồng ý AI, hết lượt, quá nhiều phiên chưa started trong ngày, hoặc không cấp được
+     *         token (kèm Danh sách từ lỗi)
      */
     public TutorDtos.SessionResponse createSession(UUID userId, long attemptId, UUID offerId) {
         AttemptSnapshot current = snapshots.load(userId, attemptId);
@@ -74,6 +79,12 @@ public class TutorSessionService {
                     Map.of("feature", FEATURE, "limit", usage.limit() == null ? 0 : usage.limit()));
         }
 
+        Instant dayStart = LocalDate.ofInstant(clock.instant(), usageProperties.zone())
+                .atStartOfDay(usageProperties.zone()).toInstant();
+        if (sessions.countUnstartedSince(userId, dayStart) >= TutorThresholds.MAX_UNSTARTED_SESSIONS_PER_DAY) {
+            throw new BusinessException(ErrorCode.TUTOR_TOO_MANY_FAILED_STARTS);
+        }
+
         SentenceResult result = SentenceResults.of(current);
         List<PracticeWord> words = selector.select(result, SentenceResults.of(
                 snapshots.previous(userId, attemptId, TutorThresholds.REPEAT_WINDOW - 1)));
@@ -81,6 +92,7 @@ public class TutorSessionService {
         if (offerId != null) {
             // Học viên đã nhận lời (hoặc đếm ngược xong), kể cả khi sau đó không kết nối được
             tx.executeWithoutResult(status -> offers.findByIdAndUserId(offerId, userId)
+                    .filter(o -> o.getAttemptId() == attemptId)
                     .orElseThrow(() -> new NotFoundException("Offer not found")).accept(clock.instant()));
         }
 

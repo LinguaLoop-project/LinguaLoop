@@ -35,6 +35,9 @@ public final class TutorThresholds {
     /** Dung sai sau trần 10 phút (trễ mạng, lượt chấm đang chờ Azure) trước khi backend tự đóng phiên đã started. */
     public static final int SESSION_GRACE_SECONDS = 30;
 
+    /** Số phiên chưa started (đang chờ hoặc connect_failed) tối đa mỗi ngày: chống lấy token mà không báo started. */
+    public static final int MAX_UNSTARTED_SESSIONS_PER_DAY = 5;
+
     /** Quá thời gian này mà gia sư chưa nói câu đầu tiên thì phiên là "không kết nối được". */
     public static final int START_TIMEOUT_SECONDS = 15;
 

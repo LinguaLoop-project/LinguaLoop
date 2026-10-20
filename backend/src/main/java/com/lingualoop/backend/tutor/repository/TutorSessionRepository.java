@@ -31,6 +31,10 @@ public interface TutorSessionRepository extends JpaRepository<TutorSession, UUID
     @Query("SELECT s FROM TutorSession s WHERE s.id = :id")
     Optional<TutorSession> lockById(@Param("id") UUID id);
 
+    /** Số phiên chưa started của người dùng tạo từ {@code since}. */
+    @Query("SELECT count(s) FROM TutorSession s WHERE s.userId = :userId AND s.startedAt IS NULL AND s.createdAt >= :since")
+    long countUnstartedSince(@Param("userId") UUID userId, @Param("since") Instant since);
+
     /**
      * Phiên còn mở đã quá hạn: chưa started mà tạo trước {@code unstartedCutoff} (connect_failed), hoặc đã started
      * trước {@code startedCutoff} (timeout). Job dọn kết thúc chúng.

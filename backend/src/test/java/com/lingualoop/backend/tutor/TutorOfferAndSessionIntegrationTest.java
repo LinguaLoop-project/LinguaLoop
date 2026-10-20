@@ -3,6 +3,7 @@ package com.lingualoop.backend.tutor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -236,6 +237,39 @@ class TutorOfferAndSessionIntegrationTest {
     }
 
     @Test
+    void createSession_withAnOfferOfAnotherAttempt_returns404AndLeavesTheOfferPending() throws Exception {
+        Fx f = fx();
+        long attemptA = attempt(f, "Think about it", word("think", 45, "θ", 20));
+        long attemptB = attempt(f, "Think again", word("think", 45, "θ", 20));
+        UUID offerOfA = UUID.fromString(jdbcOfferId(f.user, attemptA));
+
+        createSession(f.user, attemptB, offerOfA).andExpect(status().isNotFound());
+
+        assertThat(count("tutor_offers WHERE id = ? AND accepted_at IS NULL", offerOfA)).isEqualTo(1);
+        assertThat(count("tutor_sessions WHERE attempt_id = ?", attemptB)).isZero();
+        verifyNoInteractions(tokenIssuer);
+    }
+
+    @Test
+    void createSession_afterFiveUnstartedSessionsToday_isRefusedBeforeAnyToken() throws Exception {
+        Fx f = fx();
+        long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20));
+        for (int i = 0; i < TutorThresholds.MAX_UNSTARTED_SESSIONS_PER_DAY; i++) {
+            createSession(f.user, attempt, null).andExpect(status().isOk());
+        }
+        verify(tokenIssuer, times(TutorThresholds.MAX_UNSTARTED_SESSIONS_PER_DAY)).issue(any());
+
+        createSession(f.user, attempt, null).andExpect(status().isTooManyRequests())
+                .andExpect(jsonPath("$.code").value("TUTOR_TOO_MANY_FAILED_STARTS"));
+
+        verify(tokenIssuer, times(TutorThresholds.MAX_UNSTARTED_SESSIONS_PER_DAY)).issue(any()); // không cấp thêm token
+        assertThat(count("tutor_sessions WHERE attempt_id = ?", attempt)).isEqualTo(5);
+        // Phiên đã started không bị tính vào trần
+        jdbc.update("UPDATE tutor_sessions SET started_at = now() WHERE attempt_id = ?", attempt);
+        createSession(f.user, attempt, null).andExpect(status().isOk());
+    }
+
+    @Test
     void createSession_whenGeminiFails_answers503WithTheWordsForATextFallback_AC_TUTOR_11() throws Exception {
         Fx f = fx();
         long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20));
@@ -266,6 +300,10 @@ class TutorOfferAndSessionIntegrationTest {
         mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
                         .content(body.formatted(f.lesson, "toggle_sideways")))
                 .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
+                        .content(body.formatted(UUID.randomUUID(), "toggle_on")))
+                .andExpect(status().isNotFound());
 
         assertThat(count("tutor_lesson_events WHERE user_id = ?", f.user)).isEqualTo(1);
         verify(tokenIssuer, never()).issue(any());
