@@ -1,5 +1,7 @@
 package com.lingualoop.backend.lesson.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +32,7 @@ import com.lingualoop.backend.lesson.dto.response.SentenceResponse;
 import com.lingualoop.backend.lesson.dto.response.TopicResponse;
 import com.lingualoop.backend.lesson.dto.response.TopicRowResponse;
 import com.lingualoop.backend.lesson.entity.Lesson;
+import com.lingualoop.backend.lesson.entity.Sentence;
 import com.lingualoop.backend.lesson.entity.Topic;
 import com.lingualoop.backend.lesson.enums.LessonState;
 import com.lingualoop.backend.lesson.enums.LessonStatus;
@@ -41,6 +44,7 @@ import com.lingualoop.backend.lesson.repository.LessonRepository;
 import com.lingualoop.backend.lesson.repository.LessonSpecification;
 import com.lingualoop.backend.lesson.repository.SentenceRepository;
 import com.lingualoop.backend.lesson.repository.TopicRepository;
+import com.lingualoop.backend.practice.service.PracticeProgressQueryService;
 import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 
 import lombok.RequiredArgsConstructor;
@@ -54,10 +58,6 @@ class LessonQueryServiceImpl implements LessonQueryService {
     private static final int POPULAR_PER_TOPIC = 6;
     private static final int RELATED_LIMIT = 3;
 
-    // TODO(contract): lấy phần trăm tiến độ thật từ user_lesson_mode_progress + sentence_attempts khi
-    // feature dictation/shadowing có dữ liệu.
-    private static final ModeProgressResponse NO_PROGRESS = new ModeProgressResponse(0, 0);
-
     private final TopicRepository topicRepository;
     private final LessonRepository lessonRepository;
     private final SentenceRepository sentenceRepository;
@@ -66,6 +66,7 @@ class LessonQueryServiceImpl implements LessonQueryService {
     private final LessonMapper lessonMapper;
     private final SentenceMapper sentenceMapper;
     private final SubscriptionQueryService subscriptionQueryService;
+    private final PracticeProgressQueryService practiceProgress;
 
     @Override
     public List<TopicResponse> getTopics(UUID userId) {
@@ -129,11 +130,14 @@ class LessonQueryServiceImpl implements LessonQueryService {
         List<LessonSummaryResponse> related = toSummaries(lessonRepository.findRelatedLessons(
                 lesson.getTopic().getId(), lesson.getId(), PageRequest.of(0, RELATED_LIMIT)), userId);
         boolean locked = lesson.isPro() && !subscriptionQueryService.isPro(userId);
+        int dictationDone = practiceProgress.countDictationSentencesDone(userId, List.of(lesson.getId()))
+                .getOrDefault(lesson.getId(), 0);
 
         return new LessonDetailResponse(
                 detail.id(), detail.slug(), detail.title(), detail.titleVi(), detail.description(),
                 detail.difficulty(), detail.sourceType(), detail.sourceUrl(), detail.durationSec(),
-                detail.viewCount(), detail.thumbnailUrl(), detail.pro(), locked, sentenceCount, NO_PROGRESS,
+                detail.viewCount(), detail.thumbnailUrl(), detail.pro(), locked, sentenceCount,
+                progress(dictationDone, sentenceCount),
                 topicMapper.toResponse(lesson.getTopic()),
                 related);
     }
@@ -144,9 +148,10 @@ class LessonQueryServiceImpl implements LessonQueryService {
         if (lesson.isPro() && !subscriptionQueryService.isPro(userId)) {
             throw new BusinessException(ErrorCode.LESSON_PRO_REQUIRED);
         }
-        return sentenceRepository.findByLessonIdOrderBySortOrderAsc(lesson.getId()).stream()
-                .map(sentenceMapper::toResponse)
-                .toList();
+        List<Sentence> items = sentenceRepository.findByLessonIdOrderBySortOrderAsc(lesson.getId());
+        Map<UUID, BigDecimal> best = practiceProgress.bestScores(userId, items.stream().map(Sentence::getId).toList());
+        return items.stream().map(sentence -> withBestScore(sentenceMapper.toResponse(sentence),
+                best.get(sentence.getId()))).toList();
     }
 
     /** Bài đã duyệt và chưa xoá mềm; bài DRAFT/PENDING/REJECTED coi như không tồn tại. */
@@ -167,14 +172,28 @@ class LessonQueryServiceImpl implements LessonQueryService {
             return List.of();
         }
         Map<UUID, Long> counts = sentenceCounts(lessons.stream().map(Lesson::getId).toList());
+        Map<UUID, Integer> dictationDone = practiceProgress.countDictationSentencesDone(userId,
+                lessons.stream().map(Lesson::getId).toList());
         boolean hasProLesson = lessons.stream().anyMatch(Lesson::isPro);
         boolean userIsPro = hasProLesson && subscriptionQueryService.isPro(userId);
         return lessons.stream().map(lesson -> {
             LessonSummaryResponse s = lessonMapper.toSummary(lesson);
             return new LessonSummaryResponse(s.id(), s.slug(), s.title(), s.titleVi(), s.difficulty(), s.sourceType(),
                     s.durationSec(), s.viewCount(), s.thumbnailUrl(), s.pro(), lesson.isPro() && !userIsPro,
-                    counts.getOrDefault(lesson.getId(), 0L), NO_PROGRESS);
+                    counts.getOrDefault(lesson.getId(), 0L),
+                    progress(dictationDone.getOrDefault(lesson.getId(), 0), counts.getOrDefault(lesson.getId(), 0L)));
         }).toList();
+    }
+
+    /** Tiến độ nghe chép = số câu có kết quả trên tổng số câu, làm tròn; shadowing chưa có dữ liệu thật. */
+    private static ModeProgressResponse progress(int dictationDone, long sentenceCount) {
+        int percent = sentenceCount == 0 ? 0 : (int) Math.min(100, Math.round(100.0 * dictationDone / sentenceCount));
+        return new ModeProgressResponse(percent, 0);
+    }
+
+    private static SentenceResponse withBestScore(SentenceResponse s, BigDecimal best) {
+        Integer score = best == null ? null : best.setScale(0, RoundingMode.HALF_UP).intValue();
+        return new SentenceResponse(s.id(), s.text(), s.textVi(), s.ipa(), s.startMs(), s.endMs(), s.cefrLevel(), score);
     }
 
     private Map<UUID, Long> sentenceCounts(Collection<UUID> lessonIds) {

@@ -41,7 +41,7 @@ public class AttemptTestData {
                 UUID.class, lessonId, sortOrder, "sentence " + sortOrder, sortOrder * 1000, sortOrder * 1000 + 900);
     }
 
-    /** Chèn một lượt nghe chép ({@code mode = dictation}) và trả về id. */
+    /** Chèn một lượt nghe chép (mode = dictation) và trả về id. */
     public long insertAttempt(UUID userId, UUID sentenceId, String level, boolean retry, boolean gaveUp,
             Instant attemptedAt) {
         return insertAttempt(userId, sentenceId, "dictation", level, retry, gaveUp, attemptedAt);
@@ -54,6 +54,10 @@ public class AttemptTestData {
                         + "VALUES (?, ?, ?::practice_mode, ?, ?, ?, ?) RETURNING id",
                 Long.class, userId, sentenceId, mode, level, retry, gaveUp, Timestamp.from(attemptedAt));
         return id == null ? 0 : id;
+    }
+
+    public void setScore(long attemptId, String score) {
+        jdbc.update("UPDATE sentence_attempts SET score = ?::numeric WHERE id = ?", score, attemptId);
     }
 
     public void insertWord(long attemptId, int position, String expected, String actual, String outcome,

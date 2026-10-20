@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,6 +23,13 @@ public interface LessonProgressRepository extends JpaRepository<UserLessonProgre
                                      AND l.status = com.lingualoop.backend.lesson.enums.LessonStatus.APPROVED
                                      AND l.deletedAt IS NULL)""")
     long countCompletedLessonsByUserAndTopic(@Param("userId") UUID userId, @Param("topicId") UUID topicId);
+
+    /** Bắt đầu bài nếu chưa có, ngược lại chỉ cập nhật lần học gần nhất. Không đụng tới completed_at. */
+    @Modifying
+    @Query(value = """
+            INSERT INTO user_lesson_progress (user_id, lesson_id) VALUES (:userId, :lessonId)
+            ON CONFLICT (user_id, lesson_id) DO UPDATE SET last_activity_at = now()""", nativeQuery = true)
+    void touch(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId);
 
     /** Số bài đã hoàn thành của người dùng theo từng chủ đề, trong một truy vấn. */
     @Query("""

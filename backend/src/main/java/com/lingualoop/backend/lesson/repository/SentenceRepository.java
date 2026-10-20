@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface SentenceRepository extends JpaRepository<Sentence, UUID> {
     List<Sentence> findByLessonIdOrderBySortOrderAsc(UUID lessonId);
+
+    long countByLessonId(UUID lessonId);
 }
