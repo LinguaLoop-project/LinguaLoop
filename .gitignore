@@ -34,3 +34,6 @@ yarn-error.log*
 docs/ux/
 CONTEXT.md
 .playwright-mcp/
+
+# Ghi âm thử cá nhân (giọng người dùng), không đưa lên git
+backend/samples/
