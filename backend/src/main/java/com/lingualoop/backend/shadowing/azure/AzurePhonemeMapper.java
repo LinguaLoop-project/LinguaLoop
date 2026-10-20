@@ -11,7 +11,7 @@ import java.util.Map;
 public final class AzurePhonemeMapper {
 
     /** Chuyển một ký hiệu, không xét ngữ cảnh. Phụ âm giống nhau ở hai bảng nên không cần liệt kê (xem {@link #IDENTICAL}). */
-    private static final Map<String, String> SINGLE = Map.ofEntries(
+    static final Map<String, String> SINGLE = Map.ofEntries(
             Map.entry("ɡ", "g"),
             Map.entry("ɹ", "r"),
             Map.entry("i", "iː"),

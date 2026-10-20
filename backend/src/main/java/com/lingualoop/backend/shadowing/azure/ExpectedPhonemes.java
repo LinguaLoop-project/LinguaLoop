@@ -3,6 +3,7 @@ package com.lingualoop.backend.shadowing.azure;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Âm mẫu của từng từ, tách từ phiên âm của câu, để ghép với các âm Azure nghe được. Azure chỉ trả âm nó nghe thấy
@@ -10,9 +11,13 @@ import java.util.List;
  */
 public final class ExpectedPhonemes {
 
-    /** Ký hiệu dài trước để khớp "tʃ", "iː"... trước "t", "i". */
-    private static final List<String> SYMBOLS = AzurePhonemeMapper.IDENTICAL.stream()
-            .sorted(Comparator.comparingInt(String::length).reversed()).toList();
+    /**
+     * Ký hiệu của phiên âm câu (giọng Mỹ, cùng hệ với Azure en-US, ADR 0004), ký hiệu dài trước để khớp "tʃ", "oʊ"...
+     * trước "t", "o".
+     */
+    private static final List<String> SYMBOLS = Stream.concat(
+                    AzurePhonemeMapper.IDENTICAL.stream(), AzurePhonemeMapper.SINGLE.keySet().stream())
+            .distinct().sorted(Comparator.comparingInt(String::length).reversed()).toList();
 
     private ExpectedPhonemes() {
     }
@@ -37,10 +42,10 @@ public final class ExpectedPhonemes {
         return result;
     }
 
-    /** @return các âm của một từ, hoặc null nếu gặp ký tự không thuộc bảng phonemes */
+    /** @return các âm của một từ theo bảng phonemes, hoặc null nếu gặp ký tự lạ */
     static List<String> tokenize(String ipaWord) {
-        String s = ipaWord.replaceAll("[/ˈˌ.()]", "").replace('ɡ', 'g').replace('ɹ', 'r').replaceAll("[,;:!?]+$", "");
-        List<String> out = new ArrayList<>();
+        String s = ipaWord.replaceAll("[/ˈˌ.()]", "").replaceAll("[,;:!?]+$", "");
+        List<String> raw = new ArrayList<>();
         int i = 0;
         while (i < s.length()) {
             int at = i;
@@ -48,21 +53,12 @@ public final class ExpectedPhonemes {
             if (hit == null) {
                 return null;
             }
-            out.add(hit);
+            raw.add(hit);
             i += hit.length();
         }
-        return out;
-    }
-
-    /**
-     * Mẫu là giọng Anh còn Azure chấm giọng Mỹ, nên có cặp âm khác ký hiệu nhưng là cùng một cách đọc (hot: ɒ ở Anh, ɑː
-     * ở Mỹ). Cặp như vậy không được hiện như lỗi: coi âm mẫu chính là âm nghe được.
-     */
-    public static String reconcile(String heard, String expected) {
-        if (expected == null || heard == null) {
-            return expected;
-        }
-        return "ɒ".equals(expected) && "ɑː".equals(heard) ? heard : expected;
+        // Cùng bộ chuyển đổi với âm Azure trả về nên hai bên so được với nhau
+        List<String> out = AzurePhonemeMapper.toTableSymbols(raw);
+        return out.contains(null) ? null : out;
     }
 
     /**

@@ -141,7 +141,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             for (AttemptPhoneme p : stored) {
                 String symbol = symbolById.getOrDefault(p.getPhonemeId(), "?");
                 double accuracy = p.getAccuracyScore().doubleValue();
-                String target = ExpectedPhonemes.reconcile(symbol, expected.get(p.getPosition()));
+                String target = expected.get(p.getPosition());
                 PronunciationHints.Hint hint = hintBySymbol.get(target != null ? target : symbol);
                 phonemes.add(new ShadowingAttemptResponse.PhonemeResult(symbol, target, accuracy,
                         hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
@@ -206,7 +206,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             for (int i = 0; i < word.phonemes().size(); i++) {
                 PronunciationAssessment.PhonemeResult p = word.phonemes().get(i);
                 String mapped = symbols.get(w).get(i);
-                String target = ExpectedPhonemes.reconcile(mapped, expectedByWord.get(w).get(i));
+                String target = expectedByWord.get(w).get(i);
                 String hintKey = target != null ? target : mapped;
                 PronunciationHints.Hint hint = hintKey != null ? hints.get(hintKey) : null;
                 phonemes.add(new ShadowingAttemptResponse.PhonemeResult(mapped != null ? mapped : p.symbol(), target,

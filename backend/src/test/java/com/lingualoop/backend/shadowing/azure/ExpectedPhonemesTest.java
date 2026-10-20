@@ -28,10 +28,10 @@ class ExpectedPhonemesTest {
     }
 
     @Test
-    void reconcile_treatsBritishAndAmericanVariantsAsTheSameSound() {
-        assertThat(ExpectedPhonemes.reconcile("ɑː", "ɒ")).isEqualTo("ɑː");
-        assertThat(ExpectedPhonemes.reconcile("v", "f")).isEqualTo("f");
-        assertThat(ExpectedPhonemes.reconcile("v", null)).isNull();
+    void americanSentenceIpa_isConvertedToTableSymbolsLikeAzureOutput() {
+        assertThat(ExpectedPhonemes.tokenize("stoʊnz")).containsExactly("s", "t", "əʊ", "n", "z");
+        assertThat(ExpectedPhonemes.tokenize("ˈlɝn")).containsExactly("l", "ɜː", "n");
+        assertThat(ExpectedPhonemes.tokenize("hɑt")).containsExactly("h", "ɑː", "t");
     }
 
     @Test
