@@ -52,24 +52,43 @@ class TutorSessionTest {
     void notStartedWithin15SecondsMeansConnectFailed_AC_TUTOR_13() {
         TutorSession s = session(seed("think", 40));
 
-        s.expireIfNotStarted(T0.plusSeconds(14));
+        s.expireIfOverdue(T0.plusSeconds(14));
         assertThat(s.open()).isTrue();
 
-        s.expireIfNotStarted(T0.plusSeconds(TutorThresholds.START_TIMEOUT_SECONDS));
+        s.expireIfOverdue(T0.plusSeconds(TutorThresholds.START_TIMEOUT_SECONDS));
         assertThat(s.getOutcome()).isEqualTo(SessionOutcome.CONNECT_FAILED);
         assertThat(s.getEndedAt()).isEqualTo(T0.plusSeconds(15)); // thời điểm hết hạn, không phải lúc quét
     }
 
     @Test
-    void aStartedSessionNeverExpiresAndStartIsReportedOnlyOnce_AC_TUTOR_12() {
+    void aStartedSessionIsNotClosedByTheStartTimeoutAndStartIsReportedOnlyOnce_AC_TUTOR_12() {
         TutorSession s = session(seed("think", 40));
 
         assertThat(s.markStarted(T0.plusSeconds(3))).isTrue();
         assertThat(s.markStarted(T0.plusSeconds(4))).isFalse();
-        s.expireIfNotStarted(T0.plusSeconds(600));
+        s.expireIfOverdue(T0.plusSeconds(600));
 
         assertThat(s.open()).isTrue();
         assertThat(s.getStartedAt()).isEqualTo(T0.plusSeconds(3));
+    }
+
+    @Test
+    void aStartedSessionTimesOutExactlyAtMaxPlusGraceAndStaysEnded() {
+        TutorSession s = session(seed("think", 40));
+        s.markStarted(T0.plusSeconds(3));
+        Instant deadline = T0.plusSeconds(3 + TutorThresholds.SESSION_MAX_SECONDS + TutorThresholds.SESSION_GRACE_SECONDS);
+
+        s.expireIfOverdue(deadline.minusMillis(1));
+        assertThat(s.open()).isTrue();
+
+        s.expireIfOverdue(deadline);
+        assertThat(s.getOutcome()).isEqualTo(SessionOutcome.TIMEOUT);
+        assertThat(s.getEndedAt()).isEqualTo(deadline);
+
+        s.expireIfOverdue(deadline.plusSeconds(60)); // gọi lại không đổi kết quả
+        assertThat(s.getOutcome()).isEqualTo(SessionOutcome.TIMEOUT);
+        assertThat(s.getEndedAt()).isEqualTo(deadline);
+        assertThatThrownBy(() -> s.prepareAttempt(AttemptTarget.SENTENCE)).isInstanceOf(IllegalStateException.class);
     }
 
     @Test

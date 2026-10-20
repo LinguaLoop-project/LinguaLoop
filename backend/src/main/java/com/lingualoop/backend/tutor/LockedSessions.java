@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Chạy một thao tác trên phiên với dòng đã khoá (khoá bi quan) trong một transaction ngắn, để hai yêu cầu đồng thời
- * không ghi chồng nhau (vd người học đổi từ trong lúc Azure đang chấm từ cũ). Phiên quá hạn 15 giây chưa started được
+ * không ghi chồng nhau (vd người học đổi từ trong lúc Azure đang chấm từ cũ). Phiên quá hạn (15 giây chưa started, hoặc quá trần thời lượng sau started) được
  * đóng ngay khi chạm tới và việc đóng đó được lưu kể cả khi thao tác bị từ chối.
  */
 @Component
@@ -40,7 +40,7 @@ class LockedSessions {
         Result<T> result = tx.execute(status -> {
             TutorSession session = sessions.lockByIdAndUserId(sessionId, userId)
                     .orElseThrow(() -> new NotFoundException("Session not found"));
-            session.expireIfNotStarted(clock.instant());
+            session.expireIfOverdue(clock.instant());
             try {
                 return new Result<>(action.apply(session), null);
             } catch (IllegalStateException e) {

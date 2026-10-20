@@ -31,9 +31,14 @@ public interface TutorSessionRepository extends JpaRepository<TutorSession, UUID
     @Query("SELECT s FROM TutorSession s WHERE s.id = :id")
     Optional<TutorSession> lockById(@Param("id") UUID id);
 
-    /** Phiên còn mở mà chưa started, tạo trước {@code cutoff}: job dọn kết thúc chúng là connect_failed. */
+    /**
+     * Phiên còn mở đã quá hạn: chưa started mà tạo trước {@code unstartedCutoff} (connect_failed), hoặc đã started
+     * trước {@code startedCutoff} (timeout). Job dọn kết thúc chúng.
+     */
     @Query("""
             SELECT s FROM TutorSession s
-            WHERE s.startedAt IS NULL AND s.endedAt IS NULL AND s.createdAt < :cutoff""")
-    List<TutorSession> findUnstartedBefore(@Param("cutoff") Instant cutoff);
+            WHERE s.endedAt IS NULL AND ((s.startedAt IS NULL AND s.createdAt < :unstartedCutoff)
+                OR (s.startedAt IS NOT NULL AND s.startedAt <= :startedCutoff))""")
+    List<TutorSession> findOverdue(@Param("unstartedCutoff") Instant unstartedCutoff,
+            @Param("startedCutoff") Instant startedCutoff);
 }

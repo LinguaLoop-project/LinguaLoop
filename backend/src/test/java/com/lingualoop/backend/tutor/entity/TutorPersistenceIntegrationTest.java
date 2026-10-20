@@ -111,10 +111,16 @@ class TutorPersistenceIntegrationTest {
             return sessions.save(s).getId();
         });
         UUID fresh = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt, null, null, Instant.now(), List.of())).getId());
+        UUID overdue = tx.execute(status -> {
+            Instant long_ago = Instant.now().minusSeconds(700);
+            TutorSession s = TutorSession.open(f.user, f.attempt, null, null, long_ago, List.of());
+            s.markStarted(long_ago.plusSeconds(1));
+            return sessions.save(s).getId();
+        });
 
-        List<UUID> found = sessions.findUnstartedBefore(Instant.now().minusSeconds(15)).stream().map(TutorSession::getId).toList();
+        List<UUID> found = sessions.findOverdue(Instant.now().minusSeconds(15), Instant.now().minusSeconds(630)).stream().map(TutorSession::getId).toList();
 
-        assertThat(found).contains(unstarted).doesNotContain(started, fresh);
+        assertThat(found).contains(unstarted, overdue).doesNotContain(started, fresh);
     }
 
     @Test

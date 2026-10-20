@@ -3,6 +3,8 @@ package com.lingualoop.backend.tutor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -121,6 +123,49 @@ class TutorSessionLifecycleIntegrationTest {
         assertThat(outcome(fresh)).isNull();
         assertThat(outcome(started)).isNull();
         assertThat(cleanup.sweep()).isZero(); // đã dọn thì không dọn lại
+    }
+
+    @Test
+    void theCleanupJobAlsoClosesStartedSessionsPastTheMaxPlusGrace() throws Exception {
+        S overdue = startedSession("Think about it", word("think", 45, "θ", 20));
+        S withinGrace = startedSession("Think again", word("think", 45, "θ", 20));
+        jdbc.update("UPDATE tutor_sessions SET started_at = now() - interval '631 seconds' WHERE id = ?", overdue.id);
+        jdbc.update("UPDATE tutor_sessions SET started_at = now() - interval '620 seconds' WHERE id = ?", withinGrace.id);
+
+        assertThat(cleanup.sweep()).isGreaterThanOrEqualTo(1);
+
+        assertThat(outcome(overdue)).isEqualTo("timeout");
+        assertThat(outcome(withinGrace)).isNull();
+        assertThat(count("tutor_sessions WHERE id = ? AND charged", overdue.id)).isEqualTo(1); // đã trừ lượt thì giữ nguyên
+        assertThat(cleanup.sweep()).isZero();
+    }
+
+    @Test
+    void afterTheMaxPlusGraceEveryRequestIsRefusedBeforeAnyAzureCallAndRepeatsKeepTheSameOutcome() throws Exception {
+        S s = startedSession("Think about it", word("think", 45, "θ", 20), word("about", 90, "ə", 90));
+        assessWord("think", "θ", 90);
+        jdbc.update("UPDATE tutor_sessions SET started_at = now() - interval '631 seconds' WHERE id = ?", s.id);
+
+        for (int i = 0; i < 2; i++) { // gọi lại sau khi đã hết giờ vẫn là 409, không gọi Azure
+            attempt(s, "word").andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("TUTOR_SESSION_CONFLICT"));
+            attempt(s, "sentence").andExpect(status().isConflict());
+            switchWord(s, "about").andExpect(status().isConflict());
+            event(s, topic("off_topic")).andExpect(status().isConflict());
+        }
+
+        verify(scoring, never()).assess(any(), any());
+        assertThat(outcome(s)).isEqualTo("timeout");
+        event(s, "{\"type\":\"end\",\"outcome\":\"learner_exit\"}").andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.outcome").value("timeout")); // kết quả đầu tiên được giữ
+    }
+
+    @Test
+    void aSessionStillInsideTheGraceKeepsWorking() throws Exception {
+        S s = startedSession("Think about it", word("think", 45, "θ", 20));
+        assessWord("think", "θ", 90);
+        jdbc.update("UPDATE tutor_sessions SET started_at = now() - interval '620 seconds' WHERE id = ?", s.id);
+
+        attempt(s, "word").andExpect(status().isOk());
     }
 
     @Test

@@ -16,8 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Dọn các phiên tạo xong mà không bao giờ {@code started}: quá 15 giây thì kết thúc {@code connect_failed}, không bị
- * trừ lượt (BR-TUTOR-06). Phiên cũng được đóng khi có ai chạm tới nó; job này chỉ để số liệu không còn phiên treo.
+ * Dọn các phiên quá hạn: tạo xong mà không bao giờ {@code started} quá 15 giây thì {@code connect_failed}, không bị
+ * trừ lượt (BR-TUTOR-06); đã started mà quá trần thời lượng cộng dung sai thì
+ * {@code timeout}. Phiên cũng được đóng khi có ai chạm tới nó; job này chỉ để số liệu không còn phiên treo.
  */
 @Slf4j
 @Component
@@ -32,19 +33,20 @@ public class TutorSessionCleanup {
     public void scheduled() {
         int ended = sweep();
         if (ended > 0) {
-            log.info("Đã đóng {} phiên gia sư không kết nối được", ended);
+            log.info("Đã đóng {} phiên gia sư quá hạn", ended);
         }
     }
 
     /** @return số phiên vừa được kết thúc */
     public int sweep() {
         Instant now = clock.instant();
-        List<TutorSession> stale = sessions.findUnstartedBefore(now.minusSeconds(TutorThresholds.START_TIMEOUT_SECONDS));
+        List<TutorSession> stale = sessions.findOverdue(now.minusSeconds(TutorThresholds.START_TIMEOUT_SECONDS),
+                now.minusSeconds(TutorThresholds.SESSION_MAX_SECONDS + TutorThresholds.SESSION_GRACE_SECONDS));
         int ended = 0;
         for (UUID id : stale.stream().map(TutorSession::getId).toList()) {
             Boolean closed = tx.execute(status -> sessions.lockById(id).map(s -> {
                 boolean open = s.open();
-                s.expireIfNotStarted(now);
+                s.expireIfOverdue(now);
                 return open && !s.open();
             }).orElse(false));
             if (Boolean.TRUE.equals(closed)) {

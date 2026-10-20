@@ -109,11 +109,19 @@ public class TutorSession {
 
     // --- vòng đời ---
 
-    /** Gia sư chưa nói câu đầu tiên sau START_TIMEOUT_SECONDS thì phiên là "không kết nối được". */
-    public void expireIfNotStarted(Instant now) {
-        Instant deadline = createdAt.plusSeconds(TutorThresholds.START_TIMEOUT_SECONDS);
-        if (startedAt == null && outcome == null && !now.isBefore(deadline)) {
-            end(SessionOutcome.CONNECT_FAILED, deadline);
+    /**
+     * Quá hạn thì tự đóng: chưa started sau START_TIMEOUT_SECONDS là "không kết nối được"; đã started thì quá
+     * SESSION_MAX_SECONDS + SESSION_GRACE_SECONDS là hết giờ (trình duyệt có thể đã đóng hoặc bị bỏ qua giới hạn).
+     * Thời điểm kết thúc ghi là lúc hết hạn, không phải lúc phát hiện.
+     */
+    public void expireIfOverdue(Instant now) {
+        if (outcome != null) {
+            return;
+        }
+        Instant deadline = startedAt == null ? createdAt.plusSeconds(TutorThresholds.START_TIMEOUT_SECONDS)
+                : startedAt.plusSeconds(TutorThresholds.SESSION_MAX_SECONDS + TutorThresholds.SESSION_GRACE_SECONDS);
+        if (!now.isBefore(deadline)) {
+            end(startedAt == null ? SessionOutcome.CONNECT_FAILED : SessionOutcome.TIMEOUT, deadline);
         }
     }
 

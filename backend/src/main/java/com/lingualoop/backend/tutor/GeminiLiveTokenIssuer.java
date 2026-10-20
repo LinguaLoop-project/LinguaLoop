@@ -127,6 +127,11 @@ class GeminiLiveTokenIssuer implements LiveTokenIssuer {
                 .build();
     }
 
+    /** Cùng timeout với GeminiFeedbackGenerator, để Gemini treo không giữ luồng yêu cầu mãi. */
+    static HttpOptions httpOptions(GeminiProperties gemini) {
+        return HttpOptions.builder().apiVersion("v1alpha").timeout((int) gemini.timeout().toMillis()).build();
+    }
+
     private synchronized Client client() {
         if (!gemini.configured()) {
             throw new IllegalStateException("Chưa cấu hình GEMINI_API_KEY.");
@@ -134,7 +139,7 @@ class GeminiLiveTokenIssuer implements LiveTokenIssuer {
         if (client == null) {
             client = Client.builder()
                     .apiKey(gemini.apiKey())
-                    .httpOptions(HttpOptions.builder().apiVersion("v1alpha").build())
+                    .httpOptions(httpOptions(gemini))
                     .build();
         }
         return client;

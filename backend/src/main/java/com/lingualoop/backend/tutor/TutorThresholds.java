@@ -32,6 +32,9 @@ public final class TutorThresholds {
     /** Thời điểm frontend nhắc gia sư chốt lại. */
     public static final int WRAP_UP_AT_SECONDS = 540;
 
+    /** Dung sai sau trần 10 phút (trễ mạng, lượt chấm đang chờ Azure) trước khi backend tự đóng phiên đã started. */
+    public static final int SESSION_GRACE_SECONDS = 30;
+
     /** Quá thời gian này mà gia sư chưa nói câu đầu tiên thì phiên là "không kết nối được". */
     public static final int START_TIMEOUT_SECONDS = 15;
 
