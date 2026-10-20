@@ -310,6 +310,8 @@
         "omittedHint": "Azure did not hear this word"
       },
       "detail": {
+        "modelIpa": "Model",
+        "heard": "Sounds Azure heard from you (pick one for a tip)",
         "close": "Close",
         "badPhoneme": "The sound /{{symbol}}/ is off. Listen to the model, then say it slowly.",
         "goodWord": "This word is good. Keep the rhythm and stress of the model.",

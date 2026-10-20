@@ -310,6 +310,8 @@
         "omittedHint": "Azure không nghe thấy từ này"
       },
       "detail": {
+        "modelIpa": "Mẫu",
+        "heard": "Âm Azure nghe được từ bạn (chọn một âm để xem mẹo)",
         "close": "Đóng",
         "badPhoneme": "Âm /{{symbol}}/ chưa chuẩn. Nghe mẫu rồi đọc chậm âm này.",
         "goodWord": "Từ này đọc tốt. Giữ nhịp và trọng âm như câu mẫu.",
