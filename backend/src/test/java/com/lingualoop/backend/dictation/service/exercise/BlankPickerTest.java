@@ -1,4 +1,4 @@
-package com.lingualoop.backend.dictation.service.prompt;
+package com.lingualoop.backend.dictation.service.exercise;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import com.lingualoop.backend.dictation.service.GradingTestSupport;
-import com.lingualoop.backend.dictation.service.SentenceToken;
-import com.lingualoop.backend.dictation.service.WordClass;
+import com.lingualoop.backend.dictation.service.token.GradingTestSupport;
+import com.lingualoop.backend.dictation.service.token.SentenceToken;
+import com.lingualoop.backend.dictation.service.token.WordClass;
 import com.lingualoop.backend.practice.dto.ClassCountsView;
 
 class BlankPickerTest {

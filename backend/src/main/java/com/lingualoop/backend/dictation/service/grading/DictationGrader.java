@@ -11,8 +11,8 @@ import java.util.TreeMap;
 
 import org.springframework.stereotype.Component;
 
-import com.lingualoop.backend.dictation.service.SentenceToken;
-import com.lingualoop.backend.dictation.service.SentenceTokenService;
+import com.lingualoop.backend.dictation.service.token.SentenceToken;
+import com.lingualoop.backend.dictation.service.token.SentenceTokenService;
 
 /** Chấm một lượt nghe chép: cả câu (Normal/Hard) hoặc các ô trống (Easy). Java thuần, không đụng DB. */
 @Component
@@ -33,7 +33,7 @@ public class DictationGrader {
 
     /**
      * Normal/Hard: căn chỉnh cả câu với chữ đã gõ. Điểm = số từ đúng / (số từ trong câu + số từ thừa).
-     * {@code revealedPositions} là các từ đã mở: tính là sai. Vị trí ngoài câu bị bỏ qua.
+     * revealedPositions là các từ đã mở: tính là sai.
      */
     public GradedAttempt gradeFull(String sentenceText, String typedText, Set<Integer> revealedPositions) {
         List<SentenceToken> gradable = tokens.tokenize(sentenceText).stream()
@@ -69,8 +69,8 @@ public class DictationGrader {
     }
 
     /**
-     * Easy: chỉ chấm các ô trống (khóa của {@code blankValues} là vị trí token), theo thứ tự vị trí.
-     * Điểm = số ô đúng / số ô. Vị trí không phải từ chấm được thì ném {@link IllegalArgumentException}.
+     * Easy: chỉ chấm các ô trống, theo thứ tự vị trí.
+     * Điểm = số ô đúng / số ô.
      */
     public GradedAttempt gradeBlanks(String sentenceText, Map<Integer, String> blankValues,
             Set<Integer> revealedPositions) {

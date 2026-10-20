@@ -10,7 +10,7 @@ public record PromptResponse(DictationLevel level, int wordCount, List<PromptTok
         tokens = List.copyOf(tokens);
     }
 
-    /** Ô trống ({@code blank = true}) không có {@code display}; từ hiện sẵn không có {@code length}. */
+    /** Ô trống (blank = true) không có display; từ hiện sẵn không có length. */
     public record PromptToken(int position, String display, Integer length, boolean blank) {
     }
 }

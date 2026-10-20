@@ -6,6 +6,7 @@ final class EditDistance {
     private EditDistance() {
     }
 
+    /** Tính khoảng cách chỉnh sửa nhỏ nhất giữa hai chuỗi. */
     static int levenshtein(String a, String b) {
         int[] previous = new int[b.length() + 1];
         int[] current = new int[b.length() + 1];
@@ -25,7 +26,7 @@ final class EditDistance {
         return previous[b.length()];
     }
 
-    /** Ngưỡng "gần đúng về chữ cái": tối đa max(1, floor(độ dài / 3)) ký tự khác. */
+    /** Tính số ký tự khác biệt tối đa được chấp nhận khi xem một từ là gần đúng. */
     static int nearThreshold(String expected) {
         return Math.max(1, expected.length() / 3);
     }

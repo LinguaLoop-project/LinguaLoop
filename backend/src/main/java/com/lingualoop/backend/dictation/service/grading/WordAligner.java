@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 /**
- * Căn chỉnh từ đúng với từ học viên gõ bằng quy hoạch động Levenshtein theo từ (giống {@code align()}
+ * Căn chỉnh từ đúng với từ học viên gõ bằng quy hoạch động Levenshtein theo từ (giống align()
  * của mockup), thêm bước gộp 2 từ đúng thành 1 từ gõ và tách 1 từ đúng thành 2 từ gõ khi hai bên tương đương.
  */
 @Component

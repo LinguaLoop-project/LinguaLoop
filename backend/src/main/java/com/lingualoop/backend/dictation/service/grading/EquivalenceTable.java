@@ -40,7 +40,7 @@ public final class EquivalenceTable {
         }
     }
 
-    /** {@code a}, {@code b} là từ hoặc cụm đã chuẩn hóa. Đối xứng, không bắc cầu. */
+    /** a, b là từ hoặc cụm đã chuẩn hóa. Đối xứng, không bắc cầu. */
     public boolean matches(String a, String b) {
         return a.equals(b)
                 || Normalizer.squash(a).equals(Normalizer.squash(b))

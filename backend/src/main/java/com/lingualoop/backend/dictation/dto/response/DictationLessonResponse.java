@@ -14,7 +14,7 @@ public record DictationLessonResponse(UUID id, String slug, String title, String
         sentences = List.copyOf(sentences);
     }
 
-    /** {@code text} và {@code textVi} chỉ có khi câu đã có kết quả. */
+    /** text và textVi chỉ có khi câu đã có kết quả. */
     public record SentenceItem(UUID id, int sortOrder, int startMs, int endMs, int wordCount, String text,
             String textVi, LatestResult latest) {
     }
