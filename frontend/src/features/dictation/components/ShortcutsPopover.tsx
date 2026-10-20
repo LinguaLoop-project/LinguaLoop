@@ -27,6 +27,7 @@ export default function ShortcutsPopover() {
         <Kbd>→</Kbd>
       </span>,
     ],
+    [t("shortcuts.cloze"), <span key="cz" className="text-xs text-text-muted">{t("shortcuts.clozeKeys")}</span>],
     [
       t("shortcuts.level"),
       <span key="lv" className="flex gap-1">

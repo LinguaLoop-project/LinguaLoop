@@ -44,7 +44,7 @@ public final class Normalizer {
         return chunk.substring(start, end);
     }
 
-    /** Tách theo khoảng trắng, chuẩn hóa từng khối, bỏ khối rỗng; {@code null} coi như rỗng. */
+    /** Tách theo khoảng trắng, chuẩn hóa từng khối, bỏ khối rỗng; null coi như rỗng. */
     public static List<String> words(String text) {
         if (text == null) {
             return List.of();

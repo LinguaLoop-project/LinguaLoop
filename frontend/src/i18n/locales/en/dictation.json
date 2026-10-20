@@ -12,9 +12,10 @@
     "easyHelp": "Fill in the missing words",
     "normalHelp": "Type the whole sentence, slots show each word's length",
     "hardHelp": "Type the whole sentence, no hints",
-    "easySoon": "Easy level is coming in an upcoming update",
     "changed": "{{level}} level",
-    "changedNext": "{{level}} level applies from the next sentence"
+    "changedNext": "{{level}} level applies from the next sentence",
+    "easyUnavailable": "This sentence is too short for blanks at Easy level.",
+    "useNormal": "Use Normal level"
   },
   "media": {
     "youtube": "YouTube",
@@ -52,7 +53,18 @@
     "submit": "Check",
     "submitting": "Checking…",
     "enterHint": "check",
-    "empty": "Type the sentence you heard first"
+    "empty": "Type the sentence you heard first",
+    "emptyCloze": "Fill in at least one blank first",
+    "giveUp": "Show the sentence",
+    "cloze": "Sentence with blanks",
+    "blank": "Blank {{n}}/{{total}}",
+    "reveal": "Reveal this blank (counts as wrong)",
+    "revealed": "Revealed word, counts as wrong",
+    "clozeHint": "next blank",
+    "hint": "Hint",
+    "hintTitle": "Reveal the next correct word (it counts as wrong)",
+    "revealSlot": "Reveal word {{n}} (counts as wrong)",
+    "hintLabel": "Hint"
   },
   "result": {
     "score": "points",
@@ -65,19 +77,24 @@
     "noDetail": "The word-by-word breakdown only shows right after you finish a sentence in this session. Press “Redo sentence” to try again.",
     "moodGreat": "Your ears are sharp!",
     "moodOk": "Almost there. Listen again and look at the colored words.",
-    "moodHard": "That one is tough. Try a slower speed and redo it."
+    "moodHard": "That one is tough. Try a slower speed and redo it.",
+    "gaveUp": "You viewed the answer, this attempt is left out of your stats"
   },
   "legend": {
     "correct": "Correct",
     "omitted": "Missed",
     "substituted": "Wrong word",
     "misspelled": "Misspelled",
-    "inserted": "Extra"
+    "inserted": "Extra",
+    "revealed": "Opened"
   },
   "tip": {
     "inserted": "Extra word",
     "youTyped": "you typed “{{word}}”",
-    "fallback": "Wrong"
+    "fallback": "Wrong",
+    "revealed": "You opened this word",
+    "homophone": "Homophone: sounds the same but is spelled differently",
+    "homophoneMark": "Homophone"
   },
   "category": {
     "function_omitted": "Missed function word",
@@ -119,7 +136,9 @@
     "submit": "Check · next sentence",
     "newline": "New line",
     "prevNext": "Previous / next sentence",
-    "level": "Easy / Normal / Hard level"
+    "level": "Easy / Normal / Hard level",
+    "cloze": "Blanks",
+    "clozeKeys": "Space next blank · Backspace previous"
   },
   "state": {
     "loading": "Loading dictation lesson",
@@ -131,6 +150,31 @@
     "proTitle": "This lesson is for Pro",
     "proDesc": "Upgrade to Pro to practice this lesson.",
     "emptyTitle": "This lesson has no sentences yet",
-    "emptyDesc": "The instructor hasn't split this lesson into sentences yet, so dictation isn't available."
+    "emptyDesc": "The instructor hasn't split this lesson into sentences yet, so dictation isn't available.",
+    "promptLoading": "Preparing the sentence",
+    "promptFailed": "Couldn't load this sentence's blanks. Check your connection and try again."
+  },
+  "errors": {
+    "easyUnavailable": "This sentence is too short for blanks. Use Normal level.",
+    "invalidBlanks": "The blanks no longer match the sentence. Press “Redo sentence” for a fresh one."
+  },
+  "done": {
+    "title": "Dictation lesson complete",
+    "average": "Average score",
+    "noScore": "No score yet",
+    "good": "80 and up",
+    "mid": "60 to 79",
+    "bad": "Below 60",
+    "weak": "Sentences worth another listen",
+    "sentenceN": "Sentence {{n}}",
+    "redo": "Redo at {{level}} level",
+    "suggest": "You're doing well. Try a harder level.",
+    "shadowing": "Practice shadowing",
+    "back": "Back to the lesson"
+  },
+  "hint": {
+    "allCorrect": "Every word you typed is correct",
+    "offline": "You're offline, so no hint right now",
+    "failed": "Couldn't get a hint, try again"
   }
 }

@@ -5,6 +5,8 @@ import type {
   DictationLesson,
   DictationLevel,
   DictationPrompt,
+  RevealWordBody,
+  RevealWordResult,
   SubmitAttemptBody,
 } from "./types";
 
@@ -27,6 +29,15 @@ export const dictationApi = {
     const response = await axiosClient.get<ApiResponse<DictationPrompt>>(
       `/dictation/sentences/${sentenceId}/prompt`,
       { params: { level }, timeout: REQUEST_TIMEOUT_MS },
+    );
+    return response.data.data;
+  },
+
+  revealWord: async (sentenceId: string, body: RevealWordBody): Promise<RevealWordResult> => {
+    const response = await axiosClient.post<ApiResponse<RevealWordResult>>(
+      `/dictation/sentences/${sentenceId}/reveal`,
+      body,
+      { timeout: REQUEST_TIMEOUT_MS },
     );
     return response.data.data;
   },

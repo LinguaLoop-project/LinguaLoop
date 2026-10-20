@@ -8,10 +8,12 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.FieldValidationException;
 import com.lingualoop.backend.common.exception.NotFoundException;
+import com.lingualoop.backend.dictation.dto.request.RevealWordRequest;
 import com.lingualoop.backend.dictation.dto.request.SubmitAttemptRequest;
 import com.lingualoop.backend.dictation.dto.response.AttemptResultResponse;
 import com.lingualoop.backend.dictation.dto.response.AttemptResultResponse.ClassResultResponse;
@@ -28,12 +31,18 @@ import com.lingualoop.backend.dictation.dto.response.DictationLessonResponse.Lat
 import com.lingualoop.backend.dictation.dto.response.DictationLessonResponse.SentenceItem;
 import com.lingualoop.backend.dictation.dto.response.PromptResponse;
 import com.lingualoop.backend.dictation.dto.response.PromptResponse.PromptToken;
+import com.lingualoop.backend.dictation.dto.response.RevealWordResponse;
 import com.lingualoop.backend.dictation.mapper.DictationMapper;
+import com.lingualoop.backend.dictation.service.exercise.BlankPicker;
+import com.lingualoop.backend.dictation.service.exercise.NextWordFinder;
 import com.lingualoop.backend.dictation.service.grading.DictationGrader;
 import com.lingualoop.backend.dictation.service.grading.GradedAttempt;
 import com.lingualoop.backend.dictation.service.grading.GradedWord;
+import com.lingualoop.backend.dictation.service.grading.Normalizer;
 import com.lingualoop.backend.dictation.service.grading.WordOutcome;
-import com.lingualoop.backend.dictation.service.prompt.BlankPicker;
+import com.lingualoop.backend.dictation.service.token.SentenceToken;
+import com.lingualoop.backend.dictation.service.token.SentenceTokenService;
+import com.lingualoop.backend.dictation.service.token.WordClass;
 import com.lingualoop.backend.lesson.dto.LessonView;
 import com.lingualoop.backend.lesson.dto.SentenceView;
 import com.lingualoop.backend.lesson.enums.PracticeMode;
@@ -63,6 +72,7 @@ class DictationServiceImpl implements DictationService {
     private final DictationStatsQueryService statsQueryService;
     private final SentenceTokenService tokenService;
     private final BlankPicker blankPicker;
+    private final NextWordFinder nextWordFinder;
     private final DictationGrader grader;
     private final DictationMapper mapper;
     private final Clock clock;
@@ -95,6 +105,27 @@ class DictationServiceImpl implements DictationService {
                     .map(t -> new PromptToken(t.position(), null, t.normalized().length(), true)).toList());
             case easy -> new PromptResponse(level, words.size(), easyTokens(userId, sentence.id(), tokens));
         };
+    }
+
+    @Override
+    public RevealWordResponse revealWord(UUID userId, UUID sentenceId, RevealWordRequest request) {
+        SentenceView sentence = loadPracticeSentence(userId, sentenceId);
+        List<SentenceToken> words = tokenService.tokenize(sentence.text()).stream()
+                .filter(t -> !t.normalized().isEmpty()).toList();
+
+        int index;
+        if (request.position() != null) {
+            index = IntStream.range(0, words.size()).filter(i -> words.get(i).position() == request.position())
+                    .findFirst().orElseThrow(() -> new FieldValidationException("position", "InvalidPosition"));
+        } else {
+            OptionalInt unmatched = nextWordFinder.firstUnmatchedIndex(words, request.typedText());
+            if (unmatched.isEmpty()) {
+                return RevealWordResponse.none();
+            }
+            index = unmatched.getAsInt();
+        }
+        SentenceToken token = words.get(index);
+        return new RevealWordResponse(token.position(), index, Normalizer.stripEdges(token.display()));
     }
 
     @Override

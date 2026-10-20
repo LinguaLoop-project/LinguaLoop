@@ -1,4 +1,4 @@
-package com.lingualoop.backend.dictation.service;
+package com.lingualoop.backend.dictation.service.token;
 
 import java.util.Arrays;
 import java.util.HashSet;

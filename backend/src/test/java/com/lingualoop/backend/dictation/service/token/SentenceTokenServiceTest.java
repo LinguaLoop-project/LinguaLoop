@@ -1,4 +1,4 @@
-package com.lingualoop.backend.dictation.service;
+package com.lingualoop.backend.dictation.service.token;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

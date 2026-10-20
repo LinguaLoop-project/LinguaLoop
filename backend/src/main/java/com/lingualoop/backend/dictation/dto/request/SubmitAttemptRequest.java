@@ -27,7 +27,6 @@ public record SubmitAttemptRequest(
         @Min(0) @Max(10000) Integer replayCount,
         @Min(0) @Max(3600000) Integer durationMs) {
 
-    /** Các field tuỳ chọn thiếu thì nhận giá trị mặc định (false, 0, tập rỗng); Jackson không nhận null cho kiểu nguyên thủy. */
     public SubmitAttemptRequest {
         gaveUp = gaveUp == null ? Boolean.FALSE : gaveUp;
         retry = retry == null ? Boolean.FALSE : retry;

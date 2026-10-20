@@ -7,6 +7,7 @@ import type {
   DictationLevel,
   DictationSettings,
   PlaybackRate,
+  RevealWordBody,
   SubmitAttemptBody,
 } from "./types";
 
@@ -18,7 +19,8 @@ const NETWORK_MODE = "always" as const;
 
 export const dictationKeys = {
   lesson: (slug: string) => ["dictation", "lesson", slug] as const,
-  prompt: (sentenceId: string, level: DictationLevel) => ["dictation", "prompt", sentenceId, level] as const,
+  prompt: (sentenceId: string, level: DictationLevel, nonce: number) =>
+    ["dictation", "prompt", sentenceId, level, nonce] as const,
 };
 
 /** Bài, danh sách câu và kết quả gần nhất của từng câu. */
@@ -30,14 +32,27 @@ export const useDictationLesson = (slug?: string) =>
     networkMode: NETWORK_MODE,
   });
 
-/** Đề của một câu (Normal: độ dài từng từ). Đề không đổi theo thời gian nên không tải lại. */
-export const useDictationPrompt = (sentenceId: string | undefined, level: DictationLevel, enabled: boolean) =>
+/**
+ * Đề của một câu (Normal: độ dài từng từ; Easy: câu kèm các ô trống). Đề Normal không đổi nên không tải lại.
+ * Đề Easy backend khoét ngẫu nhiên mỗi lần gọi, nên mỗi lượt làm (`nonce`) có đề riêng và không được giữ lại cache.
+ */
+export const useDictationPrompt = (sentenceId: string | undefined, level: DictationLevel, enabled: boolean, nonce = 0) =>
   useQuery({
-    queryKey: dictationKeys.prompt(sentenceId ?? "", level),
+    queryKey: dictationKeys.prompt(sentenceId ?? "", level, level === "easy" ? nonce : 0),
     queryFn: () => dictationApi.getPrompt(sentenceId!, level),
     enabled: enabled && !!sentenceId,
     staleTime: Infinity,
+    gcTime: level === "easy" ? 0 : undefined,
+    retry: false,
     networkMode: NETWORK_MODE,
+  });
+
+/** Xin lộ một từ. Không lưu gì ở backend và không đụng cache: từ đã lộ chỉ được tính khi nộp bài. */
+export const useRevealWord = () =>
+  useMutation({
+    networkMode: NETWORK_MODE,
+    mutationFn: ({ sentenceId, body }: { sentenceId: string; body: RevealWordBody }) =>
+      dictationApi.revealWord(sentenceId, body),
   });
 
 /** Nộp một lượt; thành công thì cập nhật kết quả gần nhất và chữ gốc của câu trong cache của bài. */
@@ -86,14 +101,14 @@ const DEFAULT_SETTINGS: DictationSettings = {
   hideVideo: false,
 };
 
-/** Đọc cài đặt đã lưu, bỏ qua giá trị lạ (vd mức Easy chưa hỗ trợ); localStorage bị chặn thì dùng mặc định. */
+/** Đọc cài đặt đã lưu, bỏ qua giá trị lạ; localStorage bị chặn thì dùng mặc định. */
 function readSettings(): DictationSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return DEFAULT_SETTINGS;
     const saved = JSON.parse(raw) as Partial<DictationSettings>;
     return {
-      level: saved.level === "hard" ? "hard" : "normal",
+      level: saved.level === "easy" || saved.level === "hard" ? saved.level : "normal",
       rate: RATES.includes(saved.rate as PlaybackRate) ? (saved.rate as PlaybackRate) : DEFAULT_SETTINGS.rate,
       autoNext: saved.autoNext === true,
       showTranslation: saved.showTranslation !== false,

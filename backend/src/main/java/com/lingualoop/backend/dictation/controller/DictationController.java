@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lingualoop.backend.common.response.ApiResponse;
+import com.lingualoop.backend.dictation.dto.request.RevealWordRequest;
 import com.lingualoop.backend.dictation.dto.request.SubmitAttemptRequest;
 import com.lingualoop.backend.dictation.dto.response.AttemptResultResponse;
 import com.lingualoop.backend.dictation.dto.response.DictationLessonResponse;
 import com.lingualoop.backend.dictation.dto.response.PromptResponse;
+import com.lingualoop.backend.dictation.dto.response.RevealWordResponse;
 import com.lingualoop.backend.dictation.service.DictationService;
 import com.lingualoop.backend.practice.enums.DictationLevel;
 import com.lingualoop.backend.security.CurrentUserId;
@@ -38,6 +40,12 @@ public class DictationController {
     public ApiResponse<PromptResponse> getPrompt(@CurrentUserId UUID userId, @PathVariable UUID id,
             @RequestParam DictationLevel level) {
         return ApiResponse.ok(dictationService.getPrompt(userId, id, level));
+    }
+
+    @PostMapping("/sentences/{id}/reveal")
+    public ApiResponse<RevealWordResponse> revealWord(@CurrentUserId UUID userId, @PathVariable UUID id,
+            @Valid @RequestBody RevealWordRequest request) {
+        return ApiResponse.ok(dictationService.revealWord(userId, id, request));
     }
 
     @PostMapping("/sentences/{id}/attempts")

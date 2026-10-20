@@ -1,4 +1,4 @@
-package com.lingualoop.backend.dictation.service.prompt;
+package com.lingualoop.backend.dictation.service.exercise;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,8 +11,8 @@ import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Component;
 
-import com.lingualoop.backend.dictation.service.SentenceToken;
-import com.lingualoop.backend.dictation.service.WordClass;
+import com.lingualoop.backend.dictation.service.token.SentenceToken;
+import com.lingualoop.backend.dictation.service.token.WordClass;
 import com.lingualoop.backend.practice.dto.ClassCountsView;
 
 /** Chọn các ô trống cho mức Easy. */

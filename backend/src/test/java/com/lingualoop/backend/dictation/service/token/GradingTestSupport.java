@@ -1,6 +1,6 @@
-package com.lingualoop.backend.dictation.service;
+package com.lingualoop.backend.dictation.service.token;
 
-/** Dựng {@link SentenceTokenService} cho test ở package khác (Impl là package-private). */
+/** Dựng SentenceTokenService cho test ở package khác (Impl là package-private). */
 public final class GradingTestSupport {
 
     private GradingTestSupport() {

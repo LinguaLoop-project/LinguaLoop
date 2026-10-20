@@ -2,9 +2,9 @@ package com.lingualoop.backend.dictation.service.grading;
 
 import org.springframework.stereotype.Component;
 
-import com.lingualoop.backend.dictation.service.WordClass;
+import com.lingualoop.backend.dictation.service.token.WordClass;
 
-/** Phân loại một cặp (từ đúng, từ học viên gõ) theo thứ tự luật ở spec §3.3. */
+/** Phân loại một cặp (từ đúng, từ học viên gõ). */
 @Component
 public class OutcomeResolver {
 
@@ -17,7 +17,7 @@ public class OutcomeResolver {
     }
 
     /**
-     * Không bao giờ trả {@code inserted} hay {@code revealed}: hai kết quả đó do bộ chấm quyết định.
+     * Không bao giờ trả inserted hay revealed: hai kết quả đó do bộ chấm quyết định.
      * Luật "chỉ gõ phần gốc của từ biến đổi" được xét trước luật gần đúng, nếu không nó không bao giờ chạy
      * (iced / ice chỉ cách nhau một chữ cái).
      */

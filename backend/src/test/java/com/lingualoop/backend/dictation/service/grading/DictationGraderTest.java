@@ -13,8 +13,8 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
-import com.lingualoop.backend.dictation.service.GradingTestSupport;
-import com.lingualoop.backend.dictation.service.WordClass;
+import com.lingualoop.backend.dictation.service.token.GradingTestSupport;
+import com.lingualoop.backend.dictation.service.token.WordClass;
 
 class DictationGraderTest {
 

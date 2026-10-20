@@ -5,7 +5,7 @@ import org.mapstruct.ReportingPolicy;
 
 import com.lingualoop.backend.dictation.dto.response.AttemptResultResponse.GradedWordResponse;
 import com.lingualoop.backend.dictation.dto.response.DictationLessonResponse.LatestResult;
-import com.lingualoop.backend.dictation.service.WordClass;
+import com.lingualoop.backend.dictation.service.token.WordClass;
 import com.lingualoop.backend.dictation.service.grading.GradedWord;
 import com.lingualoop.backend.dictation.service.grading.WordOutcome;
 import com.lingualoop.backend.practice.dto.DictationAttemptView;

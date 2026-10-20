@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import Button from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
 import Icon from "@/components/common/Icon";
 import { getYouTubeVideoId } from "@/lib/format";
 import { toast } from "@/stores/toastStore";
+import ClozeInput from "../components/ClozeInput";
+import CompletionScreen from "../components/CompletionScreen";
 import DictationError from "../components/DictationError";
 import DictationSkeleton from "../components/DictationSkeleton";
 import FullInput from "../components/FullInput";
@@ -21,14 +24,46 @@ import {
   useDictationPrompt,
   useDictationSettings,
   useOnlineStatus,
+  useRevealWord,
   useSubmitAttempt,
 } from "../hooks";
-import type { AttemptResult, DictationLesson, DictationLevel, PlaybackRate, PlayableLevel } from "../types";
+import type {
+  AttemptResult,
+  DictationLesson,
+  DictationLevel,
+  PlaybackRate,
+  HardHint,
+  PromptToken,
+  RevealedWords,
+  RevealWordBody,
+  SubmitAttemptBody,
+} from "../types";
 import { useDictationShortcuts } from "../useDictationShortcuts";
 import { usePlayer } from "../usePlayer";
-import { firstUndoneIndex, isNetworkError, MAX_DURATION_MS } from "../utils";
+import {
+  errorKind,
+  firstUndoneIndex,
+  isNetworkError,
+  MAX_DURATION_MS,
+  mergeRevealed,
+  submitErrorKind,
+  type SubmitErrorKind,
+} from "../utils";
 
 const AUTOPLAY_DELAY_MS = 300;
+
+/** Kết quả một câu làm trong phiên này; `context` là đề Easy của lượt đó để hiện cả câu ở màn kết quả. */
+interface SessionResult {
+  attempt: AttemptResult;
+  context: PromptToken[] | null;
+}
+
+const SUBMIT_ERROR_TEXT: Record<SubmitErrorKind, (t: TFunction<"dictation">) => string> = {
+  offline: (t) => t("state.offline"),
+  failed: (t) => t("state.submitFailed"),
+  easyUnavailable: (t) => t("errors.easyUnavailable"),
+  invalidBlanks: (t) => t("errors.invalidBlanks"),
+};
 
 const Alert = ({ icon, children }: { icon: string; children: React.ReactNode }) => (
   <div
@@ -43,22 +78,31 @@ const Alert = ({ icon, children }: { icon: string; children: React.ReactNode }) 
 /** Phần làm bài của một bài đã tải xong: điều phối câu hiện tại, trình phát, nộp bài và kết quả. */
 function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   const { t } = useTranslation("dictation");
-  const navigate = useNavigate();
   const sentences = lesson.sentences;
   const total = sentences.length;
 
   const [settings, updateSettings] = useDictationSettings();
   const online = useOnlineStatus();
   const submitAttempt = useSubmitAttempt(lesson.slug);
+  const revealWord = useRevealWord();
 
   const [index, setIndex] = useState(() => Math.max(0, firstUndoneIndex(sentences, -1)));
   const [typed, setTyped] = useState("");
   const [replays, setReplays] = useState(0);
-  const [workLevel, setWorkLevel] = useState<PlayableLevel>(settings.level);
+  const [workLevel, setWorkLevel] = useState<DictationLevel>(settings.level);
+  /** Easy: chữ đã điền theo `position` của ô. */
+  const [blanks, setBlanks] = useState<Record<number, string>>({});
+  /** Các từ đã lộ (con mắt ở Easy/Normal, nút Gợi ý ở Hard), theo vị trí token. Tính là sai khi nộp. */
+  const [revealed, setRevealed] = useState<RevealedWords>({});
+  /** Mỗi lượt làm một câu ở Easy cần đề (bộ ô) riêng; tăng số này để lấy đề mới. */
+  const [promptNonce, setPromptNonce] = useState(0);
+  /** Gợi ý gần nhất ở mức Hard, hiện bên dưới ô gõ (không sửa chữ của người dùng). */
+  const [hint, setHint] = useState<HardHint | null>(null);
+  const [finished, setFinished] = useState(false);
   /** Các câu đang được làm lại; lượt nộp tiếp theo của chúng gửi `retry = true`. */
   const [redo, setRedo] = useState<ReadonlySet<string>>(() => new Set());
   /** Kết quả từng từ của các câu làm trong phiên này (backend chưa trả lại chi tiết của lượt cũ). */
-  const [results, setResults] = useState<Record<string, AttemptResult>>({});
+  const [results, setResults] = useState<Record<string, SessionResult>>({});
 
   const startedAt = useRef<number | null>(null);
   const autoplayTimer = useRef<number | undefined>(undefined);
@@ -75,15 +119,22 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
 
   const sentence = sentences[index];
   const mode: "work" | "review" = sentence.latest && !redo.has(sentence.id) ? "review" : "work";
-  const result = results[sentence.id] ?? null;
+  const result = results[sentence.id]?.attempt ?? null;
+  const resultContext = results[sentence.id]?.context ?? null;
   const canPlay = player.status === "ready" || player.status === "blocked";
-  const nothingLeft = firstUndoneIndex(sentences, index) < 0;
+  const nothingLeft = firstUndoneIndex(sentences, index, redo) < 0;
 
-  const promptQuery = useDictationPrompt(sentence.id, "normal", mode === "work" && workLevel === "normal");
-  const slotLengths =
+  const promptQuery = useDictationPrompt(sentence.id, workLevel, mode === "work" && workLevel !== "hard", promptNonce);
+  const slots =
     workLevel === "normal"
-      ? (promptQuery.data?.tokens.flatMap((token) => (token.length == null ? [] : [token.length])) ?? null)
+      ? (promptQuery.data?.tokens.flatMap((token) =>
+          token.length == null ? [] : [{ position: token.position, length: token.length }],
+        ) ?? null)
       : null;
+  const hintLengthsQuery = useDictationPrompt(sentence.id, "normal", mode === "work" && workLevel === "hard" && hint !== null);
+  const hintLengths = hintLengthsQuery.data?.tokens.flatMap((token) => (token.length == null ? [] : [token.length])) ?? null;
+  const easyTokens = workLevel === "easy" ? (promptQuery.data?.tokens ?? null) : null;
+  const hasInput = typed.trim() !== "" || Object.values(blanks).some((v) => v.trim() !== "") || Object.keys(revealed).length > 0;
 
   useEffect(() => {
     startedAt.current = Date.now();
@@ -97,16 +148,25 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
     if (done > 0) toast(t("state.resumed", { n: index + 1, done, total }), { icon: "history" });
   }, [sentences, index, total, t]);
 
-  /** Chuyển sang câu `next`, xóa chữ đã gõ và đếm lại từ đầu. */
-  const begin = (next: number, autoplay = false) => {
+  /** Xóa chữ đã gõ, ô đã điền/mở và đếm lại từ đầu cho một lượt làm mới (Easy lấy bộ ô mới). */
+  const resetAttempt = (level: DictationLevel) => {
+    setTyped("");
+    setBlanks({});
+    setRevealed({});
+    setHint(null);
+    setReplays(0);
+    setWorkLevel(level);
+    setPromptNonce((n) => n + 1);
+    startedAt.current = Date.now();
+  };
+
+  /** Chuyển sang câu `next` (mức làm mặc định là mức trong cài đặt). */
+  const begin = (next: number, autoplay = false, level: DictationLevel = settings.level) => {
     window.clearTimeout(autoplayTimer.current);
     player.stop();
     submitAttempt.reset();
     setIndex(next);
-    setTyped("");
-    setReplays(0);
-    setWorkLevel(settings.level);
-    startedAt.current = Date.now();
+    resetAttempt(level);
     const target = sentences[next];
     if (autoplay && !target.latest) {
       autoplayTimer.current = window.setTimeout(() => {
@@ -131,39 +191,116 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
     player.playSentence(sentence.startMs, sentence.endMs);
   };
 
-  const submit = () => {
-    if (mode !== "work" || submitAttempt.isPending) return;
-    if (!typed.trim()) {
-      toast(t("input.empty"), { icon: "keyboard" });
-      return;
-    }
+  const onAttemptDone = (attempt: AttemptResult) => {
+    player.stop();
+    setResults((prev) => ({ ...prev, [sentence.id]: { attempt, context: workLevel === "easy" ? easyTokens : null } }));
+    setRedo((prev) => new Set([...prev].filter((id) => id !== sentence.id)));
+  };
+
+  /** Nộp lượt hiện tại; `extra` là phần riêng của từng cách nộp (chữ đã gõ, các ô Easy, bỏ cuộc). */
+  const send = (extra: Partial<SubmitAttemptBody>) => {
     const elapsed = Date.now() - (startedAt.current ?? Date.now());
     submitAttempt.mutate(
       {
         sentenceId: sentence.id,
         body: {
           level: workLevel,
-          typedText: typed,
           playbackRate: settings.rate,
           replayCount: replays,
           durationMs: Math.min(elapsed, MAX_DURATION_MS),
           retry: redo.has(sentence.id),
+          ...extra,
         },
       },
+      { onSuccess: onAttemptDone },
+    );
+  };
+
+  const revealedPositions = () => Object.keys(revealed).map(Number);
+
+  /** Xin backend lộ một từ rồi gọi `apply`; chưa có từ nào để lộ (đã gõ đúng hết) thì chỉ báo. */
+  const reveal = (body: RevealWordBody, apply: (position: number, index: number, word: string) => void) => {
+    if (revealWord.isPending) return;
+    revealWord.mutate(
+      { sentenceId: sentence.id, body },
       {
-        onSuccess: (attempt) => {
-          player.stop();
-          setResults((prev) => ({ ...prev, [sentence.id]: attempt }));
-          setRedo((prev) => new Set([...prev].filter((id) => id !== sentence.id)));
+        onSuccess: ({ position, index, word }) => {
+          if (position === null || index === null || word === null) {
+            toast(t("hint.allCorrect"), { icon: "circle-check" });
+            return;
+          }
+          apply(position, index, word);
         },
+        onError: (error) => toast(isNetworkError(error) ? t("hint.offline") : t("hint.failed"), { icon: "wifi-off" }),
       },
     );
   };
 
+  const addRevealed = (position: number, word: string) => setRevealed((prev) => ({ ...prev, [position]: word }));
+
+  /** Con mắt của một ô (Easy) hoặc một từ (Normal). Easy bỏ chữ đã điền dở ở ô đó. */
+  const revealAt = (position: number) =>
+    reveal({ position }, (revealedPosition, _index, word) => {
+      addRevealed(revealedPosition, word);
+      setBlanks((prev) => Object.fromEntries(Object.entries(prev).filter(([p]) => Number(p) !== revealedPosition)));
+    });
+
+  /** Nút Gợi ý (Hard): lộ từ đúng kế tiếp và hiện bên dưới ô gõ, không đụng vào chữ đã gõ. */
+  const showHint = () =>
+    reveal({ typedText: typed }, (position, index, word) => {
+      addRevealed(position, word);
+      setHint({ prefix: typed.split(/\s+/).filter(Boolean).slice(0, index), index, word });
+    });
+
+  /** Easy chỉ gửi các ô trống: vị trí, chữ đã điền (trừ ô đã mở) và các ô đã mở. */
+  const easyBody = (tokens: PromptToken[]): Partial<SubmitAttemptBody> => ({
+    blankPositions: tokens.filter((token) => token.blank).map((token) => token.position),
+    blanks: Object.fromEntries(
+      Object.entries(blanks).filter(([position, value]) => value.trim() !== "" && !(Number(position) in revealed)),
+    ),
+    revealedPositions: revealedPositions(),
+  });
+
+  const submit = () => {
+    if (mode !== "work" || submitAttempt.isPending) return;
+    if (workLevel === "easy") {
+      if (!easyTokens) return;
+      const filled = Object.entries(blanks).some(([position, v]) => v.trim() !== "" && !(Number(position) in revealed));
+      if (!filled && revealedPositions().length === 0) {
+        toast(t("input.emptyCloze"), { icon: "keyboard" });
+        return;
+      }
+      send(easyBody(easyTokens));
+      return;
+    }
+    const typedText = slots ? mergeRevealed(typed, slots.map((slot) => slot.position), revealed) : typed;
+    if (!typedText.trim()) {
+      toast(t("input.empty"), { icon: "keyboard" });
+      return;
+    }
+    send({ typedText, revealedPositions: revealedPositions() });
+  };
+
+  /** "Hiện cả câu": nộp lượt bỏ cuộc (0 điểm, không vào thống kê); chữ gõ dở bị bỏ. */
+  const giveUp = () => {
+    if (mode !== "work" || submitAttempt.isPending) return;
+    if (workLevel === "easy") {
+      if (easyTokens) send({ gaveUp: true, blankPositions: easyBody(easyTokens).blankPositions });
+      return;
+    }
+    send({ gaveUp: true });
+  };
+
+  /** Gửi lại đúng lượt vừa thất bại (nộp thường hoặc bỏ cuộc). */
+  const retryLast = () => {
+    if (submitAttempt.variables) submitAttempt.mutate(submitAttempt.variables, { onSuccess: onAttemptDone });
+  };
+
   const goNext = () => {
-    const next = firstUndoneIndex(sentences, index);
+    const next = firstUndoneIndex(sentences, index, redo);
     if (next < 0) {
-      navigate(`/student/lessons/${lesson.slug}`);
+      player.stop();
+      setFinished(true);
       return;
     }
     begin(next, settings.autoNext);
@@ -174,21 +311,28 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
     submitAttempt.reset();
     setRedo((prev) => new Set(prev).add(sentence.id));
     setResults((prev) => Object.fromEntries(Object.entries(prev).filter(([id]) => id !== sentence.id)));
-    setTyped("");
-    setReplays(0);
-    setWorkLevel(settings.level);
-    startedAt.current = Date.now();
+    resetAttempt(settings.level);
+  };
+
+  /** "Làm lại ở mức khó hơn" ở màn hoàn thành: cả bài thành làm lại, bắt đầu từ câu 1. */
+  const redoLesson = (level: DictationLevel) => {
+    updateSettings({ level });
+    setRedo(new Set(sentences.map((s) => s.id)));
+    setResults({});
+    setFinished(false);
+    begin(0, false, level);
+  };
+
+  const reviewSentence = (i: number) => {
+    setFinished(false);
+    begin(i);
   };
 
   const changeLevel = (level: DictationLevel) => {
-    if (level === "easy") {
-      toast(t("level.easySoon"), { icon: "lock" });
-      return;
-    }
     if (level === settings.level && level === workLevel) return;
     updateSettings({ level });
     const label = t(`level.${level}`);
-    if (mode === "work" && typed.trim() === "") {
+    if (mode === "work" && !hasInput) {
       setWorkLevel(level);
       toast(t("level.changed", { level: label }), { icon: "sliders-horizontal" });
     } else {
@@ -243,85 +387,141 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 items-start gap-6 min-[1100px]:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="flex min-w-0 flex-col gap-3">
-          <MediaBar
-            player={player}
-            videoRef={videoRef}
-            sentences={sentences}
-            currentIndex={index}
-            lessonDurationSec={lesson.durationSec}
-            hideVideo={settings.hideVideo}
-            onToggleVideo={() => updateSettings({ hideVideo: !settings.hideVideo })}
-            onSelect={(i) => i !== index && begin(i)}
-          />
-          <div className="@container rounded-xl border border-border bg-surface px-[18px] py-3.5 shadow-[var(--shadow-card)]">
-            <PlayerControls
-              index={index}
-              total={total}
-              replays={replays}
-              level={shownLevel}
-              playing={player.playing}
-              canPlay={canPlay}
-              rate={settings.rate}
-              onPrev={prevSentence}
-              onNext={nextSentence}
-              onPlay={playCurrent}
-              onReplay={replayCurrent}
-              onRate={changeRate}
+      {finished ? (
+        <CompletionScreen lesson={lesson} level={settings.level} onRedo={redoLesson} onSelectSentence={reviewSentence} />
+      ) : (
+        <div className="grid grid-cols-1 items-start gap-6 min-[1100px]:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="flex min-w-0 flex-col gap-3">
+            <MediaBar
+              player={player}
+              videoRef={videoRef}
+              sentences={sentences}
+              currentIndex={index}
+              lessonDurationSec={lesson.durationSec}
+              hideVideo={settings.hideVideo}
+              onToggleVideo={() => updateSettings({ hideVideo: !settings.hideVideo })}
+              onSelect={(i) => i !== index && begin(i)}
             />
-            {mode === "work" ? (
-              <>
-                {!online && !submitAttempt.isError && <Alert icon="wifi-off">{t("state.offline")}</Alert>}
-                {submitAttempt.isError && (
-                  <Alert icon="circle-alert">
-                    <span>{isNetworkError(submitAttempt.error) ? t("state.offline") : t("state.submitFailed")}</span>
-                    <Button variant="text" size="sm" onClick={submit}>
-                      {t("state.retry")}
+            <div className="@container rounded-xl border border-border bg-surface px-[18px] py-3.5 shadow-[var(--shadow-card)]">
+              <PlayerControls
+                index={index}
+                total={total}
+                replays={replays}
+                level={shownLevel}
+                playing={player.playing}
+                canPlay={canPlay}
+                rate={settings.rate}
+                onPrev={prevSentence}
+                onNext={nextSentence}
+                onPlay={playCurrent}
+                onReplay={replayCurrent}
+                onRate={changeRate}
+              />
+              {mode === "work" ? (
+                <>
+                  {!online && !submitAttempt.isError && <Alert icon="wifi-off">{t("state.offline")}</Alert>}
+                  {submitAttempt.isError && (
+                    <Alert icon="circle-alert">
+                      <span>{SUBMIT_ERROR_TEXT[submitErrorKind(submitAttempt.error)](t)}</span>
+                      {["offline", "failed"].includes(submitErrorKind(submitAttempt.error)) && (
+                        <Button variant="text" size="sm" onClick={retryLast}>
+                          {t("state.retry")}
+                        </Button>
+                      )}
+                    </Alert>
+                  )}
+                  {workLevel === "easy" ? (
+                    promptQuery.isError ? (
+                      <Alert icon="circle-alert">
+                        {errorKind(promptQuery.error).code === "DICTATION_EASY_UNAVAILABLE" ? (
+                          <>
+                            <span>{t("level.easyUnavailable")}</span>
+                            <Button variant="text" size="sm" onClick={() => setWorkLevel("normal")}>
+                              {t("level.useNormal")}
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <span>{t("state.promptFailed")}</span>
+                            <Button variant="text" size="sm" onClick={() => void promptQuery.refetch()}>
+                              {t("state.retry")}
+                            </Button>
+                          </>
+                        )}
+                      </Alert>
+                    ) : easyTokens ? (
+                      <ClozeInput
+                        key={`${sentence.id}-${promptNonce}`}
+                        tokens={easyTokens}
+                        values={blanks}
+                        revealed={revealed}
+                        revealing={revealWord.isPending}
+                        onChange={(position, value) => setBlanks((prev) => ({ ...prev, [position]: value }))}
+                        onReveal={revealAt}
+                        onSubmit={submit}
+                        onGiveUp={giveUp}
+                        submitting={submitAttempt.isPending}
+                      />
+                    ) : (
+                      <div
+                        role="status"
+                        aria-label={t("state.promptLoading")}
+                        className="h-[120px] animate-pulse rounded-lg border border-border bg-surface-hover"
+                      />
+                    )
+                  ) : (
+                    <FullInput
+                      key={`${sentence.id}-${promptNonce}`}
+                      value={typed}
+                      onChange={setTyped}
+                      onSubmit={submit}
+                      onGiveUp={giveUp}
+                      submitting={submitAttempt.isPending}
+                      slots={slots}
+                      revealed={revealed}
+                      revealing={revealWord.isPending}
+                      onReveal={revealAt}
+                      onHint={showHint}
+                      hint={hint}
+                      hintLengths={hintLengths}
+                    />
+                  )}
+                </>
+              ) : (
+                <>
+                  <ResultDiff
+                    score={result?.score ?? sentence.latest?.score ?? 0}
+                    level={shownLevel}
+                    words={result?.words ?? null}
+                    context={resultContext}
+                    gaveUp={result?.gaveUp ?? sentence.latest?.gaveUp ?? false}
+                    text={result?.text ?? sentence.text}
+                    textVi={result?.textVi ?? sentence.textVi}
+                    showTranslation={settings.showTranslation}
+                  />
+                  <div className="mt-4 flex flex-wrap items-center gap-2.5">
+                    <Button variant="ghost" size="sm" leftIcon={<Icon name="rotate-ccw" />} onClick={redoSentence}>
+                      {t("result.again")}
                     </Button>
-                  </Alert>
-                )}
-                <FullInput
-                  key={sentence.id}
-                  value={typed}
-                  onChange={setTyped}
-                  onSubmit={submit}
-                  submitting={submitAttempt.isPending}
-                  slotLengths={slotLengths}
-                />
-              </>
-            ) : (
-              <>
-                <ResultDiff
-                  score={result?.score ?? sentence.latest?.score ?? 0}
-                  level={shownLevel}
-                  words={result?.words ?? null}
-                  text={result?.text ?? sentence.text}
-                  textVi={result?.textVi ?? sentence.textVi}
-                  showTranslation={settings.showTranslation}
-                />
-                <div className="mt-4 flex flex-wrap items-center gap-2.5">
-                  <Button variant="ghost" size="sm" leftIcon={<Icon name="rotate-ccw" />} onClick={redoSentence}>
-                    {t("result.again")}
-                  </Button>
-                  <Button variant="ghost" size="sm" leftIcon={<Icon name="volume-2" />} disabled={!canPlay} onClick={replayCurrent}>
-                    {t("result.listenAgain")}
-                  </Button>
-                  <span className="grow" />
-                  <Button
-                    onClick={goNext}
-                    leftIcon={nothingLeft ? <Icon name="check" /> : undefined}
-                    rightIcon={nothingLeft ? undefined : <Icon name="arrow-right" />}
-                  >
-                    {nothingLeft ? t("result.finish") : t("result.next")}
-                  </Button>
-                </div>
-              </>
-            )}
+                    <Button variant="ghost" size="sm" leftIcon={<Icon name="volume-2" />} disabled={!canPlay} onClick={replayCurrent}>
+                      {t("result.listenAgain")}
+                    </Button>
+                    <span className="grow" />
+                    <Button
+                      onClick={goNext}
+                      leftIcon={nothingLeft ? <Icon name="check" /> : undefined}
+                      rightIcon={nothingLeft ? undefined : <Icon name="arrow-right" />}
+                    >
+                      {nothingLeft ? t("result.finish") : t("result.next")}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
+          <SentenceList sentences={sentences} currentIndex={index} onSelect={(i) => i !== index && begin(i)} />
         </div>
-        <SentenceList sentences={sentences} currentIndex={index} onSelect={(i) => i !== index && begin(i)} />
-      </div>
+      )}
     </section>
   );
 }

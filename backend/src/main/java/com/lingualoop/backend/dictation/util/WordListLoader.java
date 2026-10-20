@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.springframework.core.io.ClassPathResource;
 
-/** Đọc file danh sách từ trên classpath: mỗi dòng một mục, bỏ dòng trống và dòng chú thích bắt đầu bằng {@code #}. */
+/** Đọc file danh sách từ trên classpath: mỗi dòng một mục, bỏ dòng trống và dòng chú thích bắt đầu bằng .. */
 public final class WordListLoader {
 
     private WordListLoader() {

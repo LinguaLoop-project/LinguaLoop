@@ -12,9 +12,10 @@
     "easyHelp": "Điền các từ còn thiếu",
     "normalHelp": "Gõ cả câu, ô từ cho biết độ dài",
     "hardHelp": "Gõ cả câu, không biết số từ",
-    "easySoon": "Mức Easy sẽ có trong bản cập nhật tới",
     "changed": "Mức {{level}}",
-    "changedNext": "Mức {{level}} sẽ áp dụng từ câu tiếp theo"
+    "changedNext": "Mức {{level}} sẽ áp dụng từ câu tiếp theo",
+    "easyUnavailable": "Câu này quá ngắn để khoét ô ở mức Easy.",
+    "useNormal": "Làm ở mức Normal"
   },
   "media": {
     "youtube": "YouTube",
@@ -51,7 +52,18 @@
     "submit": "Kiểm tra",
     "submitting": "Đang chấm…",
     "enterHint": "kiểm tra",
-    "empty": "Gõ câu bạn nghe được trước nhé"
+    "empty": "Gõ câu bạn nghe được trước nhé",
+    "emptyCloze": "Điền ít nhất một ô trước nhé",
+    "giveUp": "Hiện cả câu",
+    "cloze": "Câu có ô trống",
+    "blank": "Ô trống {{n}}/{{total}}",
+    "reveal": "Lộ ô này (tính là sai)",
+    "revealed": "Từ đã lộ, tính là sai",
+    "clozeHint": "sang ô kế",
+    "hint": "Gợi ý",
+    "hintTitle": "Lộ từ đúng kế tiếp (từ này tính là sai)",
+    "revealSlot": "Lộ từ thứ {{n}} (tính là sai)",
+    "hintLabel": "Gợi ý"
   },
   "result": {
     "score": "điểm",
@@ -64,19 +76,24 @@
     "noDetail": "Chi tiết từng từ chỉ hiện ngay sau khi bạn làm xong câu trong lượt này. Bấm “Làm lại câu” để thử lại.",
     "moodGreat": "Tai bạn bắt tốt lắm!",
     "moodOk": "Gần đúng rồi. Nghe lại để ý mấy từ tô màu.",
-    "moodHard": "Câu này khó thật. Thử tốc độ chậm hơn rồi làm lại nhé."
+    "moodHard": "Câu này khó thật. Thử tốc độ chậm hơn rồi làm lại nhé.",
+    "gaveUp": "Bạn đã xem đáp án, lượt này không tính vào thống kê"
   },
   "legend": {
     "correct": "Đúng",
     "omitted": "Bỏ sót",
     "substituted": "Nhầm từ",
     "misspelled": "Sai chính tả",
-    "inserted": "Thừa"
+    "inserted": "Thừa",
+    "revealed": "Đã mở"
   },
   "tip": {
     "inserted": "Thừa từ",
     "youTyped": "bạn gõ “{{word}}”",
-    "fallback": "Sai"
+    "fallback": "Sai",
+    "revealed": "Bạn đã mở từ này",
+    "homophone": "Từ đồng âm: nghe giống nhau nhưng viết khác",
+    "homophoneMark": "Biểu tượng từ đồng âm"
   },
   "category": {
     "function_omitted": "Bỏ sót từ chức năng",
@@ -117,7 +134,9 @@
     "submit": "Kiểm tra · câu tiếp",
     "newline": "Xuống dòng",
     "prevNext": "Câu trước / sau",
-    "level": "Mức Easy / Normal / Hard"
+    "level": "Mức Easy / Normal / Hard",
+    "cloze": "Ô trống",
+    "clozeKeys": "Space sang ô kế · Backspace về ô trước"
   },
   "state": {
     "loading": "Đang tải bài nghe chép",
@@ -129,6 +148,31 @@
     "proTitle": "Bài này dành cho gói Pro",
     "proDesc": "Nâng cấp lên Pro để nghe chép bài này.",
     "emptyTitle": "Bài này chưa có câu nào",
-    "emptyDesc": "Giảng viên chưa cắt câu cho bài này nên chưa thể nghe chép."
+    "emptyDesc": "Giảng viên chưa cắt câu cho bài này nên chưa thể nghe chép.",
+    "promptLoading": "Đang chuẩn bị câu",
+    "promptFailed": "Chưa tải được đề của câu này. Kiểm tra kết nối rồi thử lại."
+  },
+  "errors": {
+    "easyUnavailable": "Câu này quá ngắn để khoét ô. Hãy làm ở mức Normal.",
+    "invalidBlanks": "Các ô trống không còn khớp với câu. Bấm “Làm lại câu” để lấy đề mới."
+  },
+  "done": {
+    "title": "Hoàn thành bài nghe chép",
+    "average": "Điểm trung bình",
+    "noScore": "Chưa có điểm",
+    "good": "Từ 80",
+    "mid": "60 đến 79",
+    "bad": "Dưới 60",
+    "weak": "Các câu nên nghe lại",
+    "sentenceN": "Câu {{n}}",
+    "redo": "Làm lại ở mức {{level}}",
+    "suggest": "Bạn làm tốt rồi. Thử mức khó hơn nhé.",
+    "shadowing": "Luyện shadowing",
+    "back": "Về bài học"
+  },
+  "hint": {
+    "allCorrect": "Các từ bạn gõ đều đúng rồi",
+    "offline": "Mất mạng nên chưa lấy được gợi ý",
+    "failed": "Chưa lấy được gợi ý, thử lại nhé"
   }
 }

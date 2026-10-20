@@ -87,7 +87,7 @@ class DictationStatsQueryServiceIntegrationTest {
         assertThat(service.countsByWordClass(data.newUser(), LONG_AGO)).isEmpty();
     }
 
-    /** Chèn một lượt có {@code total} từ cùng nhóm, trong đó {@code errors} từ bị thay sai, còn lại đúng. */
+    /** Chèn một lượt có total từ cùng nhóm, trong đó errors từ bị thay sai, còn lại đúng. */
     private void attempt(UUID user, UUID sentence, String level, boolean retry, boolean gaveUp, Instant at,
             String wordClass, int total, int errors) {
         long id = data.insertAttempt(user, sentence, level, retry, gaveUp, at);

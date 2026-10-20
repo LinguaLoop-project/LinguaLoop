@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.lingualoop.backend.dictation.util.WordListLoader;
 
-/** Nhóm từ đồng âm (their / there / they're). Từ đồng âm gõ nhầm được tính là {@code misspelled}. */
+/** Nhóm từ đồng âm (their / there / they're). Từ đồng âm gõ nhầm được tính là misspelled. */
 @Component
 public class HomophoneTable {
 

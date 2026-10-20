@@ -87,6 +87,30 @@ export interface AttemptResult {
   textVi: string | null;
 }
 
+/** Xin lộ một từ: có `position` thì lộ từ ở vị trí đó, không thì lộ từ đầu tiên chưa đúng trong `typedText`. */
+export interface RevealWordBody {
+  position?: number;
+  typedText?: string;
+}
+
+/** Các field đều null khi chữ đã gõ đã đúng hết nên không còn từ nào để lộ. */
+export interface RevealWordResult {
+  position: number | null;
+  /** Thứ tự trong các từ chấm được của câu (bỏ token chỉ có dấu câu). */
+  index: number | null;
+  word: string | null;
+}
+
+/** Gợi ý gần nhất ở mức Hard: các từ đã đúng liền trước, từ vừa lộ và thứ tự của nó trong câu. */
+export interface HardHint {
+  prefix: string[];
+  index: number;
+  word: string;
+}
+
+/** Từ đã lộ, theo vị trí token. */
+export type RevealedWords = Readonly<Record<number, string>>;
+
 export interface SubmitAttemptBody {
   level: DictationLevel;
   typedText?: string;
@@ -100,13 +124,10 @@ export interface SubmitAttemptBody {
   durationMs?: number;
 }
 
-/** Mức mà giao diện hiện đang hỗ trợ làm bài. */
-export type PlayableLevel = Exclude<DictationLevel, "easy">;
-
 export type PlaybackRate = 0.5 | 0.75 | 1;
 
 export interface DictationSettings {
-  level: PlayableLevel;
+  level: DictationLevel;
   rate: PlaybackRate;
   /** Tự phát câu tiếp theo khi sang câu mới. */
   autoNext: boolean;
