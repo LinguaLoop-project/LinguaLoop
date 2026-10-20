@@ -81,6 +81,7 @@ Nếu muốn đổi interface sau khi đã merge, báo người kia trước.
 | Kế | Lâm | View số lượt chấm và AI theo ngày | Tuần 11: tổng quan admin | Tuần 10 |
 | Kế | Lâm | Ghi và đọc lượt nghe chép kèm kết quả từng từ (`PracticeAttemptService`; Kế viết giúp, Lâm duyệt) | Tuần 3: nghe chép lưu lượt, hiện kết quả gần nhất của từng câu | Tuần 2 |
 | Kế | Lâm | Số cơ hội và lỗi theo nhóm từ của người dùng (`DictationStatsQueryService`; Kế viết giúp, Lâm duyệt) | Tuần 3: nghe chép mức Easy khoét ô theo điểm yếu | Tuần 2 |
+| Kế | Lâm | Tiến độ nghe chép và điểm cao nhất từng câu (`PracticeProgressQueryService`; Kế viết giúp, Lâm duyệt). Phía lesson gọi qua interface này và ghi `user_lesson_progress`, `user_lesson_mode_progress` trong `LessonProgressService.recordActivity` | Tuần 3: trang chi tiết bài và thư viện hiện % nghe chép và điểm từng câu | Tuần 3 |
 | Lâm | Kế | Tách và phân loại từ của một câu (`SentenceTokenService`) | Tuần 9: chọn câu có nhiều từ thuộc nhóm điểm yếu | Tuần 3 |
 
 ## 5. Quy ước
