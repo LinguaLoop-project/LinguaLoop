@@ -48,6 +48,11 @@ public class DictationController {
         return ApiResponse.ok(dictationService.revealWord(userId, id, request));
     }
 
+    @GetMapping("/sentences/{id}/attempts/latest")
+    public ApiResponse<AttemptResultResponse> getLatestAttempt(@CurrentUserId UUID userId, @PathVariable UUID id) {
+        return ApiResponse.ok(dictationService.getLatestAttempt(userId, id));
+    }
+
     @PostMapping("/sentences/{id}/attempts")
     public ApiResponse<AttemptResultResponse> submitAttempt(@CurrentUserId UUID userId, @PathVariable UUID id,
             @Valid @RequestBody SubmitAttemptRequest request) {

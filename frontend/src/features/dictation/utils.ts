@@ -1,5 +1,5 @@
 import { NETWORK_ERROR, toApiError } from "@/features/auth";
-import type { DictationLevel, DictationSentence } from "./types";
+import type { AttemptResult, DictationLevel, DictationSentence, PromptToken } from "./types";
 
 export type ScoreTone = "good" | "mid" | "bad";
 
@@ -81,6 +81,18 @@ export function mergeRevealed(typed: string, slotPositions: number[], revealed: 
     else if (next < typedWords.length) merged.push(typedWords[next++]);
   }
   return [...merged, ...typedWords.slice(next)].join(" ");
+}
+
+/** Cả câu ở mức Easy cho màn kết quả: các ô trống là những từ đã chấm, còn lại là từ hiện sẵn. Null ở mức khác. */
+export function resultContext(result: AttemptResult | null): PromptToken[] | null {
+  if (!result || result.tokens.length === 0) return null;
+  const graded = new Set(result.words.flatMap((word) => (word.position === null ? [] : [word.position])));
+  return result.tokens.map((token) => ({
+    position: token.position,
+    display: token.display,
+    length: null,
+    blank: graded.has(token.position),
+  }));
 }
 
 export type SubmitErrorKind = "offline" | "failed" | "easyUnavailable" | "invalidBlanks";

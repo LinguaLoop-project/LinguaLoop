@@ -19,6 +19,7 @@ const NETWORK_MODE = "always" as const;
 
 export const dictationKeys = {
   lesson: (slug: string) => ["dictation", "lesson", slug] as const,
+  latest: (sentenceId: string) => ["dictation", "latest", sentenceId] as const,
   prompt: (sentenceId: string, level: DictationLevel, nonce: number) =>
     ["dictation", "prompt", sentenceId, level, nonce] as const,
 };
@@ -47,6 +48,16 @@ export const useDictationPrompt = (sentenceId: string | undefined, level: Dictat
     networkMode: NETWORK_MODE,
   });
 
+/** Kết quả từng từ của lượt gần nhất, để mở lại câu đã làm (trang tải lại hoặc quay lại câu). */
+export const useLatestAttempt = (sentenceId: string | undefined, enabled: boolean) =>
+  useQuery({
+    queryKey: dictationKeys.latest(sentenceId ?? ""),
+    queryFn: () => dictationApi.getLatestAttempt(sentenceId!),
+    enabled: enabled && !!sentenceId,
+    retry: false,
+    networkMode: NETWORK_MODE,
+  });
+
 /** Xin lộ một từ. Không lưu gì ở backend và không đụng cache: từ đã lộ chỉ được tính khi nộp bài. */
 export const useRevealWord = () =>
   useMutation({
@@ -63,6 +74,7 @@ export const useSubmitAttempt = (slug: string) => {
     mutationFn: ({ sentenceId, body }: { sentenceId: string; body: SubmitAttemptBody }) =>
       dictationApi.submitAttempt(sentenceId, body),
     onSuccess: (result: AttemptResult, { sentenceId, body }) => {
+      queryClient.setQueryData<AttemptResult>(dictationKeys.latest(sentenceId), result);
       queryClient.setQueryData<DictationLesson>(dictationKeys.lesson(slug), (lesson) =>
         lesson
           ? {

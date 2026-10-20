@@ -26,6 +26,7 @@ import com.lingualoop.backend.dictation.dto.request.RevealWordRequest;
 import com.lingualoop.backend.dictation.dto.request.SubmitAttemptRequest;
 import com.lingualoop.backend.dictation.dto.response.AttemptResultResponse;
 import com.lingualoop.backend.dictation.dto.response.AttemptResultResponse.ClassResultResponse;
+import com.lingualoop.backend.dictation.dto.response.AttemptResultResponse.ResultToken;
 import com.lingualoop.backend.dictation.dto.response.DictationLessonResponse;
 import com.lingualoop.backend.dictation.dto.response.DictationLessonResponse.LatestResult;
 import com.lingualoop.backend.dictation.dto.response.DictationLessonResponse.SentenceItem;
@@ -38,6 +39,7 @@ import com.lingualoop.backend.dictation.service.exercise.NextWordFinder;
 import com.lingualoop.backend.dictation.service.grading.DictationGrader;
 import com.lingualoop.backend.dictation.service.grading.GradedAttempt;
 import com.lingualoop.backend.dictation.service.grading.GradedWord;
+import com.lingualoop.backend.dictation.service.grading.HomophoneTable;
 import com.lingualoop.backend.dictation.service.grading.Normalizer;
 import com.lingualoop.backend.dictation.service.grading.WordOutcome;
 import com.lingualoop.backend.dictation.service.token.SentenceToken;
@@ -48,7 +50,9 @@ import com.lingualoop.backend.lesson.dto.SentenceView;
 import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.lesson.service.LessonProgressService;
 import com.lingualoop.backend.lesson.service.SentenceQueryService;
+import com.lingualoop.backend.practice.dto.AttemptWordView;
 import com.lingualoop.backend.practice.dto.ClassCountsView;
+import com.lingualoop.backend.practice.dto.DictationAttemptDetailView;
 import com.lingualoop.backend.practice.dto.DictationAttemptView;
 import com.lingualoop.backend.practice.dto.request.AttemptWordRequest;
 import com.lingualoop.backend.practice.dto.request.DictationAttemptRequest;
@@ -74,6 +78,7 @@ class DictationServiceImpl implements DictationService {
     private final BlankPicker blankPicker;
     private final NextWordFinder nextWordFinder;
     private final DictationGrader grader;
+    private final HomophoneTable homophones;
     private final DictationMapper mapper;
     private final Clock clock;
     private final RandomGenerator random;
@@ -157,7 +162,43 @@ class DictationServiceImpl implements DictationService {
 
         return new AttemptResultResponse(attemptId, request.level(), graded.score(), request.gaveUp(),
                 graded.words().stream().map(mapper::toResponse).toList(), classResults(graded.words()),
-                sentence.text(), sentence.textVi());
+                sentence.text(), sentence.textVi(), easy ? resultTokens(tokens) : List.of());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AttemptResultResponse getLatestAttempt(UUID userId, UUID sentenceId) {
+        SentenceView sentence = loadPracticeSentence(userId, sentenceId);
+        DictationAttemptDetailView attempt = practiceAttemptService.findLatestDictationAttempt(userId, sentenceId)
+                .orElseThrow(() -> new NotFoundException("No dictation attempt for this sentence yet"));
+        List<SentenceToken> tokens = tokenService.tokenize(sentence.text());
+        Map<Integer, SentenceToken> byPosition = tokens.stream()
+                .collect(Collectors.toMap(SentenceToken::position, t -> t));
+        List<GradedWord> words = attempt.words().stream().map(w -> toGradedWord(w, byPosition)).toList();
+        return new AttemptResultResponse(attempt.attemptId(), attempt.level(), attempt.score(), attempt.gaveUp(),
+                words.stream().map(mapper::toResponse).toList(), classResults(words), sentence.text(),
+                sentence.textVi(), attempt.level() == DictationLevel.easy ? resultTokens(tokens) : List.of());
+    }
+
+    /**
+     * Dựng lại phần hiển thị mà DB không lưu: chữ gốc kèm dấu câu lấy từ câu, nhãn đồng âm tính lại. Từ thừa
+     * được lưu sau các từ của câu nên khi mở lại chúng nằm cuối danh sách.
+     */
+    private GradedWord toGradedWord(AttemptWordView stored, Map<Integer, SentenceToken> byPosition) {
+        WordOutcome outcome = mapper.toOutcome(stored.outcome());
+        if (outcome == WordOutcome.inserted) {
+            return new GradedWord(null, null, null, stored.actualWord(), null, outcome, false);
+        }
+        SentenceToken token = byPosition.get(stored.position());
+        String display = token == null ? stored.expectedWord() : token.display();
+        boolean homophone = outcome == WordOutcome.misspelled && stored.actualWord() != null
+                && homophones.sameGroup(stored.expectedWord(), stored.actualWord());
+        return new GradedWord(stored.position(), display, stored.expectedWord(), stored.actualWord(),
+                mapper.toWordClass(stored.wordClass()), outcome, homophone);
+    }
+
+    private static List<ResultToken> resultTokens(List<SentenceToken> tokens) {
+        return tokens.stream().map(t -> new ResultToken(t.position(), t.display())).toList();
     }
 
     /** Easy: các ô phải là từ khoét được, không trùng, không nhiều hơn số ô tối đa của câu. */

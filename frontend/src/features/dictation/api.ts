@@ -42,6 +42,15 @@ export const dictationApi = {
     return response.data.data;
   },
 
+  /** Kết quả từng từ của lượt gần nhất của câu; 404 nếu chưa làm. */
+  getLatestAttempt: async (sentenceId: string): Promise<AttemptResult> => {
+    const response = await axiosClient.get<ApiResponse<AttemptResult>>(
+      `/dictation/sentences/${sentenceId}/attempts/latest`,
+      { timeout: REQUEST_TIMEOUT_MS },
+    );
+    return response.data.data;
+  },
+
   submitAttempt: async (sentenceId: string, body: SubmitAttemptBody): Promise<AttemptResult> => {
     const response = await axiosClient.post<ApiResponse<AttemptResult>>(
       `/dictation/sentences/${sentenceId}/attempts`,

@@ -12,7 +12,7 @@ Trạng thái: `Nháp` → `Đã duyệt` (người dùng xác nhận) → `Đã
 | UC-AUTH-06 | Quên và đặt lại mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | Kế | 8 | Nháp |
 | UC-AUTH-07 | Tạo hoặc đổi mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | Kế | 5 | Nháp |
 | UC-AUTH-08 | Thiết lập hồ sơ học tập (onboarding) | Học viên | Cao | Kế | 8 | Nháp |
-| UC-DICT-01 | Nghe câu trong bài | Học viên | Cao | Kế | 11 | Nháp |
+| UC-DICT-01 | Nghe câu trong bài | Học viên | Cao | Kế | 12 | Nháp |
 | UC-DICT-02 | Chép câu và xem kết quả (Normal, Hard) | Học viên | Cao | Kế | 9 | Nháp |
 | UC-DICT-03 | Điền ô trống (Easy) | Học viên | Cao | Kế | 7 | Nháp |
 | UC-DICT-04 | Xin gợi ý (lộ từ) | Học viên | Cao | Kế | 6 | Nháp |

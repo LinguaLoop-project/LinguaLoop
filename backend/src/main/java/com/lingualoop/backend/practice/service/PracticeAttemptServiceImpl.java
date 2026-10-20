@@ -1,6 +1,7 @@
 package com.lingualoop.backend.practice.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.practice.dto.request.AttemptWordRequest;
 import com.lingualoop.backend.practice.dto.request.DictationAttemptRequest;
+import com.lingualoop.backend.practice.dto.DictationAttemptDetailView;
 import com.lingualoop.backend.practice.dto.DictationAttemptView;
 import com.lingualoop.backend.practice.enums.AttemptOutcome;
 import com.lingualoop.backend.practice.mapper.SentenceAttemptMapper;
@@ -33,6 +35,12 @@ class PracticeAttemptServiceImpl implements PracticeAttemptService {
     @Transactional(readOnly = true)
     public List<DictationAttemptView> findLatestDictationAttempts(UUID userId, UUID lessonId) {
         return mapper.toViews(attempts.findLatestDictationPerSentence(userId, lessonId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<DictationAttemptDetailView> findLatestDictationAttempt(UUID userId, UUID sentenceId) {
+        return attempts.findLatestDictationOfSentence(userId, sentenceId).map(mapper::toDetailView);
     }
 
     @Override

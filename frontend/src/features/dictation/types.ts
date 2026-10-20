@@ -76,6 +76,12 @@ export interface ClassResult {
   errors: number;
 }
 
+/** Một token của câu, dùng để hiện cả câu ở mức Easy. */
+export interface ResultToken {
+  position: number;
+  display: string;
+}
+
 export interface AttemptResult {
   attemptId: number;
   level: DictationLevel;
@@ -85,6 +91,8 @@ export interface AttemptResult {
   classes: ClassResult[];
   text: string;
   textVi: string | null;
+  /** Cả câu theo token, chỉ có ở mức Easy; rỗng ở mức khác. */
+  tokens: ResultToken[];
 }
 
 /** Xin lộ một từ: có `position` thì lộ từ ở vị trí đó, không thì lộ từ đầu tiên chưa đúng trong `typedText`. */

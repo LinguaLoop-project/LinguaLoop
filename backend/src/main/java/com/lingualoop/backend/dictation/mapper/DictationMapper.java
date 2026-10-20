@@ -28,5 +28,9 @@ public interface DictationMapper {
 
     AttemptWordClass toWordClass(WordClass wordClass);
 
+    WordOutcome toOutcome(AttemptOutcome outcome);
+
+    WordClass toWordClass(AttemptWordClass wordClass);
+
     LatestResult toLatest(DictationAttemptView view);
 }
