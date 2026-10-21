@@ -1,31 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-interface YTPlayer {
-  seekTo(seconds: number, allowSeekAhead: boolean): void;
-  playVideo(): void;
-  pauseVideo(): void;
-  getCurrentTime(): number;
-  setPlaybackRate(rate: number): void;
-  destroy(): void;
-}
-
-interface YTNamespace {
-  Player: new (
-    element: HTMLElement,
-    options: {
-      videoId: string;
-      playerVars: Record<string, string | number>;
-      events: { onReady: () => void; onError: () => void };
-    },
-  ) => YTPlayer;
-}
-
-declare global {
-  interface Window {
-    YT?: YTNamespace;
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
+import type { YouTubePlayer } from "@/lib/youtube";
 
 export interface ModelSegment {
   startMs: number;
@@ -70,7 +45,7 @@ export function useModelPlayer({
   const hostRef = useRef<HTMLDivElement | null>(null);
   /** Chỗ gắn thanh phát âm thanh của trình duyệt khi bài là tệp âm thanh. */
   const audioHostRef = useRef<HTMLDivElement | null>(null);
-  const playerRef = useRef<YTPlayer | null>(null);
+  const playerRef = useRef<YouTubePlayer | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [mediaFailed, setMediaFailed] = useState(false);
   const timerRef = useRef<number>(0);

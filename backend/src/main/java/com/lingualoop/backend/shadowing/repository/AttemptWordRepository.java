@@ -7,14 +7,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.lingualoop.backend.shadowing.entity.AttemptWord;
+import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
 
-public interface AttemptWordRepository extends JpaRepository<AttemptWord, Long> {
+public interface AttemptWordRepository extends JpaRepository<SentenceAttemptWord, Long> {
 
     /** Từ của nhiều lượt trong một truy vấn (tránh N+1), theo lượt rồi theo vị trí. */
     @Query("""
-            SELECT w FROM AttemptWord w
-            WHERE w.attempt.id IN :attemptIds
-            ORDER BY w.attempt.id, w.position""")
-    List<AttemptWord> findByAttemptIds(@Param("attemptIds") Collection<Long> attemptIds);
+            SELECT w FROM SentenceAttemptWord w
+            WHERE w.attemptId IN :attemptIds
+            ORDER BY w.attemptId, w.position""")
+    List<SentenceAttemptWord> findByAttemptIds(@Param("attemptIds") Collection<Long> attemptIds);
 }

@@ -24,6 +24,10 @@ function speak(text: string) {
 /** Màu điểm câu: ≥80 tốt, ≥60 trung bình, còn lại cần làm lại (`scoreTone` của mockup). */
 const scoreVariant = (score: number) => (score >= 80 ? "success" : score >= 60 ? "warning" : "danger");
 
+const MODES = ["dictation", "shadowing"] as const;
+
+const hasScore = (s: SentenceResponse) => MODES.some((m) => s.myBestScore[m] != null);
+
 export interface TranscriptListProps {
   sentences: SentenceResponse[];
   /** Bài Pro mà người dùng chưa có gói Pro. */
@@ -36,7 +40,7 @@ export interface TranscriptListProps {
   started: boolean;
 }
 
-/** Danh sách câu của bài (`.sentlist`): số câu, điểm tốt nhất, mốc thời gian, nút nghe. Transcript ẩn (làm mờ) sẵn để không lộ đáp án khi nghe chép. */
+/** Danh sách câu của bài (`.sentlist`): số câu, điểm tốt nhất của từng chế độ, mốc thời gian, nút nghe. Transcript ẩn (làm mờ) sẵn để không lộ đáp án khi nghe chép. */
 export default function TranscriptList({ sentences, locked, loading, error, onRetry, retrying, started }: TranscriptListProps) {
   const { t } = useTranslation("pages");
   const p = "student.lessonDetail.transcript";
@@ -45,7 +49,7 @@ export default function TranscriptList({ sentences, locked, loading, error, onRe
 
   const shown = sentences.slice(0, visible);
   const remaining = sentences.length - visible;
-  const currentIndex = started ? sentences.findIndex((s) => s.myBestScore == null) : -1;
+  const currentIndex = started ? sentences.findIndex((s) => !hasScore(s)) : -1;
 
   const body = () => {
     if (locked) {
@@ -73,7 +77,7 @@ export default function TranscriptList({ sentences, locked, loading, error, onRe
       <>
         <div id="sentList">
           {shown.map((s, idx) => {
-            const scored = s.myBestScore != null;
+            const scored = hasScore(s);
             return (
               <div key={s.id || idx} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-3 border-b border-border px-1 py-3.5 last:border-b-0">
                 <span
@@ -89,7 +93,14 @@ export default function TranscriptList({ sentences, locked, loading, error, onRe
                 </div>
                 <span className="flex items-center gap-2 text-[13px] text-text-subtle">
                   {scored ? (
-                    <Badge variant={scoreVariant(s.myBestScore!)}>{s.myBestScore}</Badge>
+                    MODES.map((m) => {
+                      const score = s.myBestScore[m];
+                      return score == null ? null : (
+                        <Badge key={m} variant={scoreVariant(score)}>
+                          {t(`${p}.score_${m}`)} {score}
+                        </Badge>
+                      );
+                    })
                   ) : idx === currentIndex ? (
                     <Badge variant="primary">{t(`${p}.current`, "Đang ở câu này")}</Badge>
                   ) : null}

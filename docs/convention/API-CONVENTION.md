@@ -96,6 +96,7 @@ Mọi lỗi, kể cả 401/403 do Spring Security trả, đều có cùng một 
 | `AUTH_GOOGLE_UNAVAILABLE` | 503 | Không gọi được Google (timeout, 5xx), Google từ chối client (sai secret), hoặc chưa cấu hình `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` |
 | `AUTH_GOOGLE_LINK_CONFLICT` | 409 | Email đã gắn với một tài khoản Google khác |
 | `AUTH_CURRENT_PASSWORD_WRONG` | 400 | Sai mật khẩu hiện tại khi đổi mật khẩu. `details.remainingAttempts`; sai lần thứ 5 trả `AUTH_ACCOUNT_LOCKED` |
+| `DICTATION_EASY_UNAVAILABLE` | 422 | Nghe chép mức Easy cho câu không có từ nào khoét được (toàn thán từ, tên riêng, dấu câu); frontend gợi ý chọn mức khác |
 | `INTERNAL_ERROR` | 500 | Lỗi không lường trước |
 
 ### Thêm mã lỗi mới
