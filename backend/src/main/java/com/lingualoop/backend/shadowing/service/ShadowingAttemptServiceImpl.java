@@ -19,7 +19,7 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.shadowing.dto.LatestAttemptResponse;
 import com.lingualoop.backend.shadowing.dto.ShadowingAttemptResponse;
-import com.lingualoop.backend.shadowing.entity.AttemptWord;
+import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
 import com.lingualoop.backend.shadowing.repository.AttemptWordRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository.LatestHead;
@@ -80,11 +80,11 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             return List.of();
         }
         Map<Long, List<LatestAttemptResponse.WordSummary>> wordsByAttempt = new HashMap<>();
-        for (AttemptWord w : wordRepository.findByAttemptIds(heads.stream().map(LatestHead::getAttemptId).toList())) {
-            wordsByAttempt.computeIfAbsent(w.getAttempt().getId(), k -> new ArrayList<>())
+        for (SentenceAttemptWord w : wordRepository.findByAttemptIds(heads.stream().map(LatestHead::getAttemptId).toList())) {
+            wordsByAttempt.computeIfAbsent(w.getAttemptId(), k -> new ArrayList<>())
                     .add(new LatestAttemptResponse.WordSummary(w.getPosition(),
                             w.getExpectedWord() != null ? w.getExpectedWord() : w.getActualWord(),
-                            w.getAccuracyScore().doubleValue(), w.getOutcome()));
+                            w.getAccuracyScore().doubleValue(), w.getOutcome().name()));
         }
         return heads.stream()
                 .map(h -> new LatestAttemptResponse(h.getSentenceId(), h.getAttemptId(), h.getScore().doubleValue(),

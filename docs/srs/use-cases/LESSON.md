@@ -78,7 +78,20 @@ Quy ước: "bài hiển thị" là bài có trạng thái APPROVED và chưa b�
 
 ---
 
+### UC-LESSON-07: Xem tiến độ nghe chép và điểm từng câu
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Học viên |
+| Mô tả | Cho phép tác nhân thấy mình đã nghe chép được bao nhiêu phần của một bài và điểm cao nhất của từng câu theo từng chế độ (nghe chép, shadowing). |
+| Điều kiện tiên quyết | Tác nhân đã đăng nhập. |
+| Điều kiện sau | Thư viện và trang chi tiết bài hiển thị tiến độ nghe chép; danh sách câu hiển thị điểm cao nhất của từng chế độ, mỗi chế độ một huy hiệu. |
+| Tiêu chí chấp nhận | **AC-LESSON-13 — Tiến độ nghe chép**<br>Given: Bài có 3 câu; tác nhân đã nộp ít nhất một lượt nghe chép (kể cả làm lại hoặc bỏ cuộc) cho 2 câu.<br>When: Tác nhân xem thư viện hoặc trang chi tiết bài.<br>Then: Tiến độ nghe chép là 67% (số câu có kết quả chia tổng số câu, làm tròn); mỗi câu chỉ tính một lần dù nộp nhiều lượt; bài chưa làm hiển thị 0%; học viên khác không ảnh hưởng.<br><br>**AC-LESSON-14 — Điểm cao nhất từng câu, theo chế độ**<br>Given: Tác nhân đã nộp nhiều lượt nghe chép cho một câu, điểm 40 và 86,6, và một lượt shadowing điểm 80.<br>When: Tác nhân xem danh sách câu của bài (`GET /lessons/{slug}/sentences`).<br>Then: Câu đó có `myBestScore` = `{ "dictation": 87, "shadowing": 80 }` (làm tròn) và trang bài hiện hai huy hiệu; câu chưa có điểm ở chế độ nào thì chế độ đó không có trường và không có huy hiệu; `myBestScore` luôn có mặt (có thể là `{}`). |
+| Độ ưu tiên | Trung bình |
+
+---
+
 ### Chưa thuộc phạm vi (ghi chú)
 
-- Lọc theo chế độ luyện (`mode`) và phần trăm tiến độ theo chế độ: chờ dữ liệu từ dictation/shadowing (`TODO(contract)`).
-- Điểm tốt nhất của học viên trên từng câu (`myBestScore`).
+- Lọc theo chế độ luyện (`mode`) và phần trăm tiến độ của shadowing: chờ dữ liệu từ shadowing (tiến độ nghe chép đã có, xem AC-LESSON-13).
+- Hoàn thành cả bài (`user_lesson_progress.completed_at`): chưa quy định khi nào một bài được coi là hoàn thành, nên chưa được ghi.

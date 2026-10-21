@@ -10,5 +10,9 @@ public record SentenceResponse(
     Integer startMs,
     Integer endMs,
     String cefrLevel,
-    Integer myBestScore
-) {}
+    BestScores myBestScore
+) {
+
+    /** Điểm cao nhất của người học cho câu, tách theo chế độ; chế độ chưa có điểm thì null (và không xuất hiện trong JSON). */
+    public record BestScores(Integer dictation, Integer shadowing) {}
+}
