@@ -98,3 +98,10 @@ export type TutorTurn = {
   role: "tutor" | "learner";
   text: string;
 };
+
+/** Tóm tắt một Phiên gia sư để bài học ghi lại. */
+export type TutorSummary = {
+  outcome: SessionOutcome;
+  /** Tiến độ các từ trong phiên; chỉ từ có attempts > 0 là đã luyện. */
+  words: WordView[];
+};

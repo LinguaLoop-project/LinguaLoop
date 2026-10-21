@@ -243,6 +243,101 @@
       "title": "Learning statistics",
       "description": "Charts of study time, words mastered and your progress."
     },
+    "tutor": {
+      "switch": {
+        "label": "Tutor",
+        "on": "on",
+        "off": "off",
+        "quotaOut": "none left today"
+      },
+      "ask": {
+        "title": "Study with the tutor in this lesson?",
+        "body": "After a sentence with words to fix, the tutor joins by voice to practise word by word. You can change this any time.",
+        "enable": "Turn on tutor",
+        "decline": "Study alone",
+        "freeNote": "Free: {{limit}} session per day"
+      },
+      "offer": {
+        "text_one": "I found {{count}} word to fix:",
+        "text_other": "I found {{count}} words to fix:",
+        "extra": " and {{count}} more",
+        "soon": "The tutor joins in {{seconds}}s…",
+        "now": "Join now",
+        "skip": "Skip this sentence"
+      },
+      "chips": {
+        "label": "Words in the sentence",
+        "title": "{{n}} attempts · best {{best}}",
+        "pick": "Click to practise this word",
+        "legend": "Red: needs fixing · blue: tried · green: passed · yellow: needs more practice · bold border: current word. Click any word to practise it."
+      },
+      "scoring": {
+        "title": "Scored attempt · the tutor is not listening",
+        "readSentence": "Read the whole sentence aloud:",
+        "readWord": "Read the word aloud (attempt {{n}}/{{max}}):",
+        "assessing": "Scoring… (not counted in session time)",
+        "hold": "Hold to read",
+        "holding": "Recording… release when done",
+        "orSpace": "or hold Space",
+        "cancel": "Cancel, back to chat"
+      },
+      "panel": {
+        "title": "Tutor",
+        "clockMax": "Max {{max}}",
+        "headset": "Wear headphones so the tutor does not hear its own voice.",
+        "start": "Start tutor session",
+        "later": "Later",
+        "connecting": "Connecting to the tutor…",
+        "speaking": "The tutor is speaking…",
+        "listening": "The tutor is listening… just talk naturally.",
+        "turns": "Conversation",
+        "showAll": "Show the whole conversation",
+        "collapse": "Collapse",
+        "offTopic": "The tutor asks you to return to the sentence ({{n}}/{{max}}). If you keep drifting, the session ends.",
+        "scoreWord": "Score “{{word}}”",
+        "scoreCurrent": "Score current word",
+        "scoreSentence": "Score the sentence",
+        "leave": "Back to the lesson"
+      },
+      "result": {
+        "title": "Session result",
+        "none": "No words were practised in this session.",
+        "outcome": {
+          "completed": "Done: you went through every word and read the whole sentence.",
+          "learner_exit": "You went back to the lesson.",
+          "off_topic": "The session ended because the conversation drifted from the lesson.",
+          "idle": "The session ended after too long a silence.",
+          "timeout": "The session reached its time limit (10 minutes).",
+          "connect_failed": "Could not connect to the tutor."
+        },
+        "status": {
+          "passed": "Passed",
+          "needs_practice": "Needs more practice",
+          "pending": "Not finished"
+        }
+      },
+      "fallback": {
+        "tipsIntro": "You can still practise with the tips below.",
+        "upgrade": "Unlock with Pro",
+        "retry": "Try again",
+        "default": {
+          "title": "Could not open the tutor session",
+          "body": "It may be your microphone, speaker or connection. Nothing was deducted."
+        },
+        "QUOTA_EXCEEDED": {
+          "title": "No tutor sessions left today",
+          "body": "You have used all of today's tutor sessions. The limit resets at 00:00; Pro is unlimited."
+        },
+        "TUTOR_TOO_MANY_FAILED_STARTS": {
+          "title": "Too many failed tutor starts today",
+          "body": "You have opened the tutor unsuccessfully too many times today. Please try again tomorrow."
+        },
+        "AI_CONSENT_REQUIRED": {
+          "title": "AI processing consent needed",
+          "body": "Allow AI processing in settings to use the tutor."
+        }
+      }
+    },
     "shadowingPractice": {
       "ai": {
         "title": "AI feedback",
