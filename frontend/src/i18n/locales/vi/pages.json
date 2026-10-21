@@ -335,6 +335,11 @@
           "title": "Cần đồng ý xử lý bằng AI",
           "body": "Bạn cần đồng ý cho phép xử lý bằng AI trong phần cài đặt để dùng gia sư."
         }
+      },
+      "lesson": {
+        "ask": "Hỏi gia sư",
+        "lockedHint": "Hết phiên gia sư hôm nay · Mở với Pro",
+        "summary": "Gia sư:"
       }
     },
     "shadowingPractice": {

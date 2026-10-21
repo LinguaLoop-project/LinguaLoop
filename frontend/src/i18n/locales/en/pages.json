@@ -336,6 +336,11 @@
           "title": "AI processing consent needed",
           "body": "Allow AI processing in settings to use the tutor."
         }
+      },
+      "lesson": {
+        "ask": "Ask the tutor",
+        "lockedHint": "No tutor sessions left today · Unlock with Pro",
+        "summary": "Tutor:"
       }
     },
     "shadowingPractice": {
