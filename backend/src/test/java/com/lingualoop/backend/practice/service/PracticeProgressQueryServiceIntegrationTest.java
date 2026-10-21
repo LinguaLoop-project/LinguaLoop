@@ -15,72 +15,13 @@ import org.springframework.context.annotation.Import;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.practice.AttemptTestData;
 
-/** Tiến độ nghe chép và điểm cao nhất từng câu mà feature lesson hiển thị. */
+/** Điểm cao nhất từng câu mà feature lesson hiển thị. */
 @SpringBootTest
 @Import({TestcontainersConfiguration.class, AttemptTestData.class})
 class PracticeProgressQueryServiceIntegrationTest {
 
     @Autowired private PracticeProgressQueryService service;
     @Autowired private AttemptTestData data;
-
-    @Test
-    void countDictationSentencesDone_countsEachSentenceOnceNoMatterHowManyAttempts() {
-        UUID user = data.newUser();
-        UUID lesson = data.newLesson();
-        UUID first = data.newSentence(lesson, 0);
-        UUID second = data.newSentence(lesson, 1);
-        data.newSentence(lesson, 2);
-        data.insertAttempt(user, first, "normal", false, false, Instant.now());
-        data.insertAttempt(user, first, "normal", true, false, Instant.now());
-        data.insertAttempt(user, second, "hard", false, false, Instant.now());
-
-        assertThat(service.countDictationSentencesDone(user, List.of(lesson))).containsExactly(
-                java.util.Map.entry(lesson, 2));
-    }
-
-    @Test
-    void countDictationSentencesDone_countsRetryGaveUpAndEveryLevel() {
-        UUID user = data.newUser();
-        UUID lesson = data.newLesson();
-        data.insertAttempt(user, data.newSentence(lesson, 0), "easy", false, false, Instant.now());
-        data.insertAttempt(user, data.newSentence(lesson, 1), "normal", true, false, Instant.now());
-        data.insertAttempt(user, data.newSentence(lesson, 2), "hard", false, true, Instant.now());
-
-        assertThat(service.countDictationSentencesDone(user, List.of(lesson))).containsEntry(lesson, 3);
-    }
-
-    @Test
-    void countDictationSentencesDone_ignoresShadowingAttemptsOtherUsersAndOtherLessons() {
-        UUID user = data.newUser();
-        UUID lesson = data.newLesson();
-        UUID other = data.newLesson();
-        UUID shadowed = data.newSentence(lesson, 0);
-        UUID done = data.newSentence(lesson, 1);
-        data.insertAttempt(user, shadowed, "shadowing", null, false, false, Instant.now());
-        data.insertAttempt(user, done, "normal", false, false, Instant.now());
-        data.insertAttempt(data.newUser(), shadowed, "normal", false, false, Instant.now());
-        data.insertAttempt(user, data.newSentence(other, 0), "normal", false, false, Instant.now());
-
-        assertThat(service.countDictationSentencesDone(user, List.of(lesson))).containsOnlyKeys(lesson)
-                .containsEntry(lesson, 1);
-    }
-
-    @Test
-    void countDictationSentencesDone_answersSeveralLessonsAndOmitsUntouchedOnes() {
-        UUID user = data.newUser();
-        UUID touched = data.newLesson();
-        UUID untouched = data.newLesson();
-        data.newSentence(untouched, 0);
-        data.insertAttempt(user, data.newSentence(touched, 0), "normal", false, false, Instant.now());
-
-        assertThat(service.countDictationSentencesDone(user, List.of(touched, untouched)))
-                .containsOnlyKeys(touched);
-    }
-
-    @Test
-    void countDictationSentencesDone_withNoLessonIdsReturnsEmptyMap() {
-        assertThat(service.countDictationSentencesDone(data.newUser(), List.of())).isEmpty();
-    }
 
     @Test
     void bestScores_isTheHighestScoreAcrossAttemptsAndModes() {

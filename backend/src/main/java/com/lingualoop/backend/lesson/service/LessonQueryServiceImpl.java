@@ -5,9 +5,11 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,6 +41,7 @@ import com.lingualoop.backend.lesson.enums.LessonStatus;
 import com.lingualoop.backend.lesson.mapper.LessonMapper;
 import com.lingualoop.backend.lesson.mapper.SentenceMapper;
 import com.lingualoop.backend.lesson.mapper.TopicMapper;
+import com.lingualoop.backend.lesson.repository.LessonModeProgressRepository;
 import com.lingualoop.backend.lesson.repository.LessonProgressRepository;
 import com.lingualoop.backend.lesson.repository.LessonRepository;
 import com.lingualoop.backend.lesson.repository.LessonSpecification;
@@ -58,10 +61,13 @@ class LessonQueryServiceImpl implements LessonQueryService {
     private static final int POPULAR_PER_TOPIC = 6;
     private static final int RELATED_LIMIT = 3;
 
+    private static final ModeProgressResponse NO_PROGRESS = new ModeProgressResponse(0, 0, 0);
+
     private final TopicRepository topicRepository;
     private final LessonRepository lessonRepository;
     private final SentenceRepository sentenceRepository;
     private final LessonProgressRepository progressRepository;
+    private final LessonModeProgressRepository modeProgressRepository;
     private final TopicMapper topicMapper;
     private final LessonMapper lessonMapper;
     private final SentenceMapper sentenceMapper;
@@ -130,14 +136,12 @@ class LessonQueryServiceImpl implements LessonQueryService {
         List<LessonSummaryResponse> related = toSummaries(lessonRepository.findRelatedLessons(
                 lesson.getTopic().getId(), lesson.getId(), PageRequest.of(0, RELATED_LIMIT)), userId);
         boolean locked = lesson.isPro() && !subscriptionQueryService.isPro(userId);
-        int dictationDone = practiceProgress.countDictationSentencesDone(userId, List.of(lesson.getId()))
-                .getOrDefault(lesson.getId(), 0);
 
         return new LessonDetailResponse(
                 detail.id(), detail.slug(), detail.title(), detail.titleVi(), detail.description(),
                 detail.difficulty(), detail.sourceType(), detail.sourceUrl(), detail.durationSec(),
                 detail.viewCount(), detail.thumbnailUrl(), detail.pro(), locked, sentenceCount,
-                progress(dictationDone, sentenceCount),
+                progressOf(userId, Map.of(lesson.getId(), sentenceCount)).getOrDefault(lesson.getId(), NO_PROGRESS),
                 topicMapper.toResponse(lesson.getTopic()),
                 related);
     }
@@ -172,23 +176,48 @@ class LessonQueryServiceImpl implements LessonQueryService {
             return List.of();
         }
         Map<UUID, Long> counts = sentenceCounts(lessons.stream().map(Lesson::getId).toList());
-        Map<UUID, Integer> dictationDone = practiceProgress.countDictationSentencesDone(userId,
-                lessons.stream().map(Lesson::getId).toList());
         boolean hasProLesson = lessons.stream().anyMatch(Lesson::isPro);
         boolean userIsPro = hasProLesson && subscriptionQueryService.isPro(userId);
+        Map<UUID, ModeProgressResponse> progress = progressOf(userId, counts);
         return lessons.stream().map(lesson -> {
             LessonSummaryResponse s = lessonMapper.toSummary(lesson);
             return new LessonSummaryResponse(s.id(), s.slug(), s.title(), s.titleVi(), s.difficulty(), s.sourceType(),
                     s.durationSec(), s.viewCount(), s.thumbnailUrl(), s.pro(), lesson.isPro() && !userIsPro,
-                    counts.getOrDefault(lesson.getId(), 0L),
-                    progress(dictationDone.getOrDefault(lesson.getId(), 0), counts.getOrDefault(lesson.getId(), 0L)));
+                    counts.getOrDefault(lesson.getId(), 0L), progress.getOrDefault(lesson.getId(), NO_PROGRESS));
         }).toList();
     }
 
-    /** Tiến độ nghe chép = số câu có kết quả trên tổng số câu, làm tròn; shadowing chưa có dữ liệu thật. */
-    private static ModeProgressResponse progress(int dictationDone, long sentenceCount) {
-        int percent = sentenceCount == 0 ? 0 : (int) Math.min(100, Math.round(100.0 * dictationDone / sentenceCount));
-        return new ModeProgressResponse(percent, 0);
+    /**
+     * Tiến độ theo bài: phần trăm = số câu đã có lượt / tổng số câu của bài, theo từng chế độ, cùng tổng thời gian học.
+     * Hai truy vấn theo lô cho mọi bài trong danh sách; bài chưa có hoạt động không có trong kết quả.
+     */
+    private Map<UUID, ModeProgressResponse> progressOf(UUID userId, Map<UUID, Long> sentenceCounts) {
+        if (userId == null || sentenceCounts.isEmpty()) {
+            return Map.of();
+        }
+        Set<UUID> lessonIds = sentenceCounts.keySet();
+        Map<UUID, Map<String, Long>> attempted = new HashMap<>();
+        for (LessonProgressRepository.AttemptedCount c : progressRepository.countAttemptedSentences(userId, lessonIds)) {
+            attempted.computeIfAbsent(c.getLessonId(), k -> new HashMap<>()).put(c.getMode(), c.getAttempted());
+        }
+        Map<UUID, Long> seconds = modeProgressRepository.sumStudyTime(userId, lessonIds).stream()
+                .collect(Collectors.toMap(LessonModeProgressRepository.StudyTime::getLessonId,
+                        LessonModeProgressRepository.StudyTime::getSeconds));
+
+        Map<UUID, ModeProgressResponse> result = new HashMap<>();
+        for (UUID lessonId : lessonIds) {
+            long total = sentenceCounts.getOrDefault(lessonId, 0L);
+            Map<String, Long> byMode = attempted.getOrDefault(lessonId, Map.of());
+            result.put(lessonId, new ModeProgressResponse(
+                    percent(byMode.getOrDefault("dictation", 0L), total),
+                    percent(byMode.getOrDefault("shadowing", 0L), total),
+                    (int) Math.min(Integer.MAX_VALUE, seconds.getOrDefault(lessonId, 0L))));
+        }
+        return result;
+    }
+
+    private static int percent(long attempted, long total) {
+        return total <= 0 ? 0 : (int) Math.min(100, Math.round(attempted * 100.0 / total));
     }
 
     private static SentenceResponse withBestScore(SentenceResponse s, BigDecimal best) {

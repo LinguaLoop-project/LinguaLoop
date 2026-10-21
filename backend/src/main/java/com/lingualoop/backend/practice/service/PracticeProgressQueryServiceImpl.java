@@ -21,18 +21,6 @@ class PracticeProgressQueryServiceImpl implements PracticeProgressQueryService {
     private final PracticeProgressRepository progress;
 
     @Override
-    public Map<UUID, Integer> countDictationSentencesDone(UUID userId, Collection<UUID> lessonIds) {
-        Map<UUID, Integer> done = new HashMap<>();
-        if (lessonIds.isEmpty()) {
-            return done;
-        }
-        for (Object[] row : progress.countDictationSentencesByLesson(userId, lessonIds)) {
-            done.put((UUID) row[0], ((Number) row[1]).intValue());
-        }
-        return done;
-    }
-
-    @Override
     public Map<UUID, BigDecimal> bestScores(UUID userId, Collection<UUID> sentenceIds) {
         Map<UUID, BigDecimal> best = new HashMap<>();
         if (sentenceIds.isEmpty()) {

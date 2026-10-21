@@ -1,7 +1,9 @@
 package com.lingualoop.backend.dictation.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
+import org.mapstruct.ValueMapping;
 
 import com.lingualoop.backend.dictation.dto.response.AttemptResultResponse.GradedWordResponse;
 import com.lingualoop.backend.dictation.dto.response.DictationLessonResponse.LatestResult;
@@ -28,6 +30,8 @@ public interface DictationMapper {
 
     AttemptWordClass toWordClass(WordClass wordClass);
 
+    /** Nghe chép không đọc lượt shadowing, nên từ "đọc sai" (chỉ của shadowing) không bao giờ tới đây. */
+    @ValueMapping(source = "mispronounced", target = MappingConstants.THROW_EXCEPTION)
     WordOutcome toOutcome(AttemptOutcome outcome);
 
     WordClass toWordClass(AttemptWordClass wordClass);

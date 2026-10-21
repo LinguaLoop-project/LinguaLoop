@@ -19,6 +19,8 @@ export interface ApiResponse<T> {
 export interface ModeProgress {
   dictationPercent: number;
   shadowingPercent: number;
+  /** Tổng thời gian học bài này (giây), cả hai chế độ. */
+  studyTimeSec: number;
 }
 
 export interface TopicResponse {

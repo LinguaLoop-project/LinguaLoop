@@ -67,7 +67,7 @@ export default function LessonHead({ lesson }: { lesson: LessonDetail }) {
         <Player lesson={lesson} onClose={() => setPlaying(false)} />
       ) : (
         <div className="relative overflow-hidden rounded-lg border border-border">
-          <LessonThumb lesson={lesson} className="!h-[164px]" />
+          <LessonThumb lesson={lesson} className="h-full" />
           {canPlay && (
             <button
               type="button"

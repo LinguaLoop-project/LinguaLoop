@@ -3,9 +3,12 @@ package com.lingualoop.backend.devtools;
 import java.util.UUID;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.lingualoop.backend.subscription.entity.UserSubscription;
+import com.lingualoop.backend.subscription.repository.UsageCounterRepository;
+import com.lingualoop.backend.subscription.repository.UserSubscriptionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,30 +25,21 @@ class DevToolsService {
 
     private static final String DEV_PRICE_ID = "dev-toggle";
 
-    private final JdbcClient jdbc;
+    private final UserSubscriptionRepository subscriptions;
+    private final UsageCounterRepository counters;
 
     @Transactional
     public void setPro(UUID userId, boolean pro) {
         // Dù bật hay tắt đều thu hồi gói hiện có trước, để luôn còn tối đa một dòng còn hiệu lực.
-        jdbc.sql("""
-                UPDATE user_subscriptions SET status = 'refunded'
-                WHERE user_id = :userId AND status IN ('active','cancelled')
-                """)
-                .param("userId", userId)
-                .update();
+        subscriptions.revokeCurrent(userId);
         if (pro) {
-            jdbc.sql("INSERT INTO user_subscriptions (user_id, status, price_id) VALUES (:userId, 'active', :priceId)")
-                    .param("userId", userId)
-                    .param("priceId", DEV_PRICE_ID)
-                    .update();
+            subscriptions.save(UserSubscription.active(userId, DEV_PRICE_ID));
         }
     }
 
     /** Xoá mọi bộ đếm của người dùng (không riêng ngày hôm nay) cho đơn giản và không phụ thuộc múi giờ. */
     @Transactional
     public void resetUsage(UUID userId) {
-        jdbc.sql("DELETE FROM usage_counters WHERE user_id = :userId")
-                .param("userId", userId)
-                .update();
+        counters.deleteAllOf(userId);
     }
 }
