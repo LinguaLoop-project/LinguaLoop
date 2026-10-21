@@ -3,7 +3,7 @@ import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
 import type { PracticeWord } from "../types";
-import { NO_RETRY_CODES } from "../utils";
+import { FALLBACK_TEXT_CODES, NO_RETRY_CODES } from "../utils";
 
 const K = "student.tutor.fallback";
 
@@ -20,7 +20,8 @@ export interface TutorFallbackProps {
 /** Không mở được gia sư: nói rõ lý do và vẫn cho luyện bằng Mẹo sửa dạng chữ. Phiên không bị trừ lượt. */
 export default function TutorFallback({ code, reason, words, isPro, onRetry, onUpgrade }: TutorFallbackProps) {
   const { t } = useTranslation("pages");
-  const known = code && NO_RETRY_CODES.has(code);
+  const known = code !== null && FALLBACK_TEXT_CODES.has(code);
+  const noRetry = code !== null && NO_RETRY_CODES.has(code);
   const quotaOut = code === "QUOTA_EXCEEDED";
 
   return (
@@ -61,7 +62,7 @@ export default function TutorFallback({ code, reason, words, isPro, onRetry, onU
             {t(`${K}.upgrade`)}
           </Button>
         )}
-        {!known && (
+        {!noRetry && (
           <Button size="sm" variant="ghost" onClick={onRetry} leftIcon={<Icon name="rotate-cw" />}>
             {t(`${K}.retry`)}
           </Button>

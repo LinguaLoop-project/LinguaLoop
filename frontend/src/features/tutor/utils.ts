@@ -54,3 +54,13 @@ export const NO_RETRY_CODES: ReadonlySet<string> = new Set([
   "TUTOR_TOO_MANY_FAILED_STARTS",
   "AI_CONSENT_REQUIRED",
 ]);
+
+/** Mã lỗi có câu giải thích riêng trong i18n (`student.tutor.fallback.<mã>`); mã khác dùng câu chung kèm lời server. */
+export const FALLBACK_TEXT_CODES: ReadonlySet<string> = new Set([
+  ...NO_RETRY_CODES,
+  "TUTOR_LIVE_UNAVAILABLE",
+  "MIC_UNAVAILABLE",
+  "START_TIMEOUT",
+  "CONNECT_ERROR",
+  "CONNECTION_CLOSED",
+]);

@@ -296,7 +296,13 @@
         "scoreWord": "Chấm «{{word}}»",
         "scoreCurrent": "Chấm từ đang luyện",
         "scoreSentence": "Chấm cả câu",
-        "leave": "Tiếp tục bài"
+        "leave": "Tiếp tục bài",
+        "notice": {
+          "pickWord": "Hãy bấm vào một từ trong câu để chọn từ cần luyện.",
+          "wordOutOfAttempts": "Từ \"{{word}}\" đã hết {{max}} lượt chấm. Bấm lại vào từ đó để luyện lại với lượt mới, hoặc chọn từ khác.",
+          "holdTooShort": "Giữ nút lâu hơn một chút và đọc to, rõ rồi mới thả.",
+          "switchFailed": "Không đổi được từ."
+        }
       },
       "result": {
         "title": "Kết quả phiên",
@@ -334,6 +340,26 @@
         "AI_CONSENT_REQUIRED": {
           "title": "Cần đồng ý xử lý bằng AI",
           "body": "Bạn cần đồng ý cho phép xử lý bằng AI trong phần cài đặt để dùng gia sư."
+        },
+        "TUTOR_LIVE_UNAVAILABLE": {
+          "title": "Gia sư tạm thời không dùng được",
+          "body": "Hãy xem các mẹo sửa bên dưới. Lượt của bạn không bị trừ."
+        },
+        "MIC_UNAVAILABLE": {
+          "title": "Không dùng được micro hoặc loa",
+          "body": "Hãy cho phép micro cho trang này rồi thử lại."
+        },
+        "START_TIMEOUT": {
+          "title": "Gia sư chưa phản hồi kịp",
+          "body": "Lượt của bạn không bị trừ. Thử lại sau ít giây."
+        },
+        "CONNECT_ERROR": {
+          "title": "Không kết nối được gia sư",
+          "body": "Kiểm tra mạng rồi thử lại. Lượt của bạn không bị trừ."
+        },
+        "CONNECTION_CLOSED": {
+          "title": "Kết nối với gia sư bị đóng",
+          "body": "Lượt của bạn không bị trừ. Bạn có thể thử lại."
         }
       },
       "lesson": {

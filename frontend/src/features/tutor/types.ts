@@ -105,3 +105,11 @@ export type TutorSummary = {
   /** Tiến độ các từ trong phiên; chỉ từ có attempts > 0 là đã luyện. */
   words: WordView[];
 };
+
+/** Lời nhắn tạm thời cho người học; giao diện dịch theo mã. `server` là câu do backend trả, hiện nguyên văn. */
+export type TutorNotice =
+  | { code: "pickWord" }
+  | { code: "wordOutOfAttempts"; word: string; max: number }
+  | { code: "holdTooShort" }
+  | { code: "switchFailed" }
+  | { code: "server"; message: string };

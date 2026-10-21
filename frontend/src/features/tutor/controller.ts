@@ -11,6 +11,7 @@ import type {
   PracticeWord,
   SessionOutcome,
   TutorLimits,
+  TutorNotice,
   TutorTurn,
   WordView,
 } from "./types";
@@ -43,7 +44,7 @@ export type TutorState = {
   /** Mã lỗi của server khi không mở được phiên (QUOTA_EXCEEDED, TUTOR_TOO_MANY_FAILED_STARTS, AI_CONSENT_REQUIRED...). */
   fallbackCode: string | null;
   /** Lời nhắn tạm thời cho người học (ví dụ giữ nút quá ngắn). */
-  notice: string | null;
+  notice: TutorNotice | null;
 };
 
 export type TutorParams = {
@@ -165,7 +166,8 @@ export class TutorSessionController {
       this.#teardown();
       this.#set({
         phase: "fallback",
-        fallbackReason: `Không dùng được micro hoặc loa (${errorMessage(err)}). Hãy cho phép micro rồi thử lại.`,
+        fallbackCode: "MIC_UNAVAILABLE",
+        fallbackReason: errorMessage(err),
       });
       return;
     }
@@ -201,7 +203,7 @@ export class TutorSessionController {
     this.#sessionId = created.sessionId;
     this.#set({ words: created.words, currentWord: created.currentWord ?? null, limits: created.limits });
     this.#startTimer = setTimeout(
-      () => void this.#connectFailed("Gia sư chưa phản hồi kịp."),
+      () => void this.#connectFailed("START_TIMEOUT"),
       created.limits.startTimeoutSeconds * 1000,
     );
 
@@ -218,7 +220,7 @@ export class TutorSessionController {
         },
       });
     } catch (err) {
-      await this.#connectFailed(`Không kết nối được gia sư (${errorMessage(err)}).`);
+      await this.#connectFailed("CONNECT_ERROR", errorMessage(err));
       return;
     }
 
@@ -259,10 +261,10 @@ export class TutorSessionController {
     }
     const current = words.find((w) => w.word === currentWord);
     if (!current) {
-      this.#set({ notice: "Hãy bấm vào một từ trong câu để chọn từ cần luyện." });
+      this.#set({ notice: { code: "pickWord" } });
     } else if (current.attempts >= limits.maxAttemptsPerWord) {
       this.#set({
-        notice: `Từ "${current.word}" đã hết ${limits.maxAttemptsPerWord} lượt chấm. Bấm lại vào từ đó để luyện lại với lượt mới, hoặc chọn từ khác.`,
+        notice: { code: "wordOutOfAttempts", word: current.word, max: limits.maxAttemptsPerWord },
       });
     } else {
       this.#beginScoring({ callId: null, name: "", target: "word", word: current.word });
@@ -299,7 +301,7 @@ export class TutorSessionController {
         });
       }
     } catch (err) {
-      this.#set({ notice: err instanceof Error ? err.message : "Không đổi được từ." });
+      this.#set({ notice: err instanceof Error ? { code: "server", message: err.message } : { code: "switchFailed" } });
     }
   }
 
@@ -337,7 +339,7 @@ export class TutorSessionController {
     const chunks = this.#holdChunks;
     this.#holdChunks = [];
     if (totalSamples(chunks) < MIC_RATE * MIN_HOLD_SECONDS) {
-      this.#set({ holding: false, notice: "Giữ nút lâu hơn một chút và đọc to, rõ rồi mới thả." });
+      this.#set({ holding: false, notice: { code: "holdTooShort" } });
       return;
     }
 
@@ -384,7 +386,7 @@ export class TutorSessionController {
         instruction: result.instruction,
       });
     } else if (failure) {
-      this.#set({ phase: "live", scoringTarget: null, scoringWord: null, notice: failure.message });
+      this.#set({ phase: "live", scoringTarget: null, scoringWord: null, notice: { code: "server", message: failure.message } });
       this.#answerScoring(pending, {
         error: failure.message,
         instruction:
@@ -480,7 +482,7 @@ export class TutorSessionController {
   async #onClose() {
     if (this.#finishing) return;
     if (!this.#started) {
-      await this.#connectFailed("Kết nối với gia sư bị đóng.");
+      await this.#connectFailed("CONNECTION_CLOSED");
     } else {
       await this.#finish("learner_exit");
     }
@@ -710,7 +712,7 @@ export class TutorSessionController {
 
   // --- kết thúc ---
 
-  async #connectFailed(reason: string) {
+  async #connectFailed(code: string, detail: string | null = null) {
     if (this.#started || this.#finishing) return;
     this.#finishing = true;
     const sessionId = this.#sessionId;
@@ -723,7 +725,8 @@ export class TutorSessionController {
     this.#set({
       phase: "fallback",
       outcome: "connect_failed",
-      fallbackReason: reason,
+      fallbackCode: code,
+      fallbackReason: detail,
       fallbackWords,
     });
   }

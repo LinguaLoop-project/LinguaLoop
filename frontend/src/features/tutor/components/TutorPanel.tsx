@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import { useTutorSession } from "../useTutorSession";
-import type { TutorSummary } from "../types";
+import type { TutorNotice, TutorSummary } from "../types";
 import { formatClock } from "../utils";
 import TutorFallback from "./TutorFallback";
 import TutorResult from "./TutorResult";
@@ -27,6 +28,11 @@ export interface TutorPanelProps {
   /** Phiên đã có kết quả (kể cả không kết nối được); bài học ghi lại để hiện dòng "Gia sư: ...". */
   onEnded?: (summary: TutorSummary) => void;
   onUpgrade: () => void;
+}
+
+/** Lời nhắn tạm thời của controller theo mã, dịch ở đây; `server` là câu do backend trả nên hiện nguyên văn. */
+function noticeText(notice: TutorNotice, t: TFunction<"pages">): string {
+  return notice.code === "server" ? notice.message : t(`${K}.notice.${notice.code}`, notice);
 }
 
 /** Phần tử có thao tác riêng với phím Space (bấm nút, gõ chữ): phím tắt giữ để đọc không được chen vào. */
@@ -217,7 +223,7 @@ export default function TutorPanel({
 
       {state.notice && (
         <p role="status" className="rounded-md border border-warning/45 bg-warning/10 px-3.5 py-2.5 text-sm">
-          {state.notice}
+          {noticeText(state.notice, t)}
         </p>
       )}
 

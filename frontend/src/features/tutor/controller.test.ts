@@ -162,7 +162,7 @@ describe("Lượt chấm bị server trả 409", () => {
 
     const state = controller.getState();
     expect(state.phase).toBe("live");
-    expect(state.notice).toBe("Phiên đã kết thúc");
+    expect(state.notice).toEqual({ code: "server", message: "Phiên đã kết thúc" });
     expect(api.endSession).not.toHaveBeenCalled();
     expect(h.live.sendRealtimeInput).toHaveBeenLastCalledWith({
       text: expect.stringContaining("Chỉ dẫn"),

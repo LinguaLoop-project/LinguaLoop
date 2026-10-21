@@ -297,7 +297,13 @@
         "scoreWord": "Score “{{word}}”",
         "scoreCurrent": "Score current word",
         "scoreSentence": "Score the sentence",
-        "leave": "Back to the lesson"
+        "leave": "Back to the lesson",
+        "notice": {
+          "pickWord": "Click a word in the sentence to choose what to practise.",
+          "wordOutOfAttempts": "\"{{word}}\" has used all {{max}} attempts. Click it again to practise with fresh attempts, or pick another word.",
+          "holdTooShort": "Hold the button a little longer and read clearly before releasing.",
+          "switchFailed": "Could not switch the word."
+        }
       },
       "result": {
         "title": "Session result",
@@ -335,6 +341,26 @@
         "AI_CONSENT_REQUIRED": {
           "title": "AI processing consent needed",
           "body": "Allow AI processing in settings to use the tutor."
+        },
+        "TUTOR_LIVE_UNAVAILABLE": {
+          "title": "The tutor is temporarily unavailable",
+          "body": "See the tips below. Nothing was deducted."
+        },
+        "MIC_UNAVAILABLE": {
+          "title": "Microphone or speaker not available",
+          "body": "Allow the microphone for this page and try again."
+        },
+        "START_TIMEOUT": {
+          "title": "The tutor did not answer in time",
+          "body": "Nothing was deducted. Try again in a few seconds."
+        },
+        "CONNECT_ERROR": {
+          "title": "Could not connect to the tutor",
+          "body": "Check your network and try again. Nothing was deducted."
+        },
+        "CONNECTION_CLOSED": {
+          "title": "The tutor connection closed",
+          "body": "Nothing was deducted. You can try again."
         }
       },
       "lesson": {
