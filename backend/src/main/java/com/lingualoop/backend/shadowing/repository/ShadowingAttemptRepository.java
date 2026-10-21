@@ -1,0 +1,51 @@
+package com.lingualoop.backend.shadowing.repository;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.lingualoop.backend.practice.entity.SentenceAttempt;
+
+public interface ShadowingAttemptRepository extends JpaRepository<SentenceAttempt, Long> {
+
+    /** Lượt mới nhất của một câu cùng thống kê của người học trên câu đó. */
+    interface LatestHead {
+
+        UUID getSentenceId();
+
+        Long getAttemptId();
+
+        BigDecimal getScore();
+
+        Instant getAttemptedAt();
+
+        BigDecimal getBestScore();
+
+        Long getAttemptCount();
+    }
+
+    /**
+     * Lượt mới nhất của từng câu đã đọc trong bài, theo thứ tự câu. Dùng SQL gốc vì cần {@code DISTINCT ON} của
+     * Postgres và view {@code v_user_sentence_stats}.
+     */
+    @Query(nativeQuery = true, value = """
+            SELECT t.sentence_id AS "sentenceId", t.id AS "attemptId", t.score AS "score",
+                   t.attempted_at AS "attemptedAt", t.best_score AS "bestScore", t.attempt_count AS "attemptCount"
+            FROM (
+                SELECT DISTINCT ON (a.sentence_id) a.sentence_id, a.id, a.score, a.attempted_at,
+                       st.best_score, st.attempt_count, s.sort_order
+                FROM sentence_attempts a
+                JOIN sentences s ON s.id = a.sentence_id
+                JOIN v_user_sentence_stats st
+                  ON st.user_id = a.user_id AND st.sentence_id = a.sentence_id AND st.mode = a.mode
+                WHERE a.user_id = :userId AND s.lesson_id = :lessonId AND a.mode = 'shadowing'
+                ORDER BY a.sentence_id, a.attempted_at DESC, a.id DESC
+            ) t
+            ORDER BY t.sort_order""")
+    List<LatestHead> findLatestByLesson(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId);
+}

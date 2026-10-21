@@ -83,10 +83,10 @@ Quy ước: "bài hiển thị" là bài có trạng thái APPROVED và chưa b�
 | Mục | Nội dung |
 |---|---|
 | Tác nhân | Học viên |
-| Mô tả | Cho phép tác nhân thấy mình đã nghe chép được bao nhiêu phần của một bài và điểm cao nhất của từng câu. |
+| Mô tả | Cho phép tác nhân thấy mình đã nghe chép được bao nhiêu phần của một bài và điểm cao nhất của từng câu theo từng chế độ (nghe chép, shadowing). |
 | Điều kiện tiên quyết | Tác nhân đã đăng nhập. |
-| Điều kiện sau | Thư viện và trang chi tiết bài hiển thị tiến độ nghe chép; danh sách câu hiển thị điểm cao nhất. |
-| Tiêu chí chấp nhận | **AC-LESSON-13 — Tiến độ nghe chép**<br>Given: Bài có 3 câu; tác nhân đã nộp ít nhất một lượt nghe chép (kể cả làm lại hoặc bỏ cuộc) cho 2 câu.<br>When: Tác nhân xem thư viện hoặc trang chi tiết bài.<br>Then: Tiến độ nghe chép là 67% (số câu có kết quả chia tổng số câu, làm tròn); mỗi câu chỉ tính một lần dù nộp nhiều lượt; bài chưa làm hiển thị 0%; học viên khác không ảnh hưởng.<br><br>**AC-LESSON-14 — Điểm cao nhất từng câu**<br>Given: Tác nhân đã nộp nhiều lượt cho một câu, điểm 40 và 86,6.<br>When: Tác nhân xem danh sách câu của bài.<br>Then: Câu đó hiển thị điểm cao nhất 87 (làm tròn); câu chưa có điểm không hiển thị điểm. |
+| Điều kiện sau | Thư viện và trang chi tiết bài hiển thị tiến độ nghe chép; danh sách câu hiển thị điểm cao nhất của từng chế độ, mỗi chế độ một huy hiệu. |
+| Tiêu chí chấp nhận | **AC-LESSON-13 — Tiến độ nghe chép**<br>Given: Bài có 3 câu; tác nhân đã nộp ít nhất một lượt nghe chép (kể cả làm lại hoặc bỏ cuộc) cho 2 câu.<br>When: Tác nhân xem thư viện hoặc trang chi tiết bài.<br>Then: Tiến độ nghe chép là 67% (số câu có kết quả chia tổng số câu, làm tròn); mỗi câu chỉ tính một lần dù nộp nhiều lượt; bài chưa làm hiển thị 0%; học viên khác không ảnh hưởng.<br><br>**AC-LESSON-14 — Điểm cao nhất từng câu, theo chế độ**<br>Given: Tác nhân đã nộp nhiều lượt nghe chép cho một câu, điểm 40 và 86,6, và một lượt shadowing điểm 80.<br>When: Tác nhân xem danh sách câu của bài (`GET /lessons/{slug}/sentences`).<br>Then: Câu đó có `myBestScore` = `{ "dictation": 87, "shadowing": 80 }` (làm tròn) và trang bài hiện hai huy hiệu; câu chưa có điểm ở chế độ nào thì chế độ đó không có trường và không có huy hiệu; `myBestScore` luôn có mặt (có thể là `{}`). |
 | Độ ưu tiên | Trung bình |
 
 ---

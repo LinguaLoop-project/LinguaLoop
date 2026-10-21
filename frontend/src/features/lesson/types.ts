@@ -19,6 +19,8 @@ export interface ApiResponse<T> {
 export interface ModeProgress {
   dictationPercent: number;
   shadowingPercent: number;
+  /** Tổng thời gian học bài này (giây), cả hai chế độ. */
+  studyTimeSec: number;
 }
 
 export interface TopicResponse {
@@ -68,7 +70,13 @@ export interface SentenceResponse {
   startMs: number;
   endMs: number;
   cefrLevel: string | null;
-  myBestScore: number | null;
+  myBestScore: SentenceBestScores;
+}
+
+/** Điểm cao nhất của người học cho câu, tách theo chế độ; chế độ chưa có điểm thì vắng hoặc null. */
+export interface SentenceBestScores {
+  dictation?: number | null;
+  shadowing?: number | null;
 }
 
 export interface LessonDetail {

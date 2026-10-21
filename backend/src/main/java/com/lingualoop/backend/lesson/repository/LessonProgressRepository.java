@@ -1,5 +1,6 @@
 package com.lingualoop.backend.lesson.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +16,16 @@ import com.lingualoop.backend.lesson.entity.UserLessonProgressId;
 @Repository
 public interface LessonProgressRepository extends JpaRepository<UserLessonProgress, UserLessonProgressId> {
 
+    /**
+     * Tạo dòng tiến độ bài (nếu chưa có) hoặc đẩy mốc hoạt động. Một câu lệnh nên hai yêu cầu đầu tiên đồng thời
+     * của cùng một người dùng không đụng khoá chính.
+     */
+    @Modifying
+    @Query(nativeQuery = true, value = """
+            INSERT INTO user_lesson_progress (user_id, lesson_id) VALUES (:userId, :lessonId)
+            ON CONFLICT (user_id, lesson_id) DO UPDATE SET last_activity_at = now()""")
+    int touch(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId);
+
     @Query("""
             SELECT COUNT(ulp) FROM UserLessonProgress ulp
             WHERE ulp.userId = :userId AND ulp.completedAt IS NOT NULL
@@ -24,13 +35,6 @@ public interface LessonProgressRepository extends JpaRepository<UserLessonProgre
                                      AND l.deletedAt IS NULL)""")
     long countCompletedLessonsByUserAndTopic(@Param("userId") UUID userId, @Param("topicId") UUID topicId);
 
-    /** Bắt đầu bài nếu chưa có, ngược lại chỉ cập nhật lần học gần nhất. Không đụng tới completed_at. */
-    @Modifying
-    @Query(value = """
-            INSERT INTO user_lesson_progress (user_id, lesson_id) VALUES (:userId, :lessonId)
-            ON CONFLICT (user_id, lesson_id) DO UPDATE SET last_activity_at = now()""", nativeQuery = true)
-    void touch(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId);
-
     /** Số bài đã hoàn thành của người dùng theo từng chủ đề, trong một truy vấn. */
     @Query("""
             SELECT l.topic.id AS topicId, COUNT(ulp) AS total
@@ -39,4 +43,22 @@ public interface LessonProgressRepository extends JpaRepository<UserLessonProgre
               AND l.status = com.lingualoop.backend.lesson.enums.LessonStatus.APPROVED AND l.deletedAt IS NULL
             GROUP BY l.topic.id""")
     List<LessonRepository.TopicCount> countCompletedGroupByTopic(@Param("userId") UUID userId);
+
+    /** Số câu đã có ít nhất một lượt của người học, theo bài và chế độ. */
+    interface AttemptedCount {
+        UUID getLessonId();
+
+        String getMode();
+
+        long getAttempted();
+    }
+
+    @Query(nativeQuery = true, value = """
+            SELECT s.lesson_id AS "lessonId", a.mode AS "mode", COUNT(DISTINCT a.sentence_id) AS "attempted"
+            FROM sentence_attempts a
+            JOIN sentences s ON s.id = a.sentence_id
+            WHERE a.user_id = :userId AND s.lesson_id IN (:lessonIds)
+            GROUP BY s.lesson_id, a.mode""")
+    List<AttemptedCount> countAttemptedSentences(@Param("userId") UUID userId,
+            @Param("lessonIds") Collection<UUID> lessonIds);
 }

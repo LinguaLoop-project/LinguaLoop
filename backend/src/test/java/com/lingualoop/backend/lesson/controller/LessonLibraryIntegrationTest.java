@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.SessionFactory;
@@ -208,6 +209,39 @@ class LessonLibraryIntegrationTest {
                 .andExpect(jsonPath("$.data.topic.slug").value(topic.getSlug()))
                 .andExpect(jsonPath("$.data.relatedLessons.length()").value(1))
                 .andExpect(jsonPath("$.data.relatedLessons[0].title").value(tag + " related"));
+    }
+
+    @Test
+    void detail_reportsProgressFromAttemptsAndStudyTime_AC_LESSON_06() throws Exception {
+        Topic topic = topic("t", 1, LessonStatus.APPROVED);
+        Lesson main = lesson(topic, "main", false, LessonStatus.APPROVED, CefrLevel.B1, 5);
+        for (int i = 0; i < 4; i++) {
+            sentence(main, i, "s" + i);
+        }
+        List<Sentence> all = sentences.findByLessonIdOrderBySortOrderAsc(main.getId());
+        UUID user = newUser();
+        startLesson(user, main, false);
+        // shadowing: 2 trong 4 câu (câu đầu đọc hai lần vẫn chỉ tính một); nghe chép: 1 câu
+        shadowingAttempt(user, all.get(0));
+        shadowingAttempt(user, all.get(0));
+        shadowingAttempt(user, all.get(1));
+        jdbc.update("INSERT INTO sentence_attempts (user_id, sentence_id, mode, submitted_text) VALUES (?, ?, 'dictation', 'x')",
+                user, all.get(2).getId());
+        jdbc.update("INSERT INTO user_lesson_mode_progress (user_id, lesson_id, mode, total_time_sec) VALUES (?, ?, 'shadowing', 100)",
+                user, main.getId());
+        jdbc.update("INSERT INTO user_lesson_mode_progress (user_id, lesson_id, mode, total_time_sec) VALUES (?, ?, 'dictation', 25)",
+                user, main.getId());
+
+        as(user, get("/api/v1/lessons/" + main.getSlug()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.progress.shadowingPercent").value(50))
+                .andExpect(jsonPath("$.data.progress.dictationPercent").value(25))
+                .andExpect(jsonPath("$.data.progress.studyTimeSec").value(125));
+
+        // người khác không thấy tiến độ của người này
+        as(newUser(), get("/api/v1/lessons/" + main.getSlug()))
+                .andExpect(jsonPath("$.data.progress.shadowingPercent").value(0))
+                .andExpect(jsonPath("$.data.progress.studyTimeSec").value(0));
     }
 
     @Test
@@ -499,7 +533,7 @@ class LessonLibraryIntegrationTest {
     }
 
     @Test
-    void sentences_reportTheCallersBestScoreOrNothing_AC_LESSON_14() throws Exception {
+    void sentences_reportTheCallersBestScorePerModeOrNothing_AC_LESSON_14() throws Exception {
         Topic topic = topic("t", 1, LessonStatus.APPROVED);
         Lesson l = lesson(topic, "best", false, LessonStatus.APPROVED, CefrLevel.A1, 0);
         sentence(l, 0, "scored");
@@ -508,13 +542,17 @@ class LessonLibraryIntegrationTest {
         UUID scored = sentences.findByLessonIdOrderBySortOrderAsc(l.getId()).get(0).getId();
         dictationAttempt(user, scored, "normal", false, false, "40.00");
         dictationAttempt(user, scored, "hard", false, false, "86.60");
+        shadowingAttempt(user, sentences.findByLessonIdOrderBySortOrderAsc(l.getId()).get(0));
 
         as(user, get("/api/v1/lessons/" + l.getSlug() + "/sentences"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].myBestScore").value(87))
-                .andExpect(jsonPath("$.data[1].myBestScore").doesNotExist());
+                .andExpect(jsonPath("$.data[0].myBestScore.dictation").value(87))
+                .andExpect(jsonPath("$.data[0].myBestScore.shadowing").value(80))
+                .andExpect(jsonPath("$.data[1].myBestScore.dictation").doesNotExist())
+                .andExpect(jsonPath("$.data[1].myBestScore.shadowing").doesNotExist());
         as(newUser(), get("/api/v1/lessons/" + l.getSlug() + "/sentences"))
-                .andExpect(jsonPath("$.data[0].myBestScore").doesNotExist());
+                .andExpect(jsonPath("$.data[0].myBestScore.dictation").doesNotExist())
+                .andExpect(jsonPath("$.data[0].myBestScore.shadowing").doesNotExist());
     }
 
     // ---------------------------------------------------------------- fixtures
@@ -566,6 +604,11 @@ class LessonLibraryIntegrationTest {
             String score) {
         jdbc.update("INSERT INTO sentence_attempts (user_id, sentence_id, mode, level, is_retry, gave_up, score) "
                 + "VALUES (?, ?, 'dictation', ?, ?, ?, ?::numeric)", userId, sentenceId, level, retry, gaveUp, score);
+    }
+
+    private void shadowingAttempt(UUID userId, Sentence sentence) {
+        jdbc.update("INSERT INTO sentence_attempts (user_id, sentence_id, mode, provider, score) "
+                + "VALUES (?, ?, 'shadowing', 'azure', 80)", userId, sentence.getId());
     }
 
     private void startLesson(UUID userId, Lesson lesson, boolean completed) {

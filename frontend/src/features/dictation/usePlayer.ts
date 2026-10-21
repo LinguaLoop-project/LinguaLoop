@@ -1,34 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
-/** Phần tối thiểu của YouTube IFrame API mà trang dùng (không có @types chính thức). */
-interface YouTubePlayer {
-  playVideo(): void;
-  pauseVideo(): void;
-  seekTo(seconds: number, allowSeekAhead: boolean): void;
-  setPlaybackRate(rate: number): void;
-  getCurrentTime(): number;
-  getDuration(): number;
-  getPlayerState(): number;
-  destroy(): void;
-}
-
-interface YouTubeNamespace {
-  Player: new (
-    element: HTMLElement,
-    options: {
-      videoId: string;
-      playerVars: Record<string, string | number>;
-      events: { onReady: () => void; onError: () => void };
-    },
-  ) => YouTubePlayer;
-}
-
-declare global {
-  interface Window {
-    YT?: YouTubeNamespace;
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
+import type { YouTubeNamespace, YouTubePlayer } from "@/lib/youtube";
 
 const YT_STATE_PLAYING = 1;
 const YT_STATE_BUFFERING = 3;

@@ -21,9 +21,17 @@ public interface SentenceAttemptMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "mode", ignore = true)
     @Mapping(target = "attemptedAt", ignore = true)
+    @Mapping(target = "provider", ignore = true)
+    @Mapping(target = "accuracyScore", ignore = true)
+    @Mapping(target = "fluencyScore", ignore = true)
+    @Mapping(target = "completenessScore", ignore = true)
+    @Mapping(target = "prosodyScore", ignore = true)
     SentenceAttempt toEntity(DictationAttemptRequest request);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "attemptId", ignore = true)
+    @Mapping(target = "accuracyScore", ignore = true)
+    @Mapping(target = "phonemes", ignore = true)
     SentenceAttemptWord toEntity(AttemptWordRequest word);
 
     @Mapping(target = "attemptId", source = "id")
