@@ -1,4 +1,12 @@
 spring:
+  # Đọc biến từ file .env (định dạng KEY=VALUE) để dùng được trong ${...} của mọi file yml, khỏi phải đặt
+  # từng biến vào IDE hay terminal. Mặc định tìm ./.env (chạy trong backend/) rồi backend/.env (chạy từ
+  # thư mục gốc); đặt DOTENV_DIR để chỉ định thư mục khác. Biến môi trường thật của hệ điều hành và tham số
+  # dòng lệnh luôn thắng .env. Thiếu file thì bỏ qua (CI, production). File .env bị .gitignore, không commit.
+  config:
+    import:
+      - optional:file:${DOTENV_DIR:.}/.env[.properties]
+      - optional:file:${DOTENV_DIR:backend}/.env[.properties]
   application:
     name: backend
   profiles:
@@ -15,6 +23,11 @@ spring:
     locations: classpath:db/migration
   jackson:
     time-zone: UTC
+  servlet:
+    multipart:
+      # ghi âm shadowing tối đa 30 giây ~ 0,94 MB (BR-SHADOW-03)
+      max-file-size: 2MB
+      max-request-size: 2MB
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT:587}
@@ -68,3 +81,17 @@ app:
     redirect-uri: ${GOOGLE_REDIRECT_URI:}
     oauth-url: https://oauth2.googleapis.com
     user-info-url: https://openidconnect.googleapis.com
+  usage:
+    # ngày của hạn mức đổi lúc 00:00 theo múi giờ này (BR-SHADOW-01)
+    zone: Asia/Ho_Chi_Minh
+  azure:
+    speech:
+      key: ${AZURE_SPEECH_KEY:}
+      region: ${AZURE_SPEECH_REGION:southeastasia}
+  shadowing:
+    scoring:
+      # circuit breaker quanh lời gọi Azure (BR-SHADOW-09): trong cửa sổ 10 lượt, đủ 5 lượt mà lỗi từ 50% thì mở mạch 30 giây
+      window-size: 10
+      minimum-calls: 5
+      failure-rate-percent: 50
+      open-for: 30s

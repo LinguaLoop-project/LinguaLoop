@@ -21,3 +21,18 @@ Các giá trị đánh dấu *(đề xuất)* chờ nhóm chốt.
 | BR-AUTH-13 | Thời lượng học mỗi ngày chọn một trong 10, 15, 20, 30 phút, mặc định 15 phút (khớp mockup trang Hôm nay và Cài đặt). Đây là tổng thời gian mặc định của kế hoạch học hằng ngày; học viên vẫn đổi được cho riêng từng ngày ở trang Hôm nay. Ngôn ngữ giao diện: tiếng Việt hoặc tiếng Anh. | UC-AUTH-08 (4a), AC-AUTH-47, AC-AUTH-49 |
 | BR-AUTH-14 | Người dùng phải đồng ý Điều khoản sử dụng và Chính sách quyền riêng tư trước khi dùng hệ thống: ở biểu mẫu đăng ký nếu đăng ký bằng email, ở bước thiết lập hồ sơ nếu đăng nhập bằng Google. Việc đồng ý lưu giọng nói và xử lý bằng AI được hỏi riêng ở lần ghi âm đầu tiên, không thuộc module này. | UC-AUTH-01 (4b), UC-AUTH-08 (4b), AC-AUTH-03, AC-AUTH-50 |
 | BR-AUTH-15 | Tài khoản tự đăng ký (bằng email hoặc Google) luôn có vai trò Học viên. Vai trò Giảng viên và Quản trị viên do quản trị viên cấp. | UC-AUTH-01 (Bước 6), UC-AUTH-03 (5a), AC-AUTH-01, AC-AUTH-18 |
+
+
+## Module SHADOWING
+
+| Mã | Quy tắc | Áp dụng trong |
+|---|---|---|
+| BR-SHADOW-01 | Mỗi lần gửi ghi âm đi chấm là một Lượt shadowing. Gói Free có 5 lượt mỗi ngày, gói Pro 200 lượt mỗi ngày *(đề xuất, đặt trong `plan_limits`, chờ chỉnh theo chi phí Azure)*. Ngày tính theo giờ Việt Nam, bộ đếm bắt đầu lại lúc 00:00. | UC-SHADOW-01, UC-SHADOW-04, AC-SHADOW-03, AC-SHADOW-04, AC-SHADOW-17, AC-SHADOW-18 |
+| BR-SHADOW-02 | Lượt được giữ chỗ trước khi gọi Azure, bằng phép tăng nguyên tử có điều kiện, nên các yêu cầu đồng thời không vượt hạn mức. Lượt được trả lại khi Azure lỗi, không nghe thấy tiếng nói, hoặc việc lưu kết quả thất bại. Lượt không được trả lại khi học viên đã nhận được kết quả chấm. | UC-SHADOW-01, AC-SHADOW-05, AC-SHADOW-06, AC-SHADOW-11 |
+| BR-SHADOW-03 | Ghi âm là WAV PCM 16-bit, mono, 16 kHz, dài từ 0,5 đến 30 giây, tối đa 1 MB. Ghi âm không hợp lệ bị từ chối trước khi trừ lượt. | UC-SHADOW-01, AC-SHADOW-07 |
+| BR-SHADOW-04 | Điểm của một Lượt shadowing là điểm phát âm tổng hợp của Azure (0–100, hai chữ số thập phân), chấm theo `en-US` với lời mẫu là chữ của câu. Ngưỡng tô màu: từ 80 trở lên là tốt, từ 60 đến dưới 80 là khá, dưới 60 là cần sửa. Âm vị dưới 60 điểm được coi là lỗi. | UC-SHADOW-01, UC-SHADOW-06 |
+| BR-SHADOW-05 | Âm vị lưu theo bảng `phonemes`, còn phản hồi cho học viên giữ ký hiệu của Azure. Âm không chuyển được thì không lưu nhưng không làm hỏng lượt (ADR 0004). | UC-SHADOW-02, AC-SHADOW-12, AC-SHADOW-13, AC-SHADOW-14 |
+| BR-SHADOW-06 | Chấm phát âm gửi giọng nói tới Azure nên cần học viên đã đồng ý `ai_processing`. Chưa đồng ý thì không chấm; vẫn ghi âm và nghe lại được trên trình duyệt. *Đến khi module Người dùng có `ConsentService` thật, hệ thống dùng bản tạm luôn coi là đã đồng ý.* | UC-SHADOW-01, AC-SHADOW-08 |
+| BR-SHADOW-07 | Lát đầu chưa lưu file ghi âm lên server (`audio_url` rỗng). Nghe lại và so sánh dùng bản ghi gần nhất trong trình duyệt. | UC-SHADOW-06 |
+| BR-SHADOW-08 | Học viên chỉ đọc được lượt của chính mình. Mỗi Lượt shadowing ghi nhận tiến độ bài ở chế độ shadowing; chế độ được coi là hoàn thành khi mọi câu của bài có ít nhất một lượt. | UC-SHADOW-03, UC-SHADOW-05, AC-SHADOW-15, AC-SHADOW-19, AC-SHADOW-20 |
+| BR-SHADOW-09 | Lời gọi Azure có timeout 20 giây và circuit breaker: trong cửa sổ 10 lượt, đủ 5 lượt mà lỗi từ 50% thì mạch mở 30 giây, các lượt chấm trong lúc đó báo `SHADOWING_SCORING_UNAVAILABLE` ngay và được hoàn lượt như mọi lỗi chấm khác. Lỗi do người học (không nghe thấy lời nói) không tính là lỗi dịch vụ. | UC-SHADOW-01 |

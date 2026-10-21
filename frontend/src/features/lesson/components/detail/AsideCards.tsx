@@ -9,7 +9,7 @@ import { formatDuration } from "@/lib/format";
 import type { LessonSummary, ModeProgress } from "../../types";
 import LessonThumb from "../LessonThumb";
 
-const OVERLINE = "text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text";
+const OVERLINE = "text-[15px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text";
 
 function AsideCard({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
   return (
@@ -22,6 +22,10 @@ function AsideCard({ title, aside, children }: { title: string; aside?: ReactNod
     </div>
   );
 }
+
+/** 0 giây hiện "—"; dưới 1 phút vẫn hiện 1 phút để người học thấy mình đã có thời gian học. */
+const studyTime = (sec: number, t: (key: string, fallback: string) => string) =>
+  sec > 0 ? `${Math.max(1, Math.round(sec / 60))} ${t("student.lessonDetail.aside.minutes", "phút")}` : "—";
 
 const pct = (n: number) => (n > 0 ? `${Math.round(n)}%` : "—");
 
@@ -55,7 +59,7 @@ export function ProgressCard({ progress }: { progress: ModeProgress }) {
               <Icon name="clock" />
               {t("student.lessonDetail.aside.studyTime", "Thời gian học")}
             </span>
-            <b>—</b>
+            <b>{studyTime(progress.studyTimeSec, t)}</b>
           </div>
         </div>
       </div>
@@ -155,9 +159,9 @@ export function RelatedLessons({ lessons, topicSlug }: { lessons: LessonSummary[
           tabIndex={0}
           onClick={() => navigate(`/student/lessons/${rel.slug}`)}
           onKeyDown={(e) => e.key === "Enter" && navigate(`/student/lessons/${rel.slug}`)}
-          className="group grid cursor-pointer grid-cols-[72px_minmax(0,1fr)] items-center gap-3 py-2"
+          className="group grid grid-cols-[40%_60%] cursor-pointer items-center gap-3 py-3"
         >
-          <LessonThumb lesson={rel} corners={false} compact className="!h-[52px] rounded-sm" />
+          <LessonThumb lesson={rel} corners={false} compact className="h-full rounded-sm" />
           <div className="min-w-0">
             <b className="text-[13px] font-bold leading-[1.35]">{rel.title}</b>
             <div className="text-[13px] leading-normal text-text-muted">

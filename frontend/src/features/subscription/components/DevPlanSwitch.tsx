@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import Icon from "@/components/common/Icon";
-import { useAuthStore } from "@/features/auth/stores/authStore";
 import { useMyPlan, PLAN_QUERY_KEY } from "../hooks/useMyPlan";
+import { USAGE_QUERY_KEY } from "../hooks/useUsage";
 import { subscriptionService } from "../services/subscriptionService";
 import type { PlanCode } from "../types";
 
@@ -13,22 +13,22 @@ const BTN =
 export default function DevPlanSwitch() {
   const { t } = useTranslation("layout");
   const queryClient = useQueryClient();
-  const userId = useAuthStore((s) => s.user?.id);
   const { data } = useMyPlan();
   const plan: PlanCode = data?.plan ?? "free";
 
   const setPlan = useMutation({
     mutationFn: (next: PlanCode) => subscriptionService.devSetPlan(next),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: PLAN_QUERY_KEY }),
+    // Giới hạn đổi theo gói nên đọc lại cả hạn mức
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: PLAN_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: USAGE_QUERY_KEY }),
+      ]),
   });
 
   const reset = useMutation({
     mutationFn: () => subscriptionService.devResetUsage(),
-    onSuccess: () => {
-      // Bộ đếm hiển thị hiện còn nằm ở localStorage (useQuota); xoá rồi tải lại để mọi chỗ đọc lại từ đầu.
-      if (userId) localStorage.removeItem(`quota_${userId}`);
-      window.location.reload();
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: USAGE_QUERY_KEY }),
   });
 
   return (

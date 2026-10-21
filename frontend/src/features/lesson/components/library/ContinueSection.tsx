@@ -39,13 +39,13 @@ export default function ContinueSection({ lessons, mode: filter = "all" }: { les
               key={l.id}
               tabIndex={0}
               aria-label={t("student.lessons.continue.resume", { title: l.title, defaultValue: `Tiếp tục ${l.title}` })}
-              className="group grid cursor-pointer grid-cols-[96px_minmax(0,1fr)_auto] items-center gap-3.5 rounded-lg border border-border bg-surface p-3 shadow-[var(--shadow-card)] transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-border-strong"
+              className="group grid cursor-pointer grid-cols-[96px_minmax(0,1fr)_auto] items-center gap-3.5 rounded-lg border border-border bg-surface p-3 shadow-[var(--shadow-card)] transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--primary)_65%,var(--border))] hover:shadow-[0_20px_45px_-15px_rgba(0,0,0,0.5),0_0_30px_color-mix(in_srgb,var(--primary)_40%,transparent),0_0_70px_color-mix(in_srgb,var(--primary)_25%,transparent)] focus-visible:outline-2 focus-visible:outline-primary"
               onClick={() => navigate(`/student/lessons/${l.slug}`)}
               onKeyDown={(e) => {
                 if (e.target === e.currentTarget && e.key === "Enter") navigate(`/student/lessons/${l.slug}`);
               }}
             >
-              <LessonThumb lesson={l} corners={false} compact className="!h-[72px] rounded-md" />
+              <LessonThumb lesson={l} corners={false} compact className="w-full rounded-sm" />
               <div className="flex min-w-0 flex-col gap-1">
                 <b className="font-bold leading-[1.35]">{l.title}</b>
                 <span className="text-[13px] leading-normal text-text-muted">
