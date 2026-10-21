@@ -97,6 +97,7 @@ import {
   Video,
   Volume2,
   WandSparkles,
+  Wrench,
   X,
   Zap,
 } from "lucide-react";
@@ -115,6 +116,7 @@ const ICONS: Record<string, LucideIcon> = {
   "volume-x": VolumeX,
   "ear": Ear,
   "wifi-off": WifiOff,
+  "wrench": Wrench,
   "panel-left-close": PanelLeftClose,
   "panel-left-open": PanelLeftOpen,
   "arrow-left": ArrowLeft,

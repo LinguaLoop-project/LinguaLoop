@@ -230,5 +230,9 @@
       "actions": "Thao tác",
       "none": "Không có kết quả cho “{{q}}”"
     }
+  },
+  "dev": {
+    "title": "Công cụ thử: chuyển Free/Pro, đặt lại lượt hôm nay",
+    "resetUsage": "Đặt lại lượt hôm nay"
   }
 }
