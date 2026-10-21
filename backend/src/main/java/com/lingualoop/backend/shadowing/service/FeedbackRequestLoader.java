@@ -14,9 +14,9 @@ import com.lingualoop.backend.lesson.dto.SentenceView;
 import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.lesson.service.SentenceQueryService;
 import com.lingualoop.backend.shadowing.azure.ExpectedPhonemes;
-import com.lingualoop.backend.shadowing.entity.AttemptPhoneme;
-import com.lingualoop.backend.shadowing.entity.AttemptWord;
-import com.lingualoop.backend.shadowing.entity.SentenceAttempt;
+import com.lingualoop.backend.practice.entity.AttemptPhoneme;
+import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
+import com.lingualoop.backend.practice.entity.SentenceAttempt;
 import com.lingualoop.backend.shadowing.repository.AttemptWordRepository;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository;
@@ -45,7 +45,7 @@ class FeedbackRequestLoader {
         Map<Short, String> symbols = new HashMap<>();
         phonemes.findAll().forEach(p -> symbols.put(p.getId(), p.getSymbol()));
 
-        List<AttemptWord> attemptWords = wordRepository.findByAttemptIds(List.of(attemptId));
+        List<SentenceAttemptWord> attemptWords = wordRepository.findByAttemptIds(List.of(attemptId));
         Map<Long, List<String>> expectedByWord = PhonemeTargets.expectedByWordId(sentence, attemptWords);
         List<FeedbackRequest.Word> words = attemptWords.stream()
                 .map(w -> toWord(w, symbols, expectedByWord.get(w.getId())))
@@ -55,7 +55,7 @@ class FeedbackRequestLoader {
                 nullable(attempt.getProsodyScore()), words);
     }
 
-    private static FeedbackRequest.Word toWord(AttemptWord w, Map<Short, String> symbols, List<String> expectedWord) {
+    private static FeedbackRequest.Word toWord(SentenceAttemptWord w, Map<Short, String> symbols, List<String> expectedWord) {
         List<AttemptPhoneme> stored = w.getPhonemes();
         List<String> recomputed = ExpectedPhonemes.align(expectedWord, PhonemeTargets.heardCount(stored));
         List<FeedbackRequest.Phoneme> weak = stored.stream()
@@ -63,7 +63,7 @@ class FeedbackRequestLoader {
                 .filter(p -> PhonemeRules.needsFix(p.accuracy(), p.symbol(), p.expected() == null ? p.symbol() : p.expected()))
                 .toList();
         return new FeedbackRequest.Word(w.getExpectedWord() != null ? w.getExpectedWord() : w.getActualWord(),
-                value(w.getAccuracyScore()), w.getOutcome(), weak);
+                value(w.getAccuracyScore()), w.getOutcome().name(), weak);
     }
 
     /** {@code expected} chỉ được giữ khi khác âm Azure báo, để lời nhắc ngắn gọn. */

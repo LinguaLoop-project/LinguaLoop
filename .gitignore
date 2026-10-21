@@ -35,5 +35,5 @@ docs/ux/
 CONTEXT.md
 .playwright-mcp/
 
-# Ghi âm thử cá nhân (giọng người dùng), không đưa lên git
+# Bản ghi giọng và mẫu thử Azure cá nhân, không đưa lên GitHub
 backend/samples/

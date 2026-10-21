@@ -15,9 +15,9 @@ import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.lesson.service.SentenceQueryService;
 import com.lingualoop.backend.shadowing.azure.ExpectedPhonemes;
 import com.lingualoop.backend.shadowing.dto.AttemptSnapshot;
-import com.lingualoop.backend.shadowing.entity.AttemptPhoneme;
-import com.lingualoop.backend.shadowing.entity.AttemptWord;
-import com.lingualoop.backend.shadowing.entity.SentenceAttempt;
+import com.lingualoop.backend.practice.entity.AttemptPhoneme;
+import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
+import com.lingualoop.backend.practice.entity.SentenceAttempt;
 import com.lingualoop.backend.shadowing.repository.AttemptPhonemeRepository;
 import com.lingualoop.backend.shadowing.repository.AttemptWordRepository;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
@@ -76,19 +76,19 @@ class AttemptSnapshotsImpl implements AttemptSnapshots {
         Map<Long, List<AttemptPhoneme>> phonemesByWord = new HashMap<>();
         phonemeRepository.findByAttemptIds(ids).forEach(
                 p -> phonemesByWord.computeIfAbsent(p.getWord().getId(), k -> new ArrayList<>()).add(p));
-        Map<Long, List<AttemptWord>> wordsByAttempt = new HashMap<>();
+        Map<Long, List<SentenceAttemptWord>> wordsByAttempt = new HashMap<>();
         wordRepository.findByAttemptIds(ids).forEach(
-                w -> wordsByAttempt.computeIfAbsent(w.getAttempt().getId(), k -> new ArrayList<>()).add(w));
+                w -> wordsByAttempt.computeIfAbsent(w.getAttemptId(), k -> new ArrayList<>()).add(w));
 
         List<AttemptSnapshot> result = new ArrayList<>();
         for (SentenceAttempt attempt : list) {
             SentenceView sentence = sentenceQueryService.findSentence(attempt.getSentenceId())
                     .orElseThrow(() -> new NotFoundException("Sentence not found"));
-            List<AttemptWord> words = wordsByAttempt.getOrDefault(attempt.getId(), List.of());
+            List<SentenceAttemptWord> words = wordsByAttempt.getOrDefault(attempt.getId(), List.of());
             Map<Long, List<String>> expected = PhonemeTargets.expectedByWordId(sentence, words);
 
             List<AttemptSnapshot.Word> out = new ArrayList<>();
-            for (AttemptWord w : words) {
+            for (SentenceAttemptWord w : words) {
                 List<AttemptPhoneme> stored = phonemesByWord.getOrDefault(w.getId(), List.of());
                 List<String> recomputed = ExpectedPhonemes.align(expected.get(w.getId()), PhonemeTargets.heardCount(stored));
                 List<AttemptSnapshot.Phoneme> ph = new ArrayList<>();
@@ -100,7 +100,7 @@ class AttemptSnapshotsImpl implements AttemptSnapshots {
                             PhonemeRules.needsFix(accuracy, heard, target), PhonemeRules.mismatch(heard, target)));
                 }
                 out.add(new AttemptSnapshot.Word(w.getExpectedWord() != null ? w.getExpectedWord() : w.getActualWord(),
-                        w.getAccuracyScore() == null ? 0 : w.getAccuracyScore().doubleValue(), w.getOutcome(), ph));
+                        w.getAccuracyScore() == null ? 0 : w.getAccuracyScore().doubleValue(), w.getOutcome().name(), ph));
             }
             result.add(new AttemptSnapshot(attempt.getId(), sentence.lessonId(), sentence.id(), sentence.text(),
                     sentence.ipa(), attempt.getAccuracyScore() == null ? 0 : attempt.getAccuracyScore().doubleValue(), out));

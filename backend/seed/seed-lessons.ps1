@@ -3,6 +3,9 @@
 # Chạy lại an toàn: các câu lệnh dùng ON CONFLICT DO UPDATE.
 $ErrorActionPreference = "Stop"
 $here = $PSScriptRoot
+# Windows PowerShell 5.1 gửi dữ liệu qua pipe bằng ASCII, làm chữ có dấu và IPA thành "?" trong DB.
+$OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+$env:PGCLIENTENCODING = "UTF8"
 
 foreach ($name in "01_topics_lessons.sql.gz", "02_sentences.sql.gz") {
     Write-Host "Nạp $name ..."
@@ -17,7 +20,7 @@ foreach ($name in "01_topics_lessons.sql.gz", "02_sentences.sql.gz") {
         } else {
             $compose = Join-Path $here "..\compose.yaml"
             Get-Content $tmp -Raw -Encoding UTF8 |
-                docker compose -f $compose exec -T postgres psql -U lingualoop -d lingualoop -v ON_ERROR_STOP=1 -q
+                docker compose -f $compose exec -T -e PGCLIENTENCODING=UTF8 postgres psql -U lingualoop -d lingualoop -v ON_ERROR_STOP=1 -q
         }
         if ($LASTEXITCODE -ne 0) { throw "psql thất bại ($name)" }
     } finally { Remove-Item $tmp -ErrorAction SilentlyContinue }

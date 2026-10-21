@@ -1,0 +1,180 @@
+{
+  "title": "Listen, then type it",
+  "overline": "Dictation",
+  "overlineWithLevel": "Dictation · {{cefr}}",
+  "backToLessons": "Back to the library",
+  "backToLesson": "Back to the lesson",
+  "level": {
+    "label": "Level",
+    "easy": "Easy",
+    "normal": "Normal",
+    "hard": "Hard",
+    "easyHelp": "Fill in the missing words",
+    "normalHelp": "Type the whole sentence, slots show each word's length",
+    "hardHelp": "Type the whole sentence, no hints",
+    "changed": "{{level}} level",
+    "changedNext": "{{level}} level applies from the next sentence",
+    "easyUnavailable": "This sentence is too short for blanks at Easy level.",
+    "useNormal": "Use Normal level"
+  },
+  "media": {
+    "youtube": "YouTube",
+    "audio": "Audio",
+    "hideVideo": "Hide video",
+    "showVideo": "Show video",
+    "sentences": "Sentences in this lesson",
+    "sentenceN": "Sentence {{n}}",
+    "failTitle": "Couldn't load the video",
+    "failDesc": "You can still do the exercise, but you can't hear the audio. Try reloading.",
+    "blockedTitle": "Couldn't play the audio",
+    "blockedDesc": "Your browser may be blocking sound, or the video hasn't finished loading. Press play again or reload.",
+    "noSourceTitle": "This lesson has no audio source",
+    "noSourceDesc": "You can still see the sentence list, but you can't listen yet. Tell the lesson's instructor if this continues.",
+    "reload": "Reload"
+  },
+  "controls": {
+    "group": "Playback controls",
+    "prev": "Previous sentence (Alt+←)",
+    "replay": "Replay (Ctrl)",
+    "play": "Play sentence (Ctrl)",
+    "pause": "Stop",
+    "next": "Next sentence (Alt+→)",
+    "rate": "Playback speed"
+  },
+  "meta": {
+    "sentence": "Sentence {{n}}/{{total}}",
+    "replays_one": "Listened {{count}} time",
+    "replays_other": "Listened {{count}} times"
+  },
+  "input": {
+    "label": "What you heard",
+    "placeholder": "Type what you hear…",
+    "slots": "Letter count of each word",
+    "submit": "Check",
+    "submitting": "Checking…",
+    "enterHint": "check",
+    "empty": "Type the sentence you heard first",
+    "emptyCloze": "Fill in at least one blank first",
+    "giveUp": "Show the sentence",
+    "cloze": "Sentence with blanks",
+    "blank": "Blank {{n}}/{{total}}",
+    "reveal": "Reveal this blank (counts as wrong)",
+    "revealed": "Revealed word, counts as wrong",
+    "clozeHint": "next blank",
+    "hint": "Hint",
+    "hintTitle": "Reveal the next correct word (it counts as wrong)",
+    "revealSlot": "Reveal word {{n}} (counts as wrong)",
+    "hintLabel": "Hint"
+  },
+  "result": {
+    "score": "points",
+    "perfect": "Perfect!",
+    "again": "Redo sentence",
+    "listenAgain": "Listen again",
+    "next": "Next sentence",
+    "finish": "Finish",
+    "translation": "Translation",
+    "noDetail": "Couldn't load the word-by-word detail for this attempt. Press “Redo sentence” to try again.",
+    "moodGreat": "Your ears are sharp!",
+    "moodOk": "Almost there. Listen again and look at the colored words.",
+    "moodHard": "That one is tough. Try a slower speed and redo it.",
+    "gaveUp": "You viewed the answer, this attempt is left out of your stats"
+  },
+  "legend": {
+    "correct": "Correct",
+    "omitted": "Missed",
+    "substituted": "Wrong word",
+    "misspelled": "Misspelled",
+    "inserted": "Extra",
+    "revealed": "Opened"
+  },
+  "tip": {
+    "inserted": "Extra word",
+    "youTyped": "you typed “{{word}}”",
+    "fallback": "Wrong",
+    "revealed": "You opened this word",
+    "homophone": "Homophone: sounds the same but is spelled differently",
+    "homophoneMark": "Homophone"
+  },
+  "category": {
+    "function_omitted": "Missed function word",
+    "function_substituted": "Wrong function word",
+    "function_misspelled": "Misspelled function word",
+    "content_omitted": "Missed content word",
+    "content_substituted": "Wrong content word",
+    "content_misspelled": "Misspelled content word",
+    "inflected_omitted": "Missed inflected word",
+    "inflected_substituted": "Wrong word ending (-s, -ed, -ing)",
+    "inflected_misspelled": "Misspelled inflected word",
+    "number_omitted": "Missed number",
+    "number_substituted": "Misheard number",
+    "number_misspelled": "Misspelled number",
+    "proper_omitted": "Missed proper name",
+    "proper_substituted": "Misheard proper name",
+    "proper_misspelled": "Misspelled proper name"
+  },
+  "list": {
+    "title": "Transcript",
+    "aria": "Sentence transcript",
+    "doing": "In progress",
+    "words_one": "{{count}} word",
+    "words_other": "{{count}} words"
+  },
+  "settings": {
+    "open": "Settings",
+    "title": "Dictation settings",
+    "autoNext": "Auto-play the next sentence",
+    "autoNextDesc": "Off: wait until you've read the result, then press play",
+    "translation": "Show Vietnamese translation",
+    "translationDesc": "After checking, in the Translation section"
+  },
+  "shortcuts": {
+    "open": "Keyboard shortcuts",
+    "title": "Keyboard shortcuts",
+    "play": "Play / replay",
+    "playKeys": "Ctrl (release)",
+    "submit": "Check · next sentence",
+    "newline": "New line",
+    "prevNext": "Previous / next sentence",
+    "level": "Easy / Normal / Hard level",
+    "cloze": "Blanks",
+    "clozeKeys": "Space next blank · Backspace previous"
+  },
+  "state": {
+    "loading": "Loading dictation lesson",
+    "offline": "You're offline. What you typed is kept, submit again when you're back online.",
+    "submitFailed": "Couldn't submit this sentence. Check your connection and try again.",
+    "retry": "Try again",
+    "resumed": "Continuing from sentence {{n}} · {{done}}/{{total}} done",
+    "firstSentence": "This is the first sentence",
+    "proTitle": "This lesson is for Pro",
+    "proDesc": "Upgrade to Pro to practice this lesson.",
+    "emptyTitle": "This lesson has no sentences yet",
+    "emptyDesc": "The instructor hasn't split this lesson into sentences yet, so dictation isn't available.",
+    "promptLoading": "Preparing the sentence",
+    "promptFailed": "Couldn't load this sentence's blanks. Check your connection and try again."
+  },
+  "errors": {
+    "easyUnavailable": "This sentence is too short for blanks. Use Normal level.",
+    "invalidBlanks": "The blanks no longer match the sentence. Press “Redo sentence” for a fresh one."
+  },
+  "done": {
+    "title": "Dictation lesson complete",
+    "average": "Average score",
+    "noScore": "No score yet",
+    "good": "80 and up",
+    "mid": "60 to 79",
+    "bad": "Below 60",
+    "weak": "Sentences worth another listen",
+    "sentenceN": "Sentence {{n}}",
+    "redo": "Redo at {{level}} level",
+    "suggest": "You're doing well. Try a harder level.",
+    "shadowing": "Practice shadowing",
+    "back": "Back to the lesson"
+  },
+  "hint": {
+    "allCorrect": "Every word you typed is correct",
+    "offline": "You're offline, so no hint right now",
+    "failed": "Couldn't get a hint, try again"
+  }
+}
