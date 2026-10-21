@@ -1,4 +1,4 @@
-package com.lingualoop.backend.shadowing.entity;
+package com.lingualoop.backend.practice.entity;
 
 import java.math.BigDecimal;
 
@@ -28,7 +28,7 @@ public class AttemptPhoneme {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "attempt_word_id", nullable = false, updatable = false)
-    private AttemptWord word;
+    private SentenceAttemptWord word;
 
     @Column(name = "position", nullable = false, updatable = false)
     private Short position;
@@ -55,7 +55,7 @@ public class AttemptPhoneme {
     @Column(name = "accuracy_score", nullable = false, precision = 5, scale = 2)
     private BigDecimal accuracyScore;
 
-    AttemptPhoneme(AttemptWord word, int position, Short phonemeId, String azureSymbol, Short targetPhonemeId,
+    AttemptPhoneme(SentenceAttemptWord word, int position, Short phonemeId, String azureSymbol, Short targetPhonemeId,
             Short producedPhonemeId, BigDecimal producedScore, BigDecimal accuracyScore) {
         this.word = word;
         this.position = (short) position;

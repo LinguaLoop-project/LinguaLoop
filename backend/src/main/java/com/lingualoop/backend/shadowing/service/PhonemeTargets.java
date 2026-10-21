@@ -7,9 +7,9 @@ import java.util.Map;
 
 import com.lingualoop.backend.lesson.dto.SentenceView;
 import com.lingualoop.backend.shadowing.azure.ExpectedPhonemes;
+import com.lingualoop.backend.practice.entity.AttemptPhoneme;
+import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
-import com.lingualoop.backend.shadowing.entity.AttemptPhoneme;
-import com.lingualoop.backend.shadowing.entity.AttemptWord;
 
 /** Âm mẫu của các từ đã lưu của một lượt, tính lại từ phiên âm của câu. */
 final class PhonemeTargets {
@@ -21,11 +21,11 @@ final class PhonemeTargets {
      * @param words các từ của MỘT lượt, theo vị trí
      * @return id từ đã lưu -> âm mẫu của từ đó; thiếu khi câu không có phiên âm hoặc không tách được
      */
-    static Map<Long, List<String>> expectedByWordId(SentenceView sentence, List<AttemptWord> words) {
+    static Map<Long, List<String>> expectedByWordId(SentenceView sentence, List<SentenceAttemptWord> words) {
         List<List<String>> reference = sentence == null ? null : ExpectedPhonemes.ofSentence(sentence.text(), sentence.ipa());
         Map<Long, List<String>> result = new HashMap<>();
         int ref = 0;
-        for (AttemptWord w : words) {
+        for (SentenceAttemptWord w : words) {
             if (w.getExpectedWord() == null) {
                 continue; // từ thừa không có trong câu mẫu
             }

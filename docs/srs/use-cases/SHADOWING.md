@@ -140,7 +140,7 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 ### Chưa thuộc phạm vi
 
 - Lưu file ghi âm lên server, `is_baseline`, tự xoá khi hết hạn (cần `voice_storage`).
-- Hàng đợi ôn câu làm kém (`user_sentence_review`), điền `myBestScore` ở danh sách câu, `completed_at` mức bài (cần thống nhất với nghe chép).
+- Hàng đợi ôn câu làm kém (`user_sentence_review`), `completed_at` mức bài (cần thống nhất với nghe chép). Điểm cao nhất từng câu ở danh sách câu của trang bài đã có, tách theo chế độ (AC-LESSON-14).
 - Hộp thoại xin đồng ý lần ghi âm đầu và API `/me/consents` (Kế).
 - Phiên gia sư (lát C). Mẹo riêng cho cặp "đọc A thành B" (Azure không trả âm bị nhầm thành gì).
 - Phần của mockup chưa làm ở trang luyện: thanh thời gian chia đoạn trên video, công tắc "Gia sư" (lát C).

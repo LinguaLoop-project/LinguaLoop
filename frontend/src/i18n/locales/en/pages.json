@@ -132,6 +132,8 @@
         "sentence": "Sentence {{index}}",
         "listen": "Listen to sentence",
         "shadow": "Shadow sentence",
+        "score_dictation": "Dictation",
+        "score_shadowing": "Shadowing",
         "empty": "No sentence data available for this lesson.",
         "showMore": "Show {{count}} more sentences",
         "collapse": "Collapse",
