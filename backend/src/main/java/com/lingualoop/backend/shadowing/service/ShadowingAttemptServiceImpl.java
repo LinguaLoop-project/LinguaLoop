@@ -24,9 +24,9 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.shadowing.dto.LatestAttemptResponse;
 import com.lingualoop.backend.shadowing.dto.ShadowingAttemptResponse;
+import com.lingualoop.backend.practice.entity.AttemptPhoneme;
+import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
 import com.lingualoop.backend.shadowing.entity.AiFeedback;
-import com.lingualoop.backend.shadowing.entity.AttemptPhoneme;
-import com.lingualoop.backend.shadowing.entity.AttemptWord;
 import com.lingualoop.backend.shadowing.repository.AiFeedbackRepository;
 import com.lingualoop.backend.shadowing.repository.AttemptPhonemeRepository;
 import com.lingualoop.backend.shadowing.repository.AttemptWordRepository;
@@ -111,9 +111,9 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         // Âm mẫu theo từng từ của từng lượt, để ghép với âm đã lưu (theo vị trí âm trong từ)
         Map<UUID, SentenceView> sentenceById = new HashMap<>();
         sentenceQueryService.findSentences(lesson.id()).forEach(sv -> sentenceById.put(sv.id(), sv));
-        List<AttemptWord> words = wordRepository.findByAttemptIds(attemptIds);
-        Map<Long, List<AttemptWord>> wordsOfAttempt = new HashMap<>();
-        words.forEach(w -> wordsOfAttempt.computeIfAbsent(w.getAttempt().getId(), k -> new ArrayList<>()).add(w));
+        List<SentenceAttemptWord> words = wordRepository.findByAttemptIds(attemptIds);
+        Map<Long, List<SentenceAttemptWord>> wordsOfAttempt = new HashMap<>();
+        words.forEach(w -> wordsOfAttempt.computeIfAbsent(w.getAttemptId(), k -> new ArrayList<>()).add(w));
         Map<Long, List<String>> expectedByWord = new HashMap<>();
         heads.forEach(h -> expectedByWord.putAll(PhonemeTargets.expectedByWordId(
                 sentenceById.get(h.getSentenceId()), wordsOfAttempt.getOrDefault(h.getAttemptId(), List.of()))));
@@ -121,7 +121,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         Map<String, PronunciationHints.Hint> hintBySymbol = hintsFor(userId, symbols);
 
         Map<Long, List<ShadowingAttemptResponse.WordResult>> wordsByAttempt = new HashMap<>();
-        for (AttemptWord w : words) {
+        for (SentenceAttemptWord w : words) {
             List<ShadowingAttemptResponse.PhonemeResult> phonemes = new ArrayList<>();
             List<AttemptPhoneme> stored = phonemesByWord.getOrDefault(w.getId(), List.of());
             List<String> expected = ExpectedPhonemes.align(expectedByWord.get(w.getId()), PhonemeTargets.heardCount(stored));
@@ -134,10 +134,10 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
                         PhonemeRules.needsFix(accuracy, symbol, target),
                         hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
             }
-            wordsByAttempt.computeIfAbsent(w.getAttempt().getId(), k -> new ArrayList<>())
+            wordsByAttempt.computeIfAbsent(w.getAttemptId(), k -> new ArrayList<>())
                     .add(new ShadowingAttemptResponse.WordResult(w.getPosition(),
                             w.getExpectedWord() != null ? w.getExpectedWord() : w.getActualWord(),
-                            w.getAccuracyScore().doubleValue(), w.getOutcome(), phonemes));
+                            w.getAccuracyScore().doubleValue(), w.getOutcome().name(), phonemes));
         }
 
         Map<Long, AiFeedback> feedbackByAttempt = new HashMap<>();

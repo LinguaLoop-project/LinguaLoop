@@ -9,10 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.lesson.service.LessonProgressService;
+import com.lingualoop.backend.practice.entity.SentenceAttempt;
+import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
+import com.lingualoop.backend.practice.enums.AttemptOutcome;
 import com.lingualoop.backend.shadowing.azure.AzurePhonemeMapper;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
-import com.lingualoop.backend.shadowing.entity.AttemptWord;
-import com.lingualoop.backend.shadowing.entity.SentenceAttempt;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository;
 
@@ -63,8 +64,8 @@ class ShadowingAttemptRecorder {
     private void addWord(SentenceAttempt attempt, int position, PronunciationAssessment.WordResult word,
             Map<String, Short> phonemeIds) {
         String outcome = outcomeOf(word.errorType());
-        AttemptWord row = attempt.addWord(position, "inserted".equals(outcome) ? null : word.word(),
-                "omitted".equals(outcome) ? null : word.word(), outcome, word.accuracyScore());
+        SentenceAttemptWord row = attempt.addWord(position, "inserted".equals(outcome) ? null : word.word(),
+                "omitted".equals(outcome) ? null : word.word(), AttemptOutcome.valueOf(outcome), word.accuracyScore());
 
         List<String> azure = word.phonemes().stream().map(PronunciationAssessment.PhonemeResult::symbol).toList();
         List<String> table = AzurePhonemeMapper.toTableSymbols(azure);

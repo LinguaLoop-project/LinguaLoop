@@ -487,6 +487,74 @@ class LessonLibraryIntegrationTest {
                 .andExpect(jsonPath("$.data.continueLessons.length()").value(0));
     }
 
+    // ---------------------------------------------------------------- AC-LESSON-13..14
+
+    @Test
+    void detail_reportsDictationPercentAsSentencesWithAResultOverAllSentences_AC_LESSON_13() throws Exception {
+        Topic topic = topic("t", 1, LessonStatus.APPROVED);
+        Lesson l = lesson(topic, "pct", false, LessonStatus.APPROVED, CefrLevel.A1, 0);
+        for (int i = 0; i < 3; i++) {
+            sentence(l, i, "s" + i);
+        }
+        UUID user = newUser();
+        var ids = sentences.findByLessonIdOrderBySortOrderAsc(l.getId());
+        dictationAttempt(user, ids.get(0).getId(), "normal", false, false, null);
+        dictationAttempt(user, ids.get(0).getId(), "normal", true, false, null);
+        dictationAttempt(user, ids.get(1).getId(), "hard", false, true, null);
+
+        as(user, get("/api/v1/lessons/" + l.getSlug()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.progress.dictationPercent").value(67))
+                .andExpect(jsonPath("$.data.progress.shadowingPercent").value(0));
+        as(newUser(), get("/api/v1/lessons/" + l.getSlug()))
+                .andExpect(jsonPath("$.data.progress.dictationPercent").value(0));
+    }
+
+    @Test
+    void search_reportsDictationPercentPerLessonOfTheCaller_AC_LESSON_13() throws Exception {
+        Topic topic = topic("t", 1, LessonStatus.APPROVED);
+        Lesson done = lesson(topic, "done", false, LessonStatus.APPROVED, CefrLevel.A1, 2);
+        Lesson fresh = lesson(topic, "fresh", false, LessonStatus.APPROVED, CefrLevel.A1, 1);
+        Lesson empty = lesson(topic, "empty", false, LessonStatus.APPROVED, CefrLevel.A1, 0);
+        sentence(done, 0, "a");
+        sentence(fresh, 0, "b");
+        UUID user = newUser();
+        dictationAttempt(user, sentences.findByLessonIdOrderBySortOrderAsc(done.getId()).get(0).getId(), "normal",
+                false, false, null);
+
+        as(user, get("/api/v1/lessons").param("q", tag).param("sort", "viewCount,desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.items[?(@.slug == '" + done.getSlug() + "')].progress.dictationPercent")
+                        .value(100))
+                .andExpect(jsonPath("$.data.items[?(@.slug == '" + fresh.getSlug() + "')].progress.dictationPercent")
+                        .value(0))
+                .andExpect(jsonPath("$.data.items[?(@.slug == '" + empty.getSlug() + "')].progress.dictationPercent")
+                        .value(0));
+    }
+
+    @Test
+    void sentences_reportTheCallersBestScorePerModeOrNothing_AC_LESSON_14() throws Exception {
+        Topic topic = topic("t", 1, LessonStatus.APPROVED);
+        Lesson l = lesson(topic, "best", false, LessonStatus.APPROVED, CefrLevel.A1, 0);
+        sentence(l, 0, "scored");
+        sentence(l, 1, "untouched");
+        UUID user = newUser();
+        UUID scored = sentences.findByLessonIdOrderBySortOrderAsc(l.getId()).get(0).getId();
+        dictationAttempt(user, scored, "normal", false, false, "40.00");
+        dictationAttempt(user, scored, "hard", false, false, "86.60");
+        shadowingAttempt(user, sentences.findByLessonIdOrderBySortOrderAsc(l.getId()).get(0));
+
+        as(user, get("/api/v1/lessons/" + l.getSlug() + "/sentences"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].myBestScore.dictation").value(87))
+                .andExpect(jsonPath("$.data[0].myBestScore.shadowing").value(80))
+                .andExpect(jsonPath("$.data[1].myBestScore.dictation").doesNotExist())
+                .andExpect(jsonPath("$.data[1].myBestScore.shadowing").doesNotExist());
+        as(newUser(), get("/api/v1/lessons/" + l.getSlug() + "/sentences"))
+                .andExpect(jsonPath("$.data[0].myBestScore.dictation").doesNotExist())
+                .andExpect(jsonPath("$.data[0].myBestScore.shadowing").doesNotExist());
+    }
+
     // ---------------------------------------------------------------- fixtures
 
     private ResultActions as(UUID userId, MockHttpServletRequestBuilder request) throws Exception {
@@ -530,6 +598,12 @@ class LessonLibraryIntegrationTest {
         s.setEndMs(order * 1000 + 900);
         s.setCefrLevel(CefrLevel.A1);
         sentences.save(s);
+    }
+
+    private void dictationAttempt(UUID userId, UUID sentenceId, String level, boolean retry, boolean gaveUp,
+            String score) {
+        jdbc.update("INSERT INTO sentence_attempts (user_id, sentence_id, mode, level, is_retry, gave_up, score) "
+                + "VALUES (?, ?, 'dictation', ?, ?, ?, ?::numeric)", userId, sentenceId, level, retry, gaveUp, score);
     }
 
     private void shadowingAttempt(UUID userId, Sentence sentence) {

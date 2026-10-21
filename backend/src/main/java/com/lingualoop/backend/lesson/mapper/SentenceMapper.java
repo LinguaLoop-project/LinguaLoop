@@ -10,7 +10,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface SentenceMapper {
 
-    // TODO(contract): điền myBestScore từ v_user_sentence_stats khi feature dictation/shadowing có dữ liệu.
+    /** myBestScore do LessonQueryService điền sau, từ PracticeProgressQueryService. */
     @Mapping(target = "myBestScore", ignore = true)
     SentenceResponse toResponse(Sentence sentence);
 

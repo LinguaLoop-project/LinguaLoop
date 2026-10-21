@@ -1,4 +1,4 @@
-package com.lingualoop.backend.shadowing.entity;
+package com.lingualoop.backend.practice.entity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.lingualoop.backend.lesson.enums.PracticeMode;
+import com.lingualoop.backend.practice.enums.AttemptOutcome;
+import com.lingualoop.backend.practice.enums.DictationLevel;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,18 +19,21 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/** Một Lượt shadowing: điểm tổng và các điểm thành phần, kèm kết quả từng từ (và từng âm vị trong từ). */
-@Getter
+/**
+ * Một lượt làm của một câu, dùng chung cho nghe chép và shadowing ({@code mode} phân biệt). Cột nào chỉ của một
+ * chế độ thì để null ở chế độ kia.
+ */
 @Entity
 @Table(name = "sentence_attempts")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@Setter
 public class SentenceAttempt {
 
     @Id
@@ -43,13 +48,31 @@ public class SentenceAttempt {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "mode", nullable = false, updatable = false, columnDefinition = "practice_mode")
-    private PracticeMode mode;
+    private PracticeMode mode = PracticeMode.dictation;
 
+    // Nghe chép
+    @Enumerated(EnumType.STRING)
+    @Column(name = "level")
+    private DictationLevel level;
+
+    @Column(name = "playback_rate", columnDefinition = "numeric(3,2)")
+    private BigDecimal playbackRate;
+
+    @Column(name = "is_retry", nullable = false)
+    private boolean retry;
+
+    @Column(name = "gave_up", nullable = false)
+    private boolean gaveUp;
+
+    @Column(name = "submitted_text")
+    private String submittedText;
+
+    @Column(name = "replay_count", nullable = false)
+    private int replayCount;
+
+    // Shadowing
     @Column(name = "provider", updatable = false)
     private String provider;
-
-    @Column(name = "score", precision = 5, scale = 2)
-    private BigDecimal score;
 
     @Column(name = "accuracy_score", precision = 5, scale = 2)
     private BigDecimal accuracyScore;
@@ -63,6 +86,10 @@ public class SentenceAttempt {
     @Column(name = "prosody_score", precision = 5, scale = 2)
     private BigDecimal prosodyScore;
 
+    // Chung
+    @Column(name = "score", precision = 5, scale = 2)
+    private BigDecimal score;
+
     @Column(name = "duration_ms")
     private Integer durationMs;
 
@@ -70,9 +97,10 @@ public class SentenceAttempt {
     @Column(name = "attempted_at", insertable = false, updatable = false)
     private Instant attemptedAt;
 
-    @OneToMany(mappedBy = "attempt", cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "attempt_id", nullable = false)
     @OrderBy("position")
-    private List<AttemptWord> words = new ArrayList<>();
+    private List<SentenceAttemptWord> words = new ArrayList<>();
 
     public static SentenceAttempt azureShadowing(UUID userId, UUID sentenceId, double score, double accuracy,
             double fluency, double completeness, Double prosody, int durationMs) {
@@ -90,8 +118,14 @@ public class SentenceAttempt {
         return attempt;
     }
 
-    public AttemptWord addWord(int position, String expectedWord, String actualWord, String outcome, double accuracy) {
-        AttemptWord word = new AttemptWord(this, position, expectedWord, actualWord, outcome, scale(accuracy));
+    public SentenceAttemptWord addWord(int position, String expectedWord, String actualWord, AttemptOutcome outcome,
+            double accuracy) {
+        SentenceAttemptWord word = new SentenceAttemptWord();
+        word.setPosition(position);
+        word.setExpectedWord(expectedWord);
+        word.setActualWord(actualWord);
+        word.setOutcome(outcome);
+        word.setAccuracyScore(scale(accuracy));
         words.add(word);
         return word;
     }
