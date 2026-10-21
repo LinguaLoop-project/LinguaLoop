@@ -172,11 +172,23 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     [],
   );
 
-  /** Hỏi server có nên tự mở gia sư sau lượt này không; lỗi thì thôi, người học vẫn bấm "Hỏi gia sư" được. */
+  /** Tăng mỗi khi lời mời hiện tại hết giá trị (đọc lại, đổi câu, đổi tab, mở phiên, tắt gia sư). */
+  const offerSeq = useRef(0);
+  const dropOffer = useCallback(() => {
+    offerSeq.current += 1;
+    setTutorOffer(null);
+  }, []);
+
+  /**
+   * Hỏi server có nên tự mở gia sư sau lượt này không; lỗi thì thôi, người học vẫn bấm "Hỏi gia sư" được. Kết quả về
+   * muộn sau khi người học đã làm việc khác thì bỏ, nếu không banner sẽ hiện lại và tự mở phiên sai lúc.
+   */
   const offerTutor = useCallback((attemptId: number, sentenceId: string) => {
+    const seq = offerSeq.current;
     tutorApi
       .evaluateOffer(attemptId)
       .then((r) => {
+        if (seq !== offerSeq.current) return;
         if (r.offer && r.offerId) setTutorOffer({ attemptId, sentenceId, offerId: r.offerId, words: r.words ?? [] });
       })
       .catch((err) => console.warn("tutor offer failed", err));
@@ -188,7 +200,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     (sentenceId: string, wav: Blob) => {
       setPhase("scoring");
       setNote(null);
-      setTutorOffer(null);
+      dropOffer();
       assess.mutate(
         { sentenceId, wav },
         {
@@ -205,13 +217,13 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
         },
       );
     },
-    [assess, offerTutor, t, tutorOn, tutorQuotaOut],
+    [assess, dropOffer, offerTutor, t, tutorOn, tutorQuotaOut],
   );
 
   const startTutor = (attemptId: number, offerId: string | null) => {
     stopPlayer();
     mineAudioRef.current?.pause();
-    setTutorOffer(null);
+    dropOffer();
     setNote(null);
     setSelected(null);
     setTutorSession({ attemptId, sentenceId: sentence.id, offerId });
@@ -226,7 +238,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 
   const skipTutorOffer = () => {
     if (tutorOffer) tutorApi.declineOffer(tutorOffer.offerId).catch((err) => console.warn("decline offer failed", err));
-    setTutorOffer(null);
+    dropOffer();
   };
 
   const stopRecording = useCallback(() => {
@@ -298,6 +310,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
       if (phase !== "idle" || tutorActive) return;
       const i = sentenceAt(sentences, ms);
       if (i === index) return;
+      dropOffer();
       mineAudioRef.current?.pause();
       replaceMine(null);
       setIndex(i);
@@ -308,6 +321,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 
   const goTo = (i: number) => {
     if (busy) return;
+    dropOffer();
     stopPlayer();
     mineAudioRef.current?.pause();
     replaceMine(null);
@@ -321,6 +335,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     if (busy) return;
     if (tab === "watch") {
       // Tab Xem: tua tới câu đó và xem tiếp từ đây
+      dropOffer();
       setIndex(i);
       watchAll(sentences, i, setIndex);
       return;
@@ -336,6 +351,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 
   const switchTab = (next: ShadowingTab) => {
     if (next === tab || busy) return;
+    dropOffer();
     stopPlayer();
     mineAudioRef.current?.pause();
     setSelected(null);
@@ -431,7 +447,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
             disabled={tutorActive}
             onChange={(on) => {
               tutorMode.toggle(on);
-              if (!on) setTutorOffer(null);
+              if (!on) dropOffer();
             }}
           />
           <SegmentedControl

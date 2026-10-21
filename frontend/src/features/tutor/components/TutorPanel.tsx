@@ -149,7 +149,10 @@ export default function TutorPanel({
           reason={state.fallbackReason}
           words={state.fallbackWords}
           isPro={isPro}
-          onRetry={() => void controller.start()}
+          onRetry={() => {
+            reported.current = false; // phiên mới phải được báo lại khi kết thúc
+            void controller.start();
+          }}
           onUpgrade={onUpgrade}
         />
       )}
