@@ -64,6 +64,6 @@ class DictationLessonProgressIntegrationTest {
         assertThat(jdbc.queryForObject("SELECT completed_at IS NOT NULL FROM user_lesson_mode_progress "
                 + "WHERE user_id = ? AND lesson_id = ?", Boolean.class, user, lesson)).isTrue();
         as(user, get("/api/v1/lessons/lp-" + tag + "/sentences"))
-                .andExpect(jsonPath("$.data[0].myBestScore").value(33));
+                .andExpect(jsonPath("$.data[0].myBestScore.dictation").value(33));
     }
 }

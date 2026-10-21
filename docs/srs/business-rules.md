@@ -38,7 +38,7 @@ Các giá trị đánh dấu *(đề xuất)* chờ nhóm chốt.
 | BR-DICT-10 | Chữ của câu chưa làm không được hiện ra; danh sách chỉ hiện số ô theo số từ. Câu đã làm hiển thị chữ gốc và bản dịch. | UC-DICT-01 (Bước 2), AC-DICT-01, AC-DICT-45 |
 | BR-DICT-11 | Tốc độ phát chọn một trong 0,5, 0,75, 1; mặc định 0,75 *(đề xuất)*. Mỗi lần bấm phát câu tính là 1 lần nghe. | UC-DICT-01 (Bước 4, 7), AC-DICT-02, AC-DICT-16 |
 | BR-DICT-12 | Màn hoàn thành gợi ý mức khó hơn khi điểm trung bình từ 80 trở lên (ngưỡng "tốt" của BR-DICT-03) *(đề xuất)*; mức đề xuất được tính theo mức tác nhân đã làm nhiều nhất trong bài và không áp dụng khi đã ở mức Hard. | UC-DICT-07 (Bước 4, 5a), AC-DICT-40, AC-DICT-41 |
-| BR-DICT-13 | Tiến độ nghe chép của một bài là số câu đã có kết quả chia tổng số câu của bài, làm tròn thành phần trăm. Câu có kết quả là câu có ít nhất một lượt nộp ở bất kỳ mức nào, kể cả làm lại và bỏ cuộc; mỗi câu chỉ tính một lần. Điểm hiển thị cho từng câu ở trang bài là điểm cao nhất trong mọi lượt. | UC-LESSON-07, AC-LESSON-13, AC-LESSON-14 |
+| BR-DICT-13 | Tiến độ nghe chép của một bài là số câu đã có kết quả chia tổng số câu của bài, làm tròn thành phần trăm. Câu có kết quả là câu có ít nhất một lượt nộp ở bất kỳ mức nào, kể cả làm lại và bỏ cuộc; mỗi câu chỉ tính một lần. Điểm hiển thị cho từng câu ở trang bài là điểm cao nhất của từng chế độ: `myBestScore.dictation` lấy từ các lượt nghe chép, `myBestScore.shadowing` lấy từ các lượt shadowing; chế độ chưa có điểm thì không có trường đó. | UC-LESSON-07, AC-LESSON-13, AC-LESSON-14 |
 
 ## Module SHADOWING
 

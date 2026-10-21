@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
+import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.practice.AttemptTestData;
 
-/** Điểm cao nhất từng câu mà feature lesson hiển thị. */
+/** Điểm cao nhất từng câu, tách theo chế độ, mà feature lesson hiển thị. */
 @SpringBootTest
 @Import({TestcontainersConfiguration.class, AttemptTestData.class})
 class PracticeProgressQueryServiceIntegrationTest {
@@ -24,15 +26,17 @@ class PracticeProgressQueryServiceIntegrationTest {
     @Autowired private AttemptTestData data;
 
     @Test
-    void bestScores_isTheHighestScoreAcrossAttemptsAndModes() {
+    void bestScores_isTheHighestScorePerMode() {
         UUID user = data.newUser();
         UUID sentence = data.newSentence(data.newLesson(), 0);
         data.setScore(data.insertAttempt(user, sentence, "normal", false, false, Instant.now()), "40.00");
         data.setScore(data.insertAttempt(user, sentence, "hard", false, false, Instant.now()), "85.50");
         data.setScore(data.insertAttempt(user, sentence, "shadowing", null, false, false, Instant.now()), "70.00");
 
-        assertThat(service.bestScores(user, List.of(sentence))).containsOnlyKeys(sentence);
-        assertThat(service.bestScores(user, List.of(sentence)).get(sentence)).isEqualByComparingTo(new BigDecimal("85.50"));
+        Map<PracticeMode, BigDecimal> best = service.bestScores(user, List.of(sentence)).get(sentence);
+        assertThat(best).containsOnlyKeys(PracticeMode.dictation, PracticeMode.shadowing);
+        assertThat(best.get(PracticeMode.dictation)).isEqualByComparingTo(new BigDecimal("85.50"));
+        assertThat(best.get(PracticeMode.shadowing)).isEqualByComparingTo(new BigDecimal("70.00"));
     }
 
     @Test

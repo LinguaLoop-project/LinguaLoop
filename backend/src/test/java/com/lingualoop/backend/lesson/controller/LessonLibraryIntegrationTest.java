@@ -533,7 +533,7 @@ class LessonLibraryIntegrationTest {
     }
 
     @Test
-    void sentences_reportTheCallersBestScoreOrNothing_AC_LESSON_14() throws Exception {
+    void sentences_reportTheCallersBestScorePerModeOrNothing_AC_LESSON_14() throws Exception {
         Topic topic = topic("t", 1, LessonStatus.APPROVED);
         Lesson l = lesson(topic, "best", false, LessonStatus.APPROVED, CefrLevel.A1, 0);
         sentence(l, 0, "scored");
@@ -542,13 +542,17 @@ class LessonLibraryIntegrationTest {
         UUID scored = sentences.findByLessonIdOrderBySortOrderAsc(l.getId()).get(0).getId();
         dictationAttempt(user, scored, "normal", false, false, "40.00");
         dictationAttempt(user, scored, "hard", false, false, "86.60");
+        shadowingAttempt(user, sentences.findByLessonIdOrderBySortOrderAsc(l.getId()).get(0));
 
         as(user, get("/api/v1/lessons/" + l.getSlug() + "/sentences"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].myBestScore").value(87))
-                .andExpect(jsonPath("$.data[1].myBestScore").doesNotExist());
+                .andExpect(jsonPath("$.data[0].myBestScore.dictation").value(87))
+                .andExpect(jsonPath("$.data[0].myBestScore.shadowing").value(80))
+                .andExpect(jsonPath("$.data[1].myBestScore.dictation").doesNotExist())
+                .andExpect(jsonPath("$.data[1].myBestScore.shadowing").doesNotExist());
         as(newUser(), get("/api/v1/lessons/" + l.getSlug() + "/sentences"))
-                .andExpect(jsonPath("$.data[0].myBestScore").doesNotExist());
+                .andExpect(jsonPath("$.data[0].myBestScore.dictation").doesNotExist())
+                .andExpect(jsonPath("$.data[0].myBestScore.shadowing").doesNotExist());
     }
 
     // ---------------------------------------------------------------- fixtures
