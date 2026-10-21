@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.lingualoop.backend.shadowing.entity.SentenceAttempt;
+import com.lingualoop.backend.practice.entity.SentenceAttempt;
 
 public interface ShadowingAttemptRepository extends JpaRepository<SentenceAttempt, Long> {
 
