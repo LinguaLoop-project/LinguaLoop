@@ -5,11 +5,11 @@ import { useQuotaStore } from "@/stores/quotaStore";
 
 /** Khung học viên. Bảo vệ bằng AuthGuard ở routes.tsx. */
 const StudentLayout = () => {
-  const { showUpgradeModal, setShowUpgradeModal } = useQuotaStore();
+  const { showUpgradeModal, upgradeReason, setShowUpgradeModal } = useQuotaStore();
 
   return (
     <AppShell config={STUDENT_SHELL}>
-      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
+      <UpgradeModal isOpen={showUpgradeModal} reason={upgradeReason} onClose={() => setShowUpgradeModal(false)} />
     </AppShell>
   );
 };

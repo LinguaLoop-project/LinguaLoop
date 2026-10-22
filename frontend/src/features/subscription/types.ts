@@ -19,3 +19,4 @@ export interface UsageResponse {
 
 /** Mã tính năng có hạn mức (feature_code ở backend). */
 export const FEATURE_SHADOWING = "shadowing_assess";
+export const FEATURE_TUTOR = "tutor_session";

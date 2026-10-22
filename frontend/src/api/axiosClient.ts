@@ -92,8 +92,8 @@ axiosClient.interceptors.response.use(
     const isQuotaExceeded = error.response?.status === 429 && error.response?.data?.code === "QUOTA_EXCEEDED";
 
     if (isQuotaExceeded) {
-      import("@/stores/quotaStore").then(({ useQuotaStore }) => {
-        useQuotaStore.getState().setShowUpgradeModal(true);
+      import("@/stores/quotaStore").then(({ useQuotaStore, upgradeReasonOf }) => {
+        useQuotaStore.getState().setShowUpgradeModal(true, upgradeReasonOf(error.response?.data?.details));
       });
       // Optionally don't reject if we want to swallow it, but usually we reject so the UI stops loading
       return Promise.reject(error);

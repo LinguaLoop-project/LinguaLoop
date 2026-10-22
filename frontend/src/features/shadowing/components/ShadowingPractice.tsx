@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
@@ -8,6 +8,15 @@ import Mascot from "@/components/common/Mascot";
 import SegmentedControl from "@/components/common/SegmentedControl";
 import { NETWORK_ERROR, toApiError } from "@/features/auth";
 import type { LessonDetail, SentenceResponse } from "@/features/lesson/types";
+import { useFeatureUsage } from "@/features/subscription/hooks/useUsage";
+import { FEATURE_TUTOR } from "@/features/subscription/types";
+import * as tutorApi from "@/features/tutor/api";
+import TutorAsk from "@/features/tutor/components/TutorAsk";
+import TutorOffer from "@/features/tutor/components/TutorOffer";
+import TutorSummaryLine from "@/features/tutor/components/TutorSummaryLine";
+import TutorSwitch from "@/features/tutor/components/TutorSwitch";
+import { useTutorMode } from "@/features/tutor/hooks/useTutorMode";
+import type { PracticeWord, TutorSummary } from "@/features/tutor/types";
 import { useQuota } from "@/hooks/useQuota";
 import { toast } from "@/stores/toastStore";
 import { useAssessAttempt } from "../hooks/useShadowing";
@@ -30,6 +39,9 @@ import ToolbarPopover from "./ToolbarPopover";
 import WatchPanel from "./WatchPanel";
 import WordDetail from "./WordDetail";
 
+// Tải theo yêu cầu: kéo theo @google/genai (khá nặng), chỉ cần khi người học mở gia sư
+const TutorPanel = lazy(() => import("@/features/tutor/components/TutorPanel"));
+
 const K = "student.shadowingPractice";
 
 type Phase = "idle" | "recording" | "scoring";
@@ -38,6 +50,12 @@ type Note =
   | { kind: "mic" }
   | { kind: "quota" }
   | { kind: "message"; title?: string; body: string; retry: boolean };
+
+/** Lời mời gia sư vừa nhận được sau một Lượt shadowing, chờ đếm ngược xong hoặc bị bỏ qua. */
+type TutorOfferState = { attemptId: number; sentenceId: string; offerId: string; words: PracticeWord[] };
+
+/** Phiên gia sư đang mở; `offerId` null khi người học tự bấm "Hỏi gia sư". */
+type TutorSessionState = { attemptId: number; sentenceId: string; offerId: string | null };
 
 export interface ShadowingPracticeProps {
   lesson: LessonDetail;
@@ -70,8 +88,16 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 export default function ShadowingPractice({ lesson, sentences, latest }: ShadowingPracticeProps) {
   const { t } = useTranslation("pages");
   const navigate = useNavigate();
-  const { isPro, remaining, maxActions, setShowUpgradeModal } = useQuota();
+  const { isPro, remaining, maxActions, setShowUpgradeModal, incrementQuota } = useQuota();
   const assess = useAssessAttempt();
+  const tutorMode = useTutorMode(lesson.id);
+  const tutorUsage = useFeatureUsage(FEATURE_TUTOR);
+  // Free hết phiên gia sư hôm nay: gia sư không tự mời, nút "Hỏi gia sư" thành nút mở Pro
+  const tutorQuotaOut = !isPro && tutorUsage?.remaining != null && tutorUsage.remaining <= 0;
+  const [tutorOffer, setTutorOffer] = useState<TutorOfferState | null>(null);
+  const [tutorSession, setTutorSession] = useState<TutorSessionState | null>(null);
+  const [tutorSummaries, setTutorSummaries] = useState<Record<string, TutorSummary>>({});
+  const tutorActive = tutorSession !== null;
   const recorder = useWavRecorder();
   const { stop: stopMic } = recorder;
 
@@ -120,7 +146,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const finished = doneCount === sentences.length;
   // remaining === null: không giới hạn hoặc chưa biết số liệu
   const outOfAttempts = remaining !== null && remaining <= 0;
-  const busy = phase !== "idle";
+  const busy = phase !== "idle" || tutorActive;
 
   const replaceMine = useCallback((blob: Blob | null) => {
     if (mineRef.current) URL.revokeObjectURL(mineRef.current);
@@ -146,10 +172,35 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     [],
   );
 
+  /** Tăng mỗi khi lời mời hiện tại hết giá trị (đọc lại, đổi câu, đổi tab, mở phiên, tắt gia sư). */
+  const offerSeq = useRef(0);
+  const dropOffer = useCallback(() => {
+    offerSeq.current += 1;
+    setTutorOffer(null);
+  }, []);
+
+  /**
+   * Hỏi server có nên tự mở gia sư sau lượt này không; lỗi thì thôi, người học vẫn bấm "Hỏi gia sư" được. Kết quả về
+   * muộn sau khi người học đã làm việc khác thì bỏ, nếu không banner sẽ hiện lại và tự mở phiên sai lúc.
+   */
+  const offerTutor = useCallback((attemptId: number, sentenceId: string) => {
+    const seq = offerSeq.current;
+    tutorApi
+      .evaluateOffer(attemptId)
+      .then((r) => {
+        if (seq !== offerSeq.current) return;
+        if (r.offer && r.offerId) setTutorOffer({ attemptId, sentenceId, offerId: r.offerId, words: r.words ?? [] });
+      })
+      .catch((err) => console.warn("tutor offer failed", err));
+  }, []);
+
+  const tutorOn = tutorMode.mode === "on";
+
   const submit = useCallback(
     (sentenceId: string, wav: Blob) => {
       setPhase("scoring");
       setNote(null);
+      dropOffer();
       assess.mutate(
         { sentenceId, wav },
         {
@@ -157,6 +208,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
             setRecords((prev) => ({ ...prev, [sentenceId]: recordFromAttempt(prev[sentenceId], result) }));
             setSelected(null);
             setPhase("idle");
+            if (tutorOn && !tutorQuotaOut) offerTutor(result.attemptId, sentenceId);
           },
           onError: (err) => {
             setPhase("idle");
@@ -165,8 +217,29 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
         },
       );
     },
-    [assess, t],
+    [assess, dropOffer, offerTutor, t, tutorOn, tutorQuotaOut],
   );
+
+  const startTutor = (attemptId: number, offerId: string | null) => {
+    stopPlayer();
+    mineAudioRef.current?.pause();
+    dropOffer();
+    setNote(null);
+    setSelected(null);
+    setTutorSession({ attemptId, sentenceId: sentence.id, offerId });
+  };
+
+  /** "Hỏi gia sư": Free hết phiên hôm nay thì mở hộp nâng cấp thay vì mở phiên. */
+  const askTutor = () => {
+    if (!record) return;
+    if (tutorQuotaOut) setShowUpgradeModal(true, "tutor");
+    else startTutor(record.attemptId, null);
+  };
+
+  const skipTutorOffer = () => {
+    if (tutorOffer) tutorApi.declineOffer(tutorOffer.offerId).catch((err) => console.warn("decline offer failed", err));
+    dropOffer();
+  };
 
   const stopRecording = useCallback(() => {
     const wav = stopMic();
@@ -234,9 +307,10 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   // Người học tự tua / tự phát bằng thanh YouTube: hiện câu chứa vị trí đó (không dừng video)
   useEffect(() => {
     seekRef.current = (ms) => {
-      if (phase !== "idle") return;
+      if (phase !== "idle" || tutorActive) return;
       const i = sentenceAt(sentences, ms);
       if (i === index) return;
+      dropOffer();
       mineAudioRef.current?.pause();
       replaceMine(null);
       setIndex(i);
@@ -247,6 +321,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 
   const goTo = (i: number) => {
     if (busy) return;
+    dropOffer();
     stopPlayer();
     mineAudioRef.current?.pause();
     replaceMine(null);
@@ -260,6 +335,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     if (busy) return;
     if (tab === "watch") {
       // Tab Xem: tua tới câu đó và xem tiếp từ đây
+      dropOffer();
       setIndex(i);
       watchAll(sentences, i, setIndex);
       return;
@@ -275,6 +351,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 
   const switchTab = (next: ShadowingTab) => {
     if (next === tab || busy) return;
+    dropOffer();
     stopPlayer();
     mineAudioRef.current?.pause();
     setSelected(null);
@@ -305,7 +382,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
       setTab: switchTab,
     },
     tab,
-    true,
+    !tutorActive, // trong phiên gia sư phím Space dành cho nút giữ để đọc
   );
 
   const micLabel =
@@ -364,6 +441,15 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
           </h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <TutorSwitch
+            on={tutorOn}
+            quotaOut={tutorQuotaOut}
+            disabled={tutorActive}
+            onChange={(on) => {
+              tutorMode.toggle(on);
+              if (!on) dropOffer();
+            }}
+          />
           <SegmentedControl
             ariaLabel={t(`${K}.tabs.label`)}
             options={[
@@ -387,15 +473,17 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
           {(showVideo || videoFailed || showAudio) && (
           <MediaBar
             video={showVideo}
-            hideVideo={settings.hideVideo}
-            onToggleVideo={() => updateSettings({ hideVideo: !settings.hideVideo })}
+            hideVideo={settings.hideVideo || tutorActive}
+            onToggleVideo={() => {
+              if (!tutorActive) updateSettings({ hideVideo: !settings.hideVideo });
+            }}
           >
             {showVideo && (
               <div
                 ref={videoHostRef}
                 className={`mx-auto w-full overflow-hidden rounded-lg bg-black transition-shadow [&_iframe]:h-full [&_iframe]:w-full ${
                   tab === "watch" ? "max-w-[960px]" : "max-w-[660px]"
-                } ${settings.hideVideo ? "h-0" : "aspect-video"} ${modelPlaying ? "ring-2 ring-fn-shadowing" : ""}`}
+                } ${settings.hideVideo || tutorActive ? "h-0" : "aspect-video"} ${modelPlaying ? "ring-2 ring-fn-shadowing" : ""}`}
               />
             )}
             {showAudio && (
@@ -435,8 +523,32 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                 onToggle={toggleWatch}
                 onPractice={() => switchTab("practice")}
               />
+            ) : tutorSession ? (
+              <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-surface-hover" aria-busy="true" />}>
+                <TutorPanel
+                  key={`${tutorSession.attemptId}-${tutorSession.offerId ?? "ask"}`}
+                  attemptId={tutorSession.attemptId}
+                  sentence={sentence.text}
+                  offerId={tutorSession.offerId}
+                  autoStart
+                  isPro={isPro}
+                  onUpgrade={() => setShowUpgradeModal(true, "tutor")}
+                  onEnded={(summary) => {
+                    setTutorSummaries((prev) => ({ ...prev, [tutorSession.sentenceId]: summary }));
+                    incrementQuota(); // phiên đã trừ lượt (hoặc không): đọc lại hạn mức từ server
+                  }}
+                  onClose={() => setTutorSession(null)}
+                />
+              </Suspense>
             ) : (
               <>
+                {tutorMode.mode === "ask" && !record && (
+                  <TutorAsk
+                    onEnable={() => tutorMode.answer(true)}
+                    onDecline={() => tutorMode.answer(false)}
+                    freeLimit={isPro ? null : (tutorUsage?.limit ?? null)}
+                  />
+                )}
                 <ControlBar
                   isFirst={index === 0}
                   isLast={index === sentences.length - 1}
@@ -500,7 +612,29 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                       isFinish={isLastDone}
                       onListen={listen}
                       onNext={isLastDone ? () => navigate(`/student/lessons/${lesson.slug}`) : goNext}
+                      extraActions={
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={askTutor}
+                          title={tutorQuotaOut ? t("student.tutor.lesson.lockedHint") : undefined}
+                          leftIcon={<Icon name={tutorQuotaOut ? "lock" : "bot"} />}
+                        >
+                          {t("student.tutor.lesson.ask")}
+                        </Button>
+                      }
                     />
+                    {tutorOffer && tutorOffer.sentenceId === sentence.id && (
+                      <div className="mt-3">
+                        <TutorOffer
+                          key={tutorOffer.offerId}
+                          words={tutorOffer.words}
+                          onStart={() => startTutor(tutorOffer.attemptId, tutorOffer.offerId)}
+                          onSkip={skipTutorOffer}
+                        />
+                      </div>
+                    )}
+                    {tutorSummaries[sentence.id] && <TutorSummaryLine summary={tutorSummaries[sentence.id]} />}
                     <AiFeedbackCard
                       key={record.attemptId}
                       attemptId={record.attemptId}

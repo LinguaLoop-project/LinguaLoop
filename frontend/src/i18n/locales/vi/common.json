@@ -29,6 +29,8 @@
     "close": "Đóng",
     "title": "Đã hết lượt dùng thử!",
     "description": "Bạn đã sử dụng hết {{count}} lượt hành động miễn phí trong ngày hôm nay. Nâng cấp lên <b>LinguaLoop Pro</b> để sử dụng không giới hạn.",
+    "titleTutor": "Đã hết phiên gia sư hôm nay!",
+    "descriptionTutor": "Gói miễn phí có số phiên gia sư giới hạn mỗi ngày và bạn đã dùng hết hôm nay. Nâng cấp lên <b>LinguaLoop Pro</b> để học cùng gia sư không giới hạn.",
     "benefits": {
       "unlimited": "Không giới hạn số lượt hành động",
       "advanced": "Mở khóa tất cả bài học nâng cao",

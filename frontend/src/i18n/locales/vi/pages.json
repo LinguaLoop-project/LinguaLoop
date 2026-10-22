@@ -245,6 +245,131 @@
       "title": "Thống kê học tập",
       "description": "Biểu đồ phân tích thời gian học, số từ đã thuộc và mức độ tiến bộ."
     },
+    "tutor": {
+      "switch": {
+        "label": "Gia sư",
+        "on": "bật",
+        "off": "tắt",
+        "quotaOut": "hết lượt hôm nay"
+      },
+      "ask": {
+        "title": "Học cùng gia sư trong bài này?",
+        "body": "Sau câu có từ cần sửa, gia sư sẽ vào nói chuyện bằng giọng nói để luyện từng từ. Đổi được bất cứ lúc nào.",
+        "enable": "Bật gia sư",
+        "decline": "Tự học",
+        "freeNote": "Free: {{limit}} phiên mỗi ngày"
+      },
+      "offer": {
+        "text": "Mình thấy {{count}} từ cần sửa:",
+        "extra": " và {{count}} từ nữa",
+        "soon": "Gia sư sẽ vào sau {{seconds}} giây…",
+        "now": "Vào ngay",
+        "skip": "Bỏ qua câu này"
+      },
+      "chips": {
+        "label": "Các từ trong câu",
+        "title": "{{n}} lượt chấm · tốt nhất {{best}}",
+        "pick": "Bấm để luyện từ này",
+        "legend": "Đỏ: cần sửa · xanh dương: đã chấm · xanh lá: đã đạt · vàng: cần luyện thêm · viền đậm: từ đang luyện. Bấm vào từ bất kỳ để luyện từ đó."
+      },
+      "scoring": {
+        "title": "Lượt chấm · gia sư tạm không nghe",
+        "readSentence": "Đọc to cả câu:",
+        "readWord": "Đọc to từ (lượt {{n}}/{{max}}):",
+        "assessing": "Đang chấm… (không tính vào thời gian)",
+        "hold": "Giữ để đọc",
+        "holding": "Đang ghi âm… thả khi đọc xong",
+        "orSpace": "hoặc giữ phím Space",
+        "cancel": "Huỷ, quay lại trò chuyện"
+      },
+      "panel": {
+        "title": "Gia sư",
+        "clockMax": "Tối đa {{max}}",
+        "headset": "Đeo tai nghe để gia sư không nghe nhầm giọng của chính nó.",
+        "start": "Bắt đầu phiên gia sư",
+        "later": "Để sau",
+        "connecting": "Đang kết nối gia sư…",
+        "speaking": "Gia sư đang nói…",
+        "listening": "Gia sư đang nghe… cứ nói tự nhiên nhé.",
+        "turns": "Hội thoại",
+        "showAll": "Xem cả hội thoại",
+        "collapse": "Thu gọn",
+        "offTopic": "Gia sư nhắc quay lại câu đang học ({{n}}/{{max}}). Nếu cứ đi xa bài, phiên sẽ kết thúc.",
+        "scoreWord": "Chấm «{{word}}»",
+        "scoreCurrent": "Chấm từ đang luyện",
+        "scoreSentence": "Chấm cả câu",
+        "leave": "Tiếp tục bài",
+        "notice": {
+          "pickWord": "Hãy bấm vào một từ trong câu để chọn từ cần luyện.",
+          "wordOutOfAttempts": "Từ \"{{word}}\" đã hết {{max}} lượt chấm. Bấm lại vào từ đó để luyện lại với lượt mới, hoặc chọn từ khác.",
+          "holdTooShort": "Giữ nút lâu hơn một chút và đọc to, rõ rồi mới thả.",
+          "switchFailed": "Không đổi được từ."
+        }
+      },
+      "result": {
+        "title": "Kết quả phiên",
+        "none": "Chưa luyện từ nào trong phiên này.",
+        "outcome": {
+          "completed": "Hoàn thành: đã đi hết các từ và đọc cả câu.",
+          "learner_exit": "Bạn đã quay lại bài học.",
+          "off_topic": "Phiên kết thúc vì cuộc trò chuyện đi xa bài học.",
+          "idle": "Phiên kết thúc vì im lặng quá lâu.",
+          "timeout": "Hết thời gian tối đa của phiên (10 phút).",
+          "connect_failed": "Không kết nối được gia sư."
+        },
+        "status": {
+          "passed": "Đạt",
+          "needs_practice": "Cần luyện thêm",
+          "pending": "Chưa xong"
+        }
+      },
+      "fallback": {
+        "tipsIntro": "Bạn vẫn có thể luyện theo các mẹo dưới đây.",
+        "upgrade": "Mở với Pro",
+        "retry": "Thử lại",
+        "default": {
+          "title": "Không mở được phiên gia sư",
+          "body": "Có thể do micro, loa hoặc kết nối. Lượt của bạn không bị trừ."
+        },
+        "QUOTA_EXCEEDED": {
+          "title": "Hết phiên gia sư hôm nay",
+          "body": "Bạn đã dùng hết số phiên gia sư của ngày hôm nay. Hạn mức đổi lúc 00:00; Pro không giới hạn."
+        },
+        "TUTOR_TOO_MANY_FAILED_STARTS": {
+          "title": "Hôm nay mở gia sư chưa thành công nhiều lần",
+          "body": "Hôm nay bạn đã mở gia sư nhiều lần không thành công, hãy thử lại vào ngày mai."
+        },
+        "AI_CONSENT_REQUIRED": {
+          "title": "Cần đồng ý xử lý bằng AI",
+          "body": "Bạn cần đồng ý cho phép xử lý bằng AI trong phần cài đặt để dùng gia sư."
+        },
+        "TUTOR_LIVE_UNAVAILABLE": {
+          "title": "Gia sư tạm thời không dùng được",
+          "body": "Hãy xem các mẹo sửa bên dưới. Lượt của bạn không bị trừ."
+        },
+        "MIC_UNAVAILABLE": {
+          "title": "Không dùng được micro hoặc loa",
+          "body": "Hãy cho phép micro cho trang này rồi thử lại."
+        },
+        "START_TIMEOUT": {
+          "title": "Gia sư chưa phản hồi kịp",
+          "body": "Lượt của bạn không bị trừ. Thử lại sau ít giây."
+        },
+        "CONNECT_ERROR": {
+          "title": "Không kết nối được gia sư",
+          "body": "Kiểm tra mạng rồi thử lại. Lượt của bạn không bị trừ."
+        },
+        "CONNECTION_CLOSED": {
+          "title": "Kết nối với gia sư bị đóng",
+          "body": "Lượt của bạn không bị trừ. Bạn có thể thử lại."
+        }
+      },
+      "lesson": {
+        "ask": "Hỏi gia sư",
+        "lockedHint": "Hết phiên gia sư hôm nay · Mở với Pro",
+        "summary": "Gia sư:"
+      }
+    },
     "shadowingPractice": {
       "ai": {
         "title": "Nhận xét AI",

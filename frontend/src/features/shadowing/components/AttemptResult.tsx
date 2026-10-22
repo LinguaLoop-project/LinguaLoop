@@ -31,10 +31,12 @@ export interface AttemptResultProps {
   isFinish: boolean;
   onListen: () => void;
   onNext: () => void;
+  /** Nút thêm cạnh "Nghe mẫu" (vd "Hỏi gia sư"). */
+  extraActions?: ReactNode;
 }
 
 /** Kết quả gọn sau một Lượt shadowing (`sh-res`): điểm, các chip tóm tắt lỗi, lời nhắn, nghe mẫu và câu tiếp. */
-export default function AttemptResult({ record, isFinish, onListen, onNext }: AttemptResultProps) {
+export default function AttemptResult({ record, isFinish, onListen, onNext, extraActions }: AttemptResultProps) {
   const { t } = useTranslation("pages");
   const tone = toneOf(record.score);
 
@@ -111,6 +113,7 @@ export default function AttemptResult({ record, isFinish, onListen, onNext }: At
         <Button variant="ghost" size="sm" onClick={onListen} leftIcon={<Icon name="volume-2" />}>
           {t(`${K}.listen`)}
         </Button>
+        {extraActions}
         <span className="flex-1" />
         <Button onClick={onNext} rightIcon={<Icon name={isFinish ? "check" : "arrow-right"} />}>
           {isFinish ? t(`${K}.result.finish`) : t(`${K}.next`)}
