@@ -232,7 +232,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   /** "Hỏi gia sư": Free hết phiên hôm nay thì mở hộp nâng cấp thay vì mở phiên. */
   const askTutor = () => {
     if (!record) return;
-    if (tutorQuotaOut) setShowUpgradeModal(true);
+    if (tutorQuotaOut) setShowUpgradeModal(true, "tutor");
     else startTutor(record.attemptId, null);
   };
 
@@ -532,7 +532,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                   offerId={tutorSession.offerId}
                   autoStart
                   isPro={isPro}
-                  onUpgrade={() => setShowUpgradeModal(true)}
+                  onUpgrade={() => setShowUpgradeModal(true, "tutor")}
                   onEnded={(summary) => {
                     setTutorSummaries((prev) => ({ ...prev, [tutorSession.sentenceId]: summary }));
                     incrementQuota(); // phiên đã trừ lượt (hoặc không): đọc lại hạn mức từ server

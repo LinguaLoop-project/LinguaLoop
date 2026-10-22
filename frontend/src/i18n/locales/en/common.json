@@ -29,6 +29,8 @@
     "close": "Close",
     "title": "You've run out of free tries!",
     "description": "You've used all {{count}} free actions for today. Upgrade to <b>LinguaLoop Pro</b> for unlimited use.",
+    "titleTutor": "No tutor sessions left today!",
+    "descriptionTutor": "The free plan has a daily limit of tutor sessions and you have used it up today. Upgrade to <b>LinguaLoop Pro</b> to study with the tutor without limits.",
     "benefits": {
       "unlimited": "Unlimited actions",
       "advanced": "Unlock all advanced lessons",

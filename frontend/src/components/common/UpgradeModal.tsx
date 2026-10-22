@@ -1,22 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Button } from "./Button";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../features/auth/stores/authStore";
 import { MAX_FREE_ACTIONS } from "@/hooks/useQuota";
 import Icon from "@/components/common/Icon";
+import type { UpgradeReason } from "@/stores/quotaStore";
 
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Hết phiên gia sư thì nói về phiên gia sư thay vì "lượt hành động" chung. */
+  reason?: UpgradeReason;
 }
 
-export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose }) => {
+export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, reason = "quota" }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  
+
+  // Esc đóng hộp (hộp là role=dialog nên người dùng bàn phím mong đợi vậy)
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
+  const tutor = reason === "tutor";
 
   const handleUpgrade = () => {
     onClose();
@@ -48,12 +62,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose }) =
             <Icon name="crown" fill className="text-2xl" />
           </div>
           <h3 id="upgrade-title" className="mb-2 font-display text-2xl font-bold text-text">
-            {t("upgradeModal.title")}
+            {t(tutor ? "upgradeModal.titleTutor" : "upgradeModal.title")}
           </h3>
           <p className="mb-6 text-text-muted">
             <Trans
               t={t}
-              i18nKey="upgradeModal.description"
+              i18nKey={tutor ? "upgradeModal.descriptionTutor" : "upgradeModal.description"}
               values={{ count: MAX_FREE_ACTIONS }}
               components={{ b: <span className="font-semibold text-primary-text" /> }}
             />
