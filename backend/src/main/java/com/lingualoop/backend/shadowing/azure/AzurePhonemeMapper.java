@@ -11,7 +11,7 @@ import java.util.Map;
 public final class AzurePhonemeMapper {
 
     /** Chuyển một ký hiệu, không xét ngữ cảnh. Phụ âm giống nhau ở hai bảng nên không cần liệt kê (xem {@link #IDENTICAL}). */
-    private static final Map<String, String> SINGLE = Map.ofEntries(
+    static final Map<String, String> SINGLE = Map.ofEntries(
             Map.entry("ɡ", "g"),
             Map.entry("ɹ", "r"),
             Map.entry("i", "iː"),
@@ -25,7 +25,7 @@ public final class AzurePhonemeMapper {
             Map.entry("oʊ", "əʊ"));
 
     /** Ký hiệu đã có sẵn trong bảng {@code phonemes}, giữ nguyên. */
-    private static final List<String> IDENTICAL = List.of(
+    static final List<String> IDENTICAL = List.of(
             "p", "b", "t", "d", "k", "g", "f", "v", "θ", "ð", "s", "z", "ʃ", "ʒ", "h", "tʃ", "dʒ",
             "m", "n", "ŋ", "l", "r", "j", "w",
             "iː", "ɪ", "e", "æ", "ʌ", "ɑː", "ɒ", "ɔː", "ʊ", "uː", "ɜː", "ə",

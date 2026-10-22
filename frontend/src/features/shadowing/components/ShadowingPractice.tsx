@@ -17,6 +17,7 @@ import { useShadowingSettings } from "../hooks/useShadowingSettings";
 import { useWavRecorder } from "../hooks/useWavRecorder";
 import type { LatestAttempt, SentenceRecord } from "../types";
 import { alignWords, litTokenIndex, recordFromAttempt, sentenceAt, wordIpa, youtubeId } from "../utils";
+import AiFeedbackCard from "./AiFeedbackCard";
 import AttemptResult from "./AttemptResult";
 import ControlBar from "./ControlBar";
 import MediaBar from "./MediaBar";
@@ -44,19 +45,21 @@ export interface ShadowingPracticeProps {
   latest: LatestAttempt[];
 }
 
-/** Khôi phục điểm của các câu đã đọc. DB không giữ ký hiệu âm vị của Azure nên `phonemes` rỗng. */
+/** Khôi phục kết quả của các câu đã đọc: đủ điểm thành phần, từng âm, mẹo sửa và nhận xét AI đã lưu. */
 function recordsFromLatest(latest: LatestAttempt[]): Record<string, SentenceRecord> {
   const records: Record<string, SentenceRecord> = {};
   for (const l of latest) {
     records[l.sentenceId] = {
+      aiFeedback: l.aiFeedback?.content ?? null,
+      attemptId: l.attemptId,
       score: l.score,
       best: l.bestScore,
       count: l.attemptCount,
-      accuracy: null,
-      fluency: null,
-      completeness: null,
-      prosody: null,
-      words: l.words.map((w) => ({ ...w, phonemes: [] })),
+      accuracy: l.accuracy,
+      fluency: l.fluency,
+      completeness: l.completeness,
+      prosody: l.prosody,
+      words: l.words,
     };
   }
   return records;
@@ -498,9 +501,16 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                       onListen={listen}
                       onNext={isLastDone ? () => navigate(`/student/lessons/${lesson.slug}`) : goNext}
                     />
+                    <AiFeedbackCard
+                      key={record.attemptId}
+                      attemptId={record.attemptId}
+                      saved={record.aiFeedback}
+                      onUpgrade={() => setShowUpgradeModal(true)}
+                    />
                     {selectedWord && (
                       <div className="mt-4">
                         <WordDetail
+                          key={`${selectedWord.position}-${selectedWord.word}`}
                           word={selectedWord}
                           ipa={selectedIpa}
                           onClose={() => setSelected(null)}

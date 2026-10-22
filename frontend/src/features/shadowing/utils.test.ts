@@ -12,6 +12,7 @@ import {
   weakPhonemes,
   wordIpa,
   youtubeId,
+  youtubeStart,
 } from "./utils";
 
 const word = (position: number, text: string, extra: Partial<WordResult> = {}): WordResult => ({
@@ -153,6 +154,8 @@ describe("sentenceAt", () => {
 
 describe("weakPhonemes", () => {
   const rec = (words: WordResult[]): SentenceRecord => ({
+    aiFeedback: null,
+    attemptId: 1,
     score: 70,
     best: 70,
     count: 1,
@@ -162,7 +165,12 @@ describe("weakPhonemes", () => {
     prosody: null,
     words,
   });
-  const ph = (symbol: string, accuracy: number) => ({ symbol, accuracy });
+  const ph = (symbol: string, accuracy: number, expected?: string) => ({
+    symbol,
+    expected,
+    accuracy,
+    needsFix: accuracy < 60 || (expected != null && expected !== symbol),
+  });
 
   it("chỉ tính âm dưới 60 điểm, sắp theo số lần sai giảm dần", () => {
     const records = {
@@ -172,6 +180,11 @@ describe("weakPhonemes", () => {
     };
     // θ sai 2 lần; ŋ và r mỗi âm 1 lần (giữ thứ tự gặp)
     expect(weakPhonemes(records)).toEqual(["θ", "ŋ", "r"]);
+  });
+
+  it("âm khác âm mẫu dù điểm cao vẫn tính, và tính cho âm mẫu", () => {
+    const records = { a: rec([word(0, "if", { phonemes: [ph("ɪ", 100, "ɪ"), ph("v", 100, "f")] })]) };
+    expect(weakPhonemes(records)).toEqual(["f"]);
   });
 
   it("giới hạn số âm trả về", () => {
@@ -188,6 +201,7 @@ describe("weakPhonemes", () => {
 
 describe("recordFromAttempt", () => {
   const attempt = {
+    attemptId: 1,
     score: 70,
     accuracy: 71,
     fluency: 72,
@@ -198,6 +212,11 @@ describe("recordFromAttempt", () => {
 
   it("lượt đầu: điểm cao nhất bằng điểm lượt, số lần là 1", () => {
     expect(recordFromAttempt(undefined, attempt)).toMatchObject({ score: 70, best: 70, count: 1, prosody: null });
+  });
+
+  it("ghi nhớ lượt gần nhất để xin nhận xét AI đúng lượt", () => {
+    const first = recordFromAttempt(undefined, attempt);
+    expect(recordFromAttempt(first, { ...attempt, attemptId: 2 }).attemptId).toBe(2);
   });
 
   it("lượt sau thấp hơn: giữ điểm cao nhất cũ, cộng số lần", () => {
@@ -214,6 +233,21 @@ describe("recordFromAttempt", () => {
 describe("maskText", () => {
   it("thay chữ và số bằng dấu sao, giữ dấu câu và khoảng trắng", () => {
     expect(maskText("Don't stop, ok?")).toBe("***** ****, **?");
+  });
+});
+
+describe("youtubeStart", () => {
+  it.each([
+    ["https://www.youtube.com/watch?v=QxQUapA-2w4&t=4490s", 4490],
+    ["https://youtu.be/QxQUapA-2w4?t=75", 75],
+    ["https://www.youtube.com/watch?v=QxQUapA-2w4&start=12", 12],
+  ])("lấy được giây bắt đầu từ %s", (url, sec) => {
+    expect(youtubeStart(url)).toBe(sec);
+  });
+
+  it("không có thời điểm thì trả null", () => {
+    expect(youtubeStart("https://youtu.be/QxQUapA-2w4")).toBeNull();
+    expect(youtubeStart(null)).toBeNull();
   });
 });
 

@@ -116,6 +116,12 @@
 			<artifactId>client-sdk</artifactId>
 			<version>1.41.1</version>
 		</dependency>
+		<!-- Gemini (văn bản): Nhận xét AI về lượt đọc -->
+		<dependency>
+			<groupId>com.google.genai</groupId>
+			<artifactId>google-genai</artifactId>
+			<version>1.78.0</version>
+		</dependency>
 		<!-- Circuit breaker cho lời gọi Azure: Azure chậm hoặc sập thì dừng gọi và trả lỗi ngay -->
 		<dependency>
 			<groupId>io.github.resilience4j</groupId>

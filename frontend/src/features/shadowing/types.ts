@@ -6,9 +6,14 @@ export type WordOutcome = "correct" | "mispronounced" | "omitted" | "inserted";
 
 /** Ký hiệu âm vị đã đổi sang bảng phonemes (ADR 0004, cùng hệ với IPA mẫu); âm chưa đổi được giữ ký hiệu Azure. */
 export interface PhonemeResult {
+  /** Cách đọc Azure báo: thường là âm mẫu, nhưng Azure có thể báo một biến thể và vẫn chấm cao (`if` -> `ɪv`). */
   symbol: string;
+  /** Âm mẫu ở vị trí đó; null khi không ghép được (câu thiếu phiên âm, hoặc lệch số âm). */
+  expected?: string | null;
   accuracy: number;
-  /** Mẹo sửa cho âm đọc dưới 60 điểm (khi bảng mẹo có dữ liệu). */
+  /** Cần sửa: điểm dưới 60, hoặc phụ âm khác âm mẫu dù điểm cao (quy tắc ở backend). */
+  needsFix: boolean;
+  /** Mẹo sửa của âm cần đọc (`expected`, hoặc `symbol` khi không có) khi bảng mẹo có dữ liệu. */
   tip?: string | null;
   mouthVideo?: MouthVideo | null;
 }
@@ -24,7 +29,7 @@ export interface WordResult {
   word: string;
   accuracy: number;
   outcome: WordOutcome;
-  /** Rỗng khi kết quả được khôi phục từ lượt cũ (DB không giữ ký hiệu Azure). */
+  /** Rỗng khi từ bị bỏ sót hoặc từ thừa (không có âm để chấm). */
   phonemes: PhonemeResult[];
 }
 
@@ -45,14 +50,25 @@ export interface LatestAttempt {
   sentenceId: string;
   attemptId: number;
   score: number;
+  accuracy: number | null;
+  fluency: number | null;
+  completeness: number | null;
+  prosody: number | null;
   attemptedAt: string;
   bestScore: number;
   attemptCount: number;
-  words: { position: number; word: string; accuracy: number; outcome: WordOutcome }[];
+  /** Đủ từng từ và từng âm (kèm mẹo sửa, video khẩu hình) như lúc vừa chấm. */
+  words: WordResult[];
+  /** Nhận xét AI đã lưu của lượt, null nếu chưa có. */
+  aiFeedback: { content: string; createdAt: string } | null;
 }
 
 /** Kết quả của một câu trong trang luyện: lượt gần nhất + điểm cao nhất + số lần đọc. */
 export interface SentenceRecord {
+  /** Nhận xét AI đã lưu của lượt gần nhất (khôi phục lúc mở lại bài); null nếu chưa có. */
+  aiFeedback: string | null;
+  /** Lượt gần nhất của câu (để xin Nhận xét AI cho đúng lượt này). */
+  attemptId: number;
   score: number;
   best: number;
   count: number;
@@ -61,4 +77,13 @@ export interface SentenceRecord {
   completeness: number | null;
   prosody: number | null;
   words: WordResult[];
+}
+
+/** Nhận xét AI của một lượt; `cached` là true khi lượt đã có nhận xét từ trước (không trừ thêm lượt). */
+export interface AiFeedback {
+  attemptId: number;
+  content: string;
+  createdAt: string;
+  cached: boolean;
+  usage: FeatureUsage;
 }

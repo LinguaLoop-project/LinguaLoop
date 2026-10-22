@@ -18,8 +18,6 @@ export const TONE_BOX: Record<Tone, string> = {
   bad: "border-danger/40 bg-danger/10",
 };
 
-/** Âm vị dưới ngưỡng này được coi là lỗi. */
-export const PHONEME_ERROR_BELOW = 60;
 /** Từ dưới ngưỡng này được liệt kê ở "từ cần luyện thêm". */
 export const WORD_REVIEW_BELOW = 75;
 
@@ -52,6 +50,7 @@ export function alignWords(sentence: string, words: WordResult[]): DisplayWord[]
 export function recordFromAttempt(
   prev: SentenceRecord | undefined,
   a: {
+    attemptId: number;
     score: number;
     accuracy: number;
     fluency: number;
@@ -61,6 +60,8 @@ export function recordFromAttempt(
   },
 ): SentenceRecord {
   return {
+    aiFeedback: null,
+    attemptId: a.attemptId,
     score: a.score,
     best: Math.max(prev?.best ?? 0, a.score),
     count: (prev?.count ?? 0) + 1,
@@ -80,6 +81,13 @@ export function youtubeId(url: string | null | undefined): string | null {
   if (!url) return null;
   const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
   return m ? m[1] : null;
+}
+
+/** Giây bắt đầu của liên kết YouTube (`t=4490s`, `t=75`, `start=75`); null nếu không có. */
+export function youtubeStart(url: string | null | undefined): number | null {
+  if (!url) return null;
+  const m = url.match(/[?&#](?:t|start)=(\d+)/);
+  return m ? Number(m[1]) : null;
 }
 
 /**
@@ -108,13 +116,13 @@ export function litTokenIndex(sentenceText: string, fraction: number): number {
   return words.length - 1;
 }
 
-/** Âm vị hay sai nhất qua các câu đã chấm trong phiên này (chỉ lượt có âm vị, tức không phải lượt khôi phục). */
+/** Âm vị hay sai nhất qua các câu đã chấm (kể cả các câu khôi phục khi mở lại bài). */
 export function weakPhonemes(records: Record<string, SentenceRecord>, limit = 3): string[] {
   const counts = new Map<string, number>();
   for (const rec of Object.values(records)) {
     for (const w of rec.words) {
       for (const p of w.phonemes) {
-        if (p.accuracy < PHONEME_ERROR_BELOW) counts.set(p.symbol, (counts.get(p.symbol) ?? 0) + 1);
+        if (p.needsFix) counts.set(p.expected ?? p.symbol, (counts.get(p.expected ?? p.symbol) ?? 0) + 1);
       }
     }
   }

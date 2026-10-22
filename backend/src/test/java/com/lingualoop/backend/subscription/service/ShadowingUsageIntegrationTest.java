@@ -96,7 +96,7 @@ class ShadowingUsageIntegrationTest {
     @Test
     void featureNotAllowedOnPlan_isRejected() {
         UUID free = newUser();
-        assertThatThrownBy(() -> usageService.tryConsume(free, "ai_feedback"))
+        assertThatThrownBy(() -> usageService.tryConsume(free, "weakness_full"))
                 .isInstanceOfSatisfying(BusinessException.class,
                         e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.QUOTA_EXCEEDED));
     }

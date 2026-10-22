@@ -1,6 +1,9 @@
 spring:
   flyway:
     out-of-order: true
+    # DB dev dùng chung giữa các nhánh: nhánh khác có thể đã chạy migration mà nhánh này không có file đó (vd dữ liệu
+    # mẫu). Chỉ cảnh báo thay vì dừng khởi động. Profile prod KHÔNG có dòng này nên vẫn kiểm tra nghiêm ngặt.
+    ignore-migration-patterns: "*:missing"
   mail:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}

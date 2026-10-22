@@ -18,15 +18,13 @@ import com.lingualoop.backend.subscription.service.UsageService;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Mẹo sửa và video khẩu hình cho các âm đọc yếu. Mẹo lấy từ {@code phoneme_confusions} theo âm đích; video chỉ mở
+ * Mẹo sửa và video khẩu hình cho các âm của lượt (bấm âm nào cũng xem được). Mẹo lấy từ {@code phoneme_confusions} theo âm đích,
+ * âm chưa có mẹo thì không hiện (mô tả chung của bảng {@code phonemes} soạn theo giọng Anh, có thể trái bài giọng Mỹ); video chỉ mở
  * cho gói có tính năng {@code mouth_video} (hạn mức 0 thì khoá ở server: không bao giờ trả đường dẫn cho Free).
  */
 @Service
 @RequiredArgsConstructor
 class PronunciationHints {
-
-    /** Âm dưới ngưỡng này được coi là đọc sai (cùng ngưỡng với giao diện). */
-    static final double WEAK_BELOW = 60;
 
     static final String MOUTH_VIDEO_FEATURE = "mouth_video";
 

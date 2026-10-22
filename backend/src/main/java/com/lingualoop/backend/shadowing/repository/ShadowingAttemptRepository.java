@@ -22,6 +22,14 @@ public interface ShadowingAttemptRepository extends JpaRepository<SentenceAttemp
 
         BigDecimal getScore();
 
+        BigDecimal getAccuracyScore();
+
+        BigDecimal getFluencyScore();
+
+        BigDecimal getCompletenessScore();
+
+        BigDecimal getProsodyScore();
+
         Instant getAttemptedAt();
 
         BigDecimal getBestScore();
@@ -35,9 +43,12 @@ public interface ShadowingAttemptRepository extends JpaRepository<SentenceAttemp
      */
     @Query(nativeQuery = true, value = """
             SELECT t.sentence_id AS "sentenceId", t.id AS "attemptId", t.score AS "score",
+                   t.accuracy_score AS "accuracyScore", t.fluency_score AS "fluencyScore",
+                   t.completeness_score AS "completenessScore", t.prosody_score AS "prosodyScore",
                    t.attempted_at AS "attemptedAt", t.best_score AS "bestScore", t.attempt_count AS "attemptCount"
             FROM (
-                SELECT DISTINCT ON (a.sentence_id) a.sentence_id, a.id, a.score, a.attempted_at,
+                SELECT DISTINCT ON (a.sentence_id) a.sentence_id, a.id, a.score, a.accuracy_score, a.fluency_score,
+                       a.completeness_score, a.prosody_score, a.attempted_at,
                        st.best_score, st.attempt_count, s.sort_order
                 FROM sentence_attempts a
                 JOIN sentences s ON s.id = a.sentence_id

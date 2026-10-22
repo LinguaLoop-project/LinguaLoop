@@ -335,13 +335,12 @@ class ShadowingAttemptIntegrationTest {
 
         post(free, s.getId(), WavFixtures.valid(1_000))
                 .andExpect(status().isOk())
-                // θ dưới 60: có mẹo; video bị khoá nên không có đường dẫn
+                // θ: có mẹo; video bị khoá nên không có đường dẫn
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].tip").isNotEmpty())
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo.locked").value(true))
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo.url").value((Object) null))
-                // ɪ đạt điểm: không có mẹo, không có video
-                .andExpect(jsonPath("$.data.words[0].phonemes[1].tip").value((Object) null))
-                .andExpect(jsonPath("$.data.words[0].phonemes[1].mouthVideo").value((Object) null))
+                // ɪ đạt điểm vẫn có mẹo để người học bấm vào xem
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].tip").isNotEmpty())
                 // âm không có trong bảng: không có mẹo, không có video
                 .andExpect(jsonPath("$.data.words[0].phonemes[2].tip").value((Object) null))
                 .andExpect(jsonPath("$.data.words[0].phonemes[2].mouthVideo").value((Object) null));
@@ -359,6 +358,80 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].tip").isNotEmpty())
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo.locked").value(false))
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo.url").isNotEmpty());
+    }
+
+    @Test
+    void assess_heardSoundDiffersFromModel_hintFollowsTheModelSound_AC_SHADOW_34() throws Exception {
+        UUID pro = newUser();
+        makePro(pro);
+        Sentence s = sentence(lesson("expected-live", false), 0, "if");
+        s.setIpa("/ɪf/");
+        sentences.save(s);
+        // Người học đọc thành "iv": Azure trả ɪ và v
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 70, 70, 70, 70, null,
+                List.of(new WordResult("if", 40, ErrorType.MISPRONUNCIATION,
+                        List.of(new PhonemeResult("ɪ", 50), new PhonemeResult("v", 38))))));
+
+        post(pro, s.getId(), WavFixtures.valid(1_000))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].symbol").value("v"))
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].expected").value("f"))
+                // video của âm cần sửa (f), không phải âm nghe được (v)
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].mouthVideo.url")
+                        .value("https://youtu.be/vE12RFyH-hY"));
+    }
+
+    @Test
+    void assess_consonantDiffersFromModelButScoresHigh_isStillFlaggedNeedsFix_AC_SHADOW_35() throws Exception {
+        UUID user = newUser();
+        Sentence s = sentence(lesson("needs-fix", false), 0, "if");
+        s.setIpa("/ɪf/");
+        sentences.save(s);
+        // Azure chấm 100 cho cách đọc "iv" (đo từ Azure thật), nhưng /f/ vẫn cần sửa
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 100, 100, 100, 100, null,
+                List.of(new WordResult("if", 100, ErrorType.NONE,
+                        List.of(new PhonemeResult("ɪ", 100), new PhonemeResult("v", 100))))));
+
+        post(user, s.getId(), WavFixtures.valid(1_000))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].needsFix").value(false))
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].needsFix").value(true))
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].expected").value("f"));
+    }
+
+    @Test
+    void latest_heardSoundDiffersFromModel_hintFollowsTheModelSound_AC_SHADOW_34() throws Exception {
+        UUID pro = newUser();
+        makePro(pro);
+        Lesson lesson = lesson("expected-restore", false);
+        Sentence s = sentence(lesson, 0, "if");
+        s.setIpa("/ɪf/");
+        sentences.save(s);
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 70, 70, 70, 70, null,
+                List.of(new WordResult("if", 40, ErrorType.MISPRONUNCIATION,
+                        List.of(new PhonemeResult("ɪ", 50), new PhonemeResult("v", 38))))));
+        post(pro, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(pro)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].expected").value("ɪ"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].symbol").value("v"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].expected").value("f"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].mouthVideo.url")
+                        .value("https://youtu.be/vE12RFyH-hY"));
+    }
+
+    @Test
+    void assess_noModelIpa_expectedIsEmptyAndHintFollowsHeardSound_AC_SHADOW_34() throws Exception {
+        UUID pro = newUser();
+        makePro(pro);
+        Sentence s = sentence(lesson("expected-none", false), 0, "Think");
+        givenWeakAndStrongPhonemes();
+
+        post(pro, s.getId(), WavFixtures.valid(1_000))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].expected").value((Object) null))
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].tip").isNotEmpty());
     }
 
     @Test
@@ -400,6 +473,44 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data[0].words[0].outcome").value("correct"))
                 .andExpect(jsonPath("$.data[1].sentenceId").value(second.getId().toString()))
                 .andExpect(jsonPath("$.data[1].attemptCount").value(1));
+    }
+
+    @Test
+    void latest_restoresEverythingTheAttemptResponseHad_AC_SHADOW_33() throws Exception {
+        UUID free = newUser();
+        UUID pro = newUser();
+        makePro(pro);
+        Lesson lesson = lesson("restore", false);
+        Sentence s = sentence(lesson, 0, "Think");
+        givenWeakAndStrongPhonemes();
+        post(free, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+        post(pro, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+        long proAttempt = jdbc.queryForObject("SELECT id FROM sentence_attempts WHERE user_id = ?", Long.class, pro);
+        jdbc.update("INSERT INTO ai_feedback (attempt_id, content, model, prompt_version) VALUES (?, ?, 'm', 'v1')",
+                proAttempt, "Bạn đọc khá tốt.");
+
+        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(free)))
+                .andExpect(status().isOk())
+                // điểm thành phần
+                .andExpect(jsonPath("$.data[0].accuracy").value(70.0))
+                .andExpect(jsonPath("$.data[0].fluency").value(70.0))
+                .andExpect(jsonPath("$.data[0].completeness").value(70.0))
+                // âm vị theo bảng phonemes, mẹo sửa cho âm yếu, video bị khoá với gói Free
+                .andExpect(jsonPath("$.data[0].words[0].phonemes.length()").value(2))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].symbol").value("θ"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].tip").isNotEmpty())
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.locked").value(true))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.url").value((Object) null))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].symbol").value("ɪ"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].tip").isNotEmpty())
+                .andExpect(jsonPath("$.data[0].aiFeedback").value((Object) null));
+
+        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(pro)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.locked").value(false))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.url").isNotEmpty())
+                // nhận xét AI đã lưu được trả kèm
+                .andExpect(jsonPath("$.data[0].aiFeedback.content").value("Bạn đọc khá tốt."));
     }
 
     @Test

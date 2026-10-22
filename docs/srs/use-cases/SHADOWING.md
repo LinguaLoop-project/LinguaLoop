@@ -2,7 +2,7 @@
 
 Trạng thái: **Nháp**, chờ duyệt. Người phụ trách: Lâm.
 
-Phạm vi lát A: học viên ghi âm đọc lại một câu, nhận điểm do Azure chấm ở mức câu, từ và âm vị, xem hạn mức trong ngày và tiếp tục bài đang dở. **Chưa gồm** Phiên gia sư (lát C). Lát B (Mẹo sửa, video khẩu hình, Nhận xét AI) có ở UC-SHADOW-07 trở đi. Thuật ngữ theo `CONTEXT.md`: Lượt shadowing, Kết quả chấm phát âm.
+Phạm vi lát A: học viên ghi âm đọc lại một câu, nhận điểm do Azure chấm ở mức câu, từ và âm vị, xem hạn mức trong ngày và tiếp tục bài đang dở. **Chưa gồm** Phiên gia sư (lát C). Lát B (Mẹo sửa, video khẩu hình, Nhận xét AI) có ở UC-SHADOW-07 trở đi; Nhận xét AI dùng Gemini bản văn bản (cấu hình `GEMINI_API_KEY`). Thuật ngữ theo `CONTEXT.md`: Lượt shadowing, Kết quả chấm phát âm.
 
 Quy ước: mọi endpoint yêu cầu đăng nhập. "Gói" là kết quả của `SubscriptionQueryService`. Mã `AC-SHADOW-xx` được tham chiếu trong tên test tích hợp (`ShadowingAttemptIntegrationTest`, `ShadowingUsageIntegrationTest`) và test đơn vị (`AzurePhonemeMapperTest`, `WavAudioTest`, `UsageServiceTest`).
 
@@ -39,8 +39,8 @@ Quy ước: mọi endpoint yêu cầu đăng nhập. "Gói" là kết quả củ
 | Mục | Nội dung |
 |---|---|
 | Tác nhân | Học viên |
-| Mô tả | Mở lại bài và thấy điểm cũ của từng câu. |
-| Tiêu chí chấp nhận | **AC-SHADOW-15 — Lượt mới nhất của từng câu**<br>Given: Tác nhân đã đọc vài câu của bài, có câu đọc nhiều lần.<br>When: Gọi `GET /lessons/{slug}/shadowing-attempts/latest`.<br>Then: Với mỗi câu đã đọc trả lượt mới nhất (điểm, thời điểm, các từ kèm điểm và loại lỗi), điểm cao nhất và số lần đọc; câu chưa đọc không xuất hiện; không lẫn dữ liệu của người khác hay của chế độ nghe chép.<br><br>**AC-SHADOW-16 — Bài không hợp lệ**<br>Given: Slug không tồn tại, hoặc bài Pro với tác nhân Free.<br>When: Gọi endpoint trên.<br>Then: Trả 404 hoặc 403 `LESSON_PRO_REQUIRED`. |
+| Mô tả | Mở lại bài và thấy lại đầy đủ kết quả của từng câu như lúc vừa chấm: điểm tổng và điểm thành phần, từng từ, từng âm vị kèm mẹo sửa và video khẩu hình (theo gói), cùng nhận xét AI đã lưu. |
+| Tiêu chí chấp nhận | **AC-SHADOW-15 — Lượt mới nhất của từng câu**<br>Given: Tác nhân đã đọc vài câu của bài, có câu đọc nhiều lần.<br>When: Gọi `GET /lessons/{slug}/shadowing-attempts/latest`.<br>Then: Với mỗi câu đã đọc trả lượt mới nhất (điểm, thời điểm, các từ kèm điểm và loại lỗi), điểm cao nhất và số lần đọc; câu chưa đọc không xuất hiện; không lẫn dữ liệu của người khác hay của chế độ nghe chép.<br><br>**AC-SHADOW-33 — Khôi phục đầy đủ**<br>Given: Lượt đã chấm, có âm yếu, có thể đã có nhận xét AI.<br>When: Gọi `GET /lessons/{slug}/shadowing-attempts/latest`.<br>Then: Mỗi câu kèm điểm chính xác, trôi chảy, đầy đủ, ngữ điệu; từng từ có danh sách âm vị (ký hiệu bảng phonemes, điểm), âm dưới 60 kèm mẹo sửa và `mouthVideo` (Free: khoá, không lộ đường dẫn); `aiFeedback` là nhận xét đã lưu hoặc rỗng.<br><br>**AC-SHADOW-34 — Âm mẫu và cách đọc Azure báo**<br>Given: Câu có phiên âm mẫu; Azure báo cách đọc của từng âm (thường là âm mẫu, nhưng có thể là một biến thể, vd `if` đọc thành "iv" Azure báo `v` và vẫn chấm 100).<br>When: Chấm lượt hoặc mở lại bài.<br>Then: Mỗi âm có `symbol` (Azure báo) và `expected` (âm mẫu cùng vị trí, ghép khi số âm bằng nhau; null nếu không ghép được). `tip` và `mouthVideo` là của âm cần sửa (`expected`, hoặc `symbol` khi không có). Phiên âm mẫu (giọng Mỹ) được chuyển bằng cùng bộ chuyển đổi với âm Azure (ADR 0004) nên hai bên so được với nhau. Âm chưa có mẹo thì không hiện mẹo (không dùng mô tả chung của bảng `phonemes`, soạn theo giọng Anh nên có thể trái bài giọng Mỹ).<br><br>**AC-SHADOW-35 — Âm cần sửa**<br>Given: Một âm đọc dưới 60 điểm, hoặc một phụ âm Azure báo khác âm mẫu dù điểm cao (vd cần `f` nhưng báo `v` được 100).<br>When: Chấm lượt hoặc mở lại bài.<br>Then: Âm đó có `needsFix = true` và được tính vào "âm hay sai" cùng dữ liệu gửi cho nhận xét AI (theo âm mẫu). Nguyên âm khác âm mẫu không bị đánh dấu vì thường là rút gọn bình thường (ɪ/ə).<br><br>**AC-SHADOW-16 — Bài không hợp lệ**<br>Given: Slug không tồn tại, hoặc bài Pro với tác nhân Free.<br>When: Gọi endpoint trên.<br>Then: Trả 404 hoặc 403 `LESSON_PRO_REQUIRED`. |
 | Độ ưu tiên | Cao |
 
 ---
@@ -94,6 +94,7 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 | 20 | Hàng điều khiển ở tab Luyện | Một hàng: ← ↻ ▶ → · tốc độ · Giọng tôi · So sánh · nút mic; từ được tô sáng theo lời đang phát; màn hình hẹp thì tự xuống dòng, không cuộn ngang |
 | 21 | Sau khi chấm | Khối điểm, chip Cao nhất / số lần đọc / các chỉ số, chip lỗi (từ bỏ sót, từ thừa, âm dưới 60), lời nhắn, "Nghe mẫu" và "Câu tiếp" (câu cuối thì "Hoàn thành"); danh sách bên phải có tiến độ cả bài và các âm hay sai |
 | 22 | Chi tiết một từ có âm yếu | Dưới tên từ và phiên âm có hộp mẹo sửa (biểu tượng bóng đèn); Pro thấy nút "Video khẩu hình âm /x/" mở video ngay trong ô; Free thấy hộp khoá có nhãn PRO và nút "Mở với Pro" mở hộp mời nâng cấp |
+| 23 | Nhận xét AI sau khi chấm | Dưới khối điểm có thẻ "Nhận xét AI" với nút "Xem nhận xét AI"; bấm thì hiện "AI đang viết nhận xét…" rồi nội dung kèm chip "Còn x/5 lượt hôm nay"; hết lượt thì hiện thông báo và nút "Mở với Pro"; lỗi thì có nút "Thử lại" và nói rõ lượt không bị trừ; đọc lại câu thì thẻ về trạng thái đầu. Chữ chạy ra ngay khi AI viết (có con trỏ nhấp nháy), không phải chờ cả đoạn |
 | 17 | Phím tắt ở tab Luyện | Space ghi âm/dừng, nhả Ctrl nghe mẫu, R nghe lại giọng mình, C so sánh; Alt+←/→ đổi câu; Alt+W/Alt+P đổi tab. Không kích hoạt khi đang gõ vào ô nhập; Space nhường cho nút đang được focus |
 
 ---
@@ -105,7 +106,7 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 | Tác nhân | Học viên |
 | Mô tả | Âm vị nào đọc dưới 60 điểm thì kết quả chấm kèm một mẹo ngắn bằng tiếng Việt (vị trí lưỡi, môi, hơi) lấy từ bảng `phoneme_confusions` theo âm đích. Mẹo hiện trong ô chi tiết của từ. |
 | Điều kiện tiên quyết | Có Kết quả chấm của một lượt (UC-SHADOW-01). Mẹo có ở cả gói Free và Pro. |
-| Tiêu chí chấp nhận | **AC-SHADOW-21 — Mẹo theo âm đích**<br>Given: Một âm có trong bảng mẹo (vd `θ`) đọc dưới 60 điểm.<br>When: Chấm lượt.<br>Then: Âm đó có trường `tip`; âm đạt điểm hoặc âm không có mẹo thì `tip` rỗng. Bảng mẹo phủ các âm người Việt hay sai: `θ ð ʃ ʒ z v r s t d l ɪ iː æ`. |
+| Tiêu chí chấp nhận | **AC-SHADOW-21 — Mẹo theo âm đích**<br>Given: Một âm có trong bảng mẹo (vd `θ`).<br>When: Chấm lượt.<br>Then: Mọi âm có mẹo đều có trường `tip` và `mouthVideo` (kể cả âm đạt điểm), âm không có mẹo thì rỗng. Giao diện mặc định chọn âm yếu đầu tiên; người học bấm âm nào thì xem mẹo và video của âm đó. Bảng mẹo phủ các âm người Việt hay sai: `θ ð ʃ ʒ z v r s t d l ɪ iː æ`. |
 | Độ ưu tiên | Trung bình |
 
 ---
@@ -118,7 +119,20 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 | Mô tả | Âm đọc dưới 60 điểm có video khẩu hình riêng. Gói Pro xem được; gói Free thấy hộp khoá kèm nút mở với Pro. |
 | Điều kiện tiên quyết | Âm có `mouth_video_url` trong bảng `phonemes`; quyền xem theo hạn mức tính năng `mouth_video` của gói. |
 | Điều kiện sau | Không có bộ đếm: Pro không giới hạn. |
-| Tiêu chí chấp nhận | **AC-SHADOW-22 — Khoá ở server**<br>Given: Âm yếu có video.<br>When: Gói Free chấm lượt.<br>Then: `mouthVideo` có `locked = true` và `url` rỗng, không bao giờ lộ đường dẫn.<br>Given: Gói Pro.<br>Then: `mouthVideo.locked = false` và có `url`.<br><br>**AC-SHADOW-23 — Mẹo lỗi không làm mất kết quả**<br>Given: Tra mẹo hoặc video gặp lỗi.<br>When: Chấm lượt.<br>Then: Kết quả chấm vẫn được trả bình thường, chỉ thiếu mẹo và video; lượt không bị hoàn. |
+| Tiêu chí chấp nhận | **AC-SHADOW-22 — Khoá ở server**<br>Given: Âm có video.<br>When: Gói Free chấm lượt.<br>Then: `mouthVideo` có `locked = true` và `url` rỗng, không bao giờ lộ đường dẫn.<br>Given: Gói Pro.<br>Then: `mouthVideo.locked = false` và có `url`.<br><br>**AC-SHADOW-23 — Mẹo lỗi không làm mất kết quả**<br>Given: Tra mẹo hoặc video gặp lỗi.<br>When: Chấm lượt.<br>Then: Kết quả chấm vẫn được trả bình thường, chỉ thiếu mẹo và video; lượt không bị hoàn. |
+| Độ ưu tiên | Trung bình |
+
+---
+
+### UC-SHADOW-09: Nhận xét AI cho một lượt
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Học viên |
+| Mô tả | Sau khi có điểm, học viên xin AI viết vài dòng nhận xét tiếng Việt về lượt đọc (khen điểm tốt, nêu lỗi chính, gợi ý luyện). AI chỉ nhận chữ và điểm của lượt (từ, điểm từng từ, âm yếu), không nhận âm thanh. Mỗi lượt có tối đa một nhận xét, lưu lại kèm model, phiên bản prompt và số token. |
+| Điều kiện tiên quyết | Lượt là của chính tác nhân; đã đồng ý xử lý bằng AI (`AI_PROCESSING`). |
+| Điều kiện sau | Có một dòng `ai_feedback` cho lượt; bộ đếm `ai_feedback` của ngày tăng 1 (chỉ lần tạo đầu). |
+| Tiêu chí chấp nhận | **AC-SHADOW-24 — Tạo một lần, sau đó trả bản đã lưu**<br>Given: Lượt chưa có nhận xét, tác nhân còn lượt.<br>When: Xin nhận xét.<br>Then: Trả 200 với nội dung, `cached = false`, số lượt đã dùng tăng 1; lưu model, phiên bản prompt, số token.<br>Given: Lượt đã có nhận xét.<br>When: Xin lại.<br>Then: Trả đúng nhận xét đã lưu, `cached = true`, không gọi AI, không trừ thêm lượt. Dữ liệu gửi AI chỉ có chữ câu mẫu, điểm, từng từ và âm yếu (ký hiệu bảng phonemes).<br><br>**AC-SHADOW-25 — Chỉ lượt của mình**<br>Given: Lượt của người khác hoặc không tồn tại.<br>When: Xin nhận xét.<br>Then: Trả 404, không gọi AI.<br><br>**AC-SHADOW-26 — Cần đồng ý AI**<br>Given: Chưa đồng ý xử lý bằng AI.<br>When: Xin nhận xét.<br>Then: Trả 403 `AI_CONSENT_REQUIRED`, không trừ lượt, không gọi AI.<br><br>**AC-SHADOW-27 — Hạn mức theo gói**<br>Given: Gói Free đã dùng 5 lượt nhận xét trong ngày.<br>When: Xin nhận xét cho lượt khác.<br>Then: Trả 429 `QUOTA_EXCEEDED`, không lưu gì. Gói Pro không giới hạn.<br><br>**AC-SHADOW-28 — AI lỗi thì trả lượt**<br>Given: AI lỗi, quá thời gian chờ hoặc mạch đang mở.<br>When: Xin nhận xét.<br>Then: Trả 502 `AI_FEEDBACK_UNAVAILABLE`, bộ đếm về giá trị trước, không lưu nhận xét.<br><br>**AC-SHADOW-30 — Chữ chạy ra dần**<br>Given: Lượt chưa có nhận xét, tác nhân còn lượt.<br>When: Xin nhận xét qua `POST /shadowing-attempts/{id}/ai-feedback/stream`.<br>Then: Phản hồi là luồng Server-Sent Events: các sự kiện `delta` (đoạn chữ mới) đến ngay khi AI viết, rồi một sự kiện `done` (nhận xét đầy đủ, `cached`, mức dùng); kết quả lưu và tính lượt như UC thường. Lượt đã có nhận xét thì báo một lần với cả nội dung rồi `done` với `cached = true`, không trừ lượt.<br><br>**AC-SHADOW-31 — Lỗi khi phát dần**<br>Given: Lỗi trước đoạn chữ đầu tiên (không phải lượt của mình, chưa đồng ý AI, hết lượt, AI lỗi).<br>When: Xin nhận xét phát dần.<br>Then: Trả mã HTTP và JSON lỗi như bình thường, không phát luồng. Lỗi sau khi đã có chữ: kết thúc bằng sự kiện `error` kèm mã lỗi, lượt được hoàn, không lưu nhận xét. Người học đóng trang giữa chừng thì dừng, hoàn lượt và không làm mở circuit breaker.<br><br>**AC-SHADOW-32 — Gemini quá tải**<br>Given: Gemini trả 503 hoặc 429 trước khi có chữ nào.<br>When: Xin nhận xét (thường hoặc phát dần).<br>Then: Hệ thống thử lại đúng một lần sau khoảng 1 giây, bằng model dự phòng nếu có cấu hình (`GEMINI_FALLBACK_MODEL`). Vẫn quá tải thì trả 503 `AI_FEEDBACK_BUSY` (giao diện: "AI đang bận, thử lại sau ít phút") và hoàn lượt. Đã gửi chữ cho người học rồi thì không thử lại.<br><br>**AC-SHADOW-29 — Hai yêu cầu đồng thời**<br>Given: Hai yêu cầu cho cùng một lượt chưa có nhận xét.<br>When: Gửi cùng lúc.<br>Then: Cả hai trả 200, chỉ một dòng được lưu và chỉ tính một lượt. |
 | Độ ưu tiên | Trung bình |
 
 ---
@@ -128,6 +142,6 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 - Lưu file ghi âm lên server, `is_baseline`, tự xoá khi hết hạn (cần `voice_storage`).
 - Hàng đợi ôn câu làm kém (`user_sentence_review`), `completed_at` mức bài (cần thống nhất với nghe chép). Điểm cao nhất từng câu ở danh sách câu của trang bài đã có, tách theo chế độ (AC-LESSON-14).
 - Hộp thoại xin đồng ý lần ghi âm đầu và API `/me/consents` (Kế).
-- Nhận xét AI (lát B, phần sau); Phiên gia sư (lát C). Mẹo riêng cho cặp "đọc A thành B" (Azure không trả âm bị nhầm thành gì).
+- Phiên gia sư (lát C). Mẹo riêng cho cặp "đọc A thành B" (Azure không trả âm bị nhầm thành gì).
 - Phần của mockup chưa làm ở trang luyện: thanh thời gian chia đoạn trên video, công tắc "Gia sư" (lát C).
 - Phát câu mẫu: video YouTube hoặc tệp âm thanh của bài, cắt theo thời gian của câu; không có thì dùng giọng tổng hợp của trình duyệt.

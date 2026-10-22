@@ -246,6 +246,19 @@
       "description": "Biểu đồ phân tích thời gian học, số từ đã thuộc và mức độ tiến bộ."
     },
     "shadowingPractice": {
+      "ai": {
+        "title": "Nhận xét AI",
+        "hint": "AI đọc điểm của lượt này và viết vài dòng nhận xét ngắn.",
+        "ask": "Xem nhận xét AI",
+        "writing": "AI đang viết nhận xét…",
+        "failed": "Chưa viết được nhận xét lúc này. Lượt của bạn không bị trừ, thử lại sau nhé.",
+        "retry": "Thử lại",
+        "busy": "AI đang bận, bạn thử lại sau ít phút nhé. Lượt của bạn không bị trừ.",
+        "consent": "Bạn cần đồng ý cho phép xử lý bằng AI để xem nhận xét.",
+        "quotaOut": "Bạn đã dùng hết lượt nhận xét AI hôm nay.",
+        "upgrade": "Mở với Pro",
+        "remaining": "Còn {{remaining}}/{{limit}} lượt hôm nay"
+      },
       "mouth": {
         "title": "Video khẩu hình âm /{{symbol}}/",
         "unlock": "Mở với Pro",
@@ -299,6 +312,8 @@
         "omittedHint": "Azure không nghe thấy từ này"
       },
       "detail": {
+        "modelIpa": "Mẫu",
+        "heard": "Mỗi ô là âm mẫu và điểm; dòng nhỏ → là cách đọc Azure báo khi khác mẫu. Chọn một âm để xem mẹo và video.",
         "close": "Đóng",
         "badPhoneme": "Âm /{{symbol}}/ chưa chuẩn. Nghe mẫu rồi đọc chậm âm này.",
         "goodWord": "Từ này đọc tốt. Giữ nhịp và trọng âm như câu mẫu.",
