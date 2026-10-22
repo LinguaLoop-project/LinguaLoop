@@ -3,21 +3,26 @@ import { Trans, useTranslation } from "react-i18next";
 import { Button } from "./Button";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../features/auth/stores/authStore";
-import { MAX_FREE_ACTIONS } from "@/hooks/useQuota";
+import { DEFAULT_FREE_AI_ENERGY, useAiEnergy } from "@/hooks/useAiEnergy";
+import { AI_ACTION_TUTOR } from "@/features/subscription/types";
 import Icon from "@/components/common/Icon";
 import type { UpgradeReason } from "@/stores/quotaStore";
 
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  /** Hết phiên gia sư thì nói về phiên gia sư thay vì "lượt hành động" chung. */
+  /** Nói đúng hoạt động đang thiếu năng lượng AI (gia sư, nhận xét AI), hoặc chung. */
   reason?: UpgradeReason;
 }
+
+/** Hậu tố khoá i18n theo lý do mở hộp. */
+const SUFFIX: Record<UpgradeReason, string> = { quota: "", tutor: "Tutor", ai_feedback: "Feedback", pro: "Pro" };
 
 export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, reason = "quota" }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { energyLimit, costs } = useAiEnergy();
 
   // Esc đóng hộp (hộp là role=dialog nên người dùng bàn phím mong đợi vậy)
   useEffect(() => {
@@ -30,7 +35,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, rea
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-  const tutor = reason === "tutor";
+  const suffix = SUFFIX[reason];
 
   const handleUpgrade = () => {
     onClose();
@@ -62,13 +67,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, rea
             <Icon name="crown" fill className="text-2xl" />
           </div>
           <h3 id="upgrade-title" className="mb-2 font-display text-2xl font-bold text-text">
-            {t(tutor ? "upgradeModal.titleTutor" : "upgradeModal.title")}
+            {t(`upgradeModal.title${suffix}`)}
           </h3>
           <p className="mb-6 text-text-muted">
             <Trans
               t={t}
-              i18nKey={tutor ? "upgradeModal.descriptionTutor" : "upgradeModal.description"}
-              values={{ count: MAX_FREE_ACTIONS }}
+              i18nKey={`upgradeModal.description${suffix}`}
+              values={{ count: energyLimit ?? DEFAULT_FREE_AI_ENERGY, cost: costs[AI_ACTION_TUTOR] }}
               components={{ b: <span className="font-semibold text-primary-text" /> }}
             />
           </p>

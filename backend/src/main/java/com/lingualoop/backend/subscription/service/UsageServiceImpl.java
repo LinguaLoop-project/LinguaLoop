@@ -38,27 +38,33 @@ class UsageServiceImpl implements UsageService {
 
     @Override
     @Transactional
-    public UsageTicket tryConsume(UUID userId, String feature) {
-        PlanLimit limit = limitOf(userId, feature).orElseThrow(() -> exceeded(feature, 0));
+    public UsageTicket tryConsume(UUID userId, String feature, int cost) {
+        return tryConsume(userId, feature, cost, null);
+    }
+
+    @Override
+    @Transactional
+    public UsageTicket tryConsume(UUID userId, String feature, int cost, String action) {
+        PlanLimit limit = limitOf(userId, feature).orElseThrow(() -> exceeded(feature, 0, action));
         Integer value = limit.getLimitValue();
-        if (value != null && value <= 0) {
-            throw exceeded(feature, value);
+        if (value != null && value < cost) {
+            throw exceeded(feature, value, action);
         }
         LocalDate periodStart = periodStart(limit.getPeriod());
 
-        // Không giới hạn vẫn đếm để thống kê. Có giới hạn: UPDATE chỉ tăng khi used < limit, nên hai yêu cầu cùng lúc
+        // Không giới hạn vẫn đếm để thống kê. Có giới hạn: UPDATE chỉ tăng khi used + cost <= limit, nên hai yêu cầu cùng lúc
         // cho lượt cuối thì đúng một yêu cầu đổi được dòng (xem UsageCounterRepository).
         counters.createIfAbsent(userId, feature, periodStart);
-        if (counters.incrementBelow(userId, feature, periodStart, value == null ? Integer.MAX_VALUE : value) == 0) {
-            throw exceeded(feature, value);
+        if (counters.incrementBelow(userId, feature, periodStart, value == null ? Integer.MAX_VALUE : value, cost) == 0) {
+            throw exceeded(feature, value, action);
         }
-        return new UsageTicket(feature, periodStart);
+        return new UsageTicket(feature, periodStart, cost);
     }
 
     @Override
     @Transactional
     public void refund(UUID userId, UsageTicket ticket) {
-        counters.decrement(userId, ticket.feature(), ticket.periodStart());
+        counters.decrement(userId, ticket.feature(), ticket.periodStart(), ticket.cost());
     }
 
     @Override
@@ -99,8 +105,13 @@ class UsageServiceImpl implements UsageService {
         };
     }
 
-    private static BusinessException exceeded(String feature, Integer limit) {
-        return new BusinessException(ErrorCode.QUOTA_EXCEEDED,
-                Map.of("feature", feature, "limit", limit == null ? 0 : limit));
+    private static BusinessException exceeded(String feature, Integer limit, String action) {
+        Map<String, Object> details = new HashMap<>();
+        details.put("feature", feature);
+        details.put("limit", limit == null ? 0 : limit);
+        if (action != null) {
+            details.put("action", action);
+        }
+        return new BusinessException(ErrorCode.QUOTA_EXCEEDED, details);
     }
 }

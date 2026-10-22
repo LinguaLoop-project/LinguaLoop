@@ -48,6 +48,7 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.ErrorType;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.PhonemeResult;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.WordResult;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
+import com.lingualoop.backend.subscription.service.UsageService;
 import com.lingualoop.backend.support.WavFixtures;
 import com.lingualoop.backend.user.service.ConsentService;
 import com.lingualoop.backend.user.service.UserAccountService;
@@ -62,6 +63,7 @@ class TutorSessionLifecycleIntegrationTest {
     @Autowired private JwtTokenService jwtTokenService;
     @Autowired private UserAccountService userAccountService;
     @Autowired private TutorSessionService sessionService;
+    @Autowired private UsageService usageService;
     @Autowired private TutorSessionCleanup cleanup;
     @Autowired private TopicRepository topics;
     @Autowired private LessonRepository lessons;
@@ -90,7 +92,7 @@ class TutorSessionLifecycleIntegrationTest {
         started(s).andExpect(status().isOk());
         started(s).andExpect(status().isOk());
 
-        assertThat(used(s.user, "tutor_session")).isEqualTo(1);
+        assertThat(used(s.user, "ai_energy")).isEqualTo(3);
         assertThat(count("tutor_sessions WHERE id = ? AND started_at IS NOT NULL AND charged", s.id)).isEqualTo(1);
     }
 
@@ -103,9 +105,9 @@ class TutorSessionLifecycleIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.outcome").value("connect_failed"));
 
-        assertThat(used(s.user, "tutor_session")).isZero();
+        assertThat(used(s.user, "ai_energy")).isZero();
         started(s).andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("TUTOR_SESSION_CONFLICT"));
-        assertThat(used(s.user, "tutor_session")).isZero();
+        assertThat(used(s.user, "ai_energy")).isZero();
     }
 
     @Test
@@ -171,16 +173,18 @@ class TutorSessionLifecycleIntegrationTest {
     @Test
     void quotaUsedUpBetweenCreateAndStart_endsTheSessionAndAnswersQuotaExceeded_AC_TUTOR_14() throws Exception {
         UUID user = newUser();
+        usageService.tryConsume(user, "ai_energy", 5); // còn 3 năng lượng: vừa đủ một phiên gia sư
         S first = open(user, "Think about it", word("think", 45, "θ", 20));
-        S second = open(user, "Think again", word("think", 45, "θ", 20)); // hai tab: cả hai tạo được lúc chưa dùng lượt
+        S second = open(user, "Think again", word("think", 45, "θ", 20)); // hai tab: cả hai tạo được lúc còn đủ năng lượng
         started(first).andExpect(status().isOk());
 
         started(second).andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
-                .andExpect(jsonPath("$.details.feature").value("tutor_session"));
+                .andExpect(jsonPath("$.details.feature").value("ai_energy"))
+                .andExpect(jsonPath("$.details.action").value("tutor_session"));
 
         assertThat(outcome(second)).isEqualTo("connect_failed");
-        assertThat(used(user, "tutor_session")).isEqualTo(1);
+        assertThat(used(user, "ai_energy")).isEqualTo(8);
     }
 
     // ── UC-TUTOR-05 ─────────────────────────────────────────────────────────────────
@@ -293,7 +297,8 @@ class TutorSessionLifecycleIntegrationTest {
         assertThat(outcome(s)).isEqualTo("completed");
         assertThat(jdbc.queryForObject("SELECT score FROM sentence_attempts WHERE id = ?", Double.class, s.attempt)).isEqualTo(70.0);
         assertThat(count("sentence_attempts WHERE user_id = ?", s.user)).isEqualTo(1); // không tạo Lượt shadowing mới
-        assertThat(used(s.user, "shadowing_assess")).isZero();
+        // chỉ có 3 năng lượng của chính phiên gia sư; lượt chấm trong phiên không tốn thêm
+        assertThat(used(s.user, "ai_energy")).isEqualTo(3);
     }
 
     @Test

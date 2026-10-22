@@ -7,14 +7,14 @@ import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
-import { useQuota } from "@/hooks/useQuota";
+import { useAiEnergy } from "@/hooks/useAiEnergy";
 import { toast } from "@/stores/toastStore";
 
 /** Nút "Tạo bài từ YouTube" ở đầu trang và hộp thoại của nó (`ytOpen` trong lessons.html). Hiện là phần giao diện, chưa gọi API tạo bài. */
 export default function YouTubeImportButton() {
   const { t } = useTranslation("pages");
   const navigate = useNavigate();
-  const { isPro } = useQuota();
+  const { isPro } = useAiEnergy();
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
   const p = "student.lessons.ytCard";

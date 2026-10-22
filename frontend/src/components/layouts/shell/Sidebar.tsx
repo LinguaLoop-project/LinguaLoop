@@ -4,7 +4,7 @@ import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
-import { useQuota } from "@/hooks/useQuota";
+import { useAiEnergy } from "@/hooks/useAiEnergy";
 import type { NavItem, NavTone, ShellConfig } from "./shellConfig";
 
 /**
@@ -76,7 +76,7 @@ function Item({ item, config, collapsed, onNavigate }: { item: NavItem; config: 
 function ProCard({ hide }: { hide: string }) {
   const { t } = useTranslation("layout");
   const navigate = useNavigate();
-  const { isPro } = useQuota();
+  const { isPro } = useAiEnergy();
   if (isPro) return null;
   return (
     <div className={`mb-2 rounded-lg border border-border-strong bg-surface p-3.5 shadow-[var(--shadow-card)] ${hide}`}>

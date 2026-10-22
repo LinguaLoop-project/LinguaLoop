@@ -19,6 +19,7 @@ import com.lingualoop.backend.config.UsageProperties;
 import com.lingualoop.backend.shadowing.dto.AttemptSnapshot;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
 import com.lingualoop.backend.shadowing.service.AttemptSnapshots;
+import com.lingualoop.backend.subscription.constant.AiAction;
 import com.lingualoop.backend.subscription.dto.FeatureUsage;
 import com.lingualoop.backend.subscription.service.UsageService;
 import com.lingualoop.backend.tutor.dto.TutorDtos;
@@ -42,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TutorSessionService {
 
-    static final String FEATURE = "tutor_session";
+    static final String FEATURE = AiAction.FEATURE;
 
     private final AttemptSnapshots snapshots;
     private final ConsentService consentService;
@@ -74,9 +75,10 @@ public class TutorSessionService {
             throw new BusinessException(ErrorCode.AI_CONSENT_REQUIRED);
         }
         FeatureUsage usage = usageService.usageOf(userId, FEATURE);
-        if (usage.remaining() != null && usage.remaining() <= 0) {
+        if (usage.remaining() != null && usage.remaining() < AiAction.TUTOR_SESSION.cost()) {
             throw new BusinessException(ErrorCode.QUOTA_EXCEEDED,
-                    Map.of("feature", FEATURE, "limit", usage.limit() == null ? 0 : usage.limit()));
+                    Map.of("feature", FEATURE, "action", AiAction.TUTOR_SESSION.action(),
+                            "limit", usage.limit() == null ? 0 : usage.limit()));
         }
 
         Instant dayStart = LocalDate.ofInstant(clock.instant(), usageProperties.zone())
@@ -131,11 +133,11 @@ public class TutorSessionService {
                 return false;
             }
             FeatureUsage usage = usageService.usageOf(userId, FEATURE);
-            if (usage.remaining() != null && usage.remaining() <= 0) {
+            if (usage.remaining() != null && usage.remaining() < AiAction.TUTOR_SESSION.cost()) {
                 session.end(SessionOutcome.CONNECT_FAILED, clock.instant());
                 return true;
             }
-            usageService.tryConsume(userId, FEATURE);
+            usageService.tryConsume(userId, FEATURE, AiAction.TUTOR_SESSION.cost(), AiAction.TUTOR_SESSION.action());
             // tryConsume dùng truy vấn @Modifying(clearAutomatically) nên bối cảnh JPA bị xoá và {@code session} đã
             // tách khỏi nó: lấy lại bản đang được quản lý rồi mới ghi (dòng vẫn đang bị khoá)
             TutorSession managed = sessions.findById(session.getId()).orElseThrow();
@@ -145,7 +147,9 @@ public class TutorSessionService {
         });
         if (exhausted) {
             Integer limit = usageService.usageOf(userId, FEATURE).limit();
-            throw new BusinessException(ErrorCode.QUOTA_EXCEEDED, Map.of("feature", FEATURE, "limit", limit == null ? 0 : limit));
+            throw new BusinessException(ErrorCode.QUOTA_EXCEEDED,
+                    Map.of("feature", FEATURE, "action", AiAction.TUTOR_SESSION.action(),
+                            "limit", limit == null ? 0 : limit));
         }
     }
 

@@ -97,10 +97,8 @@ class ShadowingAttemptIntegrationTest {
                 // phản hồi dùng ký hiệu bảng phonemes (cùng hệ với IPA mẫu của câu), không phải ký hiệu Azure
                 .andExpect(jsonPath("$.data.words[0].phonemes[3].symbol").value("əʊ"))
                 .andExpect(jsonPath("$.data.words[1].outcome").value("mispronounced"))
-                .andExpect(jsonPath("$.data.usage.feature").value("shadowing_assess"))
-                .andExpect(jsonPath("$.data.usage.used").value(1))
-                .andExpect(jsonPath("$.data.usage.limit").value(5))
-                .andExpect(jsonPath("$.data.usage.remaining").value(4));
+                // chấm shadowing không tốn năng lượng AI nên phản hồi không còn mức dùng (BR-QUOTA-01)
+                .andExpect(jsonPath("$.data.usage").doesNotExist());
 
         assertThat(count("sentence_attempts WHERE user_id = ? AND mode = 'shadowing' AND provider = 'azure'", user))
                 .isEqualTo(1);
@@ -143,25 +141,21 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
-    void assess_freePlanBlocksSixthAttempt_AC_SHADOW_03() throws Exception {
+    void assess_freePlanIsNotLimited_AC_SHADOW_03() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("quota", false), 0, "Hello world");
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 12; i++) {
             post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
         }
-        post(user, s.getId(), WavFixtures.valid(1_000))
-                .andExpect(status().isTooManyRequests())
-                .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
-                .andExpect(jsonPath("$.details.feature").value("shadowing_assess"))
-                .andExpect(jsonPath("$.details.limit").value(5));
 
-        verify(scoring, times(5)).assess(any(), any());
-        assertThat(count("sentence_attempts WHERE user_id = ?", user)).isEqualTo(5);
+        verify(scoring, times(12)).assess(any(), any());
+        assertThat(count("sentence_attempts WHERE user_id = ?", user)).isEqualTo(12);
+        assertThat(energyUsed(user)).isZero();
     }
 
     @Test
-    void assess_proPlanIsNotBlockedAtSixth_AC_SHADOW_04() throws Exception {
+    void assess_proPlanIsNotLimited_AC_SHADOW_04() throws Exception {
         UUID user = newUser();
         makePro(user);
         Sentence s = sentence(lesson("pro-ok", false), 0, "Hello world");
@@ -173,7 +167,7 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
-    void assess_azureFailure_refundsAttempt_AC_SHADOW_05() throws Exception {
+    void assess_azureFailure_savesNothing_AC_SHADOW_05() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("azure-down", false), 0, "Hello world");
         post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
@@ -183,23 +177,23 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(status().isBadGateway())
                 .andExpect(jsonPath("$.code").value("SHADOWING_SCORING_UNAVAILABLE"));
 
-        assertThat(used(user)).isEqualTo(1);
+        assertThat(energyUsed(user)).isZero();
         assertThat(count("sentence_attempts WHERE user_id = ?", user)).isEqualTo(1);
     }
 
     @Test
-    void assess_unexpectedFailure_alsoRefunds_AC_SHADOW_05() throws Exception {
+    void assess_unexpectedFailure_savesNothing_AC_SHADOW_05() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("boom", false), 0, "Hello world");
         when(scoring.assess(any(), any())).thenThrow(new IllegalStateException("boom"));
 
         post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isInternalServerError());
 
-        assertThat(used(user)).isZero();
+        assertThat(energyUsed(user)).isZero();
     }
 
     @Test
-    void assess_noSpeech_refundsAttempt_AC_SHADOW_06() throws Exception {
+    void assess_noSpeech_savesNothing_AC_SHADOW_06() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("silent", false), 0, "Hello world");
         when(scoring.assess(any(), any())).thenThrow(new BusinessException(ErrorCode.SHADOWING_NO_SPEECH));
@@ -208,12 +202,12 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.code").value("SHADOWING_NO_SPEECH"));
 
-        assertThat(used(user)).isZero();
+        assertThat(energyUsed(user)).isZero();
         assertThat(count("sentence_attempts WHERE user_id = ?", user)).isZero();
     }
 
     @Test
-    void assess_invalidAudio_isRejectedBeforeScoringAndQuota_AC_SHADOW_07() throws Exception {
+    void assess_invalidAudio_isRejectedBeforeScoring_AC_SHADOW_07() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("bad-audio", false), 0, "Hello world");
 
@@ -225,7 +219,7 @@ class ShadowingAttemptIntegrationTest {
         post(user, s.getId(), WavFixtures.valid(31_000)).andExpect(status().isBadRequest());
 
         verifyNoInteractions(scoring);
-        assertThat(used(user)).isZero();
+        assertThat(energyUsed(user)).isZero();
     }
 
     @Test
@@ -239,7 +233,7 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.code").value("AI_CONSENT_REQUIRED"));
 
         verifyNoInteractions(scoring);
-        assertThat(used(user)).isZero();
+        assertThat(energyUsed(user)).isZero();
     }
 
     @Test
@@ -253,7 +247,7 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("LESSON_PRO_REQUIRED"));
 
         verify(scoring, never()).assess(any(), any());
-        assertThat(used(user)).isZero();
+        assertThat(energyUsed(user)).isZero();
     }
 
     @Test
@@ -267,14 +261,11 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
-    void assess_concurrentRequestsForLastAttempt_onlyOneSucceeds_AC_SHADOW_11() throws Exception {
+    void assess_concurrentRequests_areAllScored_AC_SHADOW_11() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("race", false), 0, "Hello world");
-        for (int i = 0; i < 4; i++) {
-            post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
-        }
 
-        int threads = 4;
+        int threads = 8;
         ExecutorService pool = Executors.newFixedThreadPool(threads);
         CountDownLatch start = new CountDownLatch(1);
         List<Future<Integer>> results = new ArrayList<>();
@@ -292,9 +283,9 @@ class ShadowingAttemptIntegrationTest {
         }
         pool.shutdown();
 
-        assertThat(statuses).containsOnlyOnce(200).filteredOn(c -> c != 200).containsOnly(429);
-        assertThat(used(user)).isEqualTo(5);
-        assertThat(count("sentence_attempts WHERE user_id = ?", user)).isEqualTo(5);
+        assertThat(statuses).hasSize(threads).containsOnly(200);
+        assertThat(energyUsed(user)).isZero();
+        assertThat(count("sentence_attempts WHERE user_id = ?", user)).isEqualTo(threads);
     }
 
     // ── UC-SHADOW-02 ────────────────────────────────────────────────────────────────
@@ -639,9 +630,9 @@ class ShadowingAttemptIntegrationTest {
                 + "VALUES (?, 'active', now() + interval '10 days')", user);
     }
 
-    private int used(UUID user) {
-        Integer n = jdbc.queryForObject(
-                "SELECT coalesce(sum(used), 0) FROM usage_counters WHERE user_id = ? AND feature = 'shadowing_assess'",
+    /** Tổng mọi bộ đếm của người dùng: luyện shadowing không được tăng bộ đếm nào. */
+    private int energyUsed(UUID user) {
+        Integer n = jdbc.queryForObject("SELECT coalesce(sum(used), 0) FROM usage_counters WHERE user_id = ?",
                 Integer.class, user);
         return n == null ? 0 : n;
     }

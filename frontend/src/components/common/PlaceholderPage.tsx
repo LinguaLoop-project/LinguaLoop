@@ -1,6 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useQuota } from "@/hooks/useQuota";
 import Icon from "@/components/common/Icon";
 
 export interface PlaceholderPageProps {
@@ -68,7 +67,6 @@ export default function PlaceholderPage({
   const { t } = useTranslation(["common", "pages"]);
   const navigate = useNavigate();
   const location = useLocation();
-  const { checkQuota, incrementQuota } = useQuota();
   const iconBase = resolveIcon(pageKey, icon);
 
   const pageTitle = title ?? (pageKey ? t(`pages:${pageKey}.title`) : "");
@@ -168,20 +166,6 @@ export default function PlaceholderPage({
           >
             <Icon name="house" className="text-base" />
             <span>{homeLabel}</span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => {
-              if (checkQuota()) {
-                incrementQuota();
-                alert(t("common:placeholder.quotaSuccess"));
-              }
-            }}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary-soft text-primary-text text-sm font-semibold transition-opacity duration-150 hover:opacity-90 cursor-pointer select-none border border-primary/30"
-          >
-            <Icon name="zap" fill className="text-base" />
-            <span>{t("common:placeholder.tryQuota")}</span>
           </button>
         </div>
       </div>

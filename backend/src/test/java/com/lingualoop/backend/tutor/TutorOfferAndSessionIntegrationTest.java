@@ -225,12 +225,13 @@ class TutorOfferAndSessionIntegrationTest {
                 .andExpect(jsonPath("$.code").value("AI_CONSENT_REQUIRED"));
 
         when(consent.hasConsent(any(), any())).thenReturn(true);
-        usageService.tryConsume(f.user, "tutor_session"); // Free chỉ có 1 phiên mỗi ngày
+        usageService.tryConsume(f.user, "ai_energy", 6); // còn 2, mà một phiên gia sư tốn 3 năng lượng
         createSession(f.user, attempt, null)
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
-                .andExpect(jsonPath("$.details.feature").value("tutor_session"))
-                .andExpect(jsonPath("$.details.limit").value(1));
+                .andExpect(jsonPath("$.details.feature").value("ai_energy"))
+                .andExpect(jsonPath("$.details.action").value("tutor_session"))
+                .andExpect(jsonPath("$.details.limit").value(8));
 
         verifyNoInteractions(tokenIssuer);
         assertThat(count("tutor_sessions WHERE attempt_id = ?", attempt)).isZero();
@@ -393,7 +394,7 @@ class TutorOfferAndSessionIntegrationTest {
 
     private int usageOf(UUID user) {
         Integer n = jdbc.queryForObject(
-                "SELECT coalesce(sum(used), 0) FROM usage_counters WHERE user_id = ? AND feature = 'tutor_session'",
+                "SELECT coalesce(sum(used), 0) FROM usage_counters WHERE user_id = ? AND feature = 'ai_energy'",
                 Integer.class, user);
         return n == null ? 0 : n;
     }

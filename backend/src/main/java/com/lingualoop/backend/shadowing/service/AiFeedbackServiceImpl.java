@@ -14,6 +14,7 @@ import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.shadowing.dto.AiFeedbackResponse;
 import com.lingualoop.backend.shadowing.entity.AiFeedback;
 import com.lingualoop.backend.shadowing.repository.AiFeedbackRepository;
+import com.lingualoop.backend.subscription.constant.AiAction;
 import com.lingualoop.backend.subscription.dto.UsageTicket;
 import com.lingualoop.backend.subscription.service.UsageService;
 import com.lingualoop.backend.user.service.ConsentService;
@@ -31,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 class AiFeedbackServiceImpl implements AiFeedbackService {
 
-    static final String FEATURE = "ai_feedback";
+    static final String FEATURE = AiAction.FEATURE;
 
     private final FeedbackRequestLoader loader;
     private final ConsentService consentService;
@@ -64,7 +65,7 @@ class AiFeedbackServiceImpl implements AiFeedbackService {
             return toResponse(existing.get(), true, userId);
         }
 
-        UsageTicket ticket = usageService.tryConsume(userId, FEATURE);
+        UsageTicket ticket = usageService.tryConsume(userId, FEATURE, AiAction.AI_FEEDBACK.cost(), AiAction.AI_FEEDBACK.action());
         try {
             GeneratedFeedback generated = onText == null ? generator.generate(request) : generator.generate(request, onText);
             AiFeedback saved = recorder.save(attemptId, generated);
