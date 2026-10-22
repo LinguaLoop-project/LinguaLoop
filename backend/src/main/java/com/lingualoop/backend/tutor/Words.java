@@ -39,9 +39,26 @@ public final class Words {
         }
         for (String raw : sentence.trim().split("\\s+")) {
             if (normalize(raw).equals(key)) {
-                return raw.replaceAll("^[^A-Za-z']+|[^A-Za-z']+$", "");
+                return trimToLetters(raw);
             }
         }
         return null;
+    }
+
+    /** Bỏ ký tự không phải chữ cái hay dấu nháy đơn ở hai đầu; viết bằng vòng lặp để không phụ thuộc regex. */
+    private static String trimToLetters(String raw) {
+        int start = 0;
+        int end = raw.length();
+        while (start < end && !isLetterOrApostrophe(raw.charAt(start))) {
+            start++;
+        }
+        while (end > start && !isLetterOrApostrophe(raw.charAt(end - 1))) {
+            end--;
+        }
+        return raw.substring(start, end);
+    }
+
+    private static boolean isLetterOrApostrophe(char c) {
+        return c == '\'' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
 }
