@@ -76,8 +76,8 @@ class ShadowingHintsFailureIntegrationTest {
                 .andExpect(jsonPath("$.data.score").value(70.0))
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].symbol").value("θ"))
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].tip").value((Object) null))
-                // lượt vẫn tính: đã lưu và bộ đếm không bị hoàn
-                .andExpect(jsonPath("$.data.usage.used").value(1));
+                // lỗi lấy mẹo không làm mất lượt: kết quả vẫn được lưu
+                .andExpect(jsonPath("$.data.usage").doesNotExist());
 
         assertThat(jdbc.queryForObject("SELECT count(*) FROM sentence_attempts WHERE user_id = ?", Integer.class, user))
                 .isEqualTo(1);

@@ -27,12 +27,16 @@
   },
   "upgradeModal": {
     "close": "Close",
-    "title": "You've run out of free tries!",
-    "description": "You've used all {{count}} free actions for today. Upgrade to <b>LinguaLoop Pro</b> for unlimited use.",
-    "titleTutor": "No tutor sessions left today!",
-    "descriptionTutor": "The free plan has a daily limit of tutor sessions and you have used it up today. Upgrade to <b>LinguaLoop Pro</b> to study with the tutor without limits.",
+    "title": "You've run out of AI energy today!",
+    "description": "You've used all {{count}} free AI energy for today. Upgrade to <b>LinguaLoop Pro</b> for unlimited use.",
+    "titleTutor": "Not enough AI energy for a tutor session!",
+    "titlePro": "This is a Pro feature",
+    "descriptionPro": "This lesson or feature is only in <b>LinguaLoop Pro</b>. Basic shadowing practice stays unlimited on every plan.",
+    "titleFeedback": "Out of energy for AI feedback!",
+    "descriptionFeedback": "You don't have enough AI energy to request feedback today (free plan: {{count}} per day). Shadowing practice is still unlimited. Upgrade to <b>LinguaLoop Pro</b> for unlimited AI.",
+    "descriptionTutor": "Each tutor session costs {{cost}} AI energy, and you don't have enough energy today. Upgrade to <b>LinguaLoop Pro</b> to study with the tutor without limits.",
     "benefits": {
-      "unlimited": "Unlimited actions",
+      "unlimited": "Unlimited AI energy",
       "advanced": "Unlock all advanced lessons",
       "support": "Personalized support 24/7"
     },
@@ -59,9 +63,7 @@
     "back": "Back to previous page",
     "homeAdmin": "Admin overview",
     "homeInstructor": "Instructor overview",
-    "homeStudent": "Back to Today",
-    "tryQuota": "Try Action (Quota)",
-    "quotaSuccess": "Action completed successfully!"
+    "homeStudent": "Back to Today"
   },
   "error": {
     "retry": "Try again",

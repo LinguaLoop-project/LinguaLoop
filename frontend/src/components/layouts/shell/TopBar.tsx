@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
-import { useQuota } from "@/hooks/useQuota";
+import { useAiEnergy } from "@/hooks/useAiEnergy";
 import DevPlanSwitch from "@/features/subscription/components/DevPlanSwitch";
 import { DEV_TOOLS_ENABLED } from "@/features/subscription/devTools";
 import { useTheme } from "@/hooks/useTheme";
@@ -46,7 +46,7 @@ export interface TopBarProps {
 /** Thanh trên theo mockup v2 (`.topbar`): cao 64, nền bg-base 82% + mờ, ô tìm nhanh, chuỗi ngày, gói, đổi giao diện, tài khoản. */
 export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette }: TopBarProps) {
   const { t } = useTranslation("layout");
-  const { isPro, actionsToday, maxActions } = useQuota();
+  const { isPro, remaining, energyLimit } = useAiEnergy();
   const { isDark, toggleTheme } = useTheme();
   const learner = config.topBar.kind === "learner";
 
@@ -90,11 +90,15 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
             <Icon name="flame" />
             <span className="font-display tabular-nums">4</span>
           </span>
-          {!isPro && (
-            <span className={`${PILL} max-md:hidden`} title={t("student.topbar.quota")} aria-label={`${t("student.topbar.quota")}: ${actionsToday}/${maxActions}`}>
+          {!isPro && remaining !== null && energyLimit !== null && (
+            <span
+              className={`${PILL} max-md:hidden`}
+              title={t("student.topbar.quota")}
+              aria-label={`${t("student.topbar.quota")}: ${remaining}/${energyLimit}`}
+            >
               <Icon name="zap" />
               <span className="font-display tabular-nums">
-                {actionsToday}/{maxActions}
+                {remaining}/{energyLimit}
               </span>
             </span>
           )}

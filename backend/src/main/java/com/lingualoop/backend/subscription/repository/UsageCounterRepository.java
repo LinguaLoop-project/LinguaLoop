@@ -28,20 +28,24 @@ public interface UsageCounterRepository extends JpaRepository<UsageCounter, Usag
     int createIfAbsent(@Param("userId") UUID userId, @Param("feature") String feature,
             @Param("periodStart") LocalDate periodStart);
 
-    /** Tăng một lượt nếu còn dưới {@code limit}. Trả về 0 khi đã hết lượt. */
+    /** Tăng {@code cost} năng lượng nếu còn đủ {@code used + cost <= limit}. Trả về 0 khi không đủ. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(nativeQuery = true, value = """
-            UPDATE usage_counters SET used = used + 1
-            WHERE user_id = :userId AND feature = :feature AND period_start = :periodStart AND used < :limit""")
+            UPDATE usage_counters SET used = used + :cost
+            WHERE user_id = :userId AND feature = :feature AND period_start = :periodStart AND used + :cost <= :limit""")
     int incrementBelow(@Param("userId") UUID userId, @Param("feature") String feature,
-            @Param("periodStart") LocalDate periodStart, @Param("limit") int limit);
+            @Param("periodStart") LocalDate periodStart, @Param("limit") int limit, @Param("cost") int cost);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(nativeQuery = true, value = """
-            UPDATE usage_counters SET used = GREATEST(used - 1, 0)
+            UPDATE usage_counters SET used = GREATEST(used - :amount, 0)
             WHERE user_id = :userId AND feature = :feature AND period_start = :periodStart""")
     int decrement(@Param("userId") UUID userId, @Param("feature") String feature,
-            @Param("periodStart") LocalDate periodStart);
+            @Param("periodStart") LocalDate periodStart, @Param("amount") int amount);
+
+    default int decrement(UUID userId, String feature, LocalDate periodStart) {
+        return decrement(userId, feature, periodStart, 1);
+    }
 
     List<UsageCounter> findByIdUserIdAndIdPeriodStartIn(UUID userId, Collection<LocalDate> periodStarts);
 

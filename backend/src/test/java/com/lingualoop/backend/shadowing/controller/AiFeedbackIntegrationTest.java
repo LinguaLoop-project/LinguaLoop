@@ -91,9 +91,9 @@ class AiFeedbackIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").value(FEEDBACK.content()))
                 .andExpect(jsonPath("$.data.cached").value(false))
-                .andExpect(jsonPath("$.data.usage.feature").value("ai_feedback"))
+                .andExpect(jsonPath("$.data.usage.feature").value("ai_energy"))
                 .andExpect(jsonPath("$.data.usage.used").value(1))
-                .andExpect(jsonPath("$.data.usage.limit").value(5));
+                .andExpect(jsonPath("$.data.usage.limit").value(8));
 
         feedback(user, attempt)
                 .andExpect(status().isOk())
@@ -159,20 +159,22 @@ class AiFeedbackIntegrationTest {
     }
 
     @Test
-    void feedback_freePlanHasFivePerDay_proIsUnlimited_AC_SHADOW_27() throws Exception {
+    void feedback_costsOneEnergy_freeHasEightPerDay_proIsUnlimited_AC_SHADOW_27() throws Exception {
         UUID free = newUser();
         UUID pro = newUser();
         makePro(pro);
         Sentence s = sentence("limits");
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 8; i++) {
             feedback(free, attempt(free, s)).andExpect(status().isOk());
         }
-        long sixth = attempt(free, s);
+        long ninth = attempt(free, s);
 
-        feedback(free, sixth)
+        feedback(free, ninth)
                 .andExpect(status().isTooManyRequests())
-                .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"));
-        assertThat(count("ai_feedback WHERE attempt_id = ?", sixth)).isZero();
+                .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
+                .andExpect(jsonPath("$.details.feature").value("ai_energy"))
+                .andExpect(jsonPath("$.details.action").value("ai_feedback"));
+        assertThat(count("ai_feedback WHERE attempt_id = ?", ninth)).isZero();
 
         for (int i = 0; i < 7; i++) {
             feedback(pro, attempt(pro, s)).andExpect(status().isOk());
@@ -354,7 +356,7 @@ class AiFeedbackIntegrationTest {
 
     private int used(UUID user) {
         Integer n = jdbc.queryForObject(
-                "SELECT coalesce(sum(used), 0) FROM usage_counters WHERE user_id = ? AND feature = 'ai_feedback'",
+                "SELECT coalesce(sum(used), 0) FROM usage_counters WHERE user_id = ? AND feature = 'ai_energy'",
                 Integer.class, user);
         return n == null ? 0 : n;
     }

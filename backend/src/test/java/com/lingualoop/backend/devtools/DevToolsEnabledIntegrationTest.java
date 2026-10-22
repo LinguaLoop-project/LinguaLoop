@@ -114,7 +114,7 @@ class DevToolsEnabledIntegrationTest {
     }
 
     private void addUsage(UUID userId, int used) {
-        jdbc.sql("INSERT INTO usage_counters (user_id, feature, period_start, used) VALUES (:u, 'shadowing_assess', current_date, :n)")
+        jdbc.sql("INSERT INTO usage_counters (user_id, feature, period_start, used) VALUES (:u, 'ai_energy', current_date, :n)")
                 .param("u", userId).param("n", used).update();
     }
 

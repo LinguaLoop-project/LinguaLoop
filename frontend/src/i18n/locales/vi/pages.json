@@ -250,14 +250,14 @@
         "label": "Gia sư",
         "on": "bật",
         "off": "tắt",
-        "quotaOut": "hết lượt hôm nay"
+        "quotaOut": "không đủ năng lượng"
       },
       "ask": {
         "title": "Học cùng gia sư trong bài này?",
         "body": "Sau câu có từ cần sửa, gia sư sẽ vào nói chuyện bằng giọng nói để luyện từng từ. Đổi được bất cứ lúc nào.",
         "enable": "Bật gia sư",
         "decline": "Tự học",
-        "freeNote": "Free: {{limit}} phiên mỗi ngày"
+        "freeNote": "Free: tối đa {{limit}} phiên mỗi ngày (tốn năng lượng AI)"
       },
       "offer": {
         "text": "Mình thấy {{count}} từ cần sửa:",
@@ -366,7 +366,7 @@
       },
       "lesson": {
         "ask": "Hỏi gia sư",
-        "lockedHint": "Hết phiên gia sư hôm nay · Mở với Pro",
+        "lockedHint": "Không đủ năng lượng cho phiên gia sư · Mở với Pro",
         "summary": "Gia sư:"
       }
     },
@@ -380,9 +380,9 @@
         "retry": "Thử lại",
         "busy": "AI đang bận, bạn thử lại sau ít phút nhé. Lượt của bạn không bị trừ.",
         "consent": "Bạn cần đồng ý cho phép xử lý bằng AI để xem nhận xét.",
-        "quotaOut": "Bạn đã dùng hết lượt nhận xét AI hôm nay.",
+        "quotaOut": "Bạn không còn đủ năng lượng AI cho nhận xét hôm nay.",
         "upgrade": "Mở với Pro",
-        "remaining": "Còn {{remaining}}/{{limit}} lượt hôm nay"
+        "remaining": "Còn {{remaining}}/{{limit}} năng lượng AI"
       },
       "mouth": {
         "title": "Video khẩu hình âm /{{symbol}}/",
@@ -394,8 +394,8 @@
       "title": "Nghe, đọc theo, xem lỗi",
       "back": "Bài học",
       "sentenceOf": "Câu {{n}}/{{total}}",
-      "quotaLeft": "Còn {{remaining}}/{{limit}} lượt shadowing hôm nay",
-      "quotaTitle": "Gói Free: {{limit}} lượt shadowing mỗi ngày",
+      "quotaLeft": "Còn {{remaining}}/{{limit}} năng lượng AI hôm nay",
+      "quotaTitle": "Gói Free: {{limit}} năng lượng AI mỗi ngày",
       "quotaUnlimited": "Không giới hạn",
       "listen": "Nghe mẫu",
       "stop": "Dừng",
@@ -462,13 +462,10 @@
         "micStep2": "Chọn “Micro” → “Cho phép”, rồi tải lại trang.",
         "retry": "Thử lại",
         "listenFirst": "Nghe mẫu trước, ghi âm sau",
-        "quotaTitle": "Hết {{limit}} lượt shadowing hôm nay",
-        "quotaBody": "Lượt mới mở lại lúc 00:00. Bạn vẫn ghi âm để tự nghe lại và so sánh, chỉ chưa chấm điểm.",
-        "upgrade": "Mở với Pro",
         "busyTitle": "Hệ thống chấm đang bận",
         "busyBody": "Nhiều bạn đang luyện cùng lúc. Bản ghi của bạn vẫn còn, hãy bấm thử lại sau vài giây.",
         "errorTitle": "Chưa chấm được",
-        "errorBody": "Lượt này không bị tính. Hãy thử lại.",
+        "errorBody": "Hãy thử lại.",
         "errorOffline": "Mất kết nối. Lượt này không bị tính, hãy thử lại khi có mạng.",
         "noSpeech": "Không nghe thấy giọng nói. Hãy đọc to hơn rồi thử lại.",
         "tooShort": "Bản ghi quá ngắn. Hãy đọc cả câu.",

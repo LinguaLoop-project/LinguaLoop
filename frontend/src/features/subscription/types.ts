@@ -15,8 +15,12 @@ export interface FeatureUsage {
 
 export interface UsageResponse {
   features: FeatureUsage[];
+  costs?: Record<string, number>;
 }
 
 /** Mã tính năng có hạn mức (feature_code ở backend). */
-export const FEATURE_SHADOWING = "shadowing_assess";
-export const FEATURE_TUTOR = "tutor_session";
+export const FEATURE_AI_ENERGY = "ai_energy";
+
+/** Mã hoạt động tốn năng lượng AI: khoá của `costs` và của `details.action` trong lỗi QUOTA_EXCEEDED. */
+export const AI_ACTION_FEEDBACK = "ai_feedback";
+export const AI_ACTION_TUTOR = "tutor_session";

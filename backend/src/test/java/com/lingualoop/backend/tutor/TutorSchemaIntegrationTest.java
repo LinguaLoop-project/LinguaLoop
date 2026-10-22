@@ -35,14 +35,18 @@ class TutorSchemaIntegrationTest {
     @Autowired private SentenceRepository sentences;
 
     @Test
-    void planLimits_freeHasOneSessionPerDay_proIsUnlimited_BR_TUTOR_07() {
-        assertThat(jdbc.queryForMap("SELECT period, limit_value FROM plan_limits WHERE plan = 'free' AND feature = 'tutor_session'"))
-                .containsEntry("period", "day").containsEntry("limit_value", 1);
-        assertThat(jdbc.queryForMap("SELECT period, limit_value FROM plan_limits WHERE plan = 'pro' AND feature = 'tutor_session'"))
+    void planLimits_freeHasEightEnergyPerDay_proIsUnlimited_BR_QUOTA_01() {
+        assertThat(jdbc.queryForMap("SELECT period, limit_value FROM plan_limits WHERE plan = 'free' AND feature = 'ai_energy'"))
+                .containsEntry("period", "day").containsEntry("limit_value", 8);
+        assertThat(jdbc.queryForMap("SELECT period, limit_value FROM plan_limits WHERE plan = 'pro' AND feature = 'ai_energy'"))
                 .containsEntry("period", "day").containsEntry("limit_value", null);
-        // Các tính năng cũ vẫn còn đủ
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM plan_limits WHERE feature = 'shadowing_assess'", Integer.class))
-                .isEqualTo(2);
+        // Ba bộ đếm cũ đã gộp vào bể năng lượng; các cổng quyền lợi Pro vẫn còn
+        assertThat(jdbc.queryForObject(
+                "SELECT count(*) FROM plan_limits WHERE feature IN ('shadowing_assess','ai_feedback','tutor_session')", Integer.class))
+                .isZero();
+        assertThat(jdbc.queryForObject(
+                "SELECT count(*) FROM plan_limits WHERE feature IN ('mouth_video','weakness_full')", Integer.class))
+                .isEqualTo(4);
     }
 
     @Test

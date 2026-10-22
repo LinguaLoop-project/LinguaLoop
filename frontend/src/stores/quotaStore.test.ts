@@ -2,9 +2,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { upgradeReasonOf, useQuotaStore } from "./quotaStore";
 
 describe("upgradeReasonOf", () => {
-  it("lỗi hết lượt của gia sư thì nói về gia sư, còn lại là hết lượt chung", () => {
-    expect(upgradeReasonOf({ feature: "tutor_session" })).toBe("tutor");
-    expect(upgradeReasonOf({ feature: "shadowing_assess" })).toBe("quota");
+  it("lỗi hết lượt của gia sư thì nói về gia sư, nhận xét AI thì nói về nhận xét AI, còn lại là hết lượt chung", () => {
+    expect(upgradeReasonOf({ action: "tutor_session" })).toBe("tutor");
+    expect(upgradeReasonOf({ action: "ai_feedback" })).toBe("ai_feedback");
+    expect(upgradeReasonOf({ feature: "ai_energy" } as { action?: unknown })).toBe("quota");
     expect(upgradeReasonOf({})).toBe("quota");
     expect(upgradeReasonOf(undefined)).toBe("quota");
   });

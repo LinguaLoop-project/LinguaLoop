@@ -250,14 +250,14 @@
         "label": "Tutor",
         "on": "on",
         "off": "off",
-        "quotaOut": "none left today"
+        "quotaOut": "not enough energy"
       },
       "ask": {
         "title": "Study with the tutor in this lesson?",
         "body": "After a sentence with words to fix, the tutor joins by voice to practise word by word. You can change this any time.",
         "enable": "Turn on tutor",
         "decline": "Study alone",
-        "freeNote": "Free: {{limit}} session per day"
+        "freeNote": "Free: up to {{limit}} sessions per day (uses AI energy)"
       },
       "offer": {
         "text_one": "I found {{count}} word to fix:",
@@ -367,7 +367,7 @@
       },
       "lesson": {
         "ask": "Ask the tutor",
-        "lockedHint": "No tutor sessions left today · Unlock with Pro",
+        "lockedHint": "Not enough energy for a tutor session · Unlock with Pro",
         "summary": "Tutor:"
       }
     },
@@ -381,9 +381,9 @@
         "retry": "Try again",
         "busy": "AI is busy, please try again in a few minutes. You were not charged.",
         "consent": "You need to allow AI processing to see feedback.",
-        "quotaOut": "You have used all AI feedback for today.",
+        "quotaOut": "You don't have enough AI energy for feedback today.",
         "upgrade": "Unlock with Pro",
-        "remaining": "{{remaining}}/{{limit}} left today"
+        "remaining": "{{remaining}}/{{limit}} AI energy left"
       },
       "mouth": {
         "title": "Mouth video for /{{symbol}}/",
@@ -395,8 +395,8 @@
       "title": "Listen, repeat, spot mistakes",
       "back": "Lesson",
       "sentenceOf": "Sentence {{n}}/{{total}}",
-      "quotaLeft": "{{remaining}}/{{limit}} shadowing attempts left today",
-      "quotaTitle": "Free plan: {{limit}} shadowing attempts per day",
+      "quotaLeft": "{{remaining}}/{{limit}} AI energy left today",
+      "quotaTitle": "Free plan: {{limit}} AI energy per day",
       "quotaUnlimited": "Unlimited",
       "listen": "Hear model",
       "stop": "Stop",
@@ -463,13 +463,10 @@
         "micStep2": "Choose “Microphone” → “Allow”, then reload the page.",
         "retry": "Try again",
         "listenFirst": "Listen to the model first, record later",
-        "quotaTitle": "You have used all {{limit}} shadowing attempts today",
-        "quotaBody": "New attempts open at 00:00. You can still record to listen back and compare, but it will not be scored.",
-        "upgrade": "Unlock with Pro",
         "busyTitle": "Scoring is busy",
         "busyBody": "Many learners are practicing right now. Your recording is kept, try again in a few seconds.",
         "errorTitle": "Could not score this",
-        "errorBody": "This attempt was not counted. Please try again.",
+        "errorBody": "Please try again.",
         "errorOffline": "Connection lost. This attempt was not counted, try again when you are online.",
         "noSpeech": "No speech was detected. Speak louder and try again.",
         "tooShort": "The recording is too short. Read the whole sentence.",

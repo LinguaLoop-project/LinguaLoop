@@ -33,9 +33,6 @@ import com.lingualoop.backend.shadowing.repository.AttemptWordRepository;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository.LatestHead;
-import com.lingualoop.backend.subscription.dto.FeatureUsage;
-import com.lingualoop.backend.subscription.dto.UsageTicket;
-import com.lingualoop.backend.subscription.service.UsageService;
 import com.lingualoop.backend.user.service.ConsentService;
 import com.lingualoop.backend.user.service.ConsentService.ConsentType;
 
@@ -51,11 +48,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
 
-    static final String FEATURE = "shadowing_assess";
-
     private final SentenceQueryService sentenceQueryService;
     private final ConsentService consentService;
-    private final UsageService usageService;
     private final PronunciationScoringService scoringService;
     private final ShadowingAttemptRecorder recorder;
     private final ShadowingAttemptRepository repository;
@@ -75,18 +69,11 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             throw new BusinessException(ErrorCode.AI_CONSENT_REQUIRED);
         }
 
-        UsageTicket ticket = usageService.tryConsume(userId, FEATURE);
-        try {
-            PronunciationAssessment assessment = scoringService.assess(wav, sentence.text());
-            List<List<String>> targets = PhonemeTargets.forAssessment(sentence, assessment);
-            long attemptId = recorder.save(userId, sentence.lessonId(), sentenceId, assessment, targets,
-                    audio.durationMs());
-            return toResponse(userId, attemptId, sentence, assessment, targets, usageService.usageOf(userId, FEATURE));
-        } catch (RuntimeException e) {
-            // Chưa có kết quả nào đến tay người học: trả lại lượt.
-            usageService.refund(userId, ticket);
-            throw e;
-        }
+        PronunciationAssessment assessment = scoringService.assess(wav, sentence.text());
+        List<List<String>> targets = PhonemeTargets.forAssessment(sentence, assessment);
+        long attemptId = recorder.save(userId, sentence.lessonId(), sentenceId, assessment, targets,
+                audio.durationMs());
+        return toResponse(userId, attemptId, sentence, assessment, targets);
     }
 
     @Override
@@ -173,7 +160,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
     }
 
     private ShadowingAttemptResponse toResponse(UUID userId, long attemptId, SentenceView sentence,
-            PronunciationAssessment a, List<List<String>> expectedByWord, FeatureUsage usage) {
+            PronunciationAssessment a, List<List<String>> expectedByWord) {
         // Ký hiệu trả về cùng hệ với IPA mẫu của câu (bảng phonemes); âm chưa chuyển được giữ nguyên ký hiệu Azure
         List<List<String>> symbols = a.words().stream()
                 .map(w -> AzurePhonemeMapper.toTableSymbols(
@@ -204,7 +191,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
                     ShadowingAttemptRecorder.outcomeOf(word.errorType()), phonemes));
         }
         return new ShadowingAttemptResponse(attemptId, sentence.id(), a.pronunciationScore(), a.accuracyScore(),
-                a.fluencyScore(), a.completenessScore(), a.prosodyScore(), a.recognizedText(), words, usage);
+                a.fluencyScore(), a.completenessScore(), a.prosodyScore(), a.recognizedText(), words);
     }
 
     /** Mẹo và video chỉ là phần thêm: lỗi ở đây không được làm mất kết quả đã lưu (và đã trừ lượt) của người học. */
