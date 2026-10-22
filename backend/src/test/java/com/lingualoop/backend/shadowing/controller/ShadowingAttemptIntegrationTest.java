@@ -182,6 +182,25 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
+    void assess_azureBusy_returns503SavesNothingAndKeepsLaterCallsWorking_AC_SHADOW_38() throws Exception {
+        UUID user = newUser();
+        Sentence s = sentence(lesson("azure-busy", false), 0, "Hello world");
+        when(scoring.assess(any(), any())).thenThrow(new BusinessException(ErrorCode.SHADOWING_SCORING_BUSY));
+
+        post(user, s.getId(), WavFixtures.valid(1_000))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.code").value("SHADOWING_SCORING_BUSY"));
+
+        assertThat(energyUsed(user)).isZero();
+        assertThat(count("sentence_attempts WHERE user_id = ?", user)).isZero();
+
+        // hết bận thì chấm bình thường, không cần chờ gì thêm (doReturn: when() sẽ gọi lại mock đang ném lỗi)
+        org.mockito.Mockito.doReturn(helloWorld()).when(scoring).assess(any(), any());
+        post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+        assertThat(count("sentence_attempts WHERE user_id = ?", user)).isEqualTo(1);
+    }
+
+    @Test
     void assess_unexpectedFailure_savesNothing_AC_SHADOW_05() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("boom", false), 0, "Hello world");

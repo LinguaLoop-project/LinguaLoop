@@ -462,6 +462,8 @@
         "micStep2": "Chọn “Micro” → “Cho phép”, rồi tải lại trang.",
         "retry": "Thử lại",
         "listenFirst": "Nghe mẫu trước, ghi âm sau",
+        "busyTitle": "Hệ thống chấm đang bận",
+        "busyBody": "Nhiều bạn đang luyện cùng lúc. Bản ghi của bạn vẫn còn, hãy bấm thử lại sau vài giây.",
         "errorTitle": "Chưa chấm được",
         "errorBody": "Hãy thử lại.",
         "errorOffline": "Mất kết nối. Lượt này không bị tính, hãy thử lại khi có mạng.",

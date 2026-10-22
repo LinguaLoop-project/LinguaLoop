@@ -95,7 +95,8 @@ class AzurePronunciationScoringService implements PronunciationScoringService {
                 }
                 if (result.getReason() == ResultReason.Canceled) {
                     CancellationDetails details = CancellationDetails.fromResult(result);
-                    log.error("Azure huỷ nhận dạng: {} - {}", details.getReason(), details.getErrorDetails());
+                    throw AzureCancellation.toException(details.getErrorCode(), details.getReason(),
+                            details.getErrorDetails());
                 } else {
                     log.error("Azure trả kết quả không mong đợi: {}", result.getReason());
                 }

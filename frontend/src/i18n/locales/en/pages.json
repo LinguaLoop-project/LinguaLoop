@@ -463,6 +463,8 @@
         "micStep2": "Choose “Microphone” → “Allow”, then reload the page.",
         "retry": "Try again",
         "listenFirst": "Listen to the model first, record later",
+        "busyTitle": "Scoring is busy",
+        "busyBody": "Many learners are practicing right now. Your recording is kept, try again in a few seconds.",
         "errorTitle": "Could not score this",
         "errorBody": "Please try again.",
         "errorOffline": "Connection lost. This attempt was not counted, try again when you are online.",

@@ -669,6 +669,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 function noteFromError(err: unknown, t: TFunction<"pages">): Note {
   const e = toApiError(err);
   switch (e.code) {
+    case "SHADOWING_SCORING_BUSY":
+      return { kind: "message", title: t(`${K}.notes.busyTitle`), body: t(`${K}.notes.busyBody`), retry: true };
     case "SHADOWING_NO_SPEECH":
       return { kind: "message", body: t(`${K}.notes.noSpeech`), retry: false };
     case "AI_CONSENT_REQUIRED":
