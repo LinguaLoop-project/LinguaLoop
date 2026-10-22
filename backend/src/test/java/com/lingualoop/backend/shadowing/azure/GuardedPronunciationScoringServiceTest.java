@@ -191,4 +191,20 @@ class GuardedPronunciationScoringServiceTest {
 
         assertThat(guard.state()).isEqualTo(CircuitBreaker.State.CLOSED);
     }
+
+    @Test
+    void interruptedWhileWaitingForAPermit_failsAsUnavailableAndKeepsTheInterruptFlag() {
+        var guard = new GuardedPronunciationScoringService((wav, text) -> OK, properties());
+
+        Thread.currentThread().interrupt();
+        try {
+            assertThatThrownBy(() -> guard.assess(WAV, "hello"))
+                    .isInstanceOfSatisfying(BusinessException.class,
+                            e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.SHADOWING_SCORING_UNAVAILABLE));
+            assertThat(Thread.currentThread().isInterrupted()).as("cờ ngắt được giữ lại").isTrue();
+        } finally {
+            Thread.interrupted(); // xoá cờ để không ảnh hưởng test khác
+        }
+        assertThat(guard.state()).isEqualTo(CircuitBreaker.State.CLOSED);
+    }
 }
