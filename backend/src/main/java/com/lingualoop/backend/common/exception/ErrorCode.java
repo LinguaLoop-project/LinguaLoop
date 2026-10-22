@@ -47,6 +47,11 @@ public enum ErrorCode {
     SHADOWING_SCORING_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "Dịch vụ chấm phát âm tạm thời không dùng được"),
     AI_FEEDBACK_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "Dịch vụ nhận xét AI tạm thời không dùng được"),
     AI_FEEDBACK_BUSY(HttpStatus.SERVICE_UNAVAILABLE, "AI đang bận, vui lòng thử lại sau ít phút"),
+    TUTOR_LIVE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Gia sư tạm thời không dùng được, hãy xem mẹo sửa bằng chữ"),
+    TUTOR_SESSION_CONFLICT(HttpStatus.CONFLICT, "Phiên gia sư không ở trạng thái cho phép thao tác này"),
+    TUTOR_WORD_NOT_IN_SENTENCE(HttpStatus.BAD_REQUEST, "Từ này không có trong câu đang học"),
+    TUTOR_TOO_MANY_FAILED_STARTS(HttpStatus.TOO_MANY_REQUESTS,
+            "Hôm nay bạn đã mở gia sư nhiều lần không thành công, hãy thử lại vào ngày mai"),
 
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi hệ thống, vui lòng thử lại sau");
 

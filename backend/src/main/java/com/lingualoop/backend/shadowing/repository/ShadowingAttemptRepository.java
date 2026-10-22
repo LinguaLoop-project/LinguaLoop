@@ -59,4 +59,20 @@ public interface ShadowingAttemptRepository extends JpaRepository<SentenceAttemp
             ) t
             ORDER BY t.sort_order""")
     List<LatestHead> findLatestByLesson(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId);
+
+    /** Mã các lượt shadowing của người học trong bài, trước {@code beforeId}, lượt gần nhất đứng đầu. */
+    @Query(nativeQuery = true, value = """
+            SELECT a.id FROM sentence_attempts a JOIN sentences s ON s.id = a.sentence_id
+            WHERE a.user_id = :userId AND s.lesson_id = :lessonId AND a.mode = 'shadowing' AND a.id < :beforeId
+            ORDER BY a.id DESC LIMIT :limit""")
+    List<Long> findPreviousIds(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId,
+            @Param("beforeId") long beforeId, @Param("limit") int limit);
+
+    /** Số lượt shadowing của người học trong bài có mã trong khoảng ({@code afterId}, {@code uptoId}]. */
+    @Query(nativeQuery = true, value = """
+            SELECT count(*) FROM sentence_attempts a JOIN sentences s ON s.id = a.sentence_id
+            WHERE a.user_id = :userId AND s.lesson_id = :lessonId AND a.mode = 'shadowing'
+              AND a.id > :afterId AND a.id <= :uptoId""")
+    int countBetween(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId,
+            @Param("afterId") long afterId, @Param("uptoId") long uptoId);
 }
