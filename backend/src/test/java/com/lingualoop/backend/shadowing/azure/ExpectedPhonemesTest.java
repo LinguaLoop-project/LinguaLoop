@@ -21,6 +21,21 @@ class ExpectedPhonemesTest {
     }
 
     @Test
+    void vowelPlusR_isOneSoundBeforeAConsonantOrAtTheEnd_likeAzure() {
+        assertThat(ExpectedPhonemes.tokenize("pɑɹk")).containsExactly("p", "ɑː", "k");
+        assertThat(ExpectedPhonemes.tokenize("nɪɹ")).containsExactly("n", "ɪə");
+        assertThat(ExpectedPhonemes.tokenize("kɛɹi")).containsExactly("k", "eə", "r", "iː");
+    }
+
+    @Test
+    void realSentenceMeasuredFromAzure_hasTheSameSoundCountPerWord() {
+        // Số âm mỗi từ Azure trả cho "I can't park the car near here" (đo từ Azure thật)
+        List<List<String>> expected = ExpectedPhonemes.ofSentence(
+                "I can't park the car near here", "/aɪ kænt pɑɹk ðə kɑɹ nɪɹ hɪɹ/");
+        assertThat(expected).extracting(List::size).containsExactly(1, 4, 3, 2, 2, 2, 2);
+    }
+
+    @Test
     void unknownCharacterOrWordCountMismatch_givesNothingToAvoidWrongAssignment() {
         assertThat(ExpectedPhonemes.tokenize("ɪʔ")).isNull();
         assertThat(ExpectedPhonemes.ofSentence("if only", "ɪf")).isNull();

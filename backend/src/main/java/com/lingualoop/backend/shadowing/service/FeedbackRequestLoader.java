@@ -57,9 +57,9 @@ class FeedbackRequestLoader {
 
     private static FeedbackRequest.Word toWord(SentenceAttemptWord w, Map<Short, String> symbols, List<String> expectedWord) {
         List<AttemptPhoneme> stored = w.getPhonemes();
-        List<String> expected = ExpectedPhonemes.align(expectedWord, PhonemeTargets.heardCount(stored));
+        List<String> recomputed = ExpectedPhonemes.align(expectedWord, PhonemeTargets.heardCount(stored));
         List<FeedbackRequest.Phoneme> weak = stored.stream()
-                .map(p -> toPhoneme(p, symbols, expected.get(p.getPosition())))
+                .map(p -> toPhoneme(p, symbols, PhonemeTargets.targetSymbol(p, symbols, recomputed)))
                 .filter(p -> PhonemeRules.needsFix(p.accuracy(), p.symbol(), p.expected() == null ? p.symbol() : p.expected()))
                 .toList();
         return new FeedbackRequest.Word(w.getExpectedWord() != null ? w.getExpectedWord() : w.getActualWord(),
@@ -68,7 +68,7 @@ class FeedbackRequestLoader {
 
     /** {@code expected} chỉ được giữ khi khác âm Azure báo, để lời nhắc ngắn gọn. */
     private static FeedbackRequest.Phoneme toPhoneme(AttemptPhoneme p, Map<Short, String> symbols, String expected) {
-        String symbol = symbols.getOrDefault(p.getPhonemeId(), "?");
+        String symbol = PhonemeTargets.reportedSymbol(p, symbols);
         return new FeedbackRequest.Phoneme(symbol, expected != null && !expected.equals(symbol) ? expected : null,
                 p.getAccuracyScore().doubleValue());
     }

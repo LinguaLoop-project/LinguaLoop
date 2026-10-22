@@ -15,7 +15,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Điểm của một âm vị trong một từ; {@code phonemeId} trỏ tới bảng {@code phonemes}. */
+/** Điểm của một âm vị trong một từ; các cột {@code *PhonemeId} trỏ tới bảng {@code phonemes} (ADR 0005). */
 @Getter
 @Entity
 @Table(name = "sentence_attempt_phonemes")
@@ -33,16 +33,37 @@ public class AttemptPhoneme {
     @Column(name = "position", nullable = false, updatable = false)
     private Short position;
 
-    @Column(name = "phoneme_id", nullable = false, updatable = false)
+    /** Cách đọc Azure báo, đã chuyển sang bảng phonemes; null nếu chưa chuyển được (khi đó có {@code azureSymbol}). */
+    @Column(name = "phoneme_id", updatable = false)
     private Short phonemeId;
+
+    /** Ký hiệu gốc Azure trả; null ở dòng lưu trước khi có cột này. */
+    @Column(name = "azure_symbol", updatable = false)
+    private String azureSymbol;
+
+    /** Âm đích ghép từ phiên âm của câu; null nếu không ghép được. */
+    @Column(name = "target_phoneme_id", updatable = false)
+    private Short targetPhonemeId;
+
+    /** Ứng viên khác cao điểm nhất trong NBestPhonemes của Azure. */
+    @Column(name = "produced_phoneme_id", updatable = false)
+    private Short producedPhonemeId;
+
+    @Column(name = "produced_score", updatable = false, precision = 5, scale = 2)
+    private BigDecimal producedScore;
 
     @Column(name = "accuracy_score", nullable = false, precision = 5, scale = 2)
     private BigDecimal accuracyScore;
 
-    AttemptPhoneme(SentenceAttemptWord word, int position, short phonemeId, BigDecimal accuracyScore) {
+    AttemptPhoneme(SentenceAttemptWord word, int position, Short phonemeId, String azureSymbol, Short targetPhonemeId,
+            Short producedPhonemeId, BigDecimal producedScore, BigDecimal accuracyScore) {
         this.word = word;
         this.position = (short) position;
         this.phonemeId = phonemeId;
+        this.azureSymbol = azureSymbol;
+        this.targetPhonemeId = targetPhonemeId;
+        this.producedPhonemeId = producedPhonemeId;
+        this.producedScore = producedScore;
         this.accuracyScore = accuracyScore;
     }
 }

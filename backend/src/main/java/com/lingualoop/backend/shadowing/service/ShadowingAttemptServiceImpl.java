@@ -78,8 +78,10 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         UsageTicket ticket = usageService.tryConsume(userId, FEATURE);
         try {
             PronunciationAssessment assessment = scoringService.assess(wav, sentence.text());
-            long attemptId = recorder.save(userId, sentence.lessonId(), sentenceId, assessment, audio.durationMs());
-            return toResponse(userId, attemptId, sentence, assessment, usageService.usageOf(userId, FEATURE));
+            List<List<String>> targets = PhonemeTargets.forAssessment(sentence, assessment);
+            long attemptId = recorder.save(userId, sentence.lessonId(), sentenceId, assessment, targets,
+                    audio.durationMs());
+            return toResponse(userId, attemptId, sentence, assessment, targets, usageService.usageOf(userId, FEATURE));
         } catch (RuntimeException e) {
             // Chưa có kết quả nào đến tay người học: trả lại lượt.
             usageService.refund(userId, ticket);
@@ -103,9 +105,12 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         phonemeRepository.findAll().forEach(p -> symbolById.put(p.getId(), p.getSymbol()));
         Map<Long, List<AttemptPhoneme>> phonemesByWord = new HashMap<>();
         Set<String> symbols = new HashSet<>();
-        for (AttemptPhoneme p : attemptPhonemeRepository.findByAttemptIds(attemptIds)) {
+        List<AttemptPhoneme> storedPhonemes = attemptPhonemeRepository.findByAttemptIds(attemptIds);
+        for (AttemptPhoneme p : storedPhonemes) {
             phonemesByWord.computeIfAbsent(p.getWord().getId(), k -> new ArrayList<>()).add(p);
-            symbols.add(symbolById.getOrDefault(p.getPhonemeId(), "?"));
+            if (p.getPhonemeId() != null) {
+                symbols.add(symbolById.getOrDefault(p.getPhonemeId(), "?"));
+            }
         }
 
         // Âm mẫu theo từng từ của từng lượt, để ghép với âm đã lưu (theo vị trí âm trong từ)
@@ -118,6 +123,11 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         heads.forEach(h -> expectedByWord.putAll(PhonemeTargets.expectedByWordId(
                 sentenceById.get(h.getSentenceId()), wordsOfAttempt.getOrDefault(h.getAttemptId(), List.of()))));
         expectedByWord.values().forEach(symbols::addAll);
+        for (AttemptPhoneme p : storedPhonemes) {
+            if (p.getTargetPhonemeId() != null) {
+                symbols.add(symbolById.get(p.getTargetPhonemeId()));
+            }
+        }
         Map<String, PronunciationHints.Hint> hintBySymbol = hintsFor(userId, symbols);
 
         Map<Long, List<ShadowingAttemptResponse.WordResult>> wordsByAttempt = new HashMap<>();
@@ -126,9 +136,9 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             List<AttemptPhoneme> stored = phonemesByWord.getOrDefault(w.getId(), List.of());
             List<String> expected = ExpectedPhonemes.align(expectedByWord.get(w.getId()), PhonemeTargets.heardCount(stored));
             for (AttemptPhoneme p : stored) {
-                String symbol = symbolById.getOrDefault(p.getPhonemeId(), "?");
+                String symbol = PhonemeTargets.reportedSymbol(p, symbolById);
                 double accuracy = p.getAccuracyScore().doubleValue();
-                String target = expected.get(p.getPosition());
+                String target = PhonemeTargets.targetSymbol(p, symbolById, expected);
                 PronunciationHints.Hint hint = hintBySymbol.get(target != null ? target : symbol);
                 phonemes.add(new ShadowingAttemptResponse.PhonemeResult(symbol, target, accuracy,
                         PhonemeRules.needsFix(accuracy, symbol, target),
@@ -163,24 +173,12 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
     }
 
     private ShadowingAttemptResponse toResponse(UUID userId, long attemptId, SentenceView sentence,
-            PronunciationAssessment a, FeatureUsage usage) {
+            PronunciationAssessment a, List<List<String>> expectedByWord, FeatureUsage usage) {
         // Ký hiệu trả về cùng hệ với IPA mẫu của câu (bảng phonemes); âm chưa chuyển được giữ nguyên ký hiệu Azure
         List<List<String>> symbols = a.words().stream()
                 .map(w -> AzurePhonemeMapper.toTableSymbols(
                         w.phonemes().stream().map(PronunciationAssessment.PhonemeResult::symbol).toList()))
                 .toList();
-        // Âm mẫu theo từ của câu; Azure có thể chèn từ thừa nên chỉ đếm các từ không phải từ thừa
-        List<List<String>> reference = ExpectedPhonemes.ofSentence(sentence.text(), sentence.ipa());
-        List<List<String>> expectedByWord = new ArrayList<>();
-        int refIndex = 0;
-        for (PronunciationAssessment.WordResult word : a.words()) {
-            List<String> ref = null;
-            if (word.errorType() != PronunciationAssessment.ErrorType.INSERTION) {
-                ref = reference != null && refIndex < reference.size() ? reference.get(refIndex) : null;
-                refIndex++;
-            }
-            expectedByWord.add(ExpectedPhonemes.align(ref, word.phonemes().size()));
-        }
         Set<String> all = new HashSet<>();
         symbols.forEach(list -> list.stream().filter(Objects::nonNull).forEach(all::add));
         expectedByWord.forEach(list -> list.stream().filter(Objects::nonNull).forEach(all::add));

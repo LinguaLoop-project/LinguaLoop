@@ -300,7 +300,7 @@ class ShadowingAttemptIntegrationTest {
     // ── UC-SHADOW-02 ────────────────────────────────────────────────────────────────
 
     @Test
-    void assess_unknownPhoneme_isReturnedButNotStored_AC_SHADOW_14() throws Exception {
+    void assess_unknownPhoneme_isReturnedAndStoredWithItsRawSymbol_AC_SHADOW_14() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("unknown-ph", false), 0, "Hello");
         when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("hello", 80, 80, 80, 80, null,
@@ -312,11 +312,13 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data.words[0].phonemes.length()").value(3))
                 .andExpect(jsonPath("$.data.words[0].phonemes[1].symbol").value("zzz"));
 
+        // Âm lạ vẫn được lưu: phoneme_id rỗng, giữ ký hiệu gốc để xử lý lại khi bổ sung bộ chuyển đổi
         assertThat(jdbc.queryForList("""
-                SELECT p.position FROM sentence_attempt_phonemes p
+                SELECT p.position || ':' || COALESCE(p.azure_symbol, '-') || ':' || (p.phoneme_id IS NULL)
+                FROM sentence_attempt_phonemes p
                 JOIN sentence_attempt_words w ON w.id = p.attempt_word_id
                 JOIN sentence_attempts a ON a.id = w.attempt_id WHERE a.user_id = ? ORDER BY p.position""",
-                Integer.class, user)).containsExactly(0, 2);
+                String.class, user)).containsExactly("0:h:false", "1:zzz:true", "2:l:false");
     }
 
     // ── UC-SHADOW-07 / UC-SHADOW-08 ──────────────────────────────────────────────────
@@ -422,6 +424,62 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
+    void assess_storesAzureSymbolTargetAndTopAlternative_AC_SHADOW_36() throws Exception {
+        UUID user = newUser();
+        Sentence s = sentence(lesson("target-model", false), 0, "if");
+        s.setIpa("/ɪf/");
+        sentences.save(s);
+        // Đo từ Azure thật: đọc "iv" thì Azure báo v và chấm 100; f chỉ là ứng viên 43
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 100, 100, 100, 100, null,
+                List.of(new WordResult("if", 100, ErrorType.NONE, List.of(
+                        new PhonemeResult("ɪ", 100),
+                        new PhonemeResult("v", 100, List.of(new PronunciationAssessment.Candidate("v", 100),
+                                new PronunciationAssessment.Candidate("f", 43))))))));
+
+        post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+
+        assertThat(jdbc.queryForMap("""
+                SELECT p.azure_symbol, rep.symbol AS reported, tgt.symbol AS target, alt.symbol AS alternative,
+                       p.produced_score
+                FROM sentence_attempt_phonemes p
+                JOIN sentence_attempt_words w ON w.id = p.attempt_word_id
+                JOIN sentence_attempts a ON a.id = w.attempt_id
+                JOIN phonemes rep ON rep.id = p.phoneme_id
+                JOIN phonemes tgt ON tgt.id = p.target_phoneme_id
+                JOIN phonemes alt ON alt.id = p.produced_phoneme_id
+                WHERE a.user_id = ? AND p.position = 1""", user))
+                .containsEntry("azure_symbol", "v").containsEntry("reported", "v")
+                .containsEntry("target", "f").containsEntry("alternative", "f");
+
+        // Thống kê theo âm đích: /f/ có 1 cơ hội và 1 lỗi (phụ âm khác âm đích dù điểm 100)
+        assertThat(jdbc.queryForMap("""
+                SELECT s.opportunities, s.errors FROM v_user_phoneme_stats s
+                JOIN phonemes p ON p.id = s.phoneme_id WHERE s.user_id = ? AND p.symbol = 'f'""", user))
+                .containsEntry("opportunities", 1L).containsEntry("errors", 1L);
+    }
+
+    @Test
+    void latest_usesTheTargetStoredAtScoringTime_evenIfTheSentenceIpaChangesLater_AC_SHADOW_36() throws Exception {
+        UUID user = newUser();
+        Lesson lesson = lesson("target-stored", false);
+        Sentence s = sentence(lesson, 0, "if");
+        s.setIpa("/ɪf/");
+        sentences.save(s);
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 100, 100, 100, 100, null,
+                List.of(new WordResult("if", 100, ErrorType.NONE,
+                        List.of(new PhonemeResult("ɪ", 100), new PhonemeResult("v", 100))))));
+        post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+        s.setIpa(null);
+        sentences.save(s);
+
+        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(user)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].symbol").value("v"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].expected").value("f"))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[1].needsFix").value(true));
+    }
+
+    @Test
     void assess_noModelIpa_expectedIsEmptyAndHintFollowsHeardSound_AC_SHADOW_34() throws Exception {
         UUID pro = newUser();
         makePro(pro);
@@ -435,11 +493,15 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
-    void tipTable_coversTheCommonVietnameseProblemSounds_AC_SHADOW_21() {
+    void tipTable_coversAll44Phonemes_AC_SHADOW_21() {
         List<String> withTip = jdbc.queryForList("""
                 SELECT p.symbol FROM phoneme_confusions c JOIN phonemes p ON p.id = c.target_phoneme_id
                 WHERE c.l1 = 'vi' AND c.produced_phoneme_id IS NULL""", String.class);
         assertThat(withTip).contains("θ", "ð", "ʃ", "ʒ", "z", "v", "r", "s", "t", "d", "l", "ɪ", "iː", "æ");
+        // Mọi âm của bảng phonemes đều có mẹo, và không mẹo nào nói riêng về giọng Anh
+        assertThat(withTip).hasSameSizeAs(jdbc.queryForList("SELECT symbol FROM phonemes", String.class));
+        assertThat(jdbc.queryForList("SELECT tip_vi FROM phoneme_confusions WHERE tip_vi ILIKE '%Anh-Anh%'", String.class))
+                .isEmpty();
     }
 
     // ── UC-SHADOW-03 ────────────────────────────────────────────────────────────────
@@ -496,7 +558,9 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data[0].fluency").value(70.0))
                 .andExpect(jsonPath("$.data[0].completeness").value(70.0))
                 // âm vị theo bảng phonemes, mẹo sửa cho âm yếu, video bị khoá với gói Free
-                .andExpect(jsonPath("$.data[0].words[0].phonemes.length()").value(2))
+                // âm lạ cũng được khôi phục (đã lưu với phoneme_id rỗng)
+                .andExpect(jsonPath("$.data[0].words[0].phonemes.length()").value(3))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[2].symbol").value("zzz"))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].symbol").value("θ"))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].tip").isNotEmpty())
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.locked").value(true))
