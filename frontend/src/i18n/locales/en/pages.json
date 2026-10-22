@@ -246,6 +246,12 @@
       "description": "Charts of study time, words mastered and your progress."
     },
     "shadowingPractice": {
+      "mouth": {
+        "title": "Mouth video for /{{symbol}}/",
+        "unlock": "Unlock with Pro",
+        "hide": "Hide video",
+        "open": "Open mouth video"
+      },
       "overline": "Shadowing",
       "title": "Listen, repeat, spot mistakes",
       "back": "Lesson",

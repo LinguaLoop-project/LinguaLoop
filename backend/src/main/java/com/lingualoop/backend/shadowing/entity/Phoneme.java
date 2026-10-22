@@ -10,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Bảng tham chiếu 44 âm vị; shadowing chỉ cần tra {@code id} theo ký hiệu. */
+/** Bảng tham chiếu 44 âm vị: ký hiệu và video khẩu hình (nội dung Pro). */
 @Getter
 @Entity
 @Immutable
@@ -23,4 +23,7 @@ public class Phoneme {
 
     @Column(name = "symbol", nullable = false)
     private String symbol;
+
+    @Column(name = "mouth_video_url")
+    private String mouthVideoUrl;
 }

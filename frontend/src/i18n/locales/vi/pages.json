@@ -246,6 +246,12 @@
       "description": "Biểu đồ phân tích thời gian học, số từ đã thuộc và mức độ tiến bộ."
     },
     "shadowingPractice": {
+      "mouth": {
+        "title": "Video khẩu hình âm /{{symbol}}/",
+        "unlock": "Mở với Pro",
+        "hide": "Ẩn video",
+        "open": "Mở video khẩu hình"
+      },
       "overline": "Shadowing",
       "title": "Nghe, đọc theo, xem lỗi",
       "back": "Bài học",

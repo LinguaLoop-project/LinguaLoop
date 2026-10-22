@@ -500,7 +500,12 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                     />
                     {selectedWord && (
                       <div className="mt-4">
-                        <WordDetail word={selectedWord} ipa={selectedIpa} onClose={() => setSelected(null)} />
+                        <WordDetail
+                          word={selectedWord}
+                          ipa={selectedIpa}
+                          onClose={() => setSelected(null)}
+                          onUpgrade={() => setShowUpgradeModal(true)}
+                        />
                       </div>
                     )}
                   </>

@@ -319,6 +319,56 @@ class ShadowingAttemptIntegrationTest {
                 Integer.class, user)).containsExactly(0, 2);
     }
 
+    // ── UC-SHADOW-07 / UC-SHADOW-08 ──────────────────────────────────────────────────
+
+    private void givenWeakAndStrongPhonemes() {
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("think", 70, 70, 70, 70, null,
+                List.of(new WordResult("think", 70, ErrorType.MISPRONUNCIATION, List.of(
+                        new PhonemeResult("θ", 40), new PhonemeResult("ɪ", 90), new PhonemeResult("zzz", 30))))));
+    }
+
+    @Test
+    void assess_weakPhoneme_getsTipAndLockedMouthVideoForFree_AC_SHADOW_21() throws Exception {
+        UUID free = newUser();
+        Sentence s = sentence(lesson("tips-free", false), 0, "Think");
+        givenWeakAndStrongPhonemes();
+
+        post(free, s.getId(), WavFixtures.valid(1_000))
+                .andExpect(status().isOk())
+                // θ dưới 60: có mẹo; video bị khoá nên không có đường dẫn
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].tip").isNotEmpty())
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo.locked").value(true))
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo.url").value((Object) null))
+                // ɪ đạt điểm: không có mẹo, không có video
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].tip").value((Object) null))
+                .andExpect(jsonPath("$.data.words[0].phonemes[1].mouthVideo").value((Object) null))
+                // âm không có trong bảng: không có mẹo, không có video
+                .andExpect(jsonPath("$.data.words[0].phonemes[2].tip").value((Object) null))
+                .andExpect(jsonPath("$.data.words[0].phonemes[2].mouthVideo").value((Object) null));
+    }
+
+    @Test
+    void assess_weakPhoneme_getsMouthVideoLinkForPro_AC_SHADOW_22() throws Exception {
+        UUID pro = newUser();
+        makePro(pro);
+        Sentence s = sentence(lesson("tips-pro", false), 0, "Think");
+        givenWeakAndStrongPhonemes();
+
+        post(pro, s.getId(), WavFixtures.valid(1_000))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].tip").isNotEmpty())
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo.locked").value(false))
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo.url").isNotEmpty());
+    }
+
+    @Test
+    void tipTable_coversTheCommonVietnameseProblemSounds_AC_SHADOW_21() {
+        List<String> withTip = jdbc.queryForList("""
+                SELECT p.symbol FROM phoneme_confusions c JOIN phonemes p ON p.id = c.target_phoneme_id
+                WHERE c.l1 = 'vi' AND c.produced_phoneme_id IS NULL""", String.class);
+        assertThat(withTip).contains("θ", "ð", "ʃ", "ʒ", "z", "v", "r", "s", "t", "d", "l", "ɪ", "iː", "æ");
+    }
+
     // ── UC-SHADOW-03 ────────────────────────────────────────────────────────────────
 
     @Test

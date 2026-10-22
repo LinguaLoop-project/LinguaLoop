@@ -2,8 +2,10 @@ package com.lingualoop.backend.shadowing.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -23,17 +25,20 @@ import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
 import com.lingualoop.backend.shadowing.repository.AttemptWordRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository.LatestHead;
+import com.lingualoop.backend.subscription.dto.FeatureUsage;
 import com.lingualoop.backend.subscription.dto.UsageTicket;
 import com.lingualoop.backend.subscription.service.UsageService;
 import com.lingualoop.backend.user.service.ConsentService;
 import com.lingualoop.backend.user.service.ConsentService.ConsentType;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Luồng: kiểm tra đầu vào → giữ chỗ lượt → chấm bằng Azure → lưu. Cố ý không có {@code @Transactional}
  * ở đây để cuộc gọi Azure không giữ kết nối DB; phần lưu nằm trong {@link ShadowingAttemptRecorder}.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
@@ -47,6 +52,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
     private final ShadowingAttemptRecorder recorder;
     private final ShadowingAttemptRepository repository;
     private final AttemptWordRepository wordRepository;
+    private final PronunciationHints hints;
 
     @Override
     public ShadowingAttemptResponse assess(UUID userId, UUID sentenceId, byte[] wav) {
@@ -62,7 +68,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         try {
             PronunciationAssessment assessment = scoringService.assess(wav, sentence.text());
             long attemptId = recorder.save(userId, sentence.lessonId(), sentenceId, assessment, audio.durationMs());
-            return toResponse(attemptId, sentenceId, assessment, usageService.usageOf(userId, FEATURE));
+            return toResponse(userId, attemptId, sentenceId, assessment, usageService.usageOf(userId, FEATURE));
         } catch (RuntimeException e) {
             // Chưa có kết quả nào đến tay người học: trả lại lượt.
             usageService.refund(userId, ticket);
@@ -93,24 +99,51 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
                 .toList();
     }
 
-    private static ShadowingAttemptResponse toResponse(long attemptId, UUID sentenceId,
-            PronunciationAssessment a, com.lingualoop.backend.subscription.dto.FeatureUsage usage) {
-        List<ShadowingAttemptResponse.WordResult> words = new java.util.ArrayList<>();
-        int position = 0;
-        for (PronunciationAssessment.WordResult w : a.words()) {
-            // Ký hiệu trả về cùng hệ với IPA mẫu của câu (bảng phonemes); âm chưa chuyển được giữ nguyên ký hiệu Azure
-            List<String> table = AzurePhonemeMapper.toTableSymbols(
-                    w.phonemes().stream().map(PronunciationAssessment.PhonemeResult::symbol).toList());
-            List<ShadowingAttemptResponse.PhonemeResult> phonemes = new java.util.ArrayList<>();
-            for (int i = 0; i < w.phonemes().size(); i++) {
-                PronunciationAssessment.PhonemeResult p = w.phonemes().get(i);
-                phonemes.add(new ShadowingAttemptResponse.PhonemeResult(
-                        table.get(i) != null ? table.get(i) : p.symbol(), p.accuracyScore()));
+    private ShadowingAttemptResponse toResponse(UUID userId, long attemptId, UUID sentenceId,
+            PronunciationAssessment a, FeatureUsage usage) {
+        // Ký hiệu trả về cùng hệ với IPA mẫu của câu (bảng phonemes); âm chưa chuyển được giữ nguyên ký hiệu Azure
+        List<List<String>> symbols = a.words().stream()
+                .map(w -> AzurePhonemeMapper.toTableSymbols(
+                        w.phonemes().stream().map(PronunciationAssessment.PhonemeResult::symbol).toList()))
+                .toList();
+        Set<String> weak = new HashSet<>();
+        for (int w = 0; w < a.words().size(); w++) {
+            for (int i = 0; i < symbols.get(w).size(); i++) {
+                if (symbols.get(w).get(i) != null && a.words().get(w).phonemes().get(i).accuracyScore()
+                        < PronunciationHints.WEAK_BELOW) {
+                    weak.add(symbols.get(w).get(i));
+                }
             }
-            words.add(new ShadowingAttemptResponse.WordResult(position++, w.word(), w.accuracyScore(),
-                    ShadowingAttemptRecorder.outcomeOf(w.errorType()), phonemes));
+        }
+        Map<String, PronunciationHints.Hint> hints = hintsFor(userId, weak);
+
+        List<ShadowingAttemptResponse.WordResult> words = new ArrayList<>();
+        int position = 0;
+        for (int w = 0; w < a.words().size(); w++) {
+            PronunciationAssessment.WordResult word = a.words().get(w);
+            List<ShadowingAttemptResponse.PhonemeResult> phonemes = new ArrayList<>();
+            for (int i = 0; i < word.phonemes().size(); i++) {
+                PronunciationAssessment.PhonemeResult p = word.phonemes().get(i);
+                String mapped = symbols.get(w).get(i);
+                PronunciationHints.Hint hint = p.accuracyScore() < PronunciationHints.WEAK_BELOW && mapped != null
+                        ? hints.get(mapped) : null;
+                phonemes.add(new ShadowingAttemptResponse.PhonemeResult(mapped != null ? mapped : p.symbol(),
+                        p.accuracyScore(), hint == null ? null : hint.tip(), hint == null ? null : hint.mouthVideo()));
+            }
+            words.add(new ShadowingAttemptResponse.WordResult(position++, word.word(), word.accuracyScore(),
+                    ShadowingAttemptRecorder.outcomeOf(word.errorType()), phonemes));
         }
         return new ShadowingAttemptResponse(attemptId, sentenceId, a.pronunciationScore(), a.accuracyScore(),
                 a.fluencyScore(), a.completenessScore(), a.prosodyScore(), a.recognizedText(), words, usage);
+    }
+
+    /** Mẹo và video chỉ là phần thêm: lỗi ở đây không được làm mất kết quả đã lưu (và đã trừ lượt) của người học. */
+    private Map<String, PronunciationHints.Hint> hintsFor(UUID userId, Set<String> weakSymbols) {
+        try {
+            return hints.hintsFor(userId, weakSymbols);
+        } catch (RuntimeException e) {
+            log.warn("Không lấy được mẹo sửa âm, bỏ qua", e);
+            return Map.of();
+        }
     }
 }
