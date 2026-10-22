@@ -466,6 +466,8 @@
         "quotaTitle": "You have used all {{limit}} shadowing attempts today",
         "quotaBody": "New attempts open at 00:00. You can still record to listen back and compare, but it will not be scored.",
         "upgrade": "Unlock with Pro",
+        "busyTitle": "Scoring is busy",
+        "busyBody": "Many learners are practicing right now. Your recording is kept, try again in a few seconds.",
         "errorTitle": "Could not score this",
         "errorBody": "This attempt was not counted. Please try again.",
         "errorOffline": "Connection lost. This attempt was not counted, try again when you are online.",

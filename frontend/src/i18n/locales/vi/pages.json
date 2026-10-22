@@ -465,6 +465,8 @@
         "quotaTitle": "Hết {{limit}} lượt shadowing hôm nay",
         "quotaBody": "Lượt mới mở lại lúc 00:00. Bạn vẫn ghi âm để tự nghe lại và so sánh, chỉ chưa chấm điểm.",
         "upgrade": "Mở với Pro",
+        "busyTitle": "Hệ thống chấm đang bận",
+        "busyBody": "Nhiều bạn đang luyện cùng lúc. Bản ghi của bạn vẫn còn, hãy bấm thử lại sau vài giây.",
         "errorTitle": "Chưa chấm được",
         "errorBody": "Lượt này không bị tính. Hãy thử lại.",
         "errorOffline": "Mất kết nối. Lượt này không bị tính, hãy thử lại khi có mạng.",

@@ -107,3 +107,7 @@ app:
       minimum-calls: 5
       failure-rate-percent: 50
       open-for: 30s
+      # Bậc F0 chỉ cho 1 yêu cầu nhận dạng đồng thời (không điều chỉnh được, portal không hiển thị); lên S0 thì nâng
+      # max-concurrent (mặc định S0 là 100). Lời gọi thừa chờ tối đa queue-wait rồi báo bận (BR-SHADOW-14)
+      max-concurrent: 1
+      queue-wait: 5s
