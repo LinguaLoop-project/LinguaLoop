@@ -8,8 +8,6 @@ import Mascot from "@/components/common/Mascot";
 import SegmentedControl from "@/components/common/SegmentedControl";
 import { NETWORK_ERROR, toApiError } from "@/features/auth";
 import type { LessonDetail, SentenceResponse } from "@/features/lesson/types";
-import { useFeatureUsage } from "@/features/subscription/hooks/useUsage";
-import { FEATURE_TUTOR } from "@/features/subscription/types";
 import * as tutorApi from "@/features/tutor/api";
 import TutorAsk from "@/features/tutor/components/TutorAsk";
 import TutorOffer from "@/features/tutor/components/TutorOffer";
@@ -17,7 +15,8 @@ import TutorSummaryLine from "@/features/tutor/components/TutorSummaryLine";
 import TutorSwitch from "@/features/tutor/components/TutorSwitch";
 import { useTutorMode } from "@/features/tutor/hooks/useTutorMode";
 import type { PracticeWord, TutorSummary } from "@/features/tutor/types";
-import { useQuota } from "@/hooks/useQuota";
+import { useAiEnergy } from "@/hooks/useAiEnergy";
+import { useQuotaStore } from "@/stores/quotaStore";
 import { toast } from "@/stores/toastStore";
 import { useAssessAttempt } from "../hooks/useShadowing";
 import { useModelPlayer } from "../hooks/useModelPlayer";
@@ -30,7 +29,7 @@ import AiFeedbackCard from "./AiFeedbackCard";
 import AttemptResult from "./AttemptResult";
 import ControlBar from "./ControlBar";
 import MediaBar from "./MediaBar";
-import { MessageNote, MicDeniedNote, QuotaOutNote } from "./Notes";
+import { MessageNote, MicDeniedNote } from "./Notes";
 import QuotaChip from "./QuotaChip";
 import SentenceList from "./SentenceList";
 import SentenceWords from "./SentenceWords";
@@ -48,7 +47,6 @@ type Phase = "idle" | "recording" | "scoring";
 
 type Note =
   | { kind: "mic" }
-  | { kind: "quota" }
   | { kind: "message"; title?: string; body: string; retry: boolean };
 
 /** Lời mời gia sư vừa nhận được sau một Lượt shadowing, chờ đếm ngược xong hoặc bị bỏ qua. */
@@ -88,12 +86,10 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 export default function ShadowingPractice({ lesson, sentences, latest }: ShadowingPracticeProps) {
   const { t } = useTranslation("pages");
   const navigate = useNavigate();
-  const { isPro, remaining, maxActions, setShowUpgradeModal, incrementQuota } = useQuota();
+  const { isPro, tutorOut: tutorQuotaOut, tutorSessionsPerDay, refresh: refreshEnergy } = useAiEnergy();
+  const setShowUpgradeModal = useQuotaStore((s) => s.setShowUpgradeModal);
   const assess = useAssessAttempt();
   const tutorMode = useTutorMode(lesson.id);
-  const tutorUsage = useFeatureUsage(FEATURE_TUTOR);
-  // Free hết phiên gia sư hôm nay: gia sư không tự mời, nút "Hỏi gia sư" thành nút mở Pro
-  const tutorQuotaOut = !isPro && tutorUsage?.remaining != null && tutorUsage.remaining <= 0;
   const [tutorOffer, setTutorOffer] = useState<TutorOfferState | null>(null);
   const [tutorSession, setTutorSession] = useState<TutorSessionState | null>(null);
   const [tutorSummaries, setTutorSummaries] = useState<Record<string, TutorSummary>>({});
@@ -144,8 +140,6 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const record = records[sentence.id];
   const doneCount = sentences.filter((s) => records[s.id]).length;
   const finished = doneCount === sentences.length;
-  // remaining === null: không giới hạn hoặc chưa biết số liệu
-  const outOfAttempts = remaining !== null && remaining <= 0;
   const busy = phase !== "idle" || tutorActive;
 
   const replaceMine = useCallback((blob: Blob | null) => {
@@ -249,15 +243,9 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
       return;
     }
     replaceMine(wav);
-    if (outOfAttempts) {
-      // Vẫn giữ bản ghi để tự nghe lại, chỉ không chấm (BR-SHADOW-01)
-      setPhase("idle");
-      setNote({ kind: "quota" });
-      return;
-    }
     retryRef.current = () => submit(sentence.id, wav);
     submit(sentence.id, wav);
-  }, [outOfAttempts, replaceMine, sentence.id, stopMic, submit, t]);
+  }, [replaceMine, sentence.id, stopMic, submit, t]);
 
   // Tự dừng khi quá dài: gấp đôi độ dài câu mẫu, trong khoảng 4–20 giây
   useEffect(() => {
@@ -412,15 +400,6 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
           clamp((positionMs - sentence.startMs) / Math.max(500, sentence.endMs - sentence.startMs), 0, 1),
         )
       : -1;
-  const quotaNote = (
-    <QuotaOutNote
-      limit={maxActions}
-      showUpgrade={!isPro}
-      onUpgrade={() => setShowUpgradeModal(true)}
-      onNext={goNext}
-      nextLabel={t(`${K}.next`)}
-    />
-  );
 
   return (
     <section className="w-full" aria-labelledby="sh-title">
@@ -450,6 +429,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
               if (!on) dropOffer();
             }}
           />
+          <QuotaChip />
           <SegmentedControl
             ariaLabel={t(`${K}.tabs.label`)}
             options={[
@@ -510,8 +490,6 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
               <span className="text-sm text-text-muted">
                 {record ? t(`${K}.readCount`, { count: record.count }) : t(`${K}.unread`)}
               </span>
-              <span className="flex-1" />
-              {tab === "practice" && <QuotaChip />}
             </div>
 
             {tab === "watch" ? (
@@ -535,7 +513,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                   onUpgrade={() => setShowUpgradeModal(true, "tutor")}
                   onEnded={(summary) => {
                     setTutorSummaries((prev) => ({ ...prev, [tutorSession.sentenceId]: summary }));
-                    incrementQuota(); // phiên đã trừ lượt (hoặc không): đọc lại hạn mức từ server
+                    refreshEnergy(); // phiên đã trừ năng lượng (hoặc không): đọc lại từ server
                   }}
                   onClose={() => setTutorSession(null)}
                 />
@@ -546,7 +524,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                   <TutorAsk
                     onEnable={() => tutorMode.answer(true)}
                     onDecline={() => tutorMode.answer(false)}
-                    freeLimit={isPro ? null : (tutorUsage?.limit ?? null)}
+                    freeLimit={isPro ? null : tutorSessionsPerDay}
                   />
                 )}
                 <ControlBar
@@ -594,7 +572,6 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                       }}
                     />
                   )}
-                  {note?.kind === "quota" && quotaNote}
                   {note?.kind === "message" && (
                     <MessageNote
                       title={note.title}
@@ -602,7 +579,6 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                       onRetry={note.retry ? () => retryRef.current?.() : undefined}
                     />
                   )}
-                  {!note && outOfAttempts && phase === "idle" && !record && quotaNote}
                 </div>
 
                 {record && (
@@ -639,7 +615,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                       key={record.attemptId}
                       attemptId={record.attemptId}
                       saved={record.aiFeedback}
-                      onUpgrade={() => setShowUpgradeModal(true)}
+                      onUpgrade={() => setShowUpgradeModal(true, "ai_feedback")}
                     />
                     {selectedWord && (
                       <div className="mt-4">
@@ -648,7 +624,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                           word={selectedWord}
                           ipa={selectedIpa}
                           onClose={() => setSelected(null)}
-                          onUpgrade={() => setShowUpgradeModal(true)}
+                          onUpgrade={() => setShowUpgradeModal(true, "pro")}
                         />
                       </div>
                     )}
@@ -689,12 +665,10 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   );
 }
 
-/** Mã lỗi của server → thông báo cho người học (UC-SHADOW-01). Mọi lỗi này đều không tính vào hạn mức. */
+/** Mã lỗi của server → thông báo cho người học (UC-SHADOW-01). Chấm shadowing không tốn năng lượng AI (BR-QUOTA-01). */
 function noteFromError(err: unknown, t: TFunction<"pages">): Note {
   const e = toApiError(err);
   switch (e.code) {
-    case "QUOTA_EXCEEDED":
-      return { kind: "quota" };
     case "SHADOWING_NO_SPEECH":
       return { kind: "message", body: t(`${K}.notes.noSpeech`), retry: false };
     case "AI_CONSENT_REQUIRED":

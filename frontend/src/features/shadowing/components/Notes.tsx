@@ -30,41 +30,6 @@ export function MicDeniedNote({ onRetry, onListen }: { onRetry: () => void; onLi
   );
 }
 
-export function QuotaOutNote({
-  limit,
-  showUpgrade,
-  onUpgrade,
-  onNext,
-  nextLabel,
-}: {
-  limit: number;
-  showUpgrade: boolean;
-  onUpgrade: () => void;
-  onNext: () => void;
-  nextLabel: string;
-}) {
-  const { t } = useTranslation("pages");
-  return (
-    <div role="status" className="flex flex-wrap items-center gap-3 rounded-lg border border-danger/40 bg-danger/10 p-4">
-      <Icon name="timer" className="text-2xl text-danger" />
-      <div className="min-w-48 flex-1">
-        <b>{t(`${K}.quotaTitle`, { limit })}</b>
-        <p className="mt-1 text-sm text-text-muted">{t(`${K}.quotaBody`)}</p>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button variant="ghost" size="sm" onClick={onNext}>
-          {nextLabel}
-        </Button>
-        {showUpgrade && (
-          <Button size="sm" onClick={onUpgrade} leftIcon={<Icon name="crown" />}>
-            {t(`${K}.upgrade`)}
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export function MessageNote({
   title,
   body,

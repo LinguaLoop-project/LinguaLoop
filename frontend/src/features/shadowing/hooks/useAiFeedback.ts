@@ -6,7 +6,7 @@ import { shadowingService } from "../services/shadowingService";
 
 /**
  * Xin Nhận xét AI cho một lượt và nhận chữ dần trong `text` (giao diện hiện chữ chạy ra thay vì chờ cả đoạn). Phản hồi
- * cuối kèm số lượt mới nên cập nhật thẳng vào mức dùng thay vì gọi lại /me/usage.
+ * cuối kèm mức năng lượng mới nên cập nhật thẳng vào mức dùng thay vì gọi lại /me/usage.
  */
 export const useAiFeedback = () => {
   const queryClient = useQueryClient();
@@ -18,11 +18,11 @@ export const useAiFeedback = () => {
     },
     onSuccess: (result) => {
       queryClient.setQueryData<UsageResponse>(USAGE_QUERY_KEY, (old) =>
-        old ? { features: old.features.map((f) => (f.feature === result.usage.feature ? result.usage : f)) } : old,
+        old ? { ...old, features: old.features.map((f) => (f.feature === result.usage.feature ? result.usage : f)) } : old,
       );
     },
     onError: () => {
-      // Hết lượt hoặc đã được hoàn lượt: đọc lại cho đúng
+      // Hết năng lượng hoặc đã được hoàn lại: đọc lại cho đúng
       void queryClient.invalidateQueries({ queryKey: USAGE_QUERY_KEY });
     },
   });

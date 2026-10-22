@@ -1,6 +1,7 @@
 package com.lingualoop.backend.subscription.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lingualoop.backend.common.response.ApiResponse;
 import com.lingualoop.backend.security.CurrentUserId;
+import com.lingualoop.backend.subscription.constant.AiAction;
 import com.lingualoop.backend.subscription.dto.FeatureUsage;
 import com.lingualoop.backend.subscription.service.UsageService;
 
@@ -19,13 +21,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsageController {
 
-    public record UsageResponse(List<FeatureUsage> features) {
+    /** {@code costs}: giá năng lượng của từng hoạt động AI (BR-QUOTA-01), để giao diện không phải cứng số. */
+    public record UsageResponse(List<FeatureUsage> features, Map<String, Integer> costs) {
     }
 
     private final UsageService usageService;
 
     @GetMapping
     public ApiResponse<UsageResponse> getUsage(@CurrentUserId UUID userId) {
-        return ApiResponse.ok(new UsageResponse(usageService.usageOf(userId)));
+        return ApiResponse.ok(new UsageResponse(usageService.usageOf(userId), AiAction.costs()));
     }
 }

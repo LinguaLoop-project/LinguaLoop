@@ -27,12 +27,16 @@
   },
   "upgradeModal": {
     "close": "Đóng",
-    "title": "Đã hết lượt dùng thử!",
-    "description": "Bạn đã sử dụng hết {{count}} lượt hành động miễn phí trong ngày hôm nay. Nâng cấp lên <b>LinguaLoop Pro</b> để sử dụng không giới hạn.",
-    "titleTutor": "Đã hết phiên gia sư hôm nay!",
-    "descriptionTutor": "Gói miễn phí có số phiên gia sư giới hạn mỗi ngày và bạn đã dùng hết hôm nay. Nâng cấp lên <b>LinguaLoop Pro</b> để học cùng gia sư không giới hạn.",
+    "title": "Đã hết năng lượng AI hôm nay!",
+    "description": "Bạn đã sử dụng hết {{count}} năng lượng AI miễn phí trong ngày hôm nay. Nâng cấp lên <b>LinguaLoop Pro</b> để sử dụng không giới hạn.",
+    "titleTutor": "Không đủ năng lượng cho phiên gia sư!",
+    "titlePro": "Nội dung dành cho gói Pro",
+    "descriptionPro": "Bài học hoặc tính năng này chỉ có ở <b>LinguaLoop Pro</b>. Luyện shadowing cơ bản vẫn không giới hạn cho mọi gói.",
+    "titleFeedback": "Đã hết năng lượng cho nhận xét AI!",
+    "descriptionFeedback": "Bạn không còn đủ năng lượng AI để xin nhận xét hôm nay (miễn phí {{count}} năng lượng mỗi ngày). Luyện shadowing vẫn không giới hạn. Nâng cấp lên <b>LinguaLoop Pro</b> để dùng AI không giới hạn.",
+    "descriptionTutor": "Mỗi phiên gia sư tốn {{cost}} năng lượng AI và bạn không còn đủ năng lượng hôm nay. Nâng cấp lên <b>LinguaLoop Pro</b> để học cùng gia sư không giới hạn.",
     "benefits": {
-      "unlimited": "Không giới hạn số lượt hành động",
+      "unlimited": "Không giới hạn năng lượng AI",
       "advanced": "Mở khóa tất cả bài học nâng cao",
       "support": "Hỗ trợ cá nhân hóa 24/7"
     },
@@ -59,9 +63,7 @@
     "back": "Quay lại trang trước",
     "homeAdmin": "Tổng quan Quản trị",
     "homeInstructor": "Tổng quan Giảng viên",
-    "homeStudent": "Về Hôm nay",
-    "tryQuota": "Thử Action (Quota)",
-    "quotaSuccess": "Đã thực hiện một hành động thành công!"
+    "homeStudent": "Về Hôm nay"
   },
   "error": {
     "retry": "Thử lại",

@@ -43,7 +43,6 @@ export interface AttemptResponse {
   prosody: number | null;
   recognizedText: string;
   words: WordResult[];
-  usage: FeatureUsage;
 }
 
 export interface LatestAttempt {

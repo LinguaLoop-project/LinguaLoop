@@ -10,13 +10,16 @@ import com.lingualoop.backend.subscription.dto.UsageTicket;
 public interface UsageService {
 
     /**
-     * Giữ chỗ một lượt bằng phép tăng nguyên tử có điều kiện, nên các yêu cầu đồng thời không vượt hạn mức.
+     * Giữ chỗ theo {@code cost} bằng phép tăng nguyên tử có điều kiện, nên các yêu cầu đồng thời không vượt hạn mức.
      *
-     * @throws com.lingualoop.backend.common.exception.BusinessException {@code QUOTA_EXCEEDED} khi hết lượt
+     * @throws com.lingualoop.backend.common.exception.BusinessException {@code QUOTA_EXCEEDED} khi không đủ năng lượng
      */
-    UsageTicket tryConsume(UUID userId, String feature);
+    UsageTicket tryConsume(UUID userId, String feature, int cost, String action);
 
-    /** Trả lại lượt đã giữ chỗ (không xuống dưới 0). */
+    /** Như trên, không kèm hành động trong chi tiết lỗi {@code QUOTA_EXCEEDED}. */
+    UsageTicket tryConsume(UUID userId, String feature, int cost);
+
+    /** Trả lại số năng lượng đã giữ chỗ (không xuống dưới 0). */
     void refund(UUID userId, UsageTicket ticket);
 
     /** Mức dùng của mọi tính năng có hạn mức theo gói hiện tại. */

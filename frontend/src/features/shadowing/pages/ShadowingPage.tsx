@@ -6,7 +6,7 @@ import Icon from "@/components/common/Icon";
 import Skeleton from "@/components/common/Skeleton";
 import QueryError from "@/features/lesson/components/QueryError";
 import { useLessonDetail, useLessonSentences } from "@/features/lesson/hooks/useLessons";
-import { useQuota } from "@/hooks/useQuota";
+import { useQuotaStore } from "@/stores/quotaStore";
 import ShadowingPractice from "../components/ShadowingPractice";
 import { useLatestAttempts } from "../hooks/useShadowing";
 
@@ -31,7 +31,7 @@ const PracticeSkeleton = () => (
 export default function ShadowingPage() {
   const { slug = "" } = useParams<{ slug: string }>();
   const { t } = useTranslation("pages");
-  const { setShowUpgradeModal } = useQuota();
+  const setShowUpgradeModal = useQuotaStore((s) => s.setShowUpgradeModal);
 
   const lessonQuery = useLessonDetail(slug);
   const lesson = lessonQuery.data;
@@ -73,7 +73,7 @@ export default function ShadowingPage() {
           className="mx-auto max-w-md"
         >
           <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <Button onClick={() => setShowUpgradeModal(true)} leftIcon={<Icon name="crown" />}>
+            <Button onClick={() => setShowUpgradeModal(true, "pro")} leftIcon={<Icon name="crown" />}>
               {t(`${K}.locked.upgrade`)}
             </Button>
             {backToLibrary}
