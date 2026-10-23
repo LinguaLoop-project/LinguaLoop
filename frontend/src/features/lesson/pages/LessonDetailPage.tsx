@@ -147,7 +147,7 @@ export const LessonDetailPage = () => {
         <aside className="flex min-w-0 flex-col gap-6">
           <ProgressCard progress={lesson.progress} />
           <VocabCard />
-          <NotesCard />
+          <NotesCard slug={lesson.slug} locked={lesson.locked} />
           <RelatedLessons lessons={lesson.relatedLessons ?? []} topicSlug={topicSlug} />
         </aside>
       </div>

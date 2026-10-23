@@ -1,0 +1,45 @@
+{
+  "overline": "Saved words & sentences",
+  "title": "Saved words & sentences",
+  "subtitle": "Sentences to practice again and your notes.",
+  "loading": "Loading",
+  "loadFailed": "Couldn't load the data. Please try again.",
+  "offline": "You're offline. Try again when you're back online.",
+  "retry": "Retry",
+  "tabs": {
+    "label": "Sections",
+    "review": "Sentences to review",
+    "notes": "Notes"
+  },
+  "review": {
+    "tip": "A sentence joins this list when you score under {{low}}. Practice it again and score {{high}} or more to take it off.",
+    "count_one": "{{count}} sentence waiting · lowest scores first",
+    "count_other": "{{count}} sentences waiting · lowest scores first",
+    "mode": "Dictation",
+    "lastScore": "Last score {{score}}",
+    "reason": {
+      "low_score": "Low score",
+      "manual": "Pinned",
+      "many_mistakes": "Many mistakes",
+      "replayed_often": "Replayed often"
+    },
+    "resolve": "I'm fine",
+    "resolved": "Removed the sentence from the list",
+    "resolveFailed": "Couldn't update. Please try again.",
+    "practice": "Practice again",
+    "emptyTitle": "No sentences to review",
+    "emptyDesc": "Great work! Low-scoring sentences will show up here automatically."
+  },
+  "notes": {
+    "hint": "Notes are attached to individual sentences. While practicing, press N to add one.",
+    "emptyTitle": "No notes yet",
+    "emptyDesc": "Finish a dictation sentence, then press N to write a note for it.",
+    "edit": "Edit note",
+    "delete": "Delete note",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saved": "Note saved",
+    "deleted": "Note deleted",
+    "failed": "Couldn't update the note. Please try again."
+  }
+}

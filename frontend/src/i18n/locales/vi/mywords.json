@@ -1,0 +1,44 @@
+{
+  "overline": "Từ & câu đã lưu",
+  "title": "Từ & câu đã lưu",
+  "subtitle": "Các câu cần luyện lại và ghi chú của bạn.",
+  "loading": "Đang tải",
+  "loadFailed": "Chưa tải được dữ liệu. Thử lại nhé.",
+  "offline": "Bạn đang mất mạng. Thử lại khi có mạng.",
+  "retry": "Thử lại",
+  "tabs": {
+    "label": "Danh mục",
+    "review": "Câu cần ôn",
+    "notes": "Ghi chú"
+  },
+  "review": {
+    "tip": "Câu tự vào danh sách khi bạn được dưới {{low}} điểm. Luyện lại đạt từ {{high}} điểm là câu tự rời danh sách.",
+    "count_other": "{{count}} câu đang chờ · ưu tiên câu điểm thấp",
+    "mode": "Nghe chép",
+    "lastScore": "Lần cuối {{score}} điểm",
+    "reason": {
+      "low_score": "Điểm thấp",
+      "manual": "Tự ghim",
+      "many_mistakes": "Sai nhiều",
+      "replayed_often": "Nghe lại nhiều"
+    },
+    "resolve": "Đã ổn",
+    "resolved": "Đã bỏ câu khỏi danh sách",
+    "resolveFailed": "Chưa cập nhật được. Thử lại nhé.",
+    "practice": "Luyện lại",
+    "emptyTitle": "Không còn câu nào cần ôn",
+    "emptyDesc": "Làm tốt lắm! Câu điểm thấp sẽ tự xuất hiện ở đây."
+  },
+  "notes": {
+    "hint": "Ghi chú gắn với từng câu. Trong lúc luyện, bấm N để thêm.",
+    "emptyTitle": "Chưa có ghi chú nào",
+    "emptyDesc": "Làm một câu nghe chép rồi bấm N để viết ghi chú cho câu đó.",
+    "edit": "Sửa ghi chú",
+    "delete": "Xoá ghi chú",
+    "save": "Lưu",
+    "cancel": "Huỷ",
+    "saved": "Đã lưu ghi chú",
+    "deleted": "Đã xoá ghi chú",
+    "failed": "Chưa cập nhật được ghi chú. Thử lại nhé."
+  }
+}

@@ -6,11 +6,13 @@ import viAuth from "./locales/vi/auth.json";
 import viLayout from "./locales/vi/layout.json";
 import viPages from "./locales/vi/pages.json";
 import viDictation from "./locales/vi/dictation.json";
+import viMywords from "./locales/vi/mywords.json";
 import enCommon from "./locales/en/common.json";
 import enAuth from "./locales/en/auth.json";
 import enLayout from "./locales/en/layout.json";
 import enPages from "./locales/en/pages.json";
 import enDictation from "./locales/en/dictation.json";
+import enMywords from "./locales/en/mywords.json";
 
 export const SUPPORTED_LANGUAGES = ["vi", "en"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
@@ -45,14 +47,14 @@ export function setLanguage(language: Language): Promise<unknown> {
 
 void i18n.use(initReactI18next).init({
   resources: {
-    vi: { common: viCommon, auth: viAuth, layout: viLayout, pages: viPages, dictation: viDictation },
-    en: { common: enCommon, auth: enAuth, layout: enLayout, pages: enPages, dictation: enDictation },
+    vi: { common: viCommon, auth: viAuth, layout: viLayout, pages: viPages, dictation: viDictation, mywords: viMywords },
+    en: { common: enCommon, auth: enAuth, layout: enLayout, pages: enPages, dictation: enDictation, mywords: enMywords },
   },
   lng: readStoredLanguage(),
   fallbackLng: DEFAULT_LANGUAGE,
   supportedLngs: SUPPORTED_LANGUAGES,
   defaultNS: "common",
-  ns: ["common", "auth", "layout", "pages", "dictation"],
+  ns: ["common", "auth", "layout", "pages", "dictation", "mywords"],
   interpolation: { escapeValue: false }, // React đã escape
   returnNull: false,
 });
