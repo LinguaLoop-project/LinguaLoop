@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { dictationApi } from "./api";
 import type {
   AttemptResult,
   DictationLesson,
   DictationLevel,
+  DictationSentence,
   DictationSettings,
   PlaybackRate,
   RevealWordBody,
@@ -20,6 +21,8 @@ const NETWORK_MODE = "always" as const;
 export const dictationKeys = {
   lesson: (slug: string) => ["dictation", "lesson", slug] as const,
   latest: (sentenceId: string) => ["dictation", "latest", sentenceId] as const,
+  history: (sentenceId: string) => ["dictation", "history", sentenceId] as const,
+  attempt: (sentenceId: string, attemptId: number) => ["dictation", "attempt", sentenceId, attemptId] as const,
   prompt: (sentenceId: string, level: DictationLevel, nonce: number) =>
     ["dictation", "prompt", sentenceId, level, nonce] as const,
 };
@@ -58,6 +61,66 @@ export const useLatestAttempt = (sentenceId: string | undefined, enabled: boolea
     networkMode: NETWORK_MODE,
   });
 
+/** Lịch sử lượt làm của câu; chỉ tải khi bảng lịch sử đang mở. */
+export const useAttemptHistory = (sentenceId: string | undefined, enabled: boolean) =>
+  useQuery({
+    queryKey: dictationKeys.history(sentenceId ?? ""),
+    queryFn: () => dictationApi.getAttemptHistory(sentenceId!),
+    enabled: enabled && !!sentenceId,
+    networkMode: NETWORK_MODE,
+  });
+
+/** Kết quả từng từ của một lượt trong lịch sử; lượt đã lưu không đổi nên không tải lại. */
+export const useHistoryAttempt = (sentenceId: string | undefined, attemptId: number | null) =>
+  useQuery({
+    queryKey: dictationKeys.attempt(sentenceId ?? "", attemptId ?? 0),
+    queryFn: () => dictationApi.getAttempt(sentenceId!, attemptId!),
+    enabled: !!sentenceId && attemptId !== null,
+    staleTime: Infinity,
+    retry: false,
+    networkMode: NETWORK_MODE,
+  });
+
+/** Cập nhật một câu trong cache của bài (ghi chú, trạng thái Câu cần ôn). */
+function patchSentence(queryClient: QueryClient, slug: string, sentenceId: string, patch: Partial<DictationSentence>) {
+  queryClient.setQueryData<DictationLesson>(dictationKeys.lesson(slug), (lesson) =>
+    lesson
+      ? { ...lesson, sentences: lesson.sentences.map((s) => (s.id === sentenceId ? { ...s, ...patch } : s)) }
+      : lesson,
+  );
+}
+
+/** Lưu ghi chú của câu (đã lưu thì thay nội dung). */
+export const useSaveNote = (slug: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    networkMode: NETWORK_MODE,
+    mutationFn: ({ sentenceId, content }: { sentenceId: string; content: string }) =>
+      dictationApi.saveNote(sentenceId, content),
+    onSuccess: (note) => patchSentence(queryClient, slug, note.sentenceId, { note: note.content }),
+  });
+};
+
+export const useDeleteNote = (slug: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    networkMode: NETWORK_MODE,
+    mutationFn: (sentenceId: string) => dictationApi.deleteNote(sentenceId),
+    onSuccess: (_data, sentenceId) => patchSentence(queryClient, slug, sentenceId, { note: null }),
+  });
+};
+
+/** Ghim hoặc bỏ ghim một câu khỏi Câu cần ôn. */
+export const useSetReview = (slug: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    networkMode: NETWORK_MODE,
+    mutationFn: ({ sentenceId, pinned }: { sentenceId: string; pinned: boolean }) =>
+      pinned ? dictationApi.pinReview(sentenceId) : dictationApi.resolveReview(sentenceId),
+    onSuccess: (_data, { sentenceId, pinned }) => patchSentence(queryClient, slug, sentenceId, { inReview: pinned }),
+  });
+};
+
 /** Xin lộ một từ. Không lưu gì ở backend và không đụng cache: từ đã lộ chỉ được tính khi nộp bài. */
 export const useRevealWord = () =>
   useMutation({
@@ -75,6 +138,7 @@ export const useSubmitAttempt = (slug: string) => {
       dictationApi.submitAttempt(sentenceId, body),
     onSuccess: (result: AttemptResult, { sentenceId, body }) => {
       queryClient.setQueryData<AttemptResult>(dictationKeys.latest(sentenceId), result);
+      void queryClient.invalidateQueries({ queryKey: dictationKeys.history(sentenceId) });
       queryClient.setQueryData<DictationLesson>(dictationKeys.lesson(slug), (lesson) =>
         lesson
           ? {
@@ -99,6 +163,8 @@ export const useSubmitAttempt = (slug: string) => {
             }
           : lesson,
       );
+      // Câu có vào Câu cần ôn hay không do backend quyết định (điểm dưới 60 thì thêm, từ 80 thì gỡ).
+      void queryClient.invalidateQueries({ queryKey: dictationKeys.lesson(slug) });
     },
   });
 };

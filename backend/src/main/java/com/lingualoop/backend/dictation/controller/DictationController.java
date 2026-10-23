@@ -1,5 +1,6 @@
 package com.lingualoop.backend.dictation.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import com.lingualoop.backend.dictation.dto.request.RevealWordRequest;
 import com.lingualoop.backend.dictation.dto.request.SubmitAttemptRequest;
 import com.lingualoop.backend.dictation.dto.response.AttemptResultResponse;
 import com.lingualoop.backend.dictation.dto.response.DictationLessonResponse;
+import com.lingualoop.backend.dictation.dto.response.DictationLessonResponse.LatestResult;
 import com.lingualoop.backend.dictation.dto.response.PromptResponse;
 import com.lingualoop.backend.dictation.dto.response.RevealWordResponse;
 import com.lingualoop.backend.dictation.service.DictationService;
@@ -51,6 +53,17 @@ public class DictationController {
     @GetMapping("/sentences/{id}/attempts/latest")
     public ApiResponse<AttemptResultResponse> getLatestAttempt(@CurrentUserId UUID userId, @PathVariable UUID id) {
         return ApiResponse.ok(dictationService.getLatestAttempt(userId, id));
+    }
+
+    @GetMapping("/sentences/{id}/attempts")
+    public ApiResponse<List<LatestResult>> getAttemptHistory(@CurrentUserId UUID userId, @PathVariable UUID id) {
+        return ApiResponse.ok(dictationService.getAttemptHistory(userId, id));
+    }
+
+    @GetMapping("/sentences/{id}/attempts/{attemptId}")
+    public ApiResponse<AttemptResultResponse> getAttempt(@CurrentUserId UUID userId, @PathVariable UUID id,
+            @PathVariable long attemptId) {
+        return ApiResponse.ok(dictationService.getAttempt(userId, id, attemptId));
     }
 
     @PostMapping("/sentences/{id}/attempts")

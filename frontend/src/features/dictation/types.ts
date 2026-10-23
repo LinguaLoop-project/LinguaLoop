@@ -30,6 +30,10 @@ export interface DictationSentence {
   text: string | null;
   textVi: string | null;
   latest: LatestResult | null;
+  /** Câu đang trong danh sách Câu cần ôn. */
+  inReview: boolean;
+  /** Ghi chú của người học cho câu; null nếu chưa có. */
+  note: string | null;
 }
 
 export interface DictationLesson {
@@ -141,4 +145,11 @@ export interface DictationSettings {
   autoNext: boolean;
   showTranslation: boolean;
   hideVideo: boolean;
+}
+
+/** Ghi chú của người học cho một câu (`/api/v1/sentences/{id}/note`). */
+export interface SentenceNote {
+  sentenceId: string;
+  content: string;
+  updatedAt: string;
 }

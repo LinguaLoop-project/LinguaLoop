@@ -19,6 +19,12 @@ public interface PracticeAttemptService {
     /** Lượt nghe chép mới nhất của một câu kèm kết quả từng từ; rỗng nếu người dùng chưa làm câu này. */
     Optional<DictationAttemptDetailView> findLatestDictationAttempt(UUID userId, UUID sentenceId);
 
+    /** Mọi lượt nghe chép của một câu, mới nhất trước, không kèm kết quả từng từ. */
+    List<DictationAttemptView> findDictationAttempts(UUID userId, UUID sentenceId);
+
+    /** Một lượt nghe chép của câu kèm kết quả từng từ; rỗng nếu lượt không tồn tại hoặc không thuộc người dùng. */
+    Optional<DictationAttemptDetailView> findDictationAttempt(UUID userId, UUID sentenceId, long attemptId);
+
     /** Vị trí các ô đã khoét ở lượt Easy gần nhất của câu, lượt mới nhất đứng đầu. */
     List<List<Integer>> findRecentBlankPositions(UUID userId, UUID sentenceId, int limit);
 }

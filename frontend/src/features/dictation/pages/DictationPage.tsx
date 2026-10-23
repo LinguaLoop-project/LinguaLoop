@@ -17,6 +17,7 @@ import MediaBar from "../components/MediaBar";
 import PlayerControls from "../components/PlayerControls";
 import ResultDiff from "../components/ResultDiff";
 import SentenceList from "../components/SentenceList";
+import SentenceTools, { type ToolPanel } from "../components/SentenceTools";
 import SettingsPopover from "../components/SettingsPopover";
 import ShortcutsPopover from "../components/ShortcutsPopover";
 import {
@@ -47,6 +48,7 @@ import {
   isNetworkError,
   MAX_DURATION_MS,
   mergeRevealed,
+  REVIEW_ADD_BELOW,
   resultContext,
   submitErrorKind,
   type SubmitErrorKind,
@@ -96,6 +98,8 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   /** Gợi ý gần nhất ở mức Hard, hiện bên dưới ô gõ (không sửa chữ của người dùng). */
   const [hint, setHint] = useState<HardHint | null>(null);
   const [finished, setFinished] = useState(false);
+  /** Bảng ghi chú hoặc lịch sử đang mở dưới câu; đóng khi sang câu khác. */
+  const [panel, setPanel] = useState<ToolPanel | null>(null);
   /** Các câu đang được làm lại; lượt nộp tiếp theo của chúng gửi `retry = true`. */
   const [redo, setRedo] = useState<ReadonlySet<string>>(() => new Set());
   /** Kết quả từng từ của các câu làm trong phiên này (backend chưa trả lại chi tiết của lượt cũ). */
@@ -164,6 +168,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
     player.stop();
     submitAttempt.reset();
     setIndex(next);
+    setPanel(null);
     resetAttempt(level);
     const target = sentences[next];
     if (autoplay && !target.latest) {
@@ -191,6 +196,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
 
   const onAttemptDone = (attempt: AttemptResult) => {
     player.stop();
+    if (attempt.score < REVIEW_ADD_BELOW && !sentence.inReview) toast(t("tools.autoAdded"), { icon: "pin" });
     setResults((prev) => ({ ...prev, [sentence.id]: attempt }));
     setRedo((prev) => new Set([...prev].filter((id) => id !== sentence.id)));
   };
@@ -357,6 +363,9 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
     onPrevSentence: prevSentence,
     onNextSentence: nextSentence,
     onLevel: changeLevel,
+    onNote: () => {
+      if (sentence.latest) setPanel((current) => (current === "note" ? null : "note"));
+    },
     mode,
   });
 
@@ -515,6 +524,15 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
                     </Button>
                   </div>
                 </>
+              )}
+              {sentence.latest && (
+                <SentenceTools
+                  slug={lesson.slug}
+                  sentence={sentence}
+                  panel={panel}
+                  onPanelChange={setPanel}
+                  showTranslation={settings.showTranslation}
+                />
               )}
             </div>
           </div>

@@ -116,7 +116,9 @@
     "title": "Bản chép",
     "aria": "Bản chép các câu",
     "doing": "Đang làm",
-    "words_other": "{{count}} từ"
+    "words_other": "{{count}} từ",
+    "inReview": "Đang trong Câu cần ôn",
+    "hasNote": "Có ghi chú"
   },
   "settings": {
     "open": "Cài đặt",
@@ -136,7 +138,8 @@
     "prevNext": "Câu trước / sau",
     "level": "Mức Easy / Normal / Hard",
     "cloze": "Ô trống",
-    "clozeKeys": "Space sang ô kế · Backspace về ô trước"
+    "clozeKeys": "Space sang ô kế · Backspace về ô trước",
+    "note": "Ghi chú câu"
   },
   "state": {
     "loading": "Đang tải bài nghe chép",
@@ -174,5 +177,35 @@
     "allCorrect": "Các từ bạn gõ đều đúng rồi",
     "offline": "Mất mạng nên chưa lấy được gợi ý",
     "failed": "Chưa lấy được gợi ý, thử lại nhé"
+  },
+  "tools": {
+    "pin": "Đưa vào Câu cần ôn",
+    "unpin": "Bỏ khỏi Câu cần ôn",
+    "pinned": "Đã thêm câu này vào Câu cần ôn",
+    "unpinned": "Đã bỏ câu này khỏi Câu cần ôn",
+    "autoAdded": "Đã thêm câu này vào Câu cần ôn",
+    "pinFailed": "Chưa cập nhật được Câu cần ôn. Thử lại nhé.",
+    "noteAdd": "Thêm ghi chú",
+    "noteEdit": "Sửa ghi chú",
+    "history": "Lịch sử"
+  },
+  "note": {
+    "title": "Ghi chú của tôi",
+    "placeholder": "Viết điều bạn muốn nhớ về câu này",
+    "save": "Lưu",
+    "delete": "Xoá ghi chú",
+    "saved": "Đã lưu ghi chú",
+    "deleted": "Đã xoá ghi chú",
+    "failed": "Chưa lưu được ghi chú. Thử lại nhé.",
+    "offline": "Bạn đang mất mạng. Thử lại khi có mạng."
+  },
+  "history": {
+    "title": "Lịch sử các lượt làm",
+    "loading": "Đang tải lịch sử",
+    "empty": "Câu này chưa có lượt làm nào.",
+    "failed": "Chưa tải được lịch sử.",
+    "detailFailed": "Chưa tải được kết quả của lượt này.",
+    "retry": "Làm lại",
+    "gaveUp": "Bỏ cuộc"
   }
 }

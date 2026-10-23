@@ -118,7 +118,9 @@
     "aria": "Sentence transcript",
     "doing": "In progress",
     "words_one": "{{count}} word",
-    "words_other": "{{count}} words"
+    "words_other": "{{count}} words",
+    "inReview": "In Sentences to review",
+    "hasNote": "Has a note"
   },
   "settings": {
     "open": "Settings",
@@ -138,7 +140,8 @@
     "prevNext": "Previous / next sentence",
     "level": "Easy / Normal / Hard level",
     "cloze": "Blanks",
-    "clozeKeys": "Space next blank · Backspace previous"
+    "clozeKeys": "Space next blank · Backspace previous",
+    "note": "Sentence note"
   },
   "state": {
     "loading": "Loading dictation lesson",
@@ -176,5 +179,35 @@
     "allCorrect": "Every word you typed is correct",
     "offline": "You're offline, so no hint right now",
     "failed": "Couldn't get a hint, try again"
+  },
+  "tools": {
+    "pin": "Add to Sentences to review",
+    "unpin": "Remove from Sentences to review",
+    "pinned": "Added this sentence to Sentences to review",
+    "unpinned": "Removed this sentence from Sentences to review",
+    "autoAdded": "Added this sentence to Sentences to review",
+    "pinFailed": "Couldn't update Sentences to review. Please try again.",
+    "noteAdd": "Add note",
+    "noteEdit": "Edit note",
+    "history": "History"
+  },
+  "note": {
+    "title": "My note",
+    "placeholder": "Write what you want to remember about this sentence",
+    "save": "Save",
+    "delete": "Delete note",
+    "saved": "Note saved",
+    "deleted": "Note deleted",
+    "failed": "Couldn't save the note. Please try again.",
+    "offline": "You're offline. Try again when you're back online."
+  },
+  "history": {
+    "title": "Attempt history",
+    "loading": "Loading history",
+    "empty": "No attempts for this sentence yet.",
+    "failed": "Couldn't load the history.",
+    "detailFailed": "Couldn't load the result of this attempt.",
+    "retry": "Redo",
+    "gaveUp": "Gave up"
   }
 }
