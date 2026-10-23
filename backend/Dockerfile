@@ -21,13 +21,19 @@ RUN ./mvnw -B clean package -DskipTests
 RUN cp target/*.jar /build/app.jar
 
 # ---------- TẦNG 2: RUNTIME ----------
-FROM eclipse-temurin:21-jre-alpine AS runtime
+# Không dùng Alpine: Azure Speech SDK mang thư viện native build cho glibc,
+# cần libstdc++ và OpenSSL, nên không nạp được trên musl (lỗi
+# "libstdc++.so.6: No such file or directory" khi chấm Shadowing).
+FROM eclipse-temurin:21-jre-jammy AS runtime
 
-# curl cho HEALTHCHECK bên dưới.
-RUN apk add --no-cache curl
+# curl cho HEALTHCHECK; libstdc++6, libssl3, ca-certificates cho Speech SDK.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl libstdc++6 libssl3 ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
 # Chạy bằng user thường, không phải root.
-RUN addgroup -S lingualoop && adduser -S -D -G lingualoop lingualoop
+RUN groupadd --system lingualoop \
+ && useradd --system --gid lingualoop --no-create-home lingualoop
 
 WORKDIR /app
 
