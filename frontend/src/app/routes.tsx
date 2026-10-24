@@ -35,6 +35,7 @@ const TopicDetailPage = lazy(() =>
   import("@/features/lesson/pages/TopicDetailPage").then((m) => ({ default: m.TopicDetailPage })),
 );
 const DictationPage = lazy(() => import("@/features/dictation/pages/DictationPage"));
+const MyWordsPage = lazy(() => import("@/features/mywords/pages/MyWordsPage"));
 
 const ShadowingPage = lazy(() => import("@/features/shadowing/pages/ShadowingPage"));
 
@@ -158,7 +159,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "mywords",
-          element: <PlaceholderPage pageKey="student.mywords" />,
+          element: <MyWordsPage />,
         },
         {
           path: "weakness",

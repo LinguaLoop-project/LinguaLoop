@@ -1,10 +1,12 @@
 import { useState, type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import ProgressRing from "@/components/common/ProgressRing";
+import { useNotes } from "@/features/mywords";
+import { practiceUrl } from "@/features/mywords/links";
 import { formatDuration } from "@/lib/format";
 import type { LessonSummary, ModeProgress } from "../../types";
 import LessonThumb from "../LessonThumb";
@@ -127,22 +129,40 @@ export function VocabCard() {
   );
 }
 
-export function NotesCard() {
+export function NotesCard({ slug, locked }: { slug: string; locked: boolean }) {
   const { t } = useTranslation("pages");
+  const navigate = useNavigate();
+  const notesQuery = useNotes(locked ? undefined : slug);
+  const notes = locked ? [] : (notesQuery.data ?? []);
   return (
     <AsideCard
       title={t("student.lessonDetail.aside.notes", "Ghi chú của tôi")}
       aside={
-        <Button variant="text" size="sm" leftIcon={<Icon name="plus" />}>
-          {t("student.lessonDetail.aside.add", "Thêm")}
-        </Button>
+        locked ? undefined : (
+          <Button variant="text" size="sm" leftIcon={<Icon name="plus" />} onClick={() => navigate(`/student/dictation/${slug}`)}>
+            {t("student.lessonDetail.aside.add", "Thêm")}
+          </Button>
+        )
       }
     >
-      <p className="mt-2 text-[13px] leading-normal text-text-muted">
-        {t("student.lessonDetail.aside.noNotesBefore", "Chưa có ghi chú. Trong lúc luyện, bấm")}{" "}
-        <kbd className="rounded-md border border-border-strong bg-bg-elevated px-1.5 py-1 font-body text-[11px] font-semibold leading-none text-text-muted">N</kbd>{" "}
-        {t("student.lessonDetail.aside.noNotesAfter", "để ghi chú cho câu đang học.")}
-      </p>
+      {notes.length > 0 ? (
+        <ul className="mt-3 flex flex-col gap-3">
+          {notes.map((note) => (
+            <li key={note.sentenceId}>
+              <Link to={practiceUrl(slug, note.sentenceId)} className="block rounded-md border border-border bg-bg-elevated p-3 hover:border-border-strong">
+                <q className="line-clamp-2 text-xs italic text-text-muted">{note.text}</q>
+                <span className="mt-1 block whitespace-pre-wrap break-words text-[13px]">{note.content}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-[13px] leading-normal text-text-muted">
+          {t("student.lessonDetail.aside.noNotesBefore", "Chưa có ghi chú. Trong lúc luyện, bấm")}{" "}
+          <kbd className="rounded-md border border-border-strong bg-bg-elevated px-1.5 py-1 font-body text-[11px] font-semibold leading-none text-text-muted">N</kbd>{" "}
+          {t("student.lessonDetail.aside.noNotesAfter", "để ghi chú cho câu đang học.")}
+        </p>
+      )}
     </AsideCard>
   );
 }

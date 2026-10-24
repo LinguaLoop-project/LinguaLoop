@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import Button from "@/components/common/Button";
@@ -40,6 +40,7 @@ import type {
   RevealWordBody,
   SubmitAttemptBody,
 } from "../types";
+import { deepLinkTarget } from "../deepLink";
 import { useDictationShortcuts } from "../useDictationShortcuts";
 import { usePlayer } from "../usePlayer";
 import {
@@ -85,7 +86,11 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   const submitAttempt = useSubmitAttempt(lesson.slug);
   const revealWord = useRevealWord();
 
-  const [index, setIndex] = useState(() => Math.max(0, firstUndoneIndex(sentences, -1)));
+  const [searchParams] = useSearchParams();
+  /** Mở từ trang Câu cần ôn hoặc Ghi chú: nhảy thẳng tới câu, có thể ở chế độ làm lại. */
+  const [deepLink] = useState(() => deepLinkTarget(sentences, searchParams));
+
+  const [index, setIndex] = useState(() => deepLink?.index ?? Math.max(0, firstUndoneIndex(sentences, -1)));
   const [typed, setTyped] = useState("");
   const [replays, setReplays] = useState(0);
   const [workLevel, setWorkLevel] = useState<DictationLevel>(settings.level);
@@ -101,13 +106,15 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   /** Bảng ghi chú hoặc lịch sử đang mở dưới câu; đóng khi sang câu khác. */
   const [panel, setPanel] = useState<ToolPanel | null>(null);
   /** Các câu đang được làm lại; lượt nộp tiếp theo của chúng gửi `retry = true`. */
-  const [redo, setRedo] = useState<ReadonlySet<string>>(() => new Set());
+  const [redo, setRedo] = useState<ReadonlySet<string>>(() =>
+    deepLink?.redo ? new Set([sentences[deepLink.index].id]) : new Set(),
+  );
   /** Kết quả từng từ của các câu làm trong phiên này (backend chưa trả lại chi tiết của lượt cũ). */
   const [results, setResults] = useState<Record<string, AttemptResult>>({});
 
   const startedAt = useRef<number | null>(null);
   const autoplayTimer = useRef<number | undefined>(undefined);
-  const resumeShown = useRef(false);
+  const resumeShown = useRef(deepLink !== null);
   const videoRef = useRef<HTMLDivElement>(null);
 
   const videoId = getYouTubeVideoId(lesson.sourceUrl);
