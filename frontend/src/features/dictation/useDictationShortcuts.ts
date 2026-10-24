@@ -9,6 +9,8 @@ export interface ShortcutHandlers {
   onPrevSentence: () => void;
   onNextSentence: () => void;
   onLevel: (level: DictationLevel) => void;
+  /** Phím N: mở hoặc đóng ô ghi chú của câu. */
+  onNote: () => void;
   mode: "work" | "review";
 }
 
@@ -51,6 +53,16 @@ export function useDictationShortcuts(handlers: ShortcutHandlers) {
       } else if (event.altKey && LEVEL_BY_DIGIT[event.code]) {
         event.preventDefault();
         h.onLevel(LEVEL_BY_DIGIT[event.code]);
+      } else if (
+        event.code === "KeyN" &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.metaKey &&
+        !event.shiftKey &&
+        !isTypingTarget(event.target)
+      ) {
+        event.preventDefault();
+        h.onNote();
       } else if (
         event.key === "Enter" &&
         !event.shiftKey &&

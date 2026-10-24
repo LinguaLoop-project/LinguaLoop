@@ -33,6 +33,21 @@ public interface SentenceAttemptRepository extends JpaRepository<SentenceAttempt
     Optional<SentenceAttempt> findLatestDictationOfSentence(@Param("userId") UUID userId,
             @Param("sentenceId") UUID sentenceId);
 
+    /** Mọi lượt nghe chép của một câu, mới nhất trước. */
+    @Query(value = """
+            SELECT * FROM sentence_attempts
+            WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = 'dictation'
+            ORDER BY attempted_at DESC, id DESC""", nativeQuery = true)
+    List<SentenceAttempt> findDictationOfSentence(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId);
+
+    /** Một lượt nghe chép cụ thể, chỉ khi thuộc đúng người dùng và đúng câu. */
+    @Query(value = """
+            SELECT * FROM sentence_attempts
+            WHERE id = :attemptId AND user_id = :userId AND sentence_id = :sentenceId AND mode = 'dictation'""",
+            nativeQuery = true)
+    Optional<SentenceAttempt> findDictationById(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId,
+            @Param("attemptId") long attemptId);
+
     /** Các lượt Easy gần nhất của một câu, mới nhất trước. */
     @Query(value = """
             SELECT * FROM sentence_attempts

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Chip from "@/components/common/Chip";
+import Icon from "@/components/common/Icon";
 import ProgressBar from "@/components/common/ProgressBar";
 import type { DictationSentence } from "../types";
 import { LEVEL_CHIP, SCORE_BADGE, scoreTone } from "../utils";
@@ -63,6 +64,8 @@ export default function SentenceList({ sentences, currentIndex, onSelect }: Sent
               >
                 <span className="flex min-h-[22px] items-center gap-2">
                   <span className="rounded-[6px] border border-border bg-bg-elevated px-2 py-0.5 text-xs font-bold">#{i + 1}</span>
+                  {s.inReview && <Icon name="pin" className="h-3.5 w-3.5 text-danger" aria-label={t("list.inReview")} />}
+                  {s.note && <Icon name="sticky-note" className="h-3.5 w-3.5 text-text-muted" aria-label={t("list.hasNote")} />}
                   {s.latest && tone ? (
                     <>
                       <Badge tone={SCORE_BADGE[tone]}>{Math.round(s.latest.score)}</Badge>

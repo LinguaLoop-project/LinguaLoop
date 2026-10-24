@@ -14,9 +14,9 @@ public record DictationLessonResponse(UUID id, String slug, String title, String
         sentences = List.copyOf(sentences);
     }
 
-    /** text và textVi chỉ có khi câu đã có kết quả. */
+    /** text và textVi chỉ có khi câu đã có kết quả. inReview: câu đang trong Câu cần ôn; note: ghi chú của người học. */
     public record SentenceItem(UUID id, int sortOrder, int startMs, int endMs, int wordCount, String text,
-            String textVi, LatestResult latest) {
+            String textVi, LatestResult latest, boolean inReview, String note) {
     }
 
     public record LatestResult(long attemptId, DictationLevel level, BigDecimal score, boolean gaveUp,

@@ -45,6 +45,18 @@ class PracticeAttemptServiceImpl implements PracticeAttemptService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<DictationAttemptView> findDictationAttempts(UUID userId, UUID sentenceId) {
+        return mapper.toViews(attempts.findDictationOfSentence(userId, sentenceId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<DictationAttemptDetailView> findDictationAttempt(UUID userId, UUID sentenceId, long attemptId) {
+        return attempts.findDictationById(userId, sentenceId, attemptId).map(mapper::toDetailView);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<List<Integer>> findRecentBlankPositions(UUID userId, UUID sentenceId, int limit) {
         if (limit <= 0) {
             return List.of();

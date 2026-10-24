@@ -19,6 +19,9 @@ Trạng thái: `Nháp` → `Đã duyệt` (người dùng xác nhận) → `Đã
 | UC-DICT-05 | Xem đáp án cả câu | Học viên | Trung bình | Kế | 3 | Nháp |
 | UC-DICT-06 | Làm lại câu | Học viên | Trung bình | Kế | 2 | Nháp |
 | UC-DICT-07 | Hoàn thành bài | Học viên | Trung bình | Kế | 6 | Nháp |
+| UC-DICT-08 | Xem lịch sử lượt làm của câu | Học viên | Trung bình | Lâm | 3 | Nháp |
+| UC-DICT-09 | Ghi chú cho câu | Học viên | Trung bình | Lâm | 5 | Nháp |
+| UC-DICT-10 | Câu cần ôn | Học viên | Trung bình | Lâm | 8 | Nháp |
 | UC-LESSON-01 | Xem và lọc thư viện bài | Học viên | Cao | Lâm | 4 | Nháp |
 | UC-LESSON-02 | Xem chủ đề | Học viên | Cao | Lâm | 1 | Nháp |
 | UC-LESSON-03 | Xem chi tiết bài và transcript | Học viên | Cao | Lâm | 2 | Nháp |

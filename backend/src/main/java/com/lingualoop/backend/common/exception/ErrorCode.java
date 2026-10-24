@@ -41,6 +41,7 @@ public enum ErrorCode {
     LESSON_PRO_REQUIRED(HttpStatus.FORBIDDEN, "Bạn cần gói Pro để xem nội dung này"),
 
     DICTATION_EASY_UNAVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Câu này chưa có ô nào để điền, hãy chọn mức khác"),
+    PRACTICE_SENTENCE_NOT_PRACTICED(HttpStatus.UNPROCESSABLE_ENTITY, "Bạn cần làm câu này ít nhất một lần trước"),
     AI_CONSENT_REQUIRED(HttpStatus.FORBIDDEN, "Bạn cần đồng ý cho phép xử lý giọng nói bằng AI để dùng tính năng này"),
     SHADOWING_AUDIO_INVALID(HttpStatus.BAD_REQUEST, "Bản ghi âm không hợp lệ"),
     SHADOWING_NO_SPEECH(HttpStatus.UNPROCESSABLE_CONTENT, "Không nghe thấy giọng nói trong bản ghi âm"),

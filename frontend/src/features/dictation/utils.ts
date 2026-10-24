@@ -121,3 +121,6 @@ export const isNetworkError = (error: unknown): boolean => toApiError(error).cod
 
 /** Giới hạn của backend cho `durationMs`. */
 export const MAX_DURATION_MS = 3_600_000;
+
+/** Lượt dưới số điểm này đưa câu vào Câu cần ôn (BR-DICT-14); backend quyết định, đây chỉ để báo người học. */
+export const REVIEW_ADD_BELOW = 60;

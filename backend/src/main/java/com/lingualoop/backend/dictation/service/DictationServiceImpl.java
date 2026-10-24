@@ -59,6 +59,8 @@ import com.lingualoop.backend.practice.dto.request.DictationAttemptRequest;
 import com.lingualoop.backend.practice.enums.DictationLevel;
 import com.lingualoop.backend.practice.service.DictationStatsQueryService;
 import com.lingualoop.backend.practice.service.PracticeAttemptService;
+import com.lingualoop.backend.practice.service.SentenceNoteService;
+import com.lingualoop.backend.practice.service.SentenceReviewService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -74,6 +76,8 @@ class DictationServiceImpl implements DictationService {
     private final PracticeAttemptService practiceAttemptService;
     private final LessonProgressService lessonProgressService;
     private final DictationStatsQueryService statsQueryService;
+    private final SentenceReviewService reviewService;
+    private final SentenceNoteService noteService;
     private final SentenceTokenService tokenService;
     private final BlankPicker blankPicker;
     private final NextWordFinder nextWordFinder;
@@ -91,8 +95,10 @@ class DictationServiceImpl implements DictationService {
 
         Map<UUID, LatestResult> latest = practiceAttemptService.findLatestDictationAttempts(userId, lesson.id())
                 .stream().collect(Collectors.toMap(DictationAttemptView::sentenceId, mapper::toLatest));
+        Set<UUID> inReview = reviewService.findPendingSentenceIds(userId, lesson.id());
+        Map<UUID, String> notes = noteService.findContentsByLesson(userId, lesson.id());
         List<SentenceItem> sentences = sentenceQueryService.findSentences(lesson.id()).stream()
-                .map(s -> toItem(s, latest.get(s.id())))
+                .map(s -> toItem(s, latest.get(s.id()), inReview.contains(s.id()), notes.get(s.id())))
                 .toList();
         return new DictationLessonResponse(lesson.id(), lesson.slug(), lesson.title(), lesson.titleVi(),
                 lesson.difficulty(), lesson.pro(), lesson.sourceType(), lesson.sourceUrl(), lesson.durationSec(),
@@ -159,6 +165,7 @@ class DictationServiceImpl implements DictationService {
                 attemptWords(graded.words(), tokens.size())));
         int seconds = request.durationMs() == null ? 0 : request.durationMs() / 1000;
         lessonProgressService.recordActivity(userId, sentence.lessonId(), PracticeMode.dictation, seconds);
+        reviewService.recordDictationScore(userId, sentence.id(), graded.score());
 
         return new AttemptResultResponse(attemptId, request.level(), graded.score(), request.gaveUp(),
                 graded.words().stream().map(mapper::toResponse).toList(), classResults(graded.words()),
@@ -171,6 +178,27 @@ class DictationServiceImpl implements DictationService {
         SentenceView sentence = loadPracticeSentence(userId, sentenceId);
         DictationAttemptDetailView attempt = practiceAttemptService.findLatestDictationAttempt(userId, sentenceId)
                 .orElseThrow(() -> new NotFoundException("No dictation attempt for this sentence yet"));
+        return toResult(sentence, attempt);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LatestResult> getAttemptHistory(UUID userId, UUID sentenceId) {
+        loadPracticeSentence(userId, sentenceId);
+        return practiceAttemptService.findDictationAttempts(userId, sentenceId).stream().map(mapper::toLatest)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AttemptResultResponse getAttempt(UUID userId, UUID sentenceId, long attemptId) {
+        SentenceView sentence = loadPracticeSentence(userId, sentenceId);
+        DictationAttemptDetailView attempt = practiceAttemptService.findDictationAttempt(userId, sentenceId, attemptId)
+                .orElseThrow(() -> new NotFoundException("Dictation attempt not found"));
+        return toResult(sentence, attempt);
+    }
+
+    private AttemptResultResponse toResult(SentenceView sentence, DictationAttemptDetailView attempt) {
         List<SentenceToken> tokens = tokenService.tokenize(sentence.text());
         Map<Integer, SentenceToken> byPosition = tokens.stream()
                 .collect(Collectors.toMap(SentenceToken::position, t -> t));
@@ -285,10 +313,11 @@ class DictationServiceImpl implements DictationService {
     }
 
     /** Chữ của câu chỉ lộ ra khi câu đã có kết quả. */
-    private SentenceItem toItem(SentenceView sentence, LatestResult latest) {
+    private SentenceItem toItem(SentenceView sentence, LatestResult latest, boolean inReview, String note) {
         boolean done = latest != null;
         return new SentenceItem(sentence.id(), sentence.sortOrder(), sentence.startMs(), sentence.endMs(),
-                wordCount(sentence.text()), done ? sentence.text() : null, done ? sentence.textVi() : null, latest);
+                wordCount(sentence.text()), done ? sentence.text() : null, done ? sentence.textVi() : null, latest,
+                inReview, note);
     }
 
     private int wordCount(String text) {
