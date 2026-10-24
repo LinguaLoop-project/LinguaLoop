@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import { DictionarySearchButton } from "@/features/dictionary";
 import { useQuota } from "@/hooks/useQuota";
 import { useTheme } from "@/hooks/useTheme";
 import AccountMenu from "./AccountMenu";
@@ -111,6 +112,7 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
         </>
       )}
 
+      {learner && <DictionarySearchButton />}
       <span className="max-sm:hidden">
         <LanguageSwitcher />
       </span>

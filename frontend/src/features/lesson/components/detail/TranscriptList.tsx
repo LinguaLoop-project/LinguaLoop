@@ -5,6 +5,7 @@ import Button from "@/components/common/Button";
 import EmptyState from "@/components/common/EmptyState";
 import Icon from "@/components/common/Icon";
 import Skeleton from "@/components/common/Skeleton";
+import { ClickableText } from "@/features/dictionary";
 import { formatTimeMs } from "@/lib/format";
 import QueryError from "../QueryError";
 import type { SentenceResponse } from "../../types";
@@ -84,7 +85,9 @@ export default function TranscriptList({ sentences, locked, loading, error, onRe
                   {idx + 1}
                 </span>
                 <div className="min-w-0">
-                  <span className={`font-semibold transition-[filter] duration-200 ${revealed ? "" : "select-none blur-[6px]"}`}>{s.text}</span>
+                  <span className={`font-semibold transition-[filter] duration-200 ${revealed ? "" : "select-none blur-[6px]"}`}>
+                    {revealed ? <ClickableText text={s.text} /> : s.text}
+                  </span>
                   {revealed && s.ipa && <div className="select-text text-[13px] text-text-subtle">/{s.ipa.replace(/^\/|\/$/g, "")}/</div>}
                 </div>
                 <span className="flex items-center gap-2 text-[13px] text-text-subtle">
