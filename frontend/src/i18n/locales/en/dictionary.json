@@ -20,6 +20,7 @@
     "lemmaOf": "Inflected form of",
     "lemmaMeanings": "Meanings of the base word",
     "noMeaning": "No meaning available for this word yet.",
+    "otherPos": "Other",
     "listen": "Listen, {{accent}} accent",
     "listenWord": "Listen to {{word}}"
   },
