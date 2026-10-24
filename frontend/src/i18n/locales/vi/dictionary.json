@@ -1,0 +1,46 @@
+{
+  "title": "Từ điển",
+  "open": "Mở từ điển",
+  "close": "Đóng",
+  "search": {
+    "placeholder": "Nhập từ tiếng Anh cần tra...",
+    "aria": "Tra từ",
+    "hint": "Gõ một từ để tra nghĩa, phiên âm và ví dụ.",
+    "loading": "Đang tìm...",
+    "empty": "Không tìm thấy từ nào khớp với “{{query}}”."
+  },
+  "lookup": {
+    "loading": "Đang tra từ...",
+    "notFound": "Từ điển chưa có từ “{{word}}”.",
+    "error": "Không tra được từ lúc này. Thử lại nhé.",
+    "retry": "Thử lại",
+    "hint": "Bấm để tra nghĩa"
+  },
+  "word": {
+    "lemmaOf": "Dạng chia của",
+    "lemmaMeanings": "Nghĩa của từ gốc",
+    "noMeaning": "Chưa có nghĩa cho từ này.",
+    "listen": "Nghe phát âm {{accent}}",
+    "listenWord": "Nghe từ {{word}}"
+  },
+  "accent": {
+    "us": "US",
+    "uk": "UK"
+  },
+  "pos": {
+    "noun": "Danh từ",
+    "verb": "Động từ",
+    "adjective": "Tính từ",
+    "adverb": "Trạng từ",
+    "preposition": "Giới từ",
+    "conjunction": "Liên từ",
+    "pronoun": "Đại từ",
+    "interjection": "Thán từ",
+    "phrasal verb": "Cụm động từ",
+    "idiom": "Thành ngữ",
+    "phrase": "Cụm từ",
+    "abbreviation": "Viết tắt",
+    "prefix": "Tiền tố",
+    "suffix": "Hậu tố"
+  }
+}

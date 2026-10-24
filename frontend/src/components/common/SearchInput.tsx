@@ -11,6 +11,7 @@ export interface SearchInputProps {
   icon?: React.ReactNode;
   ariaLabel?: string;
   autoComplete?: string;
+  autoFocus?: boolean;
 }
 
 /** Ô tìm `.search-v2` của mockup: cao 44, bo md, viền border-strong, icon bên trái. */
@@ -24,6 +25,7 @@ const SearchInput = ({
   icon,
   ariaLabel = "Search",
   autoComplete = "off",
+  autoFocus = false,
 }: SearchInputProps) => {
   return (
     <div id={id} className={`relative min-w-[220px] flex-1 ${className}`}>
@@ -38,6 +40,7 @@ const SearchInput = ({
         onKeyDown={onKeyDown}
         aria-label={ariaLabel}
         autoComplete={autoComplete}
+        autoFocus={autoFocus}
         className="h-11 w-full rounded-md border border-border-strong bg-surface pl-[42px] pr-3.5 text-text outline-none transition-colors placeholder:text-text-subtle focus:border-primary"
       />
     </div>

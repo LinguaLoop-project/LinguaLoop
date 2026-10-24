@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Icon from "@/components/common/Icon";
 import Mascot, { type MascotMood } from "@/components/common/Mascot";
+import { ClickableText, LookupWord } from "@/features/dictionary";
 import type { DictationLevel, GradedWord, PromptToken, WordOutcome } from "../types";
 import { LEVEL_CHIP, SCORE_TEXT, scoreTone } from "../utils";
 
@@ -60,8 +61,13 @@ const moodFor = (score: number): { mood: MascotMood; key: string } =>
 function Token({ word }: { word: GradedWord }) {
   const { t } = useTranslation("dictation");
   const shown = word.outcome === "inserted" ? (word.actualWord ?? "") : (word.display ?? word.expectedWord ?? "");
+  const lookupable = word.outcome !== "inserted";
   if (word.outcome === "correct") {
-    return <span className={`rounded-sm px-1 py-0.5 ${TOKEN_STYLE.correct}`}>{shown}</span>;
+    return (
+      <span className={`rounded-sm px-1 py-0.5 ${TOKEN_STYLE.correct}`}>
+        <LookupWord word={shown} />
+      </span>
+    );
   }
   const label =
     word.outcome === "inserted"
@@ -74,7 +80,7 @@ function Token({ word }: { word: GradedWord }) {
       {word.outcome === "substituted" && word.actualWord && (
         <s className="mr-1 text-base text-warning">{word.actualWord}</s>
       )}
-      {shown}
+      {lookupable ? <LookupWord word={shown} /> : shown}
       {word.homophone && (
         <span role="img" aria-label={t("tip.homophoneMark")} className="ml-1 inline-block align-[-2px]">
           <Icon name="ear" className="h-4 w-4" />
@@ -148,7 +154,13 @@ export default function ResultDiff({
                     return (
                       <span key={token.position}>
                         {i > 0 && " "}
-                        {graded ? <Token word={graded} /> : <span className="px-1 py-0.5 text-text">{token.display}</span>}
+                        {graded ? (
+                          <Token word={graded} />
+                        ) : (
+                          <span className="px-1 py-0.5 text-text">
+                            <LookupWord word={token.display ?? ""} />
+                          </span>
+                        )}
                       </span>
                     );
                   })
@@ -161,7 +173,11 @@ export default function ResultDiff({
             </div>
           ) : (
             <>
-              {text && <p className="text-[19px] font-semibold leading-[1.9]">{text}</p>}
+              {text && (
+                <p className="text-[19px] font-semibold leading-[1.9]">
+                  <ClickableText text={text} />
+                </p>
+              )}
               {!detailLoading && <p className="text-[13px] text-text-muted">{t("result.noDetail")}</p>}
             </>
           )}
