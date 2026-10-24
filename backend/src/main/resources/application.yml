@@ -68,3 +68,5 @@ app:
     redirect-uri: ${GOOGLE_REDIRECT_URI:}
     oauth-url: https://oauth2.googleapis.com
     user-info-url: https://openidconnect.googleapis.com
+  audio:
+    base-url: ${AUDIO_BASE_URL:}
