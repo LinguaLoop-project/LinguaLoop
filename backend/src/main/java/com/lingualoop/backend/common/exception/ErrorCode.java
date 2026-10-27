@@ -40,6 +40,8 @@ public enum ErrorCode {
 
     LESSON_PRO_REQUIRED(HttpStatus.FORBIDDEN, "Bạn cần gói Pro để xem nội dung này"),
 
+    DICTIONARY_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy từ này trong từ điển"),
+
     DICTATION_EASY_UNAVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Câu này chưa có ô nào để điền, hãy chọn mức khác"),
     PRACTICE_SENTENCE_NOT_PRACTICED(HttpStatus.UNPROCESSABLE_ENTITY, "Bạn cần làm câu này ít nhất một lần trước"),
     AI_CONSENT_REQUIRED(HttpStatus.FORBIDDEN, "Bạn cần đồng ý cho phép xử lý giọng nói bằng AI để dùng tính năng này"),

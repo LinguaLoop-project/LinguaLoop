@@ -6,6 +6,7 @@ import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useAiEnergy } from "@/hooks/useAiEnergy";
 import DevPlanSwitch from "@/features/subscription/components/DevPlanSwitch";
 import { DEV_TOOLS_ENABLED } from "@/features/subscription/devTools";
+import { DictionarySearchButton } from "@/features/dictionary";
 import { useTheme } from "@/hooks/useTheme";
 import AccountMenu from "./AccountMenu";
 import type { ShellConfig } from "./shellConfig";
@@ -118,6 +119,7 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
         </>
       )}
 
+      {learner && <DictionarySearchButton />}
       <span className="max-sm:hidden">
         <LanguageSwitcher />
       </span>

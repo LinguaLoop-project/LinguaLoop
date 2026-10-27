@@ -1,0 +1,47 @@
+{
+  "title": "Dictionary",
+  "open": "Open dictionary",
+  "close": "Close",
+  "search": {
+    "placeholder": "Type an English word to look up...",
+    "aria": "Look up a word",
+    "hint": "Type a word to see its meanings, pronunciation and examples.",
+    "loading": "Searching...",
+    "empty": "No word matches “{{query}}”."
+  },
+  "lookup": {
+    "loading": "Looking up...",
+    "notFound": "The dictionary has no entry for “{{word}}”.",
+    "error": "Could not look this word up right now. Please try again.",
+    "retry": "Try again",
+    "hint": "Click to look up"
+  },
+  "word": {
+    "lemmaOf": "Inflected form of",
+    "lemmaMeanings": "Meanings of the base word",
+    "noMeaning": "No meaning available for this word yet.",
+    "otherPos": "Other",
+    "listen": "Listen, {{accent}} accent",
+    "listenWord": "Listen to {{word}}"
+  },
+  "accent": {
+    "us": "US",
+    "uk": "UK"
+  },
+  "pos": {
+    "noun": "Noun",
+    "verb": "Verb",
+    "adjective": "Adjective",
+    "adverb": "Adverb",
+    "preposition": "Preposition",
+    "conjunction": "Conjunction",
+    "pronoun": "Pronoun",
+    "interjection": "Interjection",
+    "phrasal verb": "Phrasal verb",
+    "idiom": "Idiom",
+    "phrase": "Phrase",
+    "abbreviation": "Abbreviation",
+    "prefix": "Prefix",
+    "suffix": "Suffix"
+  }
+}
