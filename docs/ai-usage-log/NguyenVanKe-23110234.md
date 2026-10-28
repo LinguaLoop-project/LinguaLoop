@@ -352,6 +352,18 @@
 - **Commit:** 31a5618, ef21779, 92730bb
 - **Lỗi liên quan:** NONE
 
+### AI-KE-032
+
+- **Ngày:** 2026-10-28
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5, Opus 5.5)
+- **Phạm vi (`Scope`):** DOCUMENTATION
+- **Loại công việc (`Task Type`):** DOCUMENTATION
+- **Prompt chính / yêu cầu:** Đánh giá AI Usage Log theo rubric; tách log theo từng thành viên vào `docs/ai-usage-log/` theo kit quy ước Kế cung cấp; chuyển toàn bộ log cũ trên `main` sang format mới; thêm PR template có checklist kiểm soát đầu ra AI
+- **Vị trí code do AI sinh (`file:hàm`):** `docs/ai-usage-log/README.md` (§3 quy tắc ID theo mã thành viên, §4.2 bổ sung Scope, §4.5 yêu cầu commit sửa riêng, §5.1 quy ước hash); `docs/ai-usage-log/member-log-template.md` (dạng khối, placeholder `[...]`); `docs/ai-usage-log/NguyenVanKe-23110234.md`, `NguyenTriLam-23110250.md` (toàn bộ bản ghi chuyển đổi: suy ra enum, đổi hash đã rebase sang hash trên `main`, tìm commit gây lỗi bằng `git log -S`); `.github/pull_request_template.md`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế cung cấp kit quy ước ban đầu (`README.md`, `member-log-template.md`, PR template) và quyết định: tách mỗi người một file, đặt tên file theo họ tên và mã số sinh viên; chỉ ghi hash commit, không ghi số PR hay `PENDING`; bỏ các trường "Người phát hiện", "Đầu ra AI đã đóng góp", "Mức độ sử dụng", "Kết luận" và "Kiểm chứng" (kiểm chứng chuyển sang mục "Cách kiểm tra" của PR); đổi nhãn thành "Vị trí code do AI sinh"; bỏ trường "Phần sinh viên" khi không sửa code; giữ `docs/AI-USAGE-LOG.md` làm bản gốc. Kế xác nhận các PR #10, #14, #18, #20, #29 đã được duyệt và merge, và viết lại phần sinh viên sửa cho `AI-KE-023`, `026`, `028` theo vị trí cụ thể.
+- **Commit:** 5804a8a
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
