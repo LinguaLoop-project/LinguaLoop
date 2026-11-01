@@ -8,7 +8,8 @@ public record SentenceView(
     int sortOrder,
     String text,
     String textVi,
-    String ipa,
+    String ipaUs,
+    String ipaUk,
     int startMs,
     int endMs,
     String cefrLevel

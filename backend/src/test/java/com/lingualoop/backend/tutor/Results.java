@@ -37,6 +37,6 @@ final class Results {
 
     /** Câu có một âm cần sửa nhưng từ vẫn trên ngưỡng mời. */
     static SentenceResult withPhonemeError(String phoneme) {
-        return sentence(word("word", 70, ph(phoneme, 40), ph("ɜː", 90), ph("d", 90)));
+        return sentence(word("word", 70, ph(phoneme, 40), ph("ɝ", 90), ph("d", 90)));
     }
 }

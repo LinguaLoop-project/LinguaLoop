@@ -80,7 +80,7 @@ class PracticeWordSelectorTest {
     void includesLowScoringWordWhenNoPhonemeNeedsFixing() {
         var current = sentence(
                 word("good", 90, ph("g", 90)),
-                word("very", 55, ph("v", 65), ph("e", 80), ph("r", 70)));
+                word("very", 55, ph("v", 65), ph("ɛ", 80), ph("ɹ", 70)));
 
         var list = selector.select(current, List.of());
 

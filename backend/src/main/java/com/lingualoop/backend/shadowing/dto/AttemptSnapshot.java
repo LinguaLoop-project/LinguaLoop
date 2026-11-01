@@ -8,7 +8,7 @@ import java.util.UUID;
  * (ADR 0005), kèm quy tắc "cần sửa". Không có mẹo và video.
  */
 public record AttemptSnapshot(long attemptId, UUID lessonId, UUID sentenceId, String sentenceText,
-        String sentenceIpa, double accuracy, List<Word> words) {
+        String sentenceIpaUs, double accuracy, List<Word> words) {
 
     /** {@code outcome}: correct, mispronounced, omitted hoặc inserted. */
     public record Word(String text, double accuracy, String outcome, List<Phoneme> phonemes) {

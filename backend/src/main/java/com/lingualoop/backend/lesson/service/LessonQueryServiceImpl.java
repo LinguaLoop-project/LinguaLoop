@@ -225,7 +225,7 @@ class LessonQueryServiceImpl implements LessonQueryService {
     private static SentenceResponse withBestScore(SentenceResponse s, Map<PracticeMode, BigDecimal> best) {
         BestScores scores = new BestScores(rounded(best.get(PracticeMode.dictation)),
                 rounded(best.get(PracticeMode.shadowing)));
-        return new SentenceResponse(s.id(), s.text(), s.textVi(), s.ipa(), s.startMs(), s.endMs(), s.cefrLevel(), scores);
+        return new SentenceResponse(s.id(), s.text(), s.textVi(), s.ipaUs(), s.ipaUk(), s.startMs(), s.endMs(), s.cefrLevel(), scores);
     }
 
     private static Integer rounded(BigDecimal score) {

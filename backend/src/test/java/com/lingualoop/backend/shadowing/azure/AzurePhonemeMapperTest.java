@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test;
 
 class AzurePhonemeMapperTest {
 
-    /** 44 âm của bảng {@code phonemes} (V2__seed_reference_data.sql). */
+    /** 44 âm giọng Mỹ của bảng {@code phonemes} (V2 và V20261031_2300, ADR 0007). */
     private static final Set<String> TABLE = Set.of(
             "p", "b", "t", "d", "k", "g", "f", "v", "θ", "ð", "s", "z", "ʃ", "ʒ", "h", "tʃ", "dʒ",
-            "m", "n", "ŋ", "l", "r", "j", "w",
-            "iː", "ɪ", "e", "æ", "ʌ", "ɑː", "ɒ", "ɔː", "ʊ", "uː", "ɜː", "ə",
-            "eɪ", "aɪ", "ɔɪ", "aʊ", "əʊ", "ɪə", "eə", "ʊə");
+            "m", "n", "ŋ", "l", "ɹ", "j", "w",
+            "i", "ɪ", "ɛ", "æ", "ʌ", "ɑ", "ɔ", "ʊ", "u", "ɝ", "ə", "ɚ",
+            "eɪ", "aɪ", "ɔɪ", "aʊ", "oʊ", "ɪɹ", "ɛɹ", "ʊɹ");
 
     /** Bộ âm IPA mà Azure trả cho en-US (tài liệu "Phonemes of en-US"), cả hai dạng chữ g. */
     private static final List<String> AZURE_EN_US = List.of(
@@ -39,41 +39,37 @@ class AzurePhonemeMapperTest {
     }
 
     @Test
-    void singleSymbolRules() {
-        assertThat(map("oʊ")).containsExactly("əʊ");
-        assertThat(map("ɝ")).containsExactly("ɜː");
-        assertThat(map("ɚ")).containsExactly("ə");
-        assertThat(map("ɹ")).containsExactly("r");
+    void azureSymbolsAreKeptAsTheyAre_exceptSpellingVariants_ADR_0007() {
+        for (String symbol : List.of("oʊ", "ɝ", "ɚ", "ɹ", "i", "u", "ɛ", "ɑ", "ɔ", "ə", "ɪɹ", "ɛɹ", "ʊɹ")) {
+            assertThat(map(symbol)).as("Azure '%s'", symbol).containsExactly(symbol);
+        }
         assertThat(map("ɡ")).containsExactly("g");
-        assertThat(map("i")).containsExactly("iː");
-        assertThat(map("u")).containsExactly("uː");
-        assertThat(map("ɛ")).containsExactly("e");
-        assertThat(map("ɑ")).containsExactly("ɑː");
-        assertThat(map("ɔ")).containsExactly("ɔː");
+        assertThat(map("r")).containsExactly("ɹ");
+        assertThat(map("ɜ")).containsExactly("ɝ");
     }
 
     @Test
-    void vowelBeforeR_becomesDiphthongAndKeepsR_AC_SHADOW_13() {
-        assertThat(map("n", "ɪ", "ɹ")).containsExactly("n", "ɪə", "r");      // near
-        assertThat(map("s", "k", "w", "ɛ", "ɹ")).containsExactly("s", "k", "w", "eə", "r"); // square
-        assertThat(map("k", "j", "ʊ", "ɹ")).containsExactly("k", "j", "ʊə", "r");           // cure
+    void vowelBeforeR_becomesRColouredVowelAndKeepsR_AC_SHADOW_13() {
+        assertThat(map("n", "ɪ", "ɹ")).containsExactly("n", "ɪɹ", "ɹ");      // near
+        assertThat(map("s", "k", "w", "ɛ", "ɹ")).containsExactly("s", "k", "w", "ɛɹ", "ɹ"); // square
+        assertThat(map("k", "j", "ʊ", "ɹ")).containsExactly("k", "j", "ʊɹ", "ɹ");           // cure
     }
 
     @Test
-    void rColouredVowelAsOneSymbol_mapsToVowelWithoutExtraR_AC_SHADOW_13() {
-        assertThat(map("m", "ɔɹ", "n")).containsExactly("m", "ɔː", "n");     // morning (đo từ Azure thật)
-        assertThat(map("ɑɹ")).containsExactly("ɑː");                          // car
-        assertThat(map("n", "ɪɹ")).containsExactly("n", "ɪə");                // near
-        assertThat(map("w", "ɛɹ")).containsExactly("w", "eə");                // where
-        assertThat(map("p", "ʊɹ")).containsExactly("p", "ʊə");                // pure
-        assertThat(map("ˈɔɹ")).containsExactly("ɔː");                          // có dấu trọng âm
+    void rColouredVowelAsOneSymbol_keepsItsRowOrFallsBackToTheVowel_AC_SHADOW_13() {
+        assertThat(map("n", "ɪɹ")).containsExactly("n", "ɪɹ");                // near (đo từ Azure thật)
+        assertThat(map("w", "ɛɹ")).containsExactly("w", "ɛɹ");                // where
+        assertThat(map("p", "ʊɹ")).containsExactly("p", "ʊɹ");                // pure
+        assertThat(map("m", "ɔɹ", "n")).containsExactly("m", "ɔ", "n");       // morning: không có hàng riêng, giữ nguyên âm
+        assertThat(map("ɑɹ")).containsExactly("ɑ");                           // car
+        assertThat(map("ˈɔɹ")).containsExactly("ɔ");                          // có dấu trọng âm
     }
 
     @Test
     void vowelNotBeforeR_keepsPlainForm_AC_SHADOW_13() {
         assertThat(map("ɪ", "t")).containsExactly("ɪ", "t");
-        assertThat(map("ɹ", "ɪ")).containsExactly("r", "ɪ");
-        assertThat(map("ɛ", "d")).containsExactly("e", "d");
+        assertThat(map("ɹ", "ɪ")).containsExactly("ɹ", "ɪ");
+        assertThat(map("ɛ", "d")).containsExactly("ɛ", "d");
     }
 
     @Test
@@ -84,6 +80,6 @@ class AzurePhonemeMapperTest {
 
     @Test
     void stressMarksAreIgnored() {
-        assertThat(map("ˈɪ", "ɹ")).containsExactly("ɪə", "r");
+        assertThat(map("ˈɪ", "ɹ")).containsExactly("ɪɹ", "ɹ");
     }
 }

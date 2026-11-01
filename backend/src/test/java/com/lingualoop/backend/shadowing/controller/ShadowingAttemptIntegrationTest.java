@@ -47,6 +47,7 @@ import com.lingualoop.backend.lesson.repository.SentenceRepository;
 import com.lingualoop.backend.lesson.repository.TopicRepository;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
+import com.lingualoop.backend.shadowing.azure.AzurePhonemeMapper;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.ErrorType;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.PhonemeResult;
@@ -94,8 +95,8 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data.words.length()").value(2))
                 .andExpect(jsonPath("$.data.words[0].word").value("hello"))
                 .andExpect(jsonPath("$.data.words[0].outcome").value("correct"))
-                // phản hồi dùng ký hiệu bảng phonemes (cùng hệ với IPA mẫu của câu), không phải ký hiệu Azure
-                .andExpect(jsonPath("$.data.words[0].phonemes[3].symbol").value("əʊ"))
+                // phản hồi dùng ký hiệu bảng phonemes (giọng Mỹ, cùng hệ với IPA mẫu của câu và với Azure)
+                .andExpect(jsonPath("$.data.words[0].phonemes[3].symbol").value("oʊ"))
                 .andExpect(jsonPath("$.data.words[1].outcome").value("mispronounced"))
                 // chấm shadowing không tốn năng lượng AI nên phản hồi không còn mức dùng (BR-QUOTA-01)
                 .andExpect(jsonPath("$.data.usage").doesNotExist());
@@ -107,13 +108,13 @@ class ShadowingAttemptIntegrationTest {
         assertThat(jdbc.queryForList("""
                 SELECT w.position FROM sentence_attempt_words w JOIN sentence_attempts a ON a.id = w.attempt_id
                 WHERE a.user_id = ? ORDER BY w.position""", Integer.class, user)).containsExactly(0, 1);
-        // oʊ của Azure được lưu thành əʊ trong bảng phonemes
+        // oʊ của Azure được lưu đúng ký hiệu đó trong bảng phonemes (không còn đổi sang ký hiệu Anh)
         assertThat(jdbc.queryForObject("""
                 SELECT count(*) FROM sentence_attempt_phonemes p
                 JOIN phonemes ph ON ph.id = p.phoneme_id
                 JOIN sentence_attempt_words w ON w.id = p.attempt_word_id
                 JOIN sentence_attempts a ON a.id = w.attempt_id
-                WHERE a.user_id = ? AND ph.symbol = 'əʊ'""", Integer.class, user)).isEqualTo(1);
+                WHERE a.user_id = ? AND ph.symbol = 'oʊ'""", Integer.class, user)).isEqualTo(1);
         assertThat(count("sentence_attempt_phonemes p JOIN sentence_attempt_words w ON w.id = p.attempt_word_id "
                 + "JOIN sentence_attempts a ON a.id = w.attempt_id WHERE a.user_id = ?", user)).isEqualTo(8);
     }
@@ -377,7 +378,7 @@ class ShadowingAttemptIntegrationTest {
         UUID pro = newUser();
         makePro(pro);
         Sentence s = sentence(lesson("expected-live", false), 0, "if");
-        s.setIpa("/ɪf/");
+        s.setIpaUs("/ɪf/");
         sentences.save(s);
         // Người học đọc thành "iv": Azure trả ɪ và v
         when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 70, 70, 70, 70, null,
@@ -397,7 +398,7 @@ class ShadowingAttemptIntegrationTest {
     void assess_consonantDiffersFromModelButScoresHigh_isStillFlaggedNeedsFix_AC_SHADOW_35() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("needs-fix", false), 0, "if");
-        s.setIpa("/ɪf/");
+        s.setIpaUs("/ɪf/");
         sentences.save(s);
         // Azure chấm 100 cho cách đọc "iv" (đo từ Azure thật), nhưng /f/ vẫn cần sửa
         when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 100, 100, 100, 100, null,
@@ -417,7 +418,7 @@ class ShadowingAttemptIntegrationTest {
         makePro(pro);
         Lesson lesson = lesson("expected-restore", false);
         Sentence s = sentence(lesson, 0, "if");
-        s.setIpa("/ɪf/");
+        s.setIpaUs("/ɪf/");
         sentences.save(s);
         when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 70, 70, 70, 70, null,
                 List.of(new WordResult("if", 40, ErrorType.MISPRONUNCIATION,
@@ -437,7 +438,7 @@ class ShadowingAttemptIntegrationTest {
     void assess_storesAzureSymbolTargetAndTopAlternative_AC_SHADOW_36() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("target-model", false), 0, "if");
-        s.setIpa("/ɪf/");
+        s.setIpaUs("/ɪf/");
         sentences.save(s);
         // Đo từ Azure thật: đọc "iv" thì Azure báo v và chấm 100; f chỉ là ứng viên 43
         when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 100, 100, 100, 100, null,
@@ -473,13 +474,13 @@ class ShadowingAttemptIntegrationTest {
         UUID user = newUser();
         Lesson lesson = lesson("target-stored", false);
         Sentence s = sentence(lesson, 0, "if");
-        s.setIpa("/ɪf/");
+        s.setIpaUs("/ɪf/");
         sentences.save(s);
         when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("if", 100, 100, 100, 100, null,
                 List.of(new WordResult("if", 100, ErrorType.NONE,
                         List.of(new PhonemeResult("ɪ", 100), new PhonemeResult("v", 100))))));
         post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
-        s.setIpa(null);
+        s.setIpaUs(null);
         sentences.save(s);
 
         mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(user)))
@@ -507,11 +508,35 @@ class ShadowingAttemptIntegrationTest {
         List<String> withTip = jdbc.queryForList("""
                 SELECT p.symbol FROM phoneme_confusions c JOIN phonemes p ON p.id = c.target_phoneme_id
                 WHERE c.l1 = 'vi' AND c.produced_phoneme_id IS NULL""", String.class);
-        assertThat(withTip).contains("θ", "ð", "ʃ", "ʒ", "z", "v", "r", "s", "t", "d", "l", "ɪ", "iː", "æ");
+        assertThat(withTip).contains("θ", "ð", "ʃ", "ʒ", "z", "v", "ɹ", "s", "t", "d", "l", "ɪ", "i", "æ", "ɚ");
         // Mọi âm của bảng phonemes đều có mẹo, và không mẹo nào nói riêng về giọng Anh
         assertThat(withTip).hasSameSizeAs(jdbc.queryForList("SELECT symbol FROM phonemes", String.class));
         assertThat(jdbc.queryForList("SELECT tip_vi FROM phoneme_confusions WHERE tip_vi ILIKE '%Anh-Anh%'", String.class))
                 .isEmpty();
+    }
+
+    @Test
+    void phonemeTable_isTheAmericanInventory_sameSymbolsAsAzureEnUs_ADR_0007() {
+        List<String> symbols = jdbc.queryForList("SELECT symbol FROM phonemes", String.class);
+        assertThat(symbols).hasSize(44).doesNotHaveDuplicates()
+                .contains("ɝ", "ɚ", "oʊ", "ɛ", "ɑ", "ɔ", "i", "u", "ɹ", "ɪɹ", "ɛɹ", "ʊɹ")
+                // ký hiệu giọng Anh không còn, và ɒ đã gộp vào ɑ
+                .doesNotContain("ɜː", "əʊ", "ɪə", "eə", "ʊə", "iː", "uː", "ɑː", "ɔː", "ɒ", "e", "r");
+        // Mọi ký hiệu mà bộ chuyển đổi trả ra đều có hàng tương ứng trong bảng
+        assertThat(symbols).containsExactlyInAnyOrderElementsOf(AzurePhonemeMapper.tableSymbols());
+    }
+
+    @Test
+    void everyPhonemeHasAMouthVideo_andTheNineBritishOnesWereReplacedByAmericanVideos_ADR_0007() {
+        assertThat(jdbc.queryForList("SELECT symbol FROM phonemes WHERE mouth_video_url IS NULL", String.class)).isEmpty();
+        // Video BBC Learning English cũ (giọng Anh) của các âm có khẩu hình khác giọng Mỹ không còn được dùng
+        for (String britishVideo : List.of("zSJJWHymEPw", "r1BRCG0P9C8", "vC0h4S0YPJc", "0J7-5maJJIk", "nHSqluHrD-U",
+                "uDHMuMQdBNw", "KHllC40_u1Q", "wg0P0oYkniE")) {
+            assertThat(jdbc.queryForList("SELECT symbol FROM phonemes WHERE mouth_video_url LIKE ?", String.class,
+                    "%" + britishVideo + "%")).as(britishVideo).isEmpty();
+        }
+        assertThat(jdbc.queryForObject("SELECT mouth_video_url FROM phonemes WHERE symbol = 'ɚ'", String.class))
+                .isEqualTo("https://youtu.be/AzNRoSGBh44");
     }
 
     // ── UC-SHADOW-03 ────────────────────────────────────────────────────────────────

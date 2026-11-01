@@ -22,7 +22,7 @@ final class PhonemeTargets {
      * @return id từ đã lưu -> âm mẫu của từ đó; thiếu khi câu không có phiên âm hoặc không tách được
      */
     static Map<Long, List<String>> expectedByWordId(SentenceView sentence, List<SentenceAttemptWord> words) {
-        List<List<String>> reference = sentence == null ? null : ExpectedPhonemes.ofSentence(sentence.text(), sentence.ipa());
+        List<List<String>> reference = sentence == null ? null : ExpectedPhonemes.ofSentence(sentence.text(), sentence.ipaUs());
         Map<Long, List<String>> result = new HashMap<>();
         int ref = 0;
         for (SentenceAttemptWord w : words) {
@@ -43,7 +43,7 @@ final class PhonemeTargets {
      * Azure có thể chèn từ thừa nên chỉ đếm các từ không phải từ thừa khi đối chiếu với phiên âm của câu.
      */
     static List<List<String>> forAssessment(SentenceView sentence, PronunciationAssessment assessment) {
-        List<List<String>> reference = ExpectedPhonemes.ofSentence(sentence.text(), sentence.ipa());
+        List<List<String>> reference = ExpectedPhonemes.ofSentence(sentence.text(), sentence.ipaUs());
         List<List<String>> result = new ArrayList<>();
         int ref = 0;
         for (PronunciationAssessment.WordResult word : assessment.words()) {

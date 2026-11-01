@@ -10,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Bảng tham chiếu 44 âm vị: ký hiệu và video khẩu hình (nội dung Pro). */
+/** Bảng tham chiếu 44 âm vị giọng Mỹ (ADR 0007): ký hiệu như Azure en-US trả về và video khẩu hình (nội dung Pro). */
 @Getter
 @Entity
 @Immutable

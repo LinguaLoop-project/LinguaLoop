@@ -103,7 +103,7 @@ class AttemptSnapshotsImpl implements AttemptSnapshots {
                         w.getAccuracyScore() == null ? 0 : w.getAccuracyScore().doubleValue(), w.getOutcome().name(), ph));
             }
             result.add(new AttemptSnapshot(attempt.getId(), sentence.lessonId(), sentence.id(), sentence.text(),
-                    sentence.ipa(), attempt.getAccuracyScore() == null ? 0 : attempt.getAccuracyScore().doubleValue(), out));
+                    sentence.ipaUs(), attempt.getAccuracyScore() == null ? 0 : attempt.getAccuracyScore().doubleValue(), out));
         }
         return result;
     }
