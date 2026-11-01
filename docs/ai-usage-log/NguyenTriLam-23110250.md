@@ -555,6 +555,90 @@
 - **Commit:** 9d09d62
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-050
+
+- **Ngày:** 2026-10-31
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** SHADOWING
+- **Loại công việc (`Task Type`):** EXPLANATION
+- **Prompt chính / yêu cầu:** Từ một ảnh chụp trang Shadowing, giải thích vì sao điểm cả từ của `can` là 97 nhưng điểm từng âm vị thấp hơn ngưỡng đó, và việc Azure chấm bằng `en-US` ảnh hưởng gì đến thiết kế trang hiện tại
+- **Vị trí code do AI sinh (`file:hàm`):**
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Không có thay đổi trong repo. Sinh viên dùng câu trả lời (điểm từ do Azure tổng hợp, không phải trung bình các âm; phiên âm trong câu lẫn Mỹ và Anh) làm cơ sở để chốt hướng chuẩn Mỹ ở các bản ghi sau.
+- **Commit:**
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-051
+
+- **Ngày:** 2026-10-31
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DATABASE
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Chốt giọng chấm là giọng Mỹ: tách phiên âm câu thành `ipa_us` (nguồn của âm đích) và `ipa_uk` (chỉ để hiển thị); đổi bảng `phonemes` từ 44 âm Anh-Anh sang 44 âm giọng Mỹ giống ký hiệu Azure en-US trả về, giữ nguyên `id` để mẹo, video, thống kê và lượt đã lưu đi theo; gộp `ɒ` vào `ɑ`, thêm âm `ɚ`; viết lại mẹo sửa âm theo giọng Mỹ; đổi 9 video khẩu hình giọng Anh sang video giọng Mỹ; làm gọn bộ chuyển đổi âm Azure
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/src/main/resources/db/migration/V20261031_2300__sentence_ipa_accents.sql`, `V20261031_2310__pronunciation_tips_us.sql`, `V20261031_2320__phoneme_mouth_videos_us.sql`; `backend/.../shadowing/azure/AzurePhonemeMapper.java:toTableSymbols`, `:tableSymbols`, `:convertRColoured`; `shadowing/azure/ExpectedPhonemes.java:wordsOf`, `:ofSentence`; `tutor/TutorAttemptService.java:wordIpa`; `lesson/entity/Sentence.java` (`ipaUs`, `ipaUk`); `lesson/dto/SentenceView.java`, `lesson/dto/response/SentenceResponse.java`; `shadowing/dto/AttemptSnapshot.java`; `shadowing/entity/Phoneme.java`; test `AzurePhonemeMapperTest.java`, `ExpectedPhonemesTest.java`, `ShadowingAttemptIntegrationTest.java:phonemeTable_isTheAmericanInventory_sameSymbolsAsAzureEnUs_ADR_0007`, `:everyPhonemeHasAMouthVideo_andTheNineBritishOnesWereReplacedByAmericanVideos_ADR_0007`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên quyết định các điểm thiết kế qua hỏi đáp với AI: đặt tên cột `ipa_us` thay vì giữ `ipa`, chỉ chuyển dữ liệu seed qua một file duy nhất, câu thiếu phiên âm một từ thì để NULL cả câu, ký hiệu `symbol` của bảng đổi tại chỗ (chọn "ý 2" là có bộ âm giọng Mỹ riêng) thay vì thêm cột phụ `symbol_us`; sinh viên chọn lại hướng sau khi AI phản biện phương án giữ bộ âm Anh trong bảng chấm. Sinh viên cũng yêu cầu lập danh sách video giọng Mỹ ứng viên cho 9 âm rồi viết migration cập nhật.
+- **Commit:** 36b8d35
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-052
+
+- **Ngày:** 2026-10-31
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DATABASE
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Sinh lại cột `ipa_us` (CMUdict kèm bảng ghi đè tay) và `ipa_uk` (espeak-ng giọng `en-gb`) cho toàn bộ 45.271 câu của seed, đúng định dạng mỗi từ một cụm; sửa `seed-lessons.ps1` vì sau khi chạy mọi chữ có dấu và ký hiệu IPA trong DB thành `?`
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/seed/02_sentences.sql.gz` (cột `ipa_us`, `ipa_uk`; file này do công cụ sinh, công cụ không nằm trong repo); `backend/seed/seed-lessons.ps1` (chép tệp vào container rồi `psql -f`; hàm `Invoke-Sql`; bước tự kiểm tra ký tự ngoài ASCII cuối script)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chạy `seed-lessons.ps1` trên máy, phát hiện chữ có dấu và IPA bị thành `?` và báo lỗi kèm ảnh chụp; sinh viên yêu cầu không đưa công cụ sinh phiên âm (`backend/seed/tools/`) vào repo và AI đã gỡ khỏi các commit.
+- **Commit:** f31e26a
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-053
+
+- **Ngày:** 2026-10-31
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Nút chuyển phiên âm US/UK ở trang Shadowing (theo ảnh mẫu): chọn UK thì hiện phiên âm Anh kèm dòng giải thích điểm vẫn chấm theo giọng Mỹ; ô âm vị giữ ký hiệu Mỹ và thêm ký hiệu Anh gần nhất ở dòng nhỏ
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/shadowing/components/IpaAccentSwitch.tsx`; `components/WordDetail.tsx` (ô âm vị, dòng `≈`); `components/ShadowingPractice.tsx` (`shownIpaAccent`, `shownIpa`, `ukMissing`); `hooks/useShadowingSettings.ts:load`; `utils.ts:ukEquivalent`, `:wordIpa`; `utils.test.ts`; `i18n/locales/vi/pages.json`, `en/pages.json` (mục `accent`); `features/lesson/types.ts`, `components/detail/TranscriptList.tsx` (đổi `ipa` thành `ipaUs`)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên nêu ý tưởng nút chuyển US/UK, hỏi AI phản biện ý tưởng ghi nhãn Anh thay cho ký hiệu Mỹ, rồi chọn phương án giữ ký hiệu Mỹ làm ký hiệu chính; sinh viên chạy giao diện và gửi ảnh chụp để đối chiếu.
+- **Commit:** 5893ad8
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-054
+
+- **Ngày:** 2026-11-01
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5)
+- **Phạm vi (`Scope`):** DICTIONARY
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Nối một từ trong câu ở trang Shadowing với từ điển: trước khi chấm bấm từ mở popup từ điển, sau khi chấm khung chi tiết từ có mục "Từ điển" (phiên âm từ điển US và UK kèm nút nghe, CEFR, nghĩa, từ gốc, nút xem đầy đủ); "Nghe mẫu từ" theo giọng đang chọn
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/shadowing/components/WordDictionarySection.tsx`; `components/WordDetail.tsx` (`listen`, `useWordLookup`); `components/SentenceWords.tsx` (từ chưa chấm dùng `LookupWord`); `hooks/useModelPlayer.ts:speakSegment` (tham số `lang`); `frontend/src/features/dictionary/index.ts`, `utils.ts:accentOrder`, `:mainPronunciation`, `:displayGroups`, `components/PronunciationButtons.tsx` (`firstAccent`), `utils.test.ts`; `i18n/locales/*/pages.json` (mục `dictionary`)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên trả lời 8 câu hỏi thiết kế do AI đặt (nơi bấm, nội dung mục từ điển, hai nhãn phiên âm tách bạch, giọng nghe mẫu, không đổi backend, không đưa dữ liệu từ điển vào repo, phạm vi bản đầu) và nạp dữ liệu từ điển vào DB để chạy thử.
+- **Commit:** bb52b3b
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-055
+
+- **Ngày:** 2026-11-01
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5)
+- **Phạm vi (`Scope`):** DATABASE
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Tạo công cụ chuyển ảnh bìa và âm thanh bài học từ Parroto sang S3 của hệ thống (thư mục `lesson/thumbnail/` và `lesson/audio/`), rồi viết lại seed bài học trỏ về S3; sửa công cụ khi gặp tệp gắn nhãn sai (ảnh PNG đặt tên `.webp`, âm thanh M4A đặt tên `.mp3`, MP3 có đệm byte 0)
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/seed/01_topics_lessons.sql.gz` (2.336 link `thumbnail_url` và `source_url` đổi sang S3; file do công cụ sinh, công cụ không nằm trong repo)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên cung cấp bucket và khoá AWS qua biến môi trường, thêm các biến AWS mẫu vào `backend/.env.example`, tự chạy các bước tải về, tải lên, kiểm tra và viết lại seed, phát hiện bucket chưa công khai (`AccessDenied`) và lỗi nhãn tệp để AI sửa công cụ, rồi cho bucket đọc công khai hai thư mục `lesson/`.
+- **Commit:** 75f3e41
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-056
+
+- **Ngày:** 2026-11-01
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** DOCUMENTATION
+- **Loại công việc (`Task Type`):** DOCUMENTATION
+- **Prompt chính / yêu cầu:** Ghi lại quyết định chấm theo giọng Mỹ và phiên âm Anh chỉ để hiển thị (ADR), các thuật ngữ mới (Giọng chấm, Phiên âm hiển thị, Âm đích, Mục từ, Phiên âm từ điển) và cách nạp dữ liệu từ điển nằm ngoài repo; soạn nội dung PR theo `pull_request_template.md`
+- **Vị trí code do AI sinh (`file:hàm`):** `docs/adr/0007-cham-giong-my-hien-thi-phien-am-anh-my.md`; `docs/adr/0004-am-vi-azure-my-chuyen-sang-bang-phonemes.md`, `docs/adr/0005-am-dich-tu-phien-am-cua-cau-azure-cham-en-us.md` (cập nhật trạng thái); `GLOSSARY.md` (mục Phát âm, Từ điển); `backend/README.md` (mục "Dữ liệu từ điển (không nằm trong repo)")
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt các thuật ngữ và yêu cầu rút gọn nội dung commit.
+- **Commit:** b5383ca, adae2d1
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
