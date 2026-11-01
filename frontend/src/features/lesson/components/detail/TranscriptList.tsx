@@ -92,7 +92,7 @@ export default function TranscriptList({ sentences, locked, loading, error, onRe
                   <span className={`font-semibold transition-[filter] duration-200 ${revealed ? "" : "select-none blur-[6px]"}`}>
                     {revealed ? <ClickableText text={s.text} /> : s.text}
                   </span>
-                  {revealed && s.ipa && <div className="select-text text-[13px] text-text-subtle">/{s.ipa.replace(/^\/|\/$/g, "")}/</div>}
+                  {revealed && s.ipaUs && <div className="select-text text-[13px] text-text-subtle">/{s.ipaUs.replace(/^\/|\/$/g, "")}/</div>}
                 </div>
                 <span className="flex items-center gap-2 text-[13px] text-text-subtle">
                   {scored ? (

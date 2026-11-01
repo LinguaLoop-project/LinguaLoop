@@ -66,7 +66,10 @@ export interface SentenceResponse {
   id: string;
   text: string;
   textVi: string | null;
-  ipa: string | null;
+  /** Phiên âm Mỹ: là âm đích khi chấm (ADR 0007). */
+  ipaUs: string | null;
+  /** Phiên âm Anh, chỉ để hiển thị; null nếu chưa có phiên âm cho đủ mọi từ của câu. */
+  ipaUk: string | null;
   startMs: number;
   endMs: number;
   cefrLevel: string | null;

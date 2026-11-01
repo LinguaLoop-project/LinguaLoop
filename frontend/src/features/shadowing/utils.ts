@@ -90,19 +90,50 @@ export function youtubeStart(url: string | null | undefined): number | null {
   return m ? Number(m[1]) : null;
 }
 
+/** Token có chữ hoặc số; token chỉ có dấu câu (vd "-") không có cụm phiên âm riêng (ADR 0007). */
+const isWordToken = (token: string): boolean => /[\p{L}\p{N}]/u.test(token);
+
 /**
- * Phiên âm của từng từ, tách từ phiên âm cả câu (các từ cách nhau bởi khoảng trắng). Chỉ dùng khi số từ phiên âm
- * bằng số từ của câu; lệch (dữ liệu biên tập thiếu từ) thì trả null để hiện phiên âm cả câu thay vì gán sai từ.
+ * Phiên âm của từng token của câu, tách từ phiên âm cả câu (các từ cách nhau bởi khoảng trắng). Mảng trả về thẳng
+ * hàng với các token của câu; token chỉ có dấu câu nhận chuỗi rỗng. Chỉ dùng khi số cụm phiên âm bằng số từ của câu;
+ * lệch (dữ liệu biên tập thiếu từ) thì trả null để hiện phiên âm cả câu thay vì gán sai từ.
  */
 export function wordIpa(sentenceText: string, ipa: string | null | undefined): string[] | null {
   if (!ipa) return null;
-  const words = sentenceText.split(/\s+/).filter(Boolean);
+  const tokens = sentenceText.split(/\s+/).filter(Boolean);
   const parts = ipa
     .split(/\s+/)
     .map((p) => p.replace(/^\/+|\/+$/g, "").replace(/[,.;:!?]+$/g, ""))
     .filter(Boolean);
-  return parts.length === words.length ? parts : null;
+  if (parts.length !== tokens.filter(isWordToken).length) return null;
+  let next = 0;
+  return tokens.map((token) => (isWordToken(token) ? parts[next++] : ""));
 }
+
+/** Phiên âm hiển thị: Mỹ (giọng chấm) hoặc Anh. Chỉ đổi cách hiển thị, không đổi cách chấm (ADR 0007). */
+export type IpaAccent = "us" | "uk";
+
+/**
+ * Ký hiệu giọng Anh gần nhất với một âm của bảng phonemes (giọng Mỹ, ký hiệu như Azure trả về). Chỉ để tham khảo:
+ * âm vẫn được chấm theo giọng Mỹ, nên đây là gợi ý chứ không phải điểm của âm Anh. `ɑ` có thể là ɑː (father) hoặc
+ * ɒ (hot) tuỳ từ; phụ âm và các nguyên âm không có dòng nào ở đây giống nhau ở hai giọng (`ɹ` chỉ khác cách viết).
+ */
+const UK_EQUIVALENT: Record<string, string> = {
+  i: "iː",
+  u: "uː",
+  ɛ: "e",
+  ɑ: "ɑː / ɒ",
+  ɔ: "ɔː",
+  ɝ: "ɜː",
+  ɚ: "ə",
+  oʊ: "əʊ",
+  ɪɹ: "ɪə",
+  ɛɹ: "eə",
+  ʊɹ: "ʊə",
+};
+
+/** Ký hiệu giọng Anh gần nhất của một âm giọng Mỹ; null khi hai giọng cùng ký hiệu. */
+export const ukEquivalent = (symbol: string): string | null => UK_EQUIVALENT[symbol] ?? null;
 
 /** Từ nào của câu đang được đọc ở thời điểm `fraction` (0..1), xấp xỉ theo độ dài từ. */
 export function litTokenIndex(sentenceText: string, fraction: number): number {

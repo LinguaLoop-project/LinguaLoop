@@ -9,6 +9,7 @@ import {
   recordFromAttempt,
   sentenceAt,
   toneOf,
+  ukEquivalent,
   weakPhonemes,
   wordIpa,
   youtubeId,
@@ -84,10 +85,37 @@ describe("alignWords", () => {
   });
 });
 
+describe("ukEquivalent", () => {
+  it("cho ký hiệu Anh gần nhất của các âm giọng Mỹ khác ký hiệu", () => {
+    expect(ukEquivalent("oʊ")).toBe("əʊ");
+    expect(ukEquivalent("ɝ")).toBe("ɜː");
+    expect(ukEquivalent("ɚ")).toBe("ə");
+    expect(ukEquivalent("ɛ")).toBe("e");
+    expect(ukEquivalent("i")).toBe("iː");
+    expect(ukEquivalent("ɪɹ")).toBe("ɪə");
+    expect(ukEquivalent("ɛɹ")).toBe("eə");
+    expect(ukEquivalent("ʊɹ")).toBe("ʊə");
+  });
+
+  it("ɑ có thể là ɑː hoặc ɒ nên nêu cả hai thay vì đoán", () => {
+    expect(ukEquivalent("ɑ")).toBe("ɑː / ɒ");
+  });
+
+  it("âm hai giọng cùng ký hiệu (hoặc chỉ khác cách viết như ɹ) thì không có gợi ý", () => {
+    for (const symbol of ["θ", "ð", "k", "ɹ", "æ", "ɪ", "ʌ", "eɪ", "aɪ", "ə"]) {
+      expect(ukEquivalent(symbol)).toBeNull();
+    }
+  });
+});
+
 describe("wordIpa", () => {
   it("tách phiên âm theo từng từ và bỏ dấu gạch chéo, dấu câu ở cuối", () => {
     expect(wordIpa("Hello world", "/həˈləʊ/ /wɜːld/")).toEqual(["həˈləʊ", "wɜːld"]);
     expect(wordIpa("Hello, world.", "həˈləʊ, wɜːld.")).toEqual(["həˈləʊ", "wɜːld"]);
+  });
+
+  it("token chỉ có dấu câu không có cụm phiên âm và không làm lệch chỉ số các từ sau nó", () => {
+    expect(wordIpa("Pierre - called", "piɛɹ kɔld")).toEqual(["piɛɹ", "", "kɔld"]);
   });
 
   it("số từ phiên âm lệch số từ của câu thì trả null", () => {

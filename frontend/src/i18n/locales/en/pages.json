@@ -445,7 +445,10 @@
         "goodWord": "This word is good. Keep the rhythm and stress of the model.",
         "omittedWord": "You skipped this word. Listen to the model and read every word.",
         "noPhonemes": "Sound-by-sound detail is only available right after reading. Read the sentence again to see it.",
-        "slowWord": "Listen to this word again and say each sound slowly, then put it back into the sentence."
+        "slowWord": "Listen to this word again and say each sound slowly, then put it back into the sentence.",
+        "modelIpaUk": "UK model",
+        "ukEquivalents": "The small ≈ is the closest British sound, for reference only. The sound and score in each box are still American.",
+        "tipUs": "This tip is for the American accent, which is what the system scores."
       },
       "restored": "Continuing from sentence {{n}} · {{done}}/{{total}} read",
       "listTitle": "Sentences",
@@ -510,7 +513,7 @@
         "title": "Settings",
         "ipa": {
           "label": "Show pronunciation",
-          "hint": "American phonetic transcription of the sentence"
+          "hint": "Phonetic transcription of the sentence; switch between American and British under the sentence"
         },
         "vi": {
           "label": "Show Vietnamese translation",
@@ -520,6 +523,15 @@
           "label": "Subtitles while watching",
           "hint": "Watch tab only; off by default to keep it tidy"
         }
+      },
+      "accent": {
+        "label": "Phonetics",
+        "us": "US",
+        "uk": "UK",
+        "usTitle": "American transcription, also the accent used for scoring",
+        "ukTitle": "British transcription, for reference only",
+        "ukNote": "Showing the British transcription. Scores are still based on an American accent, so some sounds may differ from what is shown.",
+        "noUk": "This sentence has no British transcription yet, so the American one is shown. Scores are always based on an American accent."
       },
       "shortcuts": {
         "title": "Shortcuts",

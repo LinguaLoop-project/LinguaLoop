@@ -444,7 +444,10 @@
         "goodWord": "Từ này đọc tốt. Giữ nhịp và trọng âm như câu mẫu.",
         "omittedWord": "Bạn đã bỏ sót từ này. Nghe mẫu và đọc đủ từ.",
         "noPhonemes": "Chi tiết từng âm chỉ có ngay sau lượt đọc. Đọc lại câu để xem.",
-        "slowWord": "Nghe lại từ này rồi đọc chậm từng âm, sau đó nối vào câu."
+        "slowWord": "Nghe lại từ này rồi đọc chậm từng âm, sau đó nối vào câu.",
+        "modelIpaUk": "Mẫu Anh",
+        "ukEquivalents": "Ký hiệu nhỏ ≈ là âm giọng Anh gần nhất, chỉ để tham khảo. Âm và điểm ở mỗi ô vẫn là của giọng Mỹ.",
+        "tipUs": "Mẹo theo giọng Mỹ, là giọng hệ thống dùng để chấm."
       },
       "restored": "Tiếp tục từ câu {{n}} · đã đọc {{done}}/{{total}}",
       "listTitle": "Các câu trong bài",
@@ -509,7 +512,7 @@
         "title": "Cài đặt",
         "ipa": {
           "label": "Hiện phiên âm",
-          "hint": "Phiên âm Mỹ của câu, giúp biết câu đọc thế nào"
+          "hint": "Phiên âm của câu; đổi giữa Mỹ và Anh ngay dưới câu"
         },
         "vi": {
           "label": "Hiện bản dịch tiếng Việt",
@@ -519,6 +522,15 @@
           "label": "Phụ đề khi xem",
           "hint": "Chỉ ở tab Xem; mặc định tắt cho gọn"
         }
+      },
+      "accent": {
+        "label": "Phiên âm",
+        "us": "US",
+        "uk": "UK",
+        "usTitle": "Phiên âm giọng Mỹ, cũng là giọng chấm điểm",
+        "ukTitle": "Phiên âm giọng Anh, chỉ để tham khảo",
+        "ukNote": "Đang xem phiên âm Anh. Điểm vẫn chấm theo giọng Mỹ, nên một số âm có thể khác với phiên âm đang hiện.",
+        "noUk": "Câu này chưa có phiên âm Anh nên đang hiện phiên âm Mỹ. Điểm luôn chấm theo giọng Mỹ."
       },
       "shortcuts": {
         "title": "Phím tắt",

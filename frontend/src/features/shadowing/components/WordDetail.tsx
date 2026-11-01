@@ -9,14 +9,20 @@ import {
   TONE_BOX,
   TONE_TEXT,
   toneOf,
+  ukEquivalent,
   youtubeId,
   youtubeStart,
+  type IpaAccent,
 } from "../utils";
 
 export interface WordDetailProps {
   word: WordResult;
   /** Phiên âm mẫu của từ trong câu; null khi dữ liệu câu không có hoặc không khớp. */
   ipa: string | null;
+  /** Giọng của `ipa` đang hiện (là Mỹ khi chọn Anh nhưng câu chưa có phiên âm Anh). */
+  ipaAccent: IpaAccent;
+  /** Giọng người học chọn xem; chọn Anh thì mỗi ô âm kèm ký hiệu Anh tương đương, điểm vẫn chấm theo giọng Mỹ. */
+  accent: IpaAccent;
   onClose: () => void;
   /** Mở hộp mời nâng cấp Pro (video khẩu hình bị khoá với gói Free). */
   onUpgrade: () => void;
@@ -26,6 +32,8 @@ export interface WordDetailProps {
 export default function WordDetail({
   word,
   ipa,
+  ipaAccent,
+  accent,
   onClose,
   onUpgrade,
 }: WordDetailProps) {
@@ -70,9 +78,9 @@ export default function WordDetail({
           {ipa && (
             <span
               className="text-base text-text-muted"
-              title={t(`${k}.detail.modelIpa`)}
+              title={t(`${k}.detail.${ipaAccent === "uk" ? "modelIpaUk" : "modelIpa"}`)}
             >
-              {t(`${k}.detail.modelIpa`)} /{ipa}/
+              {t(`${k}.detail.${ipaAccent === "uk" ? "modelIpaUk" : "modelIpa"}`)} /{ipa}/
             </span>
           )}
           {omitted && (
@@ -121,11 +129,19 @@ export default function WordDetail({
           <p className="mt-3 text-xs text-text-subtle">
             {t(`${k}.detail.heard`)}
           </p>
+          {accent === "uk" && (
+            <p role="note" className="mt-1 flex items-start gap-1.5 text-xs text-text-subtle">
+              <Icon name="info" className="mt-0.5 shrink-0 text-warning" />
+              <span>{t(`${k}.detail.ukEquivalents`)}</span>
+            </p>
+          )}
           <ul className="mt-1.5 flex flex-wrap gap-2">
             {word.phonemes.map((p, i) => {
               const pt = toneOf(p.accuracy);
               const bad = p.needsFix;
               const heardOther = p.expected != null && p.expected !== p.symbol;
+              // Ký hiệu chính luôn là âm được chấm (giọng Mỹ); ký hiệu Anh chỉ là gợi ý nhỏ bên dưới
+              const uk = accent === "uk" ? ukEquivalent(p.expected ?? p.symbol) : null;
               return (
                 <li key={`${p.symbol}-${i}`}>
                   <button
@@ -135,12 +151,13 @@ export default function WordDetail({
                       setVideoOpen(false);
                     }}
                     aria-pressed={i === active}
-                    aria-label={`${p.expected ?? p.symbol}${heardOther ? ` → ${p.symbol}` : ""} ${Math.round(p.accuracy)}${bad ? " !" : ""}`}
+                    aria-label={`${p.expected ?? p.symbol}${uk ? ` (≈ ${uk})` : ""}${heardOther ? ` → ${p.symbol}` : ""} ${Math.round(p.accuracy)}${bad ? " !" : ""}`}
                     className={`min-w-14 cursor-pointer rounded-md border px-3 py-2 text-center transition-shadow ${TONE_BOX[pt]} ${i === active ? "ring-2 ring-primary" : "hover:ring-1 hover:ring-border-strong"}`}
                   >
                     <div className="font-display text-lg">
                       {p.expected ?? p.symbol}
                     </div>
+                    {uk && <div className="text-xs text-text-subtle">≈ {uk}</div>}
                     {heardOther && (
                       <div className="text-xs text-text-muted">→ {p.symbol}</div>
                     )}
@@ -159,7 +176,10 @@ export default function WordDetail({
 
       <div className="mt-3 flex items-start gap-2 rounded-md bg-surface-hover px-3 py-2.5 text-sm text-text-muted">
         <Icon name="lightbulb" className="mt-0.5 shrink-0 text-warning" />
-        <p>{tip}</p>
+        <div>
+          <p>{tip}</p>
+          {accent === "uk" && sel?.tip && <p className="mt-1 text-xs text-text-subtle">{t(`${k}.detail.tipUs`)}</p>}
+        </div>
       </div>
 
       {sel && video && (
