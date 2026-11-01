@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { LookupWord } from "@/features/dictionary";
 import type { WordResult } from "../types";
 import { TONE_TEXT, alignWords, toneOf } from "../utils";
 
@@ -38,7 +39,10 @@ export default function SentenceWords({ text, words, ipa, lit, selected, onSelec
               key={d.key}
               className={`${WORD_BASE} text-text ${isLit ? "border-fn-shadowing bg-fn-shadowing-soft" : "border-transparent"}`}
             >
-              <span className="font-display text-[22px] font-bold leading-tight tracking-tight md:text-[26px]">{d.text}</span>
+              {/* Chưa chấm: bấm vào từ để tra từ điển trước khi đọc (sau khi chấm, bấm từ mở chi tiết chấm điểm) */}
+              <span className="font-display text-[22px] font-bold leading-tight tracking-tight md:text-[26px]">
+                <LookupWord word={d.text} />
+              </span>
               {ipaLine}
             </span>
           );

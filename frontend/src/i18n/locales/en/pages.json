@@ -438,15 +438,13 @@
         "omittedHint": "Azure did not hear this word"
       },
       "detail": {
-        "modelIpa": "Model",
-        "heard": "Each box is the model sound and its score; the small → line is what Azure reported when it differs. Pick a sound for its tip and video.",
+        "heard": "Each box is the model sound and its score; the small → line is what the system reported when it differs. Pick a sound for its tip and video.",
         "close": "Close",
         "badPhoneme": "The sound /{{symbol}}/ is off. Listen to the model, then say it slowly.",
         "goodWord": "This word is good. Keep the rhythm and stress of the model.",
         "omittedWord": "You skipped this word. Listen to the model and read every word.",
         "noPhonemes": "Sound-by-sound detail is only available right after reading. Read the sentence again to see it.",
         "slowWord": "Listen to this word again and say each sound slowly, then put it back into the sentence.",
-        "modelIpaUk": "UK model",
         "ukEquivalents": "The small ≈ is the closest British sound, for reference only. The sound and score in each box are still American.",
         "tipUs": "This tip is for the American accent, which is what the system scores."
       },
@@ -532,6 +530,12 @@
         "ukTitle": "British transcription, for reference only",
         "ukNote": "Showing the British transcription. Scores are still based on an American accent, so some sounds may differ from what is shown.",
         "noUk": "This sentence has no British transcription yet, so the American one is shown. Scores are always based on an American accent."
+      },
+      "dictionary": {
+        "title": "Dictionary",
+        "hint": "Pronunciation and meaning when the word stands alone; it can differ from how it is read in the sentence.",
+        "full": "Show all",
+        "compact": "Show less"
       },
       "shortcuts": {
         "title": "Shortcuts",

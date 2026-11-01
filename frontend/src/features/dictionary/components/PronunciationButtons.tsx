@@ -1,20 +1,20 @@
 import { useTranslation } from "react-i18next";
 import Icon from "@/components/common/Icon";
 import type { Accent, Pronunciation } from "../types";
-import { audioOf, ipaOf, playPronunciation } from "../utils";
-
-const ACCENTS: Accent[] = ["us", "uk"];
+import { accentOrder, audioOf, ipaOf, playPronunciation } from "../utils";
 
 export interface PronunciationButtonsProps {
   headword: string;
   pronunciation: Pronunciation;
+  /** Giọng đứng trước khi hiện cả hai; mặc định US. */
+  firstAccent?: Accent;
 }
 
 /** Nút nghe US/UK kèm phiên âm. Không có audio thì đọc bằng giọng trình duyệt; không có giọng nào thì vẫn cho nghe một nút. */
-export default function PronunciationButtons({ headword, pronunciation }: PronunciationButtonsProps) {
+export default function PronunciationButtons({ headword, pronunciation, firstAccent = "us" }: PronunciationButtonsProps) {
   const { t } = useTranslation("dictionary");
-  const available = ACCENTS.filter((accent) => ipaOf(pronunciation, accent) || audioOf(pronunciation, accent));
-  const accents = available.length > 0 ? available : (["us"] as Accent[]);
+  const available = accentOrder(firstAccent).filter((accent) => ipaOf(pronunciation, accent) || audioOf(pronunciation, accent));
+  const accents = available.length > 0 ? available : [firstAccent];
 
   return (
     <div className="flex flex-wrap items-center gap-2">

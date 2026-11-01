@@ -3,8 +3,16 @@ import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
+import {
+  audioOf,
+  mainPronunciation,
+  normalizeWord,
+  playPronunciation,
+  useWordLookup,
+} from "@/features/dictionary";
 import { speakSegment } from "../hooks/useModelPlayer";
 import type { WordResult } from "../types";
+import WordDictionarySection from "./WordDictionarySection";
 import {
   TONE_BOX,
   TONE_TEXT,
@@ -54,6 +62,16 @@ export default function WordDetail({
   const embedId = video?.url ? youtubeId(video.url) : null;
   const start = video?.url ? youtubeStart(video.url) : null;
 
+  // Mục từ điển của từ này; query chung cho nút nghe (lấy audio nếu có) và mục "Từ điển" bên dưới
+  const dictWord = normalizeWord(word.word);
+  const lookup = useWordLookup(dictWord || null);
+  // Nghe theo giọng đang chọn: audio của từ điển nếu có, không thì giọng đọc của trình duyệt (en-US hoặc en-GB)
+  const listen = () => {
+    const audio = lookup.data ? audioOf(mainPronunciation(lookup.data), accent) : null;
+    if (audio) playPronunciation(word.word, accent, audio);
+    else speakSegment(word.word, 0.8, () => undefined, accent === "uk" ? "en-GB" : "en-US");
+  };
+
   const tip = sel?.tip
     ? sel.tip
     : omitted
@@ -76,11 +94,8 @@ export default function WordDetail({
         <div className="flex items-center gap-3">
           <b className="font-display text-xl">{word.word}</b>
           {ipa && (
-            <span
-              className="text-base text-text-muted"
-              title={t(`${k}.detail.${ipaAccent === "uk" ? "modelIpaUk" : "modelIpa"}`)}
-            >
-              {t(`${k}.detail.${ipaAccent === "uk" ? "modelIpaUk" : "modelIpa"}`)} /{ipa}/
+            <span className="text-base text-text-muted">
+              {ipaAccent === "uk" ? "(UK)" : "(US)"} /{ipa}/
             </span>
           )}
           {omitted && (
@@ -90,7 +105,7 @@ export default function WordDetail({
           )}
           <button
             type="button"
-            onClick={() => speakSegment(word.word, 0.8, () => undefined)}
+            onClick={listen}
             aria-label={t(`${k}.word.speak`, { word: word.word })}
             className="inline-flex h-11 cursor-pointer items-center gap-2.5 rounded-full border border-info bg-surface py-0 pl-1.5 pr-4 text-sm font-bold text-text transition-colors hover:bg-surface-hover"
           >
@@ -243,6 +258,8 @@ export default function WordDetail({
           )}
         </div>
       )}
+
+      {dictWord && <WordDictionarySection word={dictWord} lookup={lookup} accent={accent} />}
     </div>
   );
 }

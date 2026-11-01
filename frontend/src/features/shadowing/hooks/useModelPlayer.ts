@@ -10,14 +10,17 @@ export interface ModelSegment {
 
 const API_TIMEOUT_MS = 9000;
 
-/** Đọc chữ của câu bằng giọng tổng hợp của trình duyệt (phương án cuối khi không có video hay tệp âm thanh). */
-export function speakSegment(text: string, rate: number, finish: () => void) {
+/**
+ * Đọc chữ của câu bằng giọng tổng hợp của trình duyệt (phương án cuối khi không có video hay tệp âm thanh).
+ * Mặc định giọng Mỹ, là giọng chấm; đọc một từ theo giọng Anh thì truyền `en-GB`.
+ */
+export function speakSegment(text: string, rate: number, finish: () => void, lang: "en-US" | "en-GB" = "en-US") {
   if (!("speechSynthesis" in window)) {
     finish();
     return;
   }
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-US";
+  utterance.lang = lang;
   utterance.rate = Math.min(1.1, rate + 0.15);
   utterance.onend = finish;
   utterance.onerror = finish;
