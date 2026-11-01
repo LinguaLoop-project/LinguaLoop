@@ -10,7 +10,7 @@ Seed nằm ở `backend/seed/` (nén `.sql.gz`, khoảng 6,5MB):
 | File | Nội dung |
 |---|---|
 | `01_topics_lessons.sql.gz` | chủ đề, bài học, icon chủ đề |
-| `02_sentences.sql.gz` | câu transcript kèm IPA |
+| `02_sentences.sql.gz` | câu transcript kèm IPA Mỹ (`ipa_us`) và IPA Anh (`ipa_uk`) |
 | `seed-lessons.sh` / `seed-lessons.ps1` | script nạp |
 
 ### Nạp vào DB local
