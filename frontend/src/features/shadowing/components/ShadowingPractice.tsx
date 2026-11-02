@@ -24,10 +24,19 @@ import { useShadowingHotkeys, type ShadowingTab } from "../hooks/useShadowingHot
 import { useShadowingSettings } from "../hooks/useShadowingSettings";
 import { useWavRecorder } from "../hooks/useWavRecorder";
 import type { LatestAttempt, SentenceRecord } from "../types";
-import { alignWords, litTokenIndex, recordFromAttempt, sentenceAt, wordIpa, youtubeId } from "../utils";
+import {
+  alignWords,
+  litTokenIndex,
+  recordFromAttempt,
+  sentenceAt,
+  wordIpa,
+  youtubeId,
+  type IpaAccent,
+} from "../utils";
 import AiFeedbackCard from "./AiFeedbackCard";
 import AttemptResult from "./AttemptResult";
 import ControlBar from "./ControlBar";
+import IpaAccentSwitch from "./IpaAccentSwitch";
 import MediaBar from "./MediaBar";
 import { MessageNote, MicDeniedNote } from "./Notes";
 import QuotaChip from "./QuotaChip";
@@ -391,8 +400,13 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   // Đồng hồ, thanh các câu và từ đang sáng bám theo vị trí phát
   const selectedToken =
     selectedWord === null ? -1 : alignWords(sentence.text, record?.words ?? []).find((d) => d.result === selectedWord)?.tokenIndex ?? -1;
-  const selectedIpa = selectedToken >= 0 ? (wordIpa(sentence.text, sentence.ipa)?.[selectedToken] ?? null) : null;
-  const wordPhonetics = settings.ipa ? wordIpa(sentence.text, sentence.ipa) : null;
+  // Phiên âm hiển thị theo giọng người học chọn; chưa có phiên âm Anh thì hiện phiên âm Mỹ kèm ghi chú (ADR 0007)
+  const ukMissing = settings.accent === "uk" && !sentence.ipaUk;
+  const shownIpaAccent: IpaAccent = settings.accent === "uk" && !ukMissing ? "uk" : "us";
+  const shownIpa = shownIpaAccent === "uk" ? sentence.ipaUk : sentence.ipaUs;
+  const sentenceIpaWords = wordIpa(sentence.text, shownIpa);
+  const selectedIpa = selectedToken >= 0 ? (sentenceIpaWords?.[selectedToken] ?? null) : null;
+  const wordPhonetics = settings.ipa ? sentenceIpaWords : null;
   const lit =
     positionMs !== null && modelPlaying
       ? litTokenIndex(
@@ -555,8 +569,15 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                   selected={selected}
                   onSelect={setSelected}
                 />
-                {settings.ipa && sentence.ipa && !wordPhonetics && (
-                  <p className="mt-1 text-center text-sm text-text-subtle">{sentence.ipa}</p>
+                {settings.ipa && shownIpa && !wordPhonetics && (
+                  <p className="mt-1 text-center text-sm text-text-subtle">{shownIpa}</p>
+                )}
+                {settings.ipa && (sentence.ipaUs || sentence.ipaUk) && (
+                  <IpaAccentSwitch
+                    accent={settings.accent}
+                    ukMissing={ukMissing}
+                    onChange={(accent) => updateSettings({ accent })}
+                  />
                 )}
                 {settings.vi && sentence.textVi && (
                   <p className="mb-2 mt-1 text-center text-sm text-text-muted">{sentence.textVi}</p>
@@ -623,6 +644,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                           key={`${selectedWord.position}-${selectedWord.word}`}
                           word={selectedWord}
                           ipa={selectedIpa}
+                          ipaAccent={shownIpaAccent}
+                          accent={settings.accent}
                           onClose={() => setSelected(null)}
                           onUpgrade={() => setShowUpgradeModal(true, "pro")}
                         />

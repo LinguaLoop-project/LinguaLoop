@@ -28,8 +28,13 @@ public class Sentence extends BaseEntity {
     @Column(name = "text_vi")
     private String textVi;
 
-    @Column(name = "ipa")
-    private String ipa;
+    /** Phiên âm Mỹ, nguồn của âm đích khi chấm (ADR 0007). */
+    @Column(name = "ipa_us")
+    private String ipaUs;
+
+    /** Phiên âm Anh, chỉ để hiển thị, không dùng để chấm. */
+    @Column(name = "ipa_uk")
+    private String ipaUk;
 
     @Column(name = "start_ms", nullable = false)
     private Integer startMs;

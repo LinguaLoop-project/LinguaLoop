@@ -26,9 +26,9 @@ Mẹo và video theo âm đích (rồi mới đến âm Azure báo khi không c�
 
 Mở lại bài dùng âm đích đã lưu; dòng cũ (trước khi có cột) tính lại từ phiên âm hiện tại của câu.
 
-## Chưa quyết
+## Đã quyết ở ADR 0007
 
-Chuẩn phát âm đích Anh-Anh cho bài giọng Mỹ. Hiện âm đích là phiên âm Mỹ của câu đã quy đổi, chưa phải phiên âm Anh. Cần một nguồn phiên âm Anh theo từ (bảng phát âm từ điển có `accent = 'uk'`) và quyết định sản phẩm về shadowing với audio giọng Mỹ; en-GB không giúp được vì không trả tên âm.
+Chuẩn phát âm đích là giọng Mỹ (không phải Anh-Anh); phiên âm Anh chỉ để hiển thị và nằm ở cột riêng `ipa_uk`, cột `ipa` được đổi tên thành `ipa_us`.
 
 ## Consequences
 

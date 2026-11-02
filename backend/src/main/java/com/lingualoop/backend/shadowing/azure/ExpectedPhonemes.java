@@ -3,6 +3,7 @@ package com.lingualoop.backend.shadowing.azure;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
@@ -12,17 +13,19 @@ import java.util.stream.Stream;
 public final class ExpectedPhonemes {
 
     /**
-     * Ký hiệu của phiên âm câu (giọng Mỹ, cùng hệ với Azure en-US, ADR 0004), ký hiệu dài trước để khớp "tʃ", "oʊ"...
-     * trước "t", "o".
+     * Ký hiệu của phiên âm câu (giọng Mỹ, cùng hệ với Azure en-US, ADR 0007), ký hiệu dài trước để khớp "tʃ", "oʊ"...
+     * trước "t", "o". Nguyên âm r-hoá (ɪɹ, ɛɹ, ʊɹ) được tách thành nguyên âm + ɹ rồi mới gộp lại theo cách Azure chia
+     * âm ({@link #mergeRColoured}), nên không nằm ở đây.
      */
     private static final List<String> SYMBOLS = Stream.concat(
-                    AzurePhonemeMapper.IDENTICAL.stream(), AzurePhonemeMapper.SINGLE.keySet().stream())
+                    AzurePhonemeMapper.IDENTICAL.stream().filter(s -> !AzurePhonemeMapper.R_COLOURED.contains(s)),
+                    AzurePhonemeMapper.SINGLE.keySet().stream())
             .distinct().sorted(Comparator.comparingInt(String::length).reversed()).toList();
 
     /** 24 phụ âm của bảng phonemes. */
     private static final List<String> CONSONANTS = List.of(
             "p", "b", "t", "d", "k", "g", "f", "v", "θ", "ð", "s", "z", "ʃ", "ʒ", "h", "tʃ", "dʒ",
-            "m", "n", "ŋ", "l", "r", "j", "w");
+            "m", "n", "ŋ", "l", "ɹ", "j", "w");
 
     private ExpectedPhonemes() {
     }
@@ -31,7 +34,18 @@ public final class ExpectedPhonemes {
         return CONSONANTS.contains(symbol);
     }
 
+    /** Khoảng trắng gồm cả khoảng trắng không ngắt (U+00A0) có trong lời thoại: {@code \s} của Java không tính nó. */
+    private static final Pattern SPACES = Pattern.compile("[\\s\\p{Z}]+");
+
+    /** Các từ của câu theo khoảng trắng, bỏ token chỉ có dấu câu (vd "-") vì phiên âm không có cụm nào cho chúng. */
+    public static List<String> wordsOf(String text) {
+        return SPACES.splitAsStream(text)
+                .filter(w -> w.codePoints().anyMatch(Character::isLetterOrDigit))
+                .toList();
+    }
+
     /**
+     * @param ipa phiên âm Mỹ của câu (ADR 0007): mỗi từ một cụm, cách nhau khoảng trắng
      * @return âm mẫu theo từng từ của câu (phần tử null nếu từ đó có ký tự ngoài bảng phonemes, để không gán sai);
      *         null nếu số từ phiên âm không bằng số từ của câu
      */
@@ -39,9 +53,9 @@ public final class ExpectedPhonemes {
         if (text == null || ipa == null || ipa.isBlank()) {
             return null;
         }
-        String[] words = text.trim().split("\\s+");
+        List<String> words = wordsOf(text);
         String[] parts = ipa.trim().split("\\s+");
-        if (words.length != parts.length) {
+        if (words.size() != parts.length) {
             return null;
         }
         List<List<String>> result = new ArrayList<>(parts.length);

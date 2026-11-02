@@ -1,6 +1,6 @@
 # Âm vị giọng Mỹ của Azure được chuyển sang bảng `phonemes` (Anh-Anh) để lưu, giao diện vẫn hiện ký hiệu Mỹ
 
-Status: accepted (phần lưu trữ được thay bởi ADR 0005)
+Status: superseded (phần lưu trữ bởi ADR 0005; việc chuyển sang bảng Anh-Anh bởi ADR 0007: bảng `phonemes` nay là 44 âm giọng Mỹ, bộ chuyển đổi chỉ còn chuẩn hoá cách viết và gộp âm r)
 
 Bài học là giọng Mỹ (IPA của câu dạng `stoʊnz`, `ˈlɝn`) và Azure chấm với `en-US` trả ký hiệu Mỹ (`oʊ`, `ɝ`, `ɚ`, `ɑ`, `ɛ`, `ɹ`, `ɡ`), còn bảng `phonemes` dùng 44 âm Anh-Anh (`əʊ`, `ɜː`, `ɒ`, `ɪə`, `r`, `g`) và `sentence_attempt_phonemes.phoneme_id` bắt buộc. Nhóm chọn: một bộ chuyển đổi đọc cả chuỗi âm của từ (đổi ký hiệu đơn như `oʊ→əʊ`, `ɝ→ɜː`, `ɹ→r`; gộp nguyên âm trước `ɹ` như `ɪ+ɹ→ɪə`, `ɛ+ɹ→eə`, `ɑ+ɹ→ɑː` nhưng vẫn giữ `r` là một âm riêng để chấm lỗi bỏ âm cuối; `ɑ` đứng riêng thành `ɑː`), phủ đủ bộ âm `en-US` của Azure. Giao diện hiện ký hiệu Mỹ như Azure trả để khớp phiên âm của câu; `phoneme_id` đã chuyển chỉ dùng cho thống kê điểm yếu, Mẹo sửa và video khẩu hình.
 

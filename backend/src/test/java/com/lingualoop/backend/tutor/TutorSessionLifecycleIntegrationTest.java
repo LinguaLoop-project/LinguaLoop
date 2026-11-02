@@ -472,7 +472,7 @@ class TutorSessionLifecycleIntegrationTest {
         sentence.setLesson(lesson);
         sentence.setSortOrder(order++);
         sentence.setText(text);
-        sentence.setIpa(ipa);
+        sentence.setIpaUs(ipa);
         sentence.setStartMs(0);
         sentence.setEndMs(900);
         sentence.setCefrLevel(CefrLevel.A1);

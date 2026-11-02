@@ -23,7 +23,7 @@ public final class AssessmentSnapshots {
      */
     public static List<AttemptSnapshot.Word> words(String referenceText, String referenceIpa,
             PronunciationAssessment assessment) {
-        SentenceView reference = new SentenceView(null, null, 0, referenceText, null, referenceIpa, 0, 0, null);
+        SentenceView reference = new SentenceView(null, null, 0, referenceText, null, referenceIpa, null, 0, 0, null);
         List<List<String>> targets = PhonemeTargets.forAssessment(reference, assessment);
         List<AttemptSnapshot.Word> result = new ArrayList<>();
         for (int w = 0; w < assessment.words().size(); w++) {

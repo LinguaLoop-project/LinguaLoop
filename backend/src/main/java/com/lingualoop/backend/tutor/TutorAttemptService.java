@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
+import com.lingualoop.backend.shadowing.azure.ExpectedPhonemes;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.shadowing.dto.AttemptSnapshot;
@@ -85,10 +86,10 @@ public class TutorAttemptService {
         TutorSessionWord current = session.prepareAttempt(target);
         AttemptSnapshot snapshot = snapshots.load(userId, session.getAttemptId());
         if (current == null) {
-            return new Prepared(target, null, snapshot.sentenceText(), snapshot.sentenceIpa());
+            return new Prepared(target, null, snapshot.sentenceText(), snapshot.sentenceIpaUs());
         }
         return new Prepared(target, current.getWordKey(), current.getWord(),
-                wordIpa(snapshot.sentenceText(), snapshot.sentenceIpa(), current.getWordKey()));
+                wordIpa(snapshot.sentenceText(), snapshot.sentenceIpaUs(), current.getWordKey()));
     }
 
     private TutorDtos.AttemptResponse finish(TutorSession session, Prepared prepared, PronunciationAssessment assessment) {
@@ -155,13 +156,13 @@ public class TutorAttemptService {
         if (sentenceText == null || sentenceIpa == null || sentenceIpa.isBlank()) {
             return null;
         }
-        String[] words = sentenceText.trim().split("\\s+");
+        List<String> words = ExpectedPhonemes.wordsOf(sentenceText);
         String[] parts = sentenceIpa.trim().split("\\s+");
-        if (words.length != parts.length) {
+        if (words.size() != parts.length) {
             return null;
         }
-        for (int i = 0; i < words.length; i++) {
-            if (Words.normalize(words[i]).equals(wordKey)) {
+        for (int i = 0; i < words.size(); i++) {
+            if (Words.normalize(words.get(i)).equals(wordKey)) {
                 return parts[i];
             }
         }

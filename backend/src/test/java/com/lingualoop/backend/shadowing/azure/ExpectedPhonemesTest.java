@@ -11,20 +11,20 @@ class ExpectedPhonemesTest {
 
     @Test
     void splitsEachWordIntoTableSymbols_longestFirst() {
-        assertThat(ExpectedPhonemes.ofSentence("if chair see", "/ɪf tʃeə siː/"))
-                .containsExactly(List.of("ɪ", "f"), List.of("tʃ", "eə"), List.of("s", "iː"));
+        assertThat(ExpectedPhonemes.ofSentence("if chair see", "/ɪf tʃɛɹ si/"))
+                .containsExactly(List.of("ɪ", "f"), List.of("tʃ", "ɛɹ"), List.of("s", "i"));
     }
 
     @Test
     void ignoresStressMarksAndNormalisesVariants() {
-        assertThat(ExpectedPhonemes.tokenize("ˈɡɹeɪt")).containsExactly("g", "r", "eɪ", "t");
+        assertThat(ExpectedPhonemes.tokenize("ˈɡɹeɪt")).containsExactly("g", "ɹ", "eɪ", "t");
     }
 
     @Test
     void vowelPlusR_isOneSoundBeforeAConsonantOrAtTheEnd_likeAzure() {
-        assertThat(ExpectedPhonemes.tokenize("pɑɹk")).containsExactly("p", "ɑː", "k");
-        assertThat(ExpectedPhonemes.tokenize("nɪɹ")).containsExactly("n", "ɪə");
-        assertThat(ExpectedPhonemes.tokenize("kɛɹi")).containsExactly("k", "eə", "r", "iː");
+        assertThat(ExpectedPhonemes.tokenize("pɑɹk")).containsExactly("p", "ɑ", "k");
+        assertThat(ExpectedPhonemes.tokenize("nɪɹ")).containsExactly("n", "ɪɹ");
+        assertThat(ExpectedPhonemes.tokenize("kɛɹi")).containsExactly("k", "ɛɹ", "ɹ", "i");
     }
 
     @Test
@@ -43,10 +43,30 @@ class ExpectedPhonemesTest {
     }
 
     @Test
-    void americanSentenceIpa_isConvertedToTableSymbolsLikeAzureOutput() {
-        assertThat(ExpectedPhonemes.tokenize("stoʊnz")).containsExactly("s", "t", "əʊ", "n", "z");
-        assertThat(ExpectedPhonemes.tokenize("ˈlɝn")).containsExactly("l", "ɜː", "n");
-        assertThat(ExpectedPhonemes.tokenize("hɑt")).containsExactly("h", "ɑː", "t");
+    void americanSentenceIpa_isTheSameSymbolsAsAzureOutput() {
+        assertThat(ExpectedPhonemes.tokenize("stoʊnz")).containsExactly("s", "t", "oʊ", "n", "z");
+        assertThat(ExpectedPhonemes.tokenize("ˈlɝn")).containsExactly("l", "ɝ", "n");
+        assertThat(ExpectedPhonemes.tokenize("hɑt")).containsExactly("h", "ɑ", "t");
+    }
+
+    @Test
+    void punctuationOnlyTokensAreNotWords_ADR_0007() {
+        assertThat(ExpectedPhonemes.wordsOf("Pierre just called -")).containsExactly("Pierre", "just", "called");
+        assertThat(ExpectedPhonemes.ofSentence("Pierre just called -", "piɛɹ dʒʌst kɔld"))
+                .extracting(List::size).containsExactly(3, 4, 4); // ɛɹ gộp thành một âm như Azure
+        assertThat(ExpectedPhonemes.ofSentence("It costs 5 dollars", "ɪt kɔsts faɪv dɑlɚz")).hasSize(4);
+    }
+
+    @Test
+    void nonBreakingSpaceSeparatesWordsLikeAnyOtherSpace_ADR_0007() {
+        // Lời thoại của vài bài có U+00A0 giữa các từ; \s của Java không tính nó nên từng gộp hai từ thành một
+        assertThat(ExpectedPhonemes.wordsOf("I've looked everywhere!")).containsExactly("I've", "looked", "everywhere!");
+        assertThat(ExpectedPhonemes.ofSentence(" looked everywhere!", "lʊkt ˈɛvɹiˌwɛɹ")).hasSize(2);
+    }
+
+    @Test
+    void unstressedRColouredVowel_keepsItsOwnSymbol_ADR_0007() {
+        assertThat(ExpectedPhonemes.tokenize("dɪˈlɪvɚ")).containsExactly("d", "ɪ", "l", "ɪ", "v", "ɚ");
     }
 
     @Test
