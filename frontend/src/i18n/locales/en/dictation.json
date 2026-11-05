@@ -18,12 +18,9 @@
     "useNormal": "Use Normal level"
   },
   "media": {
-    "youtube": "YouTube",
     "audio": "Audio",
     "hideVideo": "Hide video",
     "showVideo": "Show video",
-    "sentences": "Sentences in this lesson",
-    "sentenceN": "Sentence {{n}}",
     "failTitle": "Couldn't load the video",
     "failDesc": "You can still do the exercise, but you can't hear the audio. Try reloading.",
     "blockedTitle": "Couldn't play the audio",
@@ -209,5 +206,6 @@
     "detailFailed": "Couldn't load the result of this attempt.",
     "retry": "Redo",
     "gaveUp": "Gave up"
-  }
+  },
+  "backTo": "Lesson: {{title}}"
 }

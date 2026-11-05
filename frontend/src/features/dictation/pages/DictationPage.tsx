@@ -380,21 +380,21 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
 
   return (
     <section className="w-full" id="v-dictation">
-      <header className="mb-3 flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-2">
           <Link
             to={`/student/lessons/${lesson.slug}`}
-            className="mb-0.5 inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text"
+            className="mb-1 inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary-text"
           >
             <Icon name="arrow-left" />
-            <span>{lesson.title}</span>
+            <span className="truncate">{t("backTo", { title: lesson.title })}</span>
           </Link>
-          <div className="mb-1 text-xs font-bold uppercase tracking-wider text-fn-dictation">
+          <div className="text-xs font-semibold uppercase tracking-wider text-fn-dictation">
             {lesson.difficulty ? t("overlineWithLevel", { cefr: lesson.difficulty }) : t("overline")}
           </div>
-          <h1 className="text-[30px]">{t("title")}</h1>
+          <h1 className="font-display text-3xl font-bold">{t("title")}</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <LevelSwitch value={settings.level} onChange={changeLevel} />
           <SettingsPopover settings={settings} onChange={updateSettings} />
           <ShortcutsPopover />
@@ -409,12 +409,8 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
             <MediaBar
               player={player}
               videoRef={videoRef}
-              sentences={sentences}
-              currentIndex={index}
-              lessonDurationSec={lesson.durationSec}
               hideVideo={settings.hideVideo}
               onToggleVideo={() => updateSettings({ hideVideo: !settings.hideVideo })}
-              onSelect={(i) => i !== index && begin(i)}
             />
             <div className="@container rounded-xl border border-border bg-surface px-[18px] py-3.5 shadow-[var(--shadow-card)]">
               <PlayerControls

@@ -134,12 +134,12 @@ export function usePlayer({ videoId, mediaUrl, containerRef, rate }: UsePlayerOp
           const player = new yt.Player(element, {
             videoId,
             playerVars: {
-              controls: 0,
+              controls: 1,
               disablekb: 1,
               rel: 0,
               playsinline: 1,
               modestbranding: 1,
-              fs: 0,
+              fs: 1,
               origin: window.location.origin,
             },
             events: {
