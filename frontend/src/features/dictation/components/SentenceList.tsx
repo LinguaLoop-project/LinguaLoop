@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
-import Chip from "@/components/common/Chip";
 import Icon from "@/components/common/Icon";
 import ProgressBar from "@/components/common/ProgressBar";
 import type { DictationSentence } from "../types";
@@ -39,10 +38,10 @@ export default function SentenceList({ sentences, currentIndex, onSelect }: Sent
       className="flex max-h-[calc(100vh-110px)] min-w-0 flex-col gap-3 rounded-xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] min-[1100px]:sticky min-[1100px]:top-20 max-[1099px]:max-h-none"
     >
       <div className="flex items-center justify-between gap-2">
-        <div className="text-xs font-bold uppercase tracking-wider text-text-muted">{t("list.title")}</div>
-        <Chip className="pointer-events-none">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-fn-dictation">{t("list.title")}</h2>
+        <span className="inline-flex h-8 items-center rounded-full border border-border-strong px-3 text-sm font-semibold tabular-nums">
           {done}/{total} · {percent}%
-        </Chip>
+        </span>
       </div>
       <ProgressBar value={percent} tone="dictation" label={t("list.title")} thin />
       <ol ref={listRef} className="relative -mr-1 flex min-h-[120px] flex-col gap-2 overflow-y-auto pr-1 max-[1099px]:max-h-[360px]">
@@ -56,25 +55,29 @@ export default function SentenceList({ sentences, currentIndex, onSelect }: Sent
                 type="button"
                 aria-current={current ? "true" : undefined}
                 onClick={() => onSelect(i)}
-                className={`flex w-full flex-none flex-col gap-1.5 rounded-md border p-2.5 text-left transition-colors duration-150 ${
+                className={`flex w-full cursor-pointer flex-none flex-col gap-1.5 rounded-md text-left transition-colors hover:border-border-strong hover:bg-surface-hover ${
                   current
-                    ? "border-2 border-fn-dictation bg-fn-dictation-soft p-[9px]"
-                    : "border-border bg-surface hover:border-border-strong hover:bg-surface-hover"
+                    ? "border-2 border-fn-dictation bg-fn-dictation-soft p-[9px_11px]"
+                    : "border border-border bg-surface p-[10px_12px]"
                 }`}
               >
-                <span className="flex min-h-[22px] items-center gap-2">
-                  <span className="rounded-[6px] border border-border bg-bg-elevated px-2 py-0.5 text-xs font-bold">#{i + 1}</span>
+                <span className="flex min-h-[22px] flex-wrap items-center gap-2">
+                  <span className="rounded-md border border-border bg-bg-elevated px-2 py-0.5 text-xs font-bold tabular-nums">#{i + 1}</span>
                   {s.inReview && <Icon name="pin" className="h-3.5 w-3.5 text-danger" aria-label={t("list.inReview")} />}
                   {s.note && <Icon name="sticky-note" className="h-3.5 w-3.5 text-text-muted" aria-label={t("list.hasNote")} />}
                   {s.latest && tone ? (
                     <>
                       <Badge tone={SCORE_BADGE[tone]}>{Math.round(s.latest.score)}</Badge>
+                      <span className="rounded-full border border-border-strong px-2 text-[11px] leading-5">
+                        {t("list.times", { count: s.attemptCount })}
+                      </span>
                       <span className={`inline-flex h-[22px] items-center rounded-full border px-2 text-[11px] ${LEVEL_CHIP[s.latest.level]}`}>
                         {t(`level.${s.latest.level}`)}
                       </span>
+                      {s.latest.score >= 80 && <Icon name="circle-check" className="text-success" />}
                     </>
                   ) : (
-                    current && <span className="text-[13px] font-semibold text-fn-dictation">{t("list.doing")}</span>
+                    current && <span className="text-xs font-semibold text-fn-dictation">{t("list.doing")}</span>
                   )}
                 </span>
                 {s.text ? (

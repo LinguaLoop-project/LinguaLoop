@@ -117,7 +117,8 @@
     "words_one": "{{count}} word",
     "words_other": "{{count}} words",
     "inReview": "In Sentences to review",
-    "hasNote": "Has a note"
+    "hasNote": "Has a note",
+    "times": "{{count}}×"
   },
   "settings": {
     "open": "Settings",

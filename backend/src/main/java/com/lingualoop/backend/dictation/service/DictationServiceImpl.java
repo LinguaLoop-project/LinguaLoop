@@ -97,8 +97,10 @@ class DictationServiceImpl implements DictationService {
                 .stream().collect(Collectors.toMap(DictationAttemptView::sentenceId, mapper::toLatest));
         Set<UUID> inReview = reviewService.findPendingSentenceIds(userId, lesson.id());
         Map<UUID, String> notes = noteService.findContentsByLesson(userId, lesson.id());
+        Map<UUID, Integer> counts = practiceAttemptService.countDictationAttempts(userId, lesson.id());
         List<SentenceItem> sentences = sentenceQueryService.findSentences(lesson.id()).stream()
-                .map(s -> toItem(s, latest.get(s.id()), inReview.contains(s.id()), notes.get(s.id())))
+                .map(s -> toItem(s, latest.get(s.id()), inReview.contains(s.id()), notes.get(s.id()),
+                        counts.getOrDefault(s.id(), 0)))
                 .toList();
         return new DictationLessonResponse(lesson.id(), lesson.slug(), lesson.title(), lesson.titleVi(),
                 lesson.difficulty(), lesson.pro(), lesson.sourceType(), lesson.sourceUrl(), lesson.durationSec(),
@@ -313,11 +315,12 @@ class DictationServiceImpl implements DictationService {
     }
 
     /** Chữ của câu chỉ lộ ra khi câu đã có kết quả. */
-    private SentenceItem toItem(SentenceView sentence, LatestResult latest, boolean inReview, String note) {
+    private SentenceItem toItem(SentenceView sentence, LatestResult latest, boolean inReview, String note,
+            int attemptCount) {
         boolean done = latest != null;
         return new SentenceItem(sentence.id(), sentence.sortOrder(), sentence.startMs(), sentence.endMs(),
                 wordCount(sentence.text()), done ? sentence.text() : null, done ? sentence.textVi() : null, latest,
-                inReview, note);
+                inReview, note, attemptCount);
     }
 
     private int wordCount(String text) {

@@ -24,6 +24,7 @@ const sentence = (id: string, done: boolean): DictationSentence => ({
     : null,
   inReview: done,
   note: null,
+  attemptCount: done ? 1 : 0,
 });
 
 describe("practiceUrl", () => {

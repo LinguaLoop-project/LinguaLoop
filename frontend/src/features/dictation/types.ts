@@ -34,6 +34,8 @@ export interface DictationSentence {
   inReview: boolean;
   /** Ghi chú của người học cho câu; null nếu chưa có. */
   note: string | null;
+  /** Số lượt đã làm câu này, kể cả làm lại và bỏ cuộc; 0 nếu chưa làm. */
+  attemptCount: number;
 }
 
 export interface DictationLesson {

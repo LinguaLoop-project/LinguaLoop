@@ -115,7 +115,8 @@
     "doing": "Đang làm",
     "words_other": "{{count}} từ",
     "inReview": "Đang trong Câu cần ôn",
-    "hasNote": "Có ghi chú"
+    "hasNote": "Có ghi chú",
+    "times": "{{count}} lần"
   },
   "settings": {
     "open": "Cài đặt",
