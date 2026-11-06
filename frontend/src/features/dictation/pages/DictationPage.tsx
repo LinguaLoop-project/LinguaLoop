@@ -42,6 +42,7 @@ import type {
 } from "../types";
 import { deepLinkTarget } from "../deepLink";
 import { useDictationShortcuts } from "../useDictationShortcuts";
+import { REVIEW_ADD_BELOW } from "@/features/practice/constants";
 import { followTarget } from "../position";
 import { usePlayer } from "../usePlayer";
 import {
@@ -50,7 +51,6 @@ import {
   isNetworkError,
   MAX_DURATION_MS,
   mergeRevealed,
-  REVIEW_ADD_BELOW,
   resultContext,
   submitErrorKind,
   type SubmitErrorKind,
@@ -79,6 +79,7 @@ const Alert = ({ icon, children }: { icon: string; children: React.ReactNode }) 
 /** Phần làm bài của một bài đã tải xong: điều phối câu hiện tại, trình phát, nộp bài và kết quả. */
 function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   const { t } = useTranslation("dictation");
+  const { t: tPractice } = useTranslation("practice");
   const sentences = lesson.sentences;
   const total = sentences.length;
 
@@ -226,7 +227,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
 
   const onAttemptDone = (attempt: AttemptResult) => {
     player.stop();
-    if (attempt.score < REVIEW_ADD_BELOW && !sentence.inReview) toast(t("tools.autoAdded"), { icon: "pin" });
+    if (attempt.score < REVIEW_ADD_BELOW && !sentence.inReview) toast(tPractice("pin.autoAdded"), { icon: "pin" });
     setResults((prev) => ({ ...prev, [sentence.id]: attempt }));
     setRedo((prev) => new Set([...prev].filter((id) => id !== sentence.id)));
   };

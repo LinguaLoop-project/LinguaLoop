@@ -1,0 +1,22 @@
+{
+  "pin": {
+    "pin": "Đưa vào Câu cần ôn",
+    "unpin": "Bỏ khỏi Câu cần ôn",
+    "pinned": "Đã thêm câu này vào Câu cần ôn",
+    "unpinned": "Đã bỏ câu này khỏi Câu cần ôn",
+    "failed": "Chưa cập nhật được Câu cần ôn. Thử lại nhé.",
+    "autoAdded": "Đã thêm câu này vào Câu cần ôn"
+  },
+  "note": {
+    "title": "Ghi chú của tôi",
+    "placeholder": "Viết điều bạn muốn nhớ về câu này",
+    "save": "Lưu",
+    "delete": "Xoá ghi chú",
+    "saved": "Đã lưu ghi chú",
+    "deleted": "Đã xoá ghi chú",
+    "failed": "Chưa lưu được ghi chú. Thử lại nhé.",
+    "offline": "Bạn đang mất mạng. Thử lại khi có mạng.",
+    "add": "Thêm ghi chú",
+    "edit": "Sửa ghi chú"
+  }
+}

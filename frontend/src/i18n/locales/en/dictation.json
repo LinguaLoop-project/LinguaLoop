@@ -179,25 +179,7 @@
     "failed": "Couldn't get a hint, try again"
   },
   "tools": {
-    "pin": "Add to Sentences to review",
-    "unpin": "Remove from Sentences to review",
-    "pinned": "Added this sentence to Sentences to review",
-    "unpinned": "Removed this sentence from Sentences to review",
-    "autoAdded": "Added this sentence to Sentences to review",
-    "pinFailed": "Couldn't update Sentences to review. Please try again.",
-    "noteAdd": "Add note",
-    "noteEdit": "Edit note",
     "history": "History"
-  },
-  "note": {
-    "title": "My note",
-    "placeholder": "Write what you want to remember about this sentence",
-    "save": "Save",
-    "delete": "Delete note",
-    "saved": "Note saved",
-    "deleted": "Note deleted",
-    "failed": "Couldn't save the note. Please try again.",
-    "offline": "You're offline. Try again when you're back online."
   },
   "history": {
     "title": "Attempt history",

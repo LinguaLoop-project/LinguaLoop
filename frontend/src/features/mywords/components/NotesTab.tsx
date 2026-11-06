@@ -5,9 +5,9 @@ import Button from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
 import Icon from "@/components/common/Icon";
 import { toast } from "@/stores/toastStore";
-import { NOTE_MAX_LENGTH } from "@/features/dictation/components/NotePanel";
-import { useNotes, useRemoveNote, useUpdateNote } from "../hooks";
-import type { NoteEntry } from "../types";
+import { NOTE_MAX_LENGTH } from "@/features/practice/constants";
+import { useDeleteNote, useNoteEntries, useSaveNote } from "@/features/practice/hooks";
+import type { NoteEntry } from "@/features/practice/types";
 import { practiceUrl } from "../links";
 import { dateFormatter, isNetworkError } from "../utils";
 import ListState from "./ListState";
@@ -16,8 +16,8 @@ function NoteCard({ note }: { note: NoteEntry }) {
   const { t, i18n } = useTranslation("mywords");
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(note.content);
-  const update = useUpdateNote();
-  const remove = useRemoveNote();
+  const update = useSaveNote();
+  const remove = useDeleteNote();
   const busy = update.isPending || remove.isPending;
   const canSave = value.trim() !== "" && value !== note.content && !busy;
 
@@ -102,7 +102,7 @@ function NoteCard({ note }: { note: NoteEntry }) {
 /** Tab "Ghi chú": ghi chú riêng của người học cho từng câu, sửa và xoá tại chỗ. */
 export default function NotesTab() {
   const { t } = useTranslation("mywords");
-  const query = useNotes();
+  const query = useNoteEntries();
   const notes = query.data ?? [];
 
   return (

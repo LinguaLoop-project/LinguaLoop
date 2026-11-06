@@ -5,9 +5,10 @@ import Button from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
 import Icon from "@/components/common/Icon";
 import { toast } from "@/stores/toastStore";
-import { LEVEL_CHIP, REVIEW_ADD_BELOW, SCORE_BADGE, scoreTone } from "@/features/dictation/utils";
-import { useResolveReview, useReviewSentences } from "../hooks";
-import type { ReviewSentence } from "../types";
+import { LEVEL_CHIP, SCORE_BADGE, scoreTone } from "@/features/dictation/utils";
+import { REVIEW_ADD_BELOW } from "@/features/practice/constants";
+import { useReviewEntries, useSetReview } from "@/features/practice/hooks";
+import type { ReviewSentence } from "@/features/practice/types";
 import { practiceUrl } from "../links";
 import { dateFormatter, isNetworkError } from "../utils";
 import ListState from "./ListState";
@@ -15,11 +16,11 @@ import ListState from "./ListState";
 function ReviewRow({ item }: { item: ReviewSentence }) {
   const { t, i18n } = useTranslation("mywords");
   const navigate = useNavigate();
-  const resolve = useResolveReview();
+  const resolve = useSetReview("dictation");
   const tone = item.lastScore === null ? null : scoreTone(item.lastScore);
 
   const onResolve = () =>
-    resolve.mutate(item.sentenceId, {
+    resolve.mutate({ sentenceId: item.sentenceId, pinned: false }, {
       onSuccess: () => toast(t("review.resolved"), { icon: "check" }),
       onError: (error) => toast(isNetworkError(error) ? t("offline") : t("review.resolveFailed"), { icon: "circle-alert" }),
     });
@@ -68,7 +69,7 @@ function ReviewRow({ item }: { item: ReviewSentence }) {
 /** Tab "Câu cần ôn": các câu nghe chép làm kém hoặc đã ghim, điểm thấp trước. */
 export default function ReviewTab() {
   const { t } = useTranslation("mywords");
-  const query = useReviewSentences();
+  const query = useReviewEntries("dictation");
   const items = query.data ?? [];
 
   return (
