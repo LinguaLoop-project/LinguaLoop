@@ -8,7 +8,6 @@ import type {
   RevealWordBody,
   LatestResult,
   RevealWordResult,
-  SentenceNote,
   SubmitAttemptBody,
 } from "./types";
 
@@ -69,29 +68,6 @@ export const dictationApi = {
       { timeout: REQUEST_TIMEOUT_MS },
     );
     return response.data.data;
-  },
-
-  saveNote: async (sentenceId: string, content: string): Promise<SentenceNote> => {
-    const response = await axiosClient.put<ApiResponse<SentenceNote>>(
-      `/sentences/${sentenceId}/note`,
-      { content },
-      { timeout: REQUEST_TIMEOUT_MS },
-    );
-    return response.data.data;
-  },
-
-  deleteNote: async (sentenceId: string): Promise<void> => {
-    await axiosClient.delete(`/sentences/${sentenceId}/note`, { timeout: REQUEST_TIMEOUT_MS });
-  },
-
-  /** Ghim câu vào Câu cần ôn. */
-  pinReview: async (sentenceId: string): Promise<void> => {
-    await axiosClient.put(`/review/dictation/sentences/${sentenceId}`, null, { timeout: REQUEST_TIMEOUT_MS });
-  },
-
-  /** Gỡ câu khỏi Câu cần ôn ("Đã ổn" hoặc bỏ ghim). */
-  resolveReview: async (sentenceId: string): Promise<void> => {
-    await axiosClient.delete(`/review/dictation/sentences/${sentenceId}`, { timeout: REQUEST_TIMEOUT_MS });
   },
 
   submitAttempt: async (sentenceId: string, body: SubmitAttemptBody): Promise<AttemptResult> => {

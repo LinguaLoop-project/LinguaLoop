@@ -5,7 +5,7 @@ import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import ProgressRing from "@/components/common/ProgressRing";
-import { useNotes } from "@/features/mywords";
+import { useNoteEntries } from "@/features/practice/hooks";
 import { practiceUrl } from "@/features/mywords/links";
 import { formatDuration } from "@/lib/format";
 import type { LessonSummary, ModeProgress } from "../../types";
@@ -132,7 +132,7 @@ export function VocabCard() {
 export function NotesCard({ slug, locked }: { slug: string; locked: boolean }) {
   const { t } = useTranslation("pages");
   const navigate = useNavigate();
-  const notesQuery = useNotes(locked ? undefined : slug);
+  const notesQuery = useNoteEntries(slug, !locked);
   const notes = locked ? [] : (notesQuery.data ?? []);
   return (
     <AsideCard
