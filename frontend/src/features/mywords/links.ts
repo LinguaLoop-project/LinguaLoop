@@ -7,3 +7,8 @@ export function practiceUrl(lessonSlug: string, sentenceId: string, options: { r
   if (options.redo) params.set("redo", "1");
   return `/student/dictation/${encodeURIComponent(lessonSlug)}?${params.toString()}`;
 }
+
+/** Đường dẫn mở trang Shadowing của bài tại một câu (luyện lại: số lượt đọc không giới hạn nên không có chế độ làm lại). */
+export function shadowingUrl(lessonSlug: string, sentenceId: string): string {
+  return `/student/shadowing/${encodeURIComponent(lessonSlug)}?${new URLSearchParams({ sentence: sentenceId }).toString()}`;
+}

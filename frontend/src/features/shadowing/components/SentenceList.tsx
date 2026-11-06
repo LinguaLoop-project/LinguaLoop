@@ -74,8 +74,16 @@ export default function SentenceList({ sentences, records, current, disabled, re
                   <span className="rounded-md border border-border bg-bg-elevated px-2 py-0.5 text-xs font-bold tabular-nums">
                     #{i + 1}
                   </span>
-                  {pinned.has(s.id) && <Icon name="pin" className="h-3.5 w-3.5 text-danger" aria-label={t(`${K}.list.inReview`)} />}
-                  {noted.has(s.id) && <Icon name="sticky-note" className="h-3.5 w-3.5 text-text-muted" aria-label={t(`${K}.list.hasNote`)} />}
+                  {pinned.has(s.id) && (
+                    <span role="img" aria-label={t(`${K}.list.inReview`)} className="inline-flex">
+                      <Icon name="pin" className="h-3.5 w-3.5 text-danger" />
+                    </span>
+                  )}
+                  {noted.has(s.id) && (
+                    <span role="img" aria-label={t(`${K}.list.hasNote`)} className="inline-flex">
+                      <Icon name="sticky-note" className="h-3.5 w-3.5 text-text-muted" />
+                    </span>
+                  )}
                   {rec && tone ? (
                     <>
                       <Badge tone={tone === "good" ? "success" : tone === "mid" ? "warning" : "danger"}>

@@ -12,10 +12,9 @@
     "notes": "Notes"
   },
   "review": {
-    "tip": "A sentence joins this list when you score under {{low}}. Practice it again and score {{high}} or more to take it off.",
+    "tip": "A sentence joins this list when you score under {{low}}. Practice it again and score {{high}} or more to take it off. Dictation and Shadowing keep separate lists for the same sentence.",
     "count_one": "{{count}} sentence waiting · lowest scores first",
     "count_other": "{{count}} sentences waiting · lowest scores first",
-    "mode": "Dictation",
     "lastScore": "Last score {{score}}",
     "reason": {
       "low_score": "Low score",
@@ -28,7 +27,17 @@
     "resolveFailed": "Couldn't update. Please try again.",
     "practice": "Practice again",
     "emptyTitle": "No sentences to review",
-    "emptyDesc": "Great work! Low-scoring sentences will show up here automatically."
+    "emptyDesc": "Great work! Low-scoring sentences will show up here automatically.",
+    "modes": {
+      "dictation": "Dictation",
+      "shadowing": "Shadowing"
+    },
+    "filter": {
+      "label": "Filter by mode",
+      "all": "All"
+    },
+    "emptyFilteredTitle": "No sentences in this mode",
+    "emptyFilteredDesc": "Pick another mode to see your sentences to review."
   },
   "notes": {
     "hint": "Notes are attached to individual sentences. While practicing, press N to add one.",

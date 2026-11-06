@@ -12,9 +12,8 @@
     "notes": "Ghi chú"
   },
   "review": {
-    "tip": "Câu tự vào danh sách khi bạn được dưới {{low}} điểm. Luyện lại đạt từ {{high}} điểm là câu tự rời danh sách.",
+    "tip": "Câu tự vào danh sách khi bạn được dưới {{low}} điểm. Luyện lại đạt từ {{high}} điểm là câu tự rời danh sách. Nghe chép và Shadowing có danh sách riêng cho cùng một câu.",
     "count_other": "{{count}} câu đang chờ · ưu tiên câu điểm thấp",
-    "mode": "Nghe chép",
     "lastScore": "Lần cuối {{score}} điểm",
     "reason": {
       "low_score": "Điểm thấp",
@@ -27,7 +26,17 @@
     "resolveFailed": "Chưa cập nhật được. Thử lại nhé.",
     "practice": "Luyện lại",
     "emptyTitle": "Không còn câu nào cần ôn",
-    "emptyDesc": "Làm tốt lắm! Câu điểm thấp sẽ tự xuất hiện ở đây."
+    "emptyDesc": "Làm tốt lắm! Câu điểm thấp sẽ tự xuất hiện ở đây.",
+    "modes": {
+      "dictation": "Nghe chép",
+      "shadowing": "Shadowing"
+    },
+    "filter": {
+      "label": "Lọc theo chế độ",
+      "all": "Tất cả"
+    },
+    "emptyFilteredTitle": "Không có câu nào ở chế độ này",
+    "emptyFilteredDesc": "Chọn chế độ khác để xem các câu cần ôn."
   },
   "notes": {
     "hint": "Ghi chú gắn với từng câu. Trong lúc luyện, bấm N để thêm.",
