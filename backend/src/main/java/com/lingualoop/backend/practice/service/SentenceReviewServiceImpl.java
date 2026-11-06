@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
+import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.practice.dto.ReviewSentenceView;
 import com.lingualoop.backend.practice.enums.DictationLevel;
 import com.lingualoop.backend.practice.enums.ReviewReason;
@@ -31,44 +32,45 @@ class SentenceReviewServiceImpl implements SentenceReviewService {
 
     @Override
     @Transactional
-    public boolean recordDictationScore(UUID userId, UUID sentenceId, BigDecimal score) {
+    public boolean recordScore(UUID userId, UUID sentenceId, PracticeMode mode, BigDecimal score) {
         if (score.compareTo(ADD_BELOW) < 0) {
-            reviews.addDictation(userId, sentenceId, ReviewReason.low_score.name());
+            reviews.add(userId, sentenceId, mode.name(), ReviewReason.low_score.name());
             return true;
         }
         if (score.compareTo(RESOLVE_AT) >= 0) {
-            reviews.resolveDictation(userId, sentenceId);
+            reviews.resolve(userId, sentenceId, mode.name());
             return false;
         }
-        return reviews.isPendingDictation(userId, sentenceId);
+        return reviews.isPending(userId, sentenceId, mode.name());
     }
 
     @Override
     @Transactional
-    public void pin(UUID userId, UUID sentenceId) {
-        if (!reviews.hasDictationAttempt(userId, sentenceId)) {
+    public void pin(UUID userId, UUID sentenceId, PracticeMode mode) {
+        if (!reviews.hasAttempt(userId, sentenceId, mode.name())) {
             throw new BusinessException(ErrorCode.PRACTICE_SENTENCE_NOT_PRACTICED);
         }
-        reviews.addDictation(userId, sentenceId, ReviewReason.manual.name());
+        reviews.add(userId, sentenceId, mode.name(), ReviewReason.manual.name());
     }
 
     @Override
     @Transactional
-    public void resolve(UUID userId, UUID sentenceId) {
-        reviews.resolveDictation(userId, sentenceId);
+    public void resolve(UUID userId, UUID sentenceId, PracticeMode mode) {
+        reviews.resolve(userId, sentenceId, mode.name());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Set<UUID> findPendingSentenceIds(UUID userId, UUID lessonId) {
-        return new HashSet<>(reviews.findPendingDictationSentenceIds(userId, lessonId));
+    public Set<UUID> findPendingSentenceIds(UUID userId, UUID lessonId, PracticeMode mode) {
+        return new HashSet<>(reviews.findPendingSentenceIds(userId, lessonId, mode.name()));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReviewSentenceView> list(UUID userId) {
-        return reviews.findDictationEntries(userId).stream()
-                .map(e -> new ReviewSentenceView(e.getSentenceId(), ReviewReason.valueOf(e.getReason()),
+    public List<ReviewSentenceView> list(UUID userId, PracticeMode mode, String lessonSlug) {
+        return reviews.findEntries(userId, mode == null ? null : mode.name(), lessonSlug).stream()
+                .map(e -> new ReviewSentenceView(e.getSentenceId(), PracticeMode.valueOf(e.getMode()),
+                        ReviewReason.valueOf(e.getReason()),
                         e.getAddedAt(), e.getLessonSlug(), e.getLessonTitle(), e.getSortOrder(), e.getText(),
                         e.getTextVi(), e.getLastScore(),
                         e.getLastLevel() == null ? null : DictationLevel.valueOf(e.getLastLevel()),

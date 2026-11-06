@@ -60,6 +60,46 @@ public interface ShadowingAttemptRepository extends JpaRepository<SentenceAttemp
             ORDER BY t.sort_order""")
     List<LatestHead> findLatestByLesson(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId);
 
+    /** Một dòng của lịch sử: điểm các lượt đọc của một câu, chưa kèm từng từ. */
+    interface HistoryRow {
+
+        Long getAttemptId();
+
+        BigDecimal getScore();
+
+        BigDecimal getAccuracyScore();
+
+        BigDecimal getFluencyScore();
+
+        BigDecimal getCompletenessScore();
+
+        BigDecimal getProsodyScore();
+
+        Instant getAttemptedAt();
+    }
+
+    /** Mọi lượt shadowing của người học trên một câu, mới nhất trước. */
+    @Query(nativeQuery = true, value = """
+            SELECT a.id AS "attemptId", a.score AS "score", a.accuracy_score AS "accuracyScore",
+                   a.fluency_score AS "fluencyScore", a.completeness_score AS "completenessScore",
+                   a.prosody_score AS "prosodyScore", a.attempted_at AS "attemptedAt"
+            FROM sentence_attempts a
+            WHERE a.user_id = :userId AND a.sentence_id = :sentenceId AND a.mode = 'shadowing'
+            ORDER BY a.attempted_at DESC, a.id DESC""")
+    List<HistoryRow> findHistory(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId);
+
+    /** Một lượt shadowing cụ thể, chỉ khi thuộc người học, cùng thống kê của câu như {@link #findLatestByLesson}. */
+    @Query(nativeQuery = true, value = """
+            SELECT a.sentence_id AS "sentenceId", a.id AS "attemptId", a.score AS "score",
+                   a.accuracy_score AS "accuracyScore", a.fluency_score AS "fluencyScore",
+                   a.completeness_score AS "completenessScore", a.prosody_score AS "prosodyScore",
+                   a.attempted_at AS "attemptedAt", st.best_score AS "bestScore", st.attempt_count AS "attemptCount"
+            FROM sentence_attempts a
+            JOIN v_user_sentence_stats st
+              ON st.user_id = a.user_id AND st.sentence_id = a.sentence_id AND st.mode = a.mode
+            WHERE a.id = :attemptId AND a.user_id = :userId AND a.mode = 'shadowing'""")
+    java.util.Optional<LatestHead> findHeadById(@Param("userId") UUID userId, @Param("attemptId") long attemptId);
+
     /** Mã các lượt shadowing của người học trong bài, trước {@code beforeId}, lượt gần nhất đứng đầu. */
     @Query(nativeQuery = true, value = """
             SELECT a.id FROM sentence_attempts a JOIN sentences s ON s.id = a.sentence_id
