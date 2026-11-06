@@ -95,7 +95,7 @@ class DictationServiceImpl implements DictationService {
 
         Map<UUID, LatestResult> latest = practiceAttemptService.findLatestDictationAttempts(userId, lesson.id())
                 .stream().collect(Collectors.toMap(DictationAttemptView::sentenceId, mapper::toLatest));
-        Set<UUID> inReview = reviewService.findPendingSentenceIds(userId, lesson.id());
+        Set<UUID> inReview = reviewService.findPendingSentenceIds(userId, lesson.id(), PracticeMode.dictation);
         Map<UUID, String> notes = noteService.findContentsByLesson(userId, lesson.id());
         Map<UUID, Integer> counts = practiceAttemptService.countDictationAttempts(userId, lesson.id());
         List<SentenceItem> sentences = sentenceQueryService.findSentences(lesson.id()).stream()
@@ -167,7 +167,7 @@ class DictationServiceImpl implements DictationService {
                 attemptWords(graded.words(), tokens.size())));
         int seconds = request.durationMs() == null ? 0 : request.durationMs() / 1000;
         lessonProgressService.recordActivity(userId, sentence.lessonId(), PracticeMode.dictation, seconds);
-        reviewService.recordDictationScore(userId, sentence.id(), graded.score());
+        reviewService.recordScore(userId, sentence.id(), PracticeMode.dictation, graded.score());
 
         return new AttemptResultResponse(attemptId, request.level(), graded.score(), request.gaveUp(),
                 graded.words().stream().map(mapper::toResponse).toList(), classResults(graded.words()),

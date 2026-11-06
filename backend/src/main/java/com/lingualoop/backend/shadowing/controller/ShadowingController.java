@@ -23,6 +23,7 @@ import com.lingualoop.backend.security.CurrentUserId;
 import com.lingualoop.backend.shadowing.dto.AiFeedbackResponse;
 import com.lingualoop.backend.shadowing.dto.LatestAttemptResponse;
 import com.lingualoop.backend.shadowing.dto.ShadowingAttemptResponse;
+import com.lingualoop.backend.shadowing.dto.ShadowingHistoryItem;
 import com.lingualoop.backend.shadowing.service.AiFeedbackService;
 import com.lingualoop.backend.shadowing.service.ShadowingAttemptService;
 
@@ -57,6 +58,19 @@ public class ShadowingController {
     }
 
     /** Nhận xét AI cho một lượt; lượt đã có nhận xét thì trả lại bản đã lưu (không trừ thêm lượt). */
+    /** Lịch sử các lượt đọc của một câu, mới nhất trước. */
+    @GetMapping("/sentences/{sentenceId}/shadowing-attempts")
+    public ApiResponse<List<ShadowingHistoryItem>> history(@CurrentUserId UUID userId,
+            @PathVariable UUID sentenceId) {
+        return ApiResponse.ok(shadowingAttemptService.history(userId, sentenceId));
+    }
+
+    /** Kết quả đầy đủ của một lượt cũ (của chính người học). */
+    @GetMapping("/shadowing-attempts/{attemptId}")
+    public ApiResponse<LatestAttemptResponse> attempt(@CurrentUserId UUID userId, @PathVariable long attemptId) {
+        return ApiResponse.ok(shadowingAttemptService.attempt(userId, attemptId));
+    }
+
     @PostMapping("/shadowing-attempts/{attemptId}/ai-feedback")
     public ApiResponse<AiFeedbackResponse> aiFeedback(@CurrentUserId UUID userId, @PathVariable long attemptId) {
         return ApiResponse.ok(aiFeedbackService.feedbackFor(userId, attemptId));
