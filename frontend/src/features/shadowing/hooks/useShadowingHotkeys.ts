@@ -11,6 +11,8 @@ export interface ShadowingHotkeyHandlers {
   playMine: () => void;
   /** C: nghe mẫu rồi nghe giọng mình. */
   compare: () => void;
+  /** N: mở hoặc đóng ô ghi chú của câu. */
+  toggleNote: () => void;
   /** Alt+←. */
   prev: () => void;
   /** Alt+→. */
@@ -78,6 +80,8 @@ export function useShadowingHotkeys(handlers: ShadowingHotkeyHandlers, tab: Shad
         h.playMine();
       } else if (e.key === "c" || e.key === "C") {
         h.compare();
+      } else if (e.key === "n" || e.key === "N") {
+        h.toggleNote();
       }
     };
 

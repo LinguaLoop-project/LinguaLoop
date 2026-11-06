@@ -1,5 +1,5 @@
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import Button from "@/components/common/Button";
@@ -8,6 +8,8 @@ import Mascot from "@/components/common/Mascot";
 import SegmentedControl from "@/components/common/SegmentedControl";
 import { NETWORK_ERROR, toApiError } from "@/features/auth";
 import type { LessonDetail, SentenceResponse } from "@/features/lesson/types";
+import { REVIEW_ADD_BELOW } from "@/features/practice/constants";
+import { useNoteEntries, useReviewEntries } from "@/features/practice/hooks";
 import * as tutorApi from "@/features/tutor/api";
 import TutorAsk from "@/features/tutor/components/TutorAsk";
 import TutorOffer from "@/features/tutor/components/TutorOffer";
@@ -42,6 +44,7 @@ import { MessageNote, MicDeniedNote } from "./Notes";
 import QuotaChip from "./QuotaChip";
 import SentenceList from "./SentenceList";
 import SentenceWords from "./SentenceWords";
+import ShadowingTools, { type ToolPanel } from "./ShadowingTools";
 import { SettingsPanel, ShortcutsPanel } from "./ToolbarPanels";
 import ToolbarPopover from "./ToolbarPopover";
 import WatchPanel from "./WatchPanel";
@@ -94,6 +97,7 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 
 export default function ShadowingPractice({ lesson, sentences, latest }: ShadowingPracticeProps) {
   const { t } = useTranslation("pages");
+  const { t: tPractice } = useTranslation("practice");
   const navigate = useNavigate();
   const { isPro, tutorOut: tutorQuotaOut, tutorSessionsPerDay, refresh: refreshEnergy } = useAiEnergy();
   const setShowUpgradeModal = useQuotaStore((s) => s.setShowUpgradeModal);
@@ -107,7 +111,11 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const { stop: stopMic } = recorder;
 
   const [records, setRecords] = useState(() => recordsFromLatest(latest));
+  const [searchParams] = useSearchParams();
   const [index, setIndex] = useState(() => {
+    // Mở từ trang Câu cần ôn hoặc Ghi chú: nhảy thẳng tới câu (?sentence=<id>)
+    const wanted = sentences.findIndex((s) => s.id === searchParams.get("sentence"));
+    if (wanted >= 0) return wanted;
     const first = sentences.findIndex((s) => !latest.some((l) => l.sentenceId === s.id));
     return Math.max(0, first);
   });
@@ -147,6 +155,24 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 
   const sentence = sentences[index];
   const record = records[sentence.id];
+
+  // Câu cần ôn và ghi chú của bài, để hiện dấu ở danh sách câu và trạng thái trong thanh công cụ
+  const reviewQuery = useReviewEntries("shadowing", lesson.slug);
+  const notesQuery = useNoteEntries(lesson.slug);
+  const pinnedIds = useMemo(() => new Set((reviewQuery.data ?? []).map((e) => e.sentenceId)), [reviewQuery.data]);
+  const noteById = useMemo(
+    () => new Map((notesQuery.data ?? []).map((n) => [n.sentenceId, n.content])),
+    [notesQuery.data],
+  );
+  const notedIds = useMemo(() => new Set(noteById.keys()), [noteById]);
+  const pinnedRef = useRef(pinnedIds);
+  useEffect(() => {
+    pinnedRef.current = pinnedIds;
+  });
+  /** Bảng ghi chú hoặc lịch sử đang mở; gắn với câu nên sang câu khác là tự đóng. */
+  const [toolState, setToolState] = useState<{ sentenceId: string; panel: ToolPanel } | null>(null);
+  const toolPanel = toolState?.sentenceId === sentence.id ? toolState.panel : null;
+  const setToolPanel = (panel: ToolPanel | null) => setToolState(panel ? { sentenceId: sentence.id, panel } : null);
   const doneCount = sentences.filter((s) => records[s.id]).length;
   const finished = doneCount === sentences.length;
   const busy = phase !== "idle" || tutorActive;
@@ -208,6 +234,9 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
         { sentenceId, wav },
         {
           onSuccess: (result) => {
+            if (result.score < REVIEW_ADD_BELOW && !pinnedRef.current.has(sentenceId)) {
+              toast(tPractice("pin.autoAdded"), { icon: "pin" });
+            }
             setRecords((prev) => ({ ...prev, [sentenceId]: recordFromAttempt(prev[sentenceId], result) }));
             setSelected(null);
             setPhase("idle");
@@ -220,7 +249,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
         },
       );
     },
-    [assess, dropOffer, offerTutor, t, tutorOn, tutorQuotaOut],
+    [assess, dropOffer, offerTutor, t, tPractice, tutorOn, tutorQuotaOut],
   );
 
   const startTutor = (attemptId: number, offerId: string | null) => {
@@ -377,6 +406,9 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
         if (index < sentences.length - 1) goTo(index + 1);
       },
       setTab: switchTab,
+      toggleNote: () => {
+        if (record) setToolPanel(toolPanel === "note" ? null : "note");
+      },
     },
     tab,
     !tutorActive, // trong phiên gia sư phím Space dành cho nút giữ để đọc
@@ -651,6 +683,13 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                         />
                       </div>
                     )}
+                    <ShadowingTools
+                      sentence={sentence}
+                      pinned={pinnedIds.has(sentence.id)}
+                      note={noteById.get(sentence.id) ?? null}
+                      panel={toolPanel}
+                      onPanelChange={setToolPanel}
+                    />
                   </>
                 )}
               </>
@@ -681,6 +720,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
           disabled={busy}
           revealAll={tab === "watch"}
           showVi={settings.vi}
+          pinned={pinnedIds}
+          noted={notedIds}
           onGo={pickFromList}
         />
       </div>
