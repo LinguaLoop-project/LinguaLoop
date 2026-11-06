@@ -15,11 +15,11 @@ Tất cả lượt làm của một học viên trên một câu ở một chế
 _Tránh_: lịch sử luyện, nhật ký
 
 **Câu cần ôn**:
-Câu học viên làm kém hoặc tự đánh dấu, đang chờ được luyện lại ở một chế độ cho đến khi học viên làm tốt hoặc đánh dấu "Đã ổn".
+Câu mà học viên đã chọn lưu để luyện lại ở một chế độ (khi làm kém hoặc tự ghim), nằm trong danh sách cho đến khi học viên bỏ khỏi danh sách hoặc đánh dấu "Đã ổn". Hệ thống chỉ hỏi, không tự thêm hay tự gỡ.
 _Tránh_: câu ôn lại, câu yếu, hàng đợi ôn
 
 **Ghi chú**:
-Đoạn văn bản riêng tư học viên viết cho một câu; mỗi học viên có tối đa một ghi chú trên một câu.
+Đoạn văn bản riêng tư học viên viết cho một câu ở một chế độ luyện; mỗi học viên có tối đa một ghi chú cho một câu ở mỗi chế độ, ghi chú của hai chế độ độc lập nhau.
 _Tránh_: note, bình luận
 
 ### Phát âm
