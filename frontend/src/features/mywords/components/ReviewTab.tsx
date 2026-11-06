@@ -1,22 +1,24 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
+import SegmentedControl from "@/components/common/SegmentedControl";
 import Icon from "@/components/common/Icon";
 import { toast } from "@/stores/toastStore";
 import { LEVEL_CHIP, SCORE_BADGE, scoreTone } from "@/features/dictation/utils";
-import { REVIEW_ADD_BELOW } from "@/features/practice/constants";
+import { REVIEW_ADD_BELOW, REVIEW_RESOLVE_AT } from "@/features/practice/constants";
 import { useReviewEntries, useSetReview } from "@/features/practice/hooks";
-import type { ReviewSentence } from "@/features/practice/types";
-import { practiceUrl } from "../links";
+import type { PracticeMode, ReviewSentence } from "@/features/practice/types";
+import { practiceUrl, shadowingUrl } from "../links";
 import { dateFormatter, isNetworkError } from "../utils";
 import ListState from "./ListState";
 
 function ReviewRow({ item }: { item: ReviewSentence }) {
   const { t, i18n } = useTranslation("mywords");
   const navigate = useNavigate();
-  const resolve = useSetReview("dictation");
+  const resolve = useSetReview(item.mode);
   const tone = item.lastScore === null ? null : scoreTone(item.lastScore);
 
   const onResolve = () =>
@@ -31,8 +33,8 @@ function ReviewRow({ item }: { item: ReviewSentence }) {
         <span className="text-[17px] font-medium">“{item.text}”</span>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="inline-flex h-[22px] items-center gap-1 rounded-full border border-border px-2 text-[11px]">
-            <Icon name="headphones" className="h-3.5 w-3.5" />
-            {t("review.mode")}
+            <Icon name={item.mode === "shadowing" ? "mic" : "headphones"} className="h-3.5 w-3.5" />
+            {t(`review.modes.${item.mode}`)}
           </span>
           <span className="inline-flex h-[22px] items-center rounded-full border border-border px-2 text-[11px]">
             {t(`review.reason.${item.reason}`, { defaultValue: t("review.reason.low_score") })}
@@ -58,7 +60,13 @@ function ReviewRow({ item }: { item: ReviewSentence }) {
         <Button variant="ghost" size="sm" isLoading={resolve.isPending} leftIcon={<Icon name="check" />} onClick={onResolve}>
           {t("review.resolve")}
         </Button>
-        <Button size="sm" onClick={() => navigate(practiceUrl(item.lessonSlug, item.sentenceId, { redo: true }))}>
+        <Button size="sm" onClick={() =>
+            navigate(
+              item.mode === "shadowing"
+                ? shadowingUrl(item.lessonSlug, item.sentenceId)
+                : practiceUrl(item.lessonSlug, item.sentenceId, { redo: true }),
+            )
+          }>
           {t("review.practice")}
         </Button>
       </div>
@@ -66,29 +74,50 @@ function ReviewRow({ item }: { item: ReviewSentence }) {
   );
 }
 
-/** Tab "Câu cần ôn": các câu nghe chép làm kém hoặc đã ghim, điểm thấp trước. */
+type ModeFilter = "all" | PracticeMode;
+
+/** Tab "Câu cần ôn": câu làm kém hoặc đã ghim của cả nghe chép và Shadowing, điểm thấp trước, lọc theo chế độ. */
 export default function ReviewTab() {
   const { t } = useTranslation("mywords");
-  const query = useReviewEntries("dictation");
-  const items = query.data ?? [];
+  const query = useReviewEntries();
+  const [filter, setFilter] = useState<ModeFilter>("all");
+  const all = query.data ?? [];
+  const items = filter === "all" ? all : all.filter((item) => item.mode === filter);
+  const countOf = (mode: PracticeMode) => all.filter((item) => item.mode === mode).length;
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-start gap-2.5 rounded-md border border-border bg-bg-elevated px-3.5 py-3 text-sm text-text-muted">
         <Icon name="info" className="mt-0.5 h-4 w-4 flex-none" />
-        <span>{t("review.tip", { low: REVIEW_ADD_BELOW, high: 80 })}</span>
+        <span>{t("review.tip", { low: REVIEW_ADD_BELOW, high: REVIEW_RESOLVE_AT })}</span>
       </div>
       <ListState query={query} skeletonRows={3}>
-        {items.length === 0 ? (
+        {all.length === 0 ? (
           <EmptyState title={t("review.emptyTitle")} description={t("review.emptyDesc")} />
         ) : (
           <>
-            <p className="text-sm text-text-muted">{t("review.count", { count: items.length })}</p>
-            <ul className="overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-card)]">
-              {items.map((item) => (
-                <ReviewRow key={item.sentenceId} item={item} />
-              ))}
-            </ul>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-text-muted">{t("review.count", { count: items.length })}</p>
+              <SegmentedControl
+                ariaLabel={t("review.filter.label")}
+                value={filter}
+                onChange={(value) => setFilter(value as ModeFilter)}
+                options={[
+                  { value: "all", label: `${t("review.filter.all")} (${all.length})` },
+                  { value: "dictation", label: `${t("review.modes.dictation")} (${countOf("dictation")})` },
+                  { value: "shadowing", label: `${t("review.modes.shadowing")} (${countOf("shadowing")})` },
+                ]}
+              />
+            </div>
+            {items.length === 0 ? (
+              <EmptyState title={t("review.emptyFilteredTitle")} description={t("review.emptyFilteredDesc")} />
+            ) : (
+              <ul className="overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-card)]">
+                {items.map((item) => (
+                  <ReviewRow key={`${item.mode}-${item.sentenceId}`} item={item} />
+                ))}
+              </ul>
+            )}
           </>
         )}
       </ListState>
