@@ -1,12 +1,11 @@
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
-import { toast } from "@/stores/toastStore";
-import { useSetReview } from "../hooks";
+import NotePanel from "@/features/practice/components/NotePanel";
+import ReviewPinButton from "@/features/practice/components/ReviewPinButton";
+import { useDeleteNote, useSaveNote, useSetReview } from "../hooks";
 import type { DictationSentence } from "../types";
-import { isNetworkError } from "../utils";
 import HistoryPanel from "./HistoryPanel";
-import NotePanel from "./NotePanel";
 
 export type ToolPanel = "note" | "history";
 
@@ -23,35 +22,16 @@ export interface SentenceToolsProps {
  * ghi chú cho câu đã có lượt làm nên thanh này chỉ hiện ở câu đã làm.
  */
 export default function SentenceTools({ slug, sentence, panel, onPanelChange, showTranslation }: SentenceToolsProps) {
-  const { t } = useTranslation("dictation");
+  const { t } = useTranslation(["dictation", "practice"]);
   const setReview = useSetReview(slug);
+  const saveNote = useSaveNote(slug);
+  const deleteNote = useDeleteNote(slug);
   const toggle = (next: ToolPanel) => onPanelChange(panel === next ? null : next);
-
-  const togglePin = () => {
-    const pinned = !sentence.inReview;
-    setReview.mutate(
-      { sentenceId: sentence.id, pinned },
-      {
-        onSuccess: () =>
-          toast(t(pinned ? "tools.pinned" : "tools.unpinned"), { icon: pinned ? "pin" : "pin-off" }),
-        onError: (error) => toast(isNetworkError(error) ? t("note.offline") : t("tools.pinFailed"), { icon: "circle-alert" }),
-      },
-    );
-  };
 
   return (
     <div className="mt-4 border-t border-border pt-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-pressed={sentence.inReview}
-          disabled={setReview.isPending}
-          leftIcon={<Icon name={sentence.inReview ? "pin-off" : "pin"} />}
-          onClick={togglePin}
-        >
-          {t(sentence.inReview ? "tools.unpin" : "tools.pin")}
-        </Button>
+        <ReviewPinButton sentenceId={sentence.id} pinned={sentence.inReview} setReview={setReview} />
         <Button
           variant="ghost"
           size="sm"
@@ -60,7 +40,7 @@ export default function SentenceTools({ slug, sentence, panel, onPanelChange, sh
           leftIcon={<Icon name="sticky-note" />}
           onClick={() => toggle("note")}
         >
-          {t(sentence.note ? "tools.noteEdit" : "tools.noteAdd")}
+          {t(sentence.note ? "practice:note.edit" : "practice:note.add")}
         </Button>
         <Button
           variant="ghost"
@@ -69,10 +49,12 @@ export default function SentenceTools({ slug, sentence, panel, onPanelChange, sh
           leftIcon={<Icon name="history" />}
           onClick={() => toggle("history")}
         >
-          {t("tools.history")}
+          {t("dictation:tools.history")}
         </Button>
       </div>
-      {panel === "note" && <NotePanel key={sentence.id} slug={slug} sentenceId={sentence.id} note={sentence.note} />}
+      {panel === "note" && (
+        <NotePanel key={sentence.id} sentenceId={sentence.id} note={sentence.note} save={saveNote} remove={deleteNote} />
+      )}
       {panel === "history" && (
         <HistoryPanel key={sentence.id} sentenceId={sentence.id} showTranslation={showTranslation} />
       )}

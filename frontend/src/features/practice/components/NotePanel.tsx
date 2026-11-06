@@ -3,25 +3,28 @@ import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import { toast } from "@/stores/toastStore";
-import { useDeleteNote, useSaveNote } from "../hooks";
+import { NOTE_MAX_LENGTH } from "../constants";
 import { isNetworkError } from "../utils";
 
-/** Khớp giới hạn của backend (BR-DICT-17). */
-export const NOTE_MAX_LENGTH = 1000;
+/** Phần của một mutation của TanStack Query mà ô ghi chú cần; truyền thẳng kết quả của `useMutation`. */
+interface MutationLike<Variables> {
+  mutate: (variables: Variables, options?: { onSuccess?: () => void }) => void;
+  isPending: boolean;
+  error: unknown;
+}
 
 export interface NotePanelProps {
-  slug: string;
   sentenceId: string;
   /** Ghi chú đã lưu; null nếu chưa có. */
   note: string | null;
+  save: MutationLike<{ sentenceId: string; content: string }>;
+  remove: MutationLike<string>;
 }
 
-/** Ô viết ghi chú riêng cho câu đang xem: lưu để thay nội dung, xoá để bỏ ghi chú. */
-export default function NotePanel({ slug, sentenceId, note }: NotePanelProps) {
-  const { t } = useTranslation("dictation");
+/** Ô viết ghi chú riêng cho câu đang xem: lưu để thay nội dung, xoá để bỏ ghi chú. Dùng chung cho nghe chép và Shadowing. */
+export default function NotePanel({ sentenceId, note, save, remove }: NotePanelProps) {
+  const { t } = useTranslation("practice");
   const [value, setValue] = useState(note ?? "");
-  const save = useSaveNote(slug);
-  const remove = useDeleteNote(slug);
   const busy = save.isPending || remove.isPending;
   const error = save.error ?? remove.error;
   const canSave = value.trim() !== "" && value !== (note ?? "") && !busy;
@@ -62,9 +65,9 @@ export default function NotePanel({ slug, sentenceId, note }: NotePanelProps) {
             onSave();
           }
         }}
-        className="w-full resize-y rounded-md border border-border-strong bg-surface px-3 py-2 text-sm outline-none focus:border-fn-dictation"
+        className="w-full resize-y rounded-md border border-border-strong bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
       />
-      {error && (
+      {error != null && (
         <p role="alert" className="text-sm text-danger">
           {isNetworkError(error) ? t("note.offline") : t("note.failed")}
         </p>
