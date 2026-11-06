@@ -675,6 +675,66 @@
 - **Commit:** 03df3a1
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-060
+
+- **Ngày:** 2026-11-06
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DOCUMENTATION
+- **Loại công việc (`Task Type`):** DOCUMENTATION
+- **Prompt chính / yêu cầu:** Lên kế hoạch rồi viết đặc tả cho lịch sử các lượt đọc, ghi chú dùng chung với nghe chép và Câu cần ôn của Shadowing: UC-SHADOW-10..12, AC-SHADOW-40..53, BR-SHADOW-15..18; sửa BR-DICT-14 và BR-DICT-17 cho khớp
+- **Vị trí code do AI sinh (`file:hàm`):** `docs/srs/use-cases/SHADOWING.md` (UC-SHADOW-10, 11, 12; AC-SHADOW-40..53; bỏ dòng "hàng đợi ôn" ở mục Chưa thuộc phạm vi); `docs/srs/business-rules.md` (BR-SHADOW-15..18; câu cuối của BR-DICT-14 và BR-DICT-17)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt các quyết định qua hỏi đáp: ghi chú dùng chung hai chế độ, ngưỡng 60 và 80 như nghe chép, mỗi chế độ một danh sách riêng, ghim và ghi chú cần đã có lượt đọc, lịch sử không cho nghe lại bản ghi âm, làm trong một PR.
+- **Commit:** e00feeb
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-061
+
+- **Ngày:** 2026-11-06
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** SHADOWING
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Backend cho UC-SHADOW-10..12: Câu cần ôn theo chế độ (`/review/{mode}/sentences`, danh sách gộp `/review/sentences`, lọc theo bài), lượt shadowing dưới 60 điểm thêm câu và từ 80 gỡ câu trong cùng giao dịch lưu lượt, API lịch sử và mở lại một lượt cũ, ghi chú được khi câu đã có lượt ở bất kỳ chế độ nào; test tích hợp giả lập Azure
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../practice/repository/SentenceReviewRepository.java:add`, `:resolve`, `:findEntries`, `:hasAttempt`, `:hasAnyAttempt`; `practice/service/SentenceReviewServiceImpl.java:recordScore`, `:pin`, `:list`; `practice/controller/SentenceReviewController.java`; `practice/service/SentenceNoteServiceImpl.java:save`; `shadowing/service/ShadowingAttemptRecorder.java:save`; `shadowing/service/ShadowingAttemptServiceImpl.java:history`, `:attempt`, `:toResponses`; `shadowing/repository/ShadowingAttemptRepository.java:findHistory`, `:findHeadById`; `shadowing/controller/ShadowingController.java`; `ShadowingReviewHistoryNotesIntegrationTest.java` (13 test)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt thiết kế API qua hỏi đáp: dùng lại đường dẫn nghe chép cũ để frontend không phải đổi, danh sách lịch sử nhẹ (chưa kèm từng từ) và mở chi tiết từng lượt riêng, hai chế độ độc lập.
+- **Commit:** 03400cf
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-062
+
+- **Ngày:** 2026-11-06
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Tách nút ghim Câu cần ôn, ô ghi chú, API và hook của hai việc này khỏi `dictation` và `mywords` thành `features/practice` dùng chung cho cả ba nơi; hành vi giữ nguyên
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/practice/api.ts:practiceApi`; `practice/hooks.ts:useSetReview`, `:useSaveNote`, `:useDeleteNote`, `:useReviewEntries`, `:useNoteEntries`, `:refreshPractice`; `practice/components/NotePanel.tsx`; `practice/components/ReviewPinButton.tsx`; `dictation/components/SentenceTools.tsx`; `mywords/components/ReviewTab.tsx`, `NotesTab.tsx`; `i18n/locales/{vi,en}/practice.json`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chọn hướng tách thành một feature có component dùng chung thay vì chép bản riêng cho Shadowing.
+- **Commit:** 31f49f8
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-063
+
+- **Ngày:** 2026-11-06
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** SHADOWING
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Thanh công cụ dưới câu đã đọc ở trang Shadowing (ghim Câu cần ôn, ghi chú với phím N, lịch sử các lượt đọc kèm từ tô màu và Nhận xét AI đã lưu), dấu ghim và ghi chú ở danh sách câu, mở thẳng câu qua `?sentence=<id>`, báo khi lượt dưới 60 điểm đưa câu vào Câu cần ôn
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/shadowing/components/ShadowingTools.tsx`; `components/HistoryPanel.tsx`; `components/ShadowingPractice.tsx` (khối `reviewQuery`, `toolState`, khởi tạo `index` theo `?sentence=`, `submit`); `components/SentenceList.tsx`; `hooks/useShadowing.ts:useAttemptHistory`, `:useHistoryAttempt`; `hooks/useShadowingHotkeys.ts` (phím N); `services/shadowingService.ts:getHistory`, `:getAttempt`; `shadowing/i18n.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt bố cục: thanh công cụ chỉ ở tab Luyện, ẩn khi đang trong phiên gia sư, tab Xem không có thanh này. Phím tắt Space, R, C đã có sẵn kiểm tra đang gõ chữ nên không phải sửa.
+- **Commit:** 8081e5a
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-064
+
+- **Ngày:** 2026-11-06
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Trang "Từ & câu đã lưu" gộp Câu cần ôn của nghe chép và Shadowing: nhãn chế độ trên mỗi dòng, bộ lọc Tất cả / Nghe chép / Shadowing, "Luyện lại" mở đúng chế độ tại đúng câu; sửa nhãn đọc màn hình cho dấu ghim và ghi chú ở danh sách câu
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/mywords/components/ReviewTab.tsx`; `mywords/links.ts:shadowingUrl`; `mywords/links.test.ts`; `mywords/pages/MyWordsPage.tsx`; `shadowing/components/SentenceList.tsx`, `dictation/components/SentenceList.tsx` (bọc dấu bằng `span role="img"`); `i18n/locales/{vi,en}/mywords.json`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt: danh sách gộp hai chế độ có bộ lọc, Shadowing không có chế độ làm lại.
+- **Commit:** f79734d
+- **Lỗi liên quan:** AI-ERR-LAM-005
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
@@ -737,6 +797,21 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit gây ra lỗi (đưa đầu ra AI vào code):** c3c387f
 - **Commit sửa (bắt buộc, khác commit trên):** ba1dd5b
 - **Kiểm chứng sau sửa:** SonarCloud trên PR (log cũ không ghi độ phủ sau sửa).
+- **Trạng thái (`Error Status`):** FIXED
+
+### AI-ERR-LAM-005
+
+- **Liên kết bản ghi AI:** AI-LAM-048
+- **Loại lỗi (`Error Type`):** API_MISUSE
+- **Ngày phát hiện:** 2026-11-06
+- **Đầu ra sai/thiếu sót và bối cảnh:** Dấu ghim và dấu ghi chú trong danh sách câu của nghe chép được đặt `aria-label` trực tiếp lên component `Icon`, nhưng `Icon` không nhận prop này (luôn vẽ `aria-hidden`), nên người dùng đọc màn hình không nghe được ý nghĩa của hai dấu.
+- **Vị trí (`file:hàm`):** `frontend/src/features/dictation/components/SentenceList.tsx` (dấu ghim, dấu ghi chú)
+- **Nguyên nhân phân tích:** AI viết thuộc tính cho `Icon` theo thói quen của thư viện icon khác mà không đọc định nghĩa của component trong repo; TypeScript không báo vì thuộc tính có dấu gạch ngang không bị kiểm tra kiểu trong JSX.
+- **Cách phát hiện / bằng chứng:** Khi kiểm tra danh sách câu của Shadowing trên trình duyệt thật theo yêu cầu của Lâm, truy vấn `[aria-label="Có ghi chú"]` không tìm thấy phần tử nào dù dấu đã hiện; đọc `Icon.tsx` xác nhận prop bị bỏ qua.
+- **Cách sửa:** Bọc dấu trong `<span role="img" aria-label=...>` ở danh sách câu của nghe chép và của Shadowing.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** 59e1692
+- **Commit sửa (bắt buộc, khác commit trên):** f79734d
+- **Kiểm chứng sau sửa:** Trên trình duyệt thật, truy vấn `[role="img"][aria-label="Có ghi chú"]` và `[role="img"][aria-label="Đang trong Câu cần ôn"]` trả về 1 và 3 phần tử.
 - **Trạng thái (`Error Status`):** FIXED
 
 ## 3. Bằng chứng bổ sung (nếu cần)
