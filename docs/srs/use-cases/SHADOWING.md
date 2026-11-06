@@ -137,10 +137,58 @@ Kiểm thử thủ công theo mockup `design/mockups-student-v2/shadowing.html`,
 
 ---
 
+### UC-SHADOW-10: Xem lịch sử các lượt đọc của câu
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Học viên |
+| Mô tả | Cho phép tác nhân xem mọi lượt shadowing đã làm của một câu và mở lại kết quả chi tiết của bất kỳ lượt nào. |
+| Điều kiện tiên quyết | Tác nhân đang ở một câu đã có ít nhất một Lượt shadowing, ở tab Luyện và không trong phiên gia sư. |
+| Điều kiện sau | Tác nhân xem được kết quả của lượt đã chọn. Không có dữ liệu nào bị thay đổi. |
+| Luồng chính | 1. Tác nhân chọn "Lịch sử" ở thanh công cụ dưới câu.<br>2. Hệ thống hiển thị danh sách mọi lượt của câu, lượt mới nhất ở trên cùng, mỗi lượt gồm thời điểm, điểm tổng và bốn điểm phụ (chính xác, trôi chảy, đầy đủ, ngữ điệu) (BR-SHADOW-16).<br>3. Tác nhân chọn một lượt.<br>4. Hệ thống hiển thị kết quả của lượt đó như lúc vừa chấm: từng từ tô màu, âm vị, mẹo sửa, Nhận xét AI đã lưu nếu có. Hệ thống ghi rõ bản ghi âm của lượt không còn để nghe lại (BR-SHADOW-07).<br>5. Tác nhân chọn lại lượt đó (hoặc "Lịch sử") để đóng. |
+| Luồng thay thế | **3a. Chọn lượt khác (Xuất phát từ Bước 4)**<br>1. Tác nhân chọn một lượt khác trong danh sách.<br>2. Chuyển đến Bước 4 của Luồng chính. |
+| Luồng ngoại lệ | **2a. Mất kết nối khi tải danh sách (Xuất phát từ Bước 2)**<br>1. Hệ thống không tải được lịch sử.<br>2. Hệ thống thông báo chưa tải được kèm nút "Thử lại".<br>3. Kết thúc Use Case.<br><br>**4a. Không tải được kết quả của lượt (Xuất phát từ Bước 4)**<br>1. Hệ thống thông báo chưa tải được kết quả của lượt này; danh sách lượt vẫn dùng được.<br>2. Chuyển đến Bước 3 của Luồng chính. |
+| Tiêu chí chấp nhận | **AC-SHADOW-40 — Danh sách mọi lượt**<br>Given: Tác nhân đã đọc một câu ba lần với điểm 40, 70, 90.<br>When: Tác nhân mở "Lịch sử" của câu.<br>Then: Hệ thống hiển thị ba lượt theo thứ tự 90, 70, 40, mỗi lượt có điểm tổng và bốn điểm phụ.<br><br>**AC-SHADOW-41 — Mở lại lượt cũ**<br>Given: Câu có hai lượt, lượt cũ có từ đọc sai và Nhận xét AI đã lưu, lượt mới đọc tốt.<br>When: Tác nhân chọn lượt cũ.<br>Then: Hệ thống hiển thị đúng từ tô màu, âm vị và Nhận xét AI của lượt cũ, không phải của lượt mới nhất.<br><br>**AC-SHADOW-42 — Chỉ thấy lượt của mình**<br>Given: Hai học viên cùng đọc một câu.<br>When: Một học viên yêu cầu danh sách hoặc kết quả của lượt thuộc học viên kia.<br>Then: Danh sách chỉ gồm lượt của chính họ; yêu cầu lượt của người khác bị từ chối là không tồn tại. |
+| Độ ưu tiên | Trung bình |
+
+---
+
+### UC-SHADOW-11: Ghi chú cho câu
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Học viên |
+| Mô tả | Cho phép tác nhân viết, sửa và xoá ghi chú riêng cho một câu ở trang Shadowing. Ghi chú dùng chung với nghe chép: mỗi câu có tối đa một ghi chú (BR-SHADOW-17, BR-DICT-17). |
+| Điều kiện tiên quyết | Tác nhân đang ở một câu đã có Lượt shadowing, ở tab Luyện và không trong phiên gia sư. |
+| Điều kiện sau | Ghi chú của câu được lưu, thay đổi hoặc xoá; hiển thị cả ở nghe chép, ở danh sách câu và ở tab "Ghi chú" của trang "Từ & câu đã lưu". |
+| Luồng chính | 1. Tác nhân chọn "Thêm ghi chú" (hoặc nhấn phím N khi không đang gõ).<br>2. Hệ thống hiển thị ô viết ghi chú, tối đa 1000 ký tự, chứa sẵn nội dung cũ nếu câu đã có ghi chú.<br>3. Tác nhân viết nội dung và chọn "Lưu" (hoặc nhấn Ctrl+Enter).<br>4. Hệ thống lưu ghi chú, thông báo "Đã lưu ghi chú" và đánh dấu câu trong danh sách câu là có ghi chú. |
+| Luồng thay thế | **3a. Xoá ghi chú (Xuất phát từ Bước 3)**<br>1. Tác nhân chọn "Xoá ghi chú".<br>2. Hệ thống xoá ghi chú, thông báo "Đã xoá ghi chú" và bỏ dấu ghi chú ở câu.<br>3. Kết thúc Use Case. |
+| Luồng ngoại lệ | **1a. Câu chưa đọc ở cả hai chế độ (Xuất phát từ Bước 1)**<br>1. Câu chưa có lượt nào ở nghe chép lẫn Shadowing nên nút ghi chú và phím N không có tác dụng.<br>2. Kết thúc Use Case.<br><br>**3b. Mất kết nối khi lưu (Xuất phát từ Bước 3)**<br>1. Hệ thống thông báo mất mạng, giữ nguyên chữ đã viết trong ô.<br>2. Chuyển đến Bước 3 của Luồng chính khi tác nhân lưu lại. |
+| Tiêu chí chấp nhận | **AC-SHADOW-43 — Ghi chú dùng chung hai chế độ**<br>Given: Tác nhân đã đọc câu A ở Shadowing và lưu ghi chú "nối âm ở từ cuối".<br>When: Tác nhân mở câu A ở nghe chép (sau khi đã làm câu đó), rồi viết lại ghi chú thành "nhớ nối âm".<br>Then: Câu A chỉ có một ghi chú, nội dung "nhớ nối âm"; mở lại ở Shadowing cũng thấy nội dung này.<br><br>**AC-SHADOW-44 — Câu chưa đọc không ghi chú được**<br>Given: Tác nhân chưa có lượt nào ở cả hai chế độ cho câu B.<br>When: Tác nhân mở câu B ở Shadowing và nhấn phím N, hoặc yêu cầu lưu ghi chú cho câu B.<br>Then: Không có ô ghi chú nào hiện ra; yêu cầu lưu bị từ chối với thông báo cần làm câu này ít nhất một lần trước, và không có ghi chú nào được tạo.<br><br>**AC-SHADOW-45 — Phím tắt không chạy khi đang gõ**<br>Given: Ô ghi chú đang mở và con trỏ nằm trong ô.<br>When: Tác nhân gõ các chữ "r", "c", "n" và phím Space.<br>Then: Chữ được gõ vào ô ghi chú; không có ghi âm, so sánh hay đóng mở ô ghi chú nào xảy ra. |
+| Độ ưu tiên | Trung bình |
+
+---
+
+### UC-SHADOW-12: Câu cần ôn ở Shadowing
+
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Học viên |
+| Mô tả | Cho phép tác nhân có danh sách các câu đọc kém hoặc tự đánh dấu để luyện lại ở Shadowing, cùng danh sách với nghe chép nhưng độc lập theo từng chế độ. |
+| Điều kiện tiên quyết | Tác nhân đã đăng nhập. Với ghim bằng tay: câu đã có Lượt shadowing. |
+| Điều kiện sau | Danh sách Câu cần ôn phản ánh đúng điểm các lượt đã chấm và các thao tác ghim, gỡ của tác nhân. |
+| Luồng chính | 1. Tác nhân đọc một câu và nhận điểm (UC-SHADOW-01).<br>2. Hệ thống kiểm tra điểm theo BR-SHADOW-15.<br>3. Nếu điểm dưới 60, hệ thống thêm câu vào danh sách Câu cần ôn của Shadowing và thông báo "Đã thêm câu này vào Câu cần ôn" (nếu câu chưa ở trong danh sách).<br>4. Tác nhân mở trang "Từ & câu đã lưu", tab "Câu cần ôn".<br>5. Hệ thống hiển thị câu của cả hai chế độ, mỗi dòng có nhãn chế độ, kèm bộ lọc Tất cả, Nghe chép, Shadowing (BR-SHADOW-18).<br>6. Tác nhân chọn "Luyện lại" ở một câu Shadowing.<br>7. Hệ thống mở trang Shadowing của bài tại câu đó. |
+| Luồng thay thế | **2a. Điểm từ 80 trở lên (Xuất phát từ Bước 2)**<br>1. Câu đang ở trong danh sách Shadowing và lượt vừa chấm từ 80 điểm.<br>2. Hệ thống gỡ câu khỏi danh sách Shadowing.<br>3. Kết thúc Use Case.<br><br>**2b. Điểm từ 60 đến 79 (Xuất phát từ Bước 2)**<br>1. Hệ thống không thêm và không gỡ câu.<br>2. Kết thúc Use Case.<br><br>**1a. Ghim và bỏ ghim bằng tay (Xuất phát từ Bước 1)**<br>1. Tác nhân chọn "Đưa vào Câu cần ôn" hoặc "Bỏ khỏi Câu cần ôn" ở một câu đã đọc, ở tab Luyện.<br>2. Hệ thống thêm hoặc gỡ câu trong danh sách Shadowing.<br>3. Kết thúc Use Case.<br><br>**6a. Đã ổn (Xuất phát từ Bước 6)**<br>1. Tác nhân chọn "Đã ổn".<br>2. Hệ thống gỡ câu khỏi danh sách; các lượt đã đọc không bị ảnh hưởng.<br>3. Kết thúc Use Case. |
+| Luồng ngoại lệ | **1b. Ghim câu chưa đọc (Xuất phát từ Bước 1a)**<br>1. Câu chưa có Lượt shadowing.<br>2. Hệ thống từ chối và thông báo cần đọc câu này ít nhất một lần trước.<br>3. Kết thúc Use Case. |
+| Tiêu chí chấp nhận | **AC-SHADOW-46 — Tự thêm khi dưới 60 điểm**<br>Given: Câu A chưa ở trong danh sách Shadowing.<br>When: Tác nhân đọc câu A và được 40 điểm.<br>Then: Câu A xuất hiện trong danh sách với chế độ Shadowing, điểm gần nhất 40 và có dấu ghim ở danh sách câu; thông báo "Đã thêm câu này vào Câu cần ôn" hiển thị.<br><br>**AC-SHADOW-47 — 60 đến 79 điểm không đổi trạng thái**<br>Given: Câu A chưa ở trong danh sách, câu B đang ở trong danh sách.<br>When: Tác nhân đọc mỗi câu và được 70 điểm.<br>Then: Câu A vẫn không có trong danh sách; câu B vẫn còn trong danh sách.<br><br>**AC-SHADOW-48 — Tự gỡ từ 80 điểm và quay lại khi tụt**<br>Given: Câu A đang ở trong danh sách Shadowing.<br>When: Tác nhân đọc được 90 điểm, sau đó đọc tiếp được 30 điểm.<br>Then: Sau lượt 90 điểm câu A không còn trong danh sách; sau lượt 30 điểm câu A trở lại như câu mới thêm.<br><br>**AC-SHADOW-49 — Ghim và bỏ ghim bằng tay**<br>Given: Tác nhân đã đọc câu A được 90 điểm.<br>When: Tác nhân chọn "Đưa vào Câu cần ôn" hai lần, rồi "Bỏ khỏi Câu cần ôn" hai lần.<br>Then: Sau hai lần ghim câu A có đúng một dòng trong danh sách Shadowing với lý do ghim tay; sau hai lần bỏ ghim câu A không còn trong danh sách, không lỗi nào xảy ra; ghim câu chưa đọc bị từ chối.<br><br>**AC-SHADOW-50 — Hai chế độ độc lập**<br>Given: Câu A đang ở trong danh sách Câu cần ôn của nghe chép.<br>When: Tác nhân đọc câu A ở Shadowing được 90 điểm.<br>Then: Câu A không thêm vào và không gỡ khỏi danh sách nào của chế độ kia: vẫn còn trong danh sách nghe chép, và danh sách Shadowing không có câu A.<br><br>**AC-SHADOW-51 — Luyện lại**<br>Given: Câu A của bài X đang ở trong danh sách Shadowing.<br>When: Tác nhân chọn "Luyện lại" ở câu A.<br>Then: Hệ thống mở trang Shadowing của bài X với câu A là câu hiện tại.<br><br>**AC-SHADOW-52 — Danh sách gộp hai chế độ**<br>Given: Tác nhân có câu A trong danh sách nghe chép và câu B trong danh sách Shadowing.<br>When: Tác nhân mở tab "Câu cần ôn".<br>Then: Cả hai câu hiển thị, mỗi câu có nhãn chế độ của mình; chọn bộ lọc Shadowing thì chỉ còn câu B, chọn Nghe chép thì chỉ còn câu A; "Luyện lại" của câu A mở nghe chép, của câu B mở Shadowing.<br><br>**AC-SHADOW-53 — Lượt của gia sư không đổi danh sách**<br>Given: Câu A đang ở trong danh sách Shadowing.<br>When: Tác nhân đọc câu A trong một phiên gia sư và được 90 điểm.<br>Then: Danh sách Câu cần ôn không thay đổi, vì Lượt chấm của gia sư không tạo Lượt shadowing (BR-TUTOR). |
+| Độ ưu tiên | Trung bình |
+
+---
+
 ### Chưa thuộc phạm vi
 
 - Lưu file ghi âm lên server, `is_baseline`, tự xoá khi hết hạn (cần `voice_storage`).
-- Hàng đợi ôn câu làm kém (`user_sentence_review`), `completed_at` mức bài (cần thống nhất với nghe chép). Điểm cao nhất từng câu ở danh sách câu của trang bài đã có, tách theo chế độ (AC-LESSON-14).
+- `completed_at` mức bài (cần thống nhất với nghe chép). Điểm cao nhất từng câu ở danh sách câu của trang bài đã có, tách theo chế độ (AC-LESSON-14).
 - Hộp thoại xin đồng ý lần ghi âm đầu và API `/me/consents` (Kế).
 - Phiên gia sư (lát C, xem `TUTOR.md`). Mẹo riêng cho cặp "đọc A thành B" (Azure không trả âm bị nhầm thành gì).
 - Phần của mockup chưa làm ở trang luyện: thanh thời gian chia đoạn trên video, công tắc "Gia sư" (lát C).
