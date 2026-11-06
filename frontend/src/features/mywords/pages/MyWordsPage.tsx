@@ -17,7 +17,7 @@ export default function MyWordsPage() {
   const [params, setParams] = useSearchParams();
   const requested = params.get("tab");
   const tab: Tab = isTab(requested) ? requested : "review";
-  const review = useReviewEntries("dictation");
+  const review = useReviewEntries();
   const notes = useNoteEntries();
   const counts: Record<Tab, number | null> = {
     review: review.data?.length ?? null,

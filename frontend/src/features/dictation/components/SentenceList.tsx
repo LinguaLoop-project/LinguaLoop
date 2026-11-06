@@ -63,8 +63,16 @@ export default function SentenceList({ sentences, currentIndex, onSelect }: Sent
               >
                 <span className="flex min-h-[22px] flex-wrap items-center gap-2">
                   <span className="rounded-md border border-border bg-bg-elevated px-2 py-0.5 text-xs font-bold tabular-nums">#{i + 1}</span>
-                  {s.inReview && <Icon name="pin" className="h-3.5 w-3.5 text-danger" aria-label={t("list.inReview")} />}
-                  {s.note && <Icon name="sticky-note" className="h-3.5 w-3.5 text-text-muted" aria-label={t("list.hasNote")} />}
+                  {s.inReview && (
+                    <span role="img" aria-label={t("list.inReview")} className="inline-flex">
+                      <Icon name="pin" className="h-3.5 w-3.5 text-danger" />
+                    </span>
+                  )}
+                  {s.note && (
+                    <span role="img" aria-label={t("list.hasNote")} className="inline-flex">
+                      <Icon name="sticky-note" className="h-3.5 w-3.5 text-text-muted" />
+                    </span>
+                  )}
                   {s.latest && tone ? (
                     <>
                       <Badge tone={SCORE_BADGE[tone]}>{Math.round(s.latest.score)}</Badge>
