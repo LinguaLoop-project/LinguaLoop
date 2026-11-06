@@ -149,6 +149,7 @@ export const useSubmitAttempt = (slug: string) => {
                       ...s,
                       text: result.text,
                       textVi: result.textVi,
+                      attemptCount: s.attemptCount + 1,
                       latest: {
                         attemptId: result.attemptId,
                         level: result.level,

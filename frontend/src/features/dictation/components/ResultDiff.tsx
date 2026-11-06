@@ -147,7 +147,7 @@ export default function ResultDiff({
             </div>
           )}
           {words ? (
-            <div className="text-[19px] font-semibold leading-[1.9] @[600px]:text-[22px] @[600px]:leading-loose">
+            <div className="font-display text-[22px] font-bold leading-[1.9] @[600px]:text-[26px] @[600px]:leading-loose">
               {context
                 ? context.map((token, i) => {
                     const graded = token.blank ? byPosition.get(token.position) : undefined;
@@ -174,7 +174,7 @@ export default function ResultDiff({
           ) : (
             <>
               {text && (
-                <p className="text-[19px] font-semibold leading-[1.9]">
+                <p className="font-display text-[22px] font-bold leading-[1.9] @[600px]:text-[26px]">
                   <ClickableText text={text} />
                 </p>
               )}
@@ -217,7 +217,7 @@ export default function ResultDiff({
       {showTranslation && textVi && (
         <details open className="text-[13px]">
           <summary className="cursor-pointer text-text-muted">{t("result.translation")}</summary>
-          <p className="mt-1.5 text-[15px]">{textVi}</p>
+          <p className="mt-1.5 text-sm text-text-muted">{textVi}</p>
         </details>
       )}
     </div>

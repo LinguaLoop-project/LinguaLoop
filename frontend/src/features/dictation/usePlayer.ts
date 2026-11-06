@@ -11,6 +11,10 @@ const LOAD_TIMEOUT_MS = 9000;
 const START_TIMEOUT_MS = 2000;
 /** Dừng sớm một chút trước mốc kết thúc để không lọt sang câu sau. */
 const END_MARGIN_MS = 50;
+/** Chu kỳ đọc vị trí video khi app không đang phát câu, để biết người học tự tua hay tự phát. */
+const WATCH_MS = 300;
+/** Vị trí nhảy quá ngần này giữa hai lần đọc coi là người học đang phát hoặc tua. */
+const SEEK_THRESHOLD_MS = 250;
 
 let youTubeApi: Promise<YouTubeNamespace> | null = null;
 
@@ -51,6 +55,8 @@ export interface UsePlayerOptions {
   /** Phần tử chứa video YouTube (chỉ dùng cho YouTube). */
   containerRef: RefObject<HTMLDivElement | null>;
   rate: number;
+  /** Người học tự tua hoặc tự bấm phát bằng thanh YouTube (lúc app không phát câu): báo vị trí, mili giây. */
+  onSeek?: (ms: number) => void;
 }
 
 export interface PlayerApi {
@@ -70,7 +76,7 @@ export interface PlayerApi {
  * Điều khiển một nguồn phát để nghe từng câu theo mốc thời gian. Hủy trình phát khi rời trang,
  * và báo `blocked` khi bấm phát mà không có tiếng (trình duyệt chặn).
  */
-export function usePlayer({ videoId, mediaUrl, containerRef, rate }: UsePlayerOptions): PlayerApi {
+export function usePlayer({ videoId, mediaUrl, containerRef, rate, onSeek }: UsePlayerOptions): PlayerApi {
   const kind: PlayerApi["kind"] = videoId ? "youtube" : mediaUrl ? "media" : "none";
   const [status, setStatus] = useState<PlayerStatus>(kind === "none" ? "nosource" : "loading");
   const [playing, setPlaying] = useState(false);
@@ -83,10 +89,14 @@ export function usePlayer({ videoId, mediaUrl, containerRef, rate }: UsePlayerOp
   const tickRef = useRef<number | undefined>(undefined);
   const statusRef = useRef<PlayerStatus>(status);
   const rateRef = useRef(rate);
+  const playingRef = useRef(false);
+  const onSeekRef = useRef(onSeek);
 
   useEffect(() => {
     statusRef.current = status;
     rateRef.current = rate;
+    playingRef.current = playing;
+    onSeekRef.current = onSeek;
   });
 
   const stopTick = useCallback(() => {
@@ -134,12 +144,12 @@ export function usePlayer({ videoId, mediaUrl, containerRef, rate }: UsePlayerOp
           const player = new yt.Player(element, {
             videoId,
             playerVars: {
-              controls: 0,
+              controls: 1,
               disablekb: 1,
               rel: 0,
               playsinline: 1,
               modestbranding: 1,
-              fs: 0,
+              fs: 1,
               origin: window.location.origin,
             },
             events: {
@@ -174,6 +184,27 @@ export function usePlayer({ videoId, mediaUrl, containerRef, rate }: UsePlayerOp
       element?.remove();
     };
   }, [kind, videoId, mediaUrl, containerRef, reloadKey, stopTick]);
+
+  // Thanh điều khiển gốc của YouTube: theo dõi vị trí để biết người học tự tua hoặc tự phát. Vẫn đọc vị trí khi app đang
+  // phát câu (để lần đọc kế tiếp không bị coi là nhảy) nhưng chỉ báo khi app không phát.
+  useEffect(() => {
+    if (kind !== "youtube" || status !== "ready") return;
+    let last: number | null = null;
+    const id = window.setInterval(() => {
+      let ms: number;
+      try {
+        const player = youTubeRef.current;
+        if (!player) return;
+        ms = Math.round(player.getCurrentTime() * 1000);
+      } catch {
+        return;
+      }
+      const moved = last !== null && Math.abs(ms - last) > SEEK_THRESHOLD_MS;
+      last = ms;
+      if (moved && !playingRef.current) onSeekRef.current?.(ms);
+    }, WATCH_MS);
+    return () => window.clearInterval(id);
+  }, [kind, status]);
 
   const playSentence = useCallback(
     (startMs: number, endMs: number) => {

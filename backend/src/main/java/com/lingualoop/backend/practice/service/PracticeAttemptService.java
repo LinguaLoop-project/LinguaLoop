@@ -1,6 +1,7 @@
 package com.lingualoop.backend.practice.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,6 +25,9 @@ public interface PracticeAttemptService {
 
     /** Một lượt nghe chép của câu kèm kết quả từng từ; rỗng nếu lượt không tồn tại hoặc không thuộc người dùng. */
     Optional<DictationAttemptDetailView> findDictationAttempt(UUID userId, UUID sentenceId, long attemptId);
+
+    /** Số lượt nghe chép của từng câu trong bài; câu chưa làm không có trong kết quả. */
+    Map<UUID, Integer> countDictationAttempts(UUID userId, UUID lessonId);
 
     /** Vị trí các ô đã khoét ở lượt Easy gần nhất của câu, lượt mới nhất đứng đầu. */
     List<List<Integer>> findRecentBlankPositions(UUID userId, UUID sentenceId, int limit);

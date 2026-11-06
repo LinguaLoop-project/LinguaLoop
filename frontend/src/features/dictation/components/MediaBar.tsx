@@ -2,20 +2,14 @@ import type { RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
-import { formatTimeMs } from "@/lib/format";
 import type { PlayerApi } from "../usePlayer";
-import type { DictationSentence } from "../types";
 
 export interface MediaBarProps {
   player: PlayerApi;
   /** Phần tử chứa video YouTube; luôn được vẽ để trình phát không bị hủy khi ẩn video. */
   videoRef: RefObject<HTMLDivElement | null>;
-  sentences: DictationSentence[];
-  currentIndex: number;
-  lessonDurationSec: number | null;
   hideVideo: boolean;
   onToggleVideo: () => void;
-  onSelect: (index: number) => void;
 }
 
 interface NoticeProps {
@@ -44,83 +38,48 @@ const Notice = ({ icon, title, description, role, action }: NoticeProps) => (
   </div>
 );
 
-/** Thẻ phương tiện (`renderMedia` của mockup): video, thời gian, thanh các câu và thẻ lỗi. */
-export default function MediaBar({
-  player,
-  videoRef,
-  sentences,
-  currentIndex,
-  lessonDurationSec,
-  hideVideo,
-  onToggleVideo,
-  onSelect,
-}: MediaBarProps) {
+/**
+ * Khung video cùng kiểu với Shadowing: thanh tua, phát và âm lượng là của chính YouTube, app chỉ thêm nút ẩn video
+ * và các thẻ báo lỗi. Bài âm thanh không có khung hình nên chỉ hiện nhãn "Bài nghe".
+ */
+export default function MediaBar({ player, videoRef, hideVideo, onToggleVideo }: MediaBarProps) {
   const { t } = useTranslation("dictation");
-  const lastEnd = sentences.length ? sentences[sentences.length - 1].endMs : 0;
-  const totalMs = player.durationMs || (lessonDurationSec ? lessonDurationSec * 1000 : 0) || lastEnd || 1;
-  const pct = (ms: number) => Math.min(100, Math.max(0, (ms / totalMs) * 100));
-  const current = sentences[currentIndex];
-  const shownMs = player.playing ? player.currentMs : (current?.startMs ?? 0);
   const isYouTube = player.kind === "youtube";
+  const failed = player.status === "failed";
+  const collapsed = hideVideo || failed;
+  const hasNotice = failed || player.status === "blocked" || player.status === "nosource";
+
+  if (!isYouTube && player.kind !== "media" && !hasNotice) return null;
 
   return (
-    <div
-      className={`relative flex flex-col gap-2.5 rounded-xl border border-border bg-surface px-3.5 py-3 shadow-[var(--shadow-card)] ${
-        player.playing ? "[&_.video-box]:shadow-[0_0_0_2px_var(--fn-dictation)]" : ""
-      }`}
-    >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border-strong bg-surface-glass px-2.5 py-1 text-xs font-semibold">
-          <Icon name={isYouTube ? "youtube" : "audio-lines"} />
-          {isYouTube ? t("media.youtube") : t("media.audio")}
-        </span>
-        <span className="whitespace-nowrap text-[13px] tabular-nums">
-          <b>{formatTimeMs(shownMs)}</b>
-          <span className="text-text-muted"> / {formatTimeMs(totalMs)}</span>
-        </span>
-        <div
-          role="group"
-          aria-label={t("media.sentences")}
-          className="relative order-3 h-7 min-w-[140px] basis-full md:order-none md:basis-auto md:flex-1"
-        >
-          <span aria-hidden="true" className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-sm bg-border" />
-          {sentences.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              aria-label={t("media.sentenceN", { n: i + 1 })}
-              aria-current={i === currentIndex ? "true" : undefined}
-              onClick={() => onSelect(i)}
-              style={{ left: `${pct(s.startMs)}%`, width: `${Math.max(1.2, pct(s.endMs) - pct(s.startMs))}%` }}
-              className={`absolute top-1/2 h-3 min-w-2 -translate-y-1/2 cursor-pointer rounded-md p-0 transition-[background-color,transform] duration-150 hover:scale-y-125 ${
-                i === currentIndex ? "bg-fn-dictation" : s.latest ? "bg-success" : "bg-border-strong hover:bg-text-subtle"
-              }`}
-            />
-          ))}
-          <span
-            aria-hidden="true"
-            style={{ left: `${pct(shownMs)}%` }}
-            className="pointer-events-none absolute bottom-1 top-1 w-0.5 rounded-[1px] bg-text"
-          />
-        </div>
-        {isYouTube && player.status !== "failed" && (
-          <Button variant="ghost" size="sm" aria-pressed={hideVideo} onClick={onToggleVideo} leftIcon={<Icon name={hideVideo ? "video" : "ear"} />}>
-            {hideVideo ? t("media.showVideo") : t("media.hideVideo")}
-          </Button>
-        )}
-      </div>
-
+    <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3.5 shadow-[var(--shadow-card)]">
       {isYouTube && (
         <div
-          className={`video-box relative mx-auto aspect-video w-[min(100%,560px)] overflow-hidden rounded-lg bg-black transition-[margin] duration-[400ms] ${
-            hideVideo || player.status === "failed" ? "!h-0 !aspect-auto -mt-2.5" : ""
-          }`}
+          ref={videoRef}
+          className={`mx-auto w-full max-w-[660px] overflow-hidden rounded-lg bg-black transition-shadow [&_iframe]:block [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0 ${
+            collapsed ? "h-0" : "aspect-video"
+          } ${player.playing ? "ring-2 ring-fn-dictation" : ""}`}
+        />
+      )}
+      {player.kind === "media" && (
+        <span className="inline-flex items-center gap-1.5 self-start rounded-full border border-border-strong bg-surface-glass px-2.5 py-1 text-xs font-semibold">
+          <Icon name="audio-lines" />
+          {t("media.audio")}
+        </span>
+      )}
+      {isYouTube && !failed && (
+        <button
+          type="button"
+          aria-pressed={hideVideo}
+          onClick={onToggleVideo}
+          className="inline-flex cursor-pointer items-center gap-1.5 self-end rounded-full border-0 bg-transparent px-2.5 py-1 text-xs font-medium text-text-muted transition-colors hover:bg-surface-hover hover:text-text"
         >
-          <div ref={videoRef} className="h-full w-full [&_iframe]:block [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0" />
-        </div>
+          <Icon name={hideVideo ? "eye" : "eye-off"} />
+          {hideVideo ? t("media.showVideo") : t("media.hideVideo")}
+        </button>
       )}
 
-      {player.status === "failed" && (
+      {failed && (
         <Notice
           role="alert"
           icon="video-off"

@@ -639,6 +639,42 @@
 - **Commit:** b5383ca, adae2d1
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-057
+
+- **Ngày:** 2026-11-06
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Từ hai ảnh chụp màn nghe chép và Shadowing, lên kế hoạch rồi làm cho nghe chép đồng nhất với Shadowing; bước 1: bỏ hàng chip YouTube, giờ và thanh các câu phía trên video, dùng thanh điều khiển gốc của YouTube, đầu trang theo mẫu Shadowing
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/dictation/components/MediaBar.tsx:MediaBar`; `frontend/src/features/dictation/usePlayer.ts` (`playerVars.controls`, `playerVars.fs`); `frontend/src/features/dictation/pages/DictationPage.tsx` (khối `<header>`); `frontend/src/i18n/locales/{vi,en}/dictation.json` (`backTo`)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt các quyết định qua hỏi đáp trước khi làm: giữ thanh gốc của YouTube như Shadowing (không bỏ thanh gốc), chỉ bỏ hàng chip và thanh các câu tự vẽ, chỉ sửa class của nghe chép và không gộp thành phần dùng chung với Shadowing.
+- **Commit:** 2453f5d
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-058
+
+- **Ngày:** 2026-11-06
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DICTATION
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Bước 2: bấm một câu trong danh sách thì chọn và phát câu đó (câu cần làm tính 1 lần nghe, câu đã làm không đếm); người học tự tua hoặc tự phát bằng thanh YouTube thì màn hình đi theo câu chứa vị trí đó, trừ khi ô gõ đang có chữ; sửa UC-DICT-01 và AC-DICT-04, thêm AC-DICT-62..64; có test
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/dictation/position.ts:sentenceAt`, `:followTarget`; `position.test.ts` (7 test); `usePlayer.ts` (tham số `onSeek`, bộ theo dõi vị trí `WATCH_MS`, `SEEK_THRESHOLD_MS`); `pages/DictationPage.tsx:begin` (tham số `keepPlayer`), `:pickSentence`, bộ đi theo `followRef`; `docs/srs/use-cases/DICT.md` (UC-DICT-01 luồng 8a, 8c, 8d; AC-DICT-04, 62, 63, 64)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt hành vi qua hỏi đáp: tua thì đổi câu như Shadowing nhưng giữ nguyên câu khi ô gõ đang có chữ; bấm câu phát cho cả câu đã làm; phát bằng thanh gốc không đếm lượt nghe; phải sửa đặc tả cùng PR.
+- **Commit:** 448a190
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-059
+
+- **Ngày:** 2026-11-06
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Bước 3: danh sách câu và cỡ chữ theo mẫu Shadowing: khung, khoảng đệm, chip tiến độ, chip số lượt "N lần" (backend đếm mọi lượt) và dấu tick từ 80 điểm; kết quả và đáp án dùng `font-display font-bold` 22/26px, bản dịch `text-sm`; giữ ô gõ 20px
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/dictation/components/SentenceList.tsx`; `components/ResultDiff.tsx` (khối kết quả từng từ); `hooks.ts:useSubmitAttempt` (`attemptCount`); `backend/.../practice/repository/SentenceAttemptRepository.java:countDictationPerSentence`; `practice/service/PracticeAttemptServiceImpl.java:countDictationAttempts`; `dictation/service/DictationServiceImpl.java:getLesson`, `:toItem`; `dictation/dto/response/DictationLessonResponse.java` (`attemptCount`); `DictationAttemptHistoryIntegrationTest.java:lesson_countsEveryAttemptPerSentence_includingRetriesAndGiveUps`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt các điểm thiết kế: giữ chip mức, dấu ghim và dấu ghi chú trong danh sách; câu chưa làm vẫn che bằng dấu chấm theo số từ (không đổi sang dấu `*` theo chữ cái, để không lộ độ dài từng từ, BR-DICT-10); ô gõ giữ 20px.
+- **Commit:** 03df3a1
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).

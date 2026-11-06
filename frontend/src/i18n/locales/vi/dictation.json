@@ -18,12 +18,9 @@
     "useNormal": "Làm ở mức Normal"
   },
   "media": {
-    "youtube": "YouTube",
     "audio": "Bài nghe",
     "hideVideo": "Ẩn video",
     "showVideo": "Hiện video",
-    "sentences": "Các câu trong bài",
-    "sentenceN": "Câu {{n}}",
     "failTitle": "Không tải được video",
     "failDesc": "Bạn vẫn làm bài được nhưng chưa nghe được tiếng. Thử tải lại nhé.",
     "blockedTitle": "Không phát được âm thanh",
@@ -118,7 +115,8 @@
     "doing": "Đang làm",
     "words_other": "{{count}} từ",
     "inReview": "Đang trong Câu cần ôn",
-    "hasNote": "Có ghi chú"
+    "hasNote": "Có ghi chú",
+    "times": "{{count}} lần"
   },
   "settings": {
     "open": "Cài đặt",
@@ -207,5 +205,6 @@
     "detailFailed": "Chưa tải được kết quả của lượt này.",
     "retry": "Làm lại",
     "gaveUp": "Bỏ cuộc"
-  }
+  },
+  "backTo": "Bài học: {{title}}"
 }

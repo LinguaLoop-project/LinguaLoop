@@ -75,6 +75,24 @@ class DictationAttemptHistoryIntegrationTest {
     }
 
     @Test
+    void lesson_countsEveryAttemptPerSentence_includingRetriesAndGiveUps() throws Exception {
+        UUID user = data.newUser();
+        UUID lesson = data.newLesson("h0-" + tag, false, "APPROVED", false);
+        UUID busy = data.newSentence(lesson, 0, "Their cat sleeps over there.", "Bản dịch");
+        UUID once = data.newSentence(lesson, 1, "Their cat sleeps over there.", "Bản dịch");
+        data.newSentence(lesson, 2, "Their cat sleeps over there.", "Bản dịch");
+        submit(user, busy, "{\"level\":\"hard\",\"typedText\":\"their cat\"}");
+        submit(user, busy, "{\"level\":\"hard\",\"typedText\":\"their cat\",\"retry\":true}");
+        submit(user, busy, "{\"level\":\"hard\",\"gaveUp\":true}");
+        submit(user, once, "{\"level\":\"hard\",\"typedText\":\"their cat\"}");
+
+        as(user, get("/api/v1/dictation/lessons/h0-" + tag)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.sentences[0].attemptCount").value(3))
+                .andExpect(jsonPath("$.data.sentences[1].attemptCount").value(1))
+                .andExpect(jsonPath("$.data.sentences[2].attemptCount").value(0));
+    }
+
+    @Test
     void attempt_returnsTheSameResultAsTheSubmitResponse_notOnlyTheLatest() throws Exception {
         UUID user = data.newUser();
         UUID sentence = sentence("h3");

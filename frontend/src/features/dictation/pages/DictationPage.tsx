@@ -42,6 +42,7 @@ import type {
 } from "../types";
 import { deepLinkTarget } from "../deepLink";
 import { useDictationShortcuts } from "../useDictationShortcuts";
+import { followTarget } from "../position";
 import { usePlayer } from "../usePlayer";
 import {
   errorKind,
@@ -116,6 +117,8 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   const autoplayTimer = useRef<number | undefined>(undefined);
   const resumeShown = useRef(deepLink !== null);
   const videoRef = useRef<HTMLDivElement>(null);
+  /** Hàm xử lý khi người học tự tua hoặc tự phát bằng thanh YouTube; cập nhật mỗi lần vẽ để dùng state mới nhất. */
+  const followRef = useRef<(ms: number) => void>(() => undefined);
 
   const videoId = getYouTubeVideoId(lesson.sourceUrl);
   const player = usePlayer({
@@ -123,6 +126,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
     mediaUrl: videoId ? null : lesson.sourceUrl || null,
     containerRef: videoRef,
     rate: settings.rate,
+    onSeek: (ms) => followRef.current(ms),
   });
 
   const sentence = sentences[index];
@@ -169,22 +173,41 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
     startedAt.current = Date.now();
   };
 
-  /** Chuyển sang câu `next` (mức làm mặc định là mức trong cài đặt). */
-  const begin = (next: number, autoplay = false, level: DictationLevel = settings.level) => {
+  /**
+   * Chuyển sang câu `next` (mức làm mặc định là mức trong cài đặt). `autoplay` phát câu đó sau một khoảng ngắn;
+   * câu cần làm tính là 1 lần nghe, câu đã có kết quả thì phát mà không đếm. `keepPlayer` giữ video đang chạy, dùng khi
+   * người học tự phát bằng thanh YouTube và màn hình chỉ đi theo.
+   */
+  const begin = (next: number, autoplay = false, level: DictationLevel = settings.level, keepPlayer = false) => {
     window.clearTimeout(autoplayTimer.current);
-    player.stop();
+    if (!keepPlayer) player.stop();
     submitAttempt.reset();
     setIndex(next);
     setPanel(null);
     resetAttempt(level);
     const target = sentences[next];
-    if (autoplay && !target.latest) {
+    if (autoplay) {
+      const counts = !target.latest || redo.has(target.id);
       autoplayTimer.current = window.setTimeout(() => {
-        setReplays(1);
+        if (counts) setReplays(1);
         player.playSentence(target.startMs, target.endMs);
       }, AUTOPLAY_DELAY_MS);
     }
   };
+
+  /** Bấm một câu trong danh sách: chuyển tới câu đó và phát luôn; bấm câu đang xem thì phát lại. */
+  const pickSentence = (i: number) => {
+    if (i === index) replayCurrent();
+    else begin(i, true);
+  };
+
+  // Người học tự tua hoặc tự phát bằng thanh YouTube: màn hình đi theo câu chứa vị trí đó, trừ khi ô gõ đang có chữ.
+  useEffect(() => {
+    followRef.current = (ms) => {
+      const target = followTarget(sentences, ms, index, finished || submitAttempt.isPending || hasInput);
+      if (target !== null) begin(target, false, settings.level, true);
+    };
+  });
 
   const playCurrent = () => {
     if (!canPlay) return;
@@ -380,21 +403,21 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
 
   return (
     <section className="w-full" id="v-dictation">
-      <header className="mb-3 flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-2">
           <Link
             to={`/student/lessons/${lesson.slug}`}
-            className="mb-0.5 inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text"
+            className="mb-1 inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary-text"
           >
             <Icon name="arrow-left" />
-            <span>{lesson.title}</span>
+            <span className="truncate">{t("backTo", { title: lesson.title })}</span>
           </Link>
-          <div className="mb-1 text-xs font-bold uppercase tracking-wider text-fn-dictation">
+          <div className="text-xs font-semibold uppercase tracking-wider text-fn-dictation">
             {lesson.difficulty ? t("overlineWithLevel", { cefr: lesson.difficulty }) : t("overline")}
           </div>
-          <h1 className="text-[30px]">{t("title")}</h1>
+          <h1 className="font-display text-3xl font-bold">{t("title")}</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <LevelSwitch value={settings.level} onChange={changeLevel} />
           <SettingsPopover settings={settings} onChange={updateSettings} />
           <ShortcutsPopover />
@@ -409,12 +432,8 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
             <MediaBar
               player={player}
               videoRef={videoRef}
-              sentences={sentences}
-              currentIndex={index}
-              lessonDurationSec={lesson.durationSec}
               hideVideo={settings.hideVideo}
               onToggleVideo={() => updateSettings({ hideVideo: !settings.hideVideo })}
-              onSelect={(i) => i !== index && begin(i)}
             />
             <div className="@container rounded-xl border border-border bg-surface px-[18px] py-3.5 shadow-[var(--shadow-card)]">
               <PlayerControls
@@ -543,7 +562,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
               )}
             </div>
           </div>
-          <SentenceList sentences={sentences} currentIndex={index} onSelect={(i) => i !== index && begin(i)} />
+          <SentenceList sentences={sentences} currentIndex={index} onSelect={pickSentence} />
         </div>
       )}
     </section>

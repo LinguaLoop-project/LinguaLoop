@@ -1,8 +1,10 @@
 package com.lingualoop.backend.practice.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,14 @@ class PracticeAttemptServiceImpl implements PracticeAttemptService {
     @Transactional(readOnly = true)
     public Optional<DictationAttemptDetailView> findDictationAttempt(UUID userId, UUID sentenceId, long attemptId) {
         return attempts.findDictationById(userId, sentenceId, attemptId).map(mapper::toDetailView);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<UUID, Integer> countDictationAttempts(UUID userId, UUID lessonId) {
+        return attempts.countDictationPerSentence(userId, lessonId).stream()
+                .collect(Collectors.toMap(SentenceAttemptRepository.AttemptCount::getSentenceId,
+                        c -> Math.toIntExact(c.getAttemptCount())));
     }
 
     @Override

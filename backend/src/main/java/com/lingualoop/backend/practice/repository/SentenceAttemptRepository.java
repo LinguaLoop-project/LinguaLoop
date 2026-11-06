@@ -48,6 +48,20 @@ public interface SentenceAttemptRepository extends JpaRepository<SentenceAttempt
     Optional<SentenceAttempt> findDictationById(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId,
             @Param("attemptId") long attemptId);
 
+    /** Số lượt nghe chép của người dùng ở từng câu trong bài (câu chưa làm không có dòng). */
+    @Query(value = """
+            SELECT a.sentence_id AS sentenceId, count(*) AS attemptCount
+            FROM sentence_attempts a JOIN sentences s ON s.id = a.sentence_id
+            WHERE a.user_id = :userId AND s.lesson_id = :lessonId AND a.mode = 'dictation'
+            GROUP BY a.sentence_id""", nativeQuery = true)
+    List<AttemptCount> countDictationPerSentence(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId);
+
+    interface AttemptCount {
+        UUID getSentenceId();
+
+        long getAttemptCount();
+    }
+
     /** Các lượt Easy gần nhất của một câu, mới nhất trước. */
     @Query(value = """
             SELECT * FROM sentence_attempts
