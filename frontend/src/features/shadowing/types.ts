@@ -62,6 +62,17 @@ export interface LatestAttempt {
   aiFeedback: { content: string; createdAt: string } | null;
 }
 
+/** Một lượt đọc trong lịch sử của câu: điểm tổng và bốn điểm thành phần, chưa kèm từng từ. */
+export interface HistoryItem {
+  attemptId: number;
+  score: number;
+  accuracy: number | null;
+  fluency: number | null;
+  completeness: number | null;
+  prosody: number | null;
+  attemptedAt: string;
+}
+
 /** Kết quả của một câu trong trang luyện: lượt gần nhất + điểm cao nhất + số lần đọc. */
 export interface SentenceRecord {
   /** Nhận xét AI đã lưu của lượt gần nhất (khôi phục lúc mở lại bài); null nếu chưa có. */

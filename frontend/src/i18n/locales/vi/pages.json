@@ -543,7 +543,8 @@
         "mine": "Giọng tôi",
         "compare": "So sánh",
         "step": "Câu trước / sau",
-        "tabs": "Tab Xem / Luyện"
+        "tabs": "Tab Xem / Luyện",
+        "note": "Ghi chú câu"
       },
       "readCount": "Đã đọc {{count}} lần",
       "unread": "Chưa đọc",
@@ -565,7 +566,21 @@
       "list": {
         "title": "Bản chép",
         "progress": "{{done}}/{{total}} · {{pct}}%",
-        "weak": "Âm hay sai:"
+        "weak": "Âm hay sai:",
+        "inReview": "Đang trong Câu cần ôn",
+        "hasNote": "Có ghi chú"
+      },
+      "tools": {
+        "history": "Lịch sử"
+      },
+      "history": {
+        "title": "Lịch sử các lượt đọc",
+        "loading": "Đang tải lịch sử",
+        "empty": "Câu này chưa có lượt đọc nào.",
+        "failed": "Chưa tải được lịch sử.",
+        "retry": "Thử lại",
+        "detailFailed": "Chưa tải được kết quả của lượt này.",
+        "noAudio": "Bản ghi âm không được lưu nên không nghe lại được."
       }
     }
   },
