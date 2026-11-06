@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/lesson/types";
 import { parseSseEvents } from "../sse";
-import type { AiFeedback, AttemptResponse, LatestAttempt } from "../types";
+import type { AiFeedback, AttemptResponse, HistoryItem, LatestAttempt } from "../types";
 
 export const shadowingService = {
   /** Gửi bản ghi WAV (16 kHz mono) của một câu đi chấm. */
@@ -75,6 +75,18 @@ export const shadowingService = {
     consume(response.data); // phần còn lại nếu sự kiện cuối chưa kịp đi qua onDownloadProgress
     if (!done) throw new Error("AI feedback stream ended without a result");
     return done;
+  },
+
+  /** Mọi lượt đọc của một câu, mới nhất trước. */
+  getHistory: async (sentenceId: string): Promise<HistoryItem[]> => {
+    const response = await axiosClient.get<ApiResponse<HistoryItem[]>>(`/sentences/${sentenceId}/shadowing-attempts`);
+    return response.data.data;
+  },
+
+  /** Kết quả đầy đủ của một lượt cũ (từng từ, âm vị, Nhận xét AI đã lưu). */
+  getAttempt: async (attemptId: number): Promise<LatestAttempt> => {
+    const response = await axiosClient.get<ApiResponse<LatestAttempt>>(`/shadowing-attempts/${attemptId}`);
+    return response.data.data;
   },
 
   getLatest: async (lessonSlug: string): Promise<LatestAttempt[]> => {
