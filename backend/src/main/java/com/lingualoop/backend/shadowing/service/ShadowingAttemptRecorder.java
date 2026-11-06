@@ -12,6 +12,7 @@ import com.lingualoop.backend.lesson.service.LessonProgressService;
 import com.lingualoop.backend.practice.entity.SentenceAttempt;
 import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
 import com.lingualoop.backend.practice.enums.AttemptOutcome;
+import com.lingualoop.backend.practice.service.SentenceReviewService;
 import com.lingualoop.backend.shadowing.azure.AzurePhonemeMapper;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
@@ -32,6 +33,7 @@ class ShadowingAttemptRecorder {
     private final ShadowingAttemptRepository repository;
     private final PhonemeRepository phonemeRepository;
     private final LessonProgressService lessonProgressService;
+    private final SentenceReviewService reviewService;
 
     @Transactional
     public long save(UUID userId, UUID lessonId, UUID sentenceId, PronunciationAssessment assessment,
@@ -47,6 +49,7 @@ class ShadowingAttemptRecorder {
             position++;
         }
         long attemptId = repository.save(attempt).getId();
+        reviewService.recordScore(userId, sentenceId, PracticeMode.shadowing, attempt.getScore());
 
         lessonProgressService.recordActivity(userId, lessonId, PracticeMode.shadowing, (durationMs + 999) / 1000);
         return attemptId;

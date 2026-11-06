@@ -44,7 +44,7 @@ class SentenceNoteServiceImpl implements SentenceNoteService {
     @Override
     @Transactional
     public SentenceNoteView save(UUID userId, UUID sentenceId, String content) {
-        if (!reviews.hasDictationAttempt(userId, sentenceId)) {
+        if (!reviews.hasAnyAttempt(userId, sentenceId)) {
             throw new BusinessException(ErrorCode.PRACTICE_SENTENCE_NOT_PRACTICED);
         }
         SentenceNote note = notes.findByUserIdAndSentenceId(userId, sentenceId).orElseGet(() -> {
