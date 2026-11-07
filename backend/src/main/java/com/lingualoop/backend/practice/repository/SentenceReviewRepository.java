@@ -46,12 +46,6 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
     List<UUID> findPendingSentenceIds(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId,
             @Param("mode") String mode);
 
-    @Query(value = """
-            SELECT EXISTS (SELECT 1 FROM user_sentence_review
-                           WHERE user_id = :userId AND sentence_id = :sentenceId
-                             AND mode = CAST(:mode AS practice_mode) AND status = 'pending')""", nativeQuery = true)
-    boolean isPending(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode);
-
     /** Câu đã có ít nhất một lượt ở chế độ này: điều kiện để ghim câu vào danh sách của chế độ đó. */
     @Query(value = """
             SELECT EXISTS (SELECT 1 FROM sentence_attempts

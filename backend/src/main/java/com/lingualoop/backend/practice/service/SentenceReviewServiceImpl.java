@@ -1,6 +1,5 @@
 package com.lingualoop.backend.practice.service;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,34 +22,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 class SentenceReviewServiceImpl implements SentenceReviewService {
 
-    /** Dưới ngưỡng này câu vào danh sách (BR-DICT-14). */
-    static final BigDecimal ADD_BELOW = BigDecimal.valueOf(60);
-    /** Từ ngưỡng này trở lên câu ra khỏi danh sách, cùng ngưỡng "tốt" của BR-DICT-03. */
-    static final BigDecimal RESOLVE_AT = BigDecimal.valueOf(80);
-
     private final SentenceReviewRepository reviews;
 
     @Override
     @Transactional
-    public boolean recordScore(UUID userId, UUID sentenceId, PracticeMode mode, BigDecimal score) {
-        if (score.compareTo(ADD_BELOW) < 0) {
-            reviews.add(userId, sentenceId, mode.name(), ReviewReason.low_score.name());
-            return true;
-        }
-        if (score.compareTo(RESOLVE_AT) >= 0) {
-            reviews.resolve(userId, sentenceId, mode.name());
-            return false;
-        }
-        return reviews.isPending(userId, sentenceId, mode.name());
-    }
-
-    @Override
-    @Transactional
-    public void pin(UUID userId, UUID sentenceId, PracticeMode mode) {
+    public void pin(UUID userId, UUID sentenceId, PracticeMode mode, ReviewReason reason) {
         if (!reviews.hasAttempt(userId, sentenceId, mode.name())) {
             throw new BusinessException(ErrorCode.PRACTICE_SENTENCE_NOT_PRACTICED);
         }
-        reviews.add(userId, sentenceId, mode.name(), ReviewReason.manual.name());
+        reviews.add(userId, sentenceId, mode.name(), reason.name());
     }
 
     @Override
