@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { practiceApi } from "./api";
-import type { PracticeMode } from "./types";
+import type { PracticeMode, ReviewReason } from "./types";
 
 const NETWORK_MODE = "always" as const;
 
@@ -41,8 +41,8 @@ export const useSetReview = (mode: PracticeMode) => {
   const queryClient = useQueryClient();
   return useMutation({
     networkMode: NETWORK_MODE,
-    mutationFn: ({ sentenceId, pinned }: { sentenceId: string; pinned: boolean }) =>
-      pinned ? practiceApi.pinReview(mode, sentenceId) : practiceApi.resolveReview(mode, sentenceId),
+    mutationFn: ({ sentenceId, pinned, reason }: { sentenceId: string; pinned: boolean; reason?: ReviewReason }) =>
+      pinned ? practiceApi.pinReview(mode, sentenceId, reason) : practiceApi.resolveReview(mode, sentenceId),
     onSuccess: () => refreshPractice(queryClient),
   });
 };

@@ -12,6 +12,8 @@ export interface ShortcutHandlers {
   /** Phím N: mở hoặc đóng ô ghi chú của câu. */
   onNote: () => void;
   mode: "work" | "review";
+  /** Đang có hộp thoại (hỏi lưu câu): mọi phím tắt của trang tạm ngưng. */
+  suspended?: boolean;
 }
 
 const LEVEL_BY_DIGIT: Record<string, DictationLevel> = { Digit1: "easy", Digit2: "normal", Digit3: "hard", Numpad1: "easy", Numpad2: "normal", Numpad3: "hard" };
@@ -35,6 +37,7 @@ export function useDictationShortcuts(handlers: ShortcutHandlers) {
 
     const onKeyDown = (event: KeyboardEvent) => {
       const h = latest.current;
+      if (h.suspended) return;
       if (event.key === "Control") {
         if (!event.repeat) {
           ctrlDown = true;
@@ -78,7 +81,7 @@ export function useDictationShortcuts(handlers: ShortcutHandlers) {
 
     const onKeyUp = (event: KeyboardEvent) => {
       if (event.key !== "Control") return;
-      if (ctrlDown && !ctrlUsed) latest.current.onPlay();
+      if (ctrlDown && !ctrlUsed && !latest.current.suspended) latest.current.onPlay();
       ctrlDown = false;
     };
 

@@ -1,5 +1,5 @@
 import { axiosClient } from "@/api/axiosClient";
-import type { ApiResponse, NoteEntry, PracticeMode, ReviewSentence, SentenceNote } from "./types";
+import type { ApiResponse, NoteEntry, PracticeMode, ReviewReason, ReviewSentence, SentenceNote } from "./types";
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
@@ -14,9 +14,15 @@ export const practiceApi = {
     return response.data.data;
   },
 
-  /** Ghim câu vào Câu cần ôn của một chế độ. */
-  pinReview: async (mode: PracticeMode, sentenceId: string): Promise<void> => {
-    await axiosClient.put(`/review/${mode}/sentences/${sentenceId}`, null, { timeout: REQUEST_TIMEOUT_MS });
+  /**
+   * Lưu câu vào Câu cần ôn của một chế độ: `manual` khi người học tự ghim, `low_score` khi chọn lưu ở hộp hỏi sau
+   * lượt điểm thấp.
+   */
+  pinReview: async (mode: PracticeMode, sentenceId: string, reason: ReviewReason = "manual"): Promise<void> => {
+    await axiosClient.put(`/review/${mode}/sentences/${sentenceId}`, null, {
+      params: { reason },
+      timeout: REQUEST_TIMEOUT_MS,
+    });
   },
 
   /** Gỡ câu khỏi Câu cần ôn của một chế độ ("Đã ổn" hoặc bỏ ghim). */
