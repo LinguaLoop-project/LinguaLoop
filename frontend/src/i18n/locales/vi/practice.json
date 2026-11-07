@@ -4,8 +4,7 @@
     "unpin": "Bỏ khỏi Câu cần ôn",
     "pinned": "Đã thêm câu này vào Câu cần ôn",
     "unpinned": "Đã bỏ câu này khỏi Câu cần ôn",
-    "failed": "Chưa cập nhật được Câu cần ôn. Thử lại nhé.",
-    "autoAdded": "Đã thêm câu này vào Câu cần ôn"
+    "failed": "Chưa cập nhật được Câu cần ôn. Thử lại nhé."
   },
   "note": {
     "title": "Ghi chú của tôi",
@@ -18,5 +17,19 @@
     "offline": "Bạn đang mất mạng. Thử lại khi có mạng.",
     "add": "Thêm ghi chú",
     "edit": "Sửa ghi chú"
+  },
+  "modes": {
+    "dictation": "Nghe chép",
+    "shadowing": "Shadowing"
+  },
+  "prompt": {
+    "saveTitle": "Lưu câu này để ôn lại?",
+    "saveBody": "Lượt vừa rồi được {{score}} điểm. Lưu vào Câu cần ôn ({{mode}}) để luyện lại sau.",
+    "save": "Lưu",
+    "skip": "Không",
+    "removeTitle": "Câu này đã tốt rồi. Bỏ khỏi danh sách ôn?",
+    "removeBody": "Lượt vừa rồi được {{score}} điểm. Câu đang nằm trong Câu cần ôn ({{mode}}).",
+    "remove": "Bỏ khỏi danh sách",
+    "keep": "Giữ lại"
   }
 }

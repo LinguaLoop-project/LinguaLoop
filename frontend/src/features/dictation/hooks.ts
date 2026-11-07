@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { practiceApi } from "@/features/practice/api";
+import type { ReviewReason } from "@/features/practice/types";
 import { dictationApi } from "./api";
 import type {
   AttemptResult,
@@ -118,8 +119,10 @@ export const useSetReview = (slug: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     networkMode: NETWORK_MODE,
-    mutationFn: ({ sentenceId, pinned }: { sentenceId: string; pinned: boolean }) =>
-      pinned ? practiceApi.pinReview("dictation", sentenceId) : practiceApi.resolveReview("dictation", sentenceId),
+    mutationFn: ({ sentenceId, pinned, reason }: { sentenceId: string; pinned: boolean; reason?: ReviewReason }) =>
+      pinned
+        ? practiceApi.pinReview("dictation", sentenceId, reason)
+        : practiceApi.resolveReview("dictation", sentenceId),
     onSuccess: (_data, { sentenceId, pinned }) => patchSentence(queryClient, slug, sentenceId, { inReview: pinned }),
   });
 };

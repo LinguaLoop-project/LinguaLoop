@@ -8,8 +8,9 @@ import Mascot from "@/components/common/Mascot";
 import SegmentedControl from "@/components/common/SegmentedControl";
 import { NETWORK_ERROR, toApiError } from "@/features/auth";
 import type { LessonDetail, SentenceResponse } from "@/features/lesson/types";
-import { REVIEW_ADD_BELOW } from "@/features/practice/constants";
-import { useNoteEntries, useReviewEntries } from "@/features/practice/hooks";
+import ReviewPromptDialog from "@/features/practice/components/ReviewPromptDialog";
+import { useNoteEntries, useReviewEntries, useSetReview } from "@/features/practice/hooks";
+import { reviewPromptKind, type ReviewPrompt } from "@/features/practice/reviewPrompt";
 import * as tutorApi from "@/features/tutor/api";
 import TutorAsk from "@/features/tutor/components/TutorAsk";
 import TutorOffer from "@/features/tutor/components/TutorOffer";
@@ -97,7 +98,6 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 
 export default function ShadowingPractice({ lesson, sentences, latest }: ShadowingPracticeProps) {
   const { t } = useTranslation("pages");
-  const { t: tPractice } = useTranslation("practice");
   const navigate = useNavigate();
   const { isPro, tutorOut: tutorQuotaOut, tutorSessionsPerDay, refresh: refreshEnergy } = useAiEnergy();
   const setShowUpgradeModal = useQuotaStore((s) => s.setShowUpgradeModal);
@@ -173,6 +173,9 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const [toolState, setToolState] = useState<{ sentenceId: string; panel: ToolPanel } | null>(null);
   const toolPanel = toolState?.sentenceId === sentence.id ? toolState.panel : null;
   const setToolPanel = (panel: ToolPanel | null) => setToolState(panel ? { sentenceId: sentence.id, panel } : null);
+  /** Hộp hỏi lưu hoặc bỏ câu khỏi Câu cần ôn sau một lượt (BR-SHADOW-15). */
+  const [reviewPrompt, setReviewPrompt] = useState<ReviewPrompt | null>(null);
+  const setReview = useSetReview("shadowing");
   const doneCount = sentences.filter((s) => records[s.id]).length;
   const finished = doneCount === sentences.length;
   const busy = phase !== "idle" || tutorActive;
@@ -234,9 +237,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
         { sentenceId, wav },
         {
           onSuccess: (result) => {
-            if (result.score < REVIEW_ADD_BELOW && !pinnedRef.current.has(sentenceId)) {
-              toast(tPractice("pin.autoAdded"), { icon: "pin" });
-            }
+            const kind = reviewPromptKind(result.score, pinnedRef.current.has(sentenceId));
+            if (kind) setReviewPrompt({ kind, sentenceId, mode: "shadowing", score: result.score });
             setRecords((prev) => ({ ...prev, [sentenceId]: recordFromAttempt(prev[sentenceId], result) }));
             setSelected(null);
             setPhase("idle");
@@ -249,7 +251,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
         },
       );
     },
-    [assess, dropOffer, offerTutor, t, tPractice, tutorOn, tutorQuotaOut],
+    [assess, dropOffer, offerTutor, t, tutorOn, tutorQuotaOut],
   );
 
   const startTutor = (attemptId: number, offerId: string | null) => {
@@ -411,7 +413,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
       },
     },
     tab,
-    !tutorActive, // trong phiên gia sư phím Space dành cho nút giữ để đọc
+    // trong phiên gia sư phím Space dành cho nút giữ để đọc; khi có hộp hỏi thì phím dành cho hộp hỏi
+    !tutorActive && reviewPrompt === null,
   );
 
   const micLabel =
@@ -725,6 +728,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
           onGo={pickFromList}
         />
       </div>
+      <ReviewPromptDialog prompt={reviewPrompt} setReview={setReview} onClose={() => setReviewPrompt(null)} />
     </section>
   );
 }
