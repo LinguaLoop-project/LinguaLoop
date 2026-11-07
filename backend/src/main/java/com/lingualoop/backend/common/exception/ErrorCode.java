@@ -43,6 +43,7 @@ public enum ErrorCode {
     DICTIONARY_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy từ này trong từ điển"),
 
     VOCAB_MEANING_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy nghĩa này của từ"),
+    VOCAB_DECK_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy bộ từ này"),
     VOCAB_SAVED_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy từ đã lưu này"),
 
     DICTATION_EASY_UNAVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Câu này chưa có ô nào để điền, hãy chọn mức khác"),
