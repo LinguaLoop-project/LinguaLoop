@@ -8,12 +8,14 @@ import SaveWordButton from "./SaveWordButton";
 interface GroupListProps {
   /** Mục từ mà các nghĩa này thuộc về; nút Lưu lưu nghĩa theo mục từ này. */
   headword: string;
+  /** Có nút Lưu ở từng nghĩa không. Dạng chia không lưu nghĩa riêng: chỉ nghĩa của từ gốc lưu được (BR-VOCAB-01). */
+  saveable: boolean;
   groups: MeaningGroup[];
   /** Nhóm nào có phát âm riêng (từ đồng tự khác âm, vd "present") thì báo lên cha để ghi đè phát âm hiện trên đầu, không hiện 2 hàng. */
   onActivePronunciationChange?: (pronunciation: Pronunciation) => void;
 }
 
-function GroupList({ headword, groups, onActivePronunciationChange }: GroupListProps) {
+function GroupList({ headword, saveable, groups, onActivePronunciationChange }: GroupListProps) {
   const { t } = useTranslation("dictionary");
   const [activeIndex, setActiveIndex] = useState(0);
   const active = groups[activeIndex] ?? groups[0];
@@ -55,7 +57,7 @@ function GroupList({ headword, groups, onActivePronunciationChange }: GroupListP
             <li key={meaning.no} className="flex flex-col gap-1 py-2 first:pt-0 last:pb-0">
               <div className="flex items-start justify-between gap-2">
                 <p className="font-semibold leading-snug text-text">{meaning.translationVi}</p>
-                <SaveWordButton headword={headword} meaningNo={meaning.no} />
+                {saveable && <SaveWordButton headword={headword} meaningNo={meaning.no} />}
               </div>
               {meaning.exampleEn && (
                 <p className="border-l-2 border-border-strong pl-2.5 text-[13px] leading-normal">
@@ -96,7 +98,7 @@ export default function WordCard({ word }: WordCardProps) {
       </header>
 
       {hasOwnMeanings && (
-        <GroupList headword={word.headword} groups={word.groups} onActivePronunciationChange={setMainPronunciation} />
+        <GroupList headword={word.headword} saveable={!lemma} groups={word.groups} onActivePronunciationChange={setMainPronunciation} />
       )}
 
       {lemma && (
@@ -108,7 +110,7 @@ export default function WordCard({ word }: WordCardProps) {
             </p>
             {lemmaPronunciation && <PronunciationButtons headword={lemma.headword} pronunciation={lemmaPronunciation} />}
           </div>
-          <GroupList headword={lemma.headword} groups={lemma.groups} onActivePronunciationChange={setLemmaPronunciation} />
+          <GroupList headword={lemma.headword} saveable groups={lemma.groups} onActivePronunciationChange={setLemmaPronunciation} />
         </div>
       )}
 

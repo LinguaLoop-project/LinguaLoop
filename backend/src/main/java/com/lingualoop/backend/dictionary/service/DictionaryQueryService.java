@@ -15,8 +15,8 @@ public interface DictionaryQueryService {
     List<WordView> search(String query, int limit);
 
     /**
-     * Một nghĩa của một mục từ để chép vào thẻ; rỗng nếu từ hoặc nghĩa không có. {@code headword} được chuẩn hoá như
-     * khi tra từ, và là chính mục từ đó (dạng chia không được đổi sang từ gốc).
+     * Một nghĩa của một mục từ gốc để chép vào thẻ; rỗng nếu từ hoặc nghĩa không có. {@code headword} được chuẩn hoá
+     * như khi tra từ. Dạng chia ("went") không có thẻ riêng nên cũng rỗng: người học lưu nghĩa của từ gốc ("go").
      */
     Optional<MeaningSnapshot> findMeaning(String headword, int meaningNo);
 
