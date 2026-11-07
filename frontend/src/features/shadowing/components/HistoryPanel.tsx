@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
+import { WordSourceProvider } from "@/features/dictionary";
 import { useAttemptHistory, useHistoryAttempt } from "../hooks/useShadowing";
 import { TONE_TEXT, toneOf } from "../utils";
 import SentenceWords from "./SentenceWords";
@@ -90,14 +91,16 @@ export default function HistoryPanel({ sentenceId, sentenceText }: HistoryPanelP
       )}
       {selected !== null && detail.data && (
         <div className="flex flex-col gap-2 border-t border-border pt-2">
-          <SentenceWords
-            text={sentenceText}
-            words={detail.data.words}
-            ipa={null}
-            lit={-1}
-            selected={null}
-            onSelect={() => undefined}
-          />
+          <WordSourceProvider sentenceId={sentenceId}>
+            <SentenceWords
+              text={sentenceText}
+              words={detail.data.words}
+              ipa={null}
+              lit={-1}
+              selected={null}
+              onSelect={() => undefined}
+            />
+          </WordSourceProvider>
           {detail.data.aiFeedback && (
             <p className="whitespace-pre-wrap rounded-md border border-border bg-surface p-3 text-sm">
               {detail.data.aiFeedback.content}

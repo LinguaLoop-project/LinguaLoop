@@ -7,6 +7,7 @@ import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
 import SegmentedControl from "@/components/common/SegmentedControl";
 import { NETWORK_ERROR, toApiError } from "@/features/auth";
+import { WordSourceProvider } from "@/features/dictionary";
 import type { LessonDetail, SentenceResponse } from "@/features/lesson/types";
 import ReviewPromptDialog from "@/features/practice/components/ReviewPromptDialog";
 import { useNoteEntries, useReviewEntries, useSetReview } from "@/features/practice/hooks";
@@ -596,14 +597,16 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                   onMic={onMicClick}
                 />
 
-                <SentenceWords
-                  text={sentence.text}
-                  words={record?.words ?? []}
-                  ipa={wordPhonetics}
-                  lit={lit}
-                  selected={selected}
-                  onSelect={setSelected}
-                />
+                <WordSourceProvider sentenceId={sentence.id}>
+                  <SentenceWords
+                    text={sentence.text}
+                    words={record?.words ?? []}
+                    ipa={wordPhonetics}
+                    lit={lit}
+                    selected={selected}
+                    onSelect={setSelected}
+                  />
+                </WordSourceProvider>
                 {settings.ipa && shownIpa && !wordPhonetics && (
                   <p className="mt-1 text-center text-sm text-text-subtle">{shownIpa}</p>
                 )}
