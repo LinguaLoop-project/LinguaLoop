@@ -12,6 +12,7 @@ import { playPronunciation } from "@/features/dictionary";
 import {
   EMPTY_FILTER,
   filterSavedWords,
+  StatCard,
   savedWordStats,
   useSavedWords,
   useUnsaveWord,
@@ -33,16 +34,6 @@ const STATUS_TONE: Record<CardStatus, "warning" | "info" | "success" | undefined
   reviewing: "info",
   mastered: "success",
 };
-
-function StatCard({ label, value, hint, tone }: { label: string; value: number; hint: string; tone: string }) {
-  return (
-    <div className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
-      <span className={`text-xs font-bold uppercase tracking-wider ${tone}`}>{label}</span>
-      <span className="font-display text-[30px] font-bold leading-none">{value}</span>
-      <span className="text-[13px] text-text-muted">{hint}</span>
-    </div>
-  );
-}
 
 interface WordRowProps {
   item: SavedWord;

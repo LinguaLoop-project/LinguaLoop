@@ -1,6 +1,19 @@
 import { describe, expect, it } from "vitest";
-import type { SavedWord } from "./types";
-import { EMPTY_FILTER, filterSavedWords, findSaved, savedWordStats } from "./utils";
+import type { DeckPart, DeckSummary, SavedWord } from "./types";
+import {
+  EMPTY_FILTER,
+  deckUrl,
+  filterSavedWords,
+  findSaved,
+  isStarted,
+  learnedCount,
+  nextPartIndex,
+  partState,
+  partUrl,
+  percentOf,
+  savedWordStats,
+  visibleParts,
+} from "./utils";
 
 const word = (over: Partial<SavedWord>): SavedWord => ({
   id: "id",
@@ -74,5 +87,110 @@ describe("savedWordStats", () => {
 
   it("danh sách trống thì toàn số 0", () => {
     expect(savedWordStats([])).toEqual({ total: 0, due: 0, learning: 0, mastered: 0 });
+  });
+});
+
+const part = (over: Partial<DeckPart>): DeckPart => ({
+  index: 0,
+  name: "Part 1",
+  nameVi: "Phần 1",
+  cardCount: 20,
+  studiedCount: 0,
+  locked: false,
+  ...over,
+});
+
+describe("nextPartIndex", () => {
+  it("là phần đầu tiên còn thẻ Mới (AC-VOCAB-14)", () => {
+    const parts = [part({ index: 0, studiedCount: 20 }), part({ index: 1, studiedCount: 15 }), part({ index: 2 })];
+    expect(nextPartIndex(parts)).toBe(1);
+  });
+
+  it("bỏ qua phần bị khoá", () => {
+    const parts = [part({ index: 0, studiedCount: 20 }), part({ index: 1, locked: true }), part({ index: 2, locked: true })];
+    expect(nextPartIndex(parts)).toBeNull();
+  });
+
+  it("null khi bộ không có phần nào hoặc đã học hết", () => {
+    expect(nextPartIndex([])).toBeNull();
+    expect(nextPartIndex([part({ studiedCount: 20 })])).toBeNull();
+  });
+});
+
+describe("partState", () => {
+  it("khoá, xong, đang học và chưa học", () => {
+    expect(partState(part({ locked: true }), 0)).toBe("locked");
+    expect(partState(part({ studiedCount: 20 }), 3)).toBe("done");
+    expect(partState(part({ index: 3, studiedCount: 5 }), 3)).toBe("current");
+    expect(partState(part({ index: 4 }), 3)).toBe("todo");
+  });
+
+  it("phần không có thẻ nào không tính là đã xong", () => {
+    expect(partState(part({ cardCount: 0, studiedCount: 0 }), null)).toBe("todo");
+  });
+});
+
+describe("tiến độ bộ", () => {
+  const deck: DeckSummary = {
+    id: "d",
+    slug: "oxford-a1",
+    name: "Oxford A1",
+    nameVi: null,
+    cefrLevel: "A1",
+    pro: false,
+    cardCount: 100,
+    groupCount: 5,
+    progress: { mastered: 10, reviewing: 5, learning: 5, newCount: 80 },
+    dueCount: 0,
+  };
+
+  it("đếm thẻ đã học và phần trăm", () => {
+    expect(learnedCount(deck.progress)).toBe(20);
+    expect(percentOf(20, 100)).toBe(20);
+    expect(percentOf(1, 3)).toBe(33);
+    expect(percentOf(5, 0)).toBe(0);
+  });
+
+  it("bộ đã học ít nhất một thẻ thì đang học", () => {
+    expect(isStarted(deck)).toBe(true);
+    expect(isStarted({ ...deck, progress: { mastered: 0, reviewing: 0, learning: 0, newCount: 100 } })).toBe(false);
+  });
+
+  it("đường dẫn phần tính từ 1", () => {
+    expect(deckUrl("oxford-a1")).toBe("/student/vocab/oxford-a1");
+    expect(partUrl("oxford-a1", 0)).toBe("/student/vocab/oxford-a1/parts/1");
+    expect(partUrl("oxford-a1", 4)).toBe("/student/vocab/oxford-a1/parts/5");
+  });
+});
+
+describe("visibleParts", () => {
+  const many = (count: number, over: (i: number) => Partial<DeckPart> = () => ({})) =>
+    Array.from({ length: count }, (_, i) => part({ index: i, ...over(i) }));
+
+  it("bộ ít phần thì hiện hết", () => {
+    const parts = many(6);
+    expect(visibleParts(parts, 3, false)).toEqual({ items: parts, from: 0, to: 6 });
+  });
+
+  it("bộ nhiều phần thì hiện cửa sổ 8 phần quanh phần đang học", () => {
+    const result = visibleParts(many(100), 40, false);
+    expect(result.items.map((p) => p.index)).toEqual([38, 39, 40, 41, 42, 43, 44, 45]);
+    expect([result.from, result.to]).toEqual([38, 46]);
+  });
+
+  it("cửa sổ không vượt đầu và cuối bộ", () => {
+    expect(visibleParts(many(100), 0, false).from).toBe(0);
+    expect(visibleParts(many(100), 99, false)).toMatchObject({ from: 92, to: 100 });
+  });
+
+  it("hết phần để học thì neo vào phần khoá đầu tiên", () => {
+    const parts = many(100, (i) => (i >= 2 ? { locked: true } : { studiedCount: 20 }));
+    expect(visibleParts(parts, null, false).items[0].index).toBe(0);
+    const later = many(100, (i) => (i >= 50 ? { locked: true } : { studiedCount: 20 }));
+    expect(visibleParts(later, null, false)).toMatchObject({ from: 48, to: 56 });
+  });
+
+  it("chọn xem tất cả thì hiện hết", () => {
+    expect(visibleParts(many(100), 40, true).items).toHaveLength(100);
   });
 });
