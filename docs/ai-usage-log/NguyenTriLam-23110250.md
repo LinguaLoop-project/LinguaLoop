@@ -735,6 +735,54 @@
 - **Commit:** f79734d
 - **Lỗi liên quan:** AI-ERR-LAM-005
 
+### AI-LAM-065
+
+- **Ngày:** 2026-11-07
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** DOCUMENTATION
+- **Loại công việc (`Task Type`):** DOCUMENTATION
+- **Prompt chính / yêu cầu:** Sửa đặc tả cho hai thay đổi do Lâm yêu cầu: (1) hệ thống hỏi trước khi lưu câu điểm thấp và trước khi bỏ câu từ 80 điểm khỏi Câu cần ôn thay vì tự đổi danh sách, (2) ghi chú tách riêng cho nghe chép và Shadowing; sửa thuật ngữ trong `GLOSSARY.md`
+- **Vị trí code do AI sinh (`file:hàm`):** `docs/srs/business-rules.md` (BR-DICT-14, 15, 17; BR-SHADOW-15, 17, 19); `docs/srs/use-cases/DICT.md` (UC-DICT-10, AC-DICT-49, 54..56, 65..67); `docs/srs/use-cases/SHADOWING.md` (UC-SHADOW-11, 12; AC-SHADOW-43, 44, 46..48, 53..56); `GLOSSARY.md` (Câu cần ôn, Ghi chú)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên đổi hướng giữa chừng và chốt: lượt từ 80 điểm cũng hỏi chứ không tự gỡ; đề xuất tách ghi chú theo chế độ thay vì thêm cột `source_mode` (AI chỉ phân tích ưu nhược); bỏ nút phụ "Mở ở chế độ kia" vì không còn cần; làm trực tiếp trên nhánh của PR #50.
+- **Commit:** 01cf7d6
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-066
+
+- **Ngày:** 2026-11-07
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** SHADOWING
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Backend: bỏ tự thêm và tự gỡ Câu cần ôn ở cả nghe chép lẫn Shadowing; ghim nhận lý do (`manual` hoặc `low_score`); migration thêm cột `mode` cho ghi chú (ghi chú cũ thành nghe chép) với khoá duy nhất theo chế độ; API ghi chú theo chế độ; viết lại test cho hành vi mới
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../practice/service/SentenceReviewServiceImpl.java:pin`; `practice/controller/SentenceReviewController.java:pin`; `practice/service/SentenceNoteServiceImpl.java:save`, `:find`, `:list`; `practice/repository/SentenceNoteRepository.java:findOne`, `:findEntries`; `practice/controller/SentenceNoteController.java`; `V20261107_0900__sentence_notes_per_mode.sql`; `shadowing/service/ShadowingAttemptRecorder.java:save`; `dictation/service/DictationServiceImpl.java:submitAttempt`; `SentenceReviewApiIntegrationTest.java`, `SentenceNoteApiIntegrationTest.java`, `ShadowingReviewHistoryNotesIntegrationTest.java` (thêm `notesOfTheTwoModes_areIndependent`)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt thiết kế: lý do `low_score` cho lưu từ hộp hỏi, `manual` cho ghim tay; ghi chú cũ chuyển thành ghi chú nghe chép vì Shadowing chưa từng có ghi chú.
+- **Commit:** c9f6e79
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-067
+
+- **Ngày:** 2026-11-07
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Hộp hỏi dùng chung cho nghe chép và Shadowing: dưới 60 điểm mà câu chưa trong danh sách thì hỏi lưu, từ 80 điểm mà câu đang trong danh sách thì hỏi bỏ; Esc hoặc bấm ra ngoài không đổi gì; phím tắt của trang tạm ngưng khi hộp hỏi mở; không còn thông báo tự thêm
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/practice/reviewPrompt.ts:reviewPromptKind`; `reviewPrompt.test.ts` (5 test); `practice/components/ReviewPromptDialog.tsx`; `dictation/pages/DictationPage.tsx:onAttemptDone`; `dictation/useDictationShortcuts.ts` (tham số `suspended`); `shadowing/components/ShadowingPractice.tsx` (`submit`, `reviewPrompt`, `useShadowingHotkeys`); `practice/api.ts:pinReview`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt hành vi qua hỏi đáp: không nhớ lựa chọn "Không" (hỏi lại lần sau), đóng hộp coi như chọn nút thứ hai, lượt bỏ cuộc cũng hỏi, Enter khi hộp mở chỉ bấm nút của hộp.
+- **Commit:** 4c99607
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-068
+
+- **Ngày:** 2026-11-07
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Ghi chú theo chế độ ở frontend: API và hook nhận chế độ, Shadowing và nghe chép mỗi bên chỉ thấy ghi chú của mình, tab Ghi chú ở `mywords` có nhãn chế độ và bộ lọc, bấm ghi chú mở đúng chế độ; khung Ghi chú của tôi ở trang bài học hiện nhãn chế độ
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/practice/api.ts:saveNote`, `:deleteNote`, `:listNotes`; `practice/hooks.ts:useSaveNote`, `:useDeleteNote`, `:useNoteEntries`; `mywords/links.ts:modeUrl`; `mywords/components/NotesTab.tsx`; `lesson/components/detail/AsideCards.tsx:NotesCard`; `shadowing/components/ShadowingTools.tsx`; `mywords/links.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt: mỗi ghi chú thuộc đúng một chế độ nên bấm vào là mở chế độ đó; khung ở trang bài học chỉ có nhãn, không có bộ lọc.
+- **Commit:** 10428f2
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
