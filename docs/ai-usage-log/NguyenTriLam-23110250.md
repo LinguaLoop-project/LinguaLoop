@@ -783,6 +783,18 @@
 - **Commit:** 10428f2
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-069
+
+- **Ngày:** 2026-11-07
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Thẻ "Ghi chú của tôi" ở trang chi tiết bài học dài ra khi thêm nhiều ghi chú; thiết kế trên mockup rồi cài vào frontend: hiện tối đa 3 ghi chú, nút "Xem thêm N ghi chú" mở hộp thoại chứa toàn bộ danh sách
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/lesson/components/detail/AsideCards.tsx:NotesCard`, `:NoteItem`; `frontend/src/i18n/locales/vi/pages.json` (`moreNotes`, `allNotes`, `close`); mockup `design/mockups-student-v2/lesson.html` (chỉ local)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên đề ra phương án (tối đa 3 + xem thêm) và duyệt thiết kế mockup trước khi cài.
+- **Commit:** 3789398
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
