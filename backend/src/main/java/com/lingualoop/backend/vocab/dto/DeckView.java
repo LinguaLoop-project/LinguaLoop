@@ -25,6 +25,7 @@ public final class DeckView {
             String nameVi,
             String cefrLevel,
             boolean pro,
+            String thumbnailUrl,
             Category category,
             int cardCount,
             int groupCount,

@@ -61,6 +61,41 @@ export const percentOf = (value: number, total: number) => (total > 0 ? Math.rou
 /** Bộ đã học ít nhất một thẻ thì hiện ở mục "Đang học". */
 export const isStarted = (deck: DeckSummary) => learnedCount(deck.progress) > 0;
 
+export type DeckStateFilter = "all" | "learning" | "new";
+
+export interface DeckFilter {
+  query: string;
+  /** `slug` của danh mục, hoặc "all". */
+  category: string;
+  state: DeckStateFilter;
+  /** Mức CEFR, hoặc "all". */
+  level: string;
+}
+
+export const EMPTY_DECK_FILTER: DeckFilter = { query: "", category: "all", state: "all", level: "all" };
+
+/** Chữ thường, bỏ dấu và khoảng trắng hai đầu, để gõ "thong dung" vẫn tìm ra "Thông Dụng". */
+export const foldText = (text: string) =>
+  text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d").toLowerCase().trim();
+
+/** Có điều kiện lọc nào đang bật không. */
+export const isDeckFilterActive = (filter: DeckFilter) =>
+  filter.query.trim() !== "" || filter.category !== "all" || filter.state !== "all" || filter.level !== "all";
+
+/** Lọc đồng thời theo chữ tìm (tên bộ hoặc tên danh mục, có dấu hay không), danh mục, tình trạng học và mức CEFR. */
+export function filterDecks(decks: DeckSummary[], filter: DeckFilter): DeckSummary[] {
+  const query = foldText(filter.query);
+  return decks.filter((deck) => {
+    if (filter.category !== "all" && deck.category?.slug !== filter.category) return false;
+    if (filter.level !== "all" && deck.cefrLevel !== filter.level) return false;
+    if (filter.state === "learning" && !isStarted(deck)) return false;
+    if (filter.state === "new" && isStarted(deck)) return false;
+    if (!query) return true;
+    const haystack = [deck.name, deck.nameVi, deck.category?.name, deck.category?.nameVi].filter(Boolean).join(" ");
+    return foldText(haystack).includes(query);
+  });
+}
+
 /** Các bộ gom theo danh mục, giữ thứ tự API trả về (danh mục theo thứ tự xuất hiện đầu tiên); bộ không có danh mục xếp cuối. */
 export function groupByCategory(decks: DeckSummary[]): { category: DeckCategory | null; decks: DeckSummary[] }[] {
   const groups = new Map<string, { category: DeckCategory | null; decks: DeckSummary[] }>();

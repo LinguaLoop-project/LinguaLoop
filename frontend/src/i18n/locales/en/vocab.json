@@ -20,6 +20,32 @@
   "explore": {
     "title": "Explore decks"
   },
+  "filter": {
+    "label": "Search and filter decks",
+    "search": {
+      "placeholder": "Search decks by name or category",
+      "aria": "Search decks"
+    },
+    "state": {
+      "label": "Study status",
+      "all": "All",
+      "learning": "Studying",
+      "new": "Not started"
+    },
+    "level": {
+      "label": "CEFR level",
+      "all": "All levels"
+    },
+    "category": {
+      "label": "Category",
+      "all": "All categories"
+    },
+    "results_one": "{{count}} matching deck",
+    "results_other": "{{count}} matching decks",
+    "clear": "Clear filters",
+    "noMatchTitle": "No decks match",
+    "noMatchDesc": "Try a different keyword or remove some filters."
+  },
   "first": {
     "title": "Pick your first deck",
     "desc": "Start with a basic deck such as Oxford A1 or 1000 common words. Each part is one topic and takes a few minutes."

@@ -20,6 +20,31 @@
   "explore": {
     "title": "Khám phá bộ từ"
   },
+  "filter": {
+    "label": "Tìm và lọc bộ từ",
+    "search": {
+      "placeholder": "Tìm bộ từ theo tên hoặc danh mục",
+      "aria": "Tìm bộ từ"
+    },
+    "state": {
+      "label": "Tình trạng học",
+      "all": "Tất cả",
+      "learning": "Đang học",
+      "new": "Chưa học"
+    },
+    "level": {
+      "label": "Mức CEFR",
+      "all": "Mọi mức"
+    },
+    "category": {
+      "label": "Danh mục",
+      "all": "Tất cả danh mục"
+    },
+    "results_other": "{{count}} bộ từ phù hợp",
+    "clear": "Xoá bộ lọc",
+    "noMatchTitle": "Không có bộ từ nào khớp",
+    "noMatchDesc": "Thử đổi từ khoá hoặc bỏ bớt bộ lọc."
+  },
   "first": {
     "title": "Chọn bộ từ đầu tiên",
     "desc": "Bắt đầu với một bộ cơ bản như Oxford A1 hoặc 1000 từ thông dụng. Mỗi phần là một chủ đề, học trong vài phút."

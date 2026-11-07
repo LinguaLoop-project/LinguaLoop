@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 import type { DeckPart, DeckSummary, SavedWord } from "./types";
 import {
   EMPTY_FILTER,
+  EMPTY_DECK_FILTER,
   deckUrl,
+  filterDecks,
   filterSavedWords,
   findSaved,
   groupByCategory,
+  isDeckFilterActive,
   isStarted,
   learnedCount,
   nextPartIndex,
@@ -139,6 +142,7 @@ describe("tiến độ bộ", () => {
     nameVi: null,
     cefrLevel: "A1",
     pro: false,
+    thumbnailUrl: null,
     category: null,
     cardCount: 100,
     groupCount: 5,
@@ -173,6 +177,7 @@ describe("groupByCategory", () => {
     nameVi: null,
     cefrLevel: null,
     pro: false,
+    thumbnailUrl: null,
     category: null,
     cardCount: 1,
     groupCount: 1,
@@ -198,6 +203,61 @@ describe("groupByCategory", () => {
 
   it("không có bộ thì không có nhóm", () => {
     expect(groupByCategory([])).toEqual([]);
+  });
+});
+
+describe("filterDecks", () => {
+  const make = (slug: string, name: string, over: Partial<DeckSummary> = {}): DeckSummary => ({
+    id: slug,
+    slug,
+    name,
+    nameVi: null,
+    cefrLevel: "A1",
+    pro: false,
+    thumbnailUrl: null,
+    category: { slug: "oxford", name: "Oxford", nameVi: "Từ Vựng Oxford" },
+    cardCount: 10,
+    groupCount: 1,
+    progress: { mastered: 0, reviewing: 0, learning: 0, newCount: 10 },
+    dueCount: 0,
+    ...over,
+  });
+  const oxford = make("oxford-a1", "3000 Oxford Vocabulary A1", { nameVi: "Từ Vựng Oxford 3000 A1" });
+  const toeic = make("toeic-600", "600 essential words for the TOEIC", {
+    nameVi: "600 từ vựng thiết yếu cho TOEIC",
+    category: { slug: "toeic", name: "TOEIC Vocabulary", nameVi: "Từ Vựng TOEIC" },
+    cefrLevel: "B1",
+    progress: { mastered: 0, reviewing: 0, learning: 3, newCount: 7 },
+  });
+  const decks = [oxford, toeic];
+
+  it("không lọc thì trả đủ và không tính là đang lọc", () => {
+    expect(filterDecks(decks, EMPTY_DECK_FILTER)).toEqual(decks);
+    expect(isDeckFilterActive(EMPTY_DECK_FILTER)).toBe(false);
+    expect(isDeckFilterActive({ ...EMPTY_DECK_FILTER, query: "  " })).toBe(false);
+    expect(isDeckFilterActive({ ...EMPTY_DECK_FILTER, level: "B1" })).toBe(true);
+  });
+
+  it("tìm theo tên bộ hoặc tên danh mục, không phân biệt hoa thường", () => {
+    expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, query: " toeic " })).toEqual([toeic]);
+    expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, query: "oxford" })).toEqual([oxford]);
+  });
+
+  it("gõ không dấu vẫn tìm ra chữ có dấu", () => {
+    expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, query: "thiet yeu" })).toEqual([toeic]);
+    expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, query: "tu vung oxford" })).toEqual([oxford]);
+  });
+
+  it("lọc theo danh mục, mức CEFR và tình trạng học", () => {
+    expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, category: "toeic" })).toEqual([toeic]);
+    expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, level: "A1" })).toEqual([oxford]);
+    expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, state: "learning" })).toEqual([toeic]);
+    expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, state: "new" })).toEqual([oxford]);
+  });
+
+  it("các điều kiện kết hợp với nhau", () => {
+    expect(filterDecks(decks, { query: "oxford", category: "oxford", state: "learning", level: "all" })).toEqual([]);
+    expect(filterDecks(decks, { query: "600", category: "toeic", state: "learning", level: "B1" })).toEqual([toeic]);
   });
 });
 

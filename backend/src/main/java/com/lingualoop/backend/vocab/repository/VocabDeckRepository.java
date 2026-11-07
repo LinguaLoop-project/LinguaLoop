@@ -21,7 +21,7 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
      */
     @Query(value = """
             SELECT d.id AS id, d.slug AS slug, d.name AS name, d.name_vi AS nameVi, CAST(d.difficulty AS text) AS cefrLevel,
-                   d.is_pro AS pro, cat.slug AS categorySlug, cat.name_en AS categoryName, cat.name_vi AS categoryNameVi,
+                   d.is_pro AS pro, d.thumbnail_url AS thumbnailUrl, cat.slug AS categorySlug, cat.name_en AS categoryName, cat.name_vi AS categoryNameVi,
                    count(c.id) AS cardCount, count(DISTINCT g.id) AS groupCount,
                    count(c.id) FILTER (WHERE p.status = 'mastered') AS mastered,
                    count(c.id) FILTER (WHERE p.status = 'reviewing') AS reviewing,
@@ -98,6 +98,8 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
         String getCefrLevel();
 
         boolean getPro();
+
+        String getThumbnailUrl();
 
         String getCategorySlug();
 

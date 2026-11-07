@@ -68,6 +68,8 @@ export interface DeckSummary {
   nameVi: string | null;
   cefrLevel: string | null;
   pro: boolean;
+  /** Ảnh bìa bộ; null khi bộ chưa có ảnh. */
+  thumbnailUrl: string | null;
   category: DeckCategory | null;
   cardCount: number;
   groupCount: number;

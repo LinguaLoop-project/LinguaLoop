@@ -72,7 +72,7 @@ class VocabDeckServiceImpl implements VocabDeckService {
         int reviewing = (int) row.getReviewing();
         int learning = (int) row.getLearning();
         return new DeckView.Summary(row.getId(), row.getSlug(), row.getName(), row.getNameVi(), row.getCefrLevel(),
-                row.getPro(), toCategory(row), cards, (int) row.getGroupCount(),
+                row.getPro(), row.getThumbnailUrl(), toCategory(row), cards, (int) row.getGroupCount(),
                 new DeckView.Progress(mastered, reviewing, learning, cards - mastered - reviewing - learning),
                 (int) row.getDue());
     }

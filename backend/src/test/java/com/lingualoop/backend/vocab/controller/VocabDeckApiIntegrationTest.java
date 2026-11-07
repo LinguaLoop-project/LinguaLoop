@@ -86,9 +86,10 @@ class VocabDeckApiIntegrationTest {
         UUID id = UUID.randomUUID();
         jdbc.update("""
                 INSERT INTO vocab_decks (id, owner_id, category_id, slug, name, name_vi, difficulty, is_pro,
-                                         visibility, status, sort_order)
-                VALUES (?, NULL, ?, ?, ?, ?, CAST('B1' AS cefr_code), ?, 'system', 'APPROVED', 1)""",
-                id, category, slug(suffix), "Deck " + suffix, "Bộ " + suffix, pro);
+                                         thumbnail_url, visibility, status, sort_order)
+                VALUES (?, NULL, ?, ?, ?, ?, CAST('B1' AS cefr_code), ?, ?, 'system', 'APPROVED', 1)""",
+                id, category, slug(suffix), "Deck " + suffix, "Bộ " + suffix, pro,
+                suffix.equals("a") ? "https://cdn.example.com/" + suffix + ".webp" : null);
         return id;
     }
 
@@ -160,7 +161,8 @@ class VocabDeckApiIntegrationTest {
         as(data.newUser(), get(DECKS)).andExpect(status().isOk())
                 .andExpect(jsonPath(deck("a") + ".category.slug").value(slug("oxf-cat")))
                 .andExpect(jsonPath(deck("a") + ".category.name").value("Category oxf"))
-                .andExpect(jsonPath(deck("a") + ".category.nameVi").value("Danh mục oxf"));
+                .andExpect(jsonPath(deck("a") + ".category.nameVi").value("Danh mục oxf"))
+                .andExpect(jsonPath(deck("a") + ".thumbnailUrl").value("https://cdn.example.com/a.webp"));
     }
 
     @Test

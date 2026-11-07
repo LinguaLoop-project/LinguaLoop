@@ -17,6 +17,7 @@ export type {
   VocabOverview,
 } from "./types";
 export {
+  EMPTY_DECK_FILTER,
   EMPTY_FILTER,
   deckUrl,
   filterSavedWords,
