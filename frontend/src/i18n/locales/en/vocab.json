@@ -1,0 +1,90 @@
+{
+  "overline": "Vocabulary",
+  "title": "Vocabulary",
+  "subtitle": "Learn decks part by part and review cards just before you forget them.",
+  "loading": "Loading",
+  "overview": {
+    "label": "Vocabulary overview",
+    "due": "Due today",
+    "dueHint": "cards to review",
+    "learning": "Learning",
+    "learningHint": "newly seen cards",
+    "reviewing": "Reviewing",
+    "reviewingHint": "intervals getting longer",
+    "mastered": "Mastered",
+    "masteredHint": "long-term memory"
+  },
+  "learning": {
+    "title": "In progress"
+  },
+  "explore": {
+    "title": "Explore decks"
+  },
+  "category": {
+    "oxford": "Oxford"
+  },
+  "first": {
+    "title": "Pick your first deck",
+    "desc": "Start with A1 or A2. Each part has about 20 cards and takes 5–8 minutes."
+  },
+  "empty": {
+    "title": "No decks yet",
+    "desc": "Decks will show up here once they are added to the system."
+  },
+  "deck": {
+    "cards_one": "{{count, number}} card",
+    "cards_other": "{{count, number}} cards",
+    "parts_one": "{{count, number}} part",
+    "parts_other": "{{count, number}} parts",
+    "pro": "PRO",
+    "mastered": "Mastered {{mastered}}/{{total}}",
+    "percent": "{{percent}}% learned",
+    "continue": "Continue",
+    "view": "View deck",
+    "barLabel": "Mastered {{mastered}}, reviewing {{reviewing}}, learning {{learning}} of {{total}} cards"
+  },
+  "detail": {
+    "back": "Vocabulary",
+    "learnNew": "Learn new words",
+    "allLearned": "All unlocked parts learned",
+    "reviewDeck": "Review this deck ({{count}})",
+    "unlock": "Unlock with Pro",
+    "legend": {
+      "mastered": "Mastered",
+      "reviewing": "Reviewing",
+      "learning": "Learning",
+      "new": "New"
+    },
+    "parts": {
+      "title": "Parts in this deck",
+      "done": "{{done}}/{{total}} parts done",
+      "cards_one": "{{count, number}} card",
+      "cards_other": "{{count, number}} cards",
+      "studied": "{{count}} learned",
+      "learn": "Learn",
+      "review": "Review",
+      "open": "Open",
+      "pro": "Pro",
+      "locked": "This part is Pro only",
+      "partDone": "Done",
+      "range": "Showing parts {{from}}–{{to}} of {{total}}",
+      "showAll": "Show all parts",
+      "showLess": "Show fewer"
+    },
+    "sample": {
+      "title": "Some words in this deck",
+      "word": "Word",
+      "meaning": "Meaning",
+      "listen": "Listen to {{word}}"
+    },
+    "tips": {
+      "title": "How to study this deck",
+      "one": "Each session covers one part of about 20 cards: guess the meaning, flip cards, take a quiz or listen and repeat.",
+      "two": "Cards come back just before you forget them. The better you remember, the longer the interval.",
+      "three": "After a part, try a different study mode to check yourself."
+    },
+    "notFoundTitle": "Deck not found",
+    "notFoundDesc": "This deck doesn't exist or is hidden.",
+    "backToDecks": "Back to Vocabulary"
+  }
+}

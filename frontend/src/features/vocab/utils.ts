@@ -1,4 +1,4 @@
-import type { SavedWord, SavedWordSource } from "./types";
+import type { DeckPart, DeckProgress, DeckSummary, SavedWord, SavedWordSource } from "./types";
 
 export type SourceFilter = "all" | Exclude<SavedWordSource, "manual">;
 /** Đang học gồm thẻ Mới, Đang học và Đang ôn (mọi thẻ chưa thuộc). */
@@ -44,4 +44,54 @@ export function savedWordStats(items: SavedWord[]): SavedWordStats {
     learning: items.length - mastered,
     mastered,
   };
+}
+
+/** Đường dẫn trang một bộ. */
+export const deckUrl = (slug: string) => `/student/vocab/${encodeURIComponent(slug)}`;
+
+/** Đường dẫn học một phần; số phần trên đường dẫn tính từ 1 cho dễ đọc, còn `index` của API tính từ 0. */
+export const partUrl = (slug: string, index: number) => `${deckUrl(slug)}/parts/${index + 1}`;
+
+/** Số thẻ đã học (không còn Mới) trong một bộ. */
+export const learnedCount = (progress: DeckProgress) => progress.mastered + progress.reviewing + progress.learning;
+
+/** Phần trăm làm tròn của `value` trên `total`; 0 khi `total` bằng 0. */
+export const percentOf = (value: number, total: number) => (total > 0 ? Math.round((value / total) * 100) : 0);
+
+/** Bộ đã học ít nhất một thẻ thì hiện ở mục "Đang học". */
+export const isStarted = (deck: DeckSummary) => learnedCount(deck.progress) > 0;
+
+/** Phần đầu tiên còn thẻ Mới và học được: nơi "Học từ mới" mở; null khi mọi phần mở được đã học xong. */
+export function nextPartIndex(parts: DeckPart[]): number | null {
+  const next = parts.find((part) => !part.locked && part.studiedCount < part.cardCount);
+  return next ? next.index : null;
+}
+
+export type PartState = "done" | "current" | "locked" | "todo";
+
+/** Trạng thái hiển thị của một phần trong danh sách phần của bộ. */
+export function partState(part: DeckPart, nextIndex: number | null): PartState {
+  if (part.locked) return "locked";
+  if (part.cardCount > 0 && part.studiedCount >= part.cardCount) return "done";
+  return part.index === nextIndex ? "current" : "todo";
+}
+
+/** Số phần hiện mặc định trong trang bộ. */
+export const PART_WINDOW = 8;
+
+/**
+ * Các phần để hiện: bộ có hàng trăm phần thì chỉ hiện một cửa sổ quanh phần đang học (hoặc phần khoá đầu tiên khi không
+ * còn phần nào để học), trừ khi người học chọn xem tất cả. `from` và `to` là vị trí đầu và cuối (không gồm) của cửa sổ.
+ */
+export function visibleParts(
+  parts: DeckPart[],
+  next: number | null,
+  showAll: boolean,
+  size = PART_WINDOW,
+): { items: DeckPart[]; from: number; to: number } {
+  if (showAll || parts.length <= size) return { items: parts, from: 0, to: parts.length };
+  const firstLocked = parts.findIndex((part) => part.locked);
+  const anchor = next ?? Math.max(firstLocked, 0);
+  const from = Math.max(0, Math.min(anchor - 2, parts.length - size));
+  return { items: parts.slice(from, from + size), from, to: from + size };
 }

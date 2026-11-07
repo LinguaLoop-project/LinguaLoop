@@ -1,0 +1,87 @@
+{
+  "overline": "Từ vựng",
+  "title": "Từ vựng",
+  "subtitle": "Học bộ từ theo từng phần, ôn thẻ đúng lúc sắp quên.",
+  "loading": "Đang tải",
+  "overview": {
+    "label": "Tổng quan từ vựng",
+    "due": "Đến hạn hôm nay",
+    "dueHint": "thẻ chờ ôn",
+    "learning": "Đang học",
+    "learningHint": "thẻ mới gặp",
+    "reviewing": "Đang ôn",
+    "reviewingHint": "khoảng ôn đang giãn dần",
+    "mastered": "Đã thuộc",
+    "masteredHint": "nhớ lâu dài"
+  },
+  "learning": {
+    "title": "Đang học"
+  },
+  "explore": {
+    "title": "Khám phá bộ từ"
+  },
+  "category": {
+    "oxford": "Oxford"
+  },
+  "first": {
+    "title": "Chọn bộ từ đầu tiên",
+    "desc": "Bắt đầu với bộ A1 hoặc A2. Mỗi phần khoảng 20 thẻ, học trong 5–8 phút."
+  },
+  "empty": {
+    "title": "Chưa có bộ từ nào",
+    "desc": "Các bộ từ sẽ xuất hiện ở đây khi được thêm vào hệ thống."
+  },
+  "deck": {
+    "cards_other": "{{count, number}} thẻ",
+    "parts_other": "{{count, number}} phần",
+    "pro": "PRO",
+    "mastered": "Đã thuộc {{mastered}}/{{total}}",
+    "percent": "{{percent}}% đã học",
+    "continue": "Tiếp tục",
+    "view": "Xem bộ từ",
+    "barLabel": "Đã thuộc {{mastered}}, đang ôn {{reviewing}}, đang học {{learning}} trên {{total}} thẻ"
+  },
+  "detail": {
+    "back": "Từ vựng",
+    "learnNew": "Học từ mới",
+    "allLearned": "Đã học hết các phần mở được",
+    "reviewDeck": "Ôn bộ này ({{count}})",
+    "unlock": "Mở khoá với Pro",
+    "legend": {
+      "mastered": "Đã thuộc",
+      "reviewing": "Đang ôn",
+      "learning": "Đang học",
+      "new": "Mới"
+    },
+    "parts": {
+      "title": "Các phần trong bộ",
+      "done": "{{done}}/{{total}} phần đã xong",
+      "cards_other": "{{count, number}} thẻ",
+      "studied": "đã học {{count}}",
+      "learn": "Học",
+      "review": "Ôn lại",
+      "open": "Xem",
+      "pro": "Pro",
+      "locked": "Phần này chỉ có ở gói Pro",
+      "partDone": "Đã xong",
+      "range": "Đang hiện phần {{from}}–{{to}} / {{total}}",
+      "showAll": "Xem tất cả phần",
+      "showLess": "Thu gọn"
+    },
+    "sample": {
+      "title": "Một số từ trong bộ",
+      "word": "Từ",
+      "meaning": "Nghĩa",
+      "listen": "Nghe từ {{word}}"
+    },
+    "tips": {
+      "title": "Cách học bộ này",
+      "one": "Mỗi lượt học một phần khoảng 20 thẻ: đoán nghĩa, lật thẻ, trắc nghiệm hoặc nghe lặp lại.",
+      "two": "Thẻ quay lại đúng lúc bạn sắp quên. Nhớ càng tốt, khoảng ôn càng giãn ra.",
+      "three": "Học xong một phần, thử một cách học khác để kiểm tra lại."
+    },
+    "notFoundTitle": "Không tìm thấy bộ từ",
+    "notFoundDesc": "Bộ từ này không tồn tại hoặc đã bị ẩn.",
+    "backToDecks": "Về Từ vựng"
+  }
+}

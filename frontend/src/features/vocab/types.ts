@@ -45,6 +45,69 @@ export interface SavedWord {
   savedAt: string;
 }
 
+/** Số thẻ của người học ở từng trạng thái trong một bộ; `newCount` là thẻ chưa học lần nào. */
+export interface DeckProgress {
+  mastered: number;
+  reviewing: number;
+  learning: number;
+  newCount: number;
+}
+
+/** Một bộ từ hệ thống kèm tiến độ của người học (`DeckView.Summary`). */
+export interface DeckSummary {
+  id: string;
+  slug: string;
+  name: string;
+  nameVi: string | null;
+  cefrLevel: string | null;
+  pro: boolean;
+  cardCount: number;
+  groupCount: number;
+  progress: DeckProgress;
+  /** Thẻ của bộ đã đến hạn ôn. */
+  dueCount: number;
+}
+
+/** Số thẻ của người học theo trạng thái trên mọi bộ, kể cả bộ "Từ đã lưu" (`DeckView.Overview`). */
+export interface VocabOverview {
+  due: number;
+  learning: number;
+  reviewing: number;
+  mastered: number;
+}
+
+export interface DeckList {
+  overview: VocabOverview;
+  decks: DeckSummary[];
+}
+
+/** Một phần của bộ; `index` tính từ 0 (`DeckView.Part`). */
+export interface DeckPart {
+  index: number;
+  name: string;
+  nameVi: string | null;
+  cardCount: number;
+  /** Số thẻ đã học (không còn Mới). */
+  studiedCount: number;
+  /** Bộ Pro và người học dùng gói Free ở phần từ thứ ba trở đi. */
+  locked: boolean;
+}
+
+export interface DeckSampleWord {
+  word: string;
+  pos: string | null;
+  translationVi: string | null;
+  ipaUk: string | null;
+  ipaUs: string | null;
+  audioUs: string | null;
+}
+
+export interface DeckDetail {
+  deck: DeckSummary;
+  parts: DeckPart[];
+  sampleWords: DeckSampleWord[];
+}
+
 export interface SaveWordInput {
   headword: string;
   meaningNo: number;
