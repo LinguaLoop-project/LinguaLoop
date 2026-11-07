@@ -61,7 +61,7 @@ Seed (`seed/03_vocabulary.sql.gz`) gồm 9 bộ (Thông dụng, Oxford 3000 A1 v
 (nhóm chủ đề) và 6.800 thẻ kèm IPA và âm thanh Anh, Mỹ. Chạy lại được: các câu lệnh dùng `ON CONFLICT`, không tạo trùng và
 không đụng tới tiến độ học. Ứng dụng không tự nạp khi khởi động nên prod/Neon chỉ có bộ từ khi bạn chạy script.
 
-Lưu ý: nội dung và đường dẫn ảnh, âm thanh (`assets.parroto.app`) lấy từ Parroto; ảnh và âm thanh được tải trực tiếp từ máy
+Mức CEFR của thẻ và bộ trong seed đã được sửa so với bản crawl (xem ADR 0010). Lưu ý: nội dung và đường dẫn ảnh, âm thanh (`assets.parroto.app`) lấy từ Parroto; ảnh và âm thanh được tải trực tiếp từ máy
 chủ đó, có thể hỏng nếu bên kia đổi đường dẫn.
 
 ### Khi sinh lại seed

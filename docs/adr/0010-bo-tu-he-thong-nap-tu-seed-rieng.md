@@ -8,6 +8,8 @@ Các bộ từ hệ thống được nạp từ tệp seed riêng (`backend/seed
 
 Hệ quả: nội dung seed và đường dẫn ảnh, âm thanh (`assets.parroto.app`) là của bên thứ ba, nên ảnh và âm thanh có thể hỏng nếu bên đó đổi; host lại media là việc để sau. Nghĩa của thẻ không tự cập nhật khi từ điển đổi.
 
+Mức CEFR: seed gốc gán A1 cho mọi thẻ và mọi bộ (trừ Oxford A2), nên đã sửa trong seed. Mỗi thẻ lấy mức của mục từ trùng chữ (không phân biệt hoa thường) trong từ điển, 5.354 trên 6.818 thẻ; thẻ không khớp lấy mức của bộ. Mức của bộ là trung vị mức của các thẻ khớp: Thông dụng và Giao tiếp A2; TOEIC, IELTS và TOEFL B1; Oxford A1 và A2 giữ nguyên. Bộ Tết chỉ có 15 thẻ khớp, quá ít để lấy trung vị, nên đặt tay là A2. Việc đối chiếu với từ điển chỉ làm một lần lúc sinh seed; ứng dụng không đọc từ điển để dựng bộ từ.
+
 ## Các phương án đã loại bỏ
 
 - **Sinh bộ từ từ từ điển theo mức CEFR (cách đã làm trước đó)**: không cần dữ liệu thêm, nhưng thẻ không có ví dụ riêng, ảnh, chủ đề, và nghĩa lấy theo số nhỏ nhất thường không đại diện.
