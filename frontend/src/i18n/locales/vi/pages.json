@@ -150,6 +150,9 @@
         "notes": "Ghi chú của tôi",
         "noNotes": "Chưa có ghi chú. Trong lúc luyện, bấm N để ghi chú cho câu đang học.",
         "add": "Thêm",
+        "moreNotes": "Xem thêm {{count}} ghi chú",
+        "allNotes": "Ghi chú của tôi ({{count}})",
+        "close": "Đóng",
         "modes": {
           "dictation": "Nghe chép",
           "shadowing": "Shadowing"
