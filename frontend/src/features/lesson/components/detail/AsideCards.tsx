@@ -6,7 +6,7 @@ import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import ProgressRing from "@/components/common/ProgressRing";
 import { useNoteEntries } from "@/features/practice/hooks";
-import { practiceUrl } from "@/features/mywords/links";
+import { modeUrl } from "@/features/mywords/links";
 import { formatDuration } from "@/lib/format";
 import type { LessonSummary, ModeProgress } from "../../types";
 import LessonThumb from "../LessonThumb";
@@ -148,9 +148,13 @@ export function NotesCard({ slug, locked }: { slug: string; locked: boolean }) {
       {notes.length > 0 ? (
         <ul className="mt-3 flex flex-col gap-3">
           {notes.map((note) => (
-            <li key={note.sentenceId}>
-              <Link to={practiceUrl(slug, note.sentenceId)} className="block rounded-md border border-border bg-bg-elevated p-3 hover:border-border-strong">
-                <q className="line-clamp-2 text-xs italic text-text-muted">{note.text}</q>
+            <li key={`${note.mode}-${note.sentenceId}`}>
+              <Link to={modeUrl(note.mode, slug, note.sentenceId)} className="block rounded-md border border-border bg-bg-elevated p-3 hover:border-border-strong">
+                <span className="mb-1 inline-flex items-center gap-1 rounded-full border border-border px-2 text-[11px] text-text-muted">
+                  <Icon name={note.mode === "shadowing" ? "mic" : "headphones"} className="h-3 w-3" />
+                  {t(`student.lessonDetail.aside.modes.${note.mode}`, note.mode === "shadowing" ? "Shadowing" : "Nghe chép")}
+                </span>
+                <q className="line-clamp-2 block text-xs italic text-text-muted">{note.text}</q>
                 <span className="mt-1 block whitespace-pre-wrap break-words text-[13px]">{note.content}</span>
               </Link>
             </li>

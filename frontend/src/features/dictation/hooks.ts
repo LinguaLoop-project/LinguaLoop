@@ -100,7 +100,7 @@ export const useSaveNote = (slug: string) => {
   return useMutation({
     networkMode: NETWORK_MODE,
     mutationFn: ({ sentenceId, content }: { sentenceId: string; content: string }) =>
-      practiceApi.saveNote(sentenceId, content),
+      practiceApi.saveNote("dictation", sentenceId, content),
     onSuccess: (note) => patchSentence(queryClient, slug, note.sentenceId, { note: note.content }),
   });
 };
@@ -109,7 +109,7 @@ export const useDeleteNote = (slug: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     networkMode: NETWORK_MODE,
-    mutationFn: (sentenceId: string) => practiceApi.deleteNote(sentenceId),
+    mutationFn: (sentenceId: string) => practiceApi.deleteNote("dictation", sentenceId),
     onSuccess: (_data, sentenceId) => patchSentence(queryClient, slug, sentenceId, { note: null }),
   });
 };

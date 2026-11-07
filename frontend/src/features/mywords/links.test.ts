@@ -3,7 +3,7 @@ import en from "@/i18n/locales/en/mywords.json";
 import vi from "@/i18n/locales/vi/mywords.json";
 import { deepLinkTarget } from "@/features/dictation/deepLink";
 import type { DictationSentence } from "@/features/dictation/types";
-import { practiceUrl, shadowingUrl } from "./links";
+import { modeUrl, practiceUrl, shadowingUrl } from "./links";
 
 /** Đường dẫn khoá lá; bỏ hậu tố số nhiều (_one, _other) vì tiếng Việt không chia số nhiều. */
 function leafPaths(node: unknown, prefix = ""): string[] {
@@ -44,6 +44,13 @@ describe("shadowingUrl", () => {
   it("mở trang Shadowing của bài tại câu, không có chế độ làm lại", () => {
     expect(shadowingUrl("ordering-coffee", "s1")).toBe("/student/shadowing/ordering-coffee?sentence=s1");
     expect(shadowingUrl("a b", "s1")).toBe("/student/shadowing/a%20b?sentence=s1");
+  });
+});
+
+describe("modeUrl", () => {
+  it("mở đúng chế độ của ghi chú", () => {
+    expect(modeUrl("shadowing", "ordering-coffee", "s1")).toBe("/student/shadowing/ordering-coffee?sentence=s1");
+    expect(modeUrl("dictation", "ordering-coffee", "s1")).toBe("/student/dictation/ordering-coffee?sentence=s1");
   });
 });
 
