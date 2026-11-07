@@ -4,8 +4,7 @@
     "unpin": "Remove from Sentences to review",
     "pinned": "Added this sentence to Sentences to review",
     "unpinned": "Removed this sentence from Sentences to review",
-    "failed": "Couldn't update Sentences to review. Please try again.",
-    "autoAdded": "Added this sentence to Sentences to review"
+    "failed": "Couldn't update Sentences to review. Please try again."
   },
   "note": {
     "title": "My note",
@@ -18,5 +17,19 @@
     "offline": "You're offline. Try again when you're back online.",
     "add": "Add note",
     "edit": "Edit note"
+  },
+  "modes": {
+    "dictation": "Dictation",
+    "shadowing": "Shadowing"
+  },
+  "prompt": {
+    "saveTitle": "Save this sentence to review?",
+    "saveBody": "You scored {{score}} on that attempt. Save it to Sentences to review ({{mode}}) to practice later.",
+    "save": "Save",
+    "skip": "No",
+    "removeTitle": "This one's good now. Remove it from your review list?",
+    "removeBody": "You scored {{score}} on that attempt. It's in Sentences to review ({{mode}}).",
+    "remove": "Remove from list",
+    "keep": "Keep it"
   }
 }

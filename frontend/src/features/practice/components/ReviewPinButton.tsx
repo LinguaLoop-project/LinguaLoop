@@ -2,11 +2,12 @@ import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import { toast } from "@/stores/toastStore";
+import type { ReviewReason } from "../types";
 import { isNetworkError } from "../utils";
 
 interface MutationLike {
   mutate: (
-    variables: { sentenceId: string; pinned: boolean },
+    variables: { sentenceId: string; pinned: boolean; reason?: ReviewReason },
     options?: { onSuccess?: () => void; onError?: (error: unknown) => void },
   ) => void;
   isPending: boolean;
