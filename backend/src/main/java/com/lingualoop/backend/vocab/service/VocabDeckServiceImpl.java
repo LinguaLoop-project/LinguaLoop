@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
-import com.lingualoop.backend.dictionary.service.DictionaryQueryService;
 import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 import com.lingualoop.backend.vocab.dto.DeckView;
 import com.lingualoop.backend.vocab.repository.VocabDeckRepository;
@@ -28,7 +27,7 @@ class VocabDeckServiceImpl implements VocabDeckService {
 
     private final VocabDeckRepository decks;
     private final SubscriptionQueryService subscriptions;
-    private final DictionaryQueryService dictionary;
+    private final CardAudioUrls audio;
 
     @Override
     public DeckView.ListResult list(UUID userId) {
@@ -44,26 +43,26 @@ class VocabDeckServiceImpl implements VocabDeckService {
     public DeckView.Detail detail(UUID userId, String slug) {
         DeckRow row = decks.findDecks(userId, slug).stream().findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));
-        boolean lockPro = row.getPro() && !subscriptions.isPro(userId);
+        boolean userPro = subscriptions.isPro(userId);
         List<DeckView.Part> parts = decks.findParts(userId, row.getId()).stream()
                 .map(p -> new DeckView.Part(p.getIdx(), p.getName(), p.getNameVi(), (int) p.getCardCount(),
-                        (int) p.getStudiedCount(), lockPro && p.getIdx() >= FREE_PARTS_OF_PRO_DECK))
+                        (int) p.getStudiedCount(), isLocked(row.getPro(), userPro, p.getIdx())))
                 .toList();
         List<DeckView.SampleWord> sample = decks.findSampleCards(row.getId(), SAMPLE_WORDS).stream()
                 .map(s -> new DeckView.SampleWord(s.getWord(), s.getPos(), s.getTranslationVi(), s.getIpaUk(),
-                        s.getIpaUs(), audioOf(s.getAudioUs())))
+                        s.getIpaUs(), audio.resolve(s.getAudioUs())))
                 .toList();
         return new DeckView.Detail(toSummary(row), parts, sample);
+    }
+
+    /** Phần bị khoá khi bộ là Pro, người học dùng gói Free và phần (tính từ 0) nằm sau các phần miễn phí (BR-VOCAB-05). */
+    static boolean isLocked(boolean deckPro, boolean userPro, int partIndex) {
+        return deckPro && !userPro && partIndex >= FREE_PARTS_OF_PRO_DECK;
     }
 
     private static DeckView.Category toCategory(DeckRow row) {
         return row.getCategorySlug() == null ? null
                 : new DeckView.Category(row.getCategorySlug(), row.getCategoryName(), row.getCategoryNameVi());
-    }
-
-    /** Âm thanh của thẻ trong bộ từ vựng là URL đầy đủ (nguồn seed); chỉ đường dẫn tương đối mới ghép với kho âm thanh. */
-    private String audioOf(String path) {
-        return path != null && path.matches("(?i)^https?://.*") ? path : dictionary.resolveAudioUrl(path);
     }
 
     private static DeckView.Summary toSummary(DeckRow row) {

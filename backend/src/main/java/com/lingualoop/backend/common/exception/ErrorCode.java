@@ -45,6 +45,10 @@ public enum ErrorCode {
     VOCAB_MEANING_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy nghĩa này của từ"),
     VOCAB_DECK_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy bộ từ này"),
     VOCAB_SAVED_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy từ đã lưu này"),
+    VOCAB_PART_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy phần này của bộ từ"),
+    VOCAB_PART_LOCKED(HttpStatus.FORBIDDEN, "Bạn cần gói Pro để học phần này"),
+    VOCAB_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy phiên học này"),
+    VOCAB_CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy thẻ này"),
 
     DICTATION_EASY_UNAVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Câu này chưa có ô nào để điền, hãy chọn mức khác"),
     PRACTICE_SENTENCE_NOT_PRACTICED(HttpStatus.UNPROCESSABLE_ENTITY, "Bạn cần làm câu này ít nhất một lần trước"),
