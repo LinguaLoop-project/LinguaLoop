@@ -684,7 +684,7 @@
 - **Prompt chính / yêu cầu:** Lên kế hoạch rồi viết đặc tả cho lịch sử các lượt đọc, ghi chú dùng chung với nghe chép và Câu cần ôn của Shadowing: UC-SHADOW-10..12, AC-SHADOW-40..53, BR-SHADOW-15..18; sửa BR-DICT-14 và BR-DICT-17 cho khớp
 - **Vị trí code do AI sinh (`file:hàm`):** `docs/srs/use-cases/SHADOWING.md` (UC-SHADOW-10, 11, 12; AC-SHADOW-40..53; bỏ dòng "hàng đợi ôn" ở mục Chưa thuộc phạm vi); `docs/srs/business-rules.md` (BR-SHADOW-15..18; câu cuối của BR-DICT-14 và BR-DICT-17)
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt các quyết định qua hỏi đáp: ghi chú dùng chung hai chế độ, ngưỡng 60 và 80 như nghe chép, mỗi chế độ một danh sách riêng, ghim và ghi chú cần đã có lượt đọc, lịch sử không cho nghe lại bản ghi âm, làm trong một PR.
-- **Commit:** e00feeb
+- **Commit:** f2cb044
 - **Lỗi liên quan:** NONE
 
 ### AI-LAM-061
@@ -696,7 +696,7 @@
 - **Prompt chính / yêu cầu:** Backend cho UC-SHADOW-10..12: Câu cần ôn theo chế độ (`/review/{mode}/sentences`, danh sách gộp `/review/sentences`, lọc theo bài), lượt shadowing dưới 60 điểm thêm câu và từ 80 gỡ câu trong cùng giao dịch lưu lượt, API lịch sử và mở lại một lượt cũ, ghi chú được khi câu đã có lượt ở bất kỳ chế độ nào; test tích hợp giả lập Azure
 - **Vị trí code do AI sinh (`file:hàm`):** `backend/.../practice/repository/SentenceReviewRepository.java:add`, `:resolve`, `:findEntries`, `:hasAttempt`, `:hasAnyAttempt`; `practice/service/SentenceReviewServiceImpl.java:recordScore`, `:pin`, `:list`; `practice/controller/SentenceReviewController.java`; `practice/service/SentenceNoteServiceImpl.java:save`; `shadowing/service/ShadowingAttemptRecorder.java:save`; `shadowing/service/ShadowingAttemptServiceImpl.java:history`, `:attempt`, `:toResponses`; `shadowing/repository/ShadowingAttemptRepository.java:findHistory`, `:findHeadById`; `shadowing/controller/ShadowingController.java`; `ShadowingReviewHistoryNotesIntegrationTest.java` (13 test)
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt thiết kế API qua hỏi đáp: dùng lại đường dẫn nghe chép cũ để frontend không phải đổi, danh sách lịch sử nhẹ (chưa kèm từng từ) và mở chi tiết từng lượt riêng, hai chế độ độc lập.
-- **Commit:** 03400cf
+- **Commit:** 074164d
 - **Lỗi liên quan:** NONE
 
 ### AI-LAM-062
@@ -708,7 +708,7 @@
 - **Prompt chính / yêu cầu:** Tách nút ghim Câu cần ôn, ô ghi chú, API và hook của hai việc này khỏi `dictation` và `mywords` thành `features/practice` dùng chung cho cả ba nơi; hành vi giữ nguyên
 - **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/practice/api.ts:practiceApi`; `practice/hooks.ts:useSetReview`, `:useSaveNote`, `:useDeleteNote`, `:useReviewEntries`, `:useNoteEntries`, `:refreshPractice`; `practice/components/NotePanel.tsx`; `practice/components/ReviewPinButton.tsx`; `dictation/components/SentenceTools.tsx`; `mywords/components/ReviewTab.tsx`, `NotesTab.tsx`; `i18n/locales/{vi,en}/practice.json`
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chọn hướng tách thành một feature có component dùng chung thay vì chép bản riêng cho Shadowing.
-- **Commit:** 31f49f8
+- **Commit:** 2a545aa
 - **Lỗi liên quan:** NONE
 
 ### AI-LAM-063
@@ -720,7 +720,7 @@
 - **Prompt chính / yêu cầu:** Thanh công cụ dưới câu đã đọc ở trang Shadowing (ghim Câu cần ôn, ghi chú với phím N, lịch sử các lượt đọc kèm từ tô màu và Nhận xét AI đã lưu), dấu ghim và ghi chú ở danh sách câu, mở thẳng câu qua `?sentence=<id>`, báo khi lượt dưới 60 điểm đưa câu vào Câu cần ôn
 - **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/shadowing/components/ShadowingTools.tsx`; `components/HistoryPanel.tsx`; `components/ShadowingPractice.tsx` (khối `reviewQuery`, `toolState`, khởi tạo `index` theo `?sentence=`, `submit`); `components/SentenceList.tsx`; `hooks/useShadowing.ts:useAttemptHistory`, `:useHistoryAttempt`; `hooks/useShadowingHotkeys.ts` (phím N); `services/shadowingService.ts:getHistory`, `:getAttempt`; `shadowing/i18n.test.ts`
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt bố cục: thanh công cụ chỉ ở tab Luyện, ẩn khi đang trong phiên gia sư, tab Xem không có thanh này. Phím tắt Space, R, C đã có sẵn kiểm tra đang gõ chữ nên không phải sửa.
-- **Commit:** 8081e5a
+- **Commit:** c682f9c
 - **Lỗi liên quan:** NONE
 
 ### AI-LAM-064
@@ -732,7 +732,7 @@
 - **Prompt chính / yêu cầu:** Trang "Từ & câu đã lưu" gộp Câu cần ôn của nghe chép và Shadowing: nhãn chế độ trên mỗi dòng, bộ lọc Tất cả / Nghe chép / Shadowing, "Luyện lại" mở đúng chế độ tại đúng câu; sửa nhãn đọc màn hình cho dấu ghim và ghi chú ở danh sách câu
 - **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/mywords/components/ReviewTab.tsx`; `mywords/links.ts:shadowingUrl`; `mywords/links.test.ts`; `mywords/pages/MyWordsPage.tsx`; `shadowing/components/SentenceList.tsx`, `dictation/components/SentenceList.tsx` (bọc dấu bằng `span role="img"`); `i18n/locales/{vi,en}/mywords.json`
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt: danh sách gộp hai chế độ có bộ lọc, Shadowing không có chế độ làm lại.
-- **Commit:** f79734d
+- **Commit:** 8d2549d
 - **Lỗi liên quan:** AI-ERR-LAM-005
 
 ### AI-LAM-065
@@ -744,7 +744,7 @@
 - **Prompt chính / yêu cầu:** Sửa đặc tả cho hai thay đổi do Lâm yêu cầu: (1) hệ thống hỏi trước khi lưu câu điểm thấp và trước khi bỏ câu từ 80 điểm khỏi Câu cần ôn thay vì tự đổi danh sách, (2) ghi chú tách riêng cho nghe chép và Shadowing; sửa thuật ngữ trong `GLOSSARY.md`
 - **Vị trí code do AI sinh (`file:hàm`):** `docs/srs/business-rules.md` (BR-DICT-14, 15, 17; BR-SHADOW-15, 17, 19); `docs/srs/use-cases/DICT.md` (UC-DICT-10, AC-DICT-49, 54..56, 65..67); `docs/srs/use-cases/SHADOWING.md` (UC-SHADOW-11, 12; AC-SHADOW-43, 44, 46..48, 53..56); `GLOSSARY.md` (Câu cần ôn, Ghi chú)
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên đổi hướng giữa chừng và chốt: lượt từ 80 điểm cũng hỏi chứ không tự gỡ; đề xuất tách ghi chú theo chế độ thay vì thêm cột `source_mode` (AI chỉ phân tích ưu nhược); bỏ nút phụ "Mở ở chế độ kia" vì không còn cần; làm trực tiếp trên nhánh của PR #50.
-- **Commit:** 01cf7d6
+- **Commit:** 2c17b31
 - **Lỗi liên quan:** NONE
 
 ### AI-LAM-066
@@ -756,7 +756,7 @@
 - **Prompt chính / yêu cầu:** Backend: bỏ tự thêm và tự gỡ Câu cần ôn ở cả nghe chép lẫn Shadowing; ghim nhận lý do (`manual` hoặc `low_score`); migration thêm cột `mode` cho ghi chú (ghi chú cũ thành nghe chép) với khoá duy nhất theo chế độ; API ghi chú theo chế độ; viết lại test cho hành vi mới
 - **Vị trí code do AI sinh (`file:hàm`):** `backend/.../practice/service/SentenceReviewServiceImpl.java:pin`; `practice/controller/SentenceReviewController.java:pin`; `practice/service/SentenceNoteServiceImpl.java:save`, `:find`, `:list`; `practice/repository/SentenceNoteRepository.java:findOne`, `:findEntries`; `practice/controller/SentenceNoteController.java`; `V20261107_0900__sentence_notes_per_mode.sql`; `shadowing/service/ShadowingAttemptRecorder.java:save`; `dictation/service/DictationServiceImpl.java:submitAttempt`; `SentenceReviewApiIntegrationTest.java`, `SentenceNoteApiIntegrationTest.java`, `ShadowingReviewHistoryNotesIntegrationTest.java` (thêm `notesOfTheTwoModes_areIndependent`)
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt thiết kế: lý do `low_score` cho lưu từ hộp hỏi, `manual` cho ghim tay; ghi chú cũ chuyển thành ghi chú nghe chép vì Shadowing chưa từng có ghi chú.
-- **Commit:** c9f6e79
+- **Commit:** 363c986
 - **Lỗi liên quan:** NONE
 
 ### AI-LAM-067
@@ -768,7 +768,7 @@
 - **Prompt chính / yêu cầu:** Hộp hỏi dùng chung cho nghe chép và Shadowing: dưới 60 điểm mà câu chưa trong danh sách thì hỏi lưu, từ 80 điểm mà câu đang trong danh sách thì hỏi bỏ; Esc hoặc bấm ra ngoài không đổi gì; phím tắt của trang tạm ngưng khi hộp hỏi mở; không còn thông báo tự thêm
 - **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/practice/reviewPrompt.ts:reviewPromptKind`; `reviewPrompt.test.ts` (5 test); `practice/components/ReviewPromptDialog.tsx`; `dictation/pages/DictationPage.tsx:onAttemptDone`; `dictation/useDictationShortcuts.ts` (tham số `suspended`); `shadowing/components/ShadowingPractice.tsx` (`submit`, `reviewPrompt`, `useShadowingHotkeys`); `practice/api.ts:pinReview`
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt hành vi qua hỏi đáp: không nhớ lựa chọn "Không" (hỏi lại lần sau), đóng hộp coi như chọn nút thứ hai, lượt bỏ cuộc cũng hỏi, Enter khi hộp mở chỉ bấm nút của hộp.
-- **Commit:** 4c99607
+- **Commit:** 686f85c
 - **Lỗi liên quan:** NONE
 
 ### AI-LAM-068
@@ -780,7 +780,7 @@
 - **Prompt chính / yêu cầu:** Ghi chú theo chế độ ở frontend: API và hook nhận chế độ, Shadowing và nghe chép mỗi bên chỉ thấy ghi chú của mình, tab Ghi chú ở `mywords` có nhãn chế độ và bộ lọc, bấm ghi chú mở đúng chế độ; khung Ghi chú của tôi ở trang bài học hiện nhãn chế độ
 - **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/practice/api.ts:saveNote`, `:deleteNote`, `:listNotes`; `practice/hooks.ts:useSaveNote`, `:useDeleteNote`, `:useNoteEntries`; `mywords/links.ts:modeUrl`; `mywords/components/NotesTab.tsx`; `lesson/components/detail/AsideCards.tsx:NotesCard`; `shadowing/components/ShadowingTools.tsx`; `mywords/links.test.ts`
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt: mỗi ghi chú thuộc đúng một chế độ nên bấm vào là mở chế độ đó; khung ở trang bài học chỉ có nhãn, không có bộ lọc.
-- **Commit:** 10428f2
+- **Commit:** 4cabe27
 - **Lỗi liên quan:** NONE
 
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
@@ -858,7 +858,7 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Cách phát hiện / bằng chứng:** Khi kiểm tra danh sách câu của Shadowing trên trình duyệt thật theo yêu cầu của Lâm, truy vấn `[aria-label="Có ghi chú"]` không tìm thấy phần tử nào dù dấu đã hiện; đọc `Icon.tsx` xác nhận prop bị bỏ qua.
 - **Cách sửa:** Bọc dấu trong `<span role="img" aria-label=...>` ở danh sách câu của nghe chép và của Shadowing.
 - **Commit gây ra lỗi (đưa đầu ra AI vào code):** 59e1692
-- **Commit sửa (bắt buộc, khác commit trên):** f79734d
+- **Commit sửa (bắt buộc, khác commit trên):** 8d2549d
 - **Kiểm chứng sau sửa:** Trên trình duyệt thật, truy vấn `[role="img"][aria-label="Có ghi chú"]` và `[role="img"][aria-label="Đang trong Câu cần ôn"]` trả về 1 và 3 phần tử.
 - **Trạng thái (`Error Status`):** FIXED
 
