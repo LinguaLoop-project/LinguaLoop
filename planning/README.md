@@ -17,11 +17,11 @@ Tên trong dấu `backtick` là trang mockup trong `design/`.
 | **1** | Đăng ký, đăng nhập, vào trang Hôm nay có sidebar | Auth, phân quyền, ghi nhật ký (`login`, `register`, `verify`) | Bộ giao diện chung: màu, nút, bảng, 3 layout. Quota tạm. Thử gọi Azure Speech |
 | **2** | Học viên chọn bài, nghe chép một câu, thấy kết quả tô màu | Nghe chép: phát câu, gõ lại, chấm từng từ, lưu lượt làm (`dictation`)  | Seed bài mẫu, thư viện bài học (`lessons`, `topic`, `lesson`) |
 | **3** | Giáo viên đăng bài, học viên làm bài đó | Giáo viên: chủ đề, danh sách bài, soạn bài, cắt câu (instructor `topics`, `lessons`, `compose`) | Nghe chép hoàn thiện: câu cần ôn, ghi chú, lịch sử. Chốt cách lưu điểm âm vị Azure |
-| **4** | Tra từ, lưu từ. Đọc một câu và nhận điểm | Từ điển, tra từ, từ đã lưu (`vocab`, `mywords`), giáo viên: từ điển | Shadowing: ghi âm, gửi Azure, nhận điểm tổng, trừ lượt (`shadowing`) |
-| **5** | Học một bộ từ và ôn thẻ. Xem lỗi từng âm vị | Bộ từ, học và ôn thẻ (`deck`, `group`, `vocab`), giáo viên: bộ từ | Kết quả shadowing: tô từ, âm vị, mẹo sửa. Giáo viên: ngữ âm (`phoneme`) |
+| **4** | Tra từ, lưu từ. Đọc một câu và nhận điểm | Từ điển, tra từ, giáo viên: từ điển | Shadowing: ghi âm, gửi Azure, nhận điểm tổng, trừ lượt (`shadowing`). Từ đã lưu (`mywords`), chuyển từ Kế sang (2026-11-07) |
+| **5** | Học một bộ từ và ôn thẻ. Xem lỗi từng âm vị | Giáo viên: bộ từ | Bộ từ, học từ mới và ôn thẻ phía học viên (`deck`, `group`, `vocab`), chuyển từ Kế sang (2026-11-07). Kết quả shadowing: tô từ, âm vị, mẹo sửa. Giáo viên: ngữ âm (`phoneme`) |
 | **6** | **Chốt cam kết sản phẩm và metric.** Chạy trọn luồng học | Cài đặt, quyền riêng tư, sửa lỗi tồn đọng (`settings`) | Câu cần ôn lại, sửa lỗi tồn đọng của nghe chép và shadowing |
 | **7** | Người mới: đăng ký, onboarding, làm bài test, ra trình độ | Onboarding, kiểm tra trình độ, ngân hàng câu hỏi (`test`, instructor `qbank`) | Hạn mức Free/Pro thật. Bảng giá, thanh toán thử |
-| **8** | Trang Hôm nay hiện kế hoạch theo điểm yếu | Cung cấp số thẻ đến hạn và gợi ý bài | Thống kê điểm yếu, bộ sinh đề xuất, trang Hôm nay (`weakness`, `index`) |
+| **8** | Trang Hôm nay hiện kế hoạch theo điểm yếu | Gợi ý bài | Thống kê điểm yếu, bộ sinh đề xuất, trang Hôm nay (`weakness`, `index`). Số thẻ đến hạn (`SrsQueryService`) đã có từ phần ôn thẻ |
 | **9** | Hết lượt chấm, nâng cấp Pro, chấm tiếp. Luyện sửa lỗi có so sánh trước/sau | Báo lỗi nội dung | Paywall, gói Pro. Luyện sửa lỗi: cặp âm, nghe chép nhắm lỗi, đo cải thiện |
 | **10** | Admin xử lý người dùng và báo lỗi | Admin: người dùng, báo lỗi (`users`, `reports`) | Nhận xét AI, video khẩu hình (Pro). **Dịch vụ AI gợi ý mức CEFR cho câu** (dùng chung kết nối LLM với nhận xét AI) |
 | **11** | Admin thấy tổng quan. Học viên thấy tiến độ. Giáo viên được AI gợi ý CEFR | Admin: tổng quan, duyệt bộ từ, nhật ký. Kiểm tra lại trình độ. **Giáo viên: nút "Nhờ AI gợi ý CEFR" trong soạn bài và màn duyệt CEFR (`compose`, `cefr`)** | Tiến độ, so sánh ghi âm trước/sau. Admin: hạn mức, đăng ký Pro (`limits`, `subs`), danh mục lỗi chấm điểm (`errors`) |
@@ -41,8 +41,9 @@ Chủ sở hữu là người **duyệt và chịu trách nhiệm** bảng, khô
 |---|---|---|
 | **Kế** | Người dùng | `users`, `user_consents` |
 | **Kế** | Xác thực | `auth_login_attempts`, `auth_refresh_tokens`, `auth_email_tokens` |
-| **Kế** | Từ điển, từ vựng | `dictionary_words`, `dictionary_meanings`, `dictionary_word_forms`, `dictionary_pronunciations`, `user_saved_words` |
-| **Kế** | Bộ từ, ôn thẻ | `vocab_deck_categories`, `vocab_decks`, `vocab_deck_tags`, `vocab_groups`, `vocab_cards`, `vocab_card_phonetics`, `user_card_progress`, `vocab_study_sessions`, `vocab_review_logs` |
+| **Kế** | Từ điển | `dictionary_words` (các bảng `dictionary_meanings`, `dictionary_word_forms`, `dictionary_pronunciations` đã gộp vào đây) |
+| **Lâm** | Từ đã lưu | `user_saved_words` (chuyển từ Kế sang, 2026-11-07) |
+| **Lâm** | Bộ từ, ôn thẻ (chuyển từ Kế sang, 2026-11-07; màn giáo viên soạn bộ từ vẫn của Kế) | `vocab_deck_categories`, `vocab_decks`, `vocab_deck_tags`, `vocab_groups`, `vocab_cards`, `vocab_card_phonetics`, `user_card_progress`, `vocab_study_sessions`, `vocab_review_logs` |
 | **Kế** | Kiểm tra trình độ | `assessment_items`, `assessment_sessions`, `assessment_responses`, `assessment_results` |
 | **Kế** | Vận hành | `content_error_reports`, `content_audit_log` |
 | **Lâm** | Bài học | `topics`, `lessons`, `sentences` |
