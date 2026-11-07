@@ -91,19 +91,39 @@ class ShadowingReviewHistoryNotesIntegrationTest {
         return data.newSentence(data.newLesson(name + "-" + tag, false, "APPROVED", false), 0, TEXT, "Xin chào");
     }
 
-    private ResultActions saveNote(UUID user, UUID sentence, String content) throws Exception {
-        return as(user, put("/api/v1/sentences/" + sentence + "/note").contentType(MediaType.APPLICATION_JSON)
+    private ResultActions saveNote(UUID user, UUID sentence, String mode, String content) throws Exception {
+        return as(user, put("/api/v1/sentences/" + sentence + "/notes/" + mode).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"content\":\"" + content + "\"}"));
+    }
+
+    private ResultActions save(UUID user, UUID sentence) throws Exception {
+        return as(user, put("/api/v1/review/shadowing/sentences/" + sentence).param("reason", "low_score"));
     }
 
     // ── UC-SHADOW-12: Câu cần ôn ────────────────────────────────────────────────────
 
     @Test
-    void lowScore_addsToTheShadowingList_onlyNotTheDictationList_AC_SHADOW_46() throws Exception {
+    void scores_neverChangeTheList_onTheirOwn_AC_SHADOW_46_47_48() throws Exception {
+        UUID user = data.newUser();
+        UUID sentence = sentence("hands-off");
+
+        read(user, sentence, 40);   // dưới 60: không tự thêm (giao diện hỏi người học)
+        as(user, get("/api/v1/review/shadowing/sentences")).andExpect(jsonPath("$.data.length()").value(0));
+
+        save(user, sentence).andExpect(status().isOk());
+        read(user, sentence, 90);   // từ 80: không tự gỡ
+        read(user, sentence, 70);
+        as(user, get("/api/v1/review/shadowing/sentences")).andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].lastScore").value(70.0));
+    }
+
+    @Test
+    void save_afterALowScore_listsTheSentenceInShadowingOnly_AC_SHADOW_46() throws Exception {
         UUID user = data.newUser();
         UUID sentence = sentence("low");
-
         read(user, sentence, 40);
+
+        save(user, sentence).andExpect(status().isOk());
 
         as(user, get("/api/v1/review/shadowing/sentences")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
@@ -113,34 +133,6 @@ class ShadowingReviewHistoryNotesIntegrationTest {
                 .andExpect(jsonPath("$.data[0].lastScore").value(40.0))
                 .andExpect(jsonPath("$.data[0].lastLevel").doesNotExist());
         as(user, get("/api/v1/review/dictation/sentences")).andExpect(jsonPath("$.data.length()").value(0));
-    }
-
-    @Test
-    void seventyPoints_isNotAddedButStaysWhenAlreadyInTheList_AC_SHADOW_47() throws Exception {
-        UUID user = data.newUser();
-        UUID fresh = sentence("mid-new");
-        UUID queued = sentence("mid-old");
-
-        read(user, fresh, 70);
-        read(user, queued, 30);
-        read(user, queued, 70);
-
-        as(user, get("/api/v1/review/shadowing/sentences")).andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].sentenceId").value(queued.toString()))
-                .andExpect(jsonPath("$.data[0].lastScore").value(70.0));
-    }
-
-    @Test
-    void ninetyPoints_removesTheSentence_andALowScoreBringsItBack_AC_SHADOW_48() throws Exception {
-        UUID user = data.newUser();
-        UUID sentence = sentence("good");
-
-        read(user, sentence, 30);
-        read(user, sentence, 90);
-        as(user, get("/api/v1/review/shadowing/sentences")).andExpect(jsonPath("$.data.length()").value(0));
-
-        read(user, sentence, 30);
-        as(user, get("/api/v1/review/shadowing/sentences")).andExpect(jsonPath("$.data.length()").value(1));
     }
 
     @Test
@@ -170,15 +162,16 @@ class ShadowingReviewHistoryNotesIntegrationTest {
     void theTwoModesAreIndependent_AC_SHADOW_50() throws Exception {
         UUID user = data.newUser();
         UUID sentence = sentence("both");
+        dictate(user, sentence);
+        read(user, sentence, 20);
 
-        dictate(user, sentence);   // 0 điểm nghe chép: vào danh sách nghe chép
-        read(user, sentence, 90);  // 90 điểm Shadowing: không gỡ câu khỏi danh sách nghe chép
-
-        as(user, get("/api/v1/review/dictation/sentences")).andExpect(jsonPath("$.data.length()").value(1));
+        as(user, put("/api/v1/review/dictation/sentences/" + sentence).param("reason", "low_score"))
+                .andExpect(status().isOk());
         as(user, get("/api/v1/review/shadowing/sentences")).andExpect(jsonPath("$.data.length()").value(0));
 
-        read(user, sentence, 20);  // tụt ở Shadowing: thêm vào danh sách Shadowing, nghe chép giữ nguyên
-        as(user, get("/api/v1/review/dictation/sentences")).andExpect(jsonPath("$.data.length()").value(1));
+        save(user, sentence).andExpect(status().isOk());
+        as(user, delete("/api/v1/review/dictation/sentences/" + sentence)).andExpect(status().isOk());
+        as(user, get("/api/v1/review/dictation/sentences")).andExpect(jsonPath("$.data.length()").value(0));
         as(user, get("/api/v1/review/shadowing/sentences")).andExpect(jsonPath("$.data.length()").value(1));
     }
 
@@ -189,6 +182,8 @@ class ShadowingReviewHistoryNotesIntegrationTest {
         UUID read = sentence("mix-s");
         dictate(user, dictated);
         read(user, read, 30);
+        as(user, put("/api/v1/review/dictation/sentences/" + dictated)).andExpect(status().isOk());
+        save(user, read).andExpect(status().isOk());
 
         as(user, get("/api/v1/review/sentences")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -207,6 +202,7 @@ class ShadowingReviewHistoryNotesIntegrationTest {
         UUID other = data.newUser();
         UUID sentence = sentence("priv");
         read(owner, sentence, 30);
+        save(owner, sentence).andExpect(status().isOk());
 
         as(owner, get("/api/v1/review/karaoke/sentences")).andExpect(status().isBadRequest());
         as(other, get("/api/v1/review/shadowing/sentences")).andExpect(jsonPath("$.data.length()").value(0));
@@ -214,26 +210,49 @@ class ShadowingReviewHistoryNotesIntegrationTest {
         as(owner, get("/api/v1/review/shadowing/sentences")).andExpect(jsonPath("$.data.length()").value(1));
     }
 
-    // ── UC-SHADOW-11: Ghi chú dùng chung ────────────────────────────────────────────
+    // ── UC-SHADOW-11: Ghi chú theo chế độ ───────────────────────────────────────────
 
     @Test
-    void note_isAllowedAfterAShadowingAttemptOnly_andSharedWithDictation_AC_SHADOW_43_44() throws Exception {
+    void shadowingNote_needsAShadowingAttempt_AC_SHADOW_44() throws Exception {
+        UUID user = data.newUser();
+        UUID sentence = sentence("note-need");
+
+        saveNote(user, sentence, "shadowing", "chưa đọc").andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("PRACTICE_SENTENCE_NOT_PRACTICED"));
+        dictate(user, sentence); // lượt nghe chép không đủ để ghi chú ở Shadowing
+        saveNote(user, sentence, "shadowing", "chưa đọc").andExpect(status().isUnprocessableEntity());
+
+        read(user, sentence, 80);
+        saveNote(user, sentence, "shadowing", "nối âm ở cuối").andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.mode").value("shadowing"));
+    }
+
+    @Test
+    void notesOfTheTwoModes_areIndependent_AC_SHADOW_43_56() throws Exception {
         UUID user = data.newUser();
         UUID lesson = data.newLesson("note-" + tag, false, "APPROVED", false);
         UUID sentence = data.newSentence(lesson, 0, TEXT, "Xin chào");
-
-        saveNote(user, sentence, "chưa đọc").andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.code").value("PRACTICE_SENTENCE_NOT_PRACTICED"));
-
         read(user, sentence, 80);
-        saveNote(user, sentence, "nối âm ở cuối").andExpect(status().isOk());
-        saveNote(user, sentence, "nhớ nối âm").andExpect(status().isOk());
+        dictate(user, sentence);
 
-        as(user, get("/api/v1/notes")).andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].content").value("nhớ nối âm"));
-        // màn nghe chép của bài thấy cùng ghi chú dù câu chưa làm ở nghe chép
+        saveNote(user, sentence, "shadowing", "nối âm ở cuối").andExpect(status().isOk());
+        saveNote(user, sentence, "dictation", "nghe nhầm từ hai").andExpect(status().isOk());
+        saveNote(user, sentence, "dictation", "nghe nhầm từ ba").andExpect(status().isOk());
+
+        as(user, get("/api/v1/sentences/" + sentence + "/notes/shadowing"))
+                .andExpect(jsonPath("$.data.content").value("nối âm ở cuối"));
+        as(user, get("/api/v1/notes")).andExpect(jsonPath("$.data.length()").value(2));
+        as(user, get("/api/v1/notes").param("mode", "shadowing"))
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].mode").value("shadowing"))
+                .andExpect(jsonPath("$.data[0].content").value("nối âm ở cuối"));
+        // màn nghe chép chỉ thấy ghi chú của nghe chép
         as(user, get("/api/v1/dictation/lessons/note-" + tag))
-                .andExpect(jsonPath("$.data.sentences[0].note").value("nhớ nối âm"));
+                .andExpect(jsonPath("$.data.sentences[0].note").value("nghe nhầm từ ba"));
+
+        as(user, delete("/api/v1/sentences/" + sentence + "/notes/dictation")).andExpect(status().isOk());
+        as(user, get("/api/v1/sentences/" + sentence + "/notes/shadowing"))
+                .andExpect(jsonPath("$.data.content").value("nối âm ở cuối"));
     }
 
     // ── UC-SHADOW-10: Lịch sử ───────────────────────────────────────────────────────

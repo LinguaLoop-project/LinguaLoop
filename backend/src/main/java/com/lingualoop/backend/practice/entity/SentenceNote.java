@@ -3,8 +3,12 @@ package com.lingualoop.backend.practice.entity;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.lingualoop.backend.lesson.enums.PracticeMode;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,7 +16,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-/** Ghi chú riêng của một người dùng cho một câu; mỗi cặp (người dùng, câu) có tối đa một ghi chú. */
+/** Ghi chú riêng của một người dùng cho một câu ở một chế độ; mỗi bộ (người dùng, câu, chế độ) có tối đa một ghi chú. */
 @Entity
 @Table(name = "sentence_notes")
 @Getter
@@ -28,6 +32,10 @@ public class SentenceNote {
 
     @Column(name = "sentence_id", nullable = false, updatable = false)
     private UUID sentenceId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mode", nullable = false, updatable = false, columnDefinition = "practice_mode")
+    private PracticeMode mode;
 
     @Column(name = "content", nullable = false)
     private String content;
