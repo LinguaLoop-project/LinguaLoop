@@ -149,7 +149,11 @@
         "saveAll": "Save all",
         "notes": "My notes",
         "noNotes": "No notes yet. While practicing, press N to take notes for the active sentence.",
-        "add": "Add"
+        "add": "Add",
+        "modes": {
+          "dictation": "Dictation",
+          "shadowing": "Shadowing"
+        }
       },
       "related": {
         "title": "Related lessons",

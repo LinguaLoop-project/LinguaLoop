@@ -12,3 +12,8 @@ export function practiceUrl(lessonSlug: string, sentenceId: string, options: { r
 export function shadowingUrl(lessonSlug: string, sentenceId: string): string {
   return `/student/shadowing/${encodeURIComponent(lessonSlug)}?${new URLSearchParams({ sentence: sentenceId }).toString()}`;
 }
+
+/** Đường dẫn mở một câu ở đúng chế độ của ghi chú hoặc dòng đang xem (nghe chép hoặc Shadowing). */
+export function modeUrl(mode: "dictation" | "shadowing", lessonSlug: string, sentenceId: string): string {
+  return mode === "shadowing" ? shadowingUrl(lessonSlug, sentenceId) : practiceUrl(lessonSlug, sentenceId);
+}

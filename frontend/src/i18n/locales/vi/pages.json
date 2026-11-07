@@ -149,7 +149,11 @@
         "saveAll": "Lưu tất cả",
         "notes": "Ghi chú của tôi",
         "noNotes": "Chưa có ghi chú. Trong lúc luyện, bấm N để ghi chú cho câu đang học.",
-        "add": "Thêm"
+        "add": "Thêm",
+        "modes": {
+          "dictation": "Nghe chép",
+          "shadowing": "Shadowing"
+        }
       },
       "related": {
         "title": "Bài cùng chủ đề",

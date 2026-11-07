@@ -30,15 +30,17 @@ export interface ReviewSentence {
   lastAttemptedAt: string | null;
 }
 
-/** Ghi chú của người học cho một câu. */
+/** Ghi chú của người học cho một câu ở một chế độ; mỗi chế độ có ghi chú riêng. */
 export interface SentenceNote {
   sentenceId: string;
+  mode: PracticeMode;
   content: string;
   updatedAt: string;
 }
 
 export interface NoteEntry {
   sentenceId: string;
+  mode: PracticeMode;
   content: string;
   updatedAt: string;
   lessonSlug: string;

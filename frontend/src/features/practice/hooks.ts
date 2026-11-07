@@ -6,7 +6,7 @@ const NETWORK_MODE = "always" as const;
 
 export const practiceKeys = {
   review: (mode?: PracticeMode, lessonSlug?: string) => ["practice", "review", mode ?? "all", lessonSlug ?? "all"] as const,
-  notes: (lessonSlug?: string) => ["practice", "notes", lessonSlug ?? "all"] as const,
+  notes: (lessonSlug?: string, mode?: PracticeMode) => ["practice", "notes", lessonSlug ?? "all", mode ?? "all"] as const,
 };
 
 /**
@@ -28,10 +28,11 @@ export const useReviewEntries = (mode?: PracticeMode, lessonSlug?: string, enabl
     networkMode: NETWORK_MODE,
   });
 
-export const useNoteEntries = (lessonSlug?: string, enabled = true) =>
+/** Ghi chú của người học; bỏ `mode` để lấy cả hai chế độ, `lessonSlug` để chỉ lấy một bài. */
+export const useNoteEntries = (lessonSlug?: string, enabled = true, mode?: PracticeMode) =>
   useQuery({
-    queryKey: practiceKeys.notes(lessonSlug),
-    queryFn: () => practiceApi.listNotes(lessonSlug),
+    queryKey: practiceKeys.notes(lessonSlug, mode),
+    queryFn: () => practiceApi.listNotes(lessonSlug, mode),
     enabled,
     networkMode: NETWORK_MODE,
   });
@@ -47,21 +48,21 @@ export const useSetReview = (mode: PracticeMode) => {
   });
 };
 
-export const useSaveNote = () => {
+export const useSaveNote = (mode: PracticeMode) => {
   const queryClient = useQueryClient();
   return useMutation({
     networkMode: NETWORK_MODE,
     mutationFn: ({ sentenceId, content }: { sentenceId: string; content: string }) =>
-      practiceApi.saveNote(sentenceId, content),
+      practiceApi.saveNote(mode, sentenceId, content),
     onSuccess: () => refreshPractice(queryClient),
   });
 };
 
-export const useDeleteNote = () => {
+export const useDeleteNote = (mode: PracticeMode) => {
   const queryClient = useQueryClient();
   return useMutation({
     networkMode: NETWORK_MODE,
-    mutationFn: (sentenceId: string) => practiceApi.deleteNote(sentenceId),
+    mutationFn: (sentenceId: string) => practiceApi.deleteNote(mode, sentenceId),
     onSuccess: () => refreshPractice(queryClient),
   });
 };
