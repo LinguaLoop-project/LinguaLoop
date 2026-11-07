@@ -29,3 +29,10 @@ Trạng thái: `Nháp` → `Đã duyệt` (người dùng xác nhận) → `Đã
 | UC-LESSON-05 | Truy cập và trang tổng quan | Học viên | Trung bình | Lâm | 2 | Nháp |
 | UC-LESSON-06 | Hợp đồng đọc bài và câu cho luyện tập (nội bộ) | Feature dictation / shadowing (gọi nội bộ qua `SentenceQueryService`) | Cao | Lâm | 2 | Nháp |
 | UC-LESSON-07 | Xem tiến độ nghe chép và điểm từng câu | Học viên | Trung bình | Lâm | 2 | Nháp |
+| UC-VOCAB-01 | Lưu và bỏ lưu từ | Học viên | Cao | Lâm | 6 | Nháp |
+| UC-VOCAB-02 | Xem danh sách từ đã lưu | Học viên | Cao | Lâm | 3 | Nháp |
+| UC-VOCAB-03 | Xem danh sách bộ từ | Học viên | Cao | Lâm | 2 | Nháp |
+| UC-VOCAB-04 | Xem chi tiết bộ từ | Học viên | Cao | Lâm | 3 | Nháp |
+| UC-VOCAB-05 | Học từ mới một phần | Học viên | Cao | Lâm | 6 | Nháp |
+| UC-VOCAB-06 | Ôn thẻ đến hạn | Học viên | Cao | Lâm | 5 | Nháp |
+| UC-VOCAB-07 | Số thẻ đến hạn cho trang Hôm nay (nội bộ) | Module plan/weakness (gọi nội bộ qua `SrsQueryService`) | Trung bình | Lâm | 1 | Nháp |
