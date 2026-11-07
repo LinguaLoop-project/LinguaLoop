@@ -5,6 +5,7 @@ import type { TFunction } from "i18next";
 import Button from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
 import Icon from "@/components/common/Icon";
+import { WordSourceProvider } from "@/features/dictionary";
 import { getYouTubeVideoId } from "@/lib/format";
 import { toast } from "@/stores/toastStore";
 import ClozeInput from "../components/ClozeInput";
@@ -529,17 +530,19 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
                 </>
               ) : (
                 <>
-                  <ResultDiff
-                    score={result?.score ?? sentence.latest?.score ?? 0}
-                    level={shownLevel}
-                    words={result?.words ?? null}
-                    context={resultContext(result)}
-                    gaveUp={result?.gaveUp ?? sentence.latest?.gaveUp ?? false}
-                  detailLoading={history.isLoading}
-                    text={result?.text ?? sentence.text}
-                    textVi={result?.textVi ?? sentence.textVi}
-                    showTranslation={settings.showTranslation}
-                  />
+                  <WordSourceProvider sentenceId={sentence.id}>
+                    <ResultDiff
+                      score={result?.score ?? sentence.latest?.score ?? 0}
+                      level={shownLevel}
+                      words={result?.words ?? null}
+                      context={resultContext(result)}
+                      gaveUp={result?.gaveUp ?? sentence.latest?.gaveUp ?? false}
+                    detailLoading={history.isLoading}
+                      text={result?.text ?? sentence.text}
+                      textVi={result?.textVi ?? sentence.textVi}
+                      showTranslation={settings.showTranslation}
+                    />
+                  </WordSourceProvider>
                   <div className="mt-4 flex flex-wrap items-center gap-2.5">
                     <Button variant="ghost" size="sm" leftIcon={<Icon name="rotate-ccw" />} onClick={redoSentence}>
                       {t("result.again")}

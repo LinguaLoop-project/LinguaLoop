@@ -43,5 +43,15 @@
     "abbreviation": "Viết tắt",
     "prefix": "Tiền tố",
     "suffix": "Hậu tố"
+  },
+  "save": {
+    "save": "Lưu",
+    "saved": "Đã lưu",
+    "saveAria": "Lưu nghĩa này của từ {{word}}",
+    "unsaveAria": "Bỏ lưu nghĩa này của từ {{word}}",
+    "savedToast": "Đã lưu “{{word}}” để ôn",
+    "removedToast": "Đã bỏ lưu từ",
+    "failed": "Chưa lưu được. Thử lại nhé.",
+    "offline": "Bạn đang mất mạng. Thử lại khi có mạng."
   }
 }
