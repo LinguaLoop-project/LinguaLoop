@@ -5,6 +5,7 @@ import {
   deckUrl,
   filterSavedWords,
   findSaved,
+  groupByCategory,
   isStarted,
   learnedCount,
   nextPartIndex,
@@ -138,6 +139,7 @@ describe("tiến độ bộ", () => {
     nameVi: null,
     cefrLevel: "A1",
     pro: false,
+    category: null,
     cardCount: 100,
     groupCount: 5,
     progress: { mastered: 10, reviewing: 5, learning: 5, newCount: 80 },
@@ -160,6 +162,42 @@ describe("tiến độ bộ", () => {
     expect(deckUrl("oxford-a1")).toBe("/student/vocab/oxford-a1");
     expect(partUrl("oxford-a1", 0)).toBe("/student/vocab/oxford-a1/parts/1");
     expect(partUrl("oxford-a1", 4)).toBe("/student/vocab/oxford-a1/parts/5");
+  });
+});
+
+describe("groupByCategory", () => {
+  const base: DeckSummary = {
+    id: "d",
+    slug: "x",
+    name: "X",
+    nameVi: null,
+    cefrLevel: null,
+    pro: false,
+    category: null,
+    cardCount: 1,
+    groupCount: 1,
+    progress: { mastered: 0, reviewing: 0, learning: 0, newCount: 1 },
+    dueCount: 0,
+  };
+  const deck = (slug: string, category: string | null): DeckSummary => ({
+    ...base,
+    slug,
+    category: category ? { slug: category, name: category, nameVi: null } : null,
+  });
+
+  it("gom bộ theo danh mục, giữ thứ tự xuất hiện", () => {
+    const groups = groupByCategory([deck("a", "oxford"), deck("b", "toeic"), deck("c", "oxford")]);
+    expect(groups.map((g) => g.category?.slug)).toEqual(["oxford", "toeic"]);
+    expect(groups[0].decks.map((d) => d.slug)).toEqual(["a", "c"]);
+  });
+
+  it("bộ không có danh mục xếp cuối", () => {
+    const groups = groupByCategory([deck("a", null), deck("b", "oxford")]);
+    expect(groups.map((g) => g.category?.slug ?? null)).toEqual(["oxford", null]);
+  });
+
+  it("không có bộ thì không có nhóm", () => {
+    expect(groupByCategory([])).toEqual([]);
   });
 });
 

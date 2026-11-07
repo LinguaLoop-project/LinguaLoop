@@ -1,4 +1,4 @@
-import type { DeckPart, DeckProgress, DeckSummary, SavedWord, SavedWordSource } from "./types";
+import type { DeckCategory, DeckPart, DeckProgress, DeckSummary, SavedWord, SavedWordSource } from "./types";
 
 export type SourceFilter = "all" | Exclude<SavedWordSource, "manual">;
 /** Đang học gồm thẻ Mới, Đang học và Đang ôn (mọi thẻ chưa thuộc). */
@@ -60,6 +60,19 @@ export const percentOf = (value: number, total: number) => (total > 0 ? Math.rou
 
 /** Bộ đã học ít nhất một thẻ thì hiện ở mục "Đang học". */
 export const isStarted = (deck: DeckSummary) => learnedCount(deck.progress) > 0;
+
+/** Các bộ gom theo danh mục, giữ thứ tự API trả về (danh mục theo thứ tự xuất hiện đầu tiên); bộ không có danh mục xếp cuối. */
+export function groupByCategory(decks: DeckSummary[]): { category: DeckCategory | null; decks: DeckSummary[] }[] {
+  const groups = new Map<string, { category: DeckCategory | null; decks: DeckSummary[] }>();
+  for (const deck of decks) {
+    const key = deck.category?.slug ?? "";
+    const group = groups.get(key) ?? { category: deck.category, decks: [] };
+    group.decks.push(deck);
+    groups.set(key, group);
+  }
+  const all = [...groups.values()];
+  return [...all.filter((group) => group.category), ...all.filter((group) => !group.category)];
+}
 
 /** Phần đầu tiên còn thẻ Mới và học được: nơi "Học từ mới" mở; null khi mọi phần mở được đã học xong. */
 export function nextPartIndex(parts: DeckPart[]): number | null {

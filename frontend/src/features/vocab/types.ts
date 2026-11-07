@@ -53,6 +53,13 @@ export interface DeckProgress {
   newCount: number;
 }
 
+/** Danh mục chứa bộ: Oxford, TOEIC, IELTS ... (`DeckView.Category`). */
+export interface DeckCategory {
+  slug: string;
+  name: string;
+  nameVi: string | null;
+}
+
 /** Một bộ từ hệ thống kèm tiến độ của người học (`DeckView.Summary`). */
 export interface DeckSummary {
   id: string;
@@ -61,6 +68,7 @@ export interface DeckSummary {
   nameVi: string | null;
   cefrLevel: string | null;
   pro: boolean;
+  category: DeckCategory | null;
   cardCount: number;
   groupCount: number;
   progress: DeckProgress;

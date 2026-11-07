@@ -13,6 +13,10 @@ public final class DeckView {
     public record Progress(int mastered, int reviewing, int learning, int newCount) {
     }
 
+    /** Danh mục chứa bộ (Oxford, TOEIC, IELTS ...); {@code slug} dùng để nhóm bộ trên trang Từ vựng. */
+    public record Category(String slug, String name, String nameVi) {
+    }
+
     /** Một bộ kèm tiến độ của người học; {@code dueCount} là số thẻ của bộ đã đến hạn ôn (BR-VOCAB-09). */
     public record Summary(
             UUID id,
@@ -21,6 +25,7 @@ public final class DeckView {
             String nameVi,
             String cefrLevel,
             boolean pro,
+            Category category,
             int cardCount,
             int groupCount,
             Progress progress,

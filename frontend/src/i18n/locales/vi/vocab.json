@@ -20,12 +20,9 @@
   "explore": {
     "title": "Khám phá bộ từ"
   },
-  "category": {
-    "oxford": "Oxford"
-  },
   "first": {
     "title": "Chọn bộ từ đầu tiên",
-    "desc": "Bắt đầu với bộ A1 hoặc A2. Mỗi phần khoảng 20 thẻ, học trong 5–8 phút."
+    "desc": "Bắt đầu với một bộ cơ bản như Oxford A1 hoặc 1000 từ thông dụng. Mỗi phần là một chủ đề, học trong vài phút."
   },
   "empty": {
     "title": "Chưa có bộ từ nào",
@@ -76,7 +73,7 @@
     },
     "tips": {
       "title": "Cách học bộ này",
-      "one": "Mỗi lượt học một phần khoảng 20 thẻ: đoán nghĩa, lật thẻ, trắc nghiệm hoặc nghe lặp lại.",
+      "one": "Mỗi phần là một chủ đề. Học từng phần bằng cách đoán từ, lật thẻ, trắc nghiệm hoặc nghe lặp lại.",
       "two": "Thẻ quay lại đúng lúc bạn sắp quên. Nhớ càng tốt, khoảng ôn càng giãn ra.",
       "three": "Học xong một phần, thử một cách học khác để kiểm tra lại."
     },

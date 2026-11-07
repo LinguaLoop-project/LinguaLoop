@@ -20,12 +20,9 @@
   "explore": {
     "title": "Explore decks"
   },
-  "category": {
-    "oxford": "Oxford"
-  },
   "first": {
     "title": "Pick your first deck",
-    "desc": "Start with A1 or A2. Each part has about 20 cards and takes 5–8 minutes."
+    "desc": "Start with a basic deck such as Oxford A1 or 1000 common words. Each part is one topic and takes a few minutes."
   },
   "empty": {
     "title": "No decks yet",
@@ -79,7 +76,7 @@
     },
     "tips": {
       "title": "How to study this deck",
-      "one": "Each session covers one part of about 20 cards: guess the meaning, flip cards, take a quiz or listen and repeat.",
+      "one": "Each part is one topic. Study it by guessing the word, flipping cards, taking a quiz or listening and repeating.",
       "two": "Cards come back just before you forget them. The better you remember, the longer the interval.",
       "three": "After a part, try a different study mode to check yourself."
     },

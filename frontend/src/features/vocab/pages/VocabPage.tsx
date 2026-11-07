@@ -7,13 +7,13 @@ import Skeleton from "@/components/common/Skeleton";
 import DeckCard from "../components/DeckCard";
 import StatCard from "../components/StatCard";
 import { useDecks } from "../hooks";
-import { isStarted } from "../utils";
+import { groupByCategory, isStarted } from "../utils";
 
 const GRID = "grid gap-4 sm:grid-cols-2 xl:grid-cols-3";
 
 /** Trang `/student/vocab` (UC-VOCAB-03): tổng quan thẻ, các bộ đang học và khám phá bộ hệ thống. */
 export default function VocabPage() {
-  const { t } = useTranslation("vocab");
+  const { t, i18n } = useTranslation("vocab");
   const query = useDecks();
 
   const body = () => {
@@ -40,6 +40,7 @@ export default function VocabPage() {
 
     const { overview, decks } = query.data;
     const started = decks.filter(isStarted);
+    const vi = i18n.language.startsWith("vi");
     return (
       <div className="flex flex-col gap-8">
         <div role="group" aria-label={t("overview.label")} className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -72,17 +73,25 @@ export default function VocabPage() {
               )}
             </section>
 
-            <section aria-labelledby="vocab-explore">
-              <h2 id="vocab-explore" className="mb-3 flex items-center gap-2 text-xl font-bold">
+            <section aria-labelledby="vocab-explore" className="flex flex-col gap-6">
+              <h2 id="vocab-explore" className="flex items-center gap-2 text-xl font-bold">
                 <Icon name="layers" className="h-5 w-5 text-fn-vocab" />
                 {t("explore.title")}
-                <small className="text-sm font-medium text-text-muted">{t("category.oxford")}</small>
               </h2>
-              <div className={GRID}>
-                {decks.map((deck) => (
-                  <DeckCard key={deck.id} deck={deck} />
-                ))}
-              </div>
+              {groupByCategory(decks).map(({ category, decks: inCategory }) => (
+                <div key={category?.slug ?? "other"}>
+                  {category && (
+                    <h3 className="mb-3 text-base font-bold text-text-muted">
+                      {(vi ? category.nameVi : null) ?? category.name}
+                    </h3>
+                  )}
+                  <div className={GRID}>
+                    {inCategory.map((deck) => (
+                      <DeckCard key={deck.id} deck={deck} />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </section>
           </>
         )}

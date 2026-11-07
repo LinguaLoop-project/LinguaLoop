@@ -48,18 +48,21 @@ python import_words.py dictionary_words.final.jsonl --init      # --truncate đ�
 DB mới tạo hoặc vừa reset (`docker compose down -v`) sẽ **không có** từ điển cho đến khi nạp lại. Khi bảng rỗng, các nơi tra
 từ (popup ở bài học và nghe chép, mục "Từ điển" ở Shadowing) hiện "Từ điển chưa có từ ..." và phần còn lại vẫn chạy bình thường.
 
-### Bộ từ hệ thống (Oxford A1 đến C2)
+### Bộ từ vựng hệ thống
 
-Các bộ từ được sinh từ `dictionary_words` nên chỉ chạy **sau khi nạp từ điển**. Bật lệnh nhập khi khởi động backend, một lần:
+Bộ từ vựng là dữ liệu riêng, **không phụ thuộc từ điển** (ADR 0010). Nạp một lần bằng script, giống seed bài học:
 
 ```bash
-APP_VOCAB_IMPORT_CATALOG=true ./mvnw spring-boot:run     # Windows PowerShell: $env:APP_VOCAB_IMPORT_CATALOG='true'
+./seed/seed-vocabulary.sh        # Windows PowerShell: ./seed/seed-vocabulary.ps1
+# DB khác: đặt DATABASE_URL=postgresql://... trước khi chạy
 ```
 
-Mỗi mức CEFR một bộ (`oxford-a1` đến `oxford-c2`) gồm các mục từ gốc xếp theo bảng chữ cái, 20 thẻ một phần, mỗi thẻ lấy nghĩa
-có số nhỏ nhất; B2, C1, C2 là bộ Pro. Chạy lại được: từ đã có thẻ thì bỏ qua, từ mới của từ điển được nối vào cuối bộ, nội dung
-thẻ đã có không bị ghi đè. Với từ điển đầy đủ khoảng 8.500 thẻ, mất vài giây. Mặc định tắt (biến không đặt) nên prod/Neon
-không tự nhập.
+Seed (`seed/03_vocabulary.sql.gz`) gồm 9 bộ (Thông dụng, Oxford 3000 A1 và A2, TOEIC, IELTS, TOEFL, Tết), khoảng 270 phần
+(nhóm chủ đề) và 6.800 thẻ kèm IPA và âm thanh Anh, Mỹ. Chạy lại được: các câu lệnh dùng `ON CONFLICT`, không tạo trùng và
+không đụng tới tiến độ học. Ứng dụng không tự nạp khi khởi động nên prod/Neon chỉ có bộ từ khi bạn chạy script.
+
+Lưu ý: nội dung và đường dẫn ảnh, âm thanh (`assets.parroto.app`) lấy từ Parroto; ảnh và âm thanh được tải trực tiếp từ máy
+chủ đó, có thể hỏng nếu bên kia đổi đường dẫn.
 
 ### Khi sinh lại seed
 

@@ -21,7 +21,8 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
      */
     @Query(value = """
             SELECT d.id AS id, d.slug AS slug, d.name AS name, d.name_vi AS nameVi, CAST(d.difficulty AS text) AS cefrLevel,
-                   d.is_pro AS pro, count(c.id) AS cardCount, count(DISTINCT g.id) AS groupCount,
+                   d.is_pro AS pro, cat.slug AS categorySlug, cat.name_en AS categoryName, cat.name_vi AS categoryNameVi,
+                   count(c.id) AS cardCount, count(DISTINCT g.id) AS groupCount,
                    count(c.id) FILTER (WHERE p.status = 'mastered') AS mastered,
                    count(c.id) FILTER (WHERE p.status = 'reviewing') AS reviewing,
                    count(c.id) FILTER (WHERE p.status = 'learning') AS learning,
@@ -30,16 +31,20 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
             FROM vocab_decks d
             JOIN vocab_groups g ON g.deck_id = d.id AND g.deleted_at IS NULL
             JOIN vocab_cards c ON c.group_id = g.id AND c.deleted_at IS NULL
+            LEFT JOIN vocab_deck_categories cat ON cat.id = d.category_id
             LEFT JOIN user_card_progress p ON p.card_id = c.id AND p.user_id = :userId
             WHERE d.visibility = 'system' AND d.kind = 'catalog' AND d.status = 'APPROVED' AND d.deleted_at IS NULL
               AND (CAST(:slug AS text) IS NULL OR d.slug = CAST(:slug AS text))
-            GROUP BY d.id
-            ORDER BY d.sort_order, d.name""", nativeQuery = true)
+            GROUP BY d.id, cat.id
+            ORDER BY cat.sort_order NULLS LAST, cat.name_en, d.sort_order, d.name""", nativeQuery = true)
     List<DeckRow> findDecks(@Param("userId") UUID userId, @Param("slug") String slug);
 
-    /** Các phần của một bộ theo thứ tự, kèm số thẻ và số thẻ {@code userId} đã học (không còn Mới). */
+    /**
+     * Các phần (nhóm chủ đề) của một bộ theo thứ tự, kèm số thẻ và số thẻ {@code userId} đã học (không còn Mới).
+     * {@code idx} là vị trí tính từ 0, không phải {@code sort_order} (seed đánh số từ 1 và có thể thủng).
+     */
     @Query(value = """
-            SELECT g.sort_order AS idx, g.name AS name, g.name_vi AS nameVi, count(c.id) AS cardCount,
+            SELECT CAST(row_number() OVER (ORDER BY g.sort_order) - 1 AS int) AS idx, g.name AS name, g.name_vi AS nameVi, count(c.id) AS cardCount,
                    count(c.id) FILTER (WHERE p.status IS NOT NULL AND p.status <> 'new') AS studiedCount
             FROM vocab_groups g
             LEFT JOIN vocab_cards c ON c.group_id = g.id AND c.deleted_at IS NULL
@@ -93,6 +98,12 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
         String getCefrLevel();
 
         boolean getPro();
+
+        String getCategorySlug();
+
+        String getCategoryName();
+
+        String getCategoryNameVi();
 
         long getCardCount();
 

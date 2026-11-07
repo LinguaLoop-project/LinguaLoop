@@ -53,11 +53,11 @@ Một nghĩa của một từ để học và ôn, gồm từ, phát âm, loại
 _Tránh_: flashcard, từ vựng, card
 
 **Bộ từ**:
-Một tập thẻ chia thành các bài theo thứ tự, do hệ thống cung cấp (vd "Oxford A1") hoặc của riêng một học viên.
+Một tập thẻ chia thành các bài theo thứ tự, do hệ thống cung cấp (vd "3000 Oxford Vocabulary A1") hoặc của riêng một học viên. Bộ hệ thống là dữ liệu riêng, không phải bản sao của từ điển.
 _Tránh_: deck, bộ từ vựng
 
 **Phần**:
-Một nhóm thẻ liền nhau trong một bộ từ, là đơn vị học viên chọn để học từ mới (vd "Phần 3 · 20 thẻ").
+Một nhóm thẻ cùng chủ đề trong một bộ từ, là đơn vị học viên chọn để học từ mới (vd "Family", 49 thẻ). Số thẻ mỗi phần khác nhau.
 _Tránh_: bài, unit, group (vì "bài" là bài học dùng để nghe chép và shadowing)
 
 **Học từ mới**:

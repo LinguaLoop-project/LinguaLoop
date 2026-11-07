@@ -1,6 +1,5 @@
 package com.lingualoop.backend.vocab.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -9,8 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -27,12 +26,11 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.dictation.DictationTestData;
-import com.lingualoop.backend.vocab.service.VocabCatalogImporter;
 
 /**
- * Nhập các bộ hệ thống từ từ điển (BR-VOCAB-04) và đọc danh sách bộ, chi tiết bộ (UC-VOCAB-03, UC-VOCAB-04) trên
- * Postgres thật. Cơ sở dữ liệu của test dùng chung nên mỗi test chèn từ riêng với tiền tố riêng và chỉ kiểm tra
- * những thẻ của mình.
+ * Danh sách bộ và chi tiết bộ (UC-VOCAB-03, UC-VOCAB-04) trên Postgres thật. Bộ từ vựng là dữ liệu riêng nạp từ
+ * seed, không sinh từ từ điển, nên test tự chèn bộ, phần và thẻ. Cơ sở dữ liệu của test dùng chung nên mỗi test dùng
+ * slug riêng với tiền tố ngẫu nhiên và chỉ kiểm tra những bộ của mình.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -44,22 +42,19 @@ class VocabDeckApiIntegrationTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private JdbcTemplate jdbc;
     @Autowired private DictationTestData data;
-    @Autowired private VocabCatalogImporter importer;
 
-    /** Mỗi test một tiền tố riêng, chỉ chữ cái và số, xếp sau các từ thật nên các từ của test liền nhau. */
+    /** Mỗi test một tiền tố riêng, chỉ chữ cái và số. */
     private final String base = "zz" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
 
     private ResultActions as(UUID user, MockHttpServletRequestBuilder request) throws Exception {
         return mockMvc.perform(request.header(HttpHeaders.AUTHORIZATION, "Bearer " + data.tokenFor(user)));
     }
 
-    private UUID insertWord(String headword, String level, String meaningsJson) {
-        UUID id = UUID.randomUUID();
+    private void insertWord(String headword, String meaningsJson) {
         jdbc.update("""
-                INSERT INTO dictionary_words (id, headword, cefr_level, ipa_uk, ipa_us, audio_us, meanings)
-                VALUES (?, ?, CAST(? AS cefr_code), '/uk/', '/us/', 'audio/x-us.mp3', CAST(? AS jsonb))""",
-                id, headword, level, meaningsJson);
-        return id;
+                INSERT INTO dictionary_words (id, headword, ipa_uk, ipa_us, audio_us, meanings)
+                VALUES (?, ?, '/uk/', '/us/', 'audio/x-us.mp3', CAST(? AS jsonb))""",
+                UUID.randomUUID(), headword, meaningsJson);
     }
 
     private static String meanings(String translation) {
@@ -67,145 +62,115 @@ class VocabDeckApiIntegrationTest {
                 + "\",\"example_en\":\"an example\",\"example_vi\":\"ví dụ\"}]";
     }
 
-    /** Chèn {@code count} từ B2 nối tiếp nhau theo bảng chữ cái rồi nhập bộ. */
-    private void importWords(int count, int from) {
-        for (int i = from; i < from + count; i++) {
-            insertWord(base + String.format("%03d", i), "B2", meanings("nghĩa " + i));
+    private String slug(String suffix) {
+        return base + "-" + suffix;
+    }
+
+    private String deckPath(String suffix) {
+        return DECKS + "/" + slug(suffix);
+    }
+
+    /** Điều kiện chọn bộ của test trong mảng {@code decks}. */
+    private String deck(String suffix) {
+        return "$.data.decks[?(@.slug=='" + slug(suffix) + "')]";
+    }
+
+    private UUID insertCategory(String suffix, int order) {
+        UUID id = UUID.randomUUID();
+        jdbc.update("INSERT INTO vocab_deck_categories (id, slug, name_en, name_vi, sort_order) VALUES (?, ?, ?, ?, ?)",
+                id, slug(suffix + "-cat"), "Category " + suffix, "Danh mục " + suffix, order);
+        return id;
+    }
+
+    private UUID insertDeck(String suffix, boolean pro, UUID category) {
+        UUID id = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO vocab_decks (id, owner_id, category_id, slug, name, name_vi, difficulty, is_pro,
+                                         visibility, status, sort_order)
+                VALUES (?, NULL, ?, ?, ?, ?, CAST('B1' AS cefr_code), ?, 'system', 'APPROVED', 1)""",
+                id, category, slug(suffix), "Deck " + suffix, "Bộ " + suffix, pro);
+        return id;
+    }
+
+    /** Phần đánh số từ 1 như seed (không phải từ 0). */
+    private UUID insertGroup(UUID deck, int sortOrder, String name) {
+        UUID id = UUID.randomUUID();
+        jdbc.update("INSERT INTO vocab_groups (id, deck_id, name, name_vi, sort_order) VALUES (?, ?, ?, ?, ?)",
+                id, deck, name, "Chủ đề " + name, sortOrder);
+        return id;
+    }
+
+    private UUID insertCard(UUID group, int sortOrder, String word, String audio) {
+        UUID id = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO vocab_cards (id, group_id, word, pos, translation_vi, example_en, example_vi, sort_order)
+                VALUES (?, ?, ?, 'noun', ?, 'an example', 'ví dụ', ?)""", id, group, word, "nghĩa " + word, sortOrder);
+        jdbc.update("INSERT INTO vocab_card_phonetics (card_id, accent, ipa, audio_url) VALUES (?, 'uk', '/uk/', NULL)", id);
+        jdbc.update("INSERT INTO vocab_card_phonetics (card_id, accent, ipa, audio_url) VALUES (?, 'us', '/us/', ?)", id, audio);
+        return id;
+    }
+
+    /** Một bộ có {@code groups} phần, mỗi phần {@code perGroup} thẻ; trả về thẻ theo thứ tự. */
+    private List<UUID> fillDeck(UUID deck, int groups, int perGroup) {
+        List<UUID> cards = new ArrayList<>();
+        for (int g = 1; g <= groups; g++) {
+            UUID group = insertGroup(deck, g, "Topic " + g);
+            for (int c = 1; c <= perGroup; c++) {
+                cards.add(insertCard(group, c, base + "w" + g + "x" + c, "https://cdn.example.com/a" + g + c + ".mp3"));
+            }
         }
-        importer.importCatalog();
+        return cards;
     }
 
-    /** Vị trí liên tục của thẻ trong bộ: phần nhân 20 cộng thứ tự trong phần. */
-    private List<Map<String, Object>> myCards() {
-        return jdbc.queryForList("""
-                SELECT c.word, c.pos, c.translation_vi, c.meaning_no, g.sort_order * 20 + c.sort_order AS ordinal,
-                       g.id AS group_id, c.id AS card_id
-                FROM vocab_cards c JOIN vocab_groups g ON g.id = c.group_id
-                JOIN vocab_decks d ON d.id = g.deck_id
-                WHERE d.slug = 'oxford-b2' AND c.word LIKE ? ORDER BY c.word""", base + "%");
-    }
-
-    // ---------------------------------------------------------------- nhập bộ (BR-VOCAB-04)
-
-    @Test
-    void import_buildsAlphabeticalPartsOfTwenty_BR_VOCAB_04() {
-        importWords(45, 0);
-
-        List<Map<String, Object>> cards = myCards();
-        assertThat(cards).hasSize(45);
-        for (int i = 1; i < cards.size(); i++) {
-            long previous = ((Number) cards.get(i - 1).get("ordinal")).longValue();
-            assertThat(((Number) cards.get(i).get("ordinal")).longValue()).isEqualTo(previous + 1);
-        }
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM vocab_cards c JOIN vocab_groups g ON g.id = c.group_id "
-                + "WHERE c.sort_order >= 20", Integer.class)).isZero();
-        assertThat(cards.get(0)).containsEntry("translation_vi", "nghĩa 0").containsEntry("pos", "noun");
-
-        Map<String, Object> deck = jdbc.queryForMap(
-                "SELECT is_pro, visibility, kind, status FROM vocab_decks WHERE slug = 'oxford-b2'");
-        assertThat(deck).containsEntry("is_pro", true).containsEntry("visibility", "system")
-                .containsEntry("kind", "catalog").containsEntry("status", "APPROVED");
-        assertThat(jdbc.queryForObject("SELECT is_pro FROM vocab_decks WHERE slug = 'oxford-a1'", Boolean.class)).isFalse();
-        assertThat(jdbc.queryForObject("SELECT is_pro FROM vocab_decks WHERE slug = 'oxford-c2'", Boolean.class)).isTrue();
-    }
-
-    @Test
-    void import_namesEachPartByItsFirstAndLastWord() {
-        importWords(30, 0);
-
-        List<String> names = jdbc.queryForList("""
-                SELECT g.name_vi FROM vocab_groups g
-                WHERE g.id IN (SELECT group_id FROM vocab_cards WHERE word LIKE ?) ORDER BY g.sort_order""",
-                String.class, base + "%");
-        assertThat(names).isNotEmpty().allSatisfy(name -> assertThat(name).matches("Phần \\d+ · .+ – .+"));
-        // một phần chỉ chứa từ của test này thì tên đúng bằng từ đầu và từ cuối của nó
-        String own = jdbc.queryForObject("""
-                SELECT g.name_vi FROM vocab_groups g JOIN vocab_cards c ON c.group_id = g.id
-                WHERE c.word = ?""", String.class, base + "010");
-        assertThat(own).contains(" – ").contains(base);
-    }
-
-    @Test
-    void import_takesTheLowestNumberedMeaning_andSkipsFormsAndWordsWithoutMeaning() {
-        insertWord(base + "a", "B2",
-                "[{\"no\":3,\"pos\":\"verb\",\"translation_vi\":\"ba\"},{\"no\":2,\"pos\":\"noun\",\"translation_vi\":\"hai\"}]");
-        insertWord(base + "empty", "B2", "[]");
-        UUID lemma = insertWord(base + "lemma", "B2", meanings("gốc"));
-        jdbc.update("INSERT INTO dictionary_words (id, headword, cefr_level, lemma_id, meanings) "
-                + "VALUES (?, ?, 'B2'::cefr_code, ?, CAST(? AS jsonb))", UUID.randomUUID(), base + "forms", lemma, meanings("dạng chia"));
-        insertWord(base + "other", "C1", meanings("mức khác"));
-        importer.importCatalog();
-
-        assertThat(myCards()).extracting(card -> card.get("word")).containsExactly(base + "a", base + "lemma");
-        Map<String, Object> a = myCards().get(0);
-        assertThat(a).containsEntry("meaning_no", 2).containsEntry("translation_vi", "hai").containsEntry("pos", "noun");
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM vocab_cards WHERE word = ?", Integer.class, base + "other")).isEqualTo(1);
-    }
-
-    @Test
-    void import_copiesPhoneticsOfBothAccents() {
-        importWords(1, 0);
-
-        Map<String, Object> card = myCards().get(0);
-        List<Map<String, Object>> phonetics = jdbc.queryForList(
-                "SELECT accent, ipa, audio_url FROM vocab_card_phonetics WHERE card_id = ? ORDER BY accent", card.get("card_id"));
-        assertThat(phonetics).hasSize(2);
-        assertThat(phonetics.get(0)).containsEntry("accent", "uk").containsEntry("ipa", "/uk/").containsEntry("audio_url", null);
-        assertThat(phonetics.get(1)).containsEntry("accent", "us").containsEntry("ipa", "/us/").containsEntry("audio_url", "audio/x-us.mp3");
-    }
-
-    @Test
-    void import_runAgain_addsNothing_andNewWordsAreAppendedWithoutMovingOldOnes() {
-        importWords(25, 0);
-        List<Map<String, Object>> before = myCards();
-        int deckCards = jdbc.queryForObject("SELECT count(*) FROM vocab_cards c JOIN vocab_groups g ON g.id = c.group_id "
-                + "JOIN vocab_decks d ON d.id = g.deck_id WHERE d.slug = 'oxford-b2'", Integer.class);
-
-        assertThat(importer.importCatalog()).isZero();
-        assertThat(myCards()).isEqualTo(before);
-
-        importWords(3, 100);
-        List<Map<String, Object>> after = myCards();
-        assertThat(after).hasSize(28);
-        assertThat(after.subList(0, 25)).isEqualTo(before);
-        assertThat(((Number) after.get(25).get("ordinal")).longValue()).isEqualTo(deckCards);
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM vocab_cards c JOIN vocab_groups g ON g.id = c.group_id "
-                + "JOIN vocab_decks d ON d.id = g.deck_id WHERE d.slug = 'oxford-b2' AND c.word LIKE ?", Integer.class, base + "%"))
-                .isEqualTo(28);
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM vocab_decks WHERE slug = 'oxford-b2'", Integer.class)).isEqualTo(1);
+    private void progress(UUID user, UUID card, String status, Instant nextReview) {
+        jdbc.update("""
+                INSERT INTO user_card_progress (user_id, card_id, status, repetitions, interval_days, next_review_at)
+                VALUES (?, ?, ?, 1, 1, ?)""", user, card, status, Timestamp.from(nextReview));
     }
 
     // ---------------------------------------------------------------- danh sách bộ (UC-VOCAB-03)
 
     @Test
     void list_showsSystemDecksWithTheLearnersProgress_AC_VOCAB_11() throws Exception {
-        insertWord(base + "a1", "A1", meanings("nghĩa"));
-        importWords(10, 0);
+        UUID category = insertCategory("c", 90);
+        List<UUID> cards = fillDeck(insertDeck("pro", true, category), 2, 5);
+        fillDeck(insertDeck("free", false, category), 1, 3);
         UUID user = data.newUser();
-        List<Map<String, Object>> cards = myCards();
-        progress(user, (UUID) cards.get(0).get("card_id"), "mastered", Instant.now().plus(25, ChronoUnit.DAYS));
-        progress(user, (UUID) cards.get(1).get("card_id"), "learning", Instant.now().minusSeconds(60));
-        progress(user, (UUID) cards.get(2).get("card_id"), "reviewing", Instant.now().plus(3, ChronoUnit.DAYS));
+        progress(user, cards.get(0), "mastered", Instant.now().plus(25, ChronoUnit.DAYS));
+        progress(user, cards.get(1), "learning", Instant.now().minusSeconds(60));
+        progress(user, cards.get(2), "reviewing", Instant.now().plus(3, ChronoUnit.DAYS));
 
         as(user, get(DECKS)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.decks[?(@.slug=='oxford-b2')].pro").value(true))
-                .andExpect(jsonPath("$.data.decks[?(@.slug=='oxford-b2')].progress.mastered").value(1))
-                .andExpect(jsonPath("$.data.decks[?(@.slug=='oxford-b2')].progress.reviewing").value(1))
-                .andExpect(jsonPath("$.data.decks[?(@.slug=='oxford-b2')].progress.learning").value(1))
-                .andExpect(jsonPath("$.data.decks[?(@.slug=='oxford-b2')].dueCount").value(1))
-                .andExpect(jsonPath("$.data.decks[?(@.slug=='oxford-a1')].progress.mastered").value(0))
-                .andExpect(jsonPath("$.data.decks[?(@.slug=='oxford-a1')].pro").value(false));
+                .andExpect(jsonPath(deck("pro") + ".pro").value(true))
+                .andExpect(jsonPath(deck("pro") + ".cardCount").value(10))
+                .andExpect(jsonPath(deck("pro") + ".groupCount").value(2))
+                .andExpect(jsonPath(deck("pro") + ".progress.mastered").value(1))
+                .andExpect(jsonPath(deck("pro") + ".progress.reviewing").value(1))
+                .andExpect(jsonPath(deck("pro") + ".progress.learning").value(1))
+                .andExpect(jsonPath(deck("pro") + ".progress.newCount").value(7))
+                .andExpect(jsonPath(deck("pro") + ".dueCount").value(1))
+                .andExpect(jsonPath(deck("free") + ".progress.mastered").value(0))
+                .andExpect(jsonPath(deck("free") + ".pro").value(false));
+    }
+
+    @Test
+    void list_carriesTheCategoryOfEachDeck() throws Exception {
+        fillDeck(insertDeck("a", false, insertCategory("oxf", 91)), 1, 1);
+
+        as(data.newUser(), get(DECKS)).andExpect(status().isOk())
+                .andExpect(jsonPath(deck("a") + ".category.slug").value(slug("oxf-cat")))
+                .andExpect(jsonPath(deck("a") + ".category.name").value("Category oxf"))
+                .andExpect(jsonPath(deck("a") + ".category.nameVi").value("Danh mục oxf"));
     }
 
     @Test
     void list_overviewCountsEveryCardIncludingSavedWords_AC_VOCAB_10() throws Exception {
-        importWords(5, 0);
+        List<UUID> cards = fillDeck(insertDeck("ov", false, insertCategory("c", 92)), 1, 5);
         UUID user = data.newUser();
-        List<Map<String, Object>> cards = myCards();
-        progress(user, (UUID) cards.get(0).get("card_id"), "mastered", Instant.now().minus(1, ChronoUnit.DAYS));
-        progress(user, (UUID) cards.get(1).get("card_id"), "learning", Instant.now().minusSeconds(60));
-        progress(user, (UUID) cards.get(2).get("card_id"), "learning", Instant.now().plus(1, ChronoUnit.DAYS));
-        insertWord(base + "saved", null, meanings("đã lưu"));
+        progress(user, cards.get(0), "mastered", Instant.now().minus(1, ChronoUnit.DAYS));
+        progress(user, cards.get(1), "learning", Instant.now().minusSeconds(60));
+        progress(user, cards.get(2), "learning", Instant.now().plus(1, ChronoUnit.DAYS));
+        insertWord(base + "saved", meanings("đã lưu"));
         as(user, put("/api/v1/vocab/saved-words").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"headword\":\"" + base + "saved\",\"meaningNo\":1}")).andExpect(status().isOk());
 
@@ -219,13 +184,13 @@ class VocabDeckApiIntegrationTest {
 
     @Test
     void list_savedWordsDeckIsNotAListedDeck_AC_VOCAB_10() throws Exception {
-        importWords(1, 0);
+        fillDeck(insertDeck("sv", false, insertCategory("c", 93)), 1, 1);
         UUID user = data.newUser();
-        insertWord(base + "saved", null, meanings("đã lưu"));
+        insertWord(base + "saved", meanings("đã lưu"));
         as(user, put("/api/v1/vocab/saved-words").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"headword\":\"" + base + "saved\",\"meaningNo\":1}")).andExpect(status().isOk());
 
-        as(user, get(DECKS)).andExpect(jsonPath("$.data.decks[?(@.slug=='oxford-b2')]").isNotEmpty())
+        as(user, get(DECKS)).andExpect(jsonPath(deck("sv")).isNotEmpty())
                 .andExpect(jsonPath("$.data.decks[?(@.slug==null)]").isEmpty())
                 .andExpect(jsonPath("$.data.decks[?(@.nameVi=='Từ đã lưu')]").isEmpty());
         as(user, get(DECKS + "/saved")).andExpect(status().isNotFound());
@@ -233,23 +198,37 @@ class VocabDeckApiIntegrationTest {
 
     @Test
     void list_isEmptyOfProgressForANewLearner() throws Exception {
-        insertWord(base + "a1", "A1", meanings("nghĩa"));
-        importWords(1, 0);
+        fillDeck(insertDeck("nw", false, insertCategory("c", 94)), 1, 4);
 
         as(data.newUser(), get(DECKS)).andExpect(jsonPath("$.data.overview.due").value(0))
                 .andExpect(jsonPath("$.data.overview.mastered").value(0))
-                .andExpect(jsonPath("$.data.decks[?(@.slug=='oxford-a1')].progress.newCount").isNotEmpty());
+                .andExpect(jsonPath(deck("nw") + ".progress.newCount").value(4));
+    }
+
+    @Test
+    void list_skipsDecksWithoutCards_andNonSystemDecks() throws Exception {
+        insertDeck("empty", false, insertCategory("c", 95));
+        UUID owner = data.newUser();
+        UUID mine = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO vocab_decks (id, owner_id, slug, name, visibility, status)
+                VALUES (?, ?, ?, 'Của tôi', 'private', 'APPROVED')""", mine, owner, slug("mine"));
+        insertCard(insertGroup(mine, 1, "G"), 1, base + "mine", null);
+
+        as(owner, get(DECKS)).andExpect(jsonPath(deck("empty")).isEmpty())
+                .andExpect(jsonPath(deck("mine")).isEmpty());
     }
 
     // ---------------------------------------------------------------- chi tiết bộ (UC-VOCAB-04)
 
     @Test
     void detail_lockPartsOfAProDeckFromTheThirdForAFreeUser_AC_VOCAB_12() throws Exception {
-        importWords(50, 0);
+        fillDeck(insertDeck("p", true, insertCategory("c", 96)), 4, 10);
 
-        as(data.newUser(), get(DECKS + "/oxford-b2")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.deck.slug").value("oxford-b2"))
+        as(data.newUser(), get(deckPath("p"))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.deck.slug").value(slug("p")))
                 .andExpect(jsonPath("$.data.deck.pro").value(true))
+                .andExpect(jsonPath("$.data.parts.length()").value(4))
                 .andExpect(jsonPath("$.data.parts[0].locked").value(false))
                 .andExpect(jsonPath("$.data.parts[1].locked").value(false))
                 .andExpect(jsonPath("$.data.parts[2].locked").value(true))
@@ -259,63 +238,72 @@ class VocabDeckApiIntegrationTest {
     }
 
     @Test
-    void detail_nothingIsLockedForAProUser_AC_VOCAB_13() throws Exception {
-        importWords(50, 0);
+    void detail_partsAreNumberedFromZeroEvenThoughSeedGroupsStartAtOne() throws Exception {
+        fillDeck(insertDeck("idx", false, insertCategory("c", 97)), 3, 2);
 
-        as(data.newProUser(), get(DECKS + "/oxford-b2")).andExpect(status().isOk())
+        as(data.newUser(), get(deckPath("idx"))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.parts[0].index").value(0))
+                .andExpect(jsonPath("$.data.parts[0].name").value("Topic 1"))
+                .andExpect(jsonPath("$.data.parts[0].nameVi").value("Chủ đề Topic 1"))
+                .andExpect(jsonPath("$.data.parts[0].cardCount").value(2))
+                .andExpect(jsonPath("$.data.parts[2].index").value(2));
+    }
+
+    @Test
+    void detail_nothingIsLockedForAProUser_AC_VOCAB_13() throws Exception {
+        fillDeck(insertDeck("pu", true, insertCategory("c", 98)), 4, 5);
+
+        as(data.newProUser(), get(deckPath("pu"))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.parts[?(@.locked==true)]").isEmpty());
     }
 
     @Test
     void detail_aFreeDeckIsNeverLocked() throws Exception {
-        for (int i = 0; i < 50; i++) {
-            insertWord(base + String.format("%03d", i), "A1", meanings("nghĩa"));
-        }
-        importer.importCatalog();
+        fillDeck(insertDeck("fr", false, insertCategory("c", 99)), 5, 3);
 
-        as(data.newUser(), get(DECKS + "/oxford-a1")).andExpect(status().isOk())
+        as(data.newUser(), get(deckPath("fr"))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.deck.pro").value(false))
                 .andExpect(jsonPath("$.data.parts[?(@.locked==true)]").isEmpty());
     }
 
     @Test
     void detail_reportsTheLearnersProgressPerPart() throws Exception {
-        importWords(10, 0);
+        List<UUID> cards = fillDeck(insertDeck("pg", false, insertCategory("c", 100)), 2, 5);
         UUID user = data.newUser();
-        List<Map<String, Object>> cards = myCards();
-        UUID group = (UUID) cards.get(0).get("group_id");
-        progress(user, (UUID) cards.get(0).get("card_id"), "learning", Instant.now().plusSeconds(600));
-        progress(user, (UUID) cards.get(1).get("card_id"), "new", Instant.now());
+        progress(user, cards.get(5), "learning", Instant.now().plusSeconds(600));
+        progress(user, cards.get(6), "new", Instant.now());
 
-        int index = jdbc.queryForObject("SELECT sort_order FROM vocab_groups WHERE id = ?", Integer.class, group);
-        as(user, get(DECKS + "/oxford-b2")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.parts[?(@.index==" + index + ")].studiedCount").value(1))
+        as(user, get(deckPath("pg"))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.parts[0].studiedCount").value(0))
+                .andExpect(jsonPath("$.data.parts[1].studiedCount").value(1))
                 .andExpect(jsonPath("$.data.deck.progress.learning").value(1));
     }
 
     @Test
+    void detail_sampleWordsKeepFullAudioUrlsAndBothIpa() throws Exception {
+        fillDeck(insertDeck("au", false, insertCategory("c", 101)), 1, 2);
+
+        as(data.newUser(), get(deckPath("au"))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.sampleWords[0].audioUs").value("https://cdn.example.com/a11.mp3"))
+                .andExpect(jsonPath("$.data.sampleWords[0].ipaUk").value("/uk/"))
+                .andExpect(jsonPath("$.data.sampleWords[0].ipaUs").value("/us/"))
+                .andExpect(jsonPath("$.data.sampleWords[0].translationVi").value("nghĩa " + base + "w1x1"));
+    }
+
+    @Test
     void detail_unknownOrHiddenDeck_is404() throws Exception {
-        importWords(1, 0);
+        UUID deck = insertDeck("hid", false, insertCategory("c", 102));
+        fillDeck(deck, 1, 1);
         UUID user = data.newUser();
         as(user, get(DECKS + "/no-such-deck")).andExpect(status().isNotFound());
 
-        jdbc.update("UPDATE vocab_decks SET deleted_at = now() WHERE slug = 'oxford-c1'");
-        try {
-            as(user, get(DECKS + "/oxford-c1")).andExpect(status().isNotFound());
-        } finally {
-            jdbc.update("UPDATE vocab_decks SET deleted_at = NULL WHERE slug = 'oxford-c1'");
-        }
+        jdbc.update("UPDATE vocab_decks SET deleted_at = now() WHERE id = ?", deck);
+        as(user, get(deckPath("hid"))).andExpect(status().isNotFound());
     }
 
     @Test
     void endpoints_requireLogin() throws Exception {
         mockMvc.perform(get(DECKS)).andExpect(status().isUnauthorized());
-        mockMvc.perform(get(DECKS + "/oxford-a1")).andExpect(status().isUnauthorized());
-    }
-
-    private void progress(UUID user, UUID card, String status, Instant nextReview) {
-        jdbc.update("""
-                INSERT INTO user_card_progress (user_id, card_id, status, repetitions, interval_days, next_review_at)
-                VALUES (?, ?, ?, 1, 1, ?)""", user, card, status, Timestamp.from(nextReview));
+        mockMvc.perform(get(DECKS + "/anything")).andExpect(status().isUnauthorized());
     }
 }

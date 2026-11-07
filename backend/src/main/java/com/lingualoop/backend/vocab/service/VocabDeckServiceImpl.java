@@ -51,9 +51,19 @@ class VocabDeckServiceImpl implements VocabDeckService {
                 .toList();
         List<DeckView.SampleWord> sample = decks.findSampleCards(row.getId(), SAMPLE_WORDS).stream()
                 .map(s -> new DeckView.SampleWord(s.getWord(), s.getPos(), s.getTranslationVi(), s.getIpaUk(),
-                        s.getIpaUs(), dictionary.resolveAudioUrl(s.getAudioUs())))
+                        s.getIpaUs(), audioOf(s.getAudioUs())))
                 .toList();
         return new DeckView.Detail(toSummary(row), parts, sample);
+    }
+
+    private static DeckView.Category toCategory(DeckRow row) {
+        return row.getCategorySlug() == null ? null
+                : new DeckView.Category(row.getCategorySlug(), row.getCategoryName(), row.getCategoryNameVi());
+    }
+
+    /** Âm thanh của thẻ trong bộ từ vựng là URL đầy đủ (nguồn seed); chỉ đường dẫn tương đối mới ghép với kho âm thanh. */
+    private String audioOf(String path) {
+        return path != null && path.matches("(?i)^https?://.*") ? path : dictionary.resolveAudioUrl(path);
     }
 
     private static DeckView.Summary toSummary(DeckRow row) {
@@ -62,7 +72,7 @@ class VocabDeckServiceImpl implements VocabDeckService {
         int reviewing = (int) row.getReviewing();
         int learning = (int) row.getLearning();
         return new DeckView.Summary(row.getId(), row.getSlug(), row.getName(), row.getNameVi(), row.getCefrLevel(),
-                row.getPro(), cards, (int) row.getGroupCount(),
+                row.getPro(), toCategory(row), cards, (int) row.getGroupCount(),
                 new DeckView.Progress(mastered, reviewing, learning, cards - mastered - reviewing - learning),
                 (int) row.getDue());
     }
