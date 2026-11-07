@@ -99,9 +99,9 @@ function WordRow({ item, selected, onToggle, onUnsave, busy }: WordRowProps) {
           )}
         </span>
       </div>
-      <div className="flex w-[120px] flex-none flex-col items-start gap-1">
+      <div className="flex w-[160px] flex-none flex-col items-start gap-1">
         <Badge tone={tone}>{t(`words.status.${item.status}`)}</Badge>
-        <span className="text-[13px] text-text-muted">
+        <span className="whitespace-nowrap text-[13px] text-text-muted">
           {t("words.nextLabel")}: {next}
         </span>
       </div>

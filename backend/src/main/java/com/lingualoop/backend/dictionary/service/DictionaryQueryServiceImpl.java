@@ -57,6 +57,7 @@ class DictionaryQueryServiceImpl implements DictionaryQueryService {
     public Optional<MeaningSnapshot> findMeaning(String headword, int meaningNo) {
         return WordNormalizer.normalize(headword)
                 .flatMap(repository::findByHeadwordWithLemma)
+                .filter(word -> word.getLemma() == null)
                 .flatMap(word -> word.getMeanings().stream()
                         .filter(meaning -> meaning.no() == meaningNo)
                         .findFirst()

@@ -172,6 +172,23 @@ class SavedWordApiIntegrationTest {
     }
 
     @Test
+    void save_inflectedForm_isRefused_theLemmaMeaningIsSaved_AC_VOCAB_04() throws Exception {
+        UUID user = data.newUser();
+        UUID lemma = insertWord(base, PRESENT);
+        jdbc.update("INSERT INTO dictionary_words (id, headword, lemma_id, meanings) VALUES (?, ?, ?, CAST(? AS jsonb))",
+                UUID.randomUUID(), base + "ed", lemma, PRESENT);
+        UUID lesson = data.newLesson("vocabform-" + base, false, "APPROVED", false);
+        UUID sentence = data.newSentence(lesson, 0, "They " + base + "ed it.", null);
+
+        save(user, base + "ed", 1, sentence).andExpect(status().isNotFound());
+        save(user, base, 1, sentence).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.headword").value(base))
+                .andExpect(jsonPath("$.data.contextEn").value("They " + base + "ed it."));
+
+        as(user, get(SAVED)).andExpect(jsonPath("$.data.length()").value(1));
+    }
+
+    @Test
     void save_fromAProLessonSentence_isRefusedForAFreeUser() throws Exception {
         UUID user = data.newUser();
         insertWord(base, PRESENT);
