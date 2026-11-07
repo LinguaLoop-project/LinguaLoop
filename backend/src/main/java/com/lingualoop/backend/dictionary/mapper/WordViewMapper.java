@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import com.lingualoop.backend.dictionary.dto.MeaningSnapshot;
 import com.lingualoop.backend.dictionary.dto.WordView;
 import com.lingualoop.backend.dictionary.entity.DictionaryWord;
 import com.lingualoop.backend.dictionary.entity.PosPronunciation;
@@ -33,6 +34,26 @@ public class WordViewMapper {
                 defaultPronunciation(word),
                 groupByPos(word),
                 lemma);
+    }
+
+    /** Một nghĩa với phát âm theo loại từ của nghĩa đó; âm thanh giữ đường dẫn tương đối (ADR 0009). */
+    public MeaningSnapshot toSnapshot(DictionaryWord word, WordMeaning meaning) {
+        String pos = blankToNull(meaning.pos());
+        Map<String, PosPronunciation> overrides = word.getPosPronunciations();
+        PosPronunciation override = overrides == null || pos == null ? null : overrides.get(pos);
+        return new MeaningSnapshot(
+                word.getId(),
+                word.getHeadword(),
+                word.getCefrLevel() == null ? null : word.getCefrLevel().name(),
+                pos,
+                meaning.no(),
+                meaning.translationVi(),
+                meaning.exampleEn(),
+                meaning.exampleVi(),
+                override == null ? word.getIpaUk() : override.ipaUk(),
+                override == null ? word.getIpaUs() : override.ipaUs(),
+                override == null ? word.getAudioUk() : override.audioUk(),
+                override == null ? word.getAudioUs() : override.audioUs());
     }
 
     private List<WordView.MeaningGroup> groupByPos(DictionaryWord word) {
