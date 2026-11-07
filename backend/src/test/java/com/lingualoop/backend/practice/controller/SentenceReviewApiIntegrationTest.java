@@ -23,7 +23,10 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.dictation.DictationTestData;
 
-/** Danh sách Câu cần ôn: tự thêm khi dưới 60 điểm, tự gỡ khi từ 80 điểm, ghim tay và gỡ tay. */
+/**
+ * Câu cần ôn của nghe chép: hệ thống không tự thêm hay tự gỡ (BR-DICT-14, BR-DICT-15); câu chỉ vào danh sách khi
+ * người học lưu hoặc ghim, và chỉ rời khi người học bỏ.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import({TestcontainersConfiguration.class, DictationTestData.class})
@@ -52,15 +55,32 @@ class SentenceReviewApiIntegrationTest {
     }
 
     @Test
-    void lowScore_addsTheSentence_withTheLatestScore() throws Exception {
+    void scores_neverChangeTheList_onTheirOwn_AC_DICT_54_55_56() throws Exception {
+        UUID user = data.newUser();
+        UUID sentence = sentence("hands-off");
+
+        submit(user, sentence, "one");                       // 20 điểm: không tự thêm
+        as(user, get(REVIEW)).andExpect(jsonPath("$.data.length()").value(0));
+
+        as(user, put(REVIEW + "/" + sentence).param("reason", "low_score")).andExpect(status().isOk());
+        submit(user, sentence, "one two three four five");   // 100 điểm: không tự gỡ
+        submit(user, sentence, "one two three");             // 60 điểm: không đổi
+        as(user, get(REVIEW)).andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].lastScore").value(60.0));
+    }
+
+    @Test
+    void save_afterALowScore_listsTheSentenceWithTheLowScoreReason_AC_DICT_54() throws Exception {
         UUID user = data.newUser();
         UUID sentence = sentence("low");
-
         submit(user, sentence, "one");
+
+        as(user, put(REVIEW + "/" + sentence).param("reason", "low_score")).andExpect(status().isOk());
 
         as(user, get(REVIEW)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.data[0].sentenceId").value(sentence.toString()))
+                .andExpect(jsonPath("$.data[0].mode").value("dictation"))
                 .andExpect(jsonPath("$.data[0].reason").value("low_score"))
                 .andExpect(jsonPath("$.data[0].lastScore").value(20.0))
                 .andExpect(jsonPath("$.data[0].lastLevel").value("hard"))
@@ -69,54 +89,27 @@ class SentenceReviewApiIntegrationTest {
     }
 
     @Test
-    void sixtyPoints_isNotAddedButStaysWhenAlreadyInTheList() throws Exception {
-        UUID user = data.newUser();
-        UUID fresh = sentence("mid-new");
-        UUID queued = sentence("mid-old");
-
-        submit(user, fresh, "one two three");
-        submit(user, queued, "one");
-        submit(user, queued, "one two three");
-
-        as(user, get(REVIEW)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].sentenceId").value(queued.toString()))
-                .andExpect(jsonPath("$.data[0].lastScore").value(60.0));
-    }
-
-    @Test
-    void eightyPointsOrMore_removesTheSentence_andAnotherLowScoreBringsItBack() throws Exception {
-        UUID user = data.newUser();
-        UUID sentence = sentence("good");
-
-        submit(user, sentence, "one");
-        submit(user, sentence, "one two three four five");
-        as(user, get(REVIEW)).andExpect(jsonPath("$.data.length()").value(0));
-
-        submit(user, sentence, "one");
-        as(user, get(REVIEW)).andExpect(jsonPath("$.data.length()").value(1));
-    }
-
-    @Test
-    void gaveUpAttempt_countsAsAZeroScore() throws Exception {
+    void gaveUpAttempt_isAScoreOfZeroForTheList() throws Exception {
         UUID user = data.newUser();
         UUID sentence = sentence("gaveup");
-
         as(user, post("/api/v1/dictation/sentences/" + sentence + "/attempts")
                 .contentType(MediaType.APPLICATION_JSON).content("{\"level\":\"hard\",\"gaveUp\":true}"))
                 .andExpect(status().isOk());
+
+        as(user, put(REVIEW + "/" + sentence).param("reason", "low_score")).andExpect(status().isOk());
 
         as(user, get(REVIEW)).andExpect(jsonPath("$.data[0].lastScore").value(0.0));
     }
 
     @Test
-    void list_putsTheLowestLatestScoreFirst() throws Exception {
+    void list_putsTheLowestLatestScoreFirst_AC_DICT_58() throws Exception {
         UUID user = data.newUser();
         UUID twenty = sentence("order-a");
         UUID zero = sentence("order-b");
-
         submit(user, twenty, "one");
         submit(user, zero, "nothing like it");
+        as(user, put(REVIEW + "/" + twenty)).andExpect(status().isOk());
+        as(user, put(REVIEW + "/" + zero)).andExpect(status().isOk());
 
         as(user, get(REVIEW)).andExpect(jsonPath("$.data.length()").value(2))
                 .andExpect(jsonPath("$.data[0].sentenceId").value(zero.toString()))
@@ -124,7 +117,7 @@ class SentenceReviewApiIntegrationTest {
     }
 
     @Test
-    void pin_requiresAnAttempt_thenKeepsEvenAGoodSentenceUntilResolved() throws Exception {
+    void pin_requiresAnAttempt_defaultsToManual_andRejectsOtherReasons_AC_DICT_57() throws Exception {
         UUID user = data.newUser();
         UUID sentence = sentence("pin");
 
@@ -132,6 +125,7 @@ class SentenceReviewApiIntegrationTest {
                 .andExpect(jsonPath("$.code").value("PRACTICE_SENTENCE_NOT_PRACTICED"));
 
         submit(user, sentence, "one two three four five");
+        as(user, put(REVIEW + "/" + sentence).param("reason", "replayed_often")).andExpect(status().isBadRequest());
         as(user, put(REVIEW + "/" + sentence)).andExpect(status().isOk());
         as(user, put(REVIEW + "/" + sentence)).andExpect(status().isOk());
 
@@ -145,13 +139,25 @@ class SentenceReviewApiIntegrationTest {
     }
 
     @Test
+    void savingAgain_keepsTheOriginalReason() throws Exception {
+        UUID user = data.newUser();
+        UUID sentence = sentence("keep");
+        submit(user, sentence, "one");
+
+        as(user, put(REVIEW + "/" + sentence).param("reason", "low_score")).andExpect(status().isOk());
+        as(user, put(REVIEW + "/" + sentence)).andExpect(status().isOk());
+
+        as(user, get(REVIEW)).andExpect(jsonPath("$.data[0].reason").value("low_score"));
+    }
+
+    @Test
     void lessonResponse_marksTheSentencesInTheList() throws Exception {
         UUID user = data.newUser();
         UUID lesson = data.newLesson("flag-" + tag, false, "APPROVED", false);
         UUID queued = data.newSentence(lesson, 0, TEXT, "Bản dịch");
         data.newSentence(lesson, 1, TEXT, "Bản dịch");
-
         submit(user, queued, "one");
+        as(user, put(REVIEW + "/" + queued).param("reason", "low_score")).andExpect(status().isOk());
 
         as(user, get("/api/v1/dictation/lessons/flag-" + tag)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.sentences[0].inReview").value(true))
@@ -159,12 +165,12 @@ class SentenceReviewApiIntegrationTest {
     }
 
     @Test
-    void list_isPrivateToEachUser() throws Exception {
+    void list_isPrivateToEachUser_AC_DICT_61() throws Exception {
         UUID owner = data.newUser();
         UUID other = data.newUser();
         UUID sentence = sentence("private");
-
         submit(owner, sentence, "one");
+        as(owner, put(REVIEW + "/" + sentence)).andExpect(status().isOk());
 
         as(other, get(REVIEW)).andExpect(jsonPath("$.data.length()").value(0));
         as(other, delete(REVIEW + "/" + sentence)).andExpect(status().isOk());
