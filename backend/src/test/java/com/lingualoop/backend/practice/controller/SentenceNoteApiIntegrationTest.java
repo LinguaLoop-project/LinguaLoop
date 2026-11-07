@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.dictation.DictationTestData;
 
-/** Ghi chú câu: mỗi người một ghi chú cho một câu, chỉ ghi chú được câu đã làm, tối đa 1000 ký tự. */
+/** Ghi chú câu của nghe chép: mỗi người một ghi chú cho một câu, chỉ ghi chú được câu đã làm, tối đa 1000 ký tự. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import({TestcontainersConfiguration.class, DictationTestData.class})
@@ -38,8 +38,12 @@ class SentenceNoteApiIntegrationTest {
         return mockMvc.perform(request.header(HttpHeaders.AUTHORIZATION, "Bearer " + data.tokenFor(user)));
     }
 
+    private static String noteUrl(UUID sentence) {
+        return "/api/v1/sentences/" + sentence + "/notes/dictation";
+    }
+
     private ResultActions saveNote(UUID user, UUID sentence, String content) throws Exception {
-        return as(user, put("/api/v1/sentences/" + sentence + "/note").contentType(MediaType.APPLICATION_JSON)
+        return as(user, put(noteUrl(sentence)).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"content\":\"" + content + "\"}"));
     }
 
@@ -69,10 +73,11 @@ class SentenceNoteApiIntegrationTest {
         practice(user, sentence);
 
         saveNote(user, sentence, "lần một").andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").value("lần một"));
+                .andExpect(jsonPath("$.data.content").value("lần một"))
+                .andExpect(jsonPath("$.data.mode").value("dictation"));
         saveNote(user, sentence, "lần hai").andExpect(status().isOk());
 
-        as(user, get("/api/v1/sentences/" + sentence + "/note")).andExpect(status().isOk())
+        as(user, get(noteUrl(sentence))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").value("lần hai"));
         as(user, get("/api/v1/notes")).andExpect(jsonPath("$.data.length()").value(1));
     }
@@ -81,7 +86,7 @@ class SentenceNoteApiIntegrationTest {
     void get_returnsNullWhenThereIsNoNote() throws Exception {
         UUID user = data.newUser();
 
-        as(user, get("/api/v1/sentences/" + sentence("n3") + "/note")).andExpect(status().isOk())
+        as(user, get(noteUrl(sentence("n3")))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").doesNotExist());
     }
 
@@ -92,8 +97,8 @@ class SentenceNoteApiIntegrationTest {
         practice(user, sentence);
         saveNote(user, sentence, "xoá tôi").andExpect(status().isOk());
 
-        as(user, delete("/api/v1/sentences/" + sentence + "/note")).andExpect(status().isOk());
-        as(user, delete("/api/v1/sentences/" + sentence + "/note")).andExpect(status().isOk());
+        as(user, delete(noteUrl(sentence))).andExpect(status().isOk());
+        as(user, delete(noteUrl(sentence))).andExpect(status().isOk());
 
         as(user, get("/api/v1/notes")).andExpect(jsonPath("$.data.length()").value(0));
     }
@@ -110,6 +115,13 @@ class SentenceNoteApiIntegrationTest {
     }
 
     @Test
+    void unknownMode_isRejected() throws Exception {
+        UUID user = data.newUser();
+
+        as(user, get("/api/v1/sentences/" + sentence("n5b") + "/notes/karaoke")).andExpect(status().isBadRequest());
+    }
+
+    @Test
     void notes_arePrivateToEachUser() throws Exception {
         UUID owner = data.newUser();
         UUID other = data.newUser();
@@ -118,13 +130,13 @@ class SentenceNoteApiIntegrationTest {
         practice(other, sentence);
         saveNote(owner, sentence, "của chủ").andExpect(status().isOk());
 
-        as(other, get("/api/v1/sentences/" + sentence + "/note")).andExpect(jsonPath("$.data").doesNotExist());
-        as(other, delete("/api/v1/sentences/" + sentence + "/note")).andExpect(status().isOk());
-        as(owner, get("/api/v1/sentences/" + sentence + "/note")).andExpect(jsonPath("$.data.content").value("của chủ"));
+        as(other, get(noteUrl(sentence))).andExpect(jsonPath("$.data").doesNotExist());
+        as(other, delete(noteUrl(sentence))).andExpect(status().isOk());
+        as(owner, get(noteUrl(sentence))).andExpect(jsonPath("$.data.content").value("của chủ"));
     }
 
     @Test
-    void list_carriesTheSentenceAndLesson_andFiltersByLessonSlug() throws Exception {
+    void list_carriesTheSentenceAndLesson_andFiltersByLessonSlugAndMode() throws Exception {
         UUID user = data.newUser();
         UUID first = sentence("n7a");
         UUID second = sentence("n7b");
@@ -135,15 +147,17 @@ class SentenceNoteApiIntegrationTest {
 
         as(user, get("/api/v1/notes")).andExpect(jsonPath("$.data.length()").value(2))
                 .andExpect(jsonPath("$.data[0].content").value("ghi chú b"))
+                .andExpect(jsonPath("$.data[0].mode").value("dictation"))
                 .andExpect(jsonPath("$.data[0].text").value("Hello there."));
         as(user, get("/api/v1/notes").param("lessonSlug", "n7a-" + tag))
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.data[0].sentenceId").value(first.toString()))
                 .andExpect(jsonPath("$.data[0].lessonSlug").value("n7a-" + tag));
+        as(user, get("/api/v1/notes").param("mode", "shadowing")).andExpect(jsonPath("$.data.length()").value(0));
     }
 
     @Test
-    void lessonResponse_carriesTheNoteOfEachSentence() throws Exception {
+    void lessonResponse_carriesTheDictationNoteOfEachSentence() throws Exception {
         UUID user = data.newUser();
         UUID lesson = data.newLesson("n8-" + tag, false, "APPROVED", false);
         UUID noted = data.newSentence(lesson, 0, "Hello there.", "Xin chào");

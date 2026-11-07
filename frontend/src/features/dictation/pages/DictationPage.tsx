@@ -27,6 +27,7 @@ import {
   useLatestAttempt,
   useOnlineStatus,
   useRevealWord,
+  useSetReview,
   useSubmitAttempt,
 } from "../hooks";
 import type {
@@ -42,6 +43,8 @@ import type {
 } from "../types";
 import { deepLinkTarget } from "../deepLink";
 import { useDictationShortcuts } from "../useDictationShortcuts";
+import ReviewPromptDialog from "@/features/practice/components/ReviewPromptDialog";
+import { reviewPromptKind, type ReviewPrompt } from "@/features/practice/reviewPrompt";
 import { followTarget } from "../position";
 import { usePlayer } from "../usePlayer";
 import {
@@ -50,7 +53,6 @@ import {
   isNetworkError,
   MAX_DURATION_MS,
   mergeRevealed,
-  REVIEW_ADD_BELOW,
   resultContext,
   submitErrorKind,
   type SubmitErrorKind,
@@ -85,6 +87,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   const [settings, updateSettings] = useDictationSettings();
   const online = useOnlineStatus();
   const submitAttempt = useSubmitAttempt(lesson.slug);
+  const setReview = useSetReview(lesson.slug);
   const revealWord = useRevealWord();
 
   const [searchParams] = useSearchParams();
@@ -106,6 +109,8 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   const [finished, setFinished] = useState(false);
   /** Bảng ghi chú hoặc lịch sử đang mở dưới câu; đóng khi sang câu khác. */
   const [panel, setPanel] = useState<ToolPanel | null>(null);
+  /** Hộp hỏi lưu hoặc bỏ câu khỏi Câu cần ôn sau một lượt (BR-DICT-14, BR-DICT-15). */
+  const [reviewPrompt, setReviewPrompt] = useState<ReviewPrompt | null>(null);
   /** Các câu đang được làm lại; lượt nộp tiếp theo của chúng gửi `retry = true`. */
   const [redo, setRedo] = useState<ReadonlySet<string>>(() =>
     deepLink?.redo ? new Set([sentences[deepLink.index].id]) : new Set(),
@@ -226,7 +231,8 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
 
   const onAttemptDone = (attempt: AttemptResult) => {
     player.stop();
-    if (attempt.score < REVIEW_ADD_BELOW && !sentence.inReview) toast(t("tools.autoAdded"), { icon: "pin" });
+    const kind = reviewPromptKind(attempt.score, sentence.inReview);
+    if (kind) setReviewPrompt({ kind, sentenceId: sentence.id, mode: "dictation", score: attempt.score });
     setResults((prev) => ({ ...prev, [sentence.id]: attempt }));
     setRedo((prev) => new Set([...prev].filter((id) => id !== sentence.id)));
   };
@@ -397,6 +403,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
       if (sentence.latest) setPanel((current) => (current === "note" ? null : "note"));
     },
     mode,
+    suspended: reviewPrompt !== null,
   });
 
   const shownLevel: DictationLevel = mode === "review" ? (result?.level ?? sentence.latest?.level ?? workLevel) : workLevel;
@@ -565,6 +572,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
           <SentenceList sentences={sentences} currentIndex={index} onSelect={pickSentence} />
         </div>
       )}
+      <ReviewPromptDialog prompt={reviewPrompt} setReview={setReview} onClose={() => setReviewPrompt(null)} />
     </section>
   );
 }

@@ -40,6 +40,7 @@ const SHORTCUTS: { id: string; keys: string[][] }[] = [
   { id: "model", keys: [["Ctrl"]] },
   { id: "mine", keys: [["R"]] },
   { id: "compare", keys: [["C"]] },
+  { id: "note", keys: [["N"]] },
   { id: "step", keys: [["Alt", "←"], ["Alt", "→"]] },
   { id: "tabs", keys: [["Alt", "W"], ["Alt", "P"]] },
 ];

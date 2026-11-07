@@ -3,12 +3,13 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
+import SegmentedControl from "@/components/common/SegmentedControl";
 import Icon from "@/components/common/Icon";
 import { toast } from "@/stores/toastStore";
-import { NOTE_MAX_LENGTH } from "@/features/dictation/components/NotePanel";
-import { useNotes, useRemoveNote, useUpdateNote } from "../hooks";
-import type { NoteEntry } from "../types";
-import { practiceUrl } from "../links";
+import { NOTE_MAX_LENGTH } from "@/features/practice/constants";
+import { useDeleteNote, useNoteEntries, useSaveNote } from "@/features/practice/hooks";
+import type { NoteEntry, PracticeMode } from "@/features/practice/types";
+import { modeUrl } from "../links";
 import { dateFormatter, isNetworkError } from "../utils";
 import ListState from "./ListState";
 
@@ -16,8 +17,8 @@ function NoteCard({ note }: { note: NoteEntry }) {
   const { t, i18n } = useTranslation("mywords");
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(note.content);
-  const update = useUpdateNote();
-  const remove = useRemoveNote();
+  const update = useSaveNote(note.mode);
+  const remove = useDeleteNote(note.mode);
   const busy = update.isPending || remove.isPending;
   const canSave = value.trim() !== "" && value !== note.content && !busy;
 
@@ -43,6 +44,12 @@ function NoteCard({ note }: { note: NoteEntry }) {
 
   return (
     <li className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+      <div className="flex items-center gap-2">
+        <span className="inline-flex h-[22px] items-center gap-1 rounded-full border border-border px-2 text-[11px]">
+          <Icon name={note.mode === "shadowing" ? "mic" : "headphones"} className="h-3.5 w-3.5" />
+          {t(`review.modes.${note.mode}`)}
+        </span>
+      </div>
       <q className="text-sm italic text-text-muted">{note.text}</q>
       {editing ? (
         <textarea
@@ -58,7 +65,7 @@ function NoteCard({ note }: { note: NoteEntry }) {
         <p className="whitespace-pre-wrap break-words">{note.content}</p>
       )}
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <Link to={practiceUrl(note.lessonSlug, note.sentenceId)} className="inline-flex items-center gap-1 text-text-muted hover:text-text">
+        <Link to={modeUrl(note.mode, note.lessonSlug, note.sentenceId)} className="inline-flex items-center gap-1 text-text-muted hover:text-text">
           <Icon name="play" className="h-3.5 w-3.5" />
           {note.lessonTitle}
         </Link>
@@ -99,22 +106,41 @@ function NoteCard({ note }: { note: NoteEntry }) {
   );
 }
 
-/** Tab "Ghi chú": ghi chú riêng của người học cho từng câu, sửa và xoá tại chỗ. */
+type ModeFilter = "all" | PracticeMode;
+
+/** Tab "Ghi chú": ghi chú riêng của người học cho từng câu ở từng chế độ, lọc theo chế độ, sửa và xoá tại chỗ. */
 export default function NotesTab() {
   const { t } = useTranslation("mywords");
-  const query = useNotes();
-  const notes = query.data ?? [];
+  const query = useNoteEntries();
+  const [filter, setFilter] = useState<ModeFilter>("all");
+  const all = query.data ?? [];
+  const notes = filter === "all" ? all : all.filter((note) => note.mode === filter);
+  const countOf = (mode: PracticeMode) => all.filter((note) => note.mode === mode).length;
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-text-muted">{t("notes.hint")}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-text-muted">{t("notes.hint")}</p>
+        {all.length > 0 && (
+          <SegmentedControl
+            ariaLabel={t("notes.filter.label")}
+            value={filter}
+            onChange={(value) => setFilter(value as ModeFilter)}
+            options={[
+              { value: "all", label: `${t("notes.filter.all")} (${all.length})` },
+              { value: "dictation", label: `${t("review.modes.dictation")} (${countOf("dictation")})` },
+              { value: "shadowing", label: `${t("review.modes.shadowing")} (${countOf("shadowing")})` },
+            ]}
+          />
+        )}
+      </div>
       <ListState query={query} skeletonRows={2}>
         {notes.length === 0 ? (
           <EmptyState title={t("notes.emptyTitle")} description={t("notes.emptyDesc")} />
         ) : (
           <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {notes.map((note) => (
-              <NoteCard key={note.sentenceId} note={note} />
+              <NoteCard key={`${note.mode}-${note.sentenceId}`} note={note} />
             ))}
           </ul>
         )}

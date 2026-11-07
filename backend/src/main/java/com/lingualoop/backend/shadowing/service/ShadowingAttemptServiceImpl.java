@@ -24,6 +24,7 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.shadowing.dto.LatestAttemptResponse;
 import com.lingualoop.backend.shadowing.dto.ShadowingAttemptResponse;
+import com.lingualoop.backend.shadowing.dto.ShadowingHistoryItem;
 import com.lingualoop.backend.practice.entity.AttemptPhoneme;
 import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
 import com.lingualoop.backend.shadowing.entity.AiFeedback;
@@ -85,6 +86,36 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         if (heads.isEmpty()) {
             return List.of();
         }
+        Map<UUID, SentenceView> sentenceById = new HashMap<>();
+        sentenceQueryService.findSentences(lesson.id()).forEach(sv -> sentenceById.put(sv.id(), sv));
+        return toResponses(userId, heads, sentenceById);
+    }
+
+    @Override
+    public List<ShadowingHistoryItem> history(UUID userId, UUID sentenceId) {
+        SentenceView sentence = sentenceQueryService.findSentence(sentenceId)
+                .orElseThrow(() -> new NotFoundException("Sentence not found"));
+        sentenceQueryService.assertCanPractice(userId, sentence.lessonId());
+        return repository.findHistory(userId, sentenceId).stream()
+                .map(r -> new ShadowingHistoryItem(r.getAttemptId(), r.getScore().doubleValue(),
+                        nullable(r.getAccuracyScore()), nullable(r.getFluencyScore()),
+                        nullable(r.getCompletenessScore()), nullable(r.getProsodyScore()), r.getAttemptedAt()))
+                .toList();
+    }
+
+    @Override
+    public LatestAttemptResponse attempt(UUID userId, long attemptId) {
+        LatestHead head = repository.findHeadById(userId, attemptId)
+                .orElseThrow(() -> new NotFoundException("Attempt not found"));
+        SentenceView sentence = sentenceQueryService.findSentence(head.getSentenceId())
+                .orElseThrow(() -> new NotFoundException("Sentence not found"));
+        sentenceQueryService.assertCanPractice(userId, sentence.lessonId());
+        return toResponses(userId, List.of(head), Map.of(sentence.id(), sentence)).get(0);
+    }
+
+    /** Dựng đủ kết quả (từng từ, âm vị, mẹo, nhận xét AI đã lưu) cho các lượt đã chọn. */
+    private List<LatestAttemptResponse> toResponses(UUID userId, List<LatestHead> heads,
+            Map<UUID, SentenceView> sentenceById) {
         List<Long> attemptIds = heads.stream().map(LatestHead::getAttemptId).toList();
 
         // Ký hiệu âm theo id, và mọi âm của bài để tra mẹo, video một lần (bấm âm nào cũng có)
@@ -101,8 +132,6 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         }
 
         // Âm mẫu theo từng từ của từng lượt, để ghép với âm đã lưu (theo vị trí âm trong từ)
-        Map<UUID, SentenceView> sentenceById = new HashMap<>();
-        sentenceQueryService.findSentences(lesson.id()).forEach(sv -> sentenceById.put(sv.id(), sv));
         List<SentenceAttemptWord> words = wordRepository.findByAttemptIds(attemptIds);
         Map<Long, List<SentenceAttemptWord>> wordsOfAttempt = new HashMap<>();
         words.forEach(w -> wordsOfAttempt.computeIfAbsent(w.getAttemptId(), k -> new ArrayList<>()).add(w));

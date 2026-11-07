@@ -3,10 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
+import Dialog from "@/components/common/Dialog";
 import Icon from "@/components/common/Icon";
 import ProgressRing from "@/components/common/ProgressRing";
-import { useNotes } from "@/features/mywords";
-import { practiceUrl } from "@/features/mywords/links";
+import { useNoteEntries } from "@/features/practice/hooks";
+import type { NoteEntry } from "@/features/practice/types";
+import { modeUrl } from "@/features/mywords/links";
 import { formatDuration } from "@/lib/format";
 import type { LessonSummary, ModeProgress } from "../../types";
 import LessonThumb from "../LessonThumb";
@@ -129,14 +131,35 @@ export function VocabCard() {
   );
 }
 
+/** Số ghi chú hiện sẵn ở thẻ; phần còn lại xem trong hộp "Xem thêm" để trang không dài ra theo số ghi chú. */
+const NOTES_PREVIEW = 3;
+
+function NoteItem({ note, slug }: { note: NoteEntry; slug: string }) {
+  const { t } = useTranslation("pages");
+  return (
+    <li>
+      <Link to={modeUrl(note.mode, slug, note.sentenceId)} className="block rounded-md border border-border bg-bg-elevated p-3 hover:border-border-strong">
+        <span className="mb-1 inline-flex items-center gap-1 rounded-full border border-border px-2 text-[11px] text-text-muted">
+          <Icon name={note.mode === "shadowing" ? "mic" : "headphones"} className="h-3 w-3" />
+          {t(`student.lessonDetail.aside.modes.${note.mode}`, note.mode === "shadowing" ? "Shadowing" : "Nghe chép")}
+        </span>
+        <q className="line-clamp-2 block text-xs italic text-text-muted">{note.text}</q>
+        <span className="mt-1 block whitespace-pre-wrap break-words text-[13px]">{note.content}</span>
+      </Link>
+    </li>
+  );
+}
+
 export function NotesCard({ slug, locked }: { slug: string; locked: boolean }) {
   const { t } = useTranslation("pages");
   const navigate = useNavigate();
-  const notesQuery = useNotes(locked ? undefined : slug);
+  const [showAll, setShowAll] = useState(false);
+  const notesQuery = useNoteEntries(slug, !locked);
   const notes = locked ? [] : (notesQuery.data ?? []);
+  const hidden = notes.length - NOTES_PREVIEW;
   return (
     <AsideCard
-      title={t("student.lessonDetail.aside.notes", "Ghi chú của tôi")}
+      title={`${t("student.lessonDetail.aside.notes", "Ghi chú của tôi")}${notes.length > 0 ? ` (${notes.length})` : ""}`}
       aside={
         locked ? undefined : (
           <Button variant="text" size="sm" leftIcon={<Icon name="plus" />} onClick={() => navigate(`/student/dictation/${slug}`)}>
@@ -146,16 +169,34 @@ export function NotesCard({ slug, locked }: { slug: string; locked: boolean }) {
       }
     >
       {notes.length > 0 ? (
-        <ul className="mt-3 flex flex-col gap-3">
-          {notes.map((note) => (
-            <li key={note.sentenceId}>
-              <Link to={practiceUrl(slug, note.sentenceId)} className="block rounded-md border border-border bg-bg-elevated p-3 hover:border-border-strong">
-                <q className="line-clamp-2 text-xs italic text-text-muted">{note.text}</q>
-                <span className="mt-1 block whitespace-pre-wrap break-words text-[13px]">{note.content}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="mt-3 flex flex-col gap-3">
+            {notes.slice(0, NOTES_PREVIEW).map((note) => (
+              <NoteItem key={`${note.mode}-${note.sentenceId}`} note={note} slug={slug} />
+            ))}
+          </ul>
+          {hidden > 0 && (
+            <Button variant="ghost" size="sm" className="mt-3 w-full justify-center" aria-haspopup="dialog" onClick={() => setShowAll(true)}>
+              {t("student.lessonDetail.aside.moreNotes", { count: hidden, defaultValue: `Xem thêm ${hidden} ghi chú` })}
+              <Icon name="chevron-right" />
+            </Button>
+          )}
+          <Dialog open={showAll} onClose={() => setShowAll(false)} labelledBy="lesson-notes-title" wide>
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="lesson-notes-title" className="text-lg font-bold">
+                {t("student.lessonDetail.aside.allNotes", { count: notes.length, defaultValue: `Ghi chú của tôi (${notes.length})` })}
+              </h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowAll(false)}>
+                {t("student.lessonDetail.aside.close", "Đóng")}
+              </Button>
+            </div>
+            <ul className="mt-4 flex max-h-[60vh] flex-col gap-3 overflow-y-auto pr-1">
+              {notes.map((note) => (
+                <NoteItem key={`${note.mode}-${note.sentenceId}`} note={note} slug={slug} />
+              ))}
+            </ul>
+          </Dialog>
+        </>
       ) : (
         <p className="mt-2 text-[13px] leading-normal text-text-muted">
           {t("student.lessonDetail.aside.noNotesBefore", "Chưa có ghi chú. Trong lúc luyện, bấm")}{" "}

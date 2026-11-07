@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
+import { practiceApi } from "@/features/practice/api";
+import type { ReviewReason } from "@/features/practice/types";
 import { dictationApi } from "./api";
 import type {
   AttemptResult,
@@ -83,6 +85,8 @@ export const useHistoryAttempt = (sentenceId: string | undefined, attemptId: num
 
 /** Cập nhật một câu trong cache của bài (ghi chú, trạng thái Câu cần ôn). */
 function patchSentence(queryClient: QueryClient, slug: string, sentenceId: string, patch: Partial<DictationSentence>) {
+  // Trang Từ & câu đã lưu và Shadowing đọc cùng dữ liệu này nên cũng cần làm mới.
+  void queryClient.invalidateQueries({ queryKey: ["practice"] });
   queryClient.setQueryData<DictationLesson>(dictationKeys.lesson(slug), (lesson) =>
     lesson
       ? { ...lesson, sentences: lesson.sentences.map((s) => (s.id === sentenceId ? { ...s, ...patch } : s)) }
@@ -96,7 +100,7 @@ export const useSaveNote = (slug: string) => {
   return useMutation({
     networkMode: NETWORK_MODE,
     mutationFn: ({ sentenceId, content }: { sentenceId: string; content: string }) =>
-      dictationApi.saveNote(sentenceId, content),
+      practiceApi.saveNote("dictation", sentenceId, content),
     onSuccess: (note) => patchSentence(queryClient, slug, note.sentenceId, { note: note.content }),
   });
 };
@@ -105,7 +109,7 @@ export const useDeleteNote = (slug: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     networkMode: NETWORK_MODE,
-    mutationFn: (sentenceId: string) => dictationApi.deleteNote(sentenceId),
+    mutationFn: (sentenceId: string) => practiceApi.deleteNote("dictation", sentenceId),
     onSuccess: (_data, sentenceId) => patchSentence(queryClient, slug, sentenceId, { note: null }),
   });
 };
@@ -115,8 +119,10 @@ export const useSetReview = (slug: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     networkMode: NETWORK_MODE,
-    mutationFn: ({ sentenceId, pinned }: { sentenceId: string; pinned: boolean }) =>
-      pinned ? dictationApi.pinReview(sentenceId) : dictationApi.resolveReview(sentenceId),
+    mutationFn: ({ sentenceId, pinned, reason }: { sentenceId: string; pinned: boolean; reason?: ReviewReason }) =>
+      pinned
+        ? practiceApi.pinReview("dictation", sentenceId, reason)
+        : practiceApi.resolveReview("dictation", sentenceId),
     onSuccess: (_data, { sentenceId, pinned }) => patchSentence(queryClient, slug, sentenceId, { inReview: pinned }),
   });
 };

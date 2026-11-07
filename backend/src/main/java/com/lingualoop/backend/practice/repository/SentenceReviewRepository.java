@@ -24,44 +24,48 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """
             INSERT INTO user_sentence_review (user_id, sentence_id, mode, status, reason)
-            VALUES (:userId, :sentenceId, 'dictation', 'pending', :reason)
+            VALUES (:userId, :sentenceId, CAST(:mode AS practice_mode), 'pending', :reason)
             ON CONFLICT (user_id, sentence_id, mode) DO UPDATE
                 SET status = 'pending', reason = EXCLUDED.reason, created_at = now(), last_reviewed_at = NULL
                 WHERE user_sentence_review.status = 'resolved'""", nativeQuery = true)
-    int addDictation(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId,
+    int add(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode,
             @Param("reason") String reason);
 
     /** Gỡ câu khỏi danh sách; trả về 0 khi câu không ở trong danh sách. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """
             UPDATE user_sentence_review SET status = 'resolved', last_reviewed_at = now()
-            WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = 'dictation' AND status = 'pending'""",
-            nativeQuery = true)
-    int resolveDictation(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId);
+            WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = CAST(:mode AS practice_mode)
+              AND status = 'pending'""", nativeQuery = true)
+    int resolve(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode);
 
     @Query(value = """
             SELECT r.sentence_id FROM user_sentence_review r JOIN sentences s ON s.id = r.sentence_id
-            WHERE r.user_id = :userId AND s.lesson_id = :lessonId AND r.mode = 'dictation' AND r.status = 'pending'""",
-            nativeQuery = true)
-    List<UUID> findPendingDictationSentenceIds(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId);
+            WHERE r.user_id = :userId AND s.lesson_id = :lessonId AND r.mode = CAST(:mode AS practice_mode)
+              AND r.status = 'pending'""", nativeQuery = true)
+    List<UUID> findPendingSentenceIds(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId,
+            @Param("mode") String mode);
 
-    @Query(value = """
-            SELECT EXISTS (SELECT 1 FROM user_sentence_review
-                           WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = 'dictation'
-                             AND status = 'pending')""", nativeQuery = true)
-    boolean isPendingDictation(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId);
-
-    /** Câu đã có ít nhất một lượt nghe chép: chữ của câu chưa làm không được lộ qua danh sách ôn hay ghi chú. */
+    /** Câu đã có ít nhất một lượt ở chế độ này: điều kiện để ghim câu vào danh sách của chế độ đó. */
     @Query(value = """
             SELECT EXISTS (SELECT 1 FROM sentence_attempts
-                           WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = 'dictation')""",
-            nativeQuery = true)
-    boolean hasDictationAttempt(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId);
+                           WHERE user_id = :userId AND sentence_id = :sentenceId
+                             AND mode = CAST(:mode AS practice_mode))""", nativeQuery = true)
+    boolean hasAttempt(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode);
 
-    /** Câu cần ôn kèm điểm của lượt gần nhất: điểm thấp trước, bằng điểm thì câu mới thêm trước. */
+    /** Câu đã có ít nhất một lượt ở nghe chép hoặc Shadowing: điều kiện để ghi chú câu (BR-SHADOW-17). */
     @Query(value = """
-            SELECT r.sentence_id AS sentenceId, r.reason AS reason, r.created_at AS addedAt,
-                   l.slug AS lessonSlug, l.title AS lessonTitle, s.sort_order AS sortOrder,
+            SELECT EXISTS (SELECT 1 FROM sentence_attempts WHERE user_id = :userId AND sentence_id = :sentenceId)""",
+            nativeQuery = true)
+    boolean hasAnyAttempt(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId);
+
+    /**
+     * Câu cần ôn kèm điểm của lượt gần nhất cùng chế độ: điểm thấp trước, bằng điểm thì câu mới thêm trước. Truyền
+     * {@code mode} để chỉ lấy một chế độ và {@code lessonSlug} để chỉ lấy một bài; để null thì không lọc.
+     */
+    @Query(value = """
+            SELECT r.sentence_id AS sentenceId, CAST(r.mode AS text) AS mode, r.reason AS reason,
+                   r.created_at AS addedAt, l.slug AS lessonSlug, l.title AS lessonTitle, s.sort_order AS sortOrder,
                    s.text AS text, s.text_vi AS textVi,
                    a.score AS lastScore, a.level AS lastLevel, a.attempted_at AS lastAttemptedAt
             FROM user_sentence_review r
@@ -69,14 +73,19 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
             JOIN lessons l ON l.id = s.lesson_id AND l.deleted_at IS NULL
             LEFT JOIN LATERAL (
                 SELECT score, level, attempted_at FROM sentence_attempts
-                WHERE user_id = r.user_id AND sentence_id = r.sentence_id AND mode = 'dictation'
+                WHERE user_id = r.user_id AND sentence_id = r.sentence_id AND mode = r.mode
                 ORDER BY attempted_at DESC, id DESC LIMIT 1) a ON true
-            WHERE r.user_id = :userId AND r.mode = 'dictation' AND r.status = 'pending'
+            WHERE r.user_id = :userId AND r.status = 'pending'
+              AND (CAST(:mode AS text) IS NULL OR CAST(r.mode AS text) = CAST(:mode AS text))
+              AND (CAST(:lessonSlug AS text) IS NULL OR l.slug = CAST(:lessonSlug AS text))
             ORDER BY a.score ASC NULLS LAST, r.created_at DESC, r.sentence_id""", nativeQuery = true)
-    List<ReviewEntry> findDictationEntries(@Param("userId") UUID userId);
+    List<ReviewEntry> findEntries(@Param("userId") UUID userId, @Param("mode") String mode,
+            @Param("lessonSlug") String lessonSlug);
 
     interface ReviewEntry {
         UUID getSentenceId();
+
+        String getMode();
 
         String getReason();
 
