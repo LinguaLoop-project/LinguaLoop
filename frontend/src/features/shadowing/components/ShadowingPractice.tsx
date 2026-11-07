@@ -158,7 +158,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 
   // Câu cần ôn và ghi chú của bài, để hiện dấu ở danh sách câu và trạng thái trong thanh công cụ
   const reviewQuery = useReviewEntries("shadowing", lesson.slug);
-  const notesQuery = useNoteEntries(lesson.slug);
+  const notesQuery = useNoteEntries(lesson.slug, true, "shadowing");
   const pinnedIds = useMemo(() => new Set((reviewQuery.data ?? []).map((e) => e.sentenceId)), [reviewQuery.data]);
   const noteById = useMemo(
     () => new Map((notesQuery.data ?? []).map((n) => [n.sentenceId, n.content])),

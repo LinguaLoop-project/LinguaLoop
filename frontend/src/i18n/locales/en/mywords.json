@@ -40,15 +40,19 @@
     "emptyFilteredDesc": "Pick another mode to see your sentences to review."
   },
   "notes": {
-    "hint": "Notes are attached to individual sentences. While practicing, press N to add one.",
+    "hint": "Notes belong to a sentence in one mode: Dictation and Shadowing keep separate notes. While practicing, press N to add one.",
     "emptyTitle": "No notes yet",
-    "emptyDesc": "Finish a dictation sentence, then press N to write a note for it.",
+    "emptyDesc": "Finish a sentence, then press N to write a note for it in the mode you're practicing.",
     "edit": "Edit note",
     "delete": "Delete note",
     "save": "Save",
     "cancel": "Cancel",
     "saved": "Note saved",
     "deleted": "Note deleted",
-    "failed": "Couldn't update the note. Please try again."
+    "failed": "Couldn't update the note. Please try again.",
+    "filter": {
+      "label": "Filter by mode",
+      "all": "All"
+    }
   }
 }

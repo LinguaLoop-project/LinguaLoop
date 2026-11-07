@@ -22,14 +22,14 @@ export interface ShadowingToolsProps {
 }
 
 /**
- * Công cụ của một câu đã đọc: ghim vào Câu cần ôn, ghi chú riêng (dùng chung với nghe chép) và lịch sử các lượt đọc.
+ * Công cụ của một câu đã đọc: ghim vào Câu cần ôn, ghi chú riêng của Shadowing (độc lập với nghe chép) và lịch sử các lượt đọc.
  * Backend chỉ nhận ghim và ghi chú cho câu đã có lượt đọc nên thanh này chỉ hiện ở câu đã đọc.
  */
 export default function ShadowingTools({ sentence, pinned, note, panel, onPanelChange }: ShadowingToolsProps) {
   const { t } = useTranslation(["pages", "practice"]);
   const setReview = useSetReview("shadowing");
-  const saveNote = useSaveNote();
-  const deleteNote = useDeleteNote();
+  const saveNote = useSaveNote("shadowing");
+  const deleteNote = useDeleteNote("shadowing");
   const toggle = (next: ToolPanel) => onPanelChange(panel === next ? null : next);
 
   return (

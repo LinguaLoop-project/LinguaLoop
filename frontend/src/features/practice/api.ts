@@ -30,25 +30,29 @@ export const practiceApi = {
     await axiosClient.delete(`/review/${mode}/sentences/${sentenceId}`, { timeout: REQUEST_TIMEOUT_MS });
   },
 
-  /** Ghi chú của người học, mới sửa trước; truyền `lessonSlug` để chỉ lấy ghi chú của một bài. */
-  listNotes: async (lessonSlug?: string): Promise<NoteEntry[]> => {
+  /**
+   * Ghi chú của người học, mới sửa trước; truyền `lessonSlug` để chỉ lấy ghi chú của một bài và `mode` để chỉ lấy một
+   * chế độ.
+   */
+  listNotes: async (lessonSlug?: string, mode?: PracticeMode): Promise<NoteEntry[]> => {
     const response = await axiosClient.get<ApiResponse<NoteEntry[]>>("/notes", {
-      params: lessonSlug ? { lessonSlug } : undefined,
+      params: { ...(lessonSlug ? { lessonSlug } : {}), ...(mode ? { mode } : {}) },
       timeout: REQUEST_TIMEOUT_MS,
     });
     return response.data.data;
   },
 
-  saveNote: async (sentenceId: string, content: string): Promise<SentenceNote> => {
+  /** Lưu ghi chú của câu ở một chế độ (thay nội dung cũ nếu có). */
+  saveNote: async (mode: PracticeMode, sentenceId: string, content: string): Promise<SentenceNote> => {
     const response = await axiosClient.put<ApiResponse<SentenceNote>>(
-      `/sentences/${sentenceId}/note`,
+      `/sentences/${sentenceId}/notes/${mode}`,
       { content },
       { timeout: REQUEST_TIMEOUT_MS },
     );
     return response.data.data;
   },
 
-  deleteNote: async (sentenceId: string): Promise<void> => {
-    await axiosClient.delete(`/sentences/${sentenceId}/note`, { timeout: REQUEST_TIMEOUT_MS });
+  deleteNote: async (mode: PracticeMode, sentenceId: string): Promise<void> => {
+    await axiosClient.delete(`/sentences/${sentenceId}/notes/${mode}`, { timeout: REQUEST_TIMEOUT_MS });
   },
 };
