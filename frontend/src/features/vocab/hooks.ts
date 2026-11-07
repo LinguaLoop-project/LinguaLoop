@@ -8,6 +8,7 @@ export const vocabKeys = {
   saved: ["vocab", "saved"] as const,
   decks: ["vocab", "decks"] as const,
   deck: (slug: string) => ["vocab", "deck", slug] as const,
+  part: (slug: string, part: number) => ["vocab", "part", slug, part] as const,
 };
 
 /** Từ đã lưu của người học; hộp tra từ và trang Từ & câu đã lưu dùng chung một bản. */
@@ -32,6 +33,20 @@ export const useDeck = (slug: string | undefined) =>
     enabled: !!slug,
     networkMode: NETWORK_MODE,
     retry: (count, error) => !(isAxiosError(error) && error.response?.status === 404) && count < 2,
+  });
+
+const isStatus = (error: unknown, ...codes: number[]) =>
+  isAxiosError(error) && error.response !== undefined && codes.includes(error.response.status);
+
+/** Thẻ của một phần; luôn tải mới khi mở vì trạng thái thẻ quyết định lượt học đầu tiên. 403 và 404 không thử lại. */
+export const usePart = (slug: string | undefined, part: number) =>
+  useQuery({
+    queryKey: vocabKeys.part(slug ?? "", part),
+    queryFn: () => vocabApi.getPart(slug!, part),
+    enabled: !!slug && Number.isInteger(part) && part >= 1,
+    networkMode: NETWORK_MODE,
+    gcTime: 0,
+    retry: (count, error) => !isStatus(error, 403, 404) && count < 2,
   });
 
 /** Lưu một nghĩa; làm mới danh sách khi xong. */

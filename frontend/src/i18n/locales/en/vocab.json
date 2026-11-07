@@ -109,5 +109,119 @@
     "notFoundTitle": "Deck not found",
     "notFoundDesc": "This deck doesn't exist or is hidden.",
     "backToDecks": "Back to Vocabulary"
+  },
+  "learn": {
+    "back": "Vocabulary",
+    "partTitle": "Part {{number}} · {{name}}",
+    "modeLabel": "Study mode",
+    "modes": {
+      "guess": "Guess",
+      "flashcard": "Flashcard",
+      "quiz": "Quiz",
+      "reverse_quiz": "Reverse quiz",
+      "repeat": "Repeat"
+    },
+    "modeNames": {
+      "guess": "Guess",
+      "flashcard": "Flashcard",
+      "quiz": "Quiz",
+      "reverse_quiz": "Reverse quiz",
+      "repeat": "Repeat"
+    },
+    "round": "Round {{current}}/{{total}} · {{count}} cards",
+    "progress": "Card {{current}}/{{total}}",
+    "partsNav": "Parts in this deck",
+    "partsRange": "Parts {{from}}–{{to}}/{{total}}",
+    "next": "Next",
+    "loading": "Loading the part",
+    "sending": "Sending {{count}} answers",
+    "unsent": "{{count}} answers could not be sent yet; they will be resent when you are back online",
+    "empty": {
+      "title": "This part has no cards",
+      "desc": "Pick another part in the deck."
+    },
+    "guess": {
+      "prompt": "Type the English word with this meaning",
+      "letters_one": "{{count}} letter",
+      "letters_other": "{{count}} letters",
+      "placeholder": "Type the English word",
+      "inputLabel": "English word to guess",
+      "check": "Check",
+      "hint": "Hint",
+      "skip": "I don't know",
+      "typeFirst": "Type a word before checking.",
+      "correct": "Correct!",
+      "wrong": "Not quite",
+      "gaveUp": "You used every hint, so this counts as not known.",
+      "answer": "Answer",
+      "usedHints_one": "{{count}} hint used",
+      "usedHints_other": "{{count}} hints used"
+    },
+    "quiz": {
+      "pickMeaning": "Pick the right meaning",
+      "pickWord": "Pick the right word",
+      "correct": "Correct!",
+      "wrong": "Not quite",
+      "options": "Choices",
+      "single": "This part has only one card, so there are no choices yet."
+    },
+    "flash": {
+      "front": "Click to flip the card",
+      "cardAria": "Card {{word}}, click to flip",
+      "grades": {
+        "forget": "Forgot",
+        "hard": "Hard",
+        "good": "Good",
+        "easy": "Easy"
+      },
+      "gradesLabel": "How well did you remember it?",
+      "again": "This card will come back at the end of the round."
+    },
+    "repeat": {
+      "prompt": "Listen, then say it aloud",
+      "listen": "Listen",
+      "listenAria": "Listen to {{word}}",
+      "next": "I repeated it, next",
+      "note": "Your voice is not graded; just listen and repeat."
+    },
+    "done": {
+      "title": "Great job!",
+      "subtitle": "You finished {{mode}} for round {{round}} of Part {{part}}",
+      "scoreChoice": "{{right}}/{{total}} correct",
+      "scoreFlash": "Remembered {{right}}/{{total}} cards the first time",
+      "scoreRepeat": "Repeated {{total}}/{{total}} words",
+      "restart": "Start over",
+      "words": "View words",
+      "nextRound": "Next round",
+      "nextPart": "Next part",
+      "backToDeck": "Back to the deck"
+    },
+    "words": {
+      "title": "Words of round {{round}}",
+      "back": "Back",
+      "word": "Word",
+      "meaning": "Meaning",
+      "listen": "Listen to {{word}}"
+    },
+    "locked": {
+      "title": "This part is Pro only",
+      "desc": "This is a Pro deck: the Free plan covers the first two parts.",
+      "unlock": "Unlock with Pro",
+      "back": "Back to the deck"
+    },
+    "notFound": {
+      "title": "Part not found",
+      "desc": "This part does not exist or has been hidden."
+    },
+    "interval": {
+      "minute_one": "{{count}} minute",
+      "minute_other": "{{count}} minutes",
+      "hour_one": "{{count}} hour",
+      "hour_other": "{{count}} hours",
+      "day_one": "{{count}} day",
+      "day_other": "{{count}} days",
+      "month_one": "{{count}} month",
+      "month_other": "{{count}} months"
+    }
   }
 }

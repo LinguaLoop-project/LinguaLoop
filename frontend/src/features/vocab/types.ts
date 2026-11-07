@@ -118,6 +118,68 @@ export interface DeckDetail {
   sampleWords: DeckSampleWord[];
 }
 
+/** Cách học (UC-VOCAB-05); giá trị khớp `AnswerRequest.Mode` của backend. */
+export type LearnMode = "guess" | "flashcard" | "quiz" | "reverse_quiz" | "repeat";
+
+/** Khoảng chờ tới lần ôn tới nếu chấm Flashcard với `quality` (1 Quên, 3 Khó, 4 Được, 5 Dễ). */
+export interface LearnPreview {
+  quality: number;
+  minutes: number;
+}
+
+/** Một thẻ của phần đang học (`LearnView.Card`). */
+export interface LearnCard {
+  id: string;
+  word: string;
+  pos: string | null;
+  translationVi: string | null;
+  explanationEn: string | null;
+  explanationVi: string | null;
+  exampleEn: string | null;
+  exampleVi: string | null;
+  imageUrl: string | null;
+  ipaUk: string | null;
+  ipaUs: string | null;
+  audioUk: string | null;
+  audioUs: string | null;
+  status: CardStatus;
+  previews: LearnPreview[];
+}
+
+export interface LearnDeckRef {
+  slug: string;
+  name: string;
+  nameVi: string | null;
+  pro: boolean;
+}
+
+/** Một phần kèm toàn bộ thẻ; màn học tự chia thành các lượt 10 thẻ (`LearnView.PartDetail`). */
+export interface PartDetail {
+  deck: LearnDeckRef;
+  index: number;
+  name: string;
+  nameVi: string | null;
+  parts: DeckPart[];
+  cards: LearnCard[];
+}
+
+/** Một câu trả lời gửi lên server; `answerId` do client sinh để gửi lại không bị ghi hai lần. */
+export interface AnswerInput {
+  cardId: string;
+  answerId: string;
+  mode: LearnMode;
+  correct: boolean;
+  /** Bắt buộc với Flashcard: 1 Quên, 3 Khó, 4 Được, 5 Dễ. */
+  quality?: number;
+  responseMs?: number;
+}
+
+export interface AnswerResult {
+  status: CardStatus;
+  nextReviewAt: string | null;
+  intervalDays: number;
+}
+
 export interface SaveWordInput {
   headword: string;
   meaningNo: number;

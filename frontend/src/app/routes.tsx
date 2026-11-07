@@ -38,6 +38,7 @@ const DictationPage = lazy(() => import("@/features/dictation/pages/DictationPag
 const MyWordsPage = lazy(() => import("@/features/mywords/pages/MyWordsPage"));
 const VocabPage = lazy(() => import("@/features/vocab/pages/VocabPage"));
 const DeckPage = lazy(() => import("@/features/vocab/pages/DeckPage"));
+const PartPage = lazy(() => import("@/features/vocab/pages/PartPage"));
 
 const ShadowingPage = lazy(() => import("@/features/shadowing/pages/ShadowingPage"));
 
@@ -146,6 +147,10 @@ const getRoutesConfig = (): RouteObject[] => {
         {
           path: "vocab/:deckId",
           element: <DeckPage />,
+        },
+        {
+          path: "vocab/:deckId/parts/:part",
+          element: <PartPage />,
         },
         {
           path: "deck/:id",

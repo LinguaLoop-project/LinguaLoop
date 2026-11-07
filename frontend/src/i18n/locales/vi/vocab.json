@@ -105,5 +105,113 @@
     "notFoundTitle": "Không tìm thấy bộ từ",
     "notFoundDesc": "Bộ từ này không tồn tại hoặc đã bị ẩn.",
     "backToDecks": "Về Từ vựng"
+  },
+  "learn": {
+    "back": "Từ vựng",
+    "partTitle": "Phần {{number}} · {{name}}",
+    "modeLabel": "Cách học",
+    "modes": {
+      "guess": "Đoán",
+      "flashcard": "Flashcard",
+      "quiz": "Trắc nghiệm",
+      "reverse_quiz": "Trắc nghiệm đảo",
+      "repeat": "Lặp lại"
+    },
+    "modeNames": {
+      "guess": "Đoán từ",
+      "flashcard": "Flashcard",
+      "quiz": "Trắc nghiệm",
+      "reverse_quiz": "Trắc nghiệm đảo",
+      "repeat": "Lặp lại"
+    },
+    "round": "Lượt {{current}}/{{total}} · {{count}} thẻ",
+    "progress": "Thẻ {{current}}/{{total}}",
+    "partsNav": "Danh sách phần trong bộ",
+    "partsRange": "Phần {{from}}–{{to}}/{{total}}",
+    "next": "Tiếp",
+    "loading": "Đang tải phần học",
+    "sending": "Đang gửi {{count}} câu trả lời",
+    "unsent": "Chưa gửi được {{count}} câu trả lời, sẽ tự gửi lại khi có mạng",
+    "empty": {
+      "title": "Phần này chưa có thẻ",
+      "desc": "Hãy chọn phần khác trong bộ."
+    },
+    "guess": {
+      "prompt": "Gõ từ tiếng Anh có nghĩa này",
+      "letters_other": "{{count}} chữ cái",
+      "placeholder": "Gõ từ tiếng Anh",
+      "inputLabel": "Từ tiếng Anh cần đoán",
+      "check": "Kiểm tra",
+      "hint": "Gợi ý",
+      "skip": "Không biết",
+      "typeFirst": "Hãy gõ một từ trước khi kiểm tra.",
+      "correct": "Chính xác!",
+      "wrong": "Chưa đúng",
+      "gaveUp": "Bạn đã dùng hết gợi ý, tính là chưa biết.",
+      "answer": "Đáp án",
+      "usedHints_other": "Đã dùng {{count}} gợi ý"
+    },
+    "quiz": {
+      "pickMeaning": "Chọn nghĩa đúng",
+      "pickWord": "Chọn từ đúng",
+      "correct": "Chính xác!",
+      "wrong": "Chưa đúng",
+      "options": "Các đáp án",
+      "single": "Phần này chỉ có một thẻ nên chưa có đáp án để chọn."
+    },
+    "flash": {
+      "front": "Bấm để lật thẻ",
+      "cardAria": "Thẻ {{word}}, bấm để lật",
+      "grades": {
+        "forget": "Quên",
+        "hard": "Khó",
+        "good": "Được",
+        "easy": "Dễ"
+      },
+      "gradesLabel": "Bạn nhớ từ này đến mức nào?",
+      "again": "Thẻ này sẽ hiện lại ở cuối lượt."
+    },
+    "repeat": {
+      "prompt": "Nghe rồi đọc theo",
+      "listen": "Nghe",
+      "listenAria": "Nghe từ {{word}}",
+      "next": "Đã đọc theo, tiếp theo",
+      "note": "Không chấm giọng nói; chỉ nghe và tự đọc theo."
+    },
+    "done": {
+      "title": "Tuyệt vời!",
+      "subtitle": "Bạn đã xong {{mode}} cho lượt {{round}} của Phần {{part}}",
+      "scoreChoice": "{{right}}/{{total}} câu đúng",
+      "scoreFlash": "Nhớ {{right}}/{{total}} thẻ ngay lần đầu",
+      "scoreRepeat": "Đã lặp lại {{total}}/{{total}} từ",
+      "restart": "Học lại từ đầu",
+      "words": "Xem từ vựng",
+      "nextRound": "Lượt tiếp theo",
+      "nextPart": "Phần tiếp theo",
+      "backToDeck": "Về bộ từ"
+    },
+    "words": {
+      "title": "Từ vựng lượt {{round}}",
+      "back": "Quay lại",
+      "word": "Từ",
+      "meaning": "Nghĩa",
+      "listen": "Nghe từ {{word}}"
+    },
+    "locked": {
+      "title": "Phần này chỉ có ở gói Pro",
+      "desc": "Bộ này là bộ Pro: gói Free học được hai phần đầu.",
+      "unlock": "Mở khoá với Pro",
+      "back": "Về bộ từ"
+    },
+    "notFound": {
+      "title": "Không tìm thấy phần này",
+      "desc": "Phần này không tồn tại hoặc đã bị ẩn."
+    },
+    "interval": {
+      "minute_other": "{{count}} phút",
+      "hour_other": "{{count}} giờ",
+      "day_other": "{{count}} ngày",
+      "month_other": "{{count}} tháng"
+    }
   }
 }

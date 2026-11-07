@@ -60,6 +60,10 @@ _Tránh_: deck, bộ từ vựng
 Một nhóm thẻ cùng chủ đề trong một bộ từ, là đơn vị học viên chọn để học từ mới (vd "Family", 49 thẻ). Số thẻ mỗi phần khác nhau.
 _Tránh_: bài, unit, group (vì "bài" là bài học dùng để nghe chép và shadowing)
 
+**Lượt**:
+Một đoạn tối đa 10 thẻ liền nhau của một phần, là đơn vị học viên học một lần trong Học từ mới. Phần có 23 thẻ gồm 3 lượt (10, 10, 3).
+_Tránh_: bài, vòng, session (phiên học là bản ghi dùng để nhóm nhật ký, không phải một lượt)
+
 **Học từ mới**:
 Học các thẻ của một phần qua một trong các cách học (Đoán, Flashcard, Trắc nghiệm, Trắc nghiệm đảo, Lặp lại). Lần đầu học viên trả lời một thẻ Mới thì thẻ chuyển sang Đang học. Khác với ôn thẻ, là việc làm theo lịch.
 _Tránh_: học bài
