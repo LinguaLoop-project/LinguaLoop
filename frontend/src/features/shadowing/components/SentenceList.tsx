@@ -17,11 +17,15 @@ export interface SentenceListProps {
   /** Tab Xem hiện chữ của mọi câu; tab Luyện che các câu chưa đọc. */
   revealAll: boolean;
   showVi: boolean;
+  /** Câu đang trong Câu cần ôn của Shadowing. */
+  pinned: ReadonlySet<string>;
+  /** Câu có ghi chú. */
+  noted: ReadonlySet<string>;
   onGo: (index: number) => void;
 }
 
 /** Bản chép các câu (`dc-list`): tiến độ cả bài, từng câu kèm điểm cao nhất, số lần đọc và âm hay sai. */
-export default function SentenceList({ sentences, records, current, disabled, revealAll, showVi, onGo }: SentenceListProps) {
+export default function SentenceList({ sentences, records, current, disabled, revealAll, showVi, pinned, noted, onGo }: SentenceListProps) {
   const { t } = useTranslation("pages");
   const listRef = useRef<HTMLOListElement>(null);
 
@@ -70,6 +74,16 @@ export default function SentenceList({ sentences, records, current, disabled, re
                   <span className="rounded-md border border-border bg-bg-elevated px-2 py-0.5 text-xs font-bold tabular-nums">
                     #{i + 1}
                   </span>
+                  {pinned.has(s.id) && (
+                    <span role="img" aria-label={t(`${K}.list.inReview`)} className="inline-flex">
+                      <Icon name="pin" className="h-3.5 w-3.5 text-danger" />
+                    </span>
+                  )}
+                  {noted.has(s.id) && (
+                    <span role="img" aria-label={t(`${K}.list.hasNote`)} className="inline-flex">
+                      <Icon name="sticky-note" className="h-3.5 w-3.5 text-text-muted" />
+                    </span>
+                  )}
                   {rec && tone ? (
                     <>
                       <Badge tone={tone === "good" ? "success" : tone === "mid" ? "warning" : "danger"}>

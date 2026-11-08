@@ -149,7 +149,11 @@
         "saveAll": "Save all",
         "notes": "My notes",
         "noNotes": "No notes yet. While practicing, press N to take notes for the active sentence.",
-        "add": "Add"
+        "add": "Add",
+        "modes": {
+          "dictation": "Dictation",
+          "shadowing": "Shadowing"
+        }
       },
       "related": {
         "title": "Related lessons",
@@ -544,7 +548,8 @@
         "mine": "My voice",
         "compare": "Compare",
         "step": "Previous / next sentence",
-        "tabs": "Watch / Practise tab"
+        "tabs": "Watch / Practise tab",
+        "note": "Sentence note"
       },
       "readCount": "Read {{count}}×",
       "unread": "Not read yet",
@@ -566,7 +571,21 @@
       "list": {
         "title": "Transcript",
         "progress": "{{done}}/{{total}} · {{pct}}%",
-        "weak": "Weak sounds:"
+        "weak": "Weak sounds:",
+        "inReview": "In Sentences to review",
+        "hasNote": "Has a note"
+      },
+      "tools": {
+        "history": "History"
+      },
+      "history": {
+        "title": "Reading history",
+        "loading": "Loading history",
+        "empty": "No attempts for this sentence yet.",
+        "failed": "Couldn't load the history.",
+        "retry": "Retry",
+        "detailFailed": "Couldn't load the result of this attempt.",
+        "noAudio": "Recordings aren't saved, so this attempt can't be played back."
       }
     }
   },

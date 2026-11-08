@@ -148,10 +148,3 @@ export interface DictationSettings {
   showTranslation: boolean;
   hideVideo: boolean;
 }
-
-/** Ghi chú của người học cho một câu (`/api/v1/sentences/{id}/note`). */
-export interface SentenceNote {
-  sentenceId: string;
-  content: string;
-  updatedAt: string;
-}

@@ -12,9 +12,8 @@
     "notes": "Ghi chú"
   },
   "review": {
-    "tip": "Câu tự vào danh sách khi bạn được dưới {{low}} điểm. Luyện lại đạt từ {{high}} điểm là câu tự rời danh sách.",
+    "tip": "Khi bạn được dưới {{low}} điểm, hệ thống sẽ hỏi có lưu câu vào đây không. Luyện lại đạt từ {{high}} điểm, hệ thống sẽ hỏi có bỏ khỏi danh sách không. Nghe chép và Shadowing có danh sách riêng cho cùng một câu.",
     "count_other": "{{count}} câu đang chờ · ưu tiên câu điểm thấp",
-    "mode": "Nghe chép",
     "lastScore": "Lần cuối {{score}} điểm",
     "reason": {
       "low_score": "Điểm thấp",
@@ -27,18 +26,32 @@
     "resolveFailed": "Chưa cập nhật được. Thử lại nhé.",
     "practice": "Luyện lại",
     "emptyTitle": "Không còn câu nào cần ôn",
-    "emptyDesc": "Làm tốt lắm! Câu điểm thấp sẽ tự xuất hiện ở đây."
+    "emptyDesc": "Làm tốt lắm! Câu điểm thấp sẽ tự xuất hiện ở đây.",
+    "modes": {
+      "dictation": "Nghe chép",
+      "shadowing": "Shadowing"
+    },
+    "filter": {
+      "label": "Lọc theo chế độ",
+      "all": "Tất cả"
+    },
+    "emptyFilteredTitle": "Không có câu nào ở chế độ này",
+    "emptyFilteredDesc": "Chọn chế độ khác để xem các câu cần ôn."
   },
   "notes": {
-    "hint": "Ghi chú gắn với từng câu. Trong lúc luyện, bấm N để thêm.",
+    "hint": "Ghi chú gắn với từng câu ở từng chế độ: nghe chép và Shadowing có ghi chú riêng. Trong lúc luyện, bấm N để thêm.",
     "emptyTitle": "Chưa có ghi chú nào",
-    "emptyDesc": "Làm một câu nghe chép rồi bấm N để viết ghi chú cho câu đó.",
+    "emptyDesc": "Làm một câu rồi bấm N để viết ghi chú cho câu đó ở chế độ đang luyện.",
     "edit": "Sửa ghi chú",
     "delete": "Xoá ghi chú",
     "save": "Lưu",
     "cancel": "Huỷ",
     "saved": "Đã lưu ghi chú",
     "deleted": "Đã xoá ghi chú",
-    "failed": "Chưa cập nhật được ghi chú. Thử lại nhé."
+    "failed": "Chưa cập nhật được ghi chú. Thử lại nhé.",
+    "filter": {
+      "label": "Lọc theo chế độ",
+      "all": "Tất cả"
+    }
   }
 }

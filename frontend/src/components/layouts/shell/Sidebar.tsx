@@ -4,6 +4,7 @@ import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
+import { useReviewEntries } from "@/features/practice";
 import { useAiEnergy } from "@/hooks/useAiEnergy";
 import type { NavItem, NavTone, ShellConfig } from "./shellConfig";
 
@@ -40,7 +41,11 @@ function Item({ item, config, collapsed, onNavigate }: { item: NavItem; config: 
   const label = t(item.labelKey);
   const tone = TONE[item.tone ?? "primary"];
   const hide = HIDE_WHEN_COMPACT[`${collapsed}`];
-  const hasBadge = item.badge != null && item.badge !== 0;
+  // "Từ & câu đã lưu": số câu đang chờ ôn của học viên (cả hai chế độ), lấy từ cùng truy vấn với trang đó nên luôn khớp.
+  const isMyWords = item.id === "mywords" && config.homePath.startsWith("/student");
+  const reviewCount = useReviewEntries(undefined, undefined, isMyWords).data?.length;
+  const badge = isMyWords ? (reviewCount != null && reviewCount > 99 ? "99+" : reviewCount) : item.badge;
+  const hasBadge = badge != null && badge !== 0;
 
   return (
     <NavLink
@@ -64,7 +69,7 @@ function Item({ item, config, collapsed, onNavigate }: { item: NavItem; config: 
               item.badgeType === "warn" ? "bg-warning/15 text-warning" : tone.tag
             } ${hide}`}
           >
-            {item.badge}
+            {badge}
           </span>
           <span aria-hidden="true" className={`absolute right-1 top-1 hidden h-2 w-2 rounded-full bg-danger ${DOT_WHEN_COMPACT[`${collapsed}`]}`} />
         </>
