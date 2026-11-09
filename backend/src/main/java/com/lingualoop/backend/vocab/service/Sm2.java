@@ -44,11 +44,14 @@ final class Sm2 {
     }
 
     /**
-     * Thẻ Mới được trả lời lần đầu ở cách học không chấm flashcard (BR-HT-12): Đang học, hẹn ôn sau 1 ngày, đúng hay
-     * sai đều vậy.
+     * Quy đổi kết quả làm bài ở Đoán, Trắc nghiệm và Trắc nghiệm đảo sang mức chất lượng q (BR-HT-12): đúng ngay là Được
+     * (4), đúng nhưng có dùng gợi ý là Khó (3), sai hoặc Không biết là Quên (1). Flashcard do học viên tự chọn q.
      */
-    static Result firstAnswer() {
-        return new Result(new State(1, 1, INITIAL_EASINESS), CardStatus.LEARNING, Duration.ofDays(1));
+    static int qualityOf(boolean correct, boolean hintUsed) {
+        if (!correct) {
+            return 1;
+        }
+        return hintUsed ? 3 : 4;
     }
 
     static CardStatus statusOf(int repetitions, int intervalDays) {

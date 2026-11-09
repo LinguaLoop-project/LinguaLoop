@@ -64,16 +64,21 @@ class VocabLearnApiIntegrationTest {
         return UUID.fromString(JsonPath.read(body, "$.data.id"));
     }
 
+    private ResultActions answer(UUID user, UUID session, UUID card, String mode, boolean correct, boolean hintUsed,
+            Integer quality, UUID answerId) throws Exception {
+        String json = "{\"cardId\":\"" + card + "\",\"answerId\":\"" + answerId + "\",\"mode\":\"" + mode + "\",\"correct\":"
+                + correct + ",\"hintUsed\":" + hintUsed + (quality == null ? "" : ",\"quality\":" + quality) + ",\"responseMs\":1200}";
+        return as(user, post(SESSIONS + session + "/answers").contentType(MediaType.APPLICATION_JSON).content(json));
+    }
+
     private ResultActions answer(UUID user, UUID session, UUID card, String mode, boolean correct, Integer quality, UUID answerId)
             throws Exception {
-        String json = "{\"cardId\":\"" + card + "\",\"answerId\":\"" + answerId + "\",\"mode\":\"" + mode + "\",\"correct\":"
-                + correct + (quality == null ? "" : ",\"quality\":" + quality) + ",\"responseMs\":1200}";
-        return as(user, post(SESSIONS + session + "/answers").contentType(MediaType.APPLICATION_JSON).content(json));
+        return answer(user, session, card, mode, correct, false, quality, answerId);
     }
 
     private ResultActions answer(UUID user, UUID session, UUID card, String mode, boolean correct, Integer quality)
             throws Exception {
-        return answer(user, session, card, mode, correct, quality, UUID.randomUUID());
+        return answer(user, session, card, mode, correct, false, quality, UUID.randomUUID());
     }
 
     private Map<String, Object> progressOf(UUID user, UUID card) {
@@ -160,70 +165,90 @@ class VocabLearnApiIntegrationTest {
     // ---------------------------------------------------------------- câu trả lời
 
     @Test
-    void quizAnswers_moveNewCardsToLearningForOneDay_andLeaveTheRestNew_AC_HT_09() throws Exception {
+    void correctQuizAnswers_gradeGood_newCardsGoToLearningOneDay_AC_HT_09() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
+        // Thẻ B đang Đang học với 1 lần nhớ liên tiếp
+        vocab.progress(user, cards.get(1), "learning", 1, 1, "now() + interval '1 day'");
         UUID session = openSession(user, base, 1);
 
         answer(user, session, cards.get(0), "quiz", true, null).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value("learning"))
-                .andExpect(jsonPath("$.data.intervalDays").value(1));
-        answer(user, session, cards.get(1), "quiz", true, null).andExpect(status().isOk());
-        answer(user, session, cards.get(2), "quiz", false, null).andExpect(status().isOk());
-
-        for (int i = 0; i < 3; i++) {
-            Map<String, Object> progress = progressOf(user, cards.get(i));
-            assertThat(progress).containsEntry("status", "learning").containsEntry("repetitions", 1)
-                    .containsEntry("interval_days", 1);
-            assertThat(Duration.between(Instant.now(), instant(progress.get("next_review_at"))))
-                    .isCloseTo(Duration.ofDays(1), Duration.ofMinutes(1));
-        }
-        assertThat(progressOf(user, cards.get(2))).containsEntry("incorrect_count", 1).containsEntry("correct_count", 0);
-        // thẻ thứ tư chưa được trả lời nên vẫn Mới và không có dòng tiến độ
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM user_card_progress WHERE user_id = ? AND card_id = ?",
-                Integer.class, user, cards.get(3))).isZero();
-        assertThat(jdbc.queryForList("SELECT mode, is_correct FROM vocab_review_logs WHERE user_id = ? ORDER BY id", user))
-                .extracting(row -> row.get("mode")).containsExactly("quiz", "quiz", "quiz");
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM vocab_review_logs WHERE user_id = ? AND session_id = ?",
-                Integer.class, user, session)).isEqualTo(3);
-    }
-
-    @Test
-    void nonFlashcardAnswer_keepsTheScheduleOfAnAlreadyStudiedCard_AC_HT_10() throws Exception {
-        List<UUID> cards = freeDeck();
-        UUID user = users.newUser();
-        vocab.progress(user, cards.get(0), "reviewing", 2, 6, "now() + interval '6 days'");
-        Instant before = instant(progressOf(user, cards.get(0)).get("next_review_at"));
-        UUID session = openSession(user, base, 1);
-
-        answer(user, session, cards.get(0), "quiz", false, null).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.intervalDays").value(1))
+                .andExpect(jsonPath("$.data.quality").value(4));
+        answer(user, session, cards.get(1), "quiz", true, null).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value("reviewing"))
                 .andExpect(jsonPath("$.data.intervalDays").value(6));
 
-        Map<String, Object> progress = progressOf(user, cards.get(0));
-        assertThat(progress).containsEntry("status", "reviewing").containsEntry("repetitions", 2)
-                .containsEntry("interval_days", 6).containsEntry("incorrect_count", 1);
-        assertThat(instant(progress.get("next_review_at"))).isEqualTo(before);
-        assertThat(logCount(user, cards.get(0))).isEqualTo(1);
+        Map<String, Object> a = progressOf(user, cards.get(0));
+        assertThat(a).containsEntry("status", "learning").containsEntry("repetitions", 1).containsEntry("interval_days", 1);
+        assertThat(Duration.between(Instant.now(), instant(a.get("next_review_at"))))
+                .isCloseTo(Duration.ofDays(1), Duration.ofMinutes(1));
+        Map<String, Object> b = progressOf(user, cards.get(1));
+        assertThat(b).containsEntry("status", "reviewing").containsEntry("repetitions", 2).containsEntry("interval_days", 6);
+        // thẻ chưa được trả lời vẫn Mới và không có dòng tiến độ
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM user_card_progress WHERE user_id = ? AND card_id = ?",
+                Integer.class, user, cards.get(3))).isZero();
+        assertThat(jdbc.queryForList("SELECT mode, quality FROM vocab_review_logs WHERE user_id = ? ORDER BY id", user))
+                .allSatisfy(row -> {
+                    assertThat(row.get("mode")).isEqualTo("quiz");
+                    assertThat(((Number) row.get("quality")).intValue()).isEqualTo(4);
+                });
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM vocab_review_logs WHERE user_id = ? AND session_id = ?",
+                Integer.class, user, session)).isEqualTo(2);
     }
 
     @Test
-    void guessReverseQuizAndRepeat_behaveLikeQuiz_BR_HT_12() throws Exception {
+    void wrongAnswer_gradesForgot_resetsTheCardToTenMinutes_AC_HT_10() throws Exception {
+        for (String mode : new String[] {"quiz", "reverse_quiz", "guess"}) {
+            List<UUID> cards = vocab.fill(vocab.deck(base + mode.charAt(0), false), 1, 2, base + mode.charAt(0));
+            UUID user = users.newUser();
+            vocab.progress(user, cards.get(0), "reviewing", 2, 6, "now() + interval '6 days'");
+            UUID session = openSession(user, base + mode.charAt(0), 1);
+
+            answer(user, session, cards.get(0), mode, false, null).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.status").value("learning"))
+                    .andExpect(jsonPath("$.data.intervalDays").value(0))
+                    .andExpect(jsonPath("$.data.quality").value(1));
+
+            Map<String, Object> progress = progressOf(user, cards.get(0));
+            assertThat(progress).containsEntry("status", "learning").containsEntry("repetitions", 0)
+                    .containsEntry("incorrect_count", 1);
+            assertThat(Duration.between(Instant.now(), instant(progress.get("next_review_at"))))
+                    .isCloseTo(Duration.ofMinutes(10), Duration.ofSeconds(30));
+            Map<String, Object> log = jdbc.queryForMap("SELECT is_correct, quality FROM vocab_review_logs WHERE user_id = ?", user);
+            assertThat(log).containsEntry("is_correct", false);
+            assertThat(((Number) log.get("quality")).intValue()).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void guessWithAHint_gradesHard_andAnswerWithoutHintGradesGood_AC_HT_13() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
         UUID session = openSession(user, base, 1);
 
-        answer(user, session, cards.get(0), "guess", false, null).andExpect(status().isOk());
-        answer(user, session, cards.get(1), "reverse_quiz", true, null).andExpect(status().isOk());
-        answer(user, session, cards.get(2), "repeat", true, null).andExpect(status().isOk());
-        answer(user, session, cards.get(2), "repeat", true, null).andExpect(status().isOk());
+        answer(user, session, cards.get(0), "guess", true, true, null, UUID.randomUUID()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.quality").value(3));
+        answer(user, session, cards.get(1), "guess", true, false, null, UUID.randomUUID()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.quality").value(4));
+        answer(user, session, cards.get(2), "guess", false, true, null, UUID.randomUUID()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.quality").value(1));
 
-        for (int i = 0; i < 3; i++) {
-            assertThat(progressOf(user, cards.get(i))).containsEntry("status", "learning").containsEntry("repetitions", 1);
-        }
-        assertThat(progressOf(user, cards.get(2))).containsEntry("correct_count", 2).containsEntry("interval_days", 1);
-        assertThat(jdbc.queryForList("SELECT DISTINCT mode FROM vocab_review_logs WHERE user_id = ? ORDER BY mode", String.class, user))
-                .containsExactly("guess", "repeat", "reverse_quiz");
+        assertThat(jdbc.queryForList("SELECT quality FROM vocab_review_logs WHERE user_id = ? ORDER BY id", Integer.class, user))
+                .containsExactly(3, 4, 1);
+        assertThat(progressOf(user, cards.get(0))).containsEntry("status", "learning").containsEntry("repetitions", 1);
+        assertThat(((Number) progressOf(user, cards.get(0)).get("easiness_factor")).doubleValue()).isEqualTo(2.36);
+    }
+
+    @Test
+    void repeatMode_isNoLongerAccepted_UC_HT_02() throws Exception {
+        List<UUID> cards = freeDeck();
+        UUID user = users.newUser();
+        UUID session = openSession(user, base, 1);
+
+        answer(user, session, cards.get(0), "repeat", true, null).andExpect(status().isBadRequest());
+        assertThat(logCount(user, cards.get(0))).isZero();
     }
 
     @Test

@@ -63,8 +63,16 @@ class Sm2Test {
     }
 
     @Test
-    void firstAnswerOutsideFlashcard_isLearningOneDay_BR_HT_12() {
-        Sm2.Result result = Sm2.firstAnswer();
+    void resultOfNonFlashcardModes_isConvertedToQuality_BR_HT_12() {
+        assertThat(Sm2.qualityOf(true, false)).isEqualTo(4);
+        assertThat(Sm2.qualityOf(true, true)).isEqualTo(3);
+        assertThat(Sm2.qualityOf(false, false)).isEqualTo(1);
+        assertThat(Sm2.qualityOf(false, true)).isEqualTo(1);
+    }
+
+    @Test
+    void goodOnANewCard_isLearningOneDay_BR_HT_12() {
+        Sm2.Result result = Sm2.grade(Sm2.State.FRESH, Sm2.qualityOf(true, false));
         assertThat(result.status()).isEqualTo(CardStatus.LEARNING);
         assertThat(result.delay()).isEqualTo(Duration.ofDays(1));
         assertThat(result.state().repetitions()).isEqualTo(1);

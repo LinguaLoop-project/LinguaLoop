@@ -221,6 +221,24 @@ class VocabDeckApiIntegrationTest {
                 .andExpect(jsonPath(deck("mine")).isEmpty());
     }
 
+    @Test
+    void list_dueCountsLeaveOutCardsOfLockedParts_forAFreeUser_BR_HT_13() throws Exception {
+        List<UUID> cards = fillDeck(insertDeck("lk", true, insertCategory("c", 96)), 3, 2);
+        UUID free = data.newUser();
+        UUID pro = data.newProUser();
+        for (UUID user : new UUID[] {free, pro}) {
+            progress(user, cards.get(0), "learning", Instant.now().minusSeconds(60)); // phần 1: mở
+            progress(user, cards.get(4), "learning", Instant.now().minusSeconds(60)); // phần 3: khoá với gói Free
+        }
+
+        as(free, get(DECKS)).andExpect(status().isOk())
+                .andExpect(jsonPath(deck("lk") + ".dueCount").value(1))
+                .andExpect(jsonPath("$.data.overview.due").value(1));
+        as(pro, get(DECKS)).andExpect(status().isOk())
+                .andExpect(jsonPath(deck("lk") + ".dueCount").value(2))
+                .andExpect(jsonPath("$.data.overview.due").value(2));
+    }
+
     // ---------------------------------------------------------------- chi tiết bộ (UC-HT-01)
 
     @Test

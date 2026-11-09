@@ -31,8 +31,9 @@ class VocabDeckServiceImpl implements VocabDeckService {
 
     @Override
     public DeckView.ListResult list(UUID userId) {
-        OverviewRow overview = decks.findOverview(userId);
-        List<DeckView.Summary> summaries = decks.findDecks(userId, null).stream().map(VocabDeckServiceImpl::toSummary).toList();
+        boolean userPro = subscriptions.isPro(userId);
+        OverviewRow overview = decks.findOverview(userId, userPro);
+        List<DeckView.Summary> summaries = decks.findDecks(userId, null, userPro).stream().map(VocabDeckServiceImpl::toSummary).toList();
         return new DeckView.ListResult(
                 new DeckView.Overview((int) overview.getDue(), (int) overview.getLearning(),
                         (int) overview.getReviewing(), (int) overview.getMastered()),
@@ -41,9 +42,9 @@ class VocabDeckServiceImpl implements VocabDeckService {
 
     @Override
     public DeckView.Detail detail(UUID userId, String slug) {
-        DeckRow row = decks.findDecks(userId, slug).stream().findFirst()
-                .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));
         boolean userPro = subscriptions.isPro(userId);
+        DeckRow row = decks.findDecks(userId, slug, userPro).stream().findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));
         List<DeckView.Part> parts = decks.findParts(userId, row.getId()).stream()
                 .map(p -> new DeckView.Part(p.getIdx(), p.getName(), p.getNameVi(), (int) p.getCardCount(),
                         (int) p.getStudiedCount(), isLocked(row.getPro(), userPro, p.getIdx())))

@@ -10,13 +10,15 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Một câu trả lời của học viên. {@code answerId} do client sinh cho mỗi câu trả lời để gửi lại khi mất mạng không bị ghi
- * hai lần (BR-HT-16). {@code correct} bị bỏ qua ở Flashcard: đúng khi {@code quality} từ 3 trở lên.
+ * hai lần (BR-HT-16). Ở Flashcard học viên tự chọn {@code quality} (1, 3, 4, 5) và {@code correct} bị bỏ qua. Ở Đoán,
+ * Trắc nghiệm và Trắc nghiệm đảo server tự quy đổi {@code correct} và {@code hintUsed} sang mức q (BR-HT-12).
  */
 public record AnswerRequest(
         @NotNull UUID cardId,
         @NotNull UUID answerId,
         @NotNull Mode mode,
         boolean correct,
+        boolean hintUsed,
         @Min(0) @Max(5) Integer quality,
         @Min(0) Integer responseMs) {
 
@@ -24,8 +26,7 @@ public record AnswerRequest(
         GUESS("guess"),
         FLASHCARD("flashcard"),
         QUIZ("quiz"),
-        REVERSE_QUIZ("reverse_quiz"),
-        REPEAT("repeat");
+        REVERSE_QUIZ("reverse_quiz");
 
         private final String dbValue;
 

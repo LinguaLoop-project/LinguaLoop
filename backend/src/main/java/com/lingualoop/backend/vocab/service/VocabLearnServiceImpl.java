@@ -68,37 +68,31 @@ class VocabLearnServiceImpl implements VocabLearnService {
             throw new BusinessException(ErrorCode.VOCAB_PART_LOCKED);
         }
 
+        // Mọi cách học đều chấm theo SM-2 (BR-HT-12): Flashcard do học viên chọn q, các cách khác quy đổi từ kết quả.
         boolean flashcard = request.mode() == AnswerRequest.Mode.FLASHCARD;
         if (flashcard && request.quality() == null) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED);
         }
-        boolean correct = flashcard ? request.quality() >= 3 : request.correct();
+        int quality = flashcard ? request.quality() : Sm2.qualityOf(request.correct(), request.hintUsed());
+        boolean correct = quality >= 3;
 
         boolean fresh = learn.insertLog(userId, request.cardId(), sessionId, request.answerId(), request.mode().dbValue(),
-                correct, flashcard ? request.quality() : null, request.responseMs());
+                correct, quality, request.responseMs());
         ProgressRow progress = learn.lockProgress(userId, request.cardId());
         if (!fresh) {
             return toResult(progress);
         }
 
         boolean isNew = CardStatus.fromDb(progress.status()) == CardStatus.NEW;
-        Sm2.Result result;
-        if (flashcard) {
-            result = Sm2.grade(isNew ? Sm2.State.FRESH : stateOf(progress), request.quality());
-        } else if (isNew) {
-            result = Sm2.firstAnswer();
-        } else {
-            learn.bumpCounts(userId, request.cardId(), correct);
-            return toResult(progress);
-        }
+        Sm2.Result result = Sm2.grade(isNew ? Sm2.State.FRESH : stateOf(progress), quality);
         Instant next = Instant.now().plus(result.delay());
         learn.updateSchedule(userId, request.cardId(), result.status().dbValue(), result.state().repetitions(),
                 result.state().intervalDays(), result.state().easiness(), next, correct);
-        return new LearnView.AnswerResult(result.status(), next, result.state().intervalDays());
+        return new LearnView.AnswerResult(result.status(), next, result.state().intervalDays(), quality);
     }
 
     private DeckRow deckOrThrow(UUID userId, String slug) {
-        return decks.findDecks(userId, slug).stream().findFirst()
+        return decks.findDecks(userId, slug, subscriptions.isPro(userId)).stream().findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));
     }
 
@@ -139,6 +133,6 @@ class VocabLearnServiceImpl implements VocabLearnService {
     }
 
     private static LearnView.AnswerResult toResult(ProgressRow progress) {
-        return new LearnView.AnswerResult(CardStatus.fromDb(progress.status()), progress.nextReviewAt(), progress.intervalDays());
+        return new LearnView.AnswerResult(CardStatus.fromDb(progress.status()), progress.nextReviewAt(), progress.intervalDays(), null);
     }
 }

@@ -58,7 +58,10 @@ public final class LearnView {
     public record SessionRef(UUID id) {
     }
 
-    /** Trạng thái và lịch ôn của thẻ sau câu trả lời; {@code nextReviewAt} trống khi thẻ còn Mới. */
-    public record AnswerResult(CardStatus status, Instant nextReviewAt, int intervalDays) {
+    /**
+     * Trạng thái và lịch ôn của thẻ sau câu trả lời. {@code quality} là mức q server đã chấm (1 Quên, 3 Khó, 4 Được, 5 Dễ);
+     * giao diện dùng nó để đưa thẻ q dưới 3 xuống cuối lượt (BR-HT-14). Trống khi câu trả lời được gửi lại và không chấm lần nữa.
+     */
+    public record AnswerResult(CardStatus status, Instant nextReviewAt, int intervalDays, Integer quality) {
     }
 }

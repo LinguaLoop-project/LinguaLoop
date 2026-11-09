@@ -146,15 +146,4 @@ public class VocabLearnRepository {
                 .param("next", Timestamp.from(nextReviewAt)).param("ok", correct ? 1 : 0).param("bad", correct ? 0 : 1)
                 .param("user", userId).param("card", cardId).update();
     }
-
-    /** Chỉ cộng số lần đúng hoặc sai, giữ nguyên lịch ôn (cách học không chấm flashcard, BR-HT-12). */
-    public void bumpCounts(UUID userId, UUID cardId, boolean correct) {
-        jdbc.sql("""
-                UPDATE user_card_progress
-                SET last_reviewed_at = now(), updated_at = now(),
-                    correct_count = correct_count + :ok, incorrect_count = incorrect_count + :bad
-                WHERE user_id = :user AND card_id = :card""")
-                .param("ok", correct ? 1 : 0).param("bad", correct ? 0 : 1)
-                .param("user", userId).param("card", cardId).update();
-    }
 }
