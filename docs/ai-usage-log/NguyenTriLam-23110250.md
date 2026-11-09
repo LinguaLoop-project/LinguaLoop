@@ -783,6 +783,30 @@
 - **Commit:** 4cabe27
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-069
+
+- **Ngày:** 2026-11-09
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** BACKEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Backend chức năng Từ vựng: bộ từ hệ thống nạp từ seed riêng không phụ thuộc từ điển, API danh sách và chi tiết bộ kèm khoá Pro ở server, API học một phần (phiên học, ghi câu trả lời, chấm SM-2 cho mọi cách học, không ghi trùng khi gửi lại), API ôn thẻ đến hạn (tối đa 50 thẻ, phiên ôn); sau đó chỉnh lại theo đặc tả module HT mới
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/seed/seed-vocabulary.sh`, `seed-vocabulary.ps1`; `vocab/service/Sm2.java:grade`, `:qualityOf`, `:statusOf`; `vocab/service/VocabDeckServiceImpl.java:list`, `:detail`, `:isLocked`; `vocab/service/VocabLearnServiceImpl.java:part`, `:openSession`, `:answer`; `vocab/service/VocabReviewServiceImpl.java:queue`, `:openSession`; `vocab/repository/VocabDeckRepository.java:findDecks`, `:findOverview`; `vocab/repository/VocabLearnRepository.java`; `vocab/repository/VocabReviewRepository.java:findDue`, `:countDue`, `:findNextDueAt`; migration `V20261107_1100__vocab_review_log_idempotency.sql`, `V20261109_1000__vocab_review_sessions.sql`; `Sm2Test`, `VocabDeckApiIntegrationTest`, `VocabLearnApiIntegrationTest`, `VocabReviewApiIntegrationTest`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt: bộ từ lấy từ file seed của mình chứ không sinh từ từ điển (AI ban đầu sinh bộ từ từ từ điển theo mức CEFR rồi bỏ); mỗi lượt học 10 thẻ; sửa mức CEFR trong seed; đặc tả chuẩn là các thư mục module (UC-HT, BR-HT) nên đổi mã tham chiếu và sửa cách chấm theo BR-HT-12; chọn cách bỏ cách học Lặp lại.
+- **Commit:** c13902d, 4cdd74c, 30ba321, c742448, 0427cec
+- **Lỗi liên quan:** AI-ERR-LAM-006
+
+### AI-LAM-070
+
+- **Ngày:** 2026-11-09
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Frontend chức năng Từ vựng: trang danh sách bộ có ảnh bìa, hiệu ứng nổi và quầng sáng như thẻ bài học, tìm kiếm không dấu và bộ lọc; trang chi tiết bộ; trang học một phần với bốn cách học (Đoán, Flashcard, Trắc nghiệm, Trắc nghiệm đảo) chia lượt 10 thẻ, hàng đợi chung để đổi cách học giữa chừng vẫn giữ tiến độ, thẻ sai xuống cuối lượt; tab Ôn thẻ đến hạn; hàng đợi gửi lại câu trả lời khi mất mạng
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/vocab/learn.ts:maskExample`, `:hintMask`, `:buildOptions`, `:startRound`, `:answerCard`, `:nextCard`, `:roundScore`; `vocab/utils.ts:filterDecks`, `:groupByCategory`; `vocab/answerQueue.ts`; `vocab/useAnswerSubmit.ts`; `vocab/components/DeckCard.tsx`; `vocab/components/learn/LearnSession.tsx`, `GuessView.tsx`, `ChoiceView.tsx`, `FlashView.tsx`, `RoundDone.tsx`; `vocab/components/review/ReviewPanel.tsx`, `ReviewSession.tsx`; `vocab/pages/VocabPage.tsx`, `DeckPage.tsx`, `PartPage.tsx`; `vocab/learn.test.ts`, `utils.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên yêu cầu thêm ảnh bìa, hiệu ứng spotlight, thanh tìm kiếm và bộ lọc cho trang danh sách; chọn tab Ôn thẻ trên trang Từ vựng; chốt bỏ cách học Lặp lại và đổi cách học giữa chừng không mất tiến độ theo đặc tả HT.
+- **Commit:** ed56719, 7981984, f1357a5, 1a2ba91
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
@@ -860,6 +884,21 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit gây ra lỗi (đưa đầu ra AI vào code):** 59e1692
 - **Commit sửa (bắt buộc, khác commit trên):** 8d2549d
 - **Kiểm chứng sau sửa:** Trên trình duyệt thật, truy vấn `[role="img"][aria-label="Có ghi chú"]` và `[role="img"][aria-label="Đang trong Câu cần ôn"]` trả về 1 và 3 phần tử.
+- **Trạng thái (`Error Status`):** FIXED
+
+### AI-ERR-LAM-006
+
+- **Liên kết bản ghi AI:** AI-LAM-069
+- **Loại lỗi (`Error Type`):** API_MISUSE
+- **Ngày phát hiện:** 2026-11-09
+- **Đầu ra sai/thiếu sót và bối cảnh:** Request ghi câu trả lời khai báo `correct` và `hintUsed` là `boolean` nguyên thủy. Giao diện không gửi `hintUsed` ở Trắc nghiệm và không gửi cờ nào ở Flashcard, nên Jackson từ chối thuộc tính thiếu, server trả 400 và câu trả lời bị bỏ mà người học không thấy lỗi.
+- **Vị trí (`file:hàm`):** `backend/.../vocab/dto/request/AnswerRequest.java` (record `AnswerRequest`)
+- **Nguyên nhân phân tích:** AI giả định thuộc tính boolean vắng mặt sẽ mặc định false như cấu hình Jackson thường gặp, nhưng dự án bật từ chối null cho kiểu nguyên thủy; test tích hợp của AI luôn gửi đủ hai trường nên không bắt được.
+- **Cách phát hiện / bằng chứng:** Khi thử luồng học trên trình duyệt thật, console báo nhiều lỗi 400 ở `/vocab/sessions/{id}/answers` và nhật ký trong cơ sở dữ liệu chỉ có một dòng; log backend ghi `Cannot map null into type boolean`.
+- **Cách sửa:** Đổi hai trường sang `Boolean`, vắng mặt hiểu là false; thêm test gửi thiếu cờ cho Trắc nghiệm, Flashcard và Đoán.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** c742448
+- **Commit sửa (bắt buộc, khác commit trên):** 37e5d1d
+- **Kiểm chứng sau sửa:** Test `flagsMayBeOmitted_asTheClientDoesForQuizAndFlashcard` qua; chạy lại luồng học trên trình duyệt không còn lỗi 400 và nhật ký ghi đủ 12 dòng.
 - **Trạng thái (`Error Status`):** FIXED
 
 ## 3. Bằng chứng bổ sung (nếu cần)
