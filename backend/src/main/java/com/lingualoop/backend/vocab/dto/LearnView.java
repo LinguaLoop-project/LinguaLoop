@@ -17,8 +17,10 @@ public final class LearnView {
     }
 
     /**
-     * Một thẻ của phần. {@code audioUs} và {@code audioUk} là URL phát được. {@code previews} chỉ để hiện khoảng ôn trên
-     * bốn nút của Flashcard; lịch ôn do server tính (BR-HT-10, BR-HT-11).
+     * Một thẻ của phần hoặc của hàng đợi ôn. {@code audioUs} và {@code audioUk} là URL phát được. {@code previews} chỉ để
+     * hiện khoảng ôn trên bốn nút của Flashcard; lịch ôn do server tính (BR-HT-10, BR-HT-11). {@code contextEn},
+     * {@code contextVi} và {@code lesson} có khi thẻ là từ lưu từ bài học (BR-HT-03); {@code lesson} trống nếu bài đó không
+     * còn xem được.
      */
     public record Card(
             UUID id,
@@ -35,7 +37,14 @@ public final class LearnView {
             String audioUk,
             String audioUs,
             CardStatus status,
-            List<Preview> previews) {
+            List<Preview> previews,
+            String contextEn,
+            String contextVi,
+            LessonRef lesson) {
+    }
+
+    /** Bài học mà từ được lưu, để mặt sau thẻ dẫn về bài (BR-HT-03). */
+    public record LessonRef(String slug, String title) {
     }
 
     /** Bộ chứa phần, để hiện tiêu đề và nút quay lại. */

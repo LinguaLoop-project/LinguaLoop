@@ -64,13 +64,16 @@ public class VocabLearnRepository {
                 .list();
     }
 
-    /** Đóng phiên còn mở của học viên rồi mở phiên mới (BR-HT-15); trả id phiên mới. */
+    /**
+     * Đóng phiên còn mở của học viên rồi mở phiên mới (BR-HT-15); trả id phiên mới. Phiên ôn chung không thuộc bộ hay phần
+     * nào nên {@code deckId} và {@code groupId} có thể trống.
+     */
     public UUID openSession(UUID userId, UUID deckId, UUID groupId, String type) {
         jdbc.sql("UPDATE vocab_study_sessions SET ended_at = now() WHERE user_id = :user AND ended_at IS NULL")
                 .param("user", userId).update();
         return jdbc.sql("""
                 INSERT INTO vocab_study_sessions (user_id, deck_id, group_id, session_type)
-                VALUES (:user, :deck, :group, :type) RETURNING id""")
+                VALUES (:user, CAST(:deck AS uuid), CAST(:group AS uuid), :type) RETURNING id""")
                 .param("user", userId).param("deck", deckId).param("group", groupId).param("type", type)
                 .query(UUID.class).single();
     }

@@ -1,7 +1,6 @@
 package com.lingualoop.backend.vocab.service;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +18,6 @@ import com.lingualoop.backend.vocab.repository.VocabDeckRepository;
 import com.lingualoop.backend.vocab.repository.VocabDeckRepository.DeckRow;
 import com.lingualoop.backend.vocab.repository.VocabLearnRepository;
 import com.lingualoop.backend.vocab.repository.VocabLearnRepository.CardAccess;
-import com.lingualoop.backend.vocab.repository.VocabLearnRepository.CardRow;
 import com.lingualoop.backend.vocab.repository.VocabLearnRepository.GroupRow;
 import com.lingualoop.backend.vocab.repository.VocabLearnRepository.ProgressRow;
 
@@ -33,7 +31,7 @@ class VocabLearnServiceImpl implements VocabLearnService {
     private final VocabDeckRepository decks;
     private final VocabLearnRepository learn;
     private final SubscriptionQueryService subscriptions;
-    private final CardAudioUrls audio;
+    private final CardViews cardViews;
 
     @Override
     public LearnView.PartDetail part(UUID userId, String slug, int partNumber) {
@@ -42,7 +40,7 @@ class VocabLearnServiceImpl implements VocabLearnService {
         int index = partNumber - 1;
         GroupRow group = openPart(deck, parts, index);
         DeckView.Part current = parts.get(index);
-        List<LearnView.Card> cards = learn.findCards(userId, group.id()).stream().map(this::toCard).toList();
+        List<LearnView.Card> cards = learn.findCards(userId, group.id()).stream().map(cardViews::of).toList();
         return new LearnView.PartDetail(new LearnView.DeckRef(deck.getSlug(), deck.getName(), deck.getNameVi(), deck.getPro()),
                 index, current.name(), current.nameVi(), parts, cards);
     }
@@ -114,18 +112,6 @@ class VocabLearnServiceImpl implements VocabLearnService {
         }
         return learn.findGroupAt(deck.getId(), index)
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_PART_NOT_FOUND));
-    }
-
-    private LearnView.Card toCard(CardRow row) {
-        CardStatus status = CardStatus.fromDb(row.status());
-        Sm2.State state = status == CardStatus.NEW ? Sm2.State.FRESH
-                : new Sm2.State(row.repetitions(), row.intervalDays(), row.easiness());
-        List<LearnView.Preview> previews = Arrays.stream(Sm2.QUALITIES)
-                .mapToObj(q -> new LearnView.Preview(q, Sm2.grade(state, q).delay().toMinutes()))
-                .toList();
-        return new LearnView.Card(row.id(), row.word(), row.pos(), row.translationVi(), row.explanationEn(),
-                row.explanationVi(), row.exampleEn(), row.exampleVi(), row.imageUrl(), row.ipaUk(), row.ipaUs(),
-                audio.resolve(row.audioUk()), audio.resolve(row.audioUs()), status, previews);
     }
 
     private static Sm2.State stateOf(ProgressRow progress) {
