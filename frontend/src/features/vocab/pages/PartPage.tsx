@@ -111,7 +111,7 @@ function Locked({ slug }: { slug: string }) {
   );
 }
 
-/** Trang `/student/vocab/:deckId/parts/:part` (UC-VOCAB-05): học từ mới một phần bằng một trong năm cách học. */
+/** Trang `/student/vocab/:deckId/parts/:part` (UC-HT-02): học từ mới một phần bằng một trong năm cách học. */
 export default function PartPage() {
   const { t, i18n } = useTranslation("vocab");
   const params = useParams();

@@ -40,7 +40,7 @@ class SavedWordServiceImpl implements SavedWordService {
     /**
      * Không chạy trong giao dịch: nếu hai yêu cầu tranh nhau tạo cùng bộ, thẻ hoặc dòng từ đã lưu thì một bên vi phạm
      * ràng buộc duy nhất; thử lại bằng giao dịch mới sẽ thấy dữ liệu bên kia vừa tạo và trả đúng một từ đã lưu
-     * (AC-VOCAB-02).
+     * (AC-HT-43).
      */
     @Override
     public SavedWordView save(UUID userId, String headword, int meaningNo, UUID sentenceId) {

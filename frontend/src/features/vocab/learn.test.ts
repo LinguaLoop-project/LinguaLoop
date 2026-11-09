@@ -66,7 +66,7 @@ describe("lượt học", () => {
   });
 });
 
-describe("che từ trong ví dụ của Đoán (BR-VOCAB-14)", () => {
+describe("che từ trong ví dụ của Đoán (BR-HT-17)", () => {
   it("thay mỗi chữ cái bằng một dấu *", () => {
     expect(maskExample("I bought him a present.", "present")).toBe("I bought him a *******.");
   });
@@ -100,7 +100,7 @@ describe("che từ trong ví dụ của Đoán (BR-VOCAB-14)", () => {
   });
 });
 
-describe("gợi ý và chấm Đoán (BR-VOCAB-14, AC-VOCAB-26)", () => {
+describe("gợi ý và chấm Đoán (BR-HT-17, AC-HT-13)", () => {
   it("ô báo hiện số chữ cái và mỗi gợi ý thêm một chữ từ trái sang", () => {
     expect(letterCount("present")).toBe(7);
     expect(hintMask("present", 0)).toBe("*******");
@@ -161,7 +161,7 @@ describe("đáp án Trắc nghiệm", () => {
   });
 });
 
-describe("hàng đợi Flashcard (UC-VOCAB-05, 3b)", () => {
+describe("hàng đợi Flashcard (UC-HT-02, 3b)", () => {
   it("Quên đưa thẻ xuống cuối, các nút khác bỏ thẻ khỏi hàng", () => {
     expect(advanceQueue(["a", "b", "c"], 1)).toEqual(["b", "c", "a"]);
     expect(advanceQueue(["a", "b", "c"], 3)).toEqual(["b", "c"]);
@@ -171,7 +171,7 @@ describe("hàng đợi Flashcard (UC-VOCAB-05, 3b)", () => {
   });
 });
 
-describe("khoảng ôn trên nút Flashcard (BR-VOCAB-07)", () => {
+describe("khoảng ôn trên nút Flashcard (BR-HT-10, BR-HT-11)", () => {
   it("hiện theo phút, giờ, ngày, tháng", () => {
     expect(intervalParts(10)).toEqual({ unit: "minute", count: 10 });
     expect(intervalParts(0)).toEqual({ unit: "minute", count: 1 });

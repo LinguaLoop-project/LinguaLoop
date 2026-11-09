@@ -7,7 +7,7 @@ import { CardImage, RoundProgress, type LearnViewProps } from "./shared";
 import { speak, useCardClock, useKeys } from "./learnHooks";
 
 /**
- * Lặp lại (BR-VOCAB-10): nghe âm thanh của thẻ rồi tự đọc theo, bấm sang thẻ tiếp. Giọng nói không được gửi đi chấm nên
+ * Lặp lại (BR-HT-17): nghe âm thanh của thẻ rồi tự đọc theo, bấm sang thẻ tiếp. Giọng nói không được gửi đi chấm nên
  * không dùng hạn mức Azure; thẻ không có âm thanh thì dùng giọng đọc của trình duyệt.
  */
 export default function RepeatView({ cards, onAnswer, onFinish }: LearnViewProps) {

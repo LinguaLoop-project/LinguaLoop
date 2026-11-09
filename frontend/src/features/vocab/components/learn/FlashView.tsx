@@ -9,8 +9,8 @@ const GRADE_KEYS = ["forget", "hard", "good", "easy"] as const;
 const GRADE_TONE = ["border-danger/50 text-danger", "border-warning/50 text-warning", "border-success/50 text-success", "border-info/50 text-info"];
 
 /**
- * Flashcard (UC-VOCAB-05): lật thẻ rồi tự chấm Quên, Khó, Được hoặc Dễ; server chấm theo SM-2 và mỗi nút hiện trước khoảng
- * ôn sẽ đặt (BR-VOCAB-07). Chọn Quên thì thẻ xuống cuối hàng và hiện lại trong lượt. Space lật thẻ, phím 1 đến 4 chấm.
+ * Flashcard (UC-HT-02): lật thẻ rồi tự chấm Quên, Khó, Được hoặc Dễ; server chấm theo SM-2 và mỗi nút hiện trước khoảng
+ * ôn sẽ đặt (BR-HT-10, BR-HT-11). Chọn Quên thì thẻ xuống cuối hàng và hiện lại trong lượt. Space lật thẻ, phím 1 đến 4 chấm.
  */
 export default function FlashView({ cards, onAnswer, onFinish }: LearnViewProps) {
   const { t } = useTranslation("vocab");

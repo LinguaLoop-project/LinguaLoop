@@ -108,7 +108,7 @@ function Filters({
   );
 }
 
-/** Trang `/student/vocab` (UC-VOCAB-03): tổng quan thẻ, tìm và lọc bộ, các bộ đang học và khám phá bộ hệ thống. */
+/** Trang `/student/vocab` (UC-HT-01): tổng quan thẻ, tìm và lọc bộ, các bộ đang học và khám phá bộ hệ thống. */
 export default function VocabPage() {
   const { t, i18n } = useTranslation("vocab");
   const query = useDecks();

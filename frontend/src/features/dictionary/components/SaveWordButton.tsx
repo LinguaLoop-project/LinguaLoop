@@ -11,7 +11,7 @@ export interface SaveWordButtonProps {
   meaningNo: number;
 }
 
-/** Lưu hoặc bỏ lưu một nghĩa của từ (UC-VOCAB-01). Bấm trong một câu của bài học thì từ nhớ câu đó. */
+/** Lưu hoặc bỏ lưu một nghĩa của từ (UC-HT-06). Bấm trong một câu của bài học thì từ nhớ câu đó. */
 export default function SaveWordButton({ headword, meaningNo }: SaveWordButtonProps) {
   const { t } = useTranslation("dictionary");
   const sentenceId = useWordSourceSentence();

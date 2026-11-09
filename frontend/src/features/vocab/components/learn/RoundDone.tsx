@@ -25,7 +25,7 @@ export interface RoundDoneProps {
   deckHref: string;
 }
 
-/** Màn hoàn thành một lượt: kết quả và các lối đi tiếp (UC-VOCAB-05, bước 5). */
+/** Màn hoàn thành một lượt: kết quả và các lối đi tiếp (UC-HT-02, bước 5). */
 export default function RoundDone({
   mode,
   round,

@@ -74,7 +74,7 @@ public interface SavedWordRepository extends JpaRepository<UserSavedWord, UUID> 
     int insertPhonetic(@Param("cardId") UUID cardId, @Param("accent") String accent, @Param("ipa") String ipa,
             @Param("audioUrl") String audioUrl);
 
-    /** Ẩn thẻ khi bỏ lưu; tiến độ và nhật ký của thẻ được giữ để lưu lại thì khôi phục (BR-VOCAB-03). */
+    /** Ẩn thẻ khi bỏ lưu; tiến độ và nhật ký của thẻ được giữ để lưu lại thì khôi phục (BR-HT-04). */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "UPDATE vocab_cards SET deleted_at = now() WHERE id = :cardId AND deleted_at IS NULL",
             nativeQuery = true)

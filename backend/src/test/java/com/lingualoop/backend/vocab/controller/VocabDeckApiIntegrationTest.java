@@ -28,7 +28,7 @@ import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.dictation.DictationTestData;
 
 /**
- * Danh sách bộ và chi tiết bộ (UC-VOCAB-03, UC-VOCAB-04) trên Postgres thật. Bộ từ vựng là dữ liệu riêng nạp từ
+ * Danh sách bộ và chi tiết bộ (UC-HT-01) trên Postgres thật. Bộ từ vựng là dữ liệu riêng nạp từ
  * seed, không sinh từ từ điển, nên test tự chèn bộ, phần và thẻ. Cơ sở dữ liệu của test dùng chung nên mỗi test dùng
  * slug riêng với tiền tố ngẫu nhiên và chỉ kiểm tra những bộ của mình.
  */
@@ -129,10 +129,10 @@ class VocabDeckApiIntegrationTest {
                 VALUES (?, ?, ?, 1, 1, ?)""", user, card, status, Timestamp.from(nextReview));
     }
 
-    // ---------------------------------------------------------------- danh sách bộ (UC-VOCAB-03)
+    // ---------------------------------------------------------------- danh sách bộ (UC-HT-01)
 
     @Test
-    void list_showsSystemDecksWithTheLearnersProgress_AC_VOCAB_11() throws Exception {
+    void list_showsSystemDecksWithTheLearnersProgress_AC_HT_02() throws Exception {
         UUID category = insertCategory("c", 90);
         List<UUID> cards = fillDeck(insertDeck("pro", true, category), 2, 5);
         fillDeck(insertDeck("free", false, category), 1, 3);
@@ -166,7 +166,7 @@ class VocabDeckApiIntegrationTest {
     }
 
     @Test
-    void list_overviewCountsEveryCardIncludingSavedWords_AC_VOCAB_10() throws Exception {
+    void list_overviewCountsEveryCardIncludingSavedWords_AC_HT_01() throws Exception {
         List<UUID> cards = fillDeck(insertDeck("ov", false, insertCategory("c", 92)), 1, 5);
         UUID user = data.newUser();
         progress(user, cards.get(0), "mastered", Instant.now().minus(1, ChronoUnit.DAYS));
@@ -185,7 +185,7 @@ class VocabDeckApiIntegrationTest {
     }
 
     @Test
-    void list_savedWordsDeckIsNotAListedDeck_AC_VOCAB_10() throws Exception {
+    void list_savedWordsDeckIsNotAListedDeck_AC_HT_01() throws Exception {
         fillDeck(insertDeck("sv", false, insertCategory("c", 93)), 1, 1);
         UUID user = data.newUser();
         insertWord(base + "saved", meanings("đã lưu"));
@@ -221,10 +221,10 @@ class VocabDeckApiIntegrationTest {
                 .andExpect(jsonPath(deck("mine")).isEmpty());
     }
 
-    // ---------------------------------------------------------------- chi tiết bộ (UC-VOCAB-04)
+    // ---------------------------------------------------------------- chi tiết bộ (UC-HT-01)
 
     @Test
-    void detail_lockPartsOfAProDeckFromTheThirdForAFreeUser_AC_VOCAB_12() throws Exception {
+    void detail_lockPartsOfAProDeckFromTheThirdForAFreeUser_AC_HT_03() throws Exception {
         fillDeck(insertDeck("p", true, insertCategory("c", 96)), 4, 10);
 
         as(data.newUser(), get(deckPath("p"))).andExpect(status().isOk())
@@ -252,7 +252,7 @@ class VocabDeckApiIntegrationTest {
     }
 
     @Test
-    void detail_nothingIsLockedForAProUser_AC_VOCAB_13() throws Exception {
+    void detail_nothingIsLockedForAProUser_AC_HT_04() throws Exception {
         fillDeck(insertDeck("pu", true, insertCategory("c", 98)), 4, 5);
 
         as(data.newProUser(), get(deckPath("pu"))).andExpect(status().isOk())

@@ -65,7 +65,7 @@ Một đoạn tối đa 10 thẻ liền nhau của một phần, là đơn vị 
 _Tránh_: bài, vòng, session (phiên học là bản ghi dùng để nhóm nhật ký, không phải một lượt)
 
 **Học từ mới**:
-Học các thẻ của một phần qua một trong các cách học (Đoán, Flashcard, Trắc nghiệm, Trắc nghiệm đảo, Lặp lại). Lần đầu học viên trả lời một thẻ Mới thì thẻ chuyển sang Đang học. Khác với ôn thẻ, là việc làm theo lịch.
+Học các thẻ của một phần qua một trong các cách học (Đoán, Flashcard, Trắc nghiệm, Trắc nghiệm đảo). Lần đầu học viên trả lời một thẻ Mới thì thẻ chuyển sang Đang học. Khác với ôn thẻ, là việc làm theo lịch.
 _Tránh_: học bài
 
 **Từ đã lưu**:

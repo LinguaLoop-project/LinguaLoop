@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.dictation.DictationTestData;
 
-/** Lưu và bỏ lưu từ, danh sách từ đã lưu (UC-VOCAB-01, UC-VOCAB-02) chạy trên Postgres thật. */
+/** Lưu và bỏ lưu từ, danh sách từ đã lưu (UC-HT-06, UC-HT-07) chạy trên Postgres thật. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import({TestcontainersConfiguration.class, DictationTestData.class})
@@ -75,10 +75,10 @@ class SavedWordApiIntegrationTest {
         return n == null ? 0 : n;
     }
 
-    // ---------------------------------------------------------------- UC-VOCAB-01: lưu
+    // ---------------------------------------------------------------- UC-HT-06: lưu
 
     @Test
-    void save_createsACardFromTheDictionaryMeaning_AC_VOCAB_01() throws Exception {
+    void save_createsACardFromTheDictionaryMeaning_AC_HT_42() throws Exception {
         UUID user = data.newUser();
         insertWord(base, PRESENT);
 
@@ -103,7 +103,7 @@ class SavedWordApiIntegrationTest {
     }
 
     @Test
-    void save_twice_keepsOneCard_AC_VOCAB_02() throws Exception {
+    void save_twice_keepsOneCard_AC_HT_43() throws Exception {
         UUID user = data.newUser();
         insertWord(base, PRESENT);
 
@@ -116,7 +116,7 @@ class SavedWordApiIntegrationTest {
     }
 
     @Test
-    void save_atTheSameTime_keepsOneCard_AC_VOCAB_02() throws Exception {
+    void save_atTheSameTime_keepsOneCard_AC_HT_43() throws Exception {
         UUID user = data.newUser();
         insertWord(base, PRESENT);
 
@@ -137,7 +137,7 @@ class SavedWordApiIntegrationTest {
     }
 
     @Test
-    void save_twoMeaningsOfOneWord_makesTwoCards_AC_VOCAB_03() throws Exception {
+    void save_twoMeaningsOfOneWord_makesTwoCards_AC_HT_44() throws Exception {
         UUID user = data.newUser();
         insertWord(base, PRESENT);
 
@@ -157,7 +157,7 @@ class SavedWordApiIntegrationTest {
     }
 
     @Test
-    void save_fromALessonSentence_keepsTheSentenceAsContext_AC_VOCAB_04() throws Exception {
+    void save_fromALessonSentence_keepsTheSentenceAsContext_AC_HT_45() throws Exception {
         UUID user = data.newUser();
         insertWord(base, PRESENT);
         UUID lesson = data.newLesson("vocab-" + base, false, "APPROVED", false);
@@ -172,7 +172,7 @@ class SavedWordApiIntegrationTest {
     }
 
     @Test
-    void save_inflectedForm_isRefused_theLemmaMeaningIsSaved_AC_VOCAB_04() throws Exception {
+    void save_inflectedForm_isRefused_theLemmaMeaningIsSaved_AC_HT_45() throws Exception {
         UUID user = data.newUser();
         UUID lemma = insertWord(base, PRESENT);
         jdbc.update("INSERT INTO dictionary_words (id, headword, lemma_id, meanings) VALUES (?, ?, ?, CAST(? AS jsonb))",
@@ -241,7 +241,7 @@ class SavedWordApiIntegrationTest {
     // ---------------------------------------------------------------- bỏ lưu
 
     @Test
-    void unsave_hidesTheCardAndRestoreKeepsTheProgress_AC_VOCAB_05() throws Exception {
+    void unsave_hidesTheCardAndRestoreKeepsTheProgress_AC_HT_46() throws Exception {
         UUID user = data.newUser();
         insertWord(base, PRESENT);
         String id = save(user, base, 1, null).andReturn().getResponse().getContentAsString()
@@ -282,7 +282,7 @@ class SavedWordApiIntegrationTest {
     }
 
     @Test
-    void unsave_unknownOrOthersWord_is404AndLeavesTheOwnerUntouched_AC_VOCAB_06() throws Exception {
+    void unsave_unknownOrOthersWord_is404AndLeavesTheOwnerUntouched_AC_HT_47() throws Exception {
         UUID owner = data.newUser();
         UUID other = data.newUser();
         insertWord(base, PRESENT);

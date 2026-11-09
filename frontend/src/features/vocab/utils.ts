@@ -16,7 +16,7 @@ export const EMPTY_FILTER: SavedWordFilter = { query: "", source: "all", state: 
 export const findSaved = (items: SavedWord[] | undefined, headword: string, meaningNo: number): SavedWord | undefined =>
   items?.find((item) => item.headword === headword && item.meaningNo === meaningNo);
 
-/** Lọc đồng thời theo chữ tìm (từ hoặc nghĩa), nguồn và trạng thái (UC-VOCAB-02). */
+/** Lọc đồng thời theo chữ tìm (từ hoặc nghĩa), nguồn và trạng thái (UC-HT-07). */
 export function filterSavedWords(items: SavedWord[], filter: SavedWordFilter): SavedWord[] {
   const query = filter.query.trim().toLowerCase();
   return items.filter((item) => {

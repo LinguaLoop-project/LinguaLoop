@@ -7,7 +7,7 @@ import com.lingualoop.backend.vocab.enums.CardStatus;
 import com.lingualoop.backend.vocab.enums.SavedWordSource;
 
 /**
- * Một từ đã lưu: nội dung thẻ, nguồn và trạng thái. {@code due} cho biết thẻ đến hạn ôn ngay bây giờ (BR-VOCAB-09);
+ * Một từ đã lưu: nội dung thẻ, nguồn và trạng thái. {@code due} cho biết thẻ đến hạn ôn ngay bây giờ (BR-HT-13);
  * thẻ Mới của bộ "Từ đã lưu" đến hạn ngay vì bộ này không có bước học từ mới. {@code lesson} chỉ có khi từ lưu từ bài
  * học và bài đó còn xem được.
  */

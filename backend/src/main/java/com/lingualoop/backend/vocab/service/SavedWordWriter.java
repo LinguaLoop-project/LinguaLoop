@@ -62,7 +62,7 @@ class SavedWordWriter {
         return saved.getId();
     }
 
-    /** Phần duy nhất của bộ "Từ đã lưu"; tạo bộ và phần khi học viên lưu từ lần đầu (BR-VOCAB-02). */
+    /** Phần duy nhất của bộ "Từ đã lưu"; tạo bộ và phần khi học viên lưu từ lần đầu (BR-HT-02). */
     private UUID savedGroupId(UUID userId) {
         UUID deckId = repository.findSavedDeckId(userId).orElseGet(() -> repository.insertSavedDeck(userId));
         return repository.findFirstGroupId(deckId).orElseGet(() -> repository.insertGroup(deckId));

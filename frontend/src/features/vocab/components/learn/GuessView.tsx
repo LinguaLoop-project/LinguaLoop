@@ -13,7 +13,7 @@ interface Outcome {
 }
 
 /**
- * Cách học Đoán (BR-VOCAB-14): xem loại từ, nghĩa tiếng Việt và câu ví dụ đã che từ, gõ từ tiếng Anh. Từ cần đoán không
+ * Cách học Đoán (BR-HT-17): xem loại từ, nghĩa tiếng Việt và câu ví dụ đã che từ, gõ từ tiếng Anh. Từ cần đoán không
  * xuất hiện ở đâu trên màn hình cho tới khi có kết quả: không hiện ảnh, phiên âm hay giải thích của thẻ trước đó.
  */
 export default function GuessView({ cards, onAnswer, onFinish }: LearnViewProps) {

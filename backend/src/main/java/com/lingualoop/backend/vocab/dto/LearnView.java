@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.lingualoop.backend.vocab.enums.CardStatus;
 
-/** Dữ liệu cho màn học một phần và kết quả của một câu trả lời (UC-VOCAB-05). */
+/** Dữ liệu cho màn học một phần và kết quả của một câu trả lời (UC-HT-02). */
 public final class LearnView {
 
     private LearnView() {
@@ -18,7 +18,7 @@ public final class LearnView {
 
     /**
      * Một thẻ của phần. {@code audioUs} và {@code audioUk} là URL phát được. {@code previews} chỉ để hiện khoảng ôn trên
-     * bốn nút của Flashcard; lịch ôn do server tính (BR-VOCAB-07).
+     * bốn nút của Flashcard; lịch ôn do server tính (BR-HT-10, BR-HT-11).
      */
     public record Card(
             UUID id,

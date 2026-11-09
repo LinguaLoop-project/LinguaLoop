@@ -14,7 +14,7 @@ const DEFAULT_TAB: Tab = "words";
 
 const isTab = (value: string | null): value is Tab => TABS.includes(value as Tab);
 
-/** Trang `/student/mywords` (Từ & câu đã lưu): Từ đã lưu (mặc định), Câu cần ôn, Ghi chú (UC-VOCAB-02). */
+/** Trang `/student/mywords` (Từ & câu đã lưu): Từ đã lưu (mặc định), Câu cần ôn, Ghi chú (UC-HT-07). */
 export default function MyWordsPage() {
   const { t } = useTranslation("mywords");
   const [params, setParams] = useSearchParams();

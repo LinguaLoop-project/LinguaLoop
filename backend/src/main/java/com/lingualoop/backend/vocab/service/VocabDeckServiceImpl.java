@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 class VocabDeckServiceImpl implements VocabDeckService {
 
-    /** Số phần đầu của bộ Pro mà gói Free học được (BR-VOCAB-05). */
+    /** Số phần đầu của bộ Pro mà gói Free học được (BR-HT-07). */
     static final int FREE_PARTS_OF_PRO_DECK = 2;
     private static final int SAMPLE_WORDS = 8;
 
@@ -55,7 +55,7 @@ class VocabDeckServiceImpl implements VocabDeckService {
         return new DeckView.Detail(toSummary(row), parts, sample);
     }
 
-    /** Phần bị khoá khi bộ là Pro, người học dùng gói Free và phần (tính từ 0) nằm sau các phần miễn phí (BR-VOCAB-05). */
+    /** Phần bị khoá khi bộ là Pro, người học dùng gói Free và phần (tính từ 0) nằm sau các phần miễn phí (BR-HT-07). */
     static boolean isLocked(boolean deckPro, boolean userPro, int partIndex) {
         return deckPro && !userPro && partIndex >= FREE_PARTS_OF_PRO_DECK;
     }

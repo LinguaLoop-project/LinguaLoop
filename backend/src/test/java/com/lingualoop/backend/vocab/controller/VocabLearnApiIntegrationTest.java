@@ -31,8 +31,8 @@ import com.lingualoop.backend.dictation.DictationTestData;
 import com.lingualoop.backend.vocab.VocabTestData;
 
 /**
- * Học từ mới một phần (UC-VOCAB-05) trên Postgres thật: thẻ của phần, phiên học, ghi câu trả lời theo BR-VOCAB-07, 08,
- * 11, 12, 13 và khoá Pro ở server (BR-VOCAB-05). Mỗi test dùng slug riêng nên không đụng nhau.
+ * Học từ mới một phần (UC-HT-02) trên Postgres thật: thẻ của phần, phiên học, ghi câu trả lời theo BR-HT-10, BR-HT-11, 08,
+ * 11, 12, 13 và khoá Pro ở server (BR-HT-07). Mỗi test dùng slug riêng nên không đụng nhau.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -129,7 +129,7 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
-    void part_proDeckLocksPartsFromTheThird_onTheServer_BR_VOCAB_05() throws Exception {
+    void part_proDeckLocksPartsFromTheThird_onTheServer_BR_HT_07() throws Exception {
         vocab.fill(vocab.deck(base, true), 4, 3, base);
         UUID free = users.newUser();
 
@@ -140,7 +140,7 @@ class VocabLearnApiIntegrationTest {
         as(users.newProUser(), get(DECKS + base + "/parts/4")).andExpect(status().isOk());
     }
 
-    // ---------------------------------------------------------------- phiên học (BR-VOCAB-11)
+    // ---------------------------------------------------------------- phiên học (BR-HT-15)
 
     @Test
     void openingASession_closesTheOneStillOpen() throws Exception {
@@ -160,7 +160,7 @@ class VocabLearnApiIntegrationTest {
     // ---------------------------------------------------------------- câu trả lời
 
     @Test
-    void quizAnswers_moveNewCardsToLearningForOneDay_andLeaveTheRestNew_AC_VOCAB_15() throws Exception {
+    void quizAnswers_moveNewCardsToLearningForOneDay_andLeaveTheRestNew_AC_HT_09() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
         UUID session = openSession(user, base, 1);
@@ -189,7 +189,7 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
-    void nonFlashcardAnswer_keepsTheScheduleOfAnAlreadyStudiedCard_AC_VOCAB_16() throws Exception {
+    void nonFlashcardAnswer_keepsTheScheduleOfAnAlreadyStudiedCard_AC_HT_10() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
         vocab.progress(user, cards.get(0), "reviewing", 2, 6, "now() + interval '6 days'");
@@ -208,7 +208,7 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
-    void guessReverseQuizAndRepeat_behaveLikeQuiz_BR_VOCAB_08() throws Exception {
+    void guessReverseQuizAndRepeat_behaveLikeQuiz_BR_HT_12() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
         UUID session = openSession(user, base, 1);
@@ -227,7 +227,7 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
-    void flashcardGood_onANewCard_followsSm2_AC_VOCAB_17() throws Exception {
+    void flashcardGood_onANewCard_followsSm2_AC_HT_11() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
         UUID session = openSession(user, base, 1);
@@ -246,7 +246,7 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
-    void flashcardForgot_retriesInTenMinutes_thenGoodStartsOver_BR_VOCAB_07() throws Exception {
+    void flashcardForgot_retriesInTenMinutes_thenGoodStartsOver_BR_HT_11() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
         vocab.progress(user, cards.get(0), "reviewing", 3, 15, "now() - interval '1 day'");
@@ -285,7 +285,7 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
-    void resendingTheSameAnswer_isLoggedAndAppliedOnce_BR_VOCAB_12() throws Exception {
+    void resendingTheSameAnswer_isLoggedAndAppliedOnce_BR_HT_16() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
         UUID session = openSession(user, base, 1);
@@ -301,10 +301,10 @@ class VocabLearnApiIntegrationTest {
         assertThat(progress).containsEntry("repetitions", 1).containsEntry("correct_count", 1);
     }
 
-    // ---------------------------------------------------------------- quyền (BR-VOCAB-05, BR-VOCAB-13)
+    // ---------------------------------------------------------------- quyền (BR-HT-07, BR-HT-06)
 
     @Test
-    void anotherLearnersSession_is404_andWritesNothing_BR_VOCAB_13() throws Exception {
+    void anotherLearnersSession_is404_andWritesNothing_BR_HT_06() throws Exception {
         List<UUID> cards = freeDeck();
         UUID owner = users.newUser();
         UUID intruder = users.newUser();
@@ -333,7 +333,7 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
-    void answeringACardOfALockedPart_is403_andWritesNothing_BR_VOCAB_05() throws Exception {
+    void answeringACardOfALockedPart_is403_andWritesNothing_BR_HT_07() throws Exception {
         List<UUID> cards = vocab.fill(vocab.deck(base, true), 3, 2, base);
         UUID free = users.newUser();
         UUID session = openSession(free, base, 1);

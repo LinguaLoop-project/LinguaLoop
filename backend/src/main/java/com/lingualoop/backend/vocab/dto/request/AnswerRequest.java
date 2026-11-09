@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Một câu trả lời của học viên. {@code answerId} do client sinh cho mỗi câu trả lời để gửi lại khi mất mạng không bị ghi
- * hai lần (BR-VOCAB-12). {@code correct} bị bỏ qua ở Flashcard: đúng khi {@code quality} từ 3 trở lên.
+ * hai lần (BR-HT-16). {@code correct} bị bỏ qua ở Flashcard: đúng khi {@code quality} từ 3 trở lên.
  */
 public record AnswerRequest(
         @NotNull UUID cardId,

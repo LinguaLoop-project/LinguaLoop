@@ -10,14 +10,14 @@ import org.springframework.stereotype.Repository;
 
 import com.lingualoop.backend.vocab.entity.VocabDeck;
 
-/** Đọc bộ hệ thống, các phần và tiến độ của một học viên (UC-VOCAB-03, UC-VOCAB-04). */
+/** Đọc bộ hệ thống, các phần và tiến độ của một học viên (UC-HT-01). */
 @Repository
 public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
 
     /**
      * Bộ hệ thống đã duyệt (không gồm bộ "Từ đã lưu" và bộ của học viên) kèm số thẻ, số phần và số thẻ của
      * {@code userId} ở từng trạng thái. Truyền {@code slug} để lấy một bộ. Thẻ chưa có dòng tiến độ là Mới; thẻ đến hạn
-     * là thẻ đã học có lịch ôn không muộn hơn bây giờ, kể cả thẻ Đã thuộc (BR-VOCAB-09).
+     * là thẻ đã học có lịch ôn không muộn hơn bây giờ, kể cả thẻ Đã thuộc (BR-HT-13).
      */
     @Query(value = """
             SELECT d.id AS id, d.slug AS slug, d.name AS name, d.name_vi AS nameVi, CAST(d.difficulty AS text) AS cefrLevel,
@@ -69,7 +69,7 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
 
     /**
      * Số thẻ của {@code userId} ở từng trạng thái trên mọi bộ hệ thống và bộ của chính họ, kể cả "Từ đã lưu". Thẻ Mới
-     * của bộ "Từ đã lưu" đến hạn ngay vì bộ đó không có bước học từ mới (BR-VOCAB-09).
+     * của bộ "Từ đã lưu" đến hạn ngay vì bộ đó không có bước học từ mới (BR-HT-13).
      */
     @Query(value = """
             SELECT count(*) FILTER (WHERE p.status = 'mastered') AS mastered,

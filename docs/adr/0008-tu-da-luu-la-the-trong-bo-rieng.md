@@ -14,4 +14,4 @@ Từ đã lưu phải được ôn theo lịch như thẻ của bộ từ. Nhưn
 ## Consequences
 
 - `vocab_decks` cần một cột phân loại để nhận ra bộ "Từ đã lưu", tạo bộ đó khi học viên lưu từ lần đầu, và loại bộ đó khỏi danh sách bộ và trang chi tiết bộ.
-- Bỏ lưu xoá dòng trong `user_saved_words` nhưng chỉ xoá mềm thẻ, để lưu lại thì khôi phục được tiến độ cũ (BR-VOCAB-03).
+- Bỏ lưu xoá dòng trong `user_saved_words` nhưng chỉ xoá mềm thẻ, để lưu lại thì khôi phục được tiến độ cũ (BR-HT-04).

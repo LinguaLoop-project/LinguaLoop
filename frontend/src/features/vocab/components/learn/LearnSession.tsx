@@ -29,7 +29,7 @@ export interface LearnSessionProps {
 }
 
 /**
- * Học một phần theo từng lượt (UC-VOCAB-05): mở ở lượt đầu tiên còn thẻ Mới, đổi cách học thì học lại lượt đó từ đầu và
+ * Học một phần theo từng lượt (UC-HT-02): mở ở lượt đầu tiên còn thẻ Mới, đổi cách học thì học lại lượt đó từ đầu và
  * câu trả lời đã gửi vẫn giữ. Hết lượt thì hiện kết quả, rồi học lại, xem từ, sang lượt sau hoặc sang phần tiếp theo.
  */
 export default function LearnSession({ mode, cards, partNumber, nextPartHref, deckHref, onAnswer }: LearnSessionProps) {

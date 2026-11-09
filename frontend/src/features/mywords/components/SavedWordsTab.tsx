@@ -121,7 +121,7 @@ function WordRow({ item, selected, onToggle, onUnsave, busy }: WordRowProps) {
   );
 }
 
-/** Tab "Từ đã lưu": các nghĩa đã lưu từ từ điển hoặc bài học, kèm trạng thái ôn; tìm, lọc và bỏ lưu (UC-VOCAB-02). */
+/** Tab "Từ đã lưu": các nghĩa đã lưu từ từ điển hoặc bài học, kèm trạng thái ôn; tìm, lọc và bỏ lưu (UC-HT-07). */
 export default function SavedWordsTab() {
   const { t } = useTranslation("mywords");
   const query = useSavedWords();

@@ -8,7 +8,7 @@ import SaveWordButton from "./SaveWordButton";
 interface GroupListProps {
   /** Mục từ mà các nghĩa này thuộc về; nút Lưu lưu nghĩa theo mục từ này. */
   headword: string;
-  /** Có nút Lưu ở từng nghĩa không. Dạng chia không lưu nghĩa riêng: chỉ nghĩa của từ gốc lưu được (BR-VOCAB-01). */
+  /** Có nút Lưu ở từng nghĩa không. Dạng chia không lưu nghĩa riêng: chỉ nghĩa của từ gốc lưu được (BR-HT-01). */
   saveable: boolean;
   groups: MeaningGroup[];
   /** Nhóm nào có phát âm riêng (từ đồng tự khác âm, vd "present") thì báo lên cha để ghi đè phát âm hiện trên đầu, không hiện 2 hàng. */

@@ -3,7 +3,7 @@ package com.lingualoop.backend.vocab.dto;
 import java.util.List;
 import java.util.UUID;
 
-/** Dữ liệu trả về cho danh sách bộ và chi tiết một bộ (UC-VOCAB-03, UC-VOCAB-04). */
+/** Dữ liệu trả về cho danh sách bộ và chi tiết một bộ (UC-HT-01). */
 public final class DeckView {
 
     private DeckView() {
@@ -17,7 +17,7 @@ public final class DeckView {
     public record Category(String slug, String name, String nameVi) {
     }
 
-    /** Một bộ kèm tiến độ của người học; {@code dueCount} là số thẻ của bộ đã đến hạn ôn (BR-VOCAB-09). */
+    /** Một bộ kèm tiến độ của người học; {@code dueCount} là số thẻ của bộ đã đến hạn ôn (BR-HT-13). */
     public record Summary(
             UUID id,
             String slug,
@@ -42,7 +42,7 @@ public final class DeckView {
 
     /**
      * Một phần của bộ. {@code index} tính từ 0 và là số trong đường dẫn học phần. {@code locked} khi bộ là Pro và
-     * người học dùng gói Free ở phần từ thứ ba trở đi (BR-VOCAB-05).
+     * người học dùng gói Free ở phần từ thứ ba trở đi (BR-HT-07).
      */
     public record Part(int index, String name, String nameVi, int cardCount, int studiedCount, boolean locked) {
     }

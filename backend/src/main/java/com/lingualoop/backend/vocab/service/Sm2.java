@@ -5,7 +5,7 @@ import java.time.Duration;
 import com.lingualoop.backend.vocab.enums.CardStatus;
 
 /**
- * Chấm flashcard theo SM-2 (BR-VOCAB-07) và suy ra trạng thái thẻ (BR-VOCAB-06). Thuần tính toán, không đụng cơ sở dữ
+ * Chấm flashcard theo SM-2 (BR-HT-10, BR-HT-11) và suy ra trạng thái thẻ (BR-HT-08). Thuần tính toán, không đụng cơ sở dữ
  * liệu, để học từ mới và ôn thẻ dùng chung một nơi.
  */
 final class Sm2 {
@@ -44,7 +44,7 @@ final class Sm2 {
     }
 
     /**
-     * Thẻ Mới được trả lời lần đầu ở cách học không chấm flashcard (BR-VOCAB-08): Đang học, hẹn ôn sau 1 ngày, đúng hay
+     * Thẻ Mới được trả lời lần đầu ở cách học không chấm flashcard (BR-HT-12): Đang học, hẹn ôn sau 1 ngày, đúng hay
      * sai đều vậy.
      */
     static Result firstAnswer() {

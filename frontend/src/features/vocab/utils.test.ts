@@ -78,14 +78,14 @@ describe("filterSavedWords", () => {
     expect(filterSavedWords(items, { ...EMPTY_FILTER, state: "due" })).toEqual([latte]);
   });
 
-  it("các điều kiện kết hợp với nhau (AC-VOCAB-08)", () => {
+  it("các điều kiện kết hợp với nhau (AC-HT-50)", () => {
     expect(filterSavedWords(items, { query: "", source: "lesson", state: "mastered" })).toEqual([]);
     expect(filterSavedWords(items, { query: "", source: "lesson", state: "learning" })).toEqual([latte]);
   });
 });
 
 describe("savedWordStats", () => {
-  it("đếm đã lưu, đến hạn, đang học và đã thuộc (AC-VOCAB-09)", () => {
+  it("đếm đã lưu, đến hạn, đang học và đã thuộc (AC-HT-51)", () => {
     expect(savedWordStats(items)).toEqual({ total: 3, due: 1, learning: 2, mastered: 1 });
   });
 
@@ -105,7 +105,7 @@ const part = (over: Partial<DeckPart>): DeckPart => ({
 });
 
 describe("nextPartIndex", () => {
-  it("là phần đầu tiên còn thẻ Mới (AC-VOCAB-14)", () => {
+  it("là phần đầu tiên còn thẻ Mới (AC-HT-05)", () => {
     const parts = [part({ index: 0, studiedCount: 20 }), part({ index: 1, studiedCount: 15 }), part({ index: 2 })];
     expect(nextPartIndex(parts)).toBe(1);
   });

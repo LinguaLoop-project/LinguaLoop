@@ -18,7 +18,7 @@ import com.lingualoop.backend.vocab.service.VocabLearnService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-/** Học từ mới một phần (UC-VOCAB-05). Số phần trên đường dẫn tính từ 1. */
+/** Học từ mới một phần (UC-HT-02). Số phần trên đường dẫn tính từ 1. */
 @RestController
 @RequestMapping("/api/v1/vocab")
 @RequiredArgsConstructor

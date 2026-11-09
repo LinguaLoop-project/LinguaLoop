@@ -23,7 +23,7 @@ const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&
 export const letterCount = (word: string) => [...word].filter(isLetter).length;
 
 /**
- * Câu ví dụ có từ cần đoán bị thay bằng dấu `*`, mỗi chữ cái một dấu (BR-VOCAB-14). Che mọi từ trong câu bằng từ của thẻ
+ * Câu ví dụ có từ cần đoán bị thay bằng dấu `*`, mỗi chữ cái một dấu (BR-HT-17). Che mọi từ trong câu bằng từ của thẻ
  * hoặc từ của thẻ thêm đuôi -s, -es, -d, -ed, -ing, không phân biệt hoa thường. Thẻ không có ví dụ thì trả null.
  */
 export function maskExample(example: string | null, word: string): string | null {
@@ -49,7 +49,7 @@ export function hintMask(word: string, hints: number): string {
     .join("");
 }
 
-/** Gợi ý đến chữ cái cuối cùng thì coi như "Không biết" (BR-VOCAB-14). */
+/** Gợi ý đến chữ cái cuối cùng thì coi như "Không biết" (BR-HT-17). */
 export const isHintExhausted = (word: string, hints: number) => hints >= letterCount(word);
 
 /** Đúng khi trùng từ của thẻ sau khi bỏ khoảng trắng đầu cuối, không phân biệt hoa thường; sai chính tả là sai. */
@@ -98,7 +98,7 @@ export function buildOptions(
   return shuffle([{ cardId: card.id, label: correct, correct: true }, ...distractors], random);
 }
 
-/** Chấm một thẻ Flashcard: điểm dưới 3 (Quên) thì thẻ xuống cuối hàng và hiện lại trong lượt (UC-VOCAB-05, 3b). */
+/** Chấm một thẻ Flashcard: điểm dưới 3 (Quên) thì thẻ xuống cuối hàng và hiện lại trong lượt (UC-HT-02, 3b). */
 export function advanceQueue<T>(queue: T[], quality: number): T[] {
   const [head, ...rest] = queue;
   return head === undefined || quality >= 3 ? rest : [...rest, head];

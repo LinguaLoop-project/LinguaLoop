@@ -140,7 +140,7 @@ function Loading() {
   );
 }
 
-/** Trang `/student/vocab/:deckId` (UC-VOCAB-04): tiến độ của bộ, các phần và vài từ mẫu. */
+/** Trang `/student/vocab/:deckId` (UC-HT-01): tiến độ của bộ, các phần và vài từ mẫu. */
 export default function DeckPage() {
   const { t } = useTranslation("vocab");
   const params = useParams();

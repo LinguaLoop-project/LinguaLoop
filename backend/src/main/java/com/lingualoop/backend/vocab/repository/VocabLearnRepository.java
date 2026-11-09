@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Đọc thẻ của một phần và ghi phiên học, nhật ký và tiến độ thẻ của một học viên (UC-VOCAB-05). Viết bằng SQL thuần vì
+ * Đọc thẻ của một phần và ghi phiên học, nhật ký và tiến độ thẻ của một học viên (UC-HT-02). Viết bằng SQL thuần vì
  * các thao tác ghi cần khoá dòng và {@code ON CONFLICT}.
  */
 @Repository
@@ -64,7 +64,7 @@ public class VocabLearnRepository {
                 .list();
     }
 
-    /** Đóng phiên còn mở của học viên rồi mở phiên mới (BR-VOCAB-11); trả id phiên mới. */
+    /** Đóng phiên còn mở của học viên rồi mở phiên mới (BR-HT-15); trả id phiên mới. */
     public UUID openSession(UUID userId, UUID deckId, UUID groupId, String type) {
         jdbc.sql("UPDATE vocab_study_sessions SET ended_at = now() WHERE user_id = :user AND ended_at IS NULL")
                 .param("user", userId).update();
@@ -103,7 +103,7 @@ public class VocabLearnRepository {
                 .optional();
     }
 
-    /** Ghi một dòng nhật ký; false nếu {@code answerId} đã được ghi (gửi lại, BR-VOCAB-12). */
+    /** Ghi một dòng nhật ký; false nếu {@code answerId} đã được ghi (gửi lại, BR-HT-16). */
     public boolean insertLog(UUID userId, UUID cardId, UUID sessionId, UUID answerId, String mode, boolean correct,
             Integer quality, Integer responseMs) {
         return jdbc.sql("""
@@ -147,7 +147,7 @@ public class VocabLearnRepository {
                 .param("user", userId).param("card", cardId).update();
     }
 
-    /** Chỉ cộng số lần đúng hoặc sai, giữ nguyên lịch ôn (cách học không chấm flashcard, BR-VOCAB-08). */
+    /** Chỉ cộng số lần đúng hoặc sai, giữ nguyên lịch ôn (cách học không chấm flashcard, BR-HT-12). */
     public void bumpCounts(UUID userId, UUID cardId, boolean correct) {
         jdbc.sql("""
                 UPDATE user_card_progress

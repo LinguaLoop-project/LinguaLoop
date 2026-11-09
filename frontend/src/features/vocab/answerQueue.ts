@@ -10,7 +10,7 @@ interface Pending {
 const RETRY_MS = 8_000;
 
 /**
- * Hàng đợi gửi câu trả lời (UC-VOCAB-05, luồng 4a). Mất mạng thì giữ lại và gửi lại khi có mạng; mỗi câu có `answerId`
+ * Hàng đợi gửi câu trả lời (UC-HT-02, luồng 4a). Mất mạng thì giữ lại và gửi lại khi có mạng; mỗi câu có `answerId`
  * nên server chỉ ghi một lần dù gửi lặp. Sống ở cấp module để chuyển trang không làm mất câu chưa gửi (tải lại trang thì
  * mất).
  */

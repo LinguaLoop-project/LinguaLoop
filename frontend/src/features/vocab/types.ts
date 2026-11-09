@@ -5,7 +5,7 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-/** Trạng thái thẻ của người học (BR-VOCAB-06). */
+/** Trạng thái thẻ của người học (BR-HT-08). */
 export type CardStatus = "new" | "learning" | "reviewing" | "mastered";
 
 export type SavedWordSource = "dictionary" | "lesson" | "manual";
@@ -40,7 +40,7 @@ export interface SavedWord {
   contextVi: string | null;
   status: CardStatus;
   nextReviewAt: string | null;
-  /** Thẻ đến hạn ôn ngay (BR-VOCAB-09). */
+  /** Thẻ đến hạn ôn ngay (BR-HT-13). */
   due: boolean;
   savedAt: string;
 }
@@ -118,7 +118,7 @@ export interface DeckDetail {
   sampleWords: DeckSampleWord[];
 }
 
-/** Cách học (UC-VOCAB-05); giá trị khớp `AnswerRequest.Mode` của backend. */
+/** Cách học (UC-HT-02); giá trị khớp `AnswerRequest.Mode` của backend. */
 export type LearnMode = "guess" | "flashcard" | "quiz" | "reverse_quiz" | "repeat";
 
 /** Khoảng chờ tới lần ôn tới nếu chấm Flashcard với `quality` (1 Quên, 3 Khó, 4 Được, 5 Dễ). */
