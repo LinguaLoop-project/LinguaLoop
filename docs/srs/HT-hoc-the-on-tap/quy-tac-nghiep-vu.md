@@ -5,7 +5,7 @@
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
 | BR-HT-06 | Học viên chỉ được xem và thao tác trên từ đã lưu, bộ từ cá nhân, tiến độ, phiên học và nhật ký của chính mình; mọi yêu cầu truy cập hoặc tác động lên dữ liệu của học viên khác đều bị hệ thống từ chối và báo không tìm thấy. | UC-HT-01 (3a), UC-HT-06, UC-HT-08, AC-HT-08, AC-HT-47, AC-HT-55, AC-HT-49, AC-HT-50 |
-| BR-HT-07 | Mỗi bộ từ hệ thống có nhãn Pro riêng; quyền học các phần của bộ từ gắn nhãn Pro theo BR-PR-15; phần bị khóa bị hệ thống từ chối cung cấp thẻ cũng như từ chối nhận câu trả lời. | UC-HT-01, UC-HT-02 (1a), AC-HT-03, AC-HT-04, AC-HT-15 |
+| BR-HT-07 | Mỗi bộ từ hệ thống có nhãn Pro riêng; quyền học các phần của bộ từ gắn nhãn Pro theo BR-PR-14; phần bị khóa bị hệ thống từ chối cung cấp thẻ cũng như từ chối nhận câu trả lời. | UC-HT-01, UC-HT-02 (1a), AC-HT-03, AC-HT-04, AC-HT-15 |
 
 ## Trạng thái
 

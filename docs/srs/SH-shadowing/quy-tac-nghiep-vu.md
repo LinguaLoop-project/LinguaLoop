@@ -4,9 +4,9 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-SH-01 | Mọi chức năng của chế độ Shadowing đều yêu cầu học viên đã đăng nhập; câu được luyện phải thuộc bài học đã được duyệt và chưa bị xóa. Nếu bài học được gắn nhãn Pro thì chỉ học viên có gói Pro còn hạn mới được mở bài và gửi chấm phát âm (theo BR-PR-14); học viên gói Free bị hệ thống từ chối và mời nâng cấp. | UC-SH-01 (2b), AC-SH-10 |
+| BR-SH-01 | Mọi chức năng của chế độ Shadowing đều yêu cầu học viên đã đăng nhập; câu được luyện phải thuộc bài học đã xuất bản và chưa bị xóa. Nếu bài học được gắn nhãn Pro thì chỉ học viên có gói Pro còn hạn mới được mở bài và gửi chấm phát âm (theo BR-PR-13); học viên gói Free bị hệ thống từ chối và mời nâng cấp. | UC-SH-01 (2b), AC-SH-10 |
 | BR-SH-02 | Học viên chỉ được xem kết quả lượt đọc, lịch sử các lượt đọc, ghi chú và danh sách câu cần ôn của chính mình; mọi thao tác truy cập vào dữ liệu lượt đọc của học viên khác đều bị hệ thống từ chối và báo không tìm thấy. | UC-SH-01, AC-SH-02, AC-SH-07 |
-| BR-SH-03 | Mẹo sửa phát âm bằng tiếng Việt của các âm được hiển thị cho cả học viên gói Free và gói Pro. Quyền xem video khẩu hình theo BR-PR-16. | UC-SH-02 (5b), AC-SH-18, AC-SH-19 |
+| BR-SH-03 | Mẹo sửa phát âm bằng tiếng Việt của các âm được hiển thị cho cả học viên gói Free và gói Pro. Quyền xem video khẩu hình theo BR-PR-15. | UC-SH-02 (5b), AC-SH-18, AC-SH-19 |
 | BR-SH-04 | Học viên phải xác nhận đồng ý cho phép xử lý dữ liệu bằng AI (theo BR-AI-02) trước khi hệ thống thực hiện gửi bản ghi âm đi chấm phát âm. | UC-SH-01 (6a), AC-SH-11 |
 
 ## Trạng thái
@@ -44,5 +44,5 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-SH-21 | Việc chấm phát âm các lượt đọc ở chế độ Shadowing hoàn toàn miễn phí, không giới hạn số lượt đọc trong ngày đối với cả tài khoản gói Free lẫn gói Pro và không làm tiêu tốn năng lượng AI. | UC-SH-01, AC-SH-01, AC-SH-05 |
+| BR-SH-21 | Việc chấm phát âm các lượt đọc ở chế độ Shadowing hoàn toàn miễn phí, không giới hạn số lượt đọc trong ngày đối với cả tài khoản gói Free lẫn gói Pro và không làm tiêu tốn credit. | UC-SH-01, AC-SH-01, AC-SH-05 |
 | BR-SH-22 | Khi có quá nhiều yêu cầu chấm phát âm gửi đồng thời vượt quá khả năng xử lý tức thời, hệ thống thông báo dịch vụ đang bận để học viên thử lại mà không khóa toàn bộ tính năng chấm phát âm; chỉ khi dịch vụ chấm gặp lỗi ngắt kết nối liên tiếp thì hệ thống mới tạm ngưng gửi yêu cầu để bảo vệ hệ thống. | UC-SH-01 (6b), AC-SH-14 |

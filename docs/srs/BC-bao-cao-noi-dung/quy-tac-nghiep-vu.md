@@ -4,32 +4,32 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-BC-01 | Chức năng Báo cáo nội dung chỉ dành cho Học viên đã đăng nhập. Đối tượng được báo cáo phải là bài học, bộ từ vựng hoặc video học thụ động đang ở trạng thái hiển thị hợp lệ cho học viên (Đã duyệt / Đã xuất bản và chưa bị xóa); hệ thống từ chối nhận báo cáo cho nội dung không tồn tại, đang ở bản Nháp hoặc đã bị xóa. | UC-BC-01 (2a), UC-TC-04 (3f), AC-BC-01, AC-BC-07, AC-TC-31 |
-| BR-BC-02 | Học viên chỉ được xem danh sách và chi tiết các báo cáo nội dung do chính mình đã gửi; mọi yêu cầu truy cập báo cáo của người dùng khác đều bị hệ thống từ chối và báo không tìm thấy. | UC-BC-01 (1a), AC-BC-05, AC-BC-06 |
+| BR-BC-01 | Chức năng Báo cáo nội dung chỉ dành cho Học viên đã đăng nhập. Học viên chỉ báo cáo trên **câu** (trong bài học) hoặc **thẻ** (trong bộ từ vựng); nút "Báo cáo" chỉ có ở câu và thẻ, không có ở cấp bài học, bộ từ vựng hay video (BR-XL-01). Câu hoặc thẻ phải đang hiển thị hợp lệ cho học viên (bài học hoặc bộ chứa nó đã xuất bản và chưa bị xóa); hệ thống từ chối nhận báo cáo cho nội dung không tồn tại, thuộc bản Nháp, đã gỡ xuất bản hoặc đã xóa. | UC-BC-01 (1, 2a), UC-TC-04 (3f), AC-BC-01, AC-BC-05, AC-TC-31 |
+| BR-BC-02 | Học viên chỉ gửi báo cáo. Học viên không xem được danh sách báo cáo đã gửi, trạng thái hay phản hồi của báo cáo; báo cáo chỉ được xem và xử lý bởi Giáo viên và Quản trị viên trong module XL. | UC-BC-01 |
 
 ## Trạng thái
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-BC-03 | Mỗi báo cáo nội dung có 4 trạng thái: **Chờ xử lý** (mới gửi), **Đang xem** (người phụ trách đang kiểm tra), **Đã xử lý** (đã sửa hoặc xử lý nội dung theo báo cáo) và **Từ chối** (báo cáo không chính xác). Báo cáo mới gửi luôn được khởi tạo ở trạng thái **Chờ xử lý**. | UC-BC-01 (1a), AC-BC-01, AC-BC-05, AC-BC-08 |
-| BR-BC-04 | Khi báo cáo được Giảng viên hoặc Quản trị viên giải quyết (chuyển sang **Đã xử lý** hoặc **Từ chối** tại module XL), hệ thống lưu người xử lý, thời điểm xử lý và ghi chú phản hồi để hiển thị cho học viên đã gửi. Bản ghi báo cáo luôn được giữ lại trong lịch sử kể cả khi nội dung gốc bị gỡ xuất bản hoặc bị xóa sau đó. | UC-BC-01 (1a), AC-BC-05 |
+| BR-BC-03 | Báo cáo mới gửi được khởi tạo ở trạng thái **Chờ giáo viên** của module XL (BR-XL-02), hoặc **Chờ quản trị viên** nếu nội dung chưa có giáo viên chủ (BR-XL-01); các trạng thái tiếp theo do module XL quản lý và không hiển thị cho học viên. | UC-BC-01, AC-BC-01, AC-BC-06 |
+| BR-BC-04 | Bản ghi báo cáo luôn được giữ lại trong lịch sử xử lý của module XL kể cả khi nội dung gốc bị gỡ xuất bản hoặc bị xóa sau đó. Hệ thống không gửi phản hồi hay kết quả xử lý cho học viên đã báo (BR-XL-12). | UC-BC-01 |
 
 ## Dữ liệu hợp lệ
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-BC-05 | Khi gửi báo cáo, học viên bắt buộc phải chọn một lý do trong danh mục quy định gồm: `Sai nội dung`, `Sai bản dịch`, `Sai mức trình độ`, `Lỗi âm thanh / video`, `Nội dung phản cảm`, `Spam`, `Khác`. Nếu chọn lý do `Khác`, học viên bắt buộc phải nhập mô tả chi tiết; với các lý do còn lại, mô tả chi tiết là tùy chọn. | UC-BC-01 (5a), AC-BC-01, AC-BC-02, AC-BC-03, AC-BC-09 |
-| BR-BC-06 | Mô tả chi tiết của báo cáo (khi có nhập) được tự động cắt khoảng trắng ở hai đầu, không được chỉ chứa khoảng trắng và có độ dài từ 1 đến 500 ký tự. | UC-BC-01 (5a), AC-BC-02, AC-BC-03 |
+| BR-BC-05 | Khi gửi báo cáo, học viên chọn đúng một lý do theo loại nội dung. **Với câu:** `Lỗi phụ đề tiếng Anh`, `Lỗi IPA`, `Lỗi bản dịch` (bắt buộc kèm bản sửa đúng), `Phụ đề lệch thời gian`, `Phản cảm`, `Khác` (bắt buộc nhập mô tả lỗi). **Với thẻ:** `Sai từ vựng`, `Sai phiên âm`, `Sai nghĩa hoặc định nghĩa`, `Sai câu ví dụ` (bắt buộc kèm bản sửa đúng), `Phản cảm`, `Khác` (bắt buộc nhập mô tả lỗi). Một báo cáo chỉ có một lý do; muốn báo nhiều lỗi thì gửi nhiều báo cáo. | UC-BC-01 (3, 4, 5a), AC-BC-01, AC-BC-02, AC-BC-03, AC-BC-07 |
+| BR-BC-06 | Bản sửa đúng và mô tả lỗi được tự động cắt khoảng trắng ở hai đầu, không được chỉ chứa khoảng trắng và có độ dài từ 1 đến 500 ký tự. Bản sửa đúng không được giống hệt nội dung hiện tại của trường tương ứng (với câu: phụ đề tiếng Anh, IPA hoặc bản dịch; với thẻ: từ vựng, phiên âm, nghĩa hoặc định nghĩa, câu ví dụ). | UC-BC-01 (5a), AC-BC-01, AC-BC-02, AC-BC-03 |
 
 ## Điều kiện
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-BC-07 | Báo cáo sau khi tạo thành công được tự động chuyển vào hàng đợi xử lý báo cáo (module XL) của Giảng viên phụ trách nội dung đó để sửa nội dung, từ chối hoặc chuyển tiếp cho Quản trị viên; đối với nội dung do hệ thống tạo hoặc báo cáo vi phạm nghiêm trọng, Quản trị viên có quyền xử lý trực tiếp. | UC-BC-01, AC-BC-01 |
-| BR-BC-08 | Một học viên không được gửi báo cáo mới có cùng lý do trên cùng một nội dung nếu học viên đó đang có một báo cáo ở trạng thái **Chờ xử lý** hoặc **Đang xem** cho đúng nội dung và lý do đó. Nếu báo cáo trước đó đã chuyển sang **Đã xử lý** hoặc **Từ chối**, hoặc báo cáo đến từ các học viên khác nhau, hệ thống vẫn cho phép gửi và gộp số lượt báo trùng để người xử lý theo dõi mức độ ưu tiên. | UC-BC-01 (5b), AC-BC-04 |
+| BR-BC-07 | Báo cáo sau khi tạo thành công đi vào hàng đợi xử lý (module XL) của Giáo viên chủ nội dung trước; giáo viên sửa nội dung, từ chối hoặc chuyển lên Quản trị viên, và báo cáo cũng tự chuyển lên Quản trị viên sau 7 ngày hoặc khi giáo viên chủ bị khóa (BR-XL-11). Ngoại lệ duy nhất: báo cáo về nội dung chưa có giáo viên chủ đi thẳng đến Quản trị viên (BR-XL-12). | UC-BC-01, AC-BC-01 |
+| BR-BC-08 | Một học viên không được gửi báo cáo mới có cùng lý do trên cùng một câu hoặc thẻ cụ thể nếu học viên đó đã có một báo cáo cùng lý do cho đúng câu hoặc thẻ đó mà chưa được xử lý xong (chưa ở trạng thái Đã xử lý hoặc Từ chối). Báo cáo của các học viên khác nhau về cùng câu hoặc thẻ, cùng lý do vẫn được nhận và được gộp thành một dòng cho người xử lý (BR-XL-06). | UC-BC-01 (5b), AC-BC-04 |
 
 ## Giới hạn số
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-BC-09 | Mô tả chi tiết trong mỗi báo cáo dài tối đa 500 ký tự; danh sách báo cáo đã gửi của học viên hiển thị tối đa 10 báo cáo mỗi trang, sắp xếp theo thời điểm gửi từ mới nhất đến cũ nhất. | UC-BC-01 (1a), AC-BC-03, AC-BC-05 |
+| BR-BC-09 | Mô tả chi tiết trong mỗi báo cáo dài tối đa 500 ký tự. | UC-BC-01 (5a), AC-BC-03 |
