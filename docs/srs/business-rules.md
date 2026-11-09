@@ -1,3 +1,5 @@
+> **Tài liệu cũ, chỉ để tham khảo.** Bộ đặc tả chính thức nằm trong các thư mục module (`TK-`, `TC-`, `HT-`, `DI-`, `SH-`, `PR-`, ...) theo mã `UC-XX-nn`, `AC-XX-nn`, `BR-XX-nn`. Khi có khác biệt, lấy bộ module làm chuẩn; không cập nhật tiếp tệp này.
+
 # Quy tắc nghiệp vụ
 
 Các giá trị đánh dấu *(đề xuất)* chờ nhóm chốt.
