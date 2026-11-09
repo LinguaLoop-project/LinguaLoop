@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import { GRADE_QUALITIES, intervalParts } from "../../learn";
+import Icon from "@/components/common/Icon";
 import { CardImage, ListenButton, RoundProgress, type CardViewProps } from "./shared";
 import { speak, useCardClock, useKeys } from "./learnHooks";
 
@@ -82,6 +84,19 @@ export default function FlashView({ card, done, total, onAnswer }: CardViewProps
       <div className="mt-2 flex justify-center">
         <ListenButton card={card} label={t("learn.listenAria", { word: card.word })} />
       </div>
+      {flipped && card.contextEn && (
+        <div className="mt-2 rounded-md border border-border bg-surface p-3 text-sm">
+          <div className="text-xs font-bold uppercase tracking-wider text-text-muted">{t("review.context")}</div>
+          <p lang="en" className="mt-1 italic">&ldquo;{card.contextEn}&rdquo;</p>
+          {card.contextVi && <p className="text-text-muted">{card.contextVi}</p>}
+          {card.lesson && (
+            <Link to={`/student/lessons/${card.lesson.slug}`} className="mt-1.5 inline-flex items-center gap-1 text-text-muted hover:text-text">
+              <Icon name="play" className="h-3.5 w-3.5" />
+              {t("review.fromLesson", { title: card.lesson.title })}
+            </Link>
+          )}
+        </div>
+      )}
 
       <div role="group" aria-label={t("learn.flash.gradesLabel")} className={`mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 ${flipped ? "" : "invisible"}`}>
         {GRADE_QUALITIES.map((quality, position) => {

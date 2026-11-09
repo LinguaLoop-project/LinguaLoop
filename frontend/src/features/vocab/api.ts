@@ -1,6 +1,16 @@
 import { isAxiosError } from "axios";
 import { axiosClient } from "@/api/axiosClient";
-import type { AnswerInput, AnswerResult, ApiResponse, DeckDetail, DeckList, PartDetail, SaveWordInput, SavedWord } from "./types";
+import type {
+  AnswerInput,
+  AnswerResult,
+  ApiResponse,
+  DeckDetail,
+  DeckList,
+  PartDetail,
+  ReviewQueue,
+  SaveWordInput,
+  SavedWord,
+} from "./types";
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
@@ -62,6 +72,24 @@ export const vocabApi = {
       undefined,
       { timeout: REQUEST_TIMEOUT_MS },
     );
+    return response.data.data.id;
+  },
+
+  /** Lượt ôn kế tiếp: tối đa 50 thẻ đến hạn; truyền `deck` để chỉ ôn một bộ (404 nếu bộ không có). */
+  getReview: async (deck?: string): Promise<ReviewQueue> => {
+    const response = await axiosClient.get<ApiResponse<ReviewQueue>>("/vocab/review", {
+      params: deck ? { deck } : undefined,
+      timeout: REQUEST_TIMEOUT_MS,
+    });
+    return response.data.data;
+  },
+
+  /** Mở phiên ôn mới; phiên còn mở trước đó được đóng. */
+  openReviewSession: async (deck?: string): Promise<string> => {
+    const response = await axiosClient.post<ApiResponse<{ id: string }>>("/vocab/review/sessions", undefined, {
+      params: deck ? { deck } : undefined,
+      timeout: REQUEST_TIMEOUT_MS,
+    });
     return response.data.data.id;
   },
 

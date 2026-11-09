@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -12,12 +12,11 @@ import Skeleton from "@/components/common/Skeleton";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import { useQuotaStore } from "@/stores/quotaStore";
 import { vocabApi } from "../api";
-import { answerQueue } from "../answerQueue";
 import LearnSession from "../components/learn/LearnSession";
-import type { AnswerDraft } from "../components/learn/shared";
 import { usePart } from "../hooks";
 import { LEARN_MODES, loadMode, saveMode } from "../learn";
-import type { AnswerInput, DeckPart, LearnMode, PartDetail } from "../types";
+import { useAnswerSubmit } from "../useAnswerSubmit";
+import type { DeckPart, LearnMode, PartDetail } from "../types";
 import { deckUrl, nextPartIndex, partState, partUrl, visibleParts } from "../utils";
 
 const MODE_ICONS: Record<LearnMode, string> = {
@@ -132,17 +131,7 @@ export default function PartPage() {
   });
   const sessionId = session.data ?? null;
 
-  // Câu trả lời đến trước khi có phiên (hiếm) được giữ lại rồi gửi khi phiên mở xong.
-  const early = useRef<AnswerInput[]>([]);
-  const submit = (answer: AnswerDraft) => {
-    const full: AnswerInput = { ...answer, answerId: crypto.randomUUID() };
-    if (sessionId) answerQueue.enqueue(sessionId, full);
-    else early.current.push(full);
-  };
-  useEffect(() => {
-    if (!sessionId) return;
-    for (const answer of early.current.splice(0)) answerQueue.enqueue(sessionId, answer);
-  }, [sessionId]);
+  const submit = useAnswerSubmit(sessionId);
 
   const changeMode = (value: string) => {
     setMode(value as LearnMode);

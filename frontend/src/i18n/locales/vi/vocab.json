@@ -204,5 +204,33 @@
     },
     "listenAria": "Nghe từ {{word}}",
     "again": "Thẻ này sẽ hiện lại ở cuối lượt."
+  },
+  "tabs": {
+    "label": "Chế độ từ vựng",
+    "decks": "Bộ từ",
+    "review": "Ôn thẻ"
+  },
+  "review": {
+    "title": "Ôn thẻ đến hạn",
+    "deckTitle": "Ôn bộ: {{name}}",
+    "allDecks": "Ôn mọi bộ",
+    "loading": "Đang tải thẻ đến hạn",
+    "queueInfo": "Lượt này có {{count}} thẻ",
+    "more_other": "Còn {{count}} thẻ đến hạn nữa",
+    "emptyTitle": "Hôm nay bạn đã ôn xong",
+    "emptyDesc": "Không còn thẻ nào đến hạn. Học thêm từ mới để có thẻ ôn lần sau.",
+    "nextDue": "Thẻ tiếp theo đến hạn lúc {{time}}.",
+    "nextNone": "Chưa có thẻ nào được hẹn ôn.",
+    "learnNew": "Học từ mới",
+    "practiceLessons": "Luyện bài học",
+    "doneTitle": "Xong lượt ôn!",
+    "doneSubtitle": "Bạn đã ôn {{count}} thẻ",
+    "score": "Nhớ ngay lần đầu {{right}}/{{total}} thẻ",
+    "redone_other": "{{count}} thẻ phải ôn lại trong lượt",
+    "continue": "Ôn tiếp",
+    "continueHint_other": "Còn {{count}} thẻ đến hạn",
+    "backToDecks": "Về bộ từ",
+    "context": "Câu trong bài học",
+    "fromLesson": "Bài học: {{title}}"
   }
 }

@@ -144,6 +144,11 @@ export interface LearnCard {
   audioUs: string | null;
   status: CardStatus;
   previews: LearnPreview[];
+  /** Câu gốc và bản dịch khi thẻ là từ đã lưu từ bài học (BR-HT-03). */
+  contextEn: string | null;
+  contextVi: string | null;
+  /** Bài học nguồn; null nếu thẻ không lưu từ bài học hoặc bài đó không còn xem được. */
+  lesson: { slug: string; title: string } | null;
 }
 
 export interface LearnDeckRef {
@@ -174,6 +179,20 @@ export interface AnswerInput {
   /** Bắt buộc với Flashcard: 1 Quên, 3 Khó, 4 Được, 5 Dễ. */
   quality?: number;
   responseMs?: number;
+}
+
+/** Một câu trả lời trước khi trang học gắn `answerId`. */
+export type AnswerDraft = Omit<AnswerInput, "answerId">;
+
+/** Lượt ôn kế tiếp (`ReviewView.Queue`): tối đa 50 thẻ đến hạn của mọi bộ, hoặc của một bộ. */
+export interface ReviewQueue {
+  /** Chỉ có khi ôn riêng một bộ. */
+  deck: LearnDeckRef | null;
+  cards: LearnCard[];
+  /** Tổng số thẻ đến hạn, có thể nhiều hơn số thẻ của lượt. */
+  dueTotal: number;
+  /** Thời điểm thẻ kế tiếp đến hạn; null nếu chưa có thẻ nào được hẹn. */
+  nextDueAt: string | null;
 }
 
 export interface AnswerResult {

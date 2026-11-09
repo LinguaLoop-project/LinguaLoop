@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { answerCard, firstOpenRound, isRoundDone, nextCard, roundScore, roundsOf, startRound } from "../../learn";
-import type { LearnCard, LearnMode } from "../../types";
+import type { AnswerDraft, LearnCard, LearnMode } from "../../types";
 import ChoiceView from "./ChoiceView";
 import FlashView from "./FlashView";
 import GuessView from "./GuessView";
 import RoundDone from "./RoundDone";
 import WordsList from "./WordsList";
-import type { AnswerDraft } from "./shared";
 
 export interface LearnSessionProps {
   mode: LearnMode;

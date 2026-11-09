@@ -3,11 +3,8 @@ import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import ProgressBar from "@/components/common/ProgressBar";
-import type { AnswerInput, LearnCard } from "../../types";
+import type { AnswerDraft, LearnCard } from "../../types";
 import { speak } from "./learnHooks";
-
-/** Câu trả lời mà view gửi lên; `answerId` do trang học thêm vào. */
-export type AnswerDraft = Omit<AnswerInput, "answerId">;
 
 /** Kết quả của một lượt: số thẻ nhớ ngay lần đầu, số thẻ phải làm lại và tổng số thẻ. */
 export interface RoundScore {

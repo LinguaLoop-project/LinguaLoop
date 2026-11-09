@@ -9,6 +9,7 @@ export const vocabKeys = {
   decks: ["vocab", "decks"] as const,
   deck: (slug: string) => ["vocab", "deck", slug] as const,
   part: (slug: string, part: number) => ["vocab", "part", slug, part] as const,
+  review: (deck: string, run: number) => ["vocab", "review", deck, run] as const,
 };
 
 /** Từ đã lưu của người học; hộp tra từ và trang Từ & câu đã lưu dùng chung một bản. */
@@ -47,6 +48,19 @@ export const usePart = (slug: string | undefined, part: number) =>
     networkMode: NETWORK_MODE,
     gcTime: 0,
     retry: (count, error) => !isStatus(error, 403, 404) && count < 2,
+  });
+
+/**
+ * Lượt ôn kế tiếp. `run` tăng mỗi khi học viên chọn "Ôn tiếp" để tải lại hàng đợi; luôn tải mới vì lịch ôn đổi sau mỗi
+ * câu trả lời. 404 (bộ không có) không thử lại.
+ */
+export const useReviewQueue = (deck: string | undefined, run: number) =>
+  useQuery({
+    queryKey: vocabKeys.review(deck ?? "", run),
+    queryFn: () => vocabApi.getReview(deck),
+    networkMode: NETWORK_MODE,
+    gcTime: 0,
+    retry: (count, error) => !isStatus(error, 404) && count < 2,
   });
 
 /** Lưu một nghĩa; làm mới danh sách khi xong. */

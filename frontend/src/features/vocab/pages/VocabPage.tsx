@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { isAxiosError } from "axios";
 import Button from "@/components/common/Button";
@@ -10,6 +11,7 @@ import SearchInput from "@/components/common/SearchInput";
 import SegmentedControl from "@/components/common/SegmentedControl";
 import Skeleton from "@/components/common/Skeleton";
 import DeckCard, { DeckCardSkeleton } from "../components/DeckCard";
+import ReviewPanel from "../components/review/ReviewPanel";
 import StatCard from "../components/StatCard";
 import { useDecks } from "../hooks";
 import type { DeckCategory, DeckSummary } from "../types";
@@ -112,12 +114,16 @@ function Filters({
 export default function VocabPage() {
   const { t, i18n } = useTranslation("vocab");
   const query = useDecks();
+  const [params, setParams] = useSearchParams();
+  const tab = params.get("tab") === "review" ? "review" : "decks";
+  const reviewDeck = params.get("deck") ?? undefined;
   const [filter, setFilter] = useState<DeckFilter>(EMPTY_DECK_FILTER);
   const vi = i18n.language.startsWith("vi");
 
   const decks = useMemo(() => query.data?.decks ?? [], [query.data]);
   const filtered = useMemo(() => filterDecks(decks, filter), [decks, filter]);
   const active = isDeckFilterActive(filter);
+  const due = query.data?.overview.due ?? 0;
 
   const body = () => {
     if (query.isPending) {
@@ -226,7 +232,22 @@ export default function VocabPage() {
         <h1 className="text-[30px]">{t("title")}</h1>
         <p className="mt-1 text-text-muted">{t("subtitle")}</p>
       </header>
-      {body()}
+      <div className="mb-6">
+        <SegmentedControl
+          ariaLabel={t("tabs.label")}
+          value={tab}
+          onChange={(value) => setParams(value === "review" ? { tab: "review" } : {})}
+          options={[
+            { value: "decks", label: t("tabs.decks"), icon: <Icon name="layers" className="h-4 w-4" /> },
+            {
+              value: "review",
+              label: due > 0 ? `${t("tabs.review")} · ${due}` : t("tabs.review"),
+              icon: <Icon name="refresh-cw" className="h-4 w-4" />,
+            },
+          ]}
+        />
+      </div>
+      {tab === "review" ? <ReviewPanel key={reviewDeck ?? ""} deck={reviewDeck} /> : body()}
     </section>
   );
 }

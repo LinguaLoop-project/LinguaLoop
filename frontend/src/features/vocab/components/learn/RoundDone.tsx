@@ -1,13 +1,12 @@
-import { useSyncExternalStore } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
 import { buttonClasses } from "@/components/common/buttonStyles";
-import { answerQueue } from "../../answerQueue";
 import type { LearnMode } from "../../types";
 import type { RoundScore } from "./shared";
+import UnsentNotice from "./UnsentNotice";
 
 export interface RoundDoneProps {
   mode: LearnMode;
@@ -38,7 +37,6 @@ export default function RoundDone({
   deckHref,
 }: RoundDoneProps) {
   const { t } = useTranslation("vocab");
-  const unsent = useSyncExternalStore(answerQueue.subscribe, answerQueue.size);
   const primary = buttonClasses({ variant: "primary" });
 
   return (
@@ -50,12 +48,7 @@ export default function RoundDone({
       </p>
       <p className="mt-1 text-sm text-text-muted">{t("learn.done.score", { right: score.right, total: score.total })}</p>
       {score.redone > 0 && <p className="text-sm text-text-muted">{t("learn.done.redone", { count: score.redone })}</p>}
-      {unsent > 0 && (
-        <p role="status" className="mt-2 inline-flex items-center gap-1.5 text-sm text-warning">
-          <Icon name="wifi-off" className="h-4 w-4" />
-          {t("learn.unsent", { count: unsent })}
-        </p>
-      )}
+      <UnsentNotice />
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         <Button variant="ghost" leftIcon={<Icon name="book-open-text" />} onClick={onShowWords}>
           {t("learn.done.words")}

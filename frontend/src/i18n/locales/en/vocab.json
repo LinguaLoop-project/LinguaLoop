@@ -215,5 +215,36 @@
     },
     "listenAria": "Listen to {{word}}",
     "again": "This card will come back at the end of the round."
+  },
+  "tabs": {
+    "label": "Vocabulary mode",
+    "decks": "Decks",
+    "review": "Review"
+  },
+  "review": {
+    "title": "Review due cards",
+    "deckTitle": "Reviewing deck: {{name}}",
+    "allDecks": "Review all decks",
+    "loading": "Loading due cards",
+    "queueInfo": "This round has {{count}} cards",
+    "more_one": "{{count}} more card is due",
+    "more_other": "{{count}} more cards are due",
+    "emptyTitle": "You are all caught up",
+    "emptyDesc": "No cards are due. Learn new words to have cards to review next time.",
+    "nextDue": "The next card is due at {{time}}.",
+    "nextNone": "No card has been scheduled yet.",
+    "learnNew": "Learn new words",
+    "practiceLessons": "Practice lessons",
+    "doneTitle": "Review round done!",
+    "doneSubtitle": "You reviewed {{count}} cards",
+    "score": "Remembered {{right}}/{{total}} cards the first time",
+    "redone_one": "{{count}} card had to be reviewed again this round",
+    "redone_other": "{{count}} cards had to be reviewed again this round",
+    "continue": "Keep reviewing",
+    "continueHint_one": "{{count}} card still due",
+    "continueHint_other": "{{count}} cards still due",
+    "backToDecks": "Back to decks",
+    "context": "Sentence from the lesson",
+    "fromLesson": "Lesson: {{title}}"
   }
 }
