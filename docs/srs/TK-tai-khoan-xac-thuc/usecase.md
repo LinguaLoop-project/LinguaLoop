@@ -3,12 +3,12 @@
 | Mã UC | Tên | Tác nhân | Độ ưu tiên | Số AC |
 |---|---|---|---|:---:|
 | UC-TK-01 | Đăng ký tài khoản | Học viên (người dùng mới) | Cao | 6 |
-| UC-TK-02 | Đăng nhập bằng email và mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | 9 |
-| UC-TK-03 | Đăng nhập bằng Google | Học viên, Giảng viên, Quản trị viên | Cao | 9 |
-| UC-TK-04 | Đăng xuất | Học viên, Giảng viên, Quản trị viên | Cao | 3 |
-| UC-TK-05 | Xác thực email | Học viên, Giảng viên, Quản trị viên | Cao | 5 |
-| UC-TK-06 | Quên và đặt lại mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | 8 |
-| UC-TK-07 | Tạo hoặc đổi mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | 5 |
+| UC-TK-02 | Đăng nhập bằng email và mật khẩu | Học viên, Giáo viên, Quản trị viên | Cao | 9 |
+| UC-TK-03 | Đăng nhập bằng Google | Học viên, Giáo viên, Quản trị viên | Cao | 9 |
+| UC-TK-04 | Đăng xuất | Học viên, Giáo viên, Quản trị viên | Cao | 3 |
+| UC-TK-05 | Xác thực email | Học viên, Giáo viên, Quản trị viên | Cao | 5 |
+| UC-TK-06 | Quên và đặt lại mật khẩu | Học viên, Giáo viên, Quản trị viên | Cao | 8 |
+| UC-TK-07 | Tạo hoặc đổi mật khẩu | Học viên, Giáo viên, Quản trị viên | Cao | 5 |
 | UC-TK-08 | Thiết lập hồ sơ học tập (onboarding) | Học viên | Cao | 8 |
 
 ---
@@ -33,10 +33,10 @@
 
 | Mục | Nội dung |
 |---|---|
-| Tác nhân | Học viên, Giảng viên, Quản trị viên |
+| Tác nhân | Học viên, Giáo viên, Quản trị viên |
 | Mô tả | Cho phép tác nhân đăng nhập vào hệ thống bằng email và mật khẩu. |
 | Điều kiện tiên quyết | Tác nhân đã có tài khoản có mật khẩu và chưa đăng nhập. |
-| Điều kiện sau | Tác nhân được cấp phiên đăng nhập và chuyển đến trang chủ tương ứng với vai trò (Học viên: trang "Hôm nay"; Giảng viên: trang giảng viên; Quản trị viên: trang quản trị), hoặc đến bước thiết lập hồ sơ học tập nếu là học viên chưa hoàn tất. |
+| Điều kiện sau | Tác nhân được cấp phiên đăng nhập và chuyển đến trang chủ tương ứng với vai trò (Học viên: trang "Hôm nay"; Giáo viên: trang giáo viên; Quản trị viên: trang quản trị), hoặc đến bước thiết lập hồ sơ học tập nếu là học viên chưa hoàn tất. |
 | Luồng chính | 1. Tác nhân chọn "Đăng nhập".<br>2. Hệ thống hiển thị biểu mẫu đăng nhập.<br>3. Tác nhân nhập email và mật khẩu rồi gửi biểu mẫu.<br>4. Hệ thống kiểm tra tài khoản không đang bị tạm khóa đăng nhập (BR-TK-03).<br>5. Hệ thống kiểm tra email và mật khẩu.<br>6. Hệ thống kiểm tra tài khoản không bị quản trị viên khóa (BR-TK-10).<br>7. Hệ thống kiểm tra email của tài khoản đã được xác thực chưa.<br>8. Hệ thống cấp phiên đăng nhập, đặt lại bộ đếm số lần nhập sai và chuyển tác nhân đến trang chủ tương ứng với vai trò. |
 | Luồng thay thế | **3a. Đăng nhập bằng Google (Xuất phát từ Bước 3)**<br>1. Tác nhân chọn "Tiếp tục với Google".<br>2. Hệ thống thực hiện đăng nhập bằng Google (UC-TK-03).<br>3. Kết thúc Use Case.<br><br>**8a. Học viên chưa hoàn tất thiết lập hồ sơ (Xuất phát từ Bước 8)**<br>1. Hệ thống phát hiện học viên chưa hoàn tất thiết lập hồ sơ học tập.<br>2. Hệ thống cấp phiên đăng nhập và chuyển học viên đến bước thiết lập hồ sơ học tập (UC-TK-08).<br>3. Kết thúc Use Case. |
 | Luồng ngoại lệ | **4a. Đang bị tạm khóa đăng nhập (Xuất phát từ Bước 4)**<br>1. Hệ thống phát hiện tài khoản đang trong thời gian tạm khóa do nhập sai nhiều lần.<br>2. Hệ thống từ chối đăng nhập, hiển thị thời gian còn lại và gợi ý "Đặt lại mật khẩu" (UC-TK-06).<br>3. Kết thúc Use Case.<br><br>**5a. Sai email hoặc mật khẩu (Xuất phát từ Bước 5)**<br>1. Hệ thống ghi nhận một lần nhập sai.<br>2. Hệ thống hiển thị thông báo chung "Email hoặc mật khẩu chưa đúng" kèm số lần thử còn lại, không cho biết email có tồn tại hay không (BR-TK-04).<br>3. Quay lại Bước 3.<br><br>**5b. Sai mật khẩu lần thứ 5 liên tiếp (Xuất phát từ Bước 5)**<br>1. Hệ thống ghi nhận lần nhập sai thứ 5 liên tiếp.<br>2. Hệ thống tạm khóa đăng nhập 15 phút (BR-TK-03).<br>3. Hệ thống thông báo thời gian khóa và gợi ý "Đặt lại mật khẩu" (UC-TK-06).<br>4. Kết thúc Use Case.<br><br>**6a. Tài khoản bị khóa (Xuất phát từ Bước 6)**<br>1. Hệ thống phát hiện tài khoản bị quản trị viên khóa.<br>2. Hệ thống từ chối đăng nhập và thông báo tài khoản đã bị khóa, hướng dẫn liên hệ quản trị viên.<br>3. Kết thúc Use Case.<br><br>**7a. Email chưa xác thực (Xuất phát từ Bước 7)**<br>1. Hệ thống phát hiện email của tài khoản chưa được xác thực.<br>2. Hệ thống không cấp phiên đăng nhập (BR-TK-05).<br>3. Hệ thống chuyển tác nhân đến màn hình "Kiểm tra hộp thư" với tùy chọn "Gửi lại email xác thực" (UC-TK-05).<br>4. Kết thúc Use Case. |
@@ -49,7 +49,7 @@
 
 | Mục | Nội dung |
 |---|---|
-| Tác nhân | Học viên, Giảng viên, Quản trị viên |
+| Tác nhân | Học viên, Giáo viên, Quản trị viên |
 | Mô tả | Cho phép tác nhân đăng nhập hoặc tạo tài khoản mới bằng tài khoản Google, không cần nhập mật khẩu. |
 | Điều kiện tiên quyết | Tác nhân có tài khoản Google và chưa đăng nhập. |
 | Điều kiện sau | Tác nhân được cấp phiên đăng nhập. Nếu là lần đầu, tài khoản học viên mới được tạo. Tác nhân được chuyển đến trang chủ đúng vai trò, hoặc đến bước thiết lập hồ sơ học tập nếu là học viên chưa hoàn tất. |
@@ -65,7 +65,7 @@
 
 | Mục | Nội dung |
 |---|---|
-| Tác nhân | Học viên, Giảng viên, Quản trị viên |
+| Tác nhân | Học viên, Giáo viên, Quản trị viên |
 | Mô tả | Cho phép tác nhân kết thúc phiên đăng nhập trên thiết bị đang dùng. Phiên cũng tự kết thúc khi không sử dụng quá lâu. |
 | Điều kiện tiên quyết | Tác nhân đang đăng nhập. |
 | Điều kiện sau | Phiên đăng nhập trên thiết bị hiện tại không còn hiệu lực; tác nhân được đưa về trang đăng nhập. Phiên trên các thiết bị khác không bị ảnh hưởng. |
@@ -81,7 +81,7 @@
 
 | Mục | Nội dung |
 |---|---|
-| Tác nhân | Học viên, Giảng viên, Quản trị viên |
+| Tác nhân | Học viên, Giáo viên, Quản trị viên |
 | Mô tả | Cho phép tác nhân xác nhận email thuộc về mình thông qua liên kết trong thư do hệ thống gửi. |
 | Điều kiện tiên quyết | Tài khoản đăng ký bằng email có email chưa được xác thực (tác nhân chưa đăng nhập được). |
 | Điều kiện sau | Email của tài khoản được đánh dấu đã xác thực; tác nhân đăng nhập được bằng email và mật khẩu. |
@@ -97,7 +97,7 @@
 
 | Mục | Nội dung |
 |---|---|
-| Tác nhân | Học viên, Giảng viên, Quản trị viên |
+| Tác nhân | Học viên, Giáo viên, Quản trị viên |
 | Mô tả | Cho phép tác nhân quên mật khẩu, hoặc chưa có mật khẩu (tài khoản Google), đặt mật khẩu mới thông qua liên kết gửi về email. |
 | Điều kiện tiên quyết | Tác nhân biết email đã dùng cho tài khoản và truy cập được hộp thư đó. |
 | Điều kiện sau | Mật khẩu mới được lưu; mọi phiên đăng nhập cũ của tài khoản bị kết thúc; tác nhân được chuyển đến trang đăng nhập. |
@@ -113,7 +113,7 @@
 
 | Mục | Nội dung |
 |---|---|
-| Tác nhân | Học viên, Giảng viên, Quản trị viên |
+| Tác nhân | Học viên, Giáo viên, Quản trị viên |
 | Mô tả | Cho phép tác nhân đang đăng nhập đổi mật khẩu. Với tài khoản đăng nhập bằng Google chưa có mật khẩu, cho phép tạo mật khẩu lần đầu để về sau đăng nhập được bằng email và mật khẩu. |
 | Điều kiện tiên quyết | Tác nhân đang đăng nhập. |
 | Điều kiện sau | Mật khẩu mới được lưu; phiên đăng nhập trên các thiết bị khác bị kết thúc, phiên trên thiết bị hiện tại được giữ. |

@@ -4,15 +4,15 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-TC-01 | Mọi chức năng xem thư viện, chủ đề, chi tiết bài học, học thụ động và tra từ điển đều yêu cầu học viên đã đăng nhập. Quyền xem lời thoại, xem video Pro và luyện tập đối với bài học gắn nhãn Pro theo BR-PR-14. | UC-TC-01, UC-TC-02 (4a, 4b), UC-TC-04, AC-TC-08, AC-TC-10, AC-TC-14, AC-TC-15, AC-TC-18, AC-TC-32 |
+| BR-TC-01 | Mọi chức năng xem thư viện, chủ đề, chi tiết bài học, học thụ động và tra từ điển đều yêu cầu học viên đã đăng nhập. Quyền xem lời thoại, xem video Pro và luyện tập đối với bài học gắn nhãn Pro theo BR-PR-13. | UC-TC-01, UC-TC-02 (4a, 4b), UC-TC-04, AC-TC-08, AC-TC-10, AC-TC-14, AC-TC-15, AC-TC-18, AC-TC-32 |
 | BR-TC-02 | Tiến độ bài học, điểm cao nhất từng câu, danh sách bài đang học, trạng thái thích video và trạng thái lưu nghĩa từ điển hiển thị cho học viên nào thì chỉ tính trên dữ liệu của chính học viên đó, hoàn toàn tách biệt với học viên khác. | UC-TC-01, UC-TC-02, UC-TC-03, UC-TC-04, AC-TC-04, AC-TC-21 |
-| BR-TC-13 | Nguồn video trong mục Học thụ động chỉ bao gồm các bài học video ngắn đã được duyệt do hệ thống cung cấp; học viên không có quyền tự đăng tải video lên mục Học thụ động. | UC-TC-04, AC-TC-25, AC-TC-32 |
+| BR-TC-13 | Nguồn video trong mục Học thụ động chỉ bao gồm các bài học video ngắn đã xuất bản do hệ thống cung cấp; học viên không có quyền tự đăng tải video lên mục Học thụ động. | UC-TC-04, AC-TC-25, AC-TC-32 |
 
 ## Trạng thái
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-TC-03 | Học viên chỉ được nhìn thấy và truy cập các bài học, video học thụ động và chủ đề đang ở trạng thái Đã duyệt và chưa bị xóa mềm; mọi bài học ở trạng thái Nháp, Chờ duyệt, Từ chối, đã xóa mềm hoặc chủ đề chưa duyệt đều bị ẩn khỏi danh sách và báo không tìm thấy nếu truy cập trực tiếp. | UC-TC-01 (2a, 3a), UC-TC-02 (2a), UC-TC-04, AC-TC-01, AC-TC-06, AC-TC-07, AC-TC-11, AC-TC-12, AC-TC-25 |
+| BR-TC-03 | Học viên chỉ được nhìn thấy và truy cập các bài học và video học thụ động đang ở trạng thái Đã xuất bản và chưa bị xóa mềm, cùng các chủ đề đang hiển thị (có ít nhất 1 bài học đã xuất bản, BR-CD-04); mọi bài học ở trạng thái Nháp hoặc đã xóa mềm, hay chủ đề chưa hiển thị, đều bị ẩn khỏi danh sách và báo không tìm thấy nếu truy cập trực tiếp. | UC-TC-01 (2a, 3a), UC-TC-02 (2a), UC-TC-04, AC-TC-01, AC-TC-06, AC-TC-07, AC-TC-11, AC-TC-12, AC-TC-25 |
 | BR-TC-16 | Mỗi học viên có tối đa một lượt thích trên mỗi video học thụ động; bấm nút Thích khi chưa thích sẽ chuyển sang Đã thích và tăng số lượt thích của video thêm 1, bấm lại khi Đã thích sẽ hủy thích và giảm số lượt thích đi 1 (gửi lặp lại cùng một thao tác không làm tăng/giảm số lượt thích nhiều lần). | UC-TC-04 (3b), AC-TC-27 |
 
 ## Dữ liệu hợp lệ
@@ -33,12 +33,12 @@
 | BR-TC-09 | Trên danh sách câu lời thoại của trang chi tiết bài học, mỗi câu hiển thị riêng huy hiệu điểm cao nhất đã làm tròn đến hàng đơn vị của chế độ Nghe chép và chế độ Shadowing; câu chưa có lượt làm ở chế độ nào thì không hiển thị huy hiệu của chế độ đó. | UC-TC-02, AC-TC-17 |
 | BR-TC-14 | Khi xem Học thụ động, hệ thống chỉ phát video đang hiển thị trên màn hình và tự động dừng video trước đó ngay khi học viên cuộn qua; lời thoại hiển thị chạy đồng bộ theo mốc thời gian của từng câu trong video. Khi học viên mở hộp Tra từ điển hoặc mở biểu mẫu Báo cáo nội dung, video đang xem tự động tạm dừng và phát tiếp khi đóng hộp thoại. | UC-TC-04 (3c, 3f), AC-TC-25, AC-TC-28 |
 | BR-TC-17 | Khi học viên chọn "Lưu câu" trong lúc xem Học thụ động, câu lời thoại đang phát được thêm vào danh sách Câu cần ôn (chế độ Shadowing, lý do ghim tay) ngay cả khi học viên chưa có lượt đọc nào cho câu đó (vì ở Học thụ động toàn bộ lời thoại đã được hiển thị công khai); bấm lại nút "Đã lưu câu" sẽ gỡ câu đó khỏi danh sách. | UC-TC-04 (3d), AC-TC-29 |
-| BR-TC-18 | Mỗi video trong mục Học thụ động luôn gắn với một bài học đã duyệt của hệ thống; khi học viên chọn chuyển sang luyện bài từ video đang xem, hệ thống dừng phát video thụ động và mở trực tiếp màn hình Thực hành shadowing (UC-SH-01) của bài học đó. | UC-TC-04 (3e), AC-TC-30 |
+| BR-TC-18 | Mỗi video trong mục Học thụ động luôn gắn với một bài học đã xuất bản của hệ thống; khi học viên chọn chuyển sang luyện bài từ video đang xem, hệ thống dừng phát video thụ động và mở trực tiếp màn hình Thực hành shadowing (UC-SH-01) của bài học đó. | UC-TC-04 (3e), AC-TC-30 |
 
 ## Giới hạn số
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-TC-10 | Trên trang tổng quan Thư viện bài học, mục "Tiếp tục học" hiển thị tối đa 3 bài học mà học viên đang học gần nhất; phần danh sách theo chủ đề hiển thị tối đa 4 bài học có nhiều lượt xem nhất cho mỗi chủ đề đã duyệt. | UC-TC-01, AC-TC-02 |
+| BR-TC-10 | Trên trang tổng quan Thư viện bài học, mục "Tiếp tục học" hiển thị tối đa 3 bài học mà học viên đang học gần nhất; phần danh sách theo chủ đề hiển thị tối đa 4 bài học có nhiều lượt xem nhất cho mỗi chủ đề đang hiển thị. | UC-TC-01, AC-TC-02 |
 | BR-TC-11 | Kết quả tìm kiếm và lọc bài học luôn được chia theo trang, mỗi bài trong trang hiển thị kèm tổng số câu của bài và thông tin phân trang (danh sách bài, trang hiện tại, kích thước trang, tổng số bài, tổng số trang). | UC-TC-01, AC-TC-05 |
 | BR-TC-12 | Trang chi tiết một bài học hiển thị tối đa 3 bài học liên quan cùng chủ đề với bài đang xem (chỉ lấy các bài học hiển thị hợp lệ và ưu tiên bài có nhiều lượt xem hơn đứng trước). | UC-TC-02, AC-TC-11 |
