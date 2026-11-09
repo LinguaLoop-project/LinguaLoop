@@ -242,6 +242,25 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
+    void flagsMayBeOmitted_asTheClientDoesForQuizAndFlashcard() throws Exception {
+        List<UUID> cards = freeDeck();
+        UUID user = users.newUser();
+        UUID session = openSession(user, base, 1);
+
+        // Trắc nghiệm không gửi hintUsed; Flashcard không gửi correct lẫn hintUsed
+        as(user, post(SESSIONS + session + "/answers").contentType(MediaType.APPLICATION_JSON).content(
+                "{\"cardId\":\"" + cards.get(0) + "\",\"answerId\":\"" + UUID.randomUUID() + "\",\"mode\":\"quiz\",\"correct\":true}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.quality").value(4));
+        as(user, post(SESSIONS + session + "/answers").contentType(MediaType.APPLICATION_JSON).content(
+                "{\"cardId\":\"" + cards.get(1) + "\",\"answerId\":\"" + UUID.randomUUID() + "\",\"mode\":\"flashcard\",\"quality\":5}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.quality").value(5));
+        // không gửi cờ nào ở cách học không phải Flashcard: tính như sai
+        as(user, post(SESSIONS + session + "/answers").contentType(MediaType.APPLICATION_JSON).content(
+                "{\"cardId\":\"" + cards.get(2) + "\",\"answerId\":\"" + UUID.randomUUID() + "\",\"mode\":\"guess\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.quality").value(1));
+    }
+
+    @Test
     void repeatMode_isNoLongerAccepted_UC_HT_02() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();

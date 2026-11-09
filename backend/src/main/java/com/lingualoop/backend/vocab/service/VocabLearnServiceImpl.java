@@ -73,7 +73,7 @@ class VocabLearnServiceImpl implements VocabLearnService {
         if (flashcard && request.quality() == null) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED);
         }
-        int quality = flashcard ? request.quality() : Sm2.qualityOf(request.correct(), request.hintUsed());
+        int quality = flashcard ? request.quality() : Sm2.qualityOf(request.isCorrect(), request.isHintUsed());
         boolean correct = quality >= 3;
 
         boolean fresh = learn.insertLog(userId, request.cardId(), sessionId, request.answerId(), request.mode().dbValue(),
