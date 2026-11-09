@@ -4,7 +4,7 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-DI-01 | Quyền mở luyện nghe chép đối với bài học gắn nhãn Pro theo BR-PR-14; học viên không đủ quyền bị hệ thống từ chối từ đầu và không hiển thị danh sách câu. | UC-DI-01 (1a), AC-DI-08 |
+| BR-DI-01 | Quyền mở luyện nghe chép đối với bài học gắn nhãn Pro theo BR-PR-13; học viên không đủ quyền bị hệ thống từ chối từ đầu và không hiển thị danh sách câu. | UC-DI-01 (1a), AC-DI-08 |
 | BR-DI-02 | Học viên chỉ được xem kết quả, lịch sử lượt làm, ghi chú và danh sách câu cần ôn của chính mình; mọi thao tác truy cập hoặc sửa xóa dữ liệu của học viên khác đều bị hệ thống từ chối như không tồn tại. | UC-DI-01, UC-DI-02, AC-DI-33, AC-DI-37, AC-DI-43 |
 
 ## Trạng thái
