@@ -21,6 +21,7 @@ import {
   groupByCategory,
   isDeckFilterActive,
   isStarted,
+  OTHER_CATEGORY,
   type DeckFilter,
   type DeckStateFilter,
 } from "../utils";
@@ -32,11 +33,12 @@ const categoryName = (category: DeckCategory, vi: boolean) => (vi ? category.nam
 
 /** Các bộ gom theo danh mục, mỗi danh mục một tiêu đề nhỏ. */
 function CategoryGroups({ decks, vi }: { decks: DeckSummary[]; vi: boolean }) {
+  const { t } = useTranslation("vocab");
   return (
     <div className="flex flex-col gap-6">
       {groupByCategory(decks).map(({ category, decks: inCategory }) => (
         <div key={category?.slug ?? "other"}>
-          {category && <h3 className="mb-3 text-base font-bold text-text-muted">{categoryName(category, vi)}</h3>}
+          <h3 className="mb-3 text-base font-bold text-text-muted">{category ? categoryName(category, vi) : t("category.other")}</h3>
           <div className={GRID}>
             {inCategory.map((deck) => (
               <DeckCard key={deck.id} deck={deck} />
@@ -62,6 +64,7 @@ function Filters({
 }) {
   const { t } = useTranslation("vocab");
   const categories = groupByCategory(decks).flatMap((group) => (group.category ? [{ ...group.category, count: group.decks.length }] : []));
+  const hasOther = decks.some((deck) => !deck.category);
   const levels = [...new Set(decks.flatMap((deck) => (deck.cefrLevel ? [deck.cefrLevel] : [])))].sort();
   const patch = (change: Partial<DeckFilter>) => onChange({ ...filter, ...change });
 
@@ -89,7 +92,7 @@ function Filters({
           />
         )}
       </div>
-      {categories.length > 1 && (
+      {categories.length + (hasOther ? 1 : 0) > 1 && (
         <div role="group" aria-label={t("filter.category.label")} className="flex flex-wrap gap-2">
           <Chip active={filter.category === "all"} onClick={() => patch({ category: "all" })} count={decks.length}>
             {t("filter.category.all")}
@@ -104,6 +107,15 @@ function Filters({
               {categoryName(category, vi)}
             </Chip>
           ))}
+          {hasOther && (
+            <Chip
+              active={filter.category === OTHER_CATEGORY}
+              onClick={() => patch({ category: OTHER_CATEGORY })}
+              count={decks.filter((deck) => !deck.category).length}
+            >
+              {t("category.other")}
+            </Chip>
+          )}
         </div>
       )}
     </div>

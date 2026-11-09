@@ -232,5 +232,8 @@
     "backToDecks": "Về bộ từ",
     "context": "Câu trong bài học",
     "fromLesson": "Bài học: {{title}}"
+  },
+  "category": {
+    "other": "Khác"
   }
 }

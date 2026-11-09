@@ -24,11 +24,12 @@ public class VocabLearnRepository {
     public record GroupRow(UUID id, String name, String nameVi) {
     }
 
-    /** Phần thứ {@code index} (tính từ 0) của bộ, theo thứ tự phần. */
+    /** Phần thứ {@code index} (tính từ 0) của bộ theo thứ tự phần, chỉ tính nhóm có ít nhất 1 thẻ (BR-NT-05). */
     public Optional<GroupRow> findGroupAt(UUID deckId, int index) {
         return jdbc.sql("""
-                SELECT id, name, name_vi FROM vocab_groups
+                SELECT id, name, name_vi FROM vocab_groups g
                 WHERE deck_id = :deck AND deleted_at IS NULL
+                  AND EXISTS (SELECT 1 FROM vocab_cards c WHERE c.group_id = g.id AND c.deleted_at IS NULL)
                 ORDER BY sort_order OFFSET :index LIMIT 1""")
                 .param("deck", deckId).param("index", index)
                 .query((rs, n) -> new GroupRow(rs.getObject("id", UUID.class), rs.getString("name"), rs.getString("name_vi")))
@@ -94,7 +95,8 @@ public class VocabLearnRepository {
         return jdbc.sql("""
                 SELECT d.id AS deck_id, d.slug, d.is_pro, (d.owner_id IS NULL) AS system,
                        (SELECT count(*) FROM vocab_groups g2
-                         WHERE g2.deck_id = d.id AND g2.deleted_at IS NULL AND g2.sort_order < g.sort_order) AS part_index
+                         WHERE g2.deck_id = d.id AND g2.deleted_at IS NULL AND g2.sort_order < g.sort_order
+                           AND EXISTS (SELECT 1 FROM vocab_cards c2 WHERE c2.group_id = g2.id AND c2.deleted_at IS NULL)) AS part_index
                 FROM vocab_cards c
                 JOIN vocab_groups g ON g.id = c.group_id AND g.deleted_at IS NULL
                 JOIN vocab_decks d ON d.id = g.deck_id AND d.deleted_at IS NULL AND d.status = 'APPROVED'

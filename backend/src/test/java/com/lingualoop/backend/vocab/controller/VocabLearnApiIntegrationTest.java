@@ -145,6 +145,34 @@ class VocabLearnApiIntegrationTest {
         as(users.newProUser(), get(DECKS + base + "/parts/4")).andExpect(status().isOk());
     }
 
+    @Test
+    void emptyGroupsAreHiddenFromTheLearner_andPartNumbersSkipThem_BR_NT_05() throws Exception {
+        UUID deck = vocab.deck(base, true);
+        UUID g1 = vocab.group(deck, 1);
+        vocab.card(g1, 1, base + "a");
+        vocab.group(deck, 2); // nhóm trống
+        UUID g3 = vocab.group(deck, 3);
+        vocab.card(g3, 1, base + "b");
+        UUID g4 = vocab.group(deck, 4);
+        UUID cardInEmptiedGroup = vocab.card(g4, 1, base + "c");
+        jdbc.update("UPDATE vocab_cards SET deleted_at = now() WHERE id = ?", cardInEmptiedGroup); // thẻ cuối bị xoá: nhóm trống
+        UUID g5 = vocab.group(deck, 5);
+        UUID cardOfThird = vocab.card(g5, 1, base + "d");
+        UUID free = users.newUser();
+
+        // chỉ còn 3 phần hiển thị (nhóm 1, 3, 5); phần 3 là nhóm thứ ba nên bị khoá với gói Free
+        as(free, get("/api/v1/vocab/decks/" + base)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.deck.groupCount").value(3))
+                .andExpect(jsonPath("$.data.parts.length()").value(3))
+                .andExpect(jsonPath("$.data.parts[1].name").value("Topic 3"))
+                .andExpect(jsonPath("$.data.parts[2].locked").value(true));
+        as(free, get(DECKS + base + "/parts/2")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.cards[0].word").value(base + "b"));
+        as(free, get(DECKS + base + "/parts/4")).andExpect(status().isNotFound());
+        UUID session = openSession(free, base, 1);
+        answer(free, session, cardOfThird, "quiz", true, null).andExpect(status().isForbidden());
+    }
+
     // ---------------------------------------------------------------- phiên học (BR-HT-15)
 
     @Test

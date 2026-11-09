@@ -57,7 +57,7 @@ Một tập thẻ chia thành các bài theo thứ tự, do hệ thống cung c�
 _Tránh_: deck, bộ từ vựng
 
 **Phần**:
-Một nhóm thẻ cùng chủ đề trong một bộ từ, là đơn vị học viên chọn để học từ mới (vd "Family", 49 thẻ). Số thẻ mỗi phần khác nhau.
+Một nhóm thẻ cùng chủ đề trong một bộ từ, là đơn vị học viên chọn để học từ mới (vd "Family", 49 thẻ). Số thẻ mỗi phần khác nhau. Nhóm không có thẻ nào không hiện cho học viên. Giáo viên quản lý gọi là nhóm thẻ (module NT).
 _Tránh_: bài, unit, group (vì "bài" là bài học dùng để nghe chép và shadowing)
 
 **Lượt**:

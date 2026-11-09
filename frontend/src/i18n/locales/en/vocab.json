@@ -246,5 +246,8 @@
     "backToDecks": "Back to decks",
     "context": "Sentence from the lesson",
     "fromLesson": "Lesson: {{title}}"
+  },
+  "category": {
+    "other": "Other"
   }
 }

@@ -26,7 +26,8 @@ public class VocabReviewRepository {
     private static final String PART_INDEX = """
             WITH part_index AS (
                 SELECT id, row_number() OVER (PARTITION BY deck_id ORDER BY sort_order) - 1 AS idx
-                FROM vocab_groups WHERE deleted_at IS NULL)
+                FROM vocab_groups g WHERE g.deleted_at IS NULL
+                  AND EXISTS (SELECT 1 FROM vocab_cards c WHERE c.group_id = g.id AND c.deleted_at IS NULL))
             """;
 
     private static final String JOINS = """

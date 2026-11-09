@@ -3,6 +3,7 @@ import type { DeckPart, DeckSummary, SavedWord } from "./types";
 import {
   EMPTY_FILTER,
   EMPTY_DECK_FILTER,
+  OTHER_CATEGORY,
   deckUrl,
   filterDecks,
   filterSavedWords,
@@ -253,6 +254,12 @@ describe("filterDecks", () => {
     expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, level: "A1" })).toEqual([oxford]);
     expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, state: "learning" })).toEqual([toeic]);
     expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, state: "new" })).toEqual([oxford]);
+  });
+
+  it("lọc mục Khác gồm các bộ không có danh mục (BR-BT-14)", () => {
+    const loose = make("loose", "Loose deck", { category: null });
+    expect(filterDecks([...decks, loose], { ...EMPTY_DECK_FILTER, category: OTHER_CATEGORY })).toEqual([loose]);
+    expect(filterDecks([...decks, loose], { ...EMPTY_DECK_FILTER, category: "toeic" })).toEqual([toeic]);
   });
 
   it("các điều kiện kết hợp với nhau", () => {

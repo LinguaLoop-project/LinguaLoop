@@ -65,12 +65,15 @@ export type DeckStateFilter = "all" | "learning" | "new";
 
 export interface DeckFilter {
   query: string;
-  /** `slug` của danh mục, hoặc "all". */
+  /** `slug` của danh mục, `OTHER_CATEGORY` cho bộ không có danh mục, hoặc "all". */
   category: string;
   state: DeckStateFilter;
   /** Mức CEFR, hoặc "all". */
   level: string;
 }
+
+/** Giá trị lọc danh mục cho các bộ không thuộc danh mục nào, hiện là mục "Khác" (BR-BT-14). */
+export const OTHER_CATEGORY = "~other";
 
 export const EMPTY_DECK_FILTER: DeckFilter = { query: "", category: "all", state: "all", level: "all" };
 
@@ -86,7 +89,9 @@ export const isDeckFilterActive = (filter: DeckFilter) =>
 export function filterDecks(decks: DeckSummary[], filter: DeckFilter): DeckSummary[] {
   const query = foldText(filter.query);
   return decks.filter((deck) => {
-    if (filter.category !== "all" && deck.category?.slug !== filter.category) return false;
+    if (filter.category === OTHER_CATEGORY) {
+      if (deck.category) return false;
+    } else if (filter.category !== "all" && deck.category?.slug !== filter.category) return false;
     if (filter.level !== "all" && deck.cefrLevel !== filter.level) return false;
     if (filter.state === "learning" && !isStarted(deck)) return false;
     if (filter.state === "new" && isStarted(deck)) return false;
