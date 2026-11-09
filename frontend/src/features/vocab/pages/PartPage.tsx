@@ -25,7 +25,6 @@ const MODE_ICONS: Record<LearnMode, string> = {
   flashcard: "layers",
   quiz: "list-ordered",
   reverse_quiz: "arrow-left-right",
-  repeat: "volume-2",
 };
 
 const SIDE_WINDOW = 12;

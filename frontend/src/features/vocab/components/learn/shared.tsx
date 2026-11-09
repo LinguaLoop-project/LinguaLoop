@@ -9,19 +9,27 @@ import { speak } from "./learnHooks";
 /** Câu trả lời mà view gửi lên; `answerId` do trang học thêm vào. */
 export type AnswerDraft = Omit<AnswerInput, "answerId">;
 
-/** Điểm của một lượt: số thẻ nhớ hoặc trả lời đúng trên tổng số thẻ. */
+/** Kết quả của một lượt: số thẻ nhớ ngay lần đầu, số thẻ phải làm lại và tổng số thẻ. */
 export interface RoundScore {
   right: number;
+  redone: number;
   total: number;
 }
 
-export interface LearnViewProps {
-  /** Thẻ của lượt đang học. */
-  cards: LearnCard[];
+/**
+ * Props chung của màn hình một thẻ ở mỗi cách học. Hàng đợi của lượt nằm ở `LearnSession` nên đổi cách học giữa chừng
+ * vẫn giữ tiến độ; màn hình thẻ chỉ hiện thẻ đầu hàng và báo câu trả lời lên trên.
+ */
+export interface CardViewProps {
+  card: LearnCard;
   /** Mọi thẻ của phần, để lấy đáp án gây nhiễu. */
   pool: LearnCard[];
+  /** Số thẻ đã xong và tổng số thẻ của lượt, cho thanh tiến độ. */
+  done: number;
+  total: number;
+  /** Gửi câu trả lời. Flashcard sang thẻ tiếp ngay; các cách học khác chờ `onNext`. */
   onAnswer: (answer: AnswerDraft) => void;
-  onFinish: (score: RoundScore) => void;
+  onNext: () => void;
 }
 
 export function ListenButton({ card, label, className = "" }: { card: LearnCard; label: string; className?: string }) {

@@ -119,7 +119,7 @@ export interface DeckDetail {
 }
 
 /** Cách học (UC-HT-02); giá trị khớp `AnswerRequest.Mode` của backend. */
-export type LearnMode = "guess" | "flashcard" | "quiz" | "reverse_quiz" | "repeat";
+export type LearnMode = "guess" | "flashcard" | "quiz" | "reverse_quiz";
 
 /** Khoảng chờ tới lần ôn tới nếu chấm Flashcard với `quality` (1 Quên, 3 Khó, 4 Được, 5 Dễ). */
 export interface LearnPreview {
@@ -169,6 +169,8 @@ export interface AnswerInput {
   answerId: string;
   mode: LearnMode;
   correct: boolean;
+  /** Đoán có dùng Gợi ý: đúng nhờ gợi ý tính mức Khó thay vì Được (BR-HT-12). */
+  hintUsed?: boolean;
   /** Bắt buộc với Flashcard: 1 Quên, 3 Khó, 4 Được, 5 Dễ. */
   quality?: number;
   responseMs?: number;
@@ -178,6 +180,8 @@ export interface AnswerResult {
   status: CardStatus;
   nextReviewAt: string | null;
   intervalDays: number;
+  /** Mức q server đã chấm; trống khi câu trả lời được gửi lại và không chấm lần nữa. */
+  quality: number | null;
 }
 
 export interface SaveWordInput {

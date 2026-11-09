@@ -98,10 +98,57 @@ export function buildOptions(
   return shuffle([{ cardId: card.id, label: correct, correct: true }, ...distractors], random);
 }
 
-/** Chấm một thẻ Flashcard: điểm dưới 3 (Quên) thì thẻ xuống cuối hàng và hiện lại trong lượt (UC-HT-02, 3b). */
-export function advanceQueue<T>(queue: T[], quality: number): T[] {
-  const [head, ...rest] = queue;
-  return head === undefined || quality >= 3 ? rest : [...rest, head];
+/**
+ * Trạng thái của một lượt học (UC-HT-02, BR-HT-14, BR-HT-19). Hàng đợi chung cho cả bốn cách học nên đổi cách học giữa
+ * chừng vẫn giữ nguyên các thẻ đã làm và các thẻ phải làm lại: cách học chỉ là cách hiện thẻ đầu hàng.
+ */
+export interface RoundState {
+  /** Thẻ còn lại của lượt; đầu hàng là thẻ hiện tại. Mỗi thẻ xuất hiện đúng một lần. */
+  queue: LearnCard[];
+  /** Tăng mỗi khi thẻ hiện tại đổi, để màn hình của thẻ được dựng lại từ đầu. */
+  turn: number;
+  /** Thẻ hiện tại đã được trả lời và đang chờ học viên bấm "Tiếp". */
+  answered: boolean;
+  /** Thẻ hiện tại đã bị trả lời sai (Quên) nên sẽ được đưa xuống cuối lượt. */
+  redo: boolean;
+  /** Kết quả lần trả lời đầu tiên của từng thẻ: true là nhớ ngay (không bị Quên). */
+  firstTry: Record<string, boolean>;
+  total: number;
+}
+
+export const startRound = (cards: LearnCard[]): RoundState => ({
+  queue: cards,
+  turn: 0,
+  answered: false,
+  redo: false,
+  firstTry: {},
+  total: cards.length,
+});
+
+/**
+ * Ghi nhận câu trả lời cho thẻ hiện tại. {@code remembered} là false khi trả lời sai, chọn "Không biết" hoặc chấm Quên:
+ * thẻ sẽ xuống cuối lượt để làm lại (BR-HT-14). Chỉ lần trả lời đầu tiên của mỗi thẻ tính vào kết quả của lượt.
+ */
+export function answerCard(state: RoundState, remembered: boolean): RoundState {
+  const card = state.queue[0];
+  if (!card || state.answered) return state;
+  const firstTry = card.id in state.firstTry ? state.firstTry : { ...state.firstTry, [card.id]: remembered };
+  return { ...state, answered: true, redo: !remembered, firstTry };
+}
+
+/** Sang thẻ tiếp theo: thẻ vừa làm bị bỏ khỏi đầu hàng, hoặc xuống cuối hàng nếu cần làm lại. */
+export function nextCard(state: RoundState): RoundState {
+  const [head, ...rest] = state.queue;
+  if (!head || !state.answered) return state;
+  return { ...state, queue: state.redo ? [...rest, head] : rest, turn: state.turn + 1, answered: false, redo: false };
+}
+
+export const isRoundDone = (state: RoundState) => state.queue.length === 0;
+
+/** Kết quả của lượt: số thẻ nhớ ngay lần đầu và số thẻ đã phải làm lại. */
+export function roundScore(state: RoundState): { right: number; redone: number; total: number } {
+  const right = Object.values(state.firstTry).filter(Boolean).length;
+  return { right, redone: state.total - right, total: state.total };
 }
 
 export type IntervalUnit = "minute" | "hour" | "day" | "month";
@@ -119,7 +166,7 @@ export function intervalParts(minutes: number): { unit: IntervalUnit; count: num
 export const GRADE_QUALITIES = [1, 3, 4, 5] as const;
 
 export const MODE_STORAGE_KEY = "lingualoop.vocab.learnMode";
-export const LEARN_MODES: LearnMode[] = ["guess", "flashcard", "quiz", "reverse_quiz", "repeat"];
+export const LEARN_MODES: LearnMode[] = ["guess", "flashcard", "quiz", "reverse_quiz"];
 
 /** Cách học dùng lần trước, mặc định Đoán; localStorage có thể không dùng được nên mọi lỗi đều quay về mặc định. */
 export function loadMode(): LearnMode {

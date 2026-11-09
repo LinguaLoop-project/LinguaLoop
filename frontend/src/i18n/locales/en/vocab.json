@@ -118,15 +118,13 @@
       "guess": "Guess",
       "flashcard": "Flashcard",
       "quiz": "Quiz",
-      "reverse_quiz": "Reverse quiz",
-      "repeat": "Repeat"
+      "reverse_quiz": "Reverse quiz"
     },
     "modeNames": {
       "guess": "Guess",
       "flashcard": "Flashcard",
       "quiz": "Quiz",
-      "reverse_quiz": "Reverse quiz",
-      "repeat": "Repeat"
+      "reverse_quiz": "Reverse quiz"
     },
     "round": "Round {{current}}/{{total}} · {{count}} cards",
     "progress": "Card {{current}}/{{total}}",
@@ -174,27 +172,19 @@
         "good": "Good",
         "easy": "Easy"
       },
-      "gradesLabel": "How well did you remember it?",
-      "again": "This card will come back at the end of the round."
-    },
-    "repeat": {
-      "prompt": "Listen, then say it aloud",
-      "listen": "Listen",
-      "listenAria": "Listen to {{word}}",
-      "next": "I repeated it, next",
-      "note": "Your voice is not graded; just listen and repeat."
+      "gradesLabel": "How well did you remember it?"
     },
     "done": {
       "title": "Great job!",
       "subtitle": "You finished {{mode}} for round {{round}} of Part {{part}}",
-      "scoreChoice": "{{right}}/{{total}} correct",
-      "scoreFlash": "Remembered {{right}}/{{total}} cards the first time",
-      "scoreRepeat": "Repeated {{total}}/{{total}} words",
       "restart": "Start over",
       "words": "View words",
       "nextRound": "Next round",
       "nextPart": "Next part",
-      "backToDeck": "Back to the deck"
+      "backToDeck": "Back to the deck",
+      "score": "Remembered {{right}}/{{total}} cards the first time",
+      "redone_one": "{{count}} card had to be redone this round",
+      "redone_other": "{{count}} cards had to be redone this round"
     },
     "words": {
       "title": "Words of round {{round}}",
@@ -222,6 +212,8 @@
       "day_other": "{{count}} days",
       "month_one": "{{count}} month",
       "month_other": "{{count}} months"
-    }
+    },
+    "listenAria": "Listen to {{word}}",
+    "again": "This card will come back at the end of the round."
   }
 }

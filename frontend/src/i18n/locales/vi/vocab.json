@@ -114,15 +114,13 @@
       "guess": "Đoán",
       "flashcard": "Flashcard",
       "quiz": "Trắc nghiệm",
-      "reverse_quiz": "Trắc nghiệm đảo",
-      "repeat": "Lặp lại"
+      "reverse_quiz": "Trắc nghiệm đảo"
     },
     "modeNames": {
       "guess": "Đoán từ",
       "flashcard": "Flashcard",
       "quiz": "Trắc nghiệm",
-      "reverse_quiz": "Trắc nghiệm đảo",
-      "repeat": "Lặp lại"
+      "reverse_quiz": "Trắc nghiệm đảo"
     },
     "round": "Lượt {{current}}/{{total}} · {{count}} thẻ",
     "progress": "Thẻ {{current}}/{{total}}",
@@ -168,27 +166,18 @@
         "good": "Được",
         "easy": "Dễ"
       },
-      "gradesLabel": "Bạn nhớ từ này đến mức nào?",
-      "again": "Thẻ này sẽ hiện lại ở cuối lượt."
-    },
-    "repeat": {
-      "prompt": "Nghe rồi đọc theo",
-      "listen": "Nghe",
-      "listenAria": "Nghe từ {{word}}",
-      "next": "Đã đọc theo, tiếp theo",
-      "note": "Không chấm giọng nói; chỉ nghe và tự đọc theo."
+      "gradesLabel": "Bạn nhớ từ này đến mức nào?"
     },
     "done": {
       "title": "Tuyệt vời!",
       "subtitle": "Bạn đã xong {{mode}} cho lượt {{round}} của Phần {{part}}",
-      "scoreChoice": "{{right}}/{{total}} câu đúng",
-      "scoreFlash": "Nhớ {{right}}/{{total}} thẻ ngay lần đầu",
-      "scoreRepeat": "Đã lặp lại {{total}}/{{total}} từ",
       "restart": "Học lại từ đầu",
       "words": "Xem từ vựng",
       "nextRound": "Lượt tiếp theo",
       "nextPart": "Phần tiếp theo",
-      "backToDeck": "Về bộ từ"
+      "backToDeck": "Về bộ từ",
+      "score": "Nhớ ngay lần đầu {{right}}/{{total}} thẻ",
+      "redone_other": "{{count}} thẻ phải làm lại trong lượt"
     },
     "words": {
       "title": "Từ vựng lượt {{round}}",
@@ -212,6 +201,8 @@
       "hour_other": "{{count}} giờ",
       "day_other": "{{count}} ngày",
       "month_other": "{{count}} tháng"
-    }
+    },
+    "listenAria": "Nghe từ {{word}}",
+    "again": "Thẻ này sẽ hiện lại ở cuối lượt."
   }
 }

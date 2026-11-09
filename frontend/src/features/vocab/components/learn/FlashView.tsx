@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
-import { GRADE_QUALITIES, advanceQueue, intervalParts } from "../../learn";
-import { CardImage, ListenButton, RoundProgress, type LearnViewProps } from "./shared";
+import { GRADE_QUALITIES, intervalParts } from "../../learn";
+import { CardImage, ListenButton, RoundProgress, type CardViewProps } from "./shared";
 import { speak, useCardClock, useKeys } from "./learnHooks";
 
 const GRADE_KEYS = ["forget", "hard", "good", "easy"] as const;
@@ -10,24 +10,18 @@ const GRADE_TONE = ["border-danger/50 text-danger", "border-warning/50 text-warn
 
 /**
  * Flashcard (UC-HT-02): lật thẻ rồi tự chấm Quên, Khó, Được hoặc Dễ; server chấm theo SM-2 và mỗi nút hiện trước khoảng
- * ôn sẽ đặt (BR-HT-10, BR-HT-11). Chọn Quên thì thẻ xuống cuối hàng và hiện lại trong lượt. Space lật thẻ, phím 1 đến 4 chấm.
+ * ôn sẽ đặt (BR-HT-11). Chọn Quên thì thẻ xuống cuối lượt (BR-HT-14, xử lý ở `LearnSession`) và sang thẻ tiếp ngay.
+ * Space lật thẻ, phím 1 đến 4 chấm.
  */
-export default function FlashView({ cards, onAnswer, onFinish }: LearnViewProps) {
+export default function FlashView({ card, done, total, onAnswer }: CardViewProps) {
   const { t } = useTranslation("vocab");
-  const [queue, setQueue] = useState(cards);
   const [flipped, setFlipped] = useState(false);
-  const forgotten = useRef(new Set<string>());
-  const finished = useRef(false);
   const cardButton = useRef<HTMLButtonElement>(null);
-  const card = queue[0];
-  const elapsed = useCardClock(card?.id ?? "");
+  const elapsed = useCardClock(card.id);
 
   useEffect(() => {
-    if (queue.length === 0 && !finished.current) {
-      finished.current = true;
-      onFinish({ right: cards.length - forgotten.current.size, total: cards.length });
-    }
-  }, [queue, cards.length, onFinish]);
+    cardButton.current?.focus();
+  }, []);
 
   const flip = () => {
     if (!flipped) speak(card);
@@ -35,12 +29,8 @@ export default function FlashView({ cards, onAnswer, onFinish }: LearnViewProps)
   };
 
   const grade = (quality: number) => {
-    if (!flipped || !card) return;
+    if (!flipped) return;
     onAnswer({ cardId: card.id, mode: "flashcard", correct: quality >= 3, quality, responseMs: elapsed() });
-    if (quality < 3) forgotten.current.add(card.id);
-    setQueue(advanceQueue(queue, quality));
-    setFlipped(false);
-    cardButton.current?.focus();
   };
 
   useKeys((event) => {
@@ -50,15 +40,13 @@ export default function FlashView({ cards, onAnswer, onFinish }: LearnViewProps)
     } else if (/^[1-4]$/.test(event.key)) {
       grade(GRADE_QUALITIES[Number(event.key) - 1]);
     }
-  }, card !== undefined);
+  });
 
-  if (!card) return null;
-  const done = cards.length - queue.length;
   const previewOf = (quality: number) => card.previews.find((preview) => preview.quality === quality);
 
   return (
     <div>
-      <RoundProgress done={done} total={cards.length} label={t("learn.progress", { current: done + 1, total: cards.length })} />
+      <RoundProgress done={done} total={total} label={t("learn.progress", { current: done + 1, total })} />
       <button
         ref={cardButton}
         type="button"
@@ -92,7 +80,7 @@ export default function FlashView({ cards, onAnswer, onFinish }: LearnViewProps)
         )}
       </button>
       <div className="mt-2 flex justify-center">
-        <ListenButton card={card} label={t("learn.repeat.listenAria", { word: card.word })} />
+        <ListenButton card={card} label={t("learn.listenAria", { word: card.word })} />
       </div>
 
       <div role="group" aria-label={t("learn.flash.gradesLabel")} className={`mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 ${flipped ? "" : "invisible"}`}>

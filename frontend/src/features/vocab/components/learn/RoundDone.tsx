@@ -39,12 +39,6 @@ export default function RoundDone({
 }: RoundDoneProps) {
   const { t } = useTranslation("vocab");
   const unsent = useSyncExternalStore(answerQueue.subscribe, answerQueue.size);
-  const scoreLine =
-    mode === "flashcard"
-      ? t("learn.done.scoreFlash", { right: score.right, total: score.total })
-      : mode === "repeat"
-        ? t("learn.done.scoreRepeat", { total: score.total })
-        : t("learn.done.scoreChoice", { right: score.right, total: score.total });
   const primary = buttonClasses({ variant: "primary" });
 
   return (
@@ -54,7 +48,8 @@ export default function RoundDone({
       <p className="mt-1.5 text-text-muted">
         {t("learn.done.subtitle", { mode: t(`learn.modeNames.${mode}`), round, part: partNumber })}
       </p>
-      <p className="mt-1 text-sm text-text-muted">{scoreLine}</p>
+      <p className="mt-1 text-sm text-text-muted">{t("learn.done.score", { right: score.right, total: score.total })}</p>
+      {score.redone > 0 && <p className="text-sm text-text-muted">{t("learn.done.redone", { count: score.redone })}</p>}
       {unsent > 0 && (
         <p role="status" className="mt-2 inline-flex items-center gap-1.5 text-sm text-warning">
           <Icon name="wifi-off" className="h-4 w-4" />

@@ -1,16 +1,20 @@
 import { describe, expect, it } from "vitest";
 import {
   ROUND_SIZE,
-  advanceQueue,
+  answerCard,
   buildOptions,
   firstOpenRound,
   hintMask,
   intervalParts,
   isGuessCorrect,
+  isRoundDone,
   isHintExhausted,
   letterCount,
   maskExample,
+  nextCard,
+  roundScore,
   roundsOf,
+  startRound,
 } from "./learn";
 import type { CardStatus, LearnCard } from "./types";
 
@@ -161,16 +165,6 @@ describe("đáp án Trắc nghiệm", () => {
   });
 });
 
-describe("hàng đợi Flashcard (UC-HT-02, 3b)", () => {
-  it("Quên đưa thẻ xuống cuối, các nút khác bỏ thẻ khỏi hàng", () => {
-    expect(advanceQueue(["a", "b", "c"], 1)).toEqual(["b", "c", "a"]);
-    expect(advanceQueue(["a", "b", "c"], 3)).toEqual(["b", "c"]);
-    expect(advanceQueue(["a", "b", "c"], 5)).toEqual(["b", "c"]);
-    expect(advanceQueue(["a"], 1)).toEqual(["a"]);
-    expect(advanceQueue<string>([], 4)).toEqual([]);
-  });
-});
-
 describe("khoảng ôn trên nút Flashcard (BR-HT-10, BR-HT-11)", () => {
   it("hiện theo phút, giờ, ngày, tháng", () => {
     expect(intervalParts(10)).toEqual({ unit: "minute", count: 10 });
@@ -179,5 +173,58 @@ describe("khoảng ôn trên nút Flashcard (BR-HT-10, BR-HT-11)", () => {
     expect(intervalParts(24 * 60)).toEqual({ unit: "day", count: 1 });
     expect(intervalParts(15 * 24 * 60)).toEqual({ unit: "day", count: 15 });
     expect(intervalParts(60 * 24 * 60)).toEqual({ unit: "month", count: 2 });
+  });
+});
+
+describe("trạng thái lượt học (UC-HT-02, BR-HT-14, BR-HT-19)", () => {
+  const cards = ["a", "b", "c"].map((id) => card(id));
+  const ids = (state: ReturnType<typeof startRound>) => state.queue.map((c) => c.id);
+
+  it("trả lời đúng thì thẻ rời hàng sau khi bấm Tiếp", () => {
+    let state = startRound(cards);
+    state = answerCard(state, true);
+    expect(state.answered).toBe(true);
+    expect(ids(state)).toEqual(["a", "b", "c"]);
+    state = nextCard(state);
+    expect(ids(state)).toEqual(["b", "c"]);
+    expect(state.answered).toBe(false);
+    expect(state.turn).toBe(1);
+  });
+
+  it("trả lời sai, Không biết hoặc Quên thì thẻ xuống cuối lượt", () => {
+    let state = answerCard(startRound(cards), false);
+    expect(state.redo).toBe(true);
+    state = nextCard(state);
+    expect(ids(state)).toEqual(["b", "c", "a"]);
+  });
+
+  it("thẻ làm lại không tính lại vào kết quả; lượt xong khi hết hàng", () => {
+    let state = startRound(cards);
+    state = nextCard(answerCard(state, false)); // a sai
+    state = nextCard(answerCard(state, true)); // b đúng
+    state = nextCard(answerCard(state, true)); // c đúng
+    expect(ids(state)).toEqual(["a"]);
+    state = nextCard(answerCard(state, true)); // a làm lại và đúng
+    expect(isRoundDone(state)).toBe(true);
+    expect(roundScore(state)).toEqual({ right: 2, redone: 1, total: 3 });
+  });
+
+  it("chưa trả lời thì không sang thẻ tiếp; trả lời hai lần chỉ tính một lần", () => {
+    const state = startRound(cards);
+    expect(nextCard(state)).toBe(state);
+    const answered = answerCard(state, false);
+    expect(answerCard(answered, true)).toBe(answered);
+  });
+
+  it("đổi cách học giữa chừng không làm mất tiến độ: hàng đợi và kết quả đi theo trạng thái, không theo cách học", () => {
+    let state = startRound(cards);
+    state = nextCard(answerCard(state, true)); // xong thẻ a bằng cách học này
+    state = nextCard(answerCard(state, false)); // thẻ b sai, xuống cuối
+    expect(ids(state)).toEqual(["c", "b"]);
+    expect(state.firstTry).toEqual({ a: true, b: false });
+  });
+
+  it("lượt rỗng đã xong", () => {
+    expect(isRoundDone(startRound([]))).toBe(true);
   });
 });

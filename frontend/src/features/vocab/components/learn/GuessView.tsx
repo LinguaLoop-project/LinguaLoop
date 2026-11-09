@@ -4,7 +4,7 @@ import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import { hintMask, isGuessCorrect, isHintExhausted, letterCount, maskExample } from "../../learn";
-import { Feedback, ListenButton, RoundProgress, type LearnViewProps } from "./shared";
+import { Feedback, ListenButton, RoundProgress, type CardViewProps } from "./shared";
 import { speak, useCardClock, useKeys } from "./learnHooks";
 
 interface Outcome {
@@ -13,29 +13,25 @@ interface Outcome {
 }
 
 /**
- * Cách học Đoán (BR-HT-17): xem loại từ, nghĩa tiếng Việt và câu ví dụ đã che từ, gõ từ tiếng Anh. Từ cần đoán không
- * xuất hiện ở đâu trên màn hình cho tới khi có kết quả: không hiện ảnh, phiên âm hay giải thích của thẻ trước đó.
+ * Cách học Đoán (BR-HT-17, BR-HT-18): xem loại từ, nghĩa tiếng Việt và câu ví dụ đã che từ, gõ từ tiếng Anh. Từ cần đoán
+ * không xuất hiện ở đâu trên màn hình cho tới khi có kết quả: không hiện ảnh, phiên âm hay giải thích của thẻ.
  */
-export default function GuessView({ cards, onAnswer, onFinish }: LearnViewProps) {
+export default function GuessView({ card, done, total, onAnswer, onNext }: CardViewProps) {
   const { t } = useTranslation("vocab");
-  const [index, setIndex] = useState(0);
   const [value, setValue] = useState("");
   const [hints, setHints] = useState(0);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [empty, setEmpty] = useState(false);
-  const [right, setRight] = useState(0);
   const input = useRef<HTMLInputElement>(null);
-  const card = cards[index];
   const elapsed = useCardClock(card.id);
 
   useEffect(() => {
     input.current?.focus();
-  }, [index]);
+  }, []);
 
   const finish = (result: Outcome) => {
     setOutcome(result);
-    if (result.correct) setRight((count) => count + 1);
-    onAnswer({ cardId: card.id, mode: "guess", correct: result.correct, responseMs: elapsed() });
+    onAnswer({ cardId: card.id, mode: "guess", correct: result.correct, hintUsed: hints > 0, responseMs: elapsed() });
     speak(card);
   };
 
@@ -56,31 +52,20 @@ export default function GuessView({ cards, onAnswer, onFinish }: LearnViewProps)
     if (isHintExhausted(card.word, next)) finish({ correct: false, gaveUp: true });
   };
 
-  const next = () => {
-    if (index + 1 >= cards.length) {
-      onFinish({ right, total: cards.length });
-      return;
-    }
-    setIndex(index + 1);
-    setValue("");
-    setHints(0);
-    setOutcome(null);
-    setEmpty(false);
-  };
-
   useKeys((event) => {
-    if (outcome && (event.key === "Enter" || event.key === " ")) {
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      next();
+      onNext();
     }
   }, outcome !== null);
 
   const masked = maskExample(card.exampleEn, card.word);
   const letters = letterCount(card.word);
+  const exhausted = outcome?.gaveUp === true && isHintExhausted(card.word, hints);
 
   return (
     <div>
-      <RoundProgress done={index} total={cards.length} label={t("learn.progress", { current: index + 1, total: cards.length })} />
+      <RoundProgress done={done} total={total} label={t("learn.progress", { current: done + 1, total })} />
       <div className="rounded-lg border border-border bg-surface p-6 shadow-[var(--shadow-card)]">
         <div className="text-xs font-bold uppercase tracking-wider text-text-muted">{t("learn.guess.prompt")}</div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -102,10 +87,7 @@ export default function GuessView({ cards, onAnswer, onFinish }: LearnViewProps)
           }}
         >
           <div className="flex flex-wrap items-center gap-3">
-            <span
-              className="font-mono text-xl tracking-[0.3em] text-text-muted"
-              aria-label={t("learn.guess.letters", { count: letters })}
-            >
+            <span className="font-mono text-xl tracking-[0.3em] text-text-muted" aria-label={t("learn.guess.letters", { count: letters })}>
               {outcome ? card.word : hintMask(card.word, hints)}
             </span>
             <small className="text-text-muted">{t("learn.guess.letters", { count: letters })}</small>
@@ -149,18 +131,19 @@ export default function GuessView({ cards, onAnswer, onFinish }: LearnViewProps)
           <Feedback
             correct={outcome.correct}
             title={outcome.correct ? t("learn.guess.correct") : t("learn.guess.wrong")}
-            onNext={next}
+            onNext={onNext}
             nextLabel={t("learn.next")}
           >
             <p className="mt-0.5">
-              {outcome.gaveUp && hints > 0 && isHintExhausted(card.word, hints) ? `${t("learn.guess.gaveUp")} ` : ""}
+              {exhausted ? `${t("learn.guess.gaveUp")} ` : ""}
               {!outcome.correct && (
                 <>
                   {t("learn.guess.answer")}: <b lang="en">{card.word}</b>
                 </>
               )}
               {card.ipaUs && <span className="ml-2 text-text-muted">{card.ipaUs}</span>}
-              <ListenButton card={card} label={t("learn.repeat.listenAria", { word: card.word })} className="ml-1 align-middle" />
+              <ListenButton card={card} label={t("learn.listenAria", { word: card.word })} className="ml-1 align-middle" />
+              {!outcome.correct && <span className="ml-2 text-text-muted">{t("learn.again")}</span>}
             </p>
           </Feedback>
         )}
