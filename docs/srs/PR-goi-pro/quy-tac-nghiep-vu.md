@@ -37,6 +37,6 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-PR-11 | Học viên thường (gói Free) được cấp 8 năng lượng AI mỗi ngày (tự động đặt lại về 0 vào lúc 00:00 mỗi ngày theo giờ Việt Nam); Học viên pro không bị giới hạn số năng lượng AI trong ngày. Đây là quy tắc gốc về hạn mức năng lượng AI; các module khác tham chiếu mã này, cách tiêu tốn năng lượng theo từng hoạt động xem BR-SH-23. Hạn mức phần từ vựng Pro theo BR-PR-15. | UC-PR-01 (4a), AC-PR-01 |
+| BR-PR-11 | Học viên thường (gói Free) được cấp 8 năng lượng AI mỗi ngày (tự động đặt lại về 0 vào lúc 00:00 mỗi ngày theo giờ Việt Nam); Học viên pro không bị giới hạn số năng lượng AI trong ngày. Đây là quy tắc gốc về hạn mức năng lượng AI; các module khác tham chiếu mã này, cách tiêu tốn năng lượng theo từng hoạt động xem BR-AI-10. Hạn mức phần từ vựng Pro theo BR-PR-15. | UC-PR-01 (4a), AC-PR-01 |
 | BR-PR-12 | Các kỳ hạn gói Pro mở bán gồm gói Tháng (30 ngày) và gói Năm (365 ngày). | UC-PR-02 (3a), UC-PR-04, AC-PR-07, AC-PR-13, AC-PR-20 |
 | BR-PR-13 | Mỗi đơn đăng ký ở trạng thái chờ thanh toán có thời hạn hiệu lực tối đa là 15 phút kể từ lúc khởi tạo; quá 15 phút mà chưa thanh toán thành công thì đơn tự động chuyển sang trạng thái Hết hạn. | UC-PR-03 (2b), AC-PR-16 |

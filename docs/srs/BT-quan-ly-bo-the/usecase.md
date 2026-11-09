@@ -2,16 +2,16 @@
 
 ## Bảng tổng
 
-| Mã UC | Tên | Tác nhân | Độ ưu tiên | Người phụ trách | Số AC | Mã AC | Trạng thái |
-|---|---|---|---|---|---|---|---|
-| UC-BT-01 | Xem danh sách bộ thẻ từ vựng | Giảng viên, Quản trị viên | Cao | Kế | 6 | AC-BT-01 đến 06 | Nháp |
-| UC-BT-02 | Thêm bộ thẻ từ vựng | Giảng viên | Cao | Kế | 7 | AC-BT-07 đến 13 | Nháp |
-| UC-BT-03 | Sửa bộ thẻ từ vựng | Giảng viên | Cao | Kế | 8 | AC-BT-14 đến 21 | Nháp |
-| UC-BT-04 | Xem trước bộ thẻ từ vựng | Giảng viên | Trung bình | Kế | 4 | AC-BT-22 đến 25 | Nháp |
-| UC-BT-05 | Xuất bản bộ thẻ từ vựng | Giảng viên | Cao | Kế | 6 | AC-BT-26 đến 31 | Nháp |
-| UC-BT-06 | Gỡ xuất bản bộ thẻ từ vựng | Giảng viên, Quản trị viên | Cao | Kế | 7 | AC-BT-32 đến 38 | Nháp |
-| UC-BT-07 | Xóa bộ thẻ từ vựng | Giảng viên, Quản trị viên | Cao | Kế | 6 | AC-BT-39 đến 44 | Nháp |
-| UC-BT-08 | Khôi phục bộ thẻ từ vựng đã xóa | Quản trị viên | Trung bình | Kế | 5 | AC-BT-45 đến 49 | Nháp |
+| Mã UC | Tên | Tác nhân | Độ ưu tiên | Người phụ trách | Số AC | Mã AC |
+|---|---|---|---|---|---|---|
+| UC-BT-01 | Xem danh sách bộ thẻ từ vựng | Giảng viên, Quản trị viên | Cao | Kế | 6 | AC-BT-01 đến 06 |
+| UC-BT-02 | Thêm bộ thẻ từ vựng | Giảng viên | Cao | Kế | 7 | AC-BT-07 đến 13 |
+| UC-BT-03 | Sửa bộ thẻ từ vựng | Giảng viên | Cao | Kế | 8 | AC-BT-14 đến 21 |
+| UC-BT-04 | Xem trước bộ thẻ từ vựng | Giảng viên | Trung bình | Kế | 4 | AC-BT-22 đến 25 |
+| UC-BT-05 | Xuất bản bộ thẻ từ vựng | Giảng viên | Cao | Kế | 6 | AC-BT-26 đến 31 |
+| UC-BT-06 | Gỡ xuất bản bộ thẻ từ vựng | Giảng viên, Quản trị viên | Cao | Kế | 7 | AC-BT-32 đến 38 |
+| UC-BT-07 | Xóa bộ thẻ từ vựng | Giảng viên, Quản trị viên | Cao | Kế | 6 | AC-BT-39 đến 44 |
+| UC-BT-08 | Khôi phục bộ thẻ từ vựng đã xóa | Quản trị viên | Trung bình | Kế | 5 | AC-BT-45 đến 49 |
 
 Tổng: 8 UC, 49 AC.
 

@@ -1,15 +1,15 @@
 # TK — Tài khoản và xác thực: Use Case
 
-| Mã UC | Tên | Tác nhân | Độ ưu tiên | Số AC | Trạng thái |
-|---|---|---|---|:---:|---|
-| UC-TK-01 | Đăng ký tài khoản | Học viên (người dùng mới) | Cao | 6 | Nháp |
-| UC-TK-02 | Đăng nhập bằng email và mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | 9 | Nháp |
-| UC-TK-03 | Đăng nhập bằng Google | Học viên, Giảng viên, Quản trị viên | Cao | 9 | Nháp |
-| UC-TK-04 | Đăng xuất | Học viên, Giảng viên, Quản trị viên | Cao | 3 | Nháp |
-| UC-TK-05 | Xác thực email | Học viên, Giảng viên, Quản trị viên | Cao | 5 | Nháp |
-| UC-TK-06 | Quên và đặt lại mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | 8 | Nháp |
-| UC-TK-07 | Tạo hoặc đổi mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | 5 | Nháp |
-| UC-TK-08 | Thiết lập hồ sơ học tập (onboarding) | Học viên | Cao | 8 | Nháp |
+| Mã UC | Tên | Tác nhân | Độ ưu tiên | Số AC |
+|---|---|---|---|:---:|
+| UC-TK-01 | Đăng ký tài khoản | Học viên (người dùng mới) | Cao | 6 |
+| UC-TK-02 | Đăng nhập bằng email và mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | 9 |
+| UC-TK-03 | Đăng nhập bằng Google | Học viên, Giảng viên, Quản trị viên | Cao | 9 |
+| UC-TK-04 | Đăng xuất | Học viên, Giảng viên, Quản trị viên | Cao | 3 |
+| UC-TK-05 | Xác thực email | Học viên, Giảng viên, Quản trị viên | Cao | 5 |
+| UC-TK-06 | Quên và đặt lại mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | 8 |
+| UC-TK-07 | Tạo hoặc đổi mật khẩu | Học viên, Giảng viên, Quản trị viên | Cao | 5 |
+| UC-TK-08 | Thiết lập hồ sơ học tập (onboarding) | Học viên | Cao | 8 |
 
 ---
 

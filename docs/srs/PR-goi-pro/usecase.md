@@ -1,12 +1,12 @@
 # PR — Gói Pro: Use Case
 
-| Mã UC | Tên | Học viên thường | Học viên pro | Độ ưu tiên | Số AC | Trạng thái |
-|---|---|:---:|:---:|---|:---:|---|
-| UC-PR-01 | Xem gói hiện tại | ✓ | ✓ | Cao | 6 | Nháp |
-| UC-PR-02 | Nâng cấp lên pro | ✓ | | Cao | 6 | Nháp |
-| UC-PR-03 | Thanh toán | ✓ | ✓ | Cao | 7 | Nháp |
-| UC-PR-04 | Gia hạn gói pro | | ✓ | Trung bình | 5 | Nháp |
-| UC-PR-05 | Hủy gói pro | | ✓ | Trung bình | 5 | Nháp |
+| Mã UC | Tên | Học viên thường | Học viên pro | Độ ưu tiên | Số AC |
+|---|---|:---:|:---:|---|:---:|
+| UC-PR-01 | Xem gói hiện tại | ✓ | ✓ | Cao | 6 |
+| UC-PR-02 | Nâng cấp lên pro | ✓ | | Cao | 6 |
+| UC-PR-03 | Thanh toán | ✓ | ✓ | Cao | 7 |
+| UC-PR-04 | Gia hạn gói pro | | ✓ | Trung bình | 5 |
+| UC-PR-05 | Hủy gói pro | | ✓ | Trung bình | 5 |
 
 ---
 

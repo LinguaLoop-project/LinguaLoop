@@ -1,9 +1,9 @@
 # DI — Dictation và câu đã lưu: Use Case
 
-| Mã UC | Tên | Học viên | Độ ưu tiên | Số AC | Trạng thái |
-|---|---|:---:|---|:---:|---|
-| UC-DI-01 | Thực hành dictation | ✓ | Cao | 39 | Nháp |
-| UC-DI-02 | Lưu câu để ôn tập | ✓ | Trung bình | 6 | Nháp |
+| Mã UC | Tên | Học viên | Độ ưu tiên | Số AC |
+|---|---|:---:|---|:---:|
+| UC-DI-01 | Thực hành dictation | ✓ | Cao | 39 |
+| UC-DI-02 | Lưu câu để ôn tập | ✓ | Trung bình | 6 |
 
 ---
 
