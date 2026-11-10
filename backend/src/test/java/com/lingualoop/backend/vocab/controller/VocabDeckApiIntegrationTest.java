@@ -141,6 +141,7 @@ class VocabDeckApiIntegrationTest {
         progress(user, cards.get(1), "learning", Instant.now().minusSeconds(60));
         progress(user, cards.get(2), "reviewing", Instant.now().plus(3, ChronoUnit.DAYS));
 
+        // bộ Pro bị khoá với gói Free: vẫn hiện kèm nhãn Pro và tiến độ cũ, nhưng thẻ đến hạn không tính (BR-HT-13)
         as(user, get(DECKS)).andExpect(status().isOk())
                 .andExpect(jsonPath(deck("pro") + ".pro").value(true))
                 .andExpect(jsonPath(deck("pro") + ".cardCount").value(10))
@@ -149,7 +150,7 @@ class VocabDeckApiIntegrationTest {
                 .andExpect(jsonPath(deck("pro") + ".progress.reviewing").value(1))
                 .andExpect(jsonPath(deck("pro") + ".progress.learning").value(1))
                 .andExpect(jsonPath(deck("pro") + ".progress.newCount").value(7))
-                .andExpect(jsonPath(deck("pro") + ".dueCount").value(1))
+                .andExpect(jsonPath(deck("pro") + ".dueCount").value(0))
                 .andExpect(jsonPath(deck("free") + ".progress.mastered").value(0))
                 .andExpect(jsonPath(deck("free") + ".pro").value(false));
     }
@@ -222,35 +223,40 @@ class VocabDeckApiIntegrationTest {
     }
 
     @Test
-    void list_dueCountsLeaveOutCardsOfLockedParts_forAFreeUser_BR_HT_13() throws Exception {
-        List<UUID> cards = fillDeck(insertDeck("lk", true, insertCategory("c", 96)), 3, 2);
-        UUID free = data.newUser();
-        UUID pro = data.newProUser();
-        for (UUID user : new UUID[] {free, pro}) {
-            progress(user, cards.get(0), "learning", Instant.now().minusSeconds(60)); // phần 1: mở
-            progress(user, cards.get(4), "learning", Instant.now().minusSeconds(60)); // phần 3: khoá với gói Free
+    void list_dueCountsLeaveOutCardsOfAProDeck_forAFreeUser_BR_HT_13() throws Exception {
+        UUID category = insertCategory("c", 96);
+        List<UUID> pro = fillDeck(insertDeck("lk", true, category), 3, 2);
+        List<UUID> free = fillDeck(insertDeck("fr2", false, category), 1, 1);
+        UUID freeUser = data.newUser();
+        UUID proUser = data.newProUser();
+        for (UUID user : new UUID[] {freeUser, proUser}) {
+            progress(user, pro.get(0), "learning", Instant.now().minusSeconds(60));
+            progress(user, pro.get(4), "learning", Instant.now().minusSeconds(60));
+            progress(user, free.get(0), "learning", Instant.now().minusSeconds(60));
         }
 
-        as(free, get(DECKS)).andExpect(status().isOk())
-                .andExpect(jsonPath(deck("lk") + ".dueCount").value(1))
+        // gói Free không có quyền học bộ Pro nên chỉ tính thẻ của bộ miễn phí; gói Pro tính cả hai
+        as(freeUser, get(DECKS)).andExpect(status().isOk())
+                .andExpect(jsonPath(deck("lk") + ".dueCount").value(0))
+                .andExpect(jsonPath(deck("fr2") + ".dueCount").value(1))
                 .andExpect(jsonPath("$.data.overview.due").value(1));
-        as(pro, get(DECKS)).andExpect(status().isOk())
+        as(proUser, get(DECKS)).andExpect(status().isOk())
                 .andExpect(jsonPath(deck("lk") + ".dueCount").value(2))
-                .andExpect(jsonPath("$.data.overview.due").value(2));
+                .andExpect(jsonPath("$.data.overview.due").value(3));
     }
 
     // ---------------------------------------------------------------- chi tiết bộ (UC-HT-01)
 
     @Test
-    void detail_lockPartsOfAProDeckFromTheThirdForAFreeUser_AC_HT_03() throws Exception {
+    void detail_lockEveryPartOfAProDeckForAFreeUser_AC_HT_03() throws Exception {
         fillDeck(insertDeck("p", true, insertCategory("c", 96)), 4, 10);
 
         as(data.newUser(), get(deckPath("p"))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.deck.slug").value(slug("p")))
                 .andExpect(jsonPath("$.data.deck.pro").value(true))
                 .andExpect(jsonPath("$.data.parts.length()").value(4))
-                .andExpect(jsonPath("$.data.parts[0].locked").value(false))
-                .andExpect(jsonPath("$.data.parts[1].locked").value(false))
+                .andExpect(jsonPath("$.data.parts[0].locked").value(true))
+                .andExpect(jsonPath("$.data.parts[1].locked").value(true))
                 .andExpect(jsonPath("$.data.parts[2].locked").value(true))
                 .andExpect(jsonPath("$.data.parts[2].index").value(2))
                 .andExpect(jsonPath("$.data.sampleWords.length()").value(8))

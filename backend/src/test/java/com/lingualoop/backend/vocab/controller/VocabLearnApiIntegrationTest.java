@@ -134,43 +134,16 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
-    void part_proDeckLocksPartsFromTheThird_onTheServer_BR_HT_07() throws Exception {
+    void part_proDeckIsLockedForAFreeUser_onTheServer_BR_HT_07() throws Exception {
         vocab.fill(vocab.deck(base, true), 4, 3, base);
         UUID free = users.newUser();
 
-        as(free, get(DECKS + base + "/parts/1")).andExpect(status().isOk());
-        as(free, get(DECKS + base + "/parts/2")).andExpect(status().isOk());
-        as(free, get(DECKS + base + "/parts/3")).andExpect(status().isForbidden());
-        as(free, post(DECKS + base + "/parts/3/sessions")).andExpect(status().isForbidden());
+        for (int part = 1; part <= 4; part++) {
+            as(free, get(DECKS + base + "/parts/" + part)).andExpect(status().isForbidden());
+            as(free, post(DECKS + base + "/parts/" + part + "/sessions")).andExpect(status().isForbidden());
+        }
+        as(users.newProUser(), get(DECKS + base + "/parts/1")).andExpect(status().isOk());
         as(users.newProUser(), get(DECKS + base + "/parts/4")).andExpect(status().isOk());
-    }
-
-    @Test
-    void emptyGroupsAreHiddenFromTheLearner_andPartNumbersSkipThem_BR_NT_05() throws Exception {
-        UUID deck = vocab.deck(base, true);
-        UUID g1 = vocab.group(deck, 1);
-        vocab.card(g1, 1, base + "a");
-        vocab.group(deck, 2); // nhóm trống
-        UUID g3 = vocab.group(deck, 3);
-        vocab.card(g3, 1, base + "b");
-        UUID g4 = vocab.group(deck, 4);
-        UUID cardInEmptiedGroup = vocab.card(g4, 1, base + "c");
-        jdbc.update("UPDATE vocab_cards SET deleted_at = now() WHERE id = ?", cardInEmptiedGroup); // thẻ cuối bị xoá: nhóm trống
-        UUID g5 = vocab.group(deck, 5);
-        UUID cardOfThird = vocab.card(g5, 1, base + "d");
-        UUID free = users.newUser();
-
-        // chỉ còn 3 phần hiển thị (nhóm 1, 3, 5); phần 3 là nhóm thứ ba nên bị khoá với gói Free
-        as(free, get("/api/v1/vocab/decks/" + base)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.deck.groupCount").value(3))
-                .andExpect(jsonPath("$.data.parts.length()").value(3))
-                .andExpect(jsonPath("$.data.parts[1].name").value("Topic 3"))
-                .andExpect(jsonPath("$.data.parts[2].locked").value(true));
-        as(free, get(DECKS + base + "/parts/2")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.cards[0].word").value(base + "b"));
-        as(free, get(DECKS + base + "/parts/4")).andExpect(status().isNotFound());
-        UUID session = openSession(free, base, 1);
-        answer(free, session, cardOfThird, "quiz", true, null).andExpect(status().isForbidden());
     }
 
     // ---------------------------------------------------------------- phiên học (BR-HT-15)
@@ -405,18 +378,19 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
-    void answeringACardOfALockedPart_is403_andWritesNothing_BR_HT_07() throws Exception {
-        List<UUID> cards = vocab.fill(vocab.deck(base, true), 3, 2, base);
-        UUID free = users.newUser();
-        UUID session = openSession(free, base, 1);
-        UUID locked = cards.get(4); // phần thứ ba
+    void answeringACardOfAProDeck_is403_forAFreeUser_andWritesNothing_BR_HT_07() throws Exception {
+        List<UUID> cards = vocab.fill(vocab.deck(base + "p", true), 3, 2, base + "p");
+        List<UUID> free = freeDeck();
+        UUID user = users.newUser();
+        UUID session = openSession(user, base, 1);
+        UUID locked = cards.get(0);
 
-        answer(free, session, locked, "quiz", true, null).andExpect(status().isForbidden());
-        answer(free, session, cards.get(0), "quiz", true, null).andExpect(status().isOk());
+        answer(user, session, locked, "quiz", true, null).andExpect(status().isForbidden());
+        answer(user, session, free.get(0), "quiz", true, null).andExpect(status().isOk());
 
-        assertThat(logCount(free, locked)).isZero();
+        assertThat(logCount(user, locked)).isZero();
         assertThat(jdbc.queryForObject("SELECT count(*) FROM user_card_progress WHERE user_id = ? AND card_id = ?",
-                Integer.class, free, locked)).isZero();
+                Integer.class, user, locked)).isZero();
     }
 
     @Test

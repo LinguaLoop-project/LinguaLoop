@@ -155,7 +155,7 @@ class VocabReviewApiIntegrationTest {
     }
 
     @Test
-    void queue_leavesOutUnsavedWords_cardsOfLockedParts_andOtherLearnersCards_AC_HT_23() throws Exception {
+    void queue_leavesOutUnsavedWords_cardsOfAProDeckForFree_andOtherLearnersCards_AC_HT_23() throws Exception {
         UUID user = users.newUser();
         UUID other = users.newUser();
         UUID kept = save(user, base + "kept", null);
@@ -169,13 +169,13 @@ class VocabReviewApiIntegrationTest {
             due(other, card, "learning", 1, 1, "-1 day");
         }
 
-        // gói Free chỉ thấy 2 phần đầu của bộ Pro (4 thẻ) và từ đã lưu còn hoạt động
+        // gói Free không học được bộ Pro nên chỉ còn từ đã lưu đang hoạt động
         as(user, get(REVIEW)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.dueTotal").value(5))
+                .andExpect(jsonPath("$.data.dueTotal").value(1))
                 .andExpect(jsonPath("$.data.cards[?(@.id=='" + dropped + "')]").isEmpty())
                 .andExpect(jsonPath("$.data.cards[?(@.id=='" + kept + "')]").isNotEmpty())
-                .andExpect(jsonPath("$.data.cards[?(@.id=='" + pro.get(4) + "')]").isEmpty());
-        // gói Pro thấy cả 3 phần; thẻ của học viên khác không lẫn vào
+                .andExpect(jsonPath("$.data.cards[?(@.id=='" + pro.get(0) + "')]").isEmpty());
+        // gói Pro thấy cả bộ; thẻ của học viên khác không lẫn vào
         UUID proUser = users.newProUser();
         for (UUID card : pro) {
             due(proUser, card, "learning", 1, 1, "-1 day");

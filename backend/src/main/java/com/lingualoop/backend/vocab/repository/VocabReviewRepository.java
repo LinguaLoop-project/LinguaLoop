@@ -23,30 +23,22 @@ public class VocabReviewRepository {
     /** Số thẻ tối đa của một lượt ôn (BR-HT-14). */
     public static final int QUEUE_SIZE = 50;
 
-    private static final String PART_INDEX = """
-            WITH part_index AS (
-                SELECT id, row_number() OVER (PARTITION BY deck_id ORDER BY sort_order) - 1 AS idx
-                FROM vocab_groups g WHERE g.deleted_at IS NULL
-                  AND EXISTS (SELECT 1 FROM vocab_cards c WHERE c.group_id = g.id AND c.deleted_at IS NULL))
-            """;
-
     private static final String JOINS = """
             FROM vocab_cards c
             JOIN vocab_groups g ON g.id = c.group_id AND g.deleted_at IS NULL
-            JOIN part_index pi ON pi.id = g.id
             JOIN vocab_decks d ON d.id = g.deck_id AND d.deleted_at IS NULL AND d.status = 'APPROVED'
                  AND ((d.visibility = 'system' AND d.kind = 'catalog') OR d.owner_id = :user)
             LEFT JOIN user_card_progress p ON p.card_id = c.id AND p.user_id = :user
             """;
 
     /**
-     * Thẻ chưa ẩn của bộ học viên có quyền học, theo bộ nếu có {@code :deck}. Thẻ ở phần bị khoá (bộ Pro, gói Free, từ phần
-     * thứ ba) không được tính vì học viên chưa có quyền học bộ đó.
+     * Thẻ chưa ẩn của bộ học viên có quyền học, theo bộ nếu có {@code :deck}. Thẻ của bộ Pro không được tính với gói Free vì
+     * học viên chưa có quyền học bộ đó.
      */
     private static final String VISIBLE = """
             WHERE c.deleted_at IS NULL
               AND (CAST(:deck AS text) IS NULL OR d.slug = CAST(:deck AS text))
-              AND NOT (d.is_pro AND NOT :userPro AND pi.idx >= 2)
+              AND NOT (d.is_pro AND NOT :userPro)
             """;
 
     /**
@@ -66,7 +58,7 @@ public class VocabReviewRepository {
 
     /** Tối đa {@link #QUEUE_SIZE} thẻ đến hạn, thẻ đến hạn sớm nhất trước; thẻ Mới của từ đã lưu xếp theo lúc lưu. */
     public List<DueCard> findDue(UUID userId, String deckSlug, boolean userPro) {
-        return jdbc.sql(PART_INDEX + """
+        return jdbc.sql("""
                 SELECT c.id, c.word, c.pos, c.translation_vi, c.explanation_en, c.explanation_vi, c.example_en,
                        c.example_vi, c.image_url, pk.ipa AS ipa_uk, pu.ipa AS ipa_us, pk.audio_url AS audio_uk,
                        pu.audio_url AS audio_us, COALESCE(p.status, 'new') AS status,
@@ -99,14 +91,14 @@ public class VocabReviewRepository {
 
     /** Tổng số thẻ đến hạn, không giới hạn 50. */
     public int countDue(UUID userId, String deckSlug, boolean userPro) {
-        return jdbc.sql(PART_INDEX + "SELECT count(*) " + JOINS + VISIBLE + IS_DUE)
+        return jdbc.sql("SELECT count(*) " + JOINS + VISIBLE + IS_DUE)
                 .param("user", userId).param("deck", deckSlug).param("userPro", userPro)
                 .query(Integer.class).single();
     }
 
     /** Thời điểm sớm nhất mà một thẻ chưa đến hạn sẽ đến hạn; trống nếu không có thẻ nào được hẹn. */
     public Instant findNextDueAt(UUID userId, String deckSlug, boolean userPro) {
-        Timestamp next = jdbc.sql(PART_INDEX + "SELECT min(p.next_review_at) " + JOINS + VISIBLE
+        Timestamp next = jdbc.sql("SELECT min(p.next_review_at) " + JOINS + VISIBLE
                 + " AND p.status IS NOT NULL AND p.status <> 'new' AND p.next_review_at > now()")
                 .param("user", userId).param("deck", deckSlug).param("userPro", userPro)
                 .query(Timestamp.class).optional().orElse(null);

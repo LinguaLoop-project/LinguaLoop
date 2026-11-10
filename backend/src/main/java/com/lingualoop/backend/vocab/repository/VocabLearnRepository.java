@@ -24,12 +24,11 @@ public class VocabLearnRepository {
     public record GroupRow(UUID id, String name, String nameVi) {
     }
 
-    /** Phần thứ {@code index} (tính từ 0) của bộ theo thứ tự phần, chỉ tính nhóm có ít nhất 1 thẻ (BR-NT-05). */
+    /** Phần thứ {@code index} (tính từ 0) của bộ, theo thứ tự phần. */
     public Optional<GroupRow> findGroupAt(UUID deckId, int index) {
         return jdbc.sql("""
-                SELECT id, name, name_vi FROM vocab_groups g
+                SELECT id, name, name_vi FROM vocab_groups
                 WHERE deck_id = :deck AND deleted_at IS NULL
-                  AND EXISTS (SELECT 1 FROM vocab_cards c WHERE c.group_id = g.id AND c.deleted_at IS NULL)
                 ORDER BY sort_order OFFSET :index LIMIT 1""")
                 .param("deck", deckId).param("index", index)
                 .query((rs, n) -> new GroupRow(rs.getObject("id", UUID.class), rs.getString("name"), rs.getString("name_vi")))
@@ -84,19 +83,16 @@ public class VocabLearnRepository {
                 .param("id", sessionId).param("user", userId).query(Long.class).single() > 0;
     }
 
-    public record CardAccess(UUID deckId, String slug, boolean pro, boolean system, int partIndex) {
+    public record CardAccess(UUID deckId, String slug, boolean pro, boolean system) {
     }
 
     /**
      * Thẻ mà {@code userId} được phép trả lời: thẻ chưa ẩn của bộ hệ thống đã duyệt hoặc của bộ thuộc chính họ. Trống với
-     * thẻ của người khác. {@code partIndex} là vị trí phần chứa thẻ, để kiểm tra khoá Pro.
+     * thẻ của người khác. {@code pro} để kiểm tra khoá Pro.
      */
     public Optional<CardAccess> findCardAccess(UUID cardId, UUID userId) {
         return jdbc.sql("""
-                SELECT d.id AS deck_id, d.slug, d.is_pro, (d.owner_id IS NULL) AS system,
-                       (SELECT count(*) FROM vocab_groups g2
-                         WHERE g2.deck_id = d.id AND g2.deleted_at IS NULL AND g2.sort_order < g.sort_order
-                           AND EXISTS (SELECT 1 FROM vocab_cards c2 WHERE c2.group_id = g2.id AND c2.deleted_at IS NULL)) AS part_index
+                SELECT d.id AS deck_id, d.slug, d.is_pro, (d.owner_id IS NULL) AS system
                 FROM vocab_cards c
                 JOIN vocab_groups g ON g.id = c.group_id AND g.deleted_at IS NULL
                 JOIN vocab_decks d ON d.id = g.deck_id AND d.deleted_at IS NULL AND d.status = 'APPROVED'
@@ -104,7 +100,7 @@ public class VocabLearnRepository {
                   AND ((d.visibility = 'system' AND d.kind = 'catalog') OR d.owner_id = :user)""")
                 .param("card", cardId).param("user", userId)
                 .query((rs, n) -> new CardAccess(rs.getObject("deck_id", UUID.class), rs.getString("slug"),
-                        rs.getBoolean("is_pro"), rs.getBoolean("system"), rs.getInt("part_index")))
+                        rs.getBoolean("is_pro"), rs.getBoolean("system")))
                 .optional();
     }
 

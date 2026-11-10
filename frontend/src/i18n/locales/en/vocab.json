@@ -195,7 +195,7 @@
     },
     "locked": {
       "title": "This part is Pro only",
-      "desc": "This is a Pro deck: the Free plan covers the first two parts.",
+      "desc": "This is a Pro deck: you need the Pro plan to study its parts.",
       "unlock": "Unlock with Pro",
       "back": "Back to the deck"
     },

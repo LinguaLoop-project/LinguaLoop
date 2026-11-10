@@ -8,7 +8,7 @@
 | BR-PR-02 | Học viên pro còn hạn được mở khóa toàn bộ quyền lợi Pro trên hệ thống gồm: bài học Pro (BR-PR-13), bộ từ vựng Pro (BR-PR-14), video khẩu hình phát âm (BR-PR-15), credit hằng tháng của gói để dùng tính năng AI (BR-PR-10) và quản lý bài học cá nhân. | UC-PR-01, UC-PR-02, AC-PR-01, AC-PR-02, AC-PR-06, AC-PR-07 |
 | BR-PR-03 | Học viên chỉ được xem thông tin gói, đơn thanh toán và lịch sử giao dịch của chính mình; mọi yêu cầu truy cập hoặc thao tác trên đơn đăng ký của học viên khác đều bị hệ thống từ chối và báo không tìm thấy. | UC-PR-01, AC-PR-04 |
 | BR-PR-13 | Với bài học gắn nhãn Pro, học viên gói Free (hoặc gói Pro đã hết hạn theo BR-PR-04) chỉ xem được thông tin giới thiệu bài, bị khóa danh sách lời thoại và bị từ chối mở các chế độ luyện tập; học viên có gói Pro còn hạn được đọc lời thoại và luyện đầy đủ. | UC-DI-01 (1a), AC-DI-08, UC-TC-01, UC-TC-02 (4a, 4b), UC-TC-04, AC-TC-08, AC-TC-10, AC-TC-14, AC-TC-15, AC-TC-18, AC-TC-32 |
-| BR-PR-14 | Với bộ từ vựng gắn nhãn Pro, học viên gói Free (hoặc gói Pro đã hết hạn theo BR-PR-04) chỉ mở và học được 2 phần đầu tiên (BR-PR-10), từ phần thứ 3 trở đi bị khóa; học viên có gói Pro còn hạn được học toàn bộ các phần. | UC-HT-01, UC-HT-02 (1a), AC-HT-03, AC-HT-04, AC-HT-15 |
+| BR-PR-14 | Với bộ từ vựng gắn nhãn Pro (BR-BT-06), học viên gói Free (hoặc gói Pro đã hết hạn theo BR-PR-04) thấy bộ kèm nhãn Pro nhưng không mở và học được phần nào của bộ; học viên có gói Pro còn hạn được học toàn bộ các phần. | UC-HT-01, UC-HT-02 (1a), AC-HT-03, AC-HT-04, AC-HT-15 |
 | BR-PR-15 | Với video khẩu hình của âm đọc dưới 60 điểm, học viên gói Free (hoặc gói Pro đã hết hạn theo BR-PR-04) thấy hộp khóa và không nhận được đường dẫn video; học viên có gói Pro còn hạn xem được video khẩu hình. | UC-SH-02 (5b), AC-SH-18, AC-SH-19 |
 
 ## Trạng thái
@@ -36,6 +36,6 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-PR-10 | Học viên thường (gói Free) được cấp credit miễn phí mỗi ngày (BR-GA-03), tự đặt lại vào 00:00 mỗi ngày theo giờ Việt Nam và không cộng dồn. Học viên pro dùng credit hằng tháng của gói, cấp theo từng tháng của thời hạn gói (BR-GA-10) và không có credit miễn phí hằng ngày. Quy tắc gốc về credit nằm ở module GA (BR-GA-03, BR-GA-06, BR-GA-10); cách tiêu credit theo từng hoạt động xem BR-AI-10. Hạn mức phần từ vựng Pro theo BR-PR-14. | UC-PR-01 (4a), AC-PR-01 |
+| BR-PR-10 | Học viên thường (gói Free) được cấp credit miễn phí mỗi ngày (BR-GA-03), tự đặt lại vào 00:00 mỗi ngày theo giờ Việt Nam và không cộng dồn. Học viên pro dùng credit hằng tháng của gói, cấp theo từng tháng của thời hạn gói (BR-GA-10) và không có credit miễn phí hằng ngày. Quy tắc gốc về credit nằm ở module GA (BR-GA-03, BR-GA-06, BR-GA-10); cách tiêu credit theo từng hoạt động xem BR-AI-10. Quyền học bộ từ vựng Pro theo BR-PR-14. | UC-PR-01 (4a), AC-PR-01 |
 | BR-PR-11 | Các gói Pro mở bán do quản trị viên cấu hình ở module GA (UC-GA-03 đến 06); mỗi gói có tên, thời hạn tính theo tháng, giá và số credit mỗi tháng (BR-GA-07). Học viên chọn một trong các gói đang bán. | UC-PR-02 (3a), UC-PR-04, AC-PR-06, AC-PR-12, AC-PR-19 |
 | BR-PR-12 | Mỗi đơn đăng ký ở trạng thái chờ thanh toán có thời hạn hiệu lực tối đa là 15 phút kể từ lúc khởi tạo; quá 15 phút mà chưa thanh toán thành công thì đơn tự động chuyển sang trạng thái Hết hạn. | UC-PR-03 (2b), AC-PR-15 |

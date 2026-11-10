@@ -62,7 +62,7 @@ class VocabLearnServiceImpl implements VocabLearnService {
         }
         CardAccess access = learn.findCardAccess(request.cardId(), userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_CARD_NOT_FOUND));
-        if (access.system() && VocabDeckServiceImpl.isLocked(access.pro(), subscriptions.isPro(userId), access.partIndex())) {
+        if (access.system() && VocabDeckServiceImpl.isLocked(access.pro(), subscriptions.isPro(userId))) {
             throw new BusinessException(ErrorCode.VOCAB_PART_LOCKED);
         }
 
@@ -98,7 +98,7 @@ class VocabLearnServiceImpl implements VocabLearnService {
         boolean userPro = subscriptions.isPro(userId);
         return decks.findParts(userId, deck.getId()).stream()
                 .map(p -> new DeckView.Part(p.getIdx(), p.getName(), p.getNameVi(), (int) p.getCardCount(),
-                        (int) p.getStudiedCount(), VocabDeckServiceImpl.isLocked(deck.getPro(), userPro, p.getIdx())))
+                        (int) p.getStudiedCount(), VocabDeckServiceImpl.isLocked(deck.getPro(), userPro)))
                 .toList();
     }
 
