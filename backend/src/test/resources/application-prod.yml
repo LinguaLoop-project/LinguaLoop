@@ -1,9 +1,4 @@
 spring:
-  jpa:
-    hibernate:
-      # TẠM trong lúc chuyển sang schema mới: entity chưa khớp hết với bảng nên
-      # chưa validate. Bật lại validate khi mọi entity đã khớp.
-      ddl-auto: none
   flyway:
     out-of-order: true
   mail:

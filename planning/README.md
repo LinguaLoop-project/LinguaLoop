@@ -39,20 +39,19 @@ Chủ sở hữu là người **duyệt và chịu trách nhiệm** bảng, khô
 
 | Chủ | Nhóm | Bảng (tên trong database) |
 |---|---|---|
-| **Kế** | Người dùng | `users`, `user_consents` |
+| **Kế** | Người dùng | `users`, `notifications` |
 | **Kế** | Xác thực | `auth_login_attempts`, `auth_refresh_tokens`, `auth_email_tokens` |
-| **Kế** | Từ điển, từ vựng | `dictionary_words`, `dictionary_meanings`, `dictionary_word_forms`, `dictionary_pronunciations`, `user_saved_words` |
-| **Kế** | Bộ từ, ôn thẻ | `vocab_deck_categories`, `vocab_decks`, `vocab_deck_tags`, `vocab_groups`, `vocab_cards`, `vocab_card_phonetics`, `user_card_progress`, `vocab_study_sessions`, `vocab_review_logs` |
-| **Kế** | Kiểm tra trình độ | `assessment_items`, `assessment_sessions`, `assessment_responses`, `assessment_results` |
-| **Kế** | Vận hành | `content_error_reports`, `content_audit_log` |
-| **Lâm** | Bài học | `topics`, `lessons`, `sentences` |
-| **Lâm** | Gói, hạn mức | `user_subscriptions`, `plan_limits`, `usage_counters` |
-| **Lâm** | Lượt luyện | `sentence_attempts`, `sentence_attempt_words`, `sentence_attempt_phonemes`, `user_lesson_progress`, `user_lesson_mode_progress`, `user_sentence_review`, `sentence_notes` |
-| **Lâm** | Ngữ âm | `phonemes`, `phoneme_confusions`, `minimal_pairs` |
-| **Lâm** | Danh mục lỗi chấm điểm | `error_categories` (nghe chép và shadowing dùng bảng này để gắn nhãn lỗi, nên Lâm sở hữu cả bảng lẫn màn admin `errors`) |
-| **Lâm** | Điểm yếu, kế hoạch | `practice_recommendations`, `daily_plans`, `daily_plan_items`, `ai_feedback` |
+| **Kế** | Từ điển, từ vựng | `dictionary_words` (nghĩa nằm trong cột jsonb `meanings`) |
+| **Kế** | Bộ từ, ôn thẻ | `deck_categories`, `vocab_decks`, `vocab_groups`, `vocab_cards`, `user_card_progress`, `vocab_sessions`, `vocab_review_logs` |
+| **Kế** | Kiểm tra trình độ | Chưa có trong schema nền; thêm bằng migration mới khi làm tuần 7 |
+| **Kế** | Vận hành | `content_reports`, `audit_logs` |
+| **Lâm** | Bài học | `topics`, `lessons`, `sentences`, `lesson_likes` |
+| **Lâm** | Gói, hạn mức | `pro_plans`, `pro_orders`, `ai_settings`, `ai_feature_prices`, `ai_wallets`, `ai_usage_logs` |
+| **Lâm** | Lượt luyện | `sentence_attempts`, `sentence_attempt_words`, `sentence_attempt_phonemes`, `user_sentence_review`, `sentence_notes` |
+| **Lâm** | Ngữ âm | `phonemes` |
+| **Lâm** | AI, gia sư | `ai_feedback`, `ai_conversations`, `ai_conversation_messages`, `tutor_offers`, `tutor_sessions`, `tutor_session_words` |
 
-Các view `v_user_*`, `v_topic_lesson_counts`, `v_vocab_deck_counts` thuộc người sở hữu bảng gốc của view đó. Bảng `sentences` có cột `cefr_source`, `cefr_suggested_by_ai`, `ai_confidence` (cho gợi ý CEFR): Lâm sở hữu bảng, nên Lâm là người ghi các cột này. Soạn bài của giáo viên (Kế) ghi câu và bài qua `LessonAuthoringService` của Lâm, không ghi thẳng vào bảng.
+Schema nền (`V1__init_schema.sql`, xem [ADR 0008](../docs/adr/0008-baseline-schema-mvp.md)) có các view `v_active_pro`, `v_user_dictation_stats`, `v_user_phoneme_stats`, `v_user_sentence_stats`, `v_lesson_sentence_counts`; mỗi view thuộc người sở hữu bảng gốc của nó. Soạn bài của giáo viên (Kế) ghi câu và bài qua `LessonAuthoringService` của Lâm, không ghi thẳng vào bảng.
 
 Nền tảng chung: **Kế** giữ backend (cấu hình, bảo mật, API client, router). **Lâm** giữ bộ giao diện chung (màu, nút, layout). Người kia cần thêm gì thì gửi PR nhỏ cho chủ file duyệt.
 
