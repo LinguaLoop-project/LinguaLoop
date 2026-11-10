@@ -13,7 +13,7 @@ import com.lingualoop.backend.shadowing.entity.Phoneme;
 import com.lingualoop.backend.shadowing.entity.PhonemeConfusion;
 import com.lingualoop.backend.shadowing.repository.PhonemeConfusionRepository;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
-import com.lingualoop.backend.subscription.service.UsageService;
+import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,8 +26,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 class PronunciationHints {
 
-    static final String MOUTH_VIDEO_FEATURE = "mouth_video";
-
     /** Tiếng mẹ đẻ của người học; hiện chỉ có tiếng Việt. */
     private static final String L1 = "vi";
 
@@ -36,7 +34,7 @@ class PronunciationHints {
 
     private final PhonemeRepository phonemes;
     private final PhonemeConfusionRepository confusions;
-    private final UsageService usageService;
+    private final SubscriptionQueryService subscriptionQueryService;
 
     /** @param symbols ký hiệu theo bảng phonemes; âm không có mẹo cũng không có video thì không có trong kết quả */
     @Transactional(readOnly = true)
@@ -54,8 +52,7 @@ class PronunciationHints {
         for (PhonemeConfusion c : confusions.findGeneralTips(L1, bySymbol.values().stream().map(Phoneme::getId).toList())) {
             tips.put(c.getTargetPhonemeId(), c.getTipVi());
         }
-        Integer limit = usageService.usageOf(userId, MOUTH_VIDEO_FEATURE).limit();
-        boolean locked = limit != null && limit <= 0;
+        boolean locked = !subscriptionQueryService.isPro(userId);
 
         Map<String, Hint> result = new HashMap<>();
         for (Phoneme p : bySymbol.values()) {

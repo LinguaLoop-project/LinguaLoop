@@ -15,13 +15,13 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.NotFoundException;
-import com.lingualoop.backend.config.UsageProperties;
+import com.lingualoop.backend.config.CreditProperties;
+import com.lingualoop.backend.credit.AiFeature;
+import com.lingualoop.backend.credit.CreditService;
+import com.lingualoop.backend.credit.dto.CreditBalance;
 import com.lingualoop.backend.shadowing.dto.AttemptSnapshot;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
 import com.lingualoop.backend.shadowing.service.AttemptSnapshots;
-import com.lingualoop.backend.subscription.constant.AiAction;
-import com.lingualoop.backend.subscription.dto.FeatureUsage;
-import com.lingualoop.backend.subscription.service.UsageService;
 import com.lingualoop.backend.tutor.dto.TutorDtos;
 import com.lingualoop.backend.tutor.entity.TutorSession;
 import com.lingualoop.backend.tutor.entity.TutorSessionWord;
@@ -41,10 +41,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TutorSessionService {
 
-    static final String FEATURE = AiAction.FEATURE;
-
     private final AttemptSnapshots snapshots;
-    private final UsageService usageService;
+    private final CreditService creditService;
     private final PracticeWordSelector selector;
     private final TutorPromptBuilder promptBuilder;
     private final LiveTokenIssuer tokenIssuer;
@@ -53,7 +51,7 @@ public class TutorSessionService {
     private final PhonemeRepository phonemes;
     private final TutorViews views;
     private final LockedSessions locked;
-    private final UsageProperties usageProperties;
+    private final CreditProperties creditProperties;
     private final TransactionTemplate tx;
     private final Clock clock;
 
@@ -68,15 +66,10 @@ public class TutorSessionService {
      */
     public TutorDtos.SessionResponse createSession(UUID userId, long attemptId, UUID offerId) {
         AttemptSnapshot current = snapshots.load(userId, attemptId);
-        FeatureUsage usage = usageService.usageOf(userId, FEATURE);
-        if (usage.remaining() != null && usage.remaining() < AiAction.TUTOR_SESSION.cost()) {
-            throw new BusinessException(ErrorCode.QUOTA_EXCEEDED,
-                    Map.of("feature", FEATURE, "action", AiAction.TUTOR_SESSION.action(),
-                            "limit", usage.limit() == null ? 0 : usage.limit()));
-        }
+        creditService.requireCanStart(userId, AiFeature.TUTOR_SESSION);
 
-        Instant dayStart = LocalDate.ofInstant(clock.instant(), usageProperties.zone())
-                .atStartOfDay(usageProperties.zone()).toInstant();
+        Instant dayStart = LocalDate.ofInstant(clock.instant(), creditProperties.zone())
+                .atStartOfDay(creditProperties.zone()).toInstant();
         if (sessions.countUnstartedSince(userId, dayStart) >= TutorThresholds.MAX_UNSTARTED_SESSIONS_PER_DAY) {
             throw new BusinessException(ErrorCode.TUTOR_TOO_MANY_FAILED_STARTS);
         }
@@ -126,24 +119,22 @@ public class TutorSessionService {
             if (session.getStartedAt() != null) {
                 return false;
             }
-            FeatureUsage usage = usageService.usageOf(userId, FEATURE);
-            if (usage.remaining() != null && usage.remaining() < AiAction.TUTOR_SESSION.cost()) {
+            int cost = creditProperties.tutorSessionCost();
+            CreditBalance wallet = creditService.balanceOf(userId);
+            if (wallet.balance() < cost) {
                 session.end(SessionOutcome.CONNECT_FAILED, clock.instant());
+                creditService.logFailure(userId, AiFeature.TUTOR_SESSION, true);
                 return true;
             }
-            usageService.tryConsume(userId, FEATURE, AiAction.TUTOR_SESSION.cost(), AiAction.TUTOR_SESSION.action());
-            // tryConsume dùng truy vấn @Modifying(clearAutomatically) nên bối cảnh JPA bị xoá và {@code session} đã
-            // tách khỏi nó: lấy lại bản đang được quản lý rồi mới ghi (dòng vẫn đang bị khoá)
-            TutorSession managed = sessions.findById(session.getId()).orElseThrow();
-            managed.markStarted(clock.instant());
-            managed.markCharged();
+            creditService.chargeFixed(userId, AiFeature.TUTOR_SESSION, cost);
+            session.markStarted(clock.instant());
+            session.markCharged();
             return false;
         });
         if (exhausted) {
-            Integer limit = usageService.usageOf(userId, FEATURE).limit();
             throw new BusinessException(ErrorCode.QUOTA_EXCEEDED,
-                    Map.of("feature", FEATURE, "action", AiAction.TUTOR_SESSION.action(),
-                            "limit", limit == null ? 0 : limit));
+                    Map.of("feature", AiFeature.TUTOR_SESSION.dbValue(), "balance",
+                            creditService.balanceOf(userId).balance(), "cost", creditProperties.tutorSessionCost()));
         }
     }
 

@@ -83,9 +83,11 @@ app:
     user-info-url: https://openidconnect.googleapis.com
   audio:
     base-url: ${AUDIO_BASE_URL:}
-  usage:
-    # ngày của hạn mức đổi lúc 00:00 theo múi giờ này (BR-SHADOW-01)
+  credit:
+    # ví Free đặt lại lúc 00:00 theo múi giờ này (BR-GA-03)
     zone: Asia/Ho_Chi_Minh
+    # credit cố định của một phiên gia sư
+    tutor-session-cost: 3
   azure:
     speech:
       key: ${AZURE_SPEECH_KEY:}

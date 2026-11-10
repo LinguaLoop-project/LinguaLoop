@@ -114,7 +114,7 @@ public class ShadowingController {
         data.put("content", r.content());
         data.put("createdAt", r.createdAt() == null ? null : r.createdAt().toString());
         data.put("cached", r.cached());
-        data.put("usage", r.usage());
+        data.put("credit", r.credit());
         return data;
     }
 }

@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +16,8 @@ import com.lingualoop.backend.security.CurrentUserId;
 import com.lingualoop.backend.subscription.dto.PlanResponse;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +42,13 @@ class DevToolsController {
         return ApiResponse.ok(PlanResponse.of(pro));
     }
 
-    @PostMapping("/usage/reset")
+    record SetCreditsRequest(@NotNull @Min(0) @Max(1000000) Integer balance) {
+    }
+
+    /** Đặt số dư ví credit của người gọi, để thử trường hợp hết credit. */
+    @PutMapping("/credits")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetUsage(@CurrentUserId UUID userId) {
-        devToolsService.resetUsage(userId);
+    public void setCredits(@CurrentUserId UUID userId, @Valid @RequestBody SetCreditsRequest request) {
+        devToolsService.setCredits(userId, request.balance());
     }
 }

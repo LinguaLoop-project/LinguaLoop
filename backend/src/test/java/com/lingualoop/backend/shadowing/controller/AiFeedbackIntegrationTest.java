@@ -34,6 +34,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import com.lingualoop.backend.support.TestData;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.ai.AiFeedbackGenerator;
 import com.lingualoop.backend.ai.FeedbackRequest;
@@ -324,8 +325,7 @@ class AiFeedbackIntegrationTest {
     }
 
     private void makePro(UUID user) {
-        jdbc.update("INSERT INTO user_subscriptions (user_id, status, expires_at) "
-                + "VALUES (?, 'active', now() + interval '10 days')", user);
+        TestData.grantPro(jdbc, user, 1);
     }
 
     private long attempt(UUID user, Sentence sentence) {

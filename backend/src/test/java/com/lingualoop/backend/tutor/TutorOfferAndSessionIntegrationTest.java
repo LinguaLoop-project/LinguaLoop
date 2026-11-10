@@ -38,7 +38,7 @@ import com.lingualoop.backend.lesson.repository.SentenceRepository;
 import com.lingualoop.backend.lesson.repository.TopicRepository;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.subscription.service.UsageService;
+import com.lingualoop.backend.support.TestData;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 /** UC-TUTOR-01 đến 03: xét lời mời, từ chối, tạo phiên (Gemini Live là bản giả). */
@@ -50,7 +50,6 @@ class TutorOfferAndSessionIntegrationTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private JwtTokenService jwtTokenService;
     @Autowired private UserAccountService userAccountService;
-    @Autowired private UsageService usageService;
     @Autowired private TopicRepository topics;
     @Autowired private LessonRepository lessons;
     @Autowired private SentenceRepository sentences;
@@ -216,7 +215,7 @@ class TutorOfferAndSessionIntegrationTest {
         Fx f = fx();
         long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20));
 
-        usageService.tryConsume(f.user, "ai_energy", 6); // còn 2, mà một phiên gia sư tốn 3 năng lượng
+        TestData.setCredits(jdbc, f.user, 2); // còn 2, mà một phiên gia sư tốn 3 credit
         createSession(f.user, attempt, null)
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))

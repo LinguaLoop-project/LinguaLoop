@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
@@ -23,9 +24,13 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private JdbcTemplate jdbc;
+
     @BeforeEach
     void cleanUp() {
-        userRepository.deleteAll();
+        // Giữ 2 tài khoản dev của V2: bài học seed và test khác tham chiếu tới chúng
+        jdbc.update("DELETE FROM users WHERE email NOT LIKE '%@lingualoop.local'");
     }
 
     private User newUser(String email, String displayName) {
@@ -57,10 +62,11 @@ class UserRepositoryTest {
 
     @Test
     void save_twoUsersWithSameDisplayName_isAllowed() {
+        long before = userRepository.count();
         userRepository.saveAndFlush(newUser("c1@x.com", "Trùng Tên"));
         userRepository.saveAndFlush(newUser("c2@x.com", "Trùng Tên"));
 
-        assertThat(userRepository.count()).isEqualTo(2);
+        assertThat(userRepository.count()).isEqualTo(before + 2);
     }
 
     @Test

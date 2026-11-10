@@ -48,7 +48,7 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.ErrorType;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.PhonemeResult;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.WordResult;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
-import com.lingualoop.backend.subscription.service.UsageService;
+import com.lingualoop.backend.support.TestData;
 import com.lingualoop.backend.support.WavFixtures;
 import com.lingualoop.backend.user.service.UserAccountService;
 
@@ -62,7 +62,6 @@ class TutorSessionLifecycleIntegrationTest {
     @Autowired private JwtTokenService jwtTokenService;
     @Autowired private UserAccountService userAccountService;
     @Autowired private TutorSessionService sessionService;
-    @Autowired private UsageService usageService;
     @Autowired private TutorSessionCleanup cleanup;
     @Autowired private TopicRepository topics;
     @Autowired private LessonRepository lessons;
@@ -170,7 +169,7 @@ class TutorSessionLifecycleIntegrationTest {
     @Test
     void quotaUsedUpBetweenCreateAndStart_endsTheSessionAndAnswersQuotaExceeded_AC_TUTOR_14() throws Exception {
         UUID user = newUser();
-        usageService.tryConsume(user, "ai_energy", 5); // còn 3 năng lượng: vừa đủ một phiên gia sư
+        TestData.setCredits(jdbc, user, 3); // còn 3 credit: vừa đủ một phiên gia sư
         S first = open(user, "Think about it", word("think", 45, "θ", 20));
         S second = open(user, "Think again", word("think", 45, "θ", 20)); // hai tab: cả hai tạo được lúc còn đủ năng lượng
         started(first).andExpect(status().isOk());

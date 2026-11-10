@@ -24,7 +24,7 @@ public enum ErrorCode {
     CONFLICT(HttpStatus.CONFLICT, "Dữ liệu bị trùng hoặc xung đột"),
     PAYLOAD_TOO_LARGE(HttpStatus.CONTENT_TOO_LARGE, "Tệp tải lên quá lớn"),
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Định dạng dữ liệu không được hỗ trợ"),
-    QUOTA_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "Bạn đã dùng hết lượt trong ngày"),
+    QUOTA_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "Bạn không đủ credit AI"),
 
     AUTH_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu chưa đúng"),
     AUTH_ACCOUNT_LOCKED(HttpStatus.LOCKED, "Tài khoản tạm thời bị khoá do đăng nhập sai nhiều lần"),
