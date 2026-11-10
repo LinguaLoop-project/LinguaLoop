@@ -1,4 +1,4 @@
-package com.lingualoop.backend.shadowing.controller;
+package com.lingualoop.backend.shadowing.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,7 +37,6 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.ErrorType;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.PhonemeResult;
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.WordResult;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
-import com.lingualoop.backend.shadowing.repository.PhonemeConfusionRepository;
 import com.lingualoop.backend.support.WavFixtures;
 import com.lingualoop.backend.user.service.UserAccountService;
 
@@ -56,13 +55,13 @@ class ShadowingHintsFailureIntegrationTest {
     @Autowired private JdbcTemplate jdbc;
 
     @MockitoBean private PronunciationScoringService scoring;
-    @MockitoBean private PhonemeConfusionRepository confusions;
+    @MockitoBean private PronunciationHints hints;
 
     @Test
     void assess_whenTipLookupFails_stillReturnsTheScoreAndKeepsTheAttempt_AC_SHADOW_23() throws Exception {
         when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("think", 70, 70, 70, 70, null,
                 List.of(new WordResult("think", 70, ErrorType.MISPRONUNCIATION, List.of(new PhonemeResult("θ", 40))))));
-        when(confusions.findGeneralTips(any(), any())).thenThrow(new IllegalStateException("bảng mẹo lỗi"));
+        when(hints.hintsFor(any(), any())).thenThrow(new IllegalStateException("bảng mẹo lỗi"));
         UUID user = userAccountService.createLocal("hint-" + UUID.randomUUID() + "@x.com", "Hint", "h").id();
         Sentence sentence = sentence();
 
@@ -74,7 +73,7 @@ class ShadowingHintsFailureIntegrationTest {
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].symbol").value("θ"))
                 .andExpect(jsonPath("$.data.words[0].phonemes[0].tip").value((Object) null))
                 // lỗi lấy mẹo không làm mất lượt: kết quả vẫn được lưu
-                .andExpect(jsonPath("$.data.usage").doesNotExist());
+                .andExpect(jsonPath("$.data.words[0].phonemes[0].mouthVideo").doesNotExist());
 
         assertThat(jdbc.queryForObject("SELECT count(*) FROM sentence_attempts WHERE user_id = ?", Integer.class, user))
                 .isEqualTo(1);

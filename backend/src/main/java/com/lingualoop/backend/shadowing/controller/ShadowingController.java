@@ -114,7 +114,12 @@ public class ShadowingController {
         data.put("content", r.content());
         data.put("createdAt", r.createdAt() == null ? null : r.createdAt().toString());
         data.put("cached", r.cached());
-        data.put("credit", r.credit());
+        // SseStream tự dựng ObjectMapper không có module thời gian nên mốc đặt lại đi dưới dạng chuỗi
+        Map<String, Object> credit = new LinkedHashMap<>();
+        credit.put("balance", r.credit().balance());
+        credit.put("kind", r.credit().kind());
+        credit.put("resetsAt", r.credit().resetsAt() == null ? null : r.credit().resetsAt().toString());
+        data.put("credit", credit);
         return data;
     }
 }

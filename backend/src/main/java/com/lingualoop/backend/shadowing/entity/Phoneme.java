@@ -24,6 +24,17 @@ public class Phoneme {
     @Column(name = "symbol", nullable = false)
     private String symbol;
 
+    /** vowel, diphthong hoặc consonant. */
+    @Column(name = "kind", nullable = false)
+    private String kind;
+
+    @Column(name = "example_word")
+    private String exampleWord;
+
+    /** Mẹo sửa phát âm cho người học Việt; null nếu chưa có. */
+    @Column(name = "tip_vi")
+    private String tipVi;
+
     @Column(name = "mouth_video_url")
     private String mouthVideoUrl;
 }

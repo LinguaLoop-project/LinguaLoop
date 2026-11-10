@@ -10,15 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.shadowing.dto.ShadowingAttemptResponse.MouthVideo;
 import com.lingualoop.backend.shadowing.entity.Phoneme;
-import com.lingualoop.backend.shadowing.entity.PhonemeConfusion;
-import com.lingualoop.backend.shadowing.repository.PhonemeConfusionRepository;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
 import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 
 import lombok.RequiredArgsConstructor;
 
 /**
- * Mẹo sửa và video khẩu hình cho các âm của lượt (bấm âm nào cũng xem được). Mẹo lấy từ {@code phoneme_confusions} theo âm đích,
+ * Mẹo sửa và video khẩu hình cho các âm của lượt (bấm âm nào cũng xem được). Mẹo lấy từ {@code phonemes.tip_vi},
  * âm chưa có mẹo thì không hiện (mô tả chung của bảng {@code phonemes} soạn theo giọng Anh, có thể trái bài giọng Mỹ); video chỉ mở
  * cho gói có tính năng {@code mouth_video} (hạn mức 0 thì khoá ở server: không bao giờ trả đường dẫn cho Free).
  */
@@ -26,14 +24,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 class PronunciationHints {
 
-    /** Tiếng mẹ đẻ của người học; hiện chỉ có tiếng Việt. */
-    private static final String L1 = "vi";
-
     record Hint(String tip, MouthVideo mouthVideo) {
     }
 
     private final PhonemeRepository phonemes;
-    private final PhonemeConfusionRepository confusions;
     private final SubscriptionQueryService subscriptionQueryService;
 
     /** @param symbols ký hiệu theo bảng phonemes; âm không có mẹo cũng không có video thì không có trong kết quả */
@@ -48,17 +42,13 @@ class PronunciationHints {
                 bySymbol.put(p.getSymbol(), p);
             }
         }
-        Map<Short, String> tips = new HashMap<>();
-        for (PhonemeConfusion c : confusions.findGeneralTips(L1, bySymbol.values().stream().map(Phoneme::getId).toList())) {
-            tips.put(c.getTargetPhonemeId(), c.getTipVi());
-        }
         boolean locked = !subscriptionQueryService.isPro(userId);
 
         Map<String, Hint> result = new HashMap<>();
         for (Phoneme p : bySymbol.values()) {
             MouthVideo video = p.getMouthVideoUrl() == null ? null
                     : new MouthVideo(locked ? null : p.getMouthVideoUrl(), locked);
-            String tip = tips.get(p.getId());
+            String tip = p.getTipVi();
             if (tip != null || video != null) {
                 result.put(p.getSymbol(), new Hint(tip, video));
             }
