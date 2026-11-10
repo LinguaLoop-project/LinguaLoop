@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import com.lingualoop.backend.dictionary.dto.WordView;
 import com.lingualoop.backend.dictionary.entity.DictionaryWord;
-import com.lingualoop.backend.dictionary.entity.PosPronunciation;
 import com.lingualoop.backend.dictionary.entity.WordMeaning;
 import com.lingualoop.backend.dictionary.util.AudioUrlResolver;
 
@@ -29,7 +28,6 @@ public class WordViewMapper {
     private WordView build(DictionaryWord word, WordView lemma) {
         return new WordView(
                 word.getHeadword(),
-                word.getCefrLevel() == null ? null : word.getCefrLevel().name(),
                 defaultPronunciation(word),
                 groupByPos(word),
                 lemma);
@@ -39,23 +37,13 @@ public class WordViewMapper {
         Map<String, List<WordView.Meaning>> byPos = new LinkedHashMap<>();
         for (WordMeaning m : word.getMeanings()) {
             byPos.computeIfAbsent(blankToNull(m.pos()), k -> new ArrayList<>())
-                    .add(new WordView.Meaning(m.no(), m.translationVi(), m.exampleEn(), m.exampleVi()));
+                    .add(new WordView.Meaning(m.no(), m.meaningVi(), m.definitionEn(), m.definitionVi(),
+                            m.exampleEn(), m.exampleVi()));
         }
         List<WordView.MeaningGroup> groups = new ArrayList<>(byPos.size());
         byPos.forEach((pos, meanings) -> groups.add(
-                new WordView.MeaningGroup(pos, pronunciationFor(word, pos), List.copyOf(meanings))));
+                new WordView.MeaningGroup(pos, defaultPronunciation(word), List.copyOf(meanings))));
         return groups;
-    }
-
-    /** Ghi đè phát âm theo loại từ nếu có, không thì dùng mặc định của từ. */
-    private WordView.Pronunciation pronunciationFor(DictionaryWord word, String pos) {
-        Map<String, PosPronunciation> overrides = word.getPosPronunciations();
-        PosPronunciation override = overrides == null || pos == null ? null : overrides.get(pos);
-        if (override == null) {
-            return defaultPronunciation(word);
-        }
-        return new WordView.Pronunciation(override.ipaUk(), override.ipaUs(),
-                audioUrlResolver.resolve(override.audioUk()), audioUrlResolver.resolve(override.audioUs()));
     }
 
     private WordView.Pronunciation defaultPronunciation(DictionaryWord word) {
