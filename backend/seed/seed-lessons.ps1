@@ -1,6 +1,6 @@
-﻿# Nạp dữ liệu mẫu (25 chủ đề, ~1.700 bài, ~45.000 câu) vào Postgres.
+﻿# Nạp dữ liệu mẫu (25 chủ đề, 1.068 bài YouTube, ~29.700 câu) vào Postgres.
 # Mặc định nạp vào container "postgres" của compose.yaml; đặt $env:DATABASE_URL để nạp DB khác.
-# Chạy lại an toàn: các câu lệnh dùng ON CONFLICT DO UPDATE.
+# Chạy lại an toàn: các câu lệnh dùng ON CONFLICT (id) DO NOTHING.
 # Lưu UTF-8 có BOM: Windows PowerShell 5.1 đọc tệp .ps1 không BOM bằng bảng mã ANSI nên chữ có dấu bị vỡ.
 $ErrorActionPreference = "Stop"
 $here = $PSScriptRoot
