@@ -50,7 +50,6 @@ import com.lingualoop.backend.lesson.repository.SentenceRepository;
 import com.lingualoop.backend.lesson.repository.TopicRepository;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.service.ConsentService;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 /** Nhận xét AI cho một lượt shadowing (UC-SHADOW-09): một lượt một nhận xét, hạn mức theo gói, hoàn lượt khi lỗi. */
@@ -71,14 +70,12 @@ class AiFeedbackIntegrationTest {
     @Autowired private JdbcTemplate jdbc;
 
     @MockitoBean private AiFeedbackGenerator generator;
-    @MockitoBean private ConsentService consent;
 
     private final String tag = UUID.randomUUID().toString().substring(0, 8);
 
     @BeforeEach
     void defaults() {
         reset(generator);
-        when(consent.hasConsent(any(), any())).thenReturn(true);
         when(generator.generate(any())).thenReturn(FEEDBACK);
     }
 
@@ -141,20 +138,6 @@ class AiFeedbackIntegrationTest {
         feedback(newUser(), attempt).andExpect(status().isNotFound());
         feedback(owner, 999_999_999L).andExpect(status().isNotFound());
 
-        verify(generator, times(0)).generate(any());
-    }
-
-    @Test
-    void feedback_withoutAiConsent_returns403AndDoesNotCharge_AC_SHADOW_26() throws Exception {
-        UUID user = newUser();
-        long attempt = attempt(user, sentence("consent"));
-        when(consent.hasConsent(any(), any())).thenReturn(false);
-
-        feedback(user, attempt)
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("AI_CONSENT_REQUIRED"));
-
-        assertThat(used(user)).isZero();
         verify(generator, times(0)).generate(any());
     }
 
@@ -305,13 +288,11 @@ class AiFeedbackIntegrationTest {
     }
 
     @Test
-    void stream_withoutAiConsentOrOfAnotherUser_isRejectedBeforeStreaming_AC_SHADOW_31() throws Exception {
+    void stream_ofAnotherUser_isRejectedBeforeStreaming_AC_SHADOW_31() throws Exception {
         UUID owner = newUser();
         long attempt = attempt(owner, sentence("stream-guard"));
 
         streamOf(newUser(), attempt).andExpect(status().isNotFound());
-        when(consent.hasConsent(any(), any())).thenReturn(false);
-        streamOf(owner, attempt).andExpect(status().isForbidden());
 
         verify(generator, times(0)).generate(any(), any());
     }

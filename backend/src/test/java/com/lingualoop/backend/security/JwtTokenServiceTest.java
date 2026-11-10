@@ -33,16 +33,16 @@ class JwtTokenServiceTest {
         UUID userId = UUID.randomUUID();
         UUID sessionId = UUID.randomUUID();
 
-        JwtTokenService.AccessToken token = service.issueAccessToken(userId, Role.INSTRUCTOR, sessionId);
+        JwtTokenService.AccessToken token = service.issueAccessToken(userId, Role.TEACHER, sessionId);
         Jwt jwt = config.jwtDecoder(key, props).decode(token.token());
 
         assertThat(jwt.getSubject()).isEqualTo(userId.toString());
-        assertThat(jwt.getClaimAsString(JwtTokenService.ROLE_CLAIM)).isEqualTo("instructor");
+        assertThat(jwt.getClaimAsString(JwtTokenService.ROLE_CLAIM)).isEqualTo("teacher");
         assertThat(jwt.getClaimAsString(JwtTokenService.SESSION_CLAIM)).isEqualTo(sessionId.toString());
         assertThat(jwt.getExpiresAt()).isEqualTo(token.expiresAt());
         assertThat(SecurityConfig.roleAuthorities(jwt))
                 .extracting(Object::toString)
-                .containsExactly("ROLE_INSTRUCTOR");
+                .containsExactly("ROLE_TEACHER");
     }
 
     @Test

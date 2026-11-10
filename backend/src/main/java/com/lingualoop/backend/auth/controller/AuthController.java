@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,22 +55,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request,
-            @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-        return withSession(authService.login(request, userAgent));
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+        return withSession(authService.login(request));
     }
 
     @PostMapping("/google")
-    public ResponseEntity<ApiResponse<AuthResponse>> google(@Valid @RequestBody GoogleLoginRequest request,
-            @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-        return withSession(googleAuthService.login(request.code(), userAgent));
+    public ResponseEntity<ApiResponse<AuthResponse>> google(@Valid @RequestBody GoogleLoginRequest request) {
+        return withSession(googleAuthService.login(request.code()));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<AuthResponse>> refresh(
-            @CookieValue(name = RefreshCookies.NAME, required = false) String refreshToken,
-            @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-        return withSession(authService.refresh(refreshToken, userAgent));
+            @CookieValue(name = RefreshCookies.NAME, required = false) String refreshToken) {
+        return withSession(authService.refresh(refreshToken));
     }
 
     @PostMapping("/logout")

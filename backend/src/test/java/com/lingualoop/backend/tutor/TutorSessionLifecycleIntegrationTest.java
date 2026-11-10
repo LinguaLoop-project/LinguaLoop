@@ -50,7 +50,6 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.WordResult
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.subscription.service.UsageService;
 import com.lingualoop.backend.support.WavFixtures;
-import com.lingualoop.backend.user.service.ConsentService;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 /** UC-TUTOR-04 đến 08: bắt đầu và trừ lượt, đổi từ, Lượt chấm, lạc đề, kết thúc, xem phiên, dọn phiên treo. */
@@ -70,7 +69,6 @@ class TutorSessionLifecycleIntegrationTest {
     @Autowired private SentenceRepository sentences;
     @Autowired private JdbcTemplate jdbc;
 
-    @MockitoBean private ConsentService consent;
     @MockitoBean private LiveTokenIssuer tokenIssuer;
     @MockitoBean private PronunciationScoringService scoring;
 
@@ -78,7 +76,6 @@ class TutorSessionLifecycleIntegrationTest {
 
     @BeforeEach
     void defaults() {
-        when(consent.hasConsent(any(), any())).thenReturn(true);
         when(tokenIssuer.issue(any())).thenReturn(
                 new LiveTokenIssuer.LiveToken("tok", "live-model", Instant.parse("2026-10-21T10:00:00Z")));
     }
@@ -330,7 +327,7 @@ class TutorSessionLifecycleIntegrationTest {
     }
 
     @Test
-    void attempt_withoutStartingOrConsentOrValidAudio_isRefused() throws Exception {
+    void attempt_withoutStartingOrValidAudio_isRefused() throws Exception {
         S s = open("Think about it", word("think", 45, "θ", 20));
         assessWord("think", "θ", 90);
 
@@ -346,8 +343,6 @@ class TutorSessionLifecycleIntegrationTest {
                         .param("target", "paragraph").headers(auth(s.user)))
                 .andExpect(status().isBadRequest());
 
-        when(consent.hasConsent(any(), any())).thenReturn(false);
-        attempt(s, "word").andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("AI_CONSENT_REQUIRED"));
     }
 
     // ── UC-TUTOR-07 / 08 ────────────────────────────────────────────────────────────

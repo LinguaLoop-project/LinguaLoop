@@ -54,7 +54,6 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.PhonemeRes
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.WordResult;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.support.WavFixtures;
-import com.lingualoop.backend.user.service.ConsentService;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 @SpringBootTest
@@ -71,13 +70,11 @@ class ShadowingAttemptIntegrationTest {
     @Autowired private JdbcTemplate jdbc;
 
     @MockitoBean private PronunciationScoringService scoring;
-    @MockitoBean private ConsentService consent;
 
     private final String tag = UUID.randomUUID().toString().substring(0, 8);
 
     @BeforeEach
     void defaults() {
-        when(consent.hasConsent(any(), any())).thenReturn(true);
         when(scoring.assess(any(), any())).thenReturn(helloWorld());
     }
 
@@ -237,20 +234,6 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.details.reason").value("not_wav"));
         post(user, s.getId(), WavFixtures.valid(100)).andExpect(status().isBadRequest());
         post(user, s.getId(), WavFixtures.valid(31_000)).andExpect(status().isBadRequest());
-
-        verifyNoInteractions(scoring);
-        assertThat(energyUsed(user)).isZero();
-    }
-
-    @Test
-    void assess_withoutAiConsent_isForbiddenAndFree_AC_SHADOW_08() throws Exception {
-        UUID user = newUser();
-        Sentence s = sentence(lesson("consent", false), 0, "Hello world");
-        when(consent.hasConsent(any(), any())).thenReturn(false);
-
-        post(user, s.getId(), WavFixtures.valid(1_000))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("AI_CONSENT_REQUIRED"));
 
         verifyNoInteractions(scoring);
         assertThat(energyUsed(user)).isZero();

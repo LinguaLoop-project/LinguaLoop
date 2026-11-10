@@ -76,7 +76,6 @@ class GoogleLoginIntegrationTest {
 
     private ResultActions googleLogin(String idToken) throws Exception {
         return mockMvc.perform(post("/api/v1/auth/google").contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.USER_AGENT, "JUnit-Browser/1.0")
                 .content("{\"code\":\"%s\"}".formatted(idToken)));
     }
 
@@ -114,7 +113,7 @@ class GoogleLoginIntegrationTest {
         String claims = claims(accessTokenOf(result));
         assertThat((String) JsonPath.read(claims, "$.sub")).isEqualTo(user.id().toString());
         assertThat((String) JsonPath.read(claims, "$.sid")).isNotBlank();
-        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM users WHERE auth_uid = ?", Integer.class, sub))
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM users WHERE google_sub = ?", Integer.class, sub))
                 .isEqualTo(1);
     }
 
@@ -134,7 +133,7 @@ class GoogleLoginIntegrationTest {
                 .andExpect(jsonPath("$.data.user.onboarded").value(false))
                 .andExpect(jsonPath("$.data.user.hasPassword").value(false));
 
-        assertThat(jdbcTemplate.queryForObject("SELECT terms_accepted_at IS NULL FROM users WHERE auth_uid = ?",
+        assertThat(jdbcTemplate.queryForObject("SELECT terms_accepted_at IS NULL FROM users WHERE google_sub = ?",
                 Boolean.class, sub)).isTrue();
     }
 
@@ -157,7 +156,7 @@ class GoogleLoginIntegrationTest {
     @Test
     void google_emailOfUnverifiedLocalAccount_dropsPasswordAndRevokesOldSessions_AC20() throws Exception {
         UserAccountView local = userAccountService.createLocal(uniqueEmail(), "Minh", passwordEncoder.encode(PASSWORD));
-        String oldRefresh = refreshTokenService.startSession(local.id(), "attacker-browser").rawToken();
+        String oldRefresh = refreshTokenService.startSession(local.id()).rawToken();
         tokenResolvesTo(new GoogleIdentity(uniqueSub(), local.email(), "Minh G", null));
 
         googleLogin("tok")
@@ -196,7 +195,7 @@ class GoogleLoginIntegrationTest {
     void google_disabledAccount_returns403_AC24() throws Exception {
         String sub = uniqueSub();
         UserAccountView user = userAccountService.createFromGoogle(sub, uniqueEmail(), "Gia", null);
-        jdbcTemplate.update("UPDATE users SET disabled = true WHERE id = ?", user.id());
+        jdbcTemplate.update("UPDATE users SET locked_at = now(), locked_reason = 'test' WHERE id = ?", user.id());
         tokenResolvesTo(new GoogleIdentity(sub, user.email(), "Gia", null));
 
         googleLogin("tok")

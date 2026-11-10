@@ -39,10 +39,9 @@ import com.lingualoop.backend.lesson.repository.TopicRepository;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
 import com.lingualoop.backend.subscription.service.UsageService;
-import com.lingualoop.backend.user.service.ConsentService;
 import com.lingualoop.backend.user.service.UserAccountService;
 
-/** UC-TUTOR-01 đến 03: xét lời mời, từ chối, tạo phiên (Gemini Live và consent là bản giả). */
+/** UC-TUTOR-01 đến 03: xét lời mời, từ chối, tạo phiên (Gemini Live là bản giả). */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
@@ -57,7 +56,6 @@ class TutorOfferAndSessionIntegrationTest {
     @Autowired private SentenceRepository sentences;
     @Autowired private JdbcTemplate jdbc;
 
-    @MockitoBean private ConsentService consent;
     @MockitoBean private LiveTokenIssuer tokenIssuer;
 
     private final String tag = UUID.randomUUID().toString().substring(0, 8);
@@ -65,7 +63,6 @@ class TutorOfferAndSessionIntegrationTest {
 
     @BeforeEach
     void defaults() {
-        when(consent.hasConsent(any(), any())).thenReturn(true);
         when(tokenIssuer.issue(any())).thenReturn(
                 new LiveTokenIssuer.LiveToken("tok-123", "live-model", Instant.parse("2026-10-21T10:00:00Z")));
     }
@@ -215,16 +212,10 @@ class TutorOfferAndSessionIntegrationTest {
     }
 
     @Test
-    void createSession_withoutConsentOrQuota_isRefusedBeforeAnyToken_AC_TUTOR_10() throws Exception {
+    void createSession_withoutQuota_isRefusedBeforeAnyToken_AC_TUTOR_10() throws Exception {
         Fx f = fx();
         long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20));
 
-        when(consent.hasConsent(any(), any())).thenReturn(false);
-        createSession(f.user, attempt, null)
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("AI_CONSENT_REQUIRED"));
-
-        when(consent.hasConsent(any(), any())).thenReturn(true);
         usageService.tryConsume(f.user, "ai_energy", 6); // còn 2, mà một phiên gia sư tốn 3 năng lượng
         createSession(f.user, attempt, null)
                 .andExpect(status().isTooManyRequests())

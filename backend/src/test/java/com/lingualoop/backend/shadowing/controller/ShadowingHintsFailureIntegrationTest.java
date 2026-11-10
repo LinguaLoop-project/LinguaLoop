@@ -39,7 +39,6 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.WordResult
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.shadowing.repository.PhonemeConfusionRepository;
 import com.lingualoop.backend.support.WavFixtures;
-import com.lingualoop.backend.user.service.ConsentService;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 /** Mẹo sửa chỉ là phần thêm: bảng mẹo lỗi thì kết quả chấm vẫn được trả và lượt vẫn được lưu (AC-SHADOW-23). */
@@ -57,12 +56,10 @@ class ShadowingHintsFailureIntegrationTest {
     @Autowired private JdbcTemplate jdbc;
 
     @MockitoBean private PronunciationScoringService scoring;
-    @MockitoBean private ConsentService consent;
     @MockitoBean private PhonemeConfusionRepository confusions;
 
     @Test
     void assess_whenTipLookupFails_stillReturnsTheScoreAndKeepsTheAttempt_AC_SHADOW_23() throws Exception {
-        when(consent.hasConsent(any(), any())).thenReturn(true);
         when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("think", 70, 70, 70, 70, null,
                 List.of(new WordResult("think", 70, ErrorType.MISPRONUNCIATION, List.of(new PhonemeResult("θ", 40))))));
         when(confusions.findGeneralTips(any(), any())).thenThrow(new IllegalStateException("bảng mẹo lỗi"));

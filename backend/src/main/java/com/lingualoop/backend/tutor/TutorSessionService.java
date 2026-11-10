@@ -27,15 +27,13 @@ import com.lingualoop.backend.tutor.entity.TutorSession;
 import com.lingualoop.backend.tutor.entity.TutorSessionWord;
 import com.lingualoop.backend.tutor.repository.TutorOfferRepository;
 import com.lingualoop.backend.tutor.repository.TutorSessionRepository;
-import com.lingualoop.backend.user.service.ConsentService;
-import com.lingualoop.backend.user.service.ConsentService.ConsentType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Điều phối Phiên gia sư. Luật nằm ở TutorOfferPolicy, PracticeWordSelector, AttemptRule và TutorSession; lớp này chỉ
- * ghép chúng với dữ liệu, hạn mức, consent và Gemini. Cố ý không có {@code @Transactional} ở mức lớp để lời gọi
+ * ghép chúng với dữ liệu, hạn mức và Gemini. Cố ý không có {@code @Transactional} ở mức lớp để lời gọi
  * Gemini không giữ kết nối DB.
  */
 @Slf4j
@@ -46,7 +44,6 @@ public class TutorSessionService {
     static final String FEATURE = AiAction.FEATURE;
 
     private final AttemptSnapshots snapshots;
-    private final ConsentService consentService;
     private final UsageService usageService;
     private final PracticeWordSelector selector;
     private final TutorPromptBuilder promptBuilder;
@@ -66,14 +63,11 @@ public class TutorSessionService {
      *
      * @param offerId null khi học viên tự bấm "Hỏi gia sư"
      * @throws NotFoundException lượt hoặc lời mời không phải của người gọi, hoặc lời mời không thuộc lượt này
-     * @throws BusinessException chưa đồng ý AI, hết lượt, quá nhiều phiên chưa started trong ngày, hoặc không cấp được
+     * @throws BusinessException hết lượt, quá nhiều phiên chưa started trong ngày, hoặc không cấp được
      *         token (kèm Danh sách từ lỗi)
      */
     public TutorDtos.SessionResponse createSession(UUID userId, long attemptId, UUID offerId) {
         AttemptSnapshot current = snapshots.load(userId, attemptId);
-        if (!consentService.hasConsent(userId, ConsentType.AI_PROCESSING)) {
-            throw new BusinessException(ErrorCode.AI_CONSENT_REQUIRED);
-        }
         FeatureUsage usage = usageService.usageOf(userId, FEATURE);
         if (usage.remaining() != null && usage.remaining() < AiAction.TUTOR_SESSION.cost()) {
             throw new BusinessException(ErrorCode.QUOTA_EXCEEDED,

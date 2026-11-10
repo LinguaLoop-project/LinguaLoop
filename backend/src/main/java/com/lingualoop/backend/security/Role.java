@@ -3,10 +3,10 @@ package com.lingualoop.backend.security;
 import java.util.Locale;
 import java.util.Optional;
 
-/** Vai trò người dùng, khớp CHECK của cột {@code users.role} ('student', 'instructor', 'admin'). */
+/** Vai trò người dùng, khớp CHECK của cột {@code users.role} ('student', 'teacher', 'admin'). */
 public enum Role {
     STUDENT,
-    INSTRUCTOR,
+    TEACHER,
     ADMIN;
 
     /** Giá trị lưu trong DB và trong claim {@code role} của JWT. */

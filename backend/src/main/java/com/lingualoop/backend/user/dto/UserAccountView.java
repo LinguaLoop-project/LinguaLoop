@@ -17,7 +17,7 @@ public record UserAccountView(
         Role role,
         String uiLanguage,
         boolean emailVerified,
-        boolean disabled,
+        boolean locked,
         boolean onboarded,
         boolean googleLinked) {
 

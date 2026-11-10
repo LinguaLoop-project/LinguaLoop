@@ -72,7 +72,6 @@ class SessionIntegrationTest {
     /** Đăng nhập và trả về header Set-Cookie của ll_refresh. */
     private String loginAndGetSetCookie(UserAccountView user) throws Exception {
         MvcResult result = mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.USER_AGENT, "JUnit-Browser/1.0")
                 .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(user.email(), PASSWORD)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -112,16 +111,15 @@ class SessionIntegrationTest {
     }
 
     @Test
-    void login_storesRefreshTokenHashNotRawTokenWithUserAgent_AC08() throws Exception {
+    void login_storesRefreshTokenHashNotRawToken_AC08() throws Exception {
         UserAccountView user = verifiedUser();
 
         String raw = cookieValue(loginAndGetSetCookie(user));
 
-        var rows = jdbcTemplate.queryForList("SELECT token_hash, user_agent FROM auth_refresh_tokens WHERE user_id = ?",
+        var rows = jdbcTemplate.queryForList("SELECT token_hash FROM auth_refresh_tokens WHERE user_id = ?",
                 user.id());
         assertThat(rows).hasSize(1);
         assertThat(rows.get(0).get("token_hash")).isNotEqualTo(raw).asString().hasSize(64);
-        assertThat(rows.get(0).get("user_agent")).isEqualTo("JUnit-Browser/1.0");
     }
 
     @Test
@@ -200,7 +198,7 @@ class SessionIntegrationTest {
     void refresh_disabledUser_returns403AndKillsSession_AC16() throws Exception {
         UserAccountView user = verifiedUser();
         String cookie = cookieValue(loginAndGetSetCookie(user));
-        jdbcTemplate.update("UPDATE users SET disabled = true WHERE id = ?", user.id());
+        jdbcTemplate.update("UPDATE users SET locked_at = now(), locked_reason = 'test' WHERE id = ?", user.id());
 
         refresh(cookie).andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("AUTH_ACCOUNT_DISABLED"));

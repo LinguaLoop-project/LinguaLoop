@@ -17,8 +17,6 @@ import com.lingualoop.backend.shadowing.repository.AiFeedbackRepository;
 import com.lingualoop.backend.subscription.constant.AiAction;
 import com.lingualoop.backend.subscription.dto.UsageTicket;
 import com.lingualoop.backend.subscription.service.UsageService;
-import com.lingualoop.backend.user.service.ConsentService;
-import com.lingualoop.backend.user.service.ConsentService.ConsentType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +33,6 @@ class AiFeedbackServiceImpl implements AiFeedbackService {
     static final String FEATURE = AiAction.FEATURE;
 
     private final FeedbackRequestLoader loader;
-    private final ConsentService consentService;
     private final AiFeedbackRepository repository;
     private final UsageService usageService;
     private final AiFeedbackGenerator generator;
@@ -54,9 +51,6 @@ class AiFeedbackServiceImpl implements AiFeedbackService {
     /** @param onText null nếu không cần phát dần */
     private AiFeedbackResponse feedbackFor(UUID userId, long attemptId, Consumer<String> onText) {
         FeedbackRequest request = loader.load(userId, attemptId);
-        if (!consentService.hasConsent(userId, ConsentType.AI_PROCESSING)) {
-            throw new BusinessException(ErrorCode.AI_CONSENT_REQUIRED);
-        }
         var existing = repository.findByAttemptId(attemptId);
         if (existing.isPresent()) {
             if (onText != null) {

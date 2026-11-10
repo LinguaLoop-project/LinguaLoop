@@ -165,7 +165,7 @@ class ForgotPasswordIntegrationTest {
     @Test
     void forgot_disabledAccount_returns202WithoutMail_AC34() throws Exception {
         UserAccountView user = verifiedUser();
-        jdbcTemplate.update("UPDATE users SET disabled = true WHERE id = ?", user.id());
+        jdbcTemplate.update("UPDATE users SET locked_at = now(), locked_reason = 'test' WHERE id = ?", user.id());
 
         forgot(user.email()).andExpect(status().isAccepted());
 

@@ -39,14 +39,14 @@ class AuditServiceIntegrationTest {
         Map<String, Object> diff = Map.of("title", Map.of("from", "Old", "to", "New"));
 
         inTransaction(() -> auditService.record(new AuditEntryRequest(
-                actor, Role.INSTRUCTOR, AuditAction.UPDATE, AuditEntityType.LESSON, entityId, diff)));
+                actor, Role.TEACHER, AuditAction.UPDATE, AuditEntityType.LESSON, entityId, diff)));
 
         Map<String, Object> row = jdbc.queryForMap(
                 "SELECT actor_id, actor_role, action, entity_type, entity_id, created_at, "
                         + "diff->'title'->>'from' AS diff_from, diff->'title'->>'to' AS diff_to "
                         + "FROM content_audit_log WHERE entity_id = ?", entityId);
         assertThat(row.get("actor_id")).isEqualTo(actor);
-        assertThat(row.get("actor_role")).isEqualTo("instructor");
+        assertThat(row.get("actor_role")).isEqualTo("teacher");
         assertThat(row.get("action")).isEqualTo("update");
         assertThat(row.get("entity_type")).isEqualTo("lesson");
         assertThat(row.get("entity_id")).isEqualTo(entityId);
@@ -86,7 +86,7 @@ class AuditServiceIntegrationTest {
     void record_whenBusinessTransactionRollsBack_logIsRolledBackToo() {
         UUID entityId = UUID.randomUUID();
         AuditEntryRequest entry = new AuditEntryRequest(
-                newUser(), Role.INSTRUCTOR, AuditAction.CREATE, AuditEntityType.LESSON, entityId, null);
+                newUser(), Role.TEACHER, AuditAction.CREATE, AuditEntityType.LESSON, entityId, null);
 
         assertThatThrownBy(() -> inTransaction(() -> {
             auditService.record(entry);

@@ -124,7 +124,7 @@ class PasswordIntegrationTest {
     void changePassword_googleOnlyUserCreatesPasswordWithoutCurrentOne_AC42() throws Exception {
         UserAccountView google = userAccountService.createFromGoogle("sub-" + UUID.randomUUID(),
                 "pwg-" + UUID.randomUUID() + "@x.com", "Gia", null);
-        UUID sid = refreshTokenService.startSession(google.id(), "ua").familyId();
+        UUID sid = refreshTokenService.startSession(google.id()).familyId();
         String token = jwtTokenService.issueAccessToken(google.id(), Role.STUDENT, sid).token();
 
         changePassword(token, body(null, NEW_PASSWORD)).andExpect(status().isNoContent());
@@ -139,7 +139,7 @@ class PasswordIntegrationTest {
     void changePassword_afterCreatingOne_googleUserCanLoginWithEmailAndPassword_AC43() throws Exception {
         UserAccountView google = userAccountService.createFromGoogle("sub-" + UUID.randomUUID(),
                 "pwl-" + UUID.randomUUID() + "@x.com", "Gia", null);
-        UUID sid = refreshTokenService.startSession(google.id(), "ua").familyId();
+        UUID sid = refreshTokenService.startSession(google.id()).familyId();
         String token = jwtTokenService.issueAccessToken(google.id(), Role.STUDENT, sid).token();
 
         changePassword(token, body(null, NEW_PASSWORD)).andExpect(status().isNoContent());

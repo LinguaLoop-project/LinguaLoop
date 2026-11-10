@@ -79,7 +79,7 @@ public class AuthService {
      * (commit) trước khi ném lỗi. Thứ tự kiểm tra bám UC-AUTH-02 và BR-AUTH-04: chỉ lộ "bị khoá bởi admin" hay
      * "chưa xác thực email" sau khi đã nhập đúng mật khẩu.
      */
-    public AuthSession login(LoginRequest request, String userAgent) {
+    public AuthSession login(LoginRequest request) {
         String email = request.email();
         loginAttemptService.assertNotLocked(email);
 
@@ -89,18 +89,18 @@ public class AuthService {
         }
         loginAttemptService.clear(email);
 
-        if (account.disabled()) {
+        if (account.locked()) {
             throw new BusinessException(ErrorCode.AUTH_ACCOUNT_DISABLED);
         }
         if (!account.emailVerified()) {
             throw new BusinessException(ErrorCode.AUTH_EMAIL_NOT_VERIFIED);
         }
-        return openSession(account, userAgent);
+        return openSession(account);
     }
 
     /** Mở phiên mới cho tài khoản đã được xác thực (mật khẩu hoặc Google): access token có {@code sid} + refresh token. */
-    public AuthSession openSession(UserAccountView account, String userAgent) {
-        Session session = refreshTokenService.startSession(account.id(), userAgent);
+    public AuthSession openSession(UserAccountView account) {
+        Session session = refreshTokenService.startSession(account.id());
         return new AuthSession(accessResponse(account, session.familyId()), session.rawToken());
     }
 
@@ -108,14 +108,14 @@ public class AuthService {
      * Đổi refresh token (từ cookie) lấy access token mới và refresh token mới. Tài khoản bị khoá hoặc đã bị
      * xoá thì thu hồi cả chuỗi để các token còn lại cũng hết dùng được.
      */
-    public AuthSession refresh(String rawRefreshToken, String userAgent) {
-        Rotation rotation = refreshTokenService.rotate(rawRefreshToken, userAgent);
+    public AuthSession refresh(String rawRefreshToken) {
+        Rotation rotation = refreshTokenService.rotate(rawRefreshToken);
         UserAccountView account = userAccountService.findById(rotation.userId()).orElse(null);
         if (account == null) {
             refreshTokenService.revokeFamily(rotation.familyId());
             throw new RefreshInvalidException();
         }
-        if (account.disabled()) {
+        if (account.locked()) {
             refreshTokenService.revokeFamily(rotation.familyId());
             throw new BusinessException(ErrorCode.AUTH_ACCOUNT_DISABLED);
         }

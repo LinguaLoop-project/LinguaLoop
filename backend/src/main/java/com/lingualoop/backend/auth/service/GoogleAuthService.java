@@ -28,10 +28,10 @@ public class GoogleAuthService {
     private final RefreshTokenService refreshTokenService;
     private final AuthService authService;
 
-    public AuthSession login(String code, String userAgent) {
+    public AuthSession login(String code) {
         GoogleIdentity identity = googleCodeExchanger.exchange(code);
         UserAccountView account = resolveAccount(identity, true);
-        return authService.openSession(account, userAgent);
+        return authService.openSession(account);
     }
 
     /**
@@ -71,7 +71,7 @@ public class GoogleAuthService {
         }
         boolean passwordCleared = userAccountService.linkGoogle(local.id(), identity.sub());
         if (passwordCleared) {
-            // email chưa từng xác thực: ai đó có thể đã đăng ký hộ bằng email này, nên mọi phiên cũ phải chết (BR-AUTH-08)
+            // email chưa từng xác thực: ai đó có thể đã đăng ký hộ bằng email này, nên mọi phiên cũ phải chết
             refreshTokenService.revokeAllForUser(local.id());
         }
         return userAccountService.findById(local.id())
@@ -79,7 +79,7 @@ public class GoogleAuthService {
     }
 
     private static UserAccountView requireEnabled(UserAccountView account) {
-        if (account.disabled()) {
+        if (account.locked()) {
             throw new BusinessException(ErrorCode.AUTH_ACCOUNT_DISABLED);
         }
         return account;

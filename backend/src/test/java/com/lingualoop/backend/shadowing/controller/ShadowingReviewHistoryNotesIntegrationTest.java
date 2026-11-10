@@ -35,7 +35,6 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.PhonemeRes
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.WordResult;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.support.WavFixtures;
-import com.lingualoop.backend.user.service.ConsentService;
 
 /**
  * UC-SHADOW-10..12: lịch sử lượt đọc, ghi chú dùng chung với nghe chép và Câu cần ôn của Shadowing. Azure được giả
@@ -52,13 +51,11 @@ class ShadowingReviewHistoryNotesIntegrationTest {
     @Autowired private DictationTestData data;
 
     @MockitoBean private PronunciationScoringService scoring;
-    @MockitoBean private ConsentService consent;
 
     private final String tag = UUID.randomUUID().toString().substring(0, 8);
 
     @BeforeEach
     void defaults() {
-        when(consent.hasConsent(any(), any())).thenReturn(true);
     }
 
     private ResultActions as(UUID user, MockHttpServletRequestBuilder request) throws Exception {

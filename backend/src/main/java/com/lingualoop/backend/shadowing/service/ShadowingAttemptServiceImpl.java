@@ -34,8 +34,6 @@ import com.lingualoop.backend.shadowing.repository.AttemptWordRepository;
 import com.lingualoop.backend.shadowing.repository.PhonemeRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository;
 import com.lingualoop.backend.shadowing.repository.ShadowingAttemptRepository.LatestHead;
-import com.lingualoop.backend.user.service.ConsentService;
-import com.lingualoop.backend.user.service.ConsentService.ConsentType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +48,6 @@ import lombok.extern.slf4j.Slf4j;
 class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
 
     private final SentenceQueryService sentenceQueryService;
-    private final ConsentService consentService;
     private final PronunciationScoringService scoringService;
     private final ShadowingAttemptRecorder recorder;
     private final ShadowingAttemptRepository repository;
@@ -66,9 +63,6 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         SentenceView sentence = sentenceQueryService.findSentence(sentenceId)
                 .orElseThrow(() -> new NotFoundException("Sentence not found"));
         sentenceQueryService.assertCanPractice(userId, sentence.lessonId());
-        if (!consentService.hasConsent(userId, ConsentType.AI_PROCESSING)) {
-            throw new BusinessException(ErrorCode.AI_CONSENT_REQUIRED);
-        }
 
         PronunciationAssessment assessment = scoringService.assess(wav, sentence.text());
         List<List<String>> targets = PhonemeTargets.forAssessment(sentence, assessment);

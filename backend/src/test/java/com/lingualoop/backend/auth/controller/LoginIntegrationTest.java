@@ -100,7 +100,7 @@ class LoginIntegrationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "instructor", "admin" })
+    @ValueSource(strings = { "teacher", "admin" })
     void login_nonStudentRole_isReturnedInBodyAndAccessTokenClaim_AC08(String role) throws Exception {
         UserAccountView user = createUser(true);
         jdbcTemplate.update("UPDATE users SET role = ? WHERE id = ?", role, user.id());
@@ -197,8 +197,7 @@ class LoginIntegrationTest {
 
     @Test
     void login_googleOnlyAccountWithoutPassword_isReportedAsInvalidCredentials_AC13() throws Exception {
-        UserAccountView user = userAccountService.createLocal(uniqueEmail(), "Gg", null);
-        userAccountService.markEmailVerified(user.id());
+        UserAccountView user = userAccountService.createFromGoogle("sub-" + UUID.randomUUID(), uniqueEmail(), "Gg", null);
 
         login(user.email(), PASSWORD)
                 .andExpect(status().isUnauthorized())
@@ -258,7 +257,7 @@ class LoginIntegrationTest {
     @Test
     void login_disabledAccountWithCorrectPassword_returns403_AC16() throws Exception {
         UserAccountView user = createUser(true);
-        jdbcTemplate.update("UPDATE users SET disabled = true WHERE id = ?", user.id());
+        jdbcTemplate.update("UPDATE users SET locked_at = now(), locked_reason = 'test' WHERE id = ?", user.id());
 
         login(user.email(), PASSWORD)
                 .andExpect(status().isForbidden())
@@ -268,7 +267,7 @@ class LoginIntegrationTest {
     @Test
     void login_disabledAccountWithWrongPassword_doesNotRevealDisabled_AC16() throws Exception {
         UserAccountView user = createUser(true);
-        jdbcTemplate.update("UPDATE users SET disabled = true WHERE id = ?", user.id());
+        jdbcTemplate.update("UPDATE users SET locked_at = now(), locked_reason = 'test' WHERE id = ?", user.id());
 
         login(user.email(), "wrong-password")
                 .andExpect(status().isUnauthorized())

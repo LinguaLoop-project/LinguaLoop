@@ -28,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
-    private static final int MAX_USER_AGENT_LENGTH = 512;
 
     private final RefreshTokenRepository repository;
     private final AuthProperties authProperties;
@@ -36,15 +35,15 @@ public class RefreshTokenService {
     private final TransactionTemplate transactionTemplate;
 
     /** Mở chuỗi mới cho một lần đăng nhập: trả mã chuỗi (đưa vào claim {@code sid}) và token thô (chỉ đặt vào cookie). */
-    public Session startSession(UUID userId, String userAgent) {
+    public Session startSession(UUID userId) {
         UUID familyId = UUID.randomUUID();
-        String raw = transactionTemplate.execute(status -> issue(userId, familyId, userAgent));
+        String raw = transactionTemplate.execute(status -> issue(userId, familyId));
         return new Session(familyId, raw);
     }
 
     /** Đổi token cũ lấy token mới; ném {@link RefreshInvalidException} nếu không hợp lệ. */
-    public Rotation rotate(String rawToken, String userAgent) {
-        Optional<Rotation> rotation = transactionTemplate.execute(status -> doRotate(rawToken, userAgent));
+    public Rotation rotate(String rawToken) {
+        Optional<Rotation> rotation = transactionTemplate.execute(status -> doRotate(rawToken));
         return rotation.orElseThrow(RefreshInvalidException::new);
     }
 
@@ -78,7 +77,7 @@ public class RefreshTokenService {
     }
 
     /** Rỗng nghĩa là token không dùng được (việc thu hồi family nếu có vẫn được commit). */
-    private Optional<Rotation> doRotate(String rawToken, String userAgent) {
+    private Optional<Rotation> doRotate(String rawToken) {
         if (rawToken == null || rawToken.isBlank()) {
             return Optional.empty();
         }
@@ -98,23 +97,16 @@ public class RefreshTokenService {
         } else {
             token.revoke(now);
         }
-        String next = issue(token.getUserId(), token.getFamilyId(), userAgent);
+        String next = issue(token.getUserId(), token.getFamilyId());
         return Optional.of(new Rotation(token.getUserId(), token.getFamilyId(), next));
     }
 
-    private String issue(UUID userId, UUID familyId, String userAgent) {
+    private String issue(UUID userId, UUID familyId) {
         String raw = SecureTokens.generate();
         Instant now = Instant.now(clock);
         repository.save(RefreshToken.issue(userId, familyId, SecureTokens.sha256(raw), now,
-                now.plus(authProperties.refreshTokenTtl()), truncate(userAgent)));
+                now.plus(authProperties.refreshTokenTtl())));
         return raw;
-    }
-
-    private static String truncate(String userAgent) {
-        if (userAgent == null || userAgent.length() <= MAX_USER_AGENT_LENGTH) {
-            return userAgent;
-        }
-        return userAgent.substring(0, MAX_USER_AGENT_LENGTH);
     }
 
     /** Phiên mới mở: mã chuỗi và token thô để đặt vào cookie. */
