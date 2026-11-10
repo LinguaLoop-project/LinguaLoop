@@ -38,18 +38,21 @@ class AuditServiceIntegrationTest {
         UUID entityId = UUID.randomUUID();
         Map<String, Object> diff = Map.of("title", Map.of("from", "Old", "to", "New"));
 
-        inTransaction(() -> auditService.record(new AuditEntryRequest(
-                actor, Role.TEACHER, AuditAction.UPDATE, AuditEntityType.LESSON, entityId, diff)));
+        inTransaction(() -> auditService.record(new AuditEntryRequest(actor, "Cô Lan", Role.TEACHER,
+                AuditAction.UPDATE, AuditEntityType.LESSON, entityId, "Bài 1", diff, "sửa tiêu đề")));
 
         Map<String, Object> row = jdbc.queryForMap(
-                "SELECT actor_id, actor_role, action, entity_type, entity_id, created_at, "
-                        + "diff->'title'->>'from' AS diff_from, diff->'title'->>'to' AS diff_to "
-                        + "FROM content_audit_log WHERE entity_id = ?", entityId);
+                "SELECT actor_id, actor_name, actor_role, action, target_type, target_id, target_name, note, created_at, "
+                        + "changes->'title'->>'from' AS diff_from, changes->'title'->>'to' AS diff_to "
+                        + "FROM audit_logs WHERE target_id = ?", entityId);
         assertThat(row.get("actor_id")).isEqualTo(actor);
+        assertThat(row.get("actor_name")).isEqualTo("Cô Lan");
         assertThat(row.get("actor_role")).isEqualTo("teacher");
+        assertThat(row.get("target_name")).isEqualTo("Bài 1");
+        assertThat(row.get("note")).isEqualTo("sửa tiêu đề");
         assertThat(row.get("action")).isEqualTo("update");
-        assertThat(row.get("entity_type")).isEqualTo("lesson");
-        assertThat(row.get("entity_id")).isEqualTo(entityId);
+        assertThat(row.get("target_type")).isEqualTo("lesson");
+        assertThat(row.get("target_id")).isEqualTo(entityId);
         assertThat(row.get("created_at")).isNotNull();
         assertThat(row.get("diff_from")).isEqualTo("Old");
         assertThat(row.get("diff_to")).isEqualTo("New");
@@ -63,11 +66,25 @@ class AuditServiceIntegrationTest {
                 newUser(), Role.ADMIN, AuditAction.DELETE, AuditEntityType.SENTENCE, entityId, null)));
 
         Map<String, Object> row = jdbc.queryForMap(
-                "SELECT action, entity_type, diff IS NULL AS diff_is_null "
-                        + "FROM content_audit_log WHERE entity_id = ?", entityId);
+                "SELECT action, target_type, changes IS NULL AS diff_is_null "
+                        + "FROM audit_logs WHERE target_id = ?", entityId);
         assertThat(row.get("action")).isEqualTo("delete");
-        assertThat(row.get("entity_type")).isEqualTo("sentence");
+        assertThat(row.get("target_type")).isEqualTo("sentence");
         assertThat(row.get("diff_is_null")).isEqualTo(true);
+    }
+
+    @Test
+    void record_withoutActor_isStoredAsTheSystem() {
+        UUID entityId = UUID.randomUUID();
+
+        inTransaction(() -> auditService.record(new AuditEntryRequest(
+                null, null, AuditAction.UPDATE, AuditEntityType.SENTENCE, entityId, null)));
+
+        Map<String, Object> row = jdbc.queryForMap(
+                "SELECT actor_id, actor_name, actor_role FROM audit_logs WHERE target_id = ?", entityId);
+        assertThat(row.get("actor_id")).isNull();
+        assertThat(row.get("actor_name")).isEqualTo("Hệ thống");
+        assertThat(row.get("actor_role")).isEqualTo("system");
     }
 
     @Test
@@ -101,7 +118,7 @@ class AuditServiceIntegrationTest {
     }
 
     private int countLogs(UUID entityId) {
-        Integer n = jdbc.queryForObject("SELECT count(*) FROM content_audit_log WHERE entity_id = ?",
+        Integer n = jdbc.queryForObject("SELECT count(*) FROM audit_logs WHERE target_id = ?",
                 Integer.class, entityId);
         return n == null ? 0 : n;
     }
