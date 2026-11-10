@@ -22,7 +22,7 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-PR-05 | Khi tạo đơn nâng cấp hoặc gia hạn, gói được chọn phải thuộc các gói Pro đang bán do quản trị viên cấu hình (UC-GA-03 đến 06) và số tiền thanh toán phải khớp chính xác với giá của gói đó tại thời điểm tạo đơn. | UC-PR-02 (5a), UC-PR-03 (3b), AC-PR-10, AC-PR-16 |
+| BR-PR-05 | Khi tạo đơn nâng cấp hoặc gia hạn, gói được chọn phải thuộc các gói Pro đang bán do quản trị viên cấu hình (UC-GA-03 đến 06) và số tiền thanh toán phải khớp chính xác với giá của gói đó tại thời điểm tạo đơn. Đơn đăng ký lưu cố định thông tin gói tại thời điểm khởi tạo (tên gói, số tháng, giá tiền, số credit mỗi tháng, loại đơn nâng cấp hay gia hạn) và sinh một mã tham chiếu đơn hàng duy nhất (`vnp_TxnRef`) để gửi sang cổng thanh toán VNPAY. | UC-PR-02 (5a), UC-PR-03 (3b), AC-PR-10, AC-PR-16 |
 
 ## Điều kiện
 
@@ -30,7 +30,8 @@
 |---|---|---|
 | BR-PR-06 | Khi Học viên thường hoàn tất thanh toán Nâng cấp lên pro, gói Pro có hiệu lực ngay lập tức tại thời điểm xác nhận; thời điểm kết thúc được tính bằng thời điểm kích hoạt cộng với số tháng của gói đã mua, số credit của tháng đầu được cấp ngay (BR-GA-10), và quyền lợi Pro có hiệu lực ngay trên phiên đăng nhập hiện tại mà không yêu cầu đăng nhập lại. | UC-PR-02 (3a), UC-PR-03, AC-PR-06, AC-PR-07, AC-PR-12 |
 | BR-PR-07 | Khi Học viên pro hoàn tất thanh toán Gia hạn gói pro trong lúc gói hiện tại vẫn còn hạn, thời hạn của kỳ hạn mới được cộng dồn nối tiếp vào thời điểm kết thúc hiện tại của gói (không làm mất thời hạn còn lại). Gói gia hạn bắt đầu cấp credit từ ngày hết hạn hiện tại của gói cũ; số dư credit hiện có giữ nguyên đến hết tháng hiện tại (BR-GA-10). | UC-PR-03, AC-PR-19, AC-PR-22, AC-PR-20 |
-| BR-PR-08 | Trạng thái Đã thanh toán của một đơn đăng ký chỉ được xác lập khi có xác nhận hợp lệ từ cổng thanh toán, trình duyệt không thể tự khai báo hoàn tất. Mỗi mã đơn thanh toán chỉ được kích hoạt hoặc cộng dồn thời hạn gói Pro đúng một lần duy nhất dù hệ thống nhận được thông báo xác nhận lặp lại nhiều lần. | UC-PR-03 (2a, 3a, 3b, 3c), AC-PR-12, AC-PR-13, AC-PR-14, AC-PR-16, AC-PR-17, AC-PR-18, AC-PR-08 |
+| BR-PR-08 | Trạng thái Đã thanh toán của một đơn đăng ký chỉ được xác lập khi hệ thống kiểm tra hợp lệ chữ ký bảo mật (`vnp_SecureHash`), mã tham chiếu đơn hàng (`vnp_TxnRef`), số tiền thanh toán (`vnp_Amount`) và mã kết quả thành công (`vnp_ResponseCode = '00'`) từ cổng thanh toán VNPAY (qua đường dẫn trả về Return URL hoặc thông báo ngầm IPN); trình duyệt không thể tự khai báo hoàn tất. Mỗi mã đơn thanh toán chỉ được kích hoạt hoặc cộng dồn thời hạn gói Pro đúng một lần duy nhất dù hệ thống nhận đồng thời cả Return URL và IPN hoặc nhận thông báo IPN lặp lại nhiều lần. | UC-PR-03 (2a, 3a, 3b, 3c), AC-PR-12, AC-PR-13, AC-PR-14, AC-PR-16, AC-PR-17, AC-PR-18, AC-PR-08 |
+| BR-PR-16 | Tại một thời điểm, mỗi học viên chỉ giữ tối đa một đơn ở trạng thái chờ thanh toán. Nếu học viên thoát khỏi cổng VNPAY giữa chừng (đóng trình duyệt, nhấn quay lại mà chưa hoàn tất giao dịch) rồi khởi tạo lại yêu cầu thanh toán hoặc chọn gói khác, hệ thống tự động chuyển đơn chờ thanh toán cũ sang trạng thái Đã hủy và tạo một đơn mới với mã tham chiếu (`vnp_TxnRef`) mới để học viên thanh toán lại ngay mà không phải đợi hết 15 phút. Nếu giao dịch trước đó bị hủy hoặc thất bại trên VNPAY, khi học viên chọn "Thanh toán lại" hệ thống cũng luôn tạo đơn mới với mã tham chiếu mới. | UC-PR-02 (5b), UC-PR-03 (2a, 2c, 3b), AC-PR-14, AC-PR-16, AC-PR-23 |
 
 ## Giới hạn số
 

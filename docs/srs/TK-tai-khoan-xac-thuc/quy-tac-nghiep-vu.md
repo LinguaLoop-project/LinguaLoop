@@ -15,7 +15,7 @@
 | BR-TK-01 | Email là duy nhất trong hệ thống, không phân biệt chữ hoa và chữ thường. Tên hiển thị được phép trùng giữa nhiều người dùng. | UC-TK-01 (5a), AC-TK-04, AC-TK-05 |
 | BR-TK-02 | Mật khẩu có ít nhất 8 ký tự. Không bắt buộc chữ hoa, chữ số hay ký tự đặc biệt. | UC-TK-01 (4a), UC-TK-06 (9a), UC-TK-07 (4b), AC-TK-02, AC-TK-40, AC-TK-45, AC-TK-36, AC-TK-42, AC-TK-43 |
 | BR-TK-11 | Tên hiển thị dài từ 1 đến 50 ký tự (không tính khoảng trắng đầu và cuối). | UC-TK-01 (4a), UC-TK-08 (4a), AC-TK-02, AC-TK-49, AC-TK-48 |
-| BR-TK-13 | Thời lượng học mỗi ngày chọn một trong 10, 15, 20, 30 phút, mặc định 15 phút (khớp mockup trang Hôm nay và Cài đặt). Đây là tổng thời gian mặc định của kế hoạch học hằng ngày; học viên vẫn đổi được cho riêng từng ngày ở trang Hôm nay. Ngôn ngữ giao diện: tiếng Việt hoặc tiếng Anh. | UC-TK-08 (4a), AC-TK-47, AC-TK-49 |
+| BR-TK-13 | Thời lượng học mỗi ngày chọn một trong 10, 15, 20, 30 phút, mặc định 15 phút. Đây là mục tiêu thời gian học hằng ngày của học viên và dùng để xác định số lượng thẻ từ vựng cùng số câu cần ôn trong phiên Ôn tập kiến thức hằng ngày (BR-HT-24); học viên có thể thay đổi lại bất kỳ lúc nào trong phần hồ sơ/cài đặt. Ngôn ngữ giao diện: tiếng Việt hoặc tiếng Anh. | UC-TK-08 (4a), UC-TK-09, AC-TK-47, AC-TK-49 |
 | BR-TK-14 | Người dùng phải đồng ý Điều khoản sử dụng và Chính sách quyền riêng tư trước khi dùng hệ thống: ở biểu mẫu đăng ký nếu đăng ký bằng email, ở bước thiết lập hồ sơ nếu đăng nhập bằng Google. Việc đồng ý lưu giọng nói và xử lý bằng AI được hỏi riêng ở lần ghi âm đầu tiên, không thuộc module này. | UC-TK-01 (4b), UC-TK-08 (4b), AC-TK-03, AC-TK-50 |
 
 ## Điều kiện
