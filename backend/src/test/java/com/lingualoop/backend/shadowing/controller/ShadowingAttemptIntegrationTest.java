@@ -408,7 +408,7 @@ class ShadowingAttemptIntegrationTest {
                         List.of(new PhonemeResult("ɪ", 50), new PhonemeResult("v", 38))))));
         post(pro, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(pro)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", lesson.getId()).headers(auth(pro)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].expected").value("ɪ"))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[1].symbol").value("v"))
@@ -466,7 +466,7 @@ class ShadowingAttemptIntegrationTest {
         s.setIpaUs(null);
         sentences.save(s);
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(user)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", lesson.getId()).headers(auth(user)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[1].symbol").value("v"))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[1].expected").value("f"))
@@ -542,7 +542,7 @@ class ShadowingAttemptIntegrationTest {
         jdbc.update("INSERT INTO sentence_attempts (user_id, sentence_id, mode, submitted_text, score) "
                 + "VALUES (?, ?, 'dictation', 'x', 100)", me, first.getId());
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(me)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", lesson.getId()).headers(auth(me)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(2))
                 .andExpect(jsonPath("$.data[0].sentenceId").value(first.getId().toString()))
@@ -569,7 +569,7 @@ class ShadowingAttemptIntegrationTest {
         jdbc.update("INSERT INTO ai_feedback (attempt_id, content, model, prompt_version) VALUES (?, ?, 'm', 'v1')",
                 proAttempt, "Bạn đọc khá tốt.");
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(free)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", lesson.getId()).headers(auth(free)))
                 .andExpect(status().isOk())
                 // điểm thành phần
                 .andExpect(jsonPath("$.data[0].accuracy").value(70.0))
@@ -587,7 +587,7 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[1].tip").isNotEmpty())
                 .andExpect(jsonPath("$.data[0].aiFeedback").value((Object) null));
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(pro)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", lesson.getId()).headers(auth(pro)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.locked").value(false))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.url").isNotEmpty())
@@ -600,9 +600,9 @@ class ShadowingAttemptIntegrationTest {
         UUID user = newUser();
         Lesson paid = lesson("latest-paid", true);
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", "no-such-lesson").headers(auth(user)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", "no-such-lesson").headers(auth(user)))
                 .andExpect(status().isNotFound());
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", paid.getSlug()).headers(auth(user)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", paid.getId()).headers(auth(user)))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("LESSON_PRO_REQUIRED"));
     }
@@ -692,28 +692,27 @@ class ShadowingAttemptIntegrationTest {
 
     private Lesson lesson(String name, boolean pro) {
         Topic topic = new Topic();
-        topic.setSlug(name + "-t-" + tag);
         topic.setName(name + " topic");
         topic = topics.save(topic);
 
         Lesson l = new Lesson();
         l.setTopic(topic);
-        l.setSlug(name + "-" + tag);
         l.setTitle(name + " " + tag);
-        l.setDifficulty(CefrLevel.B1);
+        l.setOwnerId(com.lingualoop.backend.lesson.LessonFixtures.SYSTEM_TEACHER);
+        l.setYoutubeId(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 11));
+        l.setDurationSec(600);
+        l.setCefrLevel(CefrLevel.B1);
         l.setPro(pro);
-        l.setStatus(LessonStatus.APPROVED);
+        l.setStatus(LessonStatus.PUBLISHED);
         return lessons.save(l);
     }
 
     private Sentence sentence(Lesson lesson, int order, String text) {
         Sentence s = new Sentence();
         s.setLesson(lesson);
-        s.setSortOrder(order);
-        s.setText(text);
+        s.setTextEn(text);
         s.setStartMs(order * 1000);
         s.setEndMs(order * 1000 + 900);
-        s.setCefrLevel(CefrLevel.A1);
         return sentences.save(s);
     }
 }

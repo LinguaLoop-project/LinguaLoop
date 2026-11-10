@@ -13,7 +13,7 @@ public interface ShadowingAttemptService {
     ShadowingAttemptResponse assess(UUID userId, UUID sentenceId, byte[] wav);
 
     /** Lượt mới nhất của từng câu đã đọc trong bài (UC-SHADOW-03). */
-    List<LatestAttemptResponse> latestByLesson(UUID userId, String lessonSlug);
+    List<LatestAttemptResponse> latestByLesson(UUID userId, UUID lessonId);
 
     /** Mọi lượt đọc của một câu, mới nhất trước, chưa kèm từng từ (UC-SHADOW-10). */
     List<ShadowingHistoryItem> history(UUID userId, UUID sentenceId);

@@ -28,8 +28,8 @@ public class TopicController {
         return ApiResponse.ok(lessonQueryService.getTopics(userId));
     }
 
-    @GetMapping("/{slug}")
-    public ApiResponse<TopicRowResponse> getTopic(@CurrentUserId UUID userId, @PathVariable String slug) {
-        return ApiResponse.ok(lessonQueryService.getTopic(slug, userId));
+    @GetMapping("/{id}")
+    public ApiResponse<TopicRowResponse> getTopic(@CurrentUserId UUID userId, @PathVariable UUID id) {
+        return ApiResponse.ok(lessonQueryService.getTopic(id, userId));
     }
 }

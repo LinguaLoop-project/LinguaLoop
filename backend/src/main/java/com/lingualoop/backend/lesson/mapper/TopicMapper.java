@@ -1,10 +1,11 @@
 package com.lingualoop.backend.lesson.mapper;
 
-import com.lingualoop.backend.lesson.dto.response.TopicResponse;
-import com.lingualoop.backend.lesson.entity.Topic;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+
+import com.lingualoop.backend.lesson.dto.response.TopicResponse;
+import com.lingualoop.backend.lesson.entity.Topic;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface TopicMapper {

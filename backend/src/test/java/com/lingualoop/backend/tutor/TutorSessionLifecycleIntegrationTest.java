@@ -452,25 +452,24 @@ class TutorSessionLifecycleIntegrationTest {
     /** Lưu một Lượt shadowing đã chấm rồi tạo phiên qua API (Gemini là bản giả). */
     private S open(UUID user, String text, String ipa, W... words) throws Exception {
         Topic topic = new Topic();
-        topic.setSlug("tl-t-" + UUID.randomUUID().toString().substring(0, 8));
         topic.setName("tutor topic");
         topic = topics.save(topic);
         Lesson lesson = new Lesson();
         lesson.setTopic(topic);
-        lesson.setSlug("tl-" + UUID.randomUUID().toString().substring(0, 8));
         lesson.setTitle("tutor lifecycle");
-        lesson.setDifficulty(CefrLevel.B1);
+        lesson.setOwnerId(com.lingualoop.backend.lesson.LessonFixtures.SYSTEM_TEACHER);
+        lesson.setYoutubeId(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 11));
+        lesson.setDurationSec(600);
+        lesson.setCefrLevel(CefrLevel.B1);
         lesson.setPro(false);
-        lesson.setStatus(LessonStatus.APPROVED);
+        lesson.setStatus(LessonStatus.PUBLISHED);
         lesson = lessons.save(lesson);
         Sentence sentence = new Sentence();
         sentence.setLesson(lesson);
-        sentence.setSortOrder(order++);
-        sentence.setText(text);
+        sentence.setTextEn(text);
         sentence.setIpaUs(ipa);
         sentence.setStartMs(0);
         sentence.setEndMs(900);
-        sentence.setCefrLevel(CefrLevel.A1);
         sentence = sentences.save(sentence);
 
         long attempt = jdbc.queryForObject("INSERT INTO sentence_attempts (user_id, sentence_id, mode, provider, score, accuracy_score) "

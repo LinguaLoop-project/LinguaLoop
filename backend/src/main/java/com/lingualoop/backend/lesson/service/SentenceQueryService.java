@@ -9,7 +9,6 @@ import java.util.UUID;
 
 public interface SentenceQueryService {
     Optional<LessonView> findLesson(UUID lessonId);
-    Optional<LessonView> findLessonBySlug(String slug);
     List<SentenceView> findSentences(UUID lessonId);
     Optional<SentenceView> findSentence(UUID sentenceId);
     void assertCanPractice(UUID userId, UUID lessonId);

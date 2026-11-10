@@ -89,26 +89,25 @@ class ShadowingHintsFailureIntegrationTest {
     private Sentence sentence() {
         String tag = UUID.randomUUID().toString().substring(0, 8);
         Topic topic = new Topic();
-        topic.setSlug("hint-t-" + tag);
         topic.setName("hint topic");
         topic = topics.save(topic);
 
         Lesson lesson = new Lesson();
         lesson.setTopic(topic);
-        lesson.setSlug("hint-" + tag);
         lesson.setTitle("hint " + tag);
-        lesson.setDifficulty(CefrLevel.B1);
+        lesson.setOwnerId(com.lingualoop.backend.lesson.LessonFixtures.SYSTEM_TEACHER);
+        lesson.setYoutubeId(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 11));
+        lesson.setDurationSec(600);
+        lesson.setCefrLevel(CefrLevel.B1);
         lesson.setPro(false);
-        lesson.setStatus(LessonStatus.APPROVED);
+        lesson.setStatus(LessonStatus.PUBLISHED);
         lesson = lessons.save(lesson);
 
         Sentence s = new Sentence();
         s.setLesson(lesson);
-        s.setSortOrder(0);
-        s.setText("Think");
+        s.setTextEn("Think");
         s.setStartMs(0);
         s.setEndMs(900);
-        s.setCefrLevel(CefrLevel.A1);
         return sentences.save(s);
     }
 }

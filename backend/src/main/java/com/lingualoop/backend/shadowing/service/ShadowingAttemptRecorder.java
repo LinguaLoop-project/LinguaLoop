@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.lesson.enums.PracticeMode;
-import com.lingualoop.backend.lesson.service.LessonProgressService;
 import com.lingualoop.backend.practice.entity.SentenceAttempt;
 import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
 import com.lingualoop.backend.practice.enums.AttemptOutcome;
@@ -31,7 +30,6 @@ class ShadowingAttemptRecorder {
 
     private final ShadowingAttemptRepository repository;
     private final PhonemeRepository phonemeRepository;
-    private final LessonProgressService lessonProgressService;
 
     @Transactional
     public long save(UUID userId, UUID lessonId, UUID sentenceId, PronunciationAssessment assessment,
@@ -46,10 +44,7 @@ class ShadowingAttemptRecorder {
             addWord(attempt, position, word, targets.get(position), phonemeIds);
             position++;
         }
-        long attemptId = repository.save(attempt).getId();
-
-        lessonProgressService.recordActivity(userId, lessonId, PracticeMode.shadowing, (durationMs + 999) / 1000);
-        return attemptId;
+        return repository.save(attempt).getId();
     }
 
     /** Loại lỗi của Azure đổi sang {@code outcome} của DB; ràng buộc: từ thừa không có từ mong đợi, từ bỏ sót không có từ thực tế. */

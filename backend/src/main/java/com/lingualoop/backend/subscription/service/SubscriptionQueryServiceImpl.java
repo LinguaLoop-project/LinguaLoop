@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.lingualoop.backend.subscription.repository.UserPlanRepository;
+import com.lingualoop.backend.subscription.repository.ActiveProRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,10 +14,10 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 class SubscriptionQueryServiceImpl implements SubscriptionQueryService {
 
-    private final UserPlanRepository userPlanRepository;
+    private final ActiveProRepository activeProRepository;
 
     @Override
     public boolean isPro(UUID userId) {
-        return userId != null && userPlanRepository.isPro(userId);
+        return userId != null && activeProRepository.existsByUserId(userId);
     }
 }

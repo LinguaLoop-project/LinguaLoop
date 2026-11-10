@@ -4,12 +4,9 @@ import java.util.UUID;
 
 public record LessonView(
     UUID id,
-    String slug,
     String title,
-    String titleVi,
-    String difficulty,
+    String cefrLevel,
     boolean pro,
-    String sourceType,
-    String sourceUrl,
+    String youtubeId,
     Integer durationSec
 ) {}

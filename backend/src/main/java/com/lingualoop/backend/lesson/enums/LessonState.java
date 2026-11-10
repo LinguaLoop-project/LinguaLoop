@@ -7,11 +7,11 @@ import com.lingualoop.backend.common.exception.ErrorCode;
 
 /** Trạng thái học của một bài đối với người dùng hiện tại, dùng làm bộ lọc ở thư viện bài. */
 public enum LessonState {
-    /** Chưa bắt đầu: không có dòng user_lesson_progress. */
+    /** Chưa bắt đầu: chưa có lượt làm nào trong bài. */
     TODO,
-    /** Đang học: đã bắt đầu nhưng chưa hoàn thành. */
+    /** Đang học: đã có lượt làm nhưng chưa hoàn thành. */
     DOING,
-    /** Đã hoàn thành. */
+    /** Đã hoàn thành: ở một chế độ, mọi câu của bài đều có ít nhất một lượt. */
     DONE;
 
     /** Rỗng/null nghĩa là không lọc; giá trị lạ trả 400 thay vì lặng lẽ bỏ qua. */

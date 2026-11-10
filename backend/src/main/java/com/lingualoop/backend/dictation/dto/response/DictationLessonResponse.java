@@ -7,8 +7,8 @@ import java.util.UUID;
 
 import com.lingualoop.backend.practice.enums.DictationLevel;
 
-public record DictationLessonResponse(UUID id, String slug, String title, String titleVi, String difficulty,
-        boolean pro, String sourceType, String sourceUrl, Integer durationSec, List<SentenceItem> sentences) {
+public record DictationLessonResponse(UUID id, String title, String cefrLevel, boolean pro, String youtubeId,
+        Integer durationSec, List<SentenceItem> sentences) {
 
     public DictationLessonResponse {
         sentences = List.copyOf(sentences);

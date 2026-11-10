@@ -349,26 +349,25 @@ class AiFeedbackIntegrationTest {
 
     private Sentence sentence(String name) {
         Topic topic = new Topic();
-        topic.setSlug(name + "-t-" + tag);
         topic.setName(name + " topic");
         topic = topics.save(topic);
 
         Lesson lesson = new Lesson();
         lesson.setTopic(topic);
-        lesson.setSlug(name + "-" + tag);
         lesson.setTitle(name + " " + tag);
-        lesson.setDifficulty(CefrLevel.B1);
+        lesson.setOwnerId(com.lingualoop.backend.lesson.LessonFixtures.SYSTEM_TEACHER);
+        lesson.setYoutubeId(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 11));
+        lesson.setDurationSec(600);
+        lesson.setCefrLevel(CefrLevel.B1);
         lesson.setPro(false);
-        lesson.setStatus(LessonStatus.APPROVED);
+        lesson.setStatus(LessonStatus.PUBLISHED);
         lesson = lessons.save(lesson);
 
         Sentence s = new Sentence();
         s.setLesson(lesson);
-        s.setSortOrder(0);
-        s.setText("Think about it");
+        s.setTextEn("Think about it");
         s.setStartMs(0);
         s.setEndMs(900);
-        s.setCefrLevel(CefrLevel.A1);
         return sentences.save(s);
     }
 }

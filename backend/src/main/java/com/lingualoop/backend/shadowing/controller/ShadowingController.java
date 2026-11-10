@@ -52,9 +52,9 @@ public class ShadowingController {
         }
     }
 
-    @GetMapping("/lessons/{slug}/shadowing-attempts/latest")
-    public ApiResponse<List<LatestAttemptResponse>> latest(@CurrentUserId UUID userId, @PathVariable String slug) {
-        return ApiResponse.ok(shadowingAttemptService.latestByLesson(userId, slug));
+    @GetMapping("/lessons/{id}/shadowing-attempts/latest")
+    public ApiResponse<List<LatestAttemptResponse>> latest(@CurrentUserId UUID userId, @PathVariable UUID id) {
+        return ApiResponse.ok(shadowingAttemptService.latestByLesson(userId, id));
     }
 
     /** Nhận xét AI cho một lượt; lượt đã có nhận xét thì trả lại bản đã lưu (không trừ thêm lượt). */

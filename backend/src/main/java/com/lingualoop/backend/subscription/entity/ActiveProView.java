@@ -1,5 +1,6 @@
 package com.lingualoop.backend.subscription.entity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import org.hibernate.annotations.Immutable;
@@ -12,18 +13,18 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** View {@code v_user_plan}: gói suy ra từ {@code user_subscriptions} còn hạn (không lưu cứng). */
+/** View {@code v_active_pro}: người dùng có đơn Pro đã thanh toán còn hiệu lực (không lưu cứng). */
 @Getter
 @Entity
 @Immutable
-@Table(name = "v_user_plan")
+@Table(name = "v_active_pro")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserPlanView {
+public class ActiveProView {
 
     @Id
     @Column(name = "user_id")
     private UUID userId;
 
-    @Column(name = "plan")
-    private String plan;
+    @Column(name = "ends_at")
+    private Instant endsAt;
 }

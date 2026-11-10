@@ -15,9 +15,9 @@ public interface PracticeProgressRepository extends Repository<SentenceAttempt, 
 
     /** Mỗi dòng: {sentence_id, mode, điểm cao nhất của chế độ đó}. */
     @Query(value = """
-            SELECT sentence_id, CAST(mode AS text), max(score)
+            SELECT sentence_id, CAST(mode AS text), max(total_score)
             FROM sentence_attempts
-            WHERE user_id = :userId AND sentence_id IN (:sentenceIds) AND score IS NOT NULL
+            WHERE user_id = :userId AND sentence_id IN (:sentenceIds)
             GROUP BY sentence_id, mode""", nativeQuery = true)
     List<Object[]> maxScoreBySentence(@Param("userId") UUID userId, @Param("sentenceIds") Collection<UUID> sentenceIds);
 }

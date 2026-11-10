@@ -48,7 +48,6 @@ import com.lingualoop.backend.dictation.service.token.WordClass;
 import com.lingualoop.backend.lesson.dto.LessonView;
 import com.lingualoop.backend.lesson.dto.SentenceView;
 import com.lingualoop.backend.lesson.enums.PracticeMode;
-import com.lingualoop.backend.lesson.service.LessonProgressService;
 import com.lingualoop.backend.lesson.service.SentenceQueryService;
 import com.lingualoop.backend.practice.dto.AttemptWordView;
 import com.lingualoop.backend.practice.dto.ClassCountsView;
@@ -74,7 +73,6 @@ class DictationServiceImpl implements DictationService {
 
     private final SentenceQueryService sentenceQueryService;
     private final PracticeAttemptService practiceAttemptService;
-    private final LessonProgressService lessonProgressService;
     private final DictationStatsQueryService statsQueryService;
     private final SentenceReviewService reviewService;
     private final SentenceNoteService noteService;
@@ -88,8 +86,8 @@ class DictationServiceImpl implements DictationService {
     private final RandomGenerator random;
 
     @Override
-    public DictationLessonResponse getLesson(UUID userId, String slug) {
-        LessonView lesson = sentenceQueryService.findLessonBySlug(slug)
+    public DictationLessonResponse getLesson(UUID userId, UUID lessonId) {
+        LessonView lesson = sentenceQueryService.findLesson(lessonId)
                 .orElseThrow(() -> new NotFoundException("Lesson not found"));
         sentenceQueryService.assertCanPractice(userId, lesson.id());
 
@@ -102,9 +100,8 @@ class DictationServiceImpl implements DictationService {
                 .map(s -> toItem(s, latest.get(s.id()), inReview.contains(s.id()), notes.get(s.id()),
                         counts.getOrDefault(s.id(), 0)))
                 .toList();
-        return new DictationLessonResponse(lesson.id(), lesson.slug(), lesson.title(), lesson.titleVi(),
-                lesson.difficulty(), lesson.pro(), lesson.sourceType(), lesson.sourceUrl(), lesson.durationSec(),
-                sentences);
+        return new DictationLessonResponse(lesson.id(), lesson.title(), lesson.cefrLevel(), lesson.pro(),
+                lesson.youtubeId(), lesson.durationSec(), sentences);
     }
 
     @Override
@@ -165,8 +162,6 @@ class DictationServiceImpl implements DictationService {
                 sentence.id(), request.level(), request.playbackRate(), request.replayCount(), request.durationMs(),
                 request.retry(), request.gaveUp(), submittedText, graded.score(),
                 attemptWords(graded.words(), tokens.size())));
-        int seconds = request.durationMs() == null ? 0 : request.durationMs() / 1000;
-        lessonProgressService.recordActivity(userId, sentence.lessonId(), PracticeMode.dictation, seconds);
 
         return new AttemptResultResponse(attemptId, request.level(), graded.score(), request.gaveUp(),
                 graded.words().stream().map(mapper::toResponse).toList(), classResults(graded.words()),

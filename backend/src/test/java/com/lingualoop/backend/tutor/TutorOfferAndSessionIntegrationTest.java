@@ -316,16 +316,17 @@ class TutorOfferAndSessionIntegrationTest {
     private Fx fx() {
         UUID user = newUser();
         Topic topic = new Topic();
-        topic.setSlug("tu-t-" + UUID.randomUUID().toString().substring(0, 8));
         topic.setName("tutor topic");
         topic = topics.save(topic);
         Lesson l = new Lesson();
         l.setTopic(topic);
-        l.setSlug("tu-" + UUID.randomUUID().toString().substring(0, 8));
         l.setTitle("tutor " + tag);
-        l.setDifficulty(CefrLevel.B1);
+        l.setOwnerId(com.lingualoop.backend.lesson.LessonFixtures.SYSTEM_TEACHER);
+        l.setYoutubeId(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 11));
+        l.setDurationSec(600);
+        l.setCefrLevel(CefrLevel.B1);
         l.setPro(false);
-        l.setStatus(LessonStatus.APPROVED);
+        l.setStatus(LessonStatus.PUBLISHED);
         l = lessons.save(l);
         return new Fx(user, l.getId());
     }
@@ -334,11 +335,9 @@ class TutorOfferAndSessionIntegrationTest {
     private long attempt(Fx f, String text, W... words) {
         Sentence s = new Sentence();
         s.setLesson(lessons.findById(f.lesson).orElseThrow());
-        s.setSortOrder(order++);
-        s.setText(text);
+        s.setTextEn(text);
         s.setStartMs(0);
         s.setEndMs(900);
-        s.setCefrLevel(CefrLevel.A1);
         s = sentences.save(s);
         long attempt = jdbc.queryForObject("INSERT INTO sentence_attempts (user_id, sentence_id, mode, provider, score, accuracy_score) "
                 + "VALUES (?, ?, 'shadowing', 'azure', 70, 70) RETURNING id", Long.class, f.user, s.getId());

@@ -14,7 +14,7 @@ import com.lingualoop.backend.practice.enums.DictationLevel;
 
 public interface DictationService {
 
-    DictationLessonResponse getLesson(UUID userId, String slug);
+    DictationLessonResponse getLesson(UUID userId, UUID lessonId);
 
     /** Đề của một câu ở mức đã chọn; Easy chọn ô trống mới ở mỗi lần gọi. */
     PromptResponse getPrompt(UUID userId, UUID sentenceId, DictationLevel level);

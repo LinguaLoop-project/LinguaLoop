@@ -18,19 +18,20 @@ public interface LessonQueryService {
 
     List<TopicResponse> getTopics(UUID userId);
 
-    TopicRowResponse getTopic(String slug, UUID userId);
+    TopicRowResponse getTopic(UUID topicId, UUID userId);
 
     /**
      * Tìm bài trong thư viện.
      *
-     * @param state lọc theo tiến độ của {@code userId}; null = không lọc
+     * @param cefrLevel một hoặc nhiều mức CEFR cách nhau dấu phẩy
+     * @param state     lọc theo tiến độ của {@code userId}; null = không lọc
      */
-    Page<LessonSummaryResponse> searchLessons(String q, String topic, String difficulty, Boolean free,
+    Page<LessonSummaryResponse> searchLessons(String q, UUID topicId, String cefrLevel, Boolean free,
                                       LessonState state, UUID userId, Pageable pageable);
 
     LibraryOverviewResponse getOverview(UUID userId);
 
-    LessonDetailResponse getLessonDetail(String slug, UUID userId);
+    LessonDetailResponse getLessonDetail(UUID lessonId, UUID userId);
 
-    List<SentenceResponse> getSentences(String slug, UUID userId);
+    List<SentenceResponse> getSentences(UUID lessonId, UUID userId);
 }

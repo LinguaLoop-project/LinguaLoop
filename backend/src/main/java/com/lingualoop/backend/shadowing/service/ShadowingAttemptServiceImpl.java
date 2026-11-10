@@ -72,8 +72,8 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
     }
 
     @Override
-    public List<LatestAttemptResponse> latestByLesson(UUID userId, String lessonSlug) {
-        LessonView lesson = sentenceQueryService.findLessonBySlug(lessonSlug)
+    public List<LatestAttemptResponse> latestByLesson(UUID userId, UUID lessonId) {
+        LessonView lesson = sentenceQueryService.findLesson(lessonId)
                 .orElseThrow(() -> new NotFoundException("Lesson not found"));
         sentenceQueryService.assertCanPractice(userId, lesson.id());
         List<LatestHead> heads = repository.findLatestByLesson(userId, lesson.id());
