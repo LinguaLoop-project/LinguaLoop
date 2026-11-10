@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Nạp dữ liệu mẫu (25 chủ đề, 1.068 bài YouTube, ~29.700 câu) vào Postgres. Cần V1+V2 đã chạy (giáo viên hệ thống là chủ bài).
+# Nạp bài học mẫu (25 chủ đề, 1.068 bài YouTube, ~29.700 câu) vào Postgres. Cần V1+V2 đã chạy (giáo viên hệ thống là chủ bài).
 # Mặc định nạp vào container "postgres" của compose.yaml; đặt DATABASE_URL để nạp DB khác.
 # Chạy lại an toàn: các câu lệnh dùng ON CONFLICT (id) DO NOTHING.
 set -euo pipefail
@@ -14,7 +14,7 @@ run_psql() {
   fi
 }
 
-for f in 01_topics_lessons.sql.gz 02_sentences.sql.gz; do
+for f in lessons-1-topics-and-lessons.sql.gz lessons-2-sentences.sql.gz; do
   echo "Nạp $f ..."
   gzip -dc "$f" | run_psql
 done
