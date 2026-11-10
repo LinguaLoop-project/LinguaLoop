@@ -47,11 +47,11 @@ class SentenceReviewServiceImpl implements SentenceReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReviewSentenceView> list(UUID userId, PracticeMode mode, String lessonSlug) {
-        return reviews.findEntries(userId, mode == null ? null : mode.name(), lessonSlug).stream()
+    public List<ReviewSentenceView> list(UUID userId, PracticeMode mode, UUID lessonId) {
+        return reviews.findEntries(userId, mode == null ? null : mode.name(), lessonId).stream()
                 .map(e -> new ReviewSentenceView(e.getSentenceId(), PracticeMode.valueOf(e.getMode()),
                         ReviewReason.valueOf(e.getReason()),
-                        e.getAddedAt(), e.getLessonSlug(), e.getLessonTitle(), e.getSortOrder(), e.getText(),
+                        e.getAddedAt(), e.getLessonId(), e.getLessonTitle(), e.getSortOrder(), e.getText(),
                         e.getTextVi(), e.getLastScore(),
                         e.getLastLevel() == null ? null : DictationLevel.valueOf(e.getLastLevel()),
                         e.getLastAttemptedAt()))

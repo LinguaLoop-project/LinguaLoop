@@ -24,8 +24,8 @@ public interface SentenceReviewService {
     Set<UUID> findPendingSentenceIds(UUID userId, UUID lessonId, PracticeMode mode);
 
     /**
-     * Câu đang cần ôn, điểm lượt gần nhất thấp trước. {@code mode} null là cả hai chế độ; {@code lessonSlug} null là
+     * Câu đang cần ôn, điểm lượt gần nhất thấp trước. {@code mode} null là cả hai chế độ; {@code lessonId} null là
      * mọi bài.
      */
-    List<ReviewSentenceView> list(UUID userId, PracticeMode mode, String lessonSlug);
+    List<ReviewSentenceView> list(UUID userId, PracticeMode mode, UUID lessonId);
 }

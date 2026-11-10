@@ -50,7 +50,7 @@ class FeedbackRequestLoader {
         List<FeedbackRequest.Word> words = attemptWords.stream()
                 .map(w -> toWord(w, symbols, expectedByWord.get(w.getId())))
                 .toList();
-        return new FeedbackRequest(sentence.text(), value(attempt.getScore()), nullable(attempt.getAccuracyScore()),
+        return new FeedbackRequest(sentence.text(), value(attempt.getTotalScore()), nullable(attempt.getAccuracyScore()),
                 nullable(attempt.getFluencyScore()), nullable(attempt.getCompletenessScore()),
                 nullable(attempt.getProsodyScore()), words);
     }

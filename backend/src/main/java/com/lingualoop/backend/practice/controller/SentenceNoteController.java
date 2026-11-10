@@ -51,10 +51,10 @@ public class SentenceNoteController {
         return ApiResponse.ok(null);
     }
 
-    /** Mọi ghi chú của người dùng; lọc theo chế độ và/hoặc bài khi truyền {@code mode}, {@code lessonSlug}. */
+    /** Mọi ghi chú của người dùng; lọc theo chế độ và/hoặc bài khi truyền {@code mode}, {@code lessonId}. */
     @GetMapping("/notes")
     public ApiResponse<List<SentenceNoteEntryView>> list(@CurrentUserId UUID userId,
-            @RequestParam(required = false) PracticeMode mode, @RequestParam(required = false) String lessonSlug) {
-        return ApiResponse.ok(noteService.list(userId, mode, lessonSlug));
+            @RequestParam(required = false) PracticeMode mode, @RequestParam(required = false) UUID lessonId) {
+        return ApiResponse.ok(noteService.list(userId, mode, lessonId));
     }
 }

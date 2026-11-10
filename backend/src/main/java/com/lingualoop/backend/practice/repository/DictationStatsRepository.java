@@ -10,14 +10,14 @@ import org.springframework.data.repository.query.Param;
 
 import com.lingualoop.backend.practice.entity.SentenceAttempt;
 
-/** Đọc view v_user_dictation_stats (đã loại lượt làm lại và bỏ cuộc). */
+/** Đọc view v_user_dictation_stats (chỉ lượt đầu tiên của mỗi câu, đã loại lượt làm lại và bỏ cuộc). */
 public interface DictationStatsRepository extends Repository<SentenceAttempt, Long> {
 
-    /** Mỗi dòng: {nhóm từ, tổng cơ hội, tổng lỗi} của mức normal và hard. */
+    /** Mỗi dòng: {nhóm từ, tổng số từ, số từ sai}. */
     @Query(value = """
-            SELECT word_class, CAST(sum(opportunities) AS bigint), CAST(sum(errors) AS bigint)
+            SELECT word_class, CAST(sum(total_words) AS bigint), CAST(sum(wrong_words) AS bigint)
             FROM v_user_dictation_stats
-            WHERE user_id = :userId AND day >= :sinceDay AND level IN ('normal', 'hard')
+            WHERE user_id = :userId AND day >= :sinceDay
             GROUP BY word_class""", nativeQuery = true)
     List<Object[]> sumByWordClass(@Param("userId") UUID userId, @Param("sinceDay") LocalDate sinceDay);
 }

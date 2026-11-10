@@ -18,31 +18,28 @@ import com.lingualoop.backend.practice.entity.SentenceReviewId;
 public interface SentenceReviewRepository extends JpaRepository<SentenceReview, SentenceReviewId> {
 
     /**
-     * Đưa câu vào danh sách. Câu đang trong danh sách giữ nguyên (kể cả lý do); câu đã gỡ được đưa lại như mới
-     * thêm. Trả về số dòng thay đổi: 1 khi câu vừa được thêm hoặc thêm lại, 0 khi câu đã ở trong danh sách.
+     * Đưa câu vào danh sách. Câu đang trong danh sách giữ nguyên (kể cả lý do). Trả về 1 khi câu vừa được thêm, 0 khi
+     * câu đã ở trong danh sách.
      */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """
-            INSERT INTO user_sentence_review (user_id, sentence_id, mode, status, reason)
-            VALUES (:userId, :sentenceId, CAST(:mode AS practice_mode), 'pending', :reason)
-            ON CONFLICT (user_id, sentence_id, mode) DO UPDATE
-                SET status = 'pending', reason = EXCLUDED.reason, created_at = now(), last_reviewed_at = NULL
-                WHERE user_sentence_review.status = 'resolved'""", nativeQuery = true)
+            INSERT INTO user_sentence_review (user_id, sentence_id, mode, reason)
+            VALUES (:userId, :sentenceId, :mode, :reason)
+            ON CONFLICT (user_id, sentence_id, mode) DO NOTHING""", nativeQuery = true)
     int add(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode,
             @Param("reason") String reason);
 
-    /** Gỡ câu khỏi danh sách; trả về 0 khi câu không ở trong danh sách. */
+    /** Gỡ câu khỏi danh sách (xoá dòng); trả về 0 khi câu không ở trong danh sách. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """
-            UPDATE user_sentence_review SET status = 'resolved', last_reviewed_at = now()
-            WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = CAST(:mode AS practice_mode)
-              AND status = 'pending'""", nativeQuery = true)
+            DELETE FROM user_sentence_review
+            WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = :mode""", nativeQuery = true)
     int resolve(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode);
 
     @Query(value = """
             SELECT r.sentence_id FROM user_sentence_review r JOIN sentences s ON s.id = r.sentence_id
-            WHERE r.user_id = :userId AND s.lesson_id = :lessonId AND r.mode = CAST(:mode AS practice_mode)
-              AND r.status = 'pending'""", nativeQuery = true)
+            WHERE r.user_id = :userId AND s.lesson_id = :lessonId AND r.mode = :mode""",
+            nativeQuery = true)
     List<UUID> findPendingSentenceIds(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId,
             @Param("mode") String mode);
 
@@ -50,7 +47,7 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
     @Query(value = """
             SELECT EXISTS (SELECT 1 FROM sentence_attempts
                            WHERE user_id = :userId AND sentence_id = :sentenceId
-                             AND mode = CAST(:mode AS practice_mode))""", nativeQuery = true)
+                             AND mode = :mode)""", nativeQuery = true)
     boolean hasAttempt(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode);
 
     /** Câu đã có ít nhất một lượt ở nghe chép hoặc Shadowing: điều kiện để ghi chú câu (BR-SHADOW-17). */
@@ -61,26 +58,29 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
 
     /**
      * Câu cần ôn kèm điểm của lượt gần nhất cùng chế độ: điểm thấp trước, bằng điểm thì câu mới thêm trước. Truyền
-     * {@code mode} để chỉ lấy một chế độ và {@code lessonSlug} để chỉ lấy một bài; để null thì không lọc.
+     * {@code mode} để chỉ lấy một chế độ và {@code lessonId} để chỉ lấy một bài; để null thì không lọc.
+     * {@code sortOrder} là thứ tự câu trong bài theo mốc thời gian.
      */
     @Query(value = """
-            SELECT r.sentence_id AS sentenceId, CAST(r.mode AS text) AS mode, r.reason AS reason,
-                   r.created_at AS addedAt, l.slug AS lessonSlug, l.title AS lessonTitle, s.sort_order AS sortOrder,
-                   s.text AS text, s.text_vi AS textVi,
-                   a.score AS lastScore, a.level AS lastLevel, a.attempted_at AS lastAttemptedAt
+            SELECT r.sentence_id AS sentenceId, r.mode AS mode, r.reason AS reason,
+                   r.created_at AS addedAt, l.id AS lessonId, l.title AS lessonTitle, s.rn AS sortOrder,
+                   s.text_en AS text, s.text_vi AS textVi,
+                   a.total_score AS lastScore, a.level AS lastLevel, a.created_at AS lastAttemptedAt
             FROM user_sentence_review r
-            JOIN sentences s ON s.id = r.sentence_id
+            JOIN (SELECT id, lesson_id, text_en, text_vi,
+                         CAST(row_number() OVER (PARTITION BY lesson_id ORDER BY start_ms) AS integer) AS rn
+                  FROM sentences WHERE deleted_at IS NULL) s ON s.id = r.sentence_id
             JOIN lessons l ON l.id = s.lesson_id AND l.deleted_at IS NULL
             LEFT JOIN LATERAL (
-                SELECT score, level, attempted_at FROM sentence_attempts
+                SELECT total_score, level, created_at FROM sentence_attempts
                 WHERE user_id = r.user_id AND sentence_id = r.sentence_id AND mode = r.mode
-                ORDER BY attempted_at DESC, id DESC LIMIT 1) a ON true
-            WHERE r.user_id = :userId AND r.status = 'pending'
-              AND (CAST(:mode AS text) IS NULL OR CAST(r.mode AS text) = CAST(:mode AS text))
-              AND (CAST(:lessonSlug AS text) IS NULL OR l.slug = CAST(:lessonSlug AS text))
-            ORDER BY a.score ASC NULLS LAST, r.created_at DESC, r.sentence_id""", nativeQuery = true)
+                ORDER BY created_at DESC, id DESC LIMIT 1) a ON true
+            WHERE r.user_id = :userId
+              AND (CAST(:mode AS text) IS NULL OR r.mode = CAST(:mode AS text))
+              AND (CAST(:lessonId AS uuid) IS NULL OR l.id = CAST(:lessonId AS uuid))
+            ORDER BY a.total_score ASC NULLS LAST, r.created_at DESC, r.sentence_id""", nativeQuery = true)
     List<ReviewEntry> findEntries(@Param("userId") UUID userId, @Param("mode") String mode,
-            @Param("lessonSlug") String lessonSlug);
+            @Param("lessonId") UUID lessonId);
 
     interface ReviewEntry {
         UUID getSentenceId();
@@ -91,7 +91,7 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
 
         Instant getAddedAt();
 
-        String getLessonSlug();
+        UUID getLessonId();
 
         String getLessonTitle();
 

@@ -60,7 +60,7 @@ class DictationAttemptForwardingTest {
     private ResultActions submit(UUID sentence, String json) throws Exception {
         return mockMvc.perform(post("/api/v1/dictation/sentences/" + sentence + "/attempts")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + data.tokenFor(data.newUser()))
-                .contentType(MediaType.APPLICATION_JSON).content(json));
+                .contentType(MediaType.APPLICATION_JSON).content(DictationTestData.withRequestId(json)));
     }
 
     private DictationAttemptRequest forwarded() {

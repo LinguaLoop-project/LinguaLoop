@@ -68,10 +68,10 @@ class SentenceNoteServiceImpl implements SentenceNoteService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SentenceNoteEntryView> list(UUID userId, PracticeMode mode, String lessonSlug) {
-        return notes.findEntries(userId, mode == null ? null : mode.name(), lessonSlug).stream()
+    public List<SentenceNoteEntryView> list(UUID userId, PracticeMode mode, UUID lessonId) {
+        return notes.findEntries(userId, mode == null ? null : mode.name(), lessonId).stream()
                 .map(e -> new SentenceNoteEntryView(e.getSentenceId(), PracticeMode.valueOf(e.getMode()),
-                        e.getContent(), e.getUpdatedAt(), e.getLessonSlug(), e.getLessonTitle(), e.getSortOrder(),
+                        e.getContent(), e.getUpdatedAt(), e.getLessonId(), e.getLessonTitle(), e.getSortOrder(),
                         e.getText(), e.getTextVi()))
                 .toList();
     }

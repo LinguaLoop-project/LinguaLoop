@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import com.lingualoop.backend.common.validation.MaxBytes;
 import com.lingualoop.backend.practice.enums.DictationLevel;
@@ -25,7 +26,8 @@ public record SubmitAttemptRequest(
         Boolean retry,
         @DecimalMin("0.25") @DecimalMax("2.00") BigDecimal playbackRate,
         @Min(0) @Max(10000) Integer replayCount,
-        @Min(0) @Max(3600000) Integer durationMs) {
+        @Min(0) @Max(3600000) Integer durationMs,
+        @NotNull UUID clientRequestId) {
 
     public SubmitAttemptRequest {
         gaveUp = gaveUp == null ? Boolean.FALSE : gaveUp;

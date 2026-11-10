@@ -40,7 +40,7 @@ class DictationAttemptHistoryIntegrationTest {
 
     private String submit(UUID user, UUID sentence, String json) throws Exception {
         return as(user, post("/api/v1/dictation/sentences/" + sentence + "/attempts")
-                .contentType(MediaType.APPLICATION_JSON).content(json))
+                .contentType(MediaType.APPLICATION_JSON).content(DictationTestData.withRequestId(json)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
     }
 
@@ -86,7 +86,7 @@ class DictationAttemptHistoryIntegrationTest {
         submit(user, busy, "{\"level\":\"hard\",\"gaveUp\":true}");
         submit(user, once, "{\"level\":\"hard\",\"typedText\":\"their cat\"}");
 
-        as(user, get("/api/v1/dictation/lessons/h0-" + tag)).andExpect(status().isOk())
+        as(user, get("/api/v1/dictation/lessons/" + lesson)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.sentences[0].attemptCount").value(3))
                 .andExpect(jsonPath("$.data.sentences[1].attemptCount").value(1))
                 .andExpect(jsonPath("$.data.sentences[2].attemptCount").value(0));

@@ -9,32 +9,31 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-/** Ghi chú riêng của một người dùng cho một câu ở một chế độ; mỗi bộ (người dùng, câu, chế độ) có tối đa một ghi chú. */
+/** Ghi chú riêng của một người dùng cho một câu ở một chế độ; khoá chính là bộ (người dùng, câu, chế độ). */
 @Entity
 @Table(name = "sentence_notes")
+@IdClass(SentenceNoteId.class)
 @Getter
 @Setter
 public class SentenceNote {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @Column(name = "user_id", nullable = false, updatable = false)
+    @Column(name = "user_id", updatable = false)
     private UUID userId;
 
-    @Column(name = "sentence_id", nullable = false, updatable = false)
+    @Id
+    @Column(name = "sentence_id", updatable = false)
     private UUID sentenceId;
 
+    @Id
     @Enumerated(EnumType.STRING)
-    @Column(name = "mode", nullable = false, updatable = false, columnDefinition = "practice_mode")
+    @Column(name = "mode", updatable = false)
     private PracticeMode mode;
 
     @Column(name = "content", nullable = false)

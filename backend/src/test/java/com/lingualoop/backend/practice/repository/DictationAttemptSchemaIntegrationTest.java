@@ -39,7 +39,6 @@ class DictationAttemptSchemaIntegrationTest {
             data.insertAttempt(user, sentence, "easy", false, false, now);
             data.insertAttempt(user, sentence, "normal", false, false, now);
             data.insertAttempt(user, sentence, "hard", false, false, now);
-            data.insertAttempt(user, sentence, null, false, false, now);
         }).doesNotThrowAnyException();
     }
 
@@ -49,7 +48,7 @@ class DictationAttemptSchemaIntegrationTest {
 
         assertThatCode(() -> data.insertWord(attempt, 0, "ice", null, "revealed", "content"))
                 .doesNotThrowAnyException();
-        assertThatThrownBy(() -> data.insertWord(attempt, 1, "ice", null, "substituted", "content"))
+        assertThatThrownBy(() -> data.insertWord(attempt, 1, "ice", "ice", "inserted", "content"))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
@@ -65,51 +64,65 @@ class DictationAttemptSchemaIntegrationTest {
     void defaults_retryAndGaveUpAreFalse() {
         UUID user = data.newUser();
         UUID sentence = data.newSentence(data.newLesson(), 0);
-        jdbc.update("INSERT INTO sentence_attempts (user_id, sentence_id, mode) VALUES (?, ?, 'dictation')",
+        jdbc.update("INSERT INTO sentence_attempts (user_id, sentence_id, mode, level, total_score) "
+                + "VALUES (?, ?, 'dictation', 'easy', 0)",
                 user, sentence);
 
         Map<String, Object> row = jdbc.queryForMap(
-                "SELECT is_retry, gave_up, playback_rate, level FROM sentence_attempts WHERE user_id = ?", user);
+                "SELECT is_retry, gave_up, listen_count, client_request_id FROM sentence_attempts WHERE user_id = ?", user);
 
         assertThat(row.get("is_retry")).isEqualTo(false);
         assertThat(row.get("gave_up")).isEqualTo(false);
-        assertThat(row.get("playback_rate")).isNull();
-        assertThat(row.get("level")).isNull();
+        assertThat(row.get("listen_count")).isEqualTo(0);
+        assertThat(row.get("client_request_id")).isNull();
     }
 
     @Test
-    void dictationStatsView_excludesRetryAndGaveUp_groupsByLevel_countsRevealed() {
+    void dictationStatsView_usesFirstCountedAttemptOfEachSentence_excludesRetryAndGaveUp_countsRevealed() {
         UUID user = data.newUser();
-        UUID sentence = data.newSentence(data.newLesson(), 0);
+        UUID lesson = data.newLesson();
+        UUID sentence = data.newSentence(lesson, 0);
+        UUID other = data.newSentence(lesson, 1);
         Instant now = Instant.now();
 
-        long normal = data.insertAttempt(user, sentence, "normal", false, false, now);
-        data.insertWord(normal, 0, "the", "the", "correct", "function");
-        data.insertWord(normal, 1, "of", null, "revealed", "function");
-        data.insertWord(normal, 2, "ice", "ise", "misspelled", "content");
-        data.insertWord(normal, 3, null, "very", "inserted", null);
-
-        long retry = data.insertAttempt(user, sentence, "normal", true, false, now);
+        long gaveUp = data.insertAttempt(user, sentence, "hard", false, true, now.minusSeconds(30));
+        data.insertWord(gaveUp, 0, "ice", null, "omitted", "content");
+        long retry = data.insertAttempt(user, sentence, "normal", true, false, now.minusSeconds(20));
         data.insertWord(retry, 0, "the", null, "omitted", "function");
 
-        long gaveUp = data.insertAttempt(user, sentence, "hard", false, true, now);
-        data.insertWord(gaveUp, 0, "ice", null, "omitted", "content");
+        long first = data.insertAttempt(user, sentence, "normal", false, false, now.minusSeconds(10));
+        data.insertWord(first, 0, "the", "the", "correct", "function");
+        data.insertWord(first, 1, "of", null, "revealed", "function");
+        data.insertWord(first, 2, "ice", "ise", "misspelled", "content");
+        data.insertWord(first, 3, null, "very", "inserted", null);
 
-        long easy = data.insertAttempt(user, sentence, "easy", false, false, now);
-        data.insertWord(easy, 0, "ice", "ice", "correct", "content");
+        long later = data.insertAttempt(user, sentence, "normal", false, false, now);
+        data.insertWord(later, 0, "the", null, "omitted", "function");
+
+        long otherSentence = data.insertAttempt(user, other, "easy", false, false, now);
+        data.insertWord(otherSentence, 0, "ice", "ice", "correct", "content");
 
         List<Map<String, Object>> rows = jdbc.queryForList(
-                "SELECT level, word_class, opportunities, errors, misspelled, revealed "
-                        + "FROM v_user_dictation_stats WHERE user_id = ?", user);
+                "SELECT word_class, total_words, wrong_words FROM v_user_dictation_stats WHERE user_id = ?", user);
 
-        assertThat(rows).hasSize(3);
-        assertThat(row(rows, "normal", "function"))
-                .containsEntry("opportunities", 2L).containsEntry("errors", 1L).containsEntry("revealed", 1L);
-        assertThat(row(rows, "normal", "content"))
-                .containsEntry("opportunities", 1L).containsEntry("errors", 1L).containsEntry("misspelled", 1L);
-        assertThat(row(rows, "easy", "content"))
-                .containsEntry("opportunities", 1L).containsEntry("errors", 0L);
-        assertThat(rows).noneMatch(r -> "hard".equals(r.get("level")));
+        assertThat(rows).hasSize(2);
+        assertThat(row(rows, "function")).containsEntry("total_words", 2L).containsEntry("wrong_words", 1L);
+        assertThat(row(rows, "content")).containsEntry("total_words", 2L).containsEntry("wrong_words", 1L);
+    }
+
+    @Test
+    void sentenceAttempts_rejectsDuplicateClientRequestIdOfTheSameUserOnly() {
+        UUID user = data.newUser();
+        UUID sentence = data.newSentence(data.newLesson(), 0);
+        UUID requestId = UUID.randomUUID();
+        String insert = "INSERT INTO sentence_attempts (user_id, sentence_id, mode, level, total_score, "
+                + "client_request_id) VALUES (?, ?, 'dictation', 'easy', 0, ?)";
+
+        jdbc.update(insert, user, sentence, requestId);
+
+        assertThatThrownBy(() -> jdbc.update(insert, user, sentence, requestId))
+                .isInstanceOf(DataIntegrityViolationException.class);
+        assertThatCode(() -> jdbc.update(insert, data.newUser(), sentence, requestId)).doesNotThrowAnyException();
     }
 
     private long newAttempt(String level) {
@@ -117,9 +130,7 @@ class DictationAttemptSchemaIntegrationTest {
                 Instant.now());
     }
 
-    private static Map<String, Object> row(List<Map<String, Object>> rows, String level, String wordClass) {
-        return rows.stream()
-                .filter(r -> level.equals(r.get("level")) && wordClass.equals(r.get("word_class")))
-                .findFirst().orElseThrow();
+    private static Map<String, Object> row(List<Map<String, Object>> rows, String wordClass) {
+        return rows.stream().filter(r -> wordClass.equals(r.get("word_class"))).findFirst().orElseThrow();
     }
 }

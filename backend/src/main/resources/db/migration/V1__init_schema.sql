@@ -637,7 +637,7 @@ SELECT f.user_id,
        (f.created_at AT TIME ZONE 'UTC')::date                      AS day,
        w.word_class,
        count(*)                                                     AS total_words,
-       count(*) FILTER (WHERE w.outcome IN ('omitted','substituted','misspelled')) AS wrong_words
+       count(*) FILTER (WHERE w.outcome IN ('omitted','substituted','misspelled','revealed')) AS wrong_words
 FROM first_attempt f
 JOIN sentence_attempt_words w ON w.attempt_id = f.id
 WHERE w.word_class IS NOT NULL

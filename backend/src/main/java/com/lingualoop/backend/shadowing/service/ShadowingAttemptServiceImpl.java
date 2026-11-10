@@ -59,15 +59,14 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
 
     @Override
     public ShadowingAttemptResponse assess(UUID userId, UUID sentenceId, byte[] wav) {
-        WavAudio audio = WavAudio.parse(wav);
+        WavAudio.parse(wav);
         SentenceView sentence = sentenceQueryService.findSentence(sentenceId)
                 .orElseThrow(() -> new NotFoundException("Sentence not found"));
         sentenceQueryService.assertCanPractice(userId, sentence.lessonId());
 
         PronunciationAssessment assessment = scoringService.assess(wav, sentence.text());
         List<List<String>> targets = PhonemeTargets.forAssessment(sentence, assessment);
-        long attemptId = recorder.save(userId, sentence.lessonId(), sentenceId, assessment, targets,
-                audio.durationMs());
+        long attemptId = recorder.save(userId, sentence.lessonId(), sentenceId, assessment, targets);
         return toResponse(userId, attemptId, sentence, assessment, targets);
     }
 
@@ -120,8 +119,8 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
         List<AttemptPhoneme> storedPhonemes = attemptPhonemeRepository.findByAttemptIds(attemptIds);
         for (AttemptPhoneme p : storedPhonemes) {
             phonemesByWord.computeIfAbsent(p.getWord().getId(), k -> new ArrayList<>()).add(p);
-            if (p.getPhonemeId() != null) {
-                symbols.add(symbolById.getOrDefault(p.getPhonemeId(), "?"));
+            if (p.getHeardPhonemeId() != null) {
+                symbols.add(symbolById.getOrDefault(p.getHeardPhonemeId(), "?"));
             }
         }
 

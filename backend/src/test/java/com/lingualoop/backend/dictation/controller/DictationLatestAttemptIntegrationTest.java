@@ -40,7 +40,7 @@ class DictationLatestAttemptIntegrationTest {
 
     private String submit(UUID user, UUID sentence, String json) throws Exception {
         return as(user, post("/api/v1/dictation/sentences/" + sentence + "/attempts")
-                .contentType(MediaType.APPLICATION_JSON).content(json))
+                .contentType(MediaType.APPLICATION_JSON).content(DictationTestData.withRequestId(json)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
     }
 

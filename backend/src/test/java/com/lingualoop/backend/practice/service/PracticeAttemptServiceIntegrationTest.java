@@ -53,20 +53,19 @@ class PracticeAttemptServiceIntegrationTest {
         assertThat(row.get("sentence_id")).isEqualTo(sentence);
         assertThat(row.get("mode")).hasToString("dictation");
         assertThat(row.get("level")).isEqualTo("easy");
-        assertThat((BigDecimal) row.get("playback_rate")).isEqualByComparingTo("0.75");
-        assertThat(row.get("replay_count")).isEqualTo(2);
-        assertThat(row.get("duration_ms")).isEqualTo(4200);
-        assertThat((BigDecimal) row.get("score")).isEqualByComparingTo("66.67");
+        assertThat(row.get("listen_count")).isEqualTo(2);
+        assertThat((BigDecimal) row.get("total_score")).isEqualByComparingTo("66.67");
+        assertThat(row.get("client_request_id")).isNull();
         assertThat(row.get("is_retry")).isEqualTo(false);
         assertThat(row.get("gave_up")).isEqualTo(false);
-        assertThat(row.get("attempted_at")).isNotNull();
+        assertThat(row.get("created_at")).isNotNull();
         List<Map<String, Object>> stored = jdbc.queryForList(
-                "SELECT position, expected_word, actual_word, outcome, expected_word_class "
+                "SELECT position, expected_word, actual_word, outcome, word_class "
                         + "FROM sentence_attempt_words WHERE attempt_id = ? ORDER BY position", id);
         assertThat(stored).hasSize(3);
         assertThat(stored.get(0)).containsEntry("position", 0).containsEntry("expected_word", "the")
                 .containsEntry("actual_word", "the").containsEntry("outcome", "correct")
-                .containsEntry("expected_word_class", "function");
+                .containsEntry("word_class", "function");
         assertThat(stored.get(1)).containsEntry("position", 2).containsEntry("actual_word", "eyes")
                 .containsEntry("outcome", "substituted");
         assertThat(stored.get(2)).containsEntry("position", 4).containsEntry("actual_word", null)
@@ -109,11 +108,11 @@ class PracticeAttemptServiceIntegrationTest {
                 new BigDecimal("50"), List.of(new AttemptWordRequest(3, null, "very", AttemptOutcome.inserted, null))));
 
         Map<String, Object> word = jdbc.queryForMap(
-                "SELECT expected_word, actual_word, expected_word_class FROM sentence_attempt_words "
+                "SELECT expected_word, actual_word, word_class FROM sentence_attempt_words "
                         + "WHERE attempt_id = ?", id);
         assertThat(word.get("expected_word")).isNull();
         assertThat(word.get("actual_word")).isEqualTo("very");
-        assertThat(word.get("expected_word_class")).isNull();
+        assertThat(word.get("word_class")).isNull();
     }
 
     @Test
@@ -163,7 +162,7 @@ class PracticeAttemptServiceIntegrationTest {
         Instant now = Instant.now();
         data.insertAttempt(user, first, "normal", false, false, now.minus(Duration.ofDays(2)));
         long newest = data.insertAttempt(user, first, "hard", false, false, now.minus(Duration.ofDays(1)));
-        jdbc.update("UPDATE sentence_attempts SET score = 90 WHERE id = ?", newest);
+        jdbc.update("UPDATE sentence_attempts SET total_score = 90 WHERE id = ?", newest);
         long other = data.insertAttempt(user, second, "easy", false, false, now.minus(Duration.ofDays(3)));
 
         List<DictationAttemptView> latest = service.findLatestDictationAttempts(user, lesson);
@@ -229,7 +228,7 @@ class PracticeAttemptServiceIntegrationTest {
         easyAttempt(user, sentence, now.minus(Duration.ofDays(1)), 2);
         long normal = data.insertAttempt(user, sentence, "normal", false, false, now);
         data.insertWord(normal, 5, "ice", "ice", "correct", "content");
-        long shadowing = data.insertAttempt(user, sentence, "shadowing", "easy", false, false, now);
+        long shadowing = data.insertAttempt(user, sentence, "shadowing", null, false, false, now);
         data.insertWord(shadowing, 6, "ice", "ice", "correct", "content");
         easyAttempt(data.newUser(), sentence, now, 7);
         easyAttempt(user, otherSentence, now, 8);
@@ -237,6 +236,51 @@ class PracticeAttemptServiceIntegrationTest {
         assertThat(service.findRecentBlankPositions(user, sentence, 10)).containsExactly(List.of(2));
         assertThat(service.findRecentBlankPositions(user, sentence, 0)).isEmpty();
         assertThat(service.findRecentBlankPositions(user, sentence, -1)).isEmpty();
+    }
+
+    @Test
+    void recordDictationAttempt_sameClientRequestIdReturnsTheExistingAttempt() {
+        UUID user = data.newUser();
+        UUID sentence = data.newSentence(data.newLesson(), 0);
+        UUID requestId = UUID.randomUUID();
+        List<AttemptWordRequest> words = List.of(
+                new AttemptWordRequest(0, "the", "the", AttemptOutcome.correct, AttemptWordClass.function));
+
+        long first = service.recordDictationAttempt(withRequestId(user, sentence, requestId, words));
+        long second = service.recordDictationAttempt(withRequestId(user, sentence, requestId, words));
+
+        assertThat(second).isEqualTo(first);
+        assertThat(count("SELECT count(*) FROM sentence_attempts WHERE user_id = ?", user)).isEqualTo(1);
+        assertThat(count("SELECT count(*) FROM sentence_attempt_words WHERE attempt_id = ?", first)).isEqualTo(1);
+    }
+
+    @Test
+    void recordDictationAttempt_differentClientRequestIdsCreateSeparateAttempts() {
+        UUID user = data.newUser();
+        UUID sentence = data.newSentence(data.newLesson(), 0);
+
+        long first = service.recordDictationAttempt(withRequestId(user, sentence, UUID.randomUUID(), List.of()));
+        long second = service.recordDictationAttempt(withRequestId(user, sentence, UUID.randomUUID(), List.of()));
+
+        assertThat(second).isNotEqualTo(first);
+        assertThat(count("SELECT count(*) FROM sentence_attempts WHERE user_id = ?", user)).isEqualTo(2);
+    }
+
+    @Test
+    void recordDictationAttempt_theSameClientRequestIdOfAnotherUserIsNotADuplicate() {
+        UUID sentence = data.newSentence(data.newLesson(), 0);
+        UUID requestId = UUID.randomUUID();
+
+        long mine = service.recordDictationAttempt(withRequestId(data.newUser(), sentence, requestId, List.of()));
+        long theirs = service.recordDictationAttempt(withRequestId(data.newUser(), sentence, requestId, List.of()));
+
+        assertThat(theirs).isNotEqualTo(mine);
+    }
+
+    private static DictationAttemptRequest withRequestId(UUID user, UUID sentence, UUID requestId,
+            List<AttemptWordRequest> words) {
+        return new DictationAttemptRequest(user, sentence, DictationLevel.normal, null, 0, null, false, false,
+                "typed", new BigDecimal("50"), words, requestId);
     }
 
     private void easyAttempt(UUID user, UUID sentence, Instant at, int... positions) {

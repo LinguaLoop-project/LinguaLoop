@@ -17,6 +17,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DictationTestData {
 
+    /** Id bài chứa câu, để test lọc theo bài. */
+    public UUID lessonOf(UUID sentenceId) {
+        return jdbc.queryForObject("SELECT lesson_id FROM sentences WHERE id = ?", UUID.class, sentenceId);
+    }
+
+    /** Thêm một {@code clientRequestId} mới vào thân yêu cầu nộp lượt (bắt buộc), trừ khi thân đã có sẵn. */
+    public static String withRequestId(String json) {
+        if (json.contains("clientRequestId")) {
+            return json;
+        }
+        String field = "\"clientRequestId\":\"" + UUID.randomUUID() + "\"";
+        String rest = json.trim().substring(1);
+        return "{" + field + (rest.startsWith("}") ? "" : ",") + rest;
+    }
+
     private final JdbcTemplate jdbc;
     private final UserAccountService userAccountService;
     private final JwtTokenService jwtTokenService;

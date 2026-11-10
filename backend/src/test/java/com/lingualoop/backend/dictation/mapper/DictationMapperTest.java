@@ -59,7 +59,7 @@ class DictationMapperTest {
     @Test
     void submitAttemptRequest_normalizesNullCollections() {
         SubmitAttemptRequest request = new SubmitAttemptRequest(DictationLevel.easy, null, null, null, null, false,
-                false, null, 0, null);
+                false, null, 0, null, UUID.randomUUID());
 
         assertThat(request.blanks()).isEmpty();
         assertThat(request.blankPositions()).isEmpty();

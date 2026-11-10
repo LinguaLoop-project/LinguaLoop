@@ -139,7 +139,6 @@ class DictationServiceImpl implements DictationService {
     }
 
     @Override
-    @Transactional
     public AttemptResultResponse submitAttempt(UUID userId, UUID sentenceId, SubmitAttemptRequest request) {
         SentenceView sentence = loadPracticeSentence(userId, sentenceId);
         List<SentenceToken> tokens = tokenService.tokenize(sentence.text());
@@ -161,7 +160,7 @@ class DictationServiceImpl implements DictationService {
         long attemptId = practiceAttemptService.recordDictationAttempt(new DictationAttemptRequest(userId,
                 sentence.id(), request.level(), request.playbackRate(), request.replayCount(), request.durationMs(),
                 request.retry(), request.gaveUp(), submittedText, graded.score(),
-                attemptWords(graded.words(), tokens.size())));
+                attemptWords(graded.words(), tokens.size()), request.clientRequestId()));
 
         return new AttemptResultResponse(attemptId, request.level(), graded.score(), request.gaveUp(),
                 graded.words().stream().map(mapper::toResponse).toList(), classResults(graded.words()),

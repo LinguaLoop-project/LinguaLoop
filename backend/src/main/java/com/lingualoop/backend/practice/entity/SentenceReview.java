@@ -15,8 +15,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 
 /**
- * Chỗ của một câu trong danh sách Câu cần ôn ở một chế độ. Chỉ lưu trạng thái hàng đợi; ghi qua các truy vấn
- * của repository vì cần upsert nguyên tử.
+ * Chỗ của một câu trong danh sách Câu cần ôn ở một chế độ. Bỏ khỏi danh sách = xoá dòng; ghi qua các truy vấn của
+ * repository vì cần upsert nguyên tử.
  */
 @Entity
 @Table(name = "user_sentence_review")
@@ -34,11 +34,8 @@ public class SentenceReview {
 
     @Id
     @Enumerated(EnumType.STRING)
-    @Column(name = "mode", columnDefinition = "practice_mode")
+    @Column(name = "mode")
     private PracticeMode mode;
-
-    @Column(name = "status", nullable = false)
-    private String status;
 
     @Column(name = "reason", nullable = false)
     private String reason;

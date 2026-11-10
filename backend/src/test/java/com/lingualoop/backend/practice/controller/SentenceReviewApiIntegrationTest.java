@@ -47,7 +47,8 @@ class SentenceReviewApiIntegrationTest {
     private void submit(UUID user, UUID sentence, String typedText) throws Exception {
         as(user, post("/api/v1/dictation/sentences/" + sentence + "/attempts")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"level\":\"hard\",\"typedText\":\"" + typedText + "\"}")).andExpect(status().isOk());
+                .content(DictationTestData.withRequestId("{\"level\":\"hard\",\"typedText\":\"" + typedText + "\"}")))
+                .andExpect(status().isOk());
     }
 
     private UUID sentence(String name) {
@@ -85,7 +86,7 @@ class SentenceReviewApiIntegrationTest {
                 .andExpect(jsonPath("$.data[0].lastScore").value(20.0))
                 .andExpect(jsonPath("$.data[0].lastLevel").value("hard"))
                 .andExpect(jsonPath("$.data[0].text").value(TEXT))
-                .andExpect(jsonPath("$.data[0].lessonSlug").value("low-" + tag));
+                .andExpect(jsonPath("$.data[0].lessonId").value(data.lessonOf(sentence).toString()));
     }
 
     @Test
@@ -93,7 +94,7 @@ class SentenceReviewApiIntegrationTest {
         UUID user = data.newUser();
         UUID sentence = sentence("gaveup");
         as(user, post("/api/v1/dictation/sentences/" + sentence + "/attempts")
-                .contentType(MediaType.APPLICATION_JSON).content("{\"level\":\"hard\",\"gaveUp\":true}"))
+                .contentType(MediaType.APPLICATION_JSON).content(DictationTestData.withRequestId("{\"level\":\"hard\",\"gaveUp\":true}")))
                 .andExpect(status().isOk());
 
         as(user, put(REVIEW + "/" + sentence).param("reason", "low_score")).andExpect(status().isOk());
@@ -159,7 +160,7 @@ class SentenceReviewApiIntegrationTest {
         submit(user, queued, "one");
         as(user, put(REVIEW + "/" + queued).param("reason", "low_score")).andExpect(status().isOk());
 
-        as(user, get("/api/v1/dictation/lessons/flag-" + tag)).andExpect(status().isOk())
+        as(user, get("/api/v1/dictation/lessons/" + lesson)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.sentences[0].inReview").value(true))
                 .andExpect(jsonPath("$.data.sentences[1].inReview").value(false));
     }
