@@ -48,6 +48,34 @@ _Tránh_: phiên âm mẫu, âm mẫu
 
 ### Bộ từ
 
+**Thẻ**:
+Một nghĩa của một từ để học và ôn, gồm từ, phát âm, loại từ, nghĩa tiếng Việt và ví dụ. Mỗi thẻ chỉ có một nghĩa.
+_Tránh_: flashcard, từ vựng, card
+
+**Bộ từ**:
+Một tập thẻ chia thành các bài theo thứ tự, do hệ thống cung cấp (vd "3000 Oxford Vocabulary A1") hoặc của riêng một học viên. Bộ hệ thống là dữ liệu riêng, không phải bản sao của từ điển.
+_Tránh_: deck, bộ từ vựng
+
+**Phần**:
+Một nhóm thẻ cùng chủ đề trong một bộ từ, là đơn vị học viên chọn để học từ mới (vd "Family", 49 thẻ). Số thẻ mỗi phần khác nhau. Giáo viên quản lý gọi là nhóm thẻ (module NT); mỗi nhóm có ít nhất 1 thẻ (BR-BT-05).
+_Tránh_: bài, unit, group (vì "bài" là bài học dùng để nghe chép và shadowing)
+
+**Lượt**:
+Một đoạn tối đa 10 thẻ liền nhau của một phần, là đơn vị học viên học một lần trong Học từ mới. Phần có 23 thẻ gồm 3 lượt (10, 10, 3).
+_Tránh_: bài, vòng, session (phiên học là bản ghi dùng để nhóm nhật ký, không phải một lượt)
+
+**Học từ mới**:
+Học các thẻ của một phần qua một trong các cách học (Đoán, Flashcard, Trắc nghiệm, Trắc nghiệm đảo). Mỗi câu trả lời ở mọi cách học đều được chấm theo SM-2 nên thẻ Mới trả lời lần đầu chuyển sang Đang học; trả lời sai thì thẻ xuống cuối lượt để làm lại. Khác với ôn thẻ, là việc làm theo lịch.
+_Tránh_: học bài
+
+**Từ đã lưu**:
+Một nghĩa của một mục từ mà học viên lưu khi tra từ điển hoặc khi đang học bài. Mỗi từ đã lưu là một thẻ trong bộ "Từ đã lưu" của học viên, nên được ôn như mọi thẻ khác. Một từ có thể được lưu nhiều nghĩa.
+_Tránh_: từ của tôi, sổ từ, bookmark
+
+**Trạng thái thẻ**:
+Mức nhớ của một học viên với một thẻ: _Mới_ (chưa gặp), _Đang học_ (mới gặp hoặc vừa quên), _Đang ôn_ (khoảng ôn dưới 21 ngày), _Đã thuộc_ (khoảng ôn từ 21 ngày trở lên).
+_Tránh_: tiến độ thẻ, độ nhớ (dùng cho vòng phần trăm trên giao diện, không phải trạng thái)
+
 **Ôn thẻ**:
 Ôn các thẻ từ vựng đến hạn theo lịch lặp lại ngắt quãng. Chỉ dùng cho bộ từ, không dùng cho câu.
 _Tránh_: ôn câu, ôn lại

@@ -1,13 +1,14 @@
 {
   "overline": "Từ & câu đã lưu",
   "title": "Từ & câu đã lưu",
-  "subtitle": "Các câu cần luyện lại và ghi chú của bạn.",
+  "subtitle": "Từ đã lưu, câu cần luyện lại và ghi chú của bạn.",
   "loading": "Đang tải",
   "loadFailed": "Chưa tải được dữ liệu. Thử lại nhé.",
   "offline": "Bạn đang mất mạng. Thử lại khi có mạng.",
   "retry": "Thử lại",
   "tabs": {
     "label": "Danh mục",
+    "words": "Từ đã lưu",
     "review": "Câu cần ôn",
     "notes": "Ghi chú"
   },
@@ -53,5 +54,63 @@
       "label": "Lọc theo chế độ",
       "all": "Tất cả"
     }
+  },
+  "words": {
+    "stats": {
+      "label": "Tổng quan từ đã lưu",
+      "total": "Đã lưu",
+      "totalHint": "nghĩa của từ",
+      "due": "Đến hạn hôm nay",
+      "dueHint": "thẻ chờ ôn",
+      "learning": "Đang học",
+      "learningHint": "mới, đang học, đang ôn",
+      "mastered": "Đã thuộc",
+      "masteredHint": "khoảng ôn từ 21 ngày"
+    },
+    "search": {
+      "placeholder": "Tìm trong từ đã lưu…",
+      "aria": "Tìm từ đã lưu"
+    },
+    "source": {
+      "label": "Nguồn",
+      "all": "Mọi nguồn",
+      "dictionary": "Từ điển",
+      "lesson": "Bài học"
+    },
+    "state": {
+      "label": "Trạng thái",
+      "all": "Tất cả",
+      "due": "Đến hạn",
+      "learning": "Đang học",
+      "mastered": "Đã thuộc"
+    },
+    "status": {
+      "new": "Mới",
+      "learning": "Đang học",
+      "reviewing": "Đang ôn",
+      "mastered": "Đã thuộc"
+    },
+    "count_other": "{{count}} từ",
+    "selectAll": "Chọn tất cả",
+    "select": "Chọn {{word}}",
+    "selected_other": "Đã chọn {{count}} từ",
+    "clearSelection": "Bỏ chọn",
+    "listen": "Nghe từ {{word}}",
+    "unsave": "Bỏ lưu",
+    "unsaveAria": "Bỏ lưu {{word}}",
+    "unsaved_other": "Đã bỏ lưu {{count}} từ",
+    "unsaveFailed": "Chưa bỏ lưu được. Thử lại nhé.",
+    "next": {
+      "due": "Hôm nay",
+      "none": "—"
+    },
+    "nextLabel": "Ôn lần tới",
+    "fromDictionary": "Từ điển",
+    "fromLesson": "Bài học: {{title}}",
+    "lessonGone": "Bài học",
+    "emptyTitle": "Chưa lưu từ nào",
+    "emptyDesc": "Tra một từ rồi bấm Lưu, hoặc bấm vào một từ trong bài học để lưu cùng câu chứa từ đó. Từ đã lưu sẽ được nhắc ôn đúng lúc.",
+    "emptyFilteredTitle": "Không có từ nào khớp",
+    "emptyFilteredDesc": "Đổi bộ lọc hoặc từ khoá tìm kiếm."
   }
 }

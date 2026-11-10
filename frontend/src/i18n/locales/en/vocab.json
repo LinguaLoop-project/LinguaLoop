@@ -1,0 +1,253 @@
+{
+  "overline": "Vocabulary",
+  "title": "Vocabulary",
+  "subtitle": "Learn decks part by part and review cards just before you forget them.",
+  "loading": "Loading",
+  "overview": {
+    "label": "Vocabulary overview",
+    "due": "Due today",
+    "dueHint": "cards to review",
+    "learning": "Learning",
+    "learningHint": "newly seen cards",
+    "reviewing": "Reviewing",
+    "reviewingHint": "intervals getting longer",
+    "mastered": "Mastered",
+    "masteredHint": "long-term memory"
+  },
+  "learning": {
+    "title": "In progress"
+  },
+  "explore": {
+    "title": "Explore decks"
+  },
+  "filter": {
+    "label": "Search and filter decks",
+    "search": {
+      "placeholder": "Search decks by name or category",
+      "aria": "Search decks"
+    },
+    "state": {
+      "label": "Study status",
+      "all": "All",
+      "learning": "Studying",
+      "new": "Not started"
+    },
+    "level": {
+      "label": "CEFR level",
+      "all": "All levels"
+    },
+    "category": {
+      "label": "Category",
+      "all": "All categories"
+    },
+    "results_one": "{{count}} matching deck",
+    "results_other": "{{count}} matching decks",
+    "clear": "Clear filters",
+    "noMatchTitle": "No decks match",
+    "noMatchDesc": "Try a different keyword or remove some filters."
+  },
+  "first": {
+    "title": "Pick your first deck",
+    "desc": "Start with a basic deck such as Oxford A1 or 1000 common words. Each part is one topic and takes a few minutes."
+  },
+  "empty": {
+    "title": "No decks yet",
+    "desc": "Decks will show up here once they are added to the system."
+  },
+  "deck": {
+    "cards_one": "{{count, number}} card",
+    "cards_other": "{{count, number}} cards",
+    "parts_one": "{{count, number}} part",
+    "parts_other": "{{count, number}} parts",
+    "pro": "PRO",
+    "mastered": "Mastered {{mastered}}/{{total}}",
+    "percent": "{{percent}}% learned",
+    "continue": "Continue",
+    "view": "View deck",
+    "barLabel": "Mastered {{mastered}}, reviewing {{reviewing}}, learning {{learning}} of {{total}} cards"
+  },
+  "detail": {
+    "back": "Vocabulary",
+    "learnNew": "Learn new words",
+    "allLearned": "All unlocked parts learned",
+    "reviewDeck": "Review this deck ({{count}})",
+    "unlock": "Unlock with Pro",
+    "legend": {
+      "mastered": "Mastered",
+      "reviewing": "Reviewing",
+      "learning": "Learning",
+      "new": "New"
+    },
+    "parts": {
+      "title": "Parts in this deck",
+      "done": "{{done}}/{{total}} parts done",
+      "cards_one": "{{count, number}} card",
+      "cards_other": "{{count, number}} cards",
+      "studied": "{{count}} learned",
+      "learn": "Learn",
+      "review": "Review",
+      "open": "Open",
+      "pro": "Pro",
+      "locked": "This part is Pro only",
+      "partDone": "Done",
+      "range": "Showing parts {{from}}–{{to}} of {{total}}",
+      "showAll": "Show all parts",
+      "showLess": "Show fewer"
+    },
+    "sample": {
+      "title": "Some words in this deck",
+      "word": "Word",
+      "meaning": "Meaning",
+      "listen": "Listen to {{word}}"
+    },
+    "tips": {
+      "title": "How to study this deck",
+      "one": "Each part is one topic. Study it by guessing the word, flipping cards, taking a quiz or listening and repeating.",
+      "two": "Cards come back just before you forget them. The better you remember, the longer the interval.",
+      "three": "After a part, try a different study mode to check yourself."
+    },
+    "notFoundTitle": "Deck not found",
+    "notFoundDesc": "This deck doesn't exist or is hidden.",
+    "backToDecks": "Back to Vocabulary"
+  },
+  "learn": {
+    "back": "Vocabulary",
+    "partTitle": "Part {{number}} · {{name}}",
+    "modeLabel": "Study mode",
+    "modes": {
+      "guess": "Guess",
+      "flashcard": "Flashcard",
+      "quiz": "Quiz",
+      "reverse_quiz": "Reverse quiz"
+    },
+    "modeNames": {
+      "guess": "Guess",
+      "flashcard": "Flashcard",
+      "quiz": "Quiz",
+      "reverse_quiz": "Reverse quiz"
+    },
+    "round": "Round {{current}}/{{total}} · {{count}} cards",
+    "progress": "Card {{current}}/{{total}}",
+    "partsNav": "Parts in this deck",
+    "partsRange": "Parts {{from}}–{{to}}/{{total}}",
+    "next": "Next",
+    "loading": "Loading the part",
+    "sending": "Sending {{count}} answers",
+    "unsent": "{{count}} answers could not be sent yet; they will be resent when you are back online",
+    "empty": {
+      "title": "This part has no cards",
+      "desc": "Pick another part in the deck."
+    },
+    "guess": {
+      "prompt": "Type the English word with this meaning",
+      "letters_one": "{{count}} letter",
+      "letters_other": "{{count}} letters",
+      "placeholder": "Type the English word",
+      "inputLabel": "English word to guess",
+      "check": "Check",
+      "hint": "Hint",
+      "skip": "I don't know",
+      "typeFirst": "Type a word before checking.",
+      "correct": "Correct!",
+      "wrong": "Not quite",
+      "gaveUp": "You used every hint, so this counts as not known.",
+      "answer": "Answer",
+      "usedHints_one": "{{count}} hint used",
+      "usedHints_other": "{{count}} hints used"
+    },
+    "quiz": {
+      "pickMeaning": "Pick the right meaning",
+      "pickWord": "Pick the right word",
+      "correct": "Correct!",
+      "wrong": "Not quite",
+      "options": "Choices",
+      "single": "This part has only one card, so there are no choices yet."
+    },
+    "flash": {
+      "front": "Click to flip the card",
+      "cardAria": "Card {{word}}, click to flip",
+      "grades": {
+        "forget": "Forgot",
+        "hard": "Hard",
+        "good": "Good",
+        "easy": "Easy"
+      },
+      "gradesLabel": "How well did you remember it?"
+    },
+    "done": {
+      "title": "Great job!",
+      "subtitle": "You finished {{mode}} for round {{round}} of Part {{part}}",
+      "restart": "Start over",
+      "words": "View words",
+      "nextRound": "Next round",
+      "nextPart": "Next part",
+      "backToDeck": "Back to the deck",
+      "score": "Remembered {{right}}/{{total}} cards the first time",
+      "redone_one": "{{count}} card had to be redone this round",
+      "redone_other": "{{count}} cards had to be redone this round"
+    },
+    "words": {
+      "title": "Words of round {{round}}",
+      "back": "Back",
+      "word": "Word",
+      "meaning": "Meaning",
+      "listen": "Listen to {{word}}"
+    },
+    "locked": {
+      "title": "This part is Pro only",
+      "desc": "This is a Pro deck: you need the Pro plan to study its parts.",
+      "unlock": "Unlock with Pro",
+      "back": "Back to the deck"
+    },
+    "notFound": {
+      "title": "Part not found",
+      "desc": "This part does not exist or has been hidden."
+    },
+    "interval": {
+      "minute_one": "{{count}} minute",
+      "minute_other": "{{count}} minutes",
+      "hour_one": "{{count}} hour",
+      "hour_other": "{{count}} hours",
+      "day_one": "{{count}} day",
+      "day_other": "{{count}} days",
+      "month_one": "{{count}} month",
+      "month_other": "{{count}} months"
+    },
+    "listenAria": "Listen to {{word}}",
+    "again": "This card will come back at the end of the round."
+  },
+  "tabs": {
+    "label": "Vocabulary mode",
+    "decks": "Decks",
+    "review": "Review"
+  },
+  "review": {
+    "title": "Review due cards",
+    "deckTitle": "Reviewing deck: {{name}}",
+    "allDecks": "Review all decks",
+    "loading": "Loading due cards",
+    "queueInfo": "This round has {{count}} cards",
+    "more_one": "{{count}} more card is due",
+    "more_other": "{{count}} more cards are due",
+    "emptyTitle": "You are all caught up",
+    "emptyDesc": "No cards are due. Learn new words to have cards to review next time.",
+    "nextDue": "The next card is due at {{time}}.",
+    "nextNone": "No card has been scheduled yet.",
+    "learnNew": "Learn new words",
+    "practiceLessons": "Practice lessons",
+    "doneTitle": "Review round done!",
+    "doneSubtitle": "You reviewed {{count}} cards",
+    "score": "Remembered {{right}}/{{total}} cards the first time",
+    "redone_one": "{{count}} card had to be reviewed again this round",
+    "redone_other": "{{count}} cards had to be reviewed again this round",
+    "continue": "Keep reviewing",
+    "continueHint_one": "{{count}} card still due",
+    "continueHint_other": "{{count}} cards still due",
+    "backToDecks": "Back to decks",
+    "context": "Sentence from the lesson",
+    "fromLesson": "Lesson: {{title}}"
+  },
+  "category": {
+    "other": "Other"
+  }
+}

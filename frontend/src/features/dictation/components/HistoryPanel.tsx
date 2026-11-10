@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
+import { WordSourceProvider } from "@/features/dictionary";
 import { useAttemptHistory, useHistoryAttempt } from "../hooks";
 import { LEVEL_CHIP, resultContext, SCORE_BADGE, scoreTone } from "../utils";
 import ResultDiff from "./ResultDiff";
@@ -64,17 +65,19 @@ export default function HistoryPanel({ sentenceId, showTranslation }: HistoryPan
         <p role="alert" className="text-sm text-danger">{t("history.detailFailed")}</p>
       )}
       {selected !== null && detail.data && (
-        <ResultDiff
-          score={detail.data.score}
-          level={detail.data.level}
-          words={detail.data.words}
-          context={resultContext(detail.data)}
-          gaveUp={detail.data.gaveUp}
-          detailLoading={false}
-          text={detail.data.text}
-          textVi={detail.data.textVi}
-          showTranslation={showTranslation}
-        />
+        <WordSourceProvider sentenceId={sentenceId}>
+          <ResultDiff
+            score={detail.data.score}
+            level={detail.data.level}
+            words={detail.data.words}
+            context={resultContext(detail.data)}
+            gaveUp={detail.data.gaveUp}
+            detailLoading={false}
+            text={detail.data.text}
+            textVi={detail.data.textVi}
+            showTranslation={showTranslation}
+          />
+        </WordSourceProvider>
       )}
     </div>
   );
