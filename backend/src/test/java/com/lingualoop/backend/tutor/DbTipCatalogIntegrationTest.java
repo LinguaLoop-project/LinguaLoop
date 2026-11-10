@@ -30,8 +30,7 @@ class DbTipCatalogIntegrationTest {
     @Test
     void theTipIsTheOneStoredInTheTable() {
         String stored = jdbc.queryForObject("""
-                SELECT c.tip_vi FROM phoneme_confusions c JOIN phonemes p ON p.id = c.target_phoneme_id
-                WHERE p.symbol = 'θ' AND c.l1 = 'vi' AND c.produced_phoneme_id IS NULL""", String.class);
+                SELECT tip_vi FROM phonemes WHERE symbol = 'θ'""", String.class);
 
         assertThat(tips.tipFor("θ")).contains(stored);
     }

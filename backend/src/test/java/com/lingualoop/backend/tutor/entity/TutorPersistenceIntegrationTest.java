@@ -26,7 +26,6 @@ import com.lingualoop.backend.tutor.SessionOutcome;
 import com.lingualoop.backend.tutor.TutorOfferPolicy;
 import com.lingualoop.backend.tutor.WordStatus;
 import com.lingualoop.backend.tutor.entity.TutorSession.WordSeed;
-import com.lingualoop.backend.tutor.repository.TutorLessonEventRepository;
 import com.lingualoop.backend.tutor.repository.TutorOfferRepository;
 import com.lingualoop.backend.tutor.repository.TutorSessionRepository;
 import com.lingualoop.backend.user.service.UserAccountService;
@@ -38,7 +37,6 @@ class TutorPersistenceIntegrationTest {
 
     @Autowired private TutorSessionRepository sessions;
     @Autowired private TutorOfferRepository offers;
-    @Autowired private TutorLessonEventRepository events;
     @Autowired private TransactionTemplate tx;
     @Autowired private JdbcTemplate jdbc;
     @Autowired private UserAccountService userAccountService;
@@ -53,22 +51,20 @@ class TutorPersistenceIntegrationTest {
     void sessionWordsAndOutcomeRoundTrip_includingTheLowercaseColumns() {
         Fixture f = fixture();
         short thetaId = jdbc.queryForObject("SELECT id FROM phonemes WHERE symbol = 'θ'", Short.class);
-        UUID id = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt, null, "live-model",
+        UUID id = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt,
                 Instant.now(), List.of(new WordSeed("Think", "think", thetaId, 40.5), new WordSeed("sing", "sing", null, 90)))).getId());
 
         tx.executeWithoutResult(status -> {
             TutorSession s = sessions.findByIdAndUserId(id, f.user).orElseThrow();
             s.markStarted(Instant.now());
-            s.markCharged();
             s.recordWordAttempt(85);
             s.end(SessionOutcome.COMPLETED, Instant.now());
         });
 
-        assertThat(jdbc.queryForMap("SELECT outcome, charged, live_model, current_word_key FROM tutor_sessions WHERE id = ?", id))
-                .containsEntry("outcome", "completed").containsEntry("charged", true)
-                .containsEntry("live_model", "live-model").containsEntry("current_word_key", "think");
-        assertThat(jdbc.queryForMap("SELECT status, attempts, total_attempts, score_before, score_after "
-                + "FROM tutor_session_words WHERE session_id = ? AND word_key = 'think'", id))
+        assertThat(jdbc.queryForMap("SELECT outcome, current_position FROM tutor_sessions WHERE id = ?", id))
+                .containsEntry("outcome", "completed").containsEntry("current_position", 0);
+        assertThat(jdbc.queryForMap("SELECT status, attempts, score_before, score_after "
+                + "FROM tutor_session_words WHERE session_id = ? AND position = 0", id))
                 .containsEntry("status", "passed").containsEntry("attempts", 1)
                 .containsEntry("score_after", new java.math.BigDecimal("85.00"));
         tx.executeWithoutResult(status -> {
@@ -83,7 +79,7 @@ class TutorPersistenceIntegrationTest {
     @Test
     void sessionsOfAnotherUserAreInvisible_AC_TUTOR_09() {
         Fixture f = fixture();
-        UUID id = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt, null, null, Instant.now(), List.of())).getId());
+        UUID id = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt, Instant.now(), List.of())).getId());
 
         assertThat(sessions.findByIdAndUserId(id, UUID.randomUUID())).isEmpty();
         Boolean lockedForStranger = tx.execute(status -> sessions.lockByIdAndUserId(id, UUID.randomUUID()).isPresent());
@@ -93,7 +89,7 @@ class TutorPersistenceIntegrationTest {
     @Test
     void theLockQueryReturnsTheSessionInsideATransaction() {
         Fixture f = fixture();
-        UUID id = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt, null, null, Instant.now(), List.of())).getId());
+        UUID id = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt, Instant.now(), List.of())).getId());
 
         Boolean found = tx.execute(status -> sessions.lockByIdAndUserId(id, f.user).isPresent());
 
@@ -104,16 +100,16 @@ class TutorPersistenceIntegrationTest {
     void unstartedQueryFindsOnlyOpenUnstartedSessionsOlderThanTheCutoff() {
         Fixture f = fixture();
         Instant old = Instant.now().minusSeconds(120);
-        UUID unstarted = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt, null, null, old, List.of())).getId());
+        UUID unstarted = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt, old, List.of())).getId());
         UUID started = tx.execute(status -> {
-            TutorSession s = TutorSession.open(f.user, f.attempt, null, null, old, List.of());
+            TutorSession s = TutorSession.open(f.user, f.attempt, old, List.of());
             s.markStarted(old.plusSeconds(1));
             return sessions.save(s).getId();
         });
-        UUID fresh = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt, null, null, Instant.now(), List.of())).getId());
+        UUID fresh = tx.execute(status -> sessions.save(TutorSession.open(f.user, f.attempt, Instant.now(), List.of())).getId());
         UUID overdue = tx.execute(status -> {
             Instant long_ago = Instant.now().minusSeconds(700);
-            TutorSession s = TutorSession.open(f.user, f.attempt, null, null, long_ago, List.of());
+            TutorSession s = TutorSession.open(f.user, f.attempt, long_ago, List.of());
             s.markStarted(long_ago.plusSeconds(1));
             return sessions.save(s).getId();
         });
@@ -124,43 +120,22 @@ class TutorPersistenceIntegrationTest {
     }
 
     @Test
-    void offersResolveOnceAndTheLatestOneIsFoundPerLesson() {
+    void theLatestOfferIsFoundPerLesson() {
         Fixture f = fixture();
-        Instant now = Instant.now();
-        UUID first = offers.save(TutorOffer.of(f.user, f.lesson, f.attempt, TutorOfferPolicy.Reason.LOW_WORD_SCORE, now.minusSeconds(60))).getId();
-        UUID second = offers.save(TutorOffer.of(f.user, f.lesson, f.attempt, TutorOfferPolicy.Reason.REPEATED_PHONEME_ERROR, now)).getId();
+        Long first = offers.save(TutorOffer.of(f.user, f.lesson, f.attempt)).getId();
+        Long second = offers.saveAndFlush(TutorOffer.of(f.user, f.lesson, f.attempt)).getId();
 
         assertThat(offers.findFirstByUserIdAndLessonIdOrderByCreatedAtDesc(f.user, f.lesson)).get()
                 .extracting(TutorOffer::getId).isEqualTo(second);
-
-        tx.executeWithoutResult(status -> {
-            TutorOffer o = offers.findByIdAndUserId(first, f.user).orElseThrow();
-            o.decline(now);
-            o.accept(now.plusSeconds(1)); // đã trả lời một lần thì giữ nguyên
-        });
-        TutorOffer reloaded = offers.findById(first).orElseThrow();
-        assertThat(reloaded.getDeclinedAt()).isNotNull();
-        assertThat(reloaded.getAcceptedAt()).isNull();
+        assertThat(offers.findByIdAndUserId(first, f.user)).isPresent();
         assertThat(offers.findByIdAndUserId(first, UUID.randomUUID())).isEmpty();
-    }
-
-    @Test
-    void lessonEventsAreStoredAndUnknownOnesRejected() {
-        Fixture f = fixture();
-
-        events.save(TutorLessonEvent.of(f.user, f.lesson, "toggle_off", Instant.now()));
-
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM tutor_lesson_events WHERE user_id = ? AND event = 'toggle_off'",
-                Integer.class, f.user)).isEqualTo(1);
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> TutorLessonEvent.of(f.user, f.lesson, "sideways", Instant.now()))
-                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private Fixture fixture() {
         UUID user = userAccountService.createLocal("tutor-p-" + UUID.randomUUID() + "@x.com", "Tutor", "t").id();
         String tag = UUID.randomUUID().toString().substring(0, 8);
         Topic topic = new Topic();
-        topic.setName("tutor topic");
+        topic.setName("tutor topic " + UUID.randomUUID());
         topic = topics.save(topic);
         Lesson lesson = new Lesson();
         lesson.setTopic(topic);
@@ -178,8 +153,8 @@ class TutorPersistenceIntegrationTest {
         s.setStartMs(0);
         s.setEndMs(900);
         s = sentences.save(s);
-        long attempt = jdbc.queryForObject("INSERT INTO sentence_attempts (user_id, sentence_id, mode, provider, score) "
-                + "VALUES (?, ?, 'shadowing', 'azure', 70) RETURNING id", Long.class, user, s.getId());
+        long attempt = jdbc.queryForObject("INSERT INTO sentence_attempts (user_id, sentence_id, mode, total_score) "
+                + "VALUES (?, ?, 'shadowing', 70) RETURNING id", Long.class, user, s.getId());
         return new Fixture(user, lesson.getId(), attempt);
     }
 }

@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.lingualoop.backend.tutor.entity.TutorOffer;
 
-public interface TutorOfferRepository extends JpaRepository<TutorOffer, UUID> {
+public interface TutorOfferRepository extends JpaRepository<TutorOffer, Long> {
 
-    Optional<TutorOffer> findByIdAndUserId(UUID id, UUID userId);
+    Optional<TutorOffer> findByIdAndUserId(Long id, UUID userId);
 
     /** Lần mời gần nhất của người học trong bài, để tính giãn cách. */
     Optional<TutorOffer> findFirstByUserIdAndLessonIdOrderByCreatedAtDesc(UUID userId, UUID lessonId);

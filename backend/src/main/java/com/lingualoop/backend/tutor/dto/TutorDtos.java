@@ -23,14 +23,11 @@ public final class TutorDtos {
 
     /** @param words Danh sách từ lỗi, để giao diện nói rõ vì sao gia sư mở; rỗng khi {@code offer = false} */
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record OfferResponse(boolean offer, String reason, UUID offerId, List<PracticeWord> words) {
+    public record OfferResponse(boolean offer, String reason, Long offerId, List<PracticeWord> words) {
     }
 
     /** @param offerId null khi học viên tự bấm "Hỏi gia sư" */
-    public record CreateSessionRequest(@NotNull Long attemptId, UUID offerId) {
-    }
-
-    public record LessonEventRequest(@NotNull UUID lessonId, @NotBlank String event) {
+    public record CreateSessionRequest(@NotNull Long attemptId, Long offerId) {
     }
 
     public record Limits(int maxSeconds, int wrapUpAtSeconds, int startTimeoutSeconds, int maxAttemptsPerWord,

@@ -64,7 +64,7 @@ public class TutorSessionService {
      * @throws BusinessException hết lượt, quá nhiều phiên chưa started trong ngày, hoặc không cấp được
      *         token (kèm Danh sách từ lỗi)
      */
-    public TutorDtos.SessionResponse createSession(UUID userId, long attemptId, UUID offerId) {
+    public TutorDtos.SessionResponse createSession(UUID userId, long attemptId, Long offerId) {
         AttemptSnapshot current = snapshots.load(userId, attemptId);
         creditService.requireCanStart(userId, AiFeature.TUTOR_SESSION);
 
@@ -79,10 +79,9 @@ public class TutorSessionService {
                 snapshots.previous(userId, attemptId, TutorThresholds.REPEAT_WINDOW - 1)));
 
         if (offerId != null) {
-            // Học viên đã nhận lời (hoặc đếm ngược xong), kể cả khi sau đó không kết nối được
-            tx.executeWithoutResult(status -> offers.findByIdAndUserId(offerId, userId)
-                    .filter(o -> o.getAttemptId() == attemptId)
-                    .orElseThrow(() -> new NotFoundException("Offer not found")).accept(clock.instant()));
+            // Lời mời phải là của người gọi và thuộc đúng lượt này
+            offers.findByIdAndUserId(offerId, userId).filter(o -> o.getAttemptId() == attemptId)
+                    .orElseThrow(() -> new NotFoundException("Offer not found"));
         }
 
         LiveTokenIssuer.LiveToken token;
@@ -99,7 +98,7 @@ public class TutorSessionService {
                         w.phoneme() == null ? null : phonemeIds.get(w.phoneme()), w.score()))
                 .toList();
         TutorSession session = tx.execute(status -> sessions.save(
-                TutorSession.open(userId, attemptId, offerId, token.model(), clock.instant(), seeds)));
+                TutorSession.open(userId, attemptId, clock.instant(), seeds)));
 
         List<TutorDtos.WordView> wordViews = tx.execute(status -> views.words(sessions.findById(session.getId()).orElseThrow()));
         String currentWord = words.isEmpty() ? null : words.get(0).word();
@@ -128,7 +127,6 @@ public class TutorSessionService {
             }
             creditService.chargeFixed(userId, AiFeature.TUTOR_SESSION, cost);
             session.markStarted(clock.instant());
-            session.markCharged();
             return false;
         });
         if (exhausted) {
@@ -221,7 +219,7 @@ public class TutorSessionService {
     public TutorDtos.SessionSummary get(UUID userId, UUID sessionId) {
         return locked.run(userId, sessionId, session -> new TutorDtos.SessionSummary(session.getId(),
                 session.getCreatedAt(), session.getStartedAt(), session.getEndedAt(),
-                TutorDtos.wire(session.getOutcome()), session.isCharged(), views.words(session)));
+                TutorDtos.wire(session.getOutcome()), session.charged(), views.words(session)));
     }
 
     /** Danh sách từ lỗi dạng đơn giản để giao diện hiện mẹo bằng chữ khi gia sư không dùng được (BR-TUTOR-10). */

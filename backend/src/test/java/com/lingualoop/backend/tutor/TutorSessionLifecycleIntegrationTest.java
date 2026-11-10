@@ -88,8 +88,8 @@ class TutorSessionLifecycleIntegrationTest {
         started(s).andExpect(status().isOk());
         started(s).andExpect(status().isOk());
 
-        assertThat(used(s.user, "ai_energy")).isEqualTo(3);
-        assertThat(count("tutor_sessions WHERE id = ? AND started_at IS NOT NULL AND charged", s.id)).isEqualTo(1);
+        assertThat(used(s.user)).isEqualTo(3);
+        assertThat(count("tutor_sessions WHERE id = ? AND started_at IS NOT NULL", s.id)).isEqualTo(1);
     }
 
     @Test
@@ -101,9 +101,9 @@ class TutorSessionLifecycleIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.outcome").value("connect_failed"));
 
-        assertThat(used(s.user, "ai_energy")).isZero();
+        assertThat(used(s.user)).isZero();
         started(s).andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("TUTOR_SESSION_CONFLICT"));
-        assertThat(used(s.user, "ai_energy")).isZero();
+        assertThat(used(s.user)).isZero();
     }
 
     @Test
@@ -134,7 +134,7 @@ class TutorSessionLifecycleIntegrationTest {
 
         assertThat(outcome(overdue)).isEqualTo("timeout");
         assertThat(outcome(withinGrace)).isNull();
-        assertThat(count("tutor_sessions WHERE id = ? AND charged", overdue.id)).isEqualTo(1); // đã trừ lượt thì giữ nguyên
+        assertThat(count("tutor_sessions WHERE id = ? AND started_at IS NOT NULL", overdue.id)).isEqualTo(1); // đã trừ lượt thì giữ nguyên
         assertThat(cleanup.sweep()).isZero();
     }
 
@@ -169,18 +169,18 @@ class TutorSessionLifecycleIntegrationTest {
     @Test
     void quotaUsedUpBetweenCreateAndStart_endsTheSessionAndAnswersQuotaExceeded_AC_TUTOR_14() throws Exception {
         UUID user = newUser();
-        TestData.setCredits(jdbc, user, 3); // còn 3 credit: vừa đủ một phiên gia sư
+        TestData.setCredits(jdbc, user, 5); // đúng ngưỡng bắt đầu: tạo được hai phiên, nhưng chỉ đủ trừ một phiên (3 credit)
         S first = open(user, "Think about it", word("think", 45, "θ", 20));
         S second = open(user, "Think again", word("think", 45, "θ", 20)); // hai tab: cả hai tạo được lúc còn đủ năng lượng
         started(first).andExpect(status().isOk());
 
         started(second).andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
-                .andExpect(jsonPath("$.details.feature").value("ai_energy"))
-                .andExpect(jsonPath("$.details.action").value("tutor_session"));
+                .andExpect(jsonPath("$.details.feature").value("tutor_session"))
+                .andExpect(jsonPath("$.details.balance").value(2));
 
         assertThat(outcome(second)).isEqualTo("connect_failed");
-        assertThat(used(user, "ai_energy")).isEqualTo(8);
+        assertThat(used(user)).isEqualTo(3);
     }
 
     // ── UC-TUTOR-05 ─────────────────────────────────────────────────────────────────
@@ -196,8 +196,8 @@ class TutorSessionLifecycleIntegrationTest {
                 .andExpect(jsonPath("$.data.words.length()").value(2));
 
         assertThat(count("tutor_session_words WHERE session_id = ?", s.id)).isEqualTo(2);
-        assertThat(jdbc.queryForObject("SELECT current_word_key FROM tutor_sessions WHERE id = ?", String.class, s.id))
-                .isEqualTo("about");
+        assertThat(jdbc.queryForObject("SELECT current_position FROM tutor_sessions WHERE id = ?", Integer.class, s.id))
+                .isEqualTo(1);
     }
 
     @Test
@@ -208,8 +208,8 @@ class TutorSessionLifecycleIntegrationTest {
                 .andExpect(jsonPath("$.code").value("TUTOR_WORD_NOT_IN_SENTENCE"))
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("think, about, it")));
 
-        assertThat(jdbc.queryForObject("SELECT current_word_key FROM tutor_sessions WHERE id = ?", String.class, s.id))
-                .isEqualTo("think");
+        assertThat(jdbc.queryForObject("SELECT current_position FROM tutor_sessions WHERE id = ?", Integer.class, s.id))
+                .isEqualTo(0);
     }
 
     @Test
@@ -237,10 +237,10 @@ class TutorSessionLifecycleIntegrationTest {
                 .andExpect(jsonPath("$.data.nextWord").value("this"))
                 .andExpect(jsonPath("$.data.instruction").isNotEmpty());
 
-        assertThat(jdbc.queryForMap("SELECT status, score_after FROM tutor_session_words WHERE session_id = ? AND word_key = 'think'", s.id))
+        assertThat(jdbc.queryForMap("SELECT status, score_after FROM tutor_session_words WHERE session_id = ? AND word = 'think'", s.id))
                 .containsEntry("status", "passed").containsEntry("score_after", new java.math.BigDecimal("90.00"));
-        assertThat(jdbc.queryForObject("SELECT current_word_key FROM tutor_sessions WHERE id = ?", String.class, s.id))
-                .isEqualTo("this");
+        assertThat(jdbc.queryForObject("SELECT current_position FROM tutor_sessions WHERE id = ?", Integer.class, s.id))
+                .isEqualTo(1);
     }
 
     @Test
@@ -291,10 +291,10 @@ class TutorSessionLifecycleIntegrationTest {
                 .andExpect(jsonPath("$.data.outcome").value("completed"));
 
         assertThat(outcome(s)).isEqualTo("completed");
-        assertThat(jdbc.queryForObject("SELECT score FROM sentence_attempts WHERE id = ?", Double.class, s.attempt)).isEqualTo(70.0);
+        assertThat(jdbc.queryForObject("SELECT total_score FROM sentence_attempts WHERE id = ?", Double.class, s.attempt)).isEqualTo(70.0);
         assertThat(count("sentence_attempts WHERE user_id = ?", s.user)).isEqualTo(1); // không tạo Lượt shadowing mới
         // chỉ có 3 năng lượng của chính phiên gia sư; lượt chấm trong phiên không tốn thêm
-        assertThat(used(s.user, "ai_energy")).isEqualTo(3);
+        assertThat(used(s.user)).isEqualTo(3);
     }
 
     @Test
@@ -306,8 +306,8 @@ class TutorSessionLifecycleIntegrationTest {
                 .andExpect(jsonPath("$.code").value("SHADOWING_NO_SPEECH"))
                 .andExpect(jsonPath("$.details.instruction").value(org.hamcrest.Matchers.containsString("không bị tính")));
 
-        assertThat(jdbc.queryForMap("SELECT attempts, total_attempts FROM tutor_session_words WHERE session_id = ?", s.id))
-                .containsEntry("attempts", 0).containsEntry("total_attempts", 0);
+        assertThat(jdbc.queryForMap("SELECT attempts FROM tutor_session_words WHERE session_id = ?", s.id))
+                .containsEntry("attempts", 0);
     }
 
     @Test
@@ -321,7 +321,7 @@ class TutorSessionLifecycleIntegrationTest {
         attempt(s, "word").andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("đã đổi")));
 
-        assertThat(jdbc.queryForObject("SELECT total_attempts FROM tutor_session_words WHERE session_id = ? AND word_key = 'think'",
+        assertThat(jdbc.queryForObject("SELECT attempts FROM tutor_session_words WHERE session_id = ? AND word = 'think'",
                 Integer.class, s.id)).isZero();
     }
 
@@ -451,11 +451,11 @@ class TutorSessionLifecycleIntegrationTest {
     /** Lưu một Lượt shadowing đã chấm rồi tạo phiên qua API (Gemini là bản giả). */
     private S open(UUID user, String text, String ipa, W... words) throws Exception {
         Topic topic = new Topic();
-        topic.setName("tutor topic");
+        topic.setName("tutor topic " + UUID.randomUUID());
         topic = topics.save(topic);
         Lesson lesson = new Lesson();
         lesson.setTopic(topic);
-        lesson.setTitle("tutor lifecycle");
+        lesson.setTitle("tutor lifecycle " + UUID.randomUUID());
         lesson.setOwnerId(com.lingualoop.backend.lesson.LessonFixtures.SYSTEM_TEACHER);
         lesson.setYoutubeId(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 11));
         lesson.setDurationSec(600);
@@ -471,15 +471,15 @@ class TutorSessionLifecycleIntegrationTest {
         sentence.setEndMs(900);
         sentence = sentences.save(sentence);
 
-        long attempt = jdbc.queryForObject("INSERT INTO sentence_attempts (user_id, sentence_id, mode, provider, score, accuracy_score) "
-                + "VALUES (?, ?, 'shadowing', 'azure', 70, 70) RETURNING id", Long.class, user, sentence.getId());
+        long attempt = jdbc.queryForObject("INSERT INTO sentence_attempts (user_id, sentence_id, mode, total_score, accuracy_score) "
+                + "VALUES (?, ?, 'shadowing', 70, 70) RETURNING id", Long.class, user, sentence.getId());
         int pos = 0;
         for (W w : words) {
             long wordId = jdbc.queryForObject("INSERT INTO sentence_attempt_words (attempt_id, position, expected_word, actual_word, "
                     + "outcome, accuracy_score) VALUES (?, ?, ?, ?, ?, ?) RETURNING id", Long.class, attempt, pos++,
                     w.text, w.text, w.accuracy < 60 ? "mispronounced" : "correct", w.accuracy);
             for (int i = 0; i < w.phonemes.length; i += 2) {
-                jdbc.update("INSERT INTO sentence_attempt_phonemes (attempt_word_id, position, phoneme_id, accuracy_score) "
+                jdbc.update("INSERT INTO sentence_attempt_phonemes (attempt_word_id, position, heard_phoneme_id, accuracy_score) "
                         + "VALUES (?, ?, (SELECT id FROM phonemes WHERE symbol = ?), ?)", wordId, i / 2,
                         w.phonemes[i], ((Number) w.phonemes[i + 1]).doubleValue());
             }
@@ -520,9 +520,9 @@ class TutorSessionLifecycleIntegrationTest {
         return jdbc.queryForObject("SELECT outcome FROM tutor_sessions WHERE id = ?", String.class, s.id);
     }
 
-    private int used(UUID user, String feature) {
-        Integer n = jdbc.queryForObject("SELECT coalesce(sum(used), 0) FROM usage_counters WHERE user_id = ? AND feature = ?",
-                Integer.class, user, feature);
+    private int used(UUID user) {
+        Integer n = jdbc.queryForObject("SELECT coalesce(sum(credits_charged), 0) FROM ai_usage_logs WHERE user_id = ? AND status = 'success'",
+                Integer.class, user);
         return n == null ? 0 : n;
     }
 

@@ -25,7 +25,7 @@ class TutorSessionTest {
     }
 
     private static TutorSession session(WordSeed... seeds) {
-        return TutorSession.open(UUID.randomUUID(), 7L, null, "model", T0, List.of(seeds));
+        return TutorSession.open(UUID.randomUUID(), 7L, T0, List.of(seeds));
     }
 
     // --- tạo và vòng đời ---
@@ -92,13 +92,12 @@ class TutorSessionTest {
     }
 
     @Test
-    void chargingNeedsAStartedSession() {
+    void aSessionIsChargedOnlyOnceStarted() {
         TutorSession s = session(seed("think", 40));
 
-        assertThatThrownBy(s::markCharged).isInstanceOf(IllegalStateException.class);
+        assertThat(s.charged()).isFalse();
         s.markStarted(T0);
-        s.markCharged();
-        assertThat(s.isCharged()).isTrue();
+        assertThat(s.charged()).isTrue();
     }
 
     @Test
@@ -121,7 +120,7 @@ class TutorSessionTest {
         TutorSessionWord word = s.switchTo("sing", () -> seed("sing", 90));
 
         assertThat(word.getPosition()).isEqualTo((short) 1);
-        assertThat(s.getCurrentWordKey()).isEqualTo("sing");
+        assertThat(s.getCurrentPosition()).isEqualTo((short) 1);
         assertThat(s.getWords()).hasSize(2);
     }
 
@@ -192,7 +191,7 @@ class TutorSessionTest {
         TutorSessionWord word = s.getWords().get(0);
 
         assertThat(word.best()).isEqualTo(70.0);
-        assertThat(word.getTotalAttempts()).isEqualTo((short) 2);
+        assertThat(word.getAttempts()).isEqualTo((short) 2);
     }
 
     @Test
