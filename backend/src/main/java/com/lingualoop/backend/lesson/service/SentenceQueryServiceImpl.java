@@ -24,7 +24,7 @@ import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 
 import lombok.RequiredArgsConstructor;
 
-/** Hợp đồng đọc bài và câu để luyện (planning/README.md §4), feature dictation/shadowing dùng. */
+/** Hợp đồng đọc bài và câu để luyện, feature dictation/shadowing dùng. */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.lingualoop.backend.subscription.dto.ActiveProOrder;
 
-/** Hợp đồng của feature subscription cho các feature khác (planning/README.md §4). */
+/** Hợp đồng của feature subscription cho các feature khác. */
 public interface SubscriptionQueryService {
 
     /** Người dùng có đang ở gói Pro (có đơn paid còn hạn) hay không. */

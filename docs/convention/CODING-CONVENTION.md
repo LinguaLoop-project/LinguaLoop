@@ -15,7 +15,7 @@
 
 ### 2.1 Cấu trúc package
 
-Chia theo **feature**, trong mỗi feature chia theo **tầng**: `com.lingualoop.backend.<feature>.{controller,service,repository,entity,dto}`. Danh sách feature và người phụ trách xem [planning/cau-truc-du-an.md](../../planning/cau-truc-du-an.md).
+Chia theo **feature**, trong mỗi feature chia theo **tầng**: `com.lingualoop.backend.<feature>.{controller,service,repository,entity,dto}`. Feature đặt theo domain (nhóm bảng), không theo trang hay vai trò: không tạo feature `instructor/`, `admin/`. Danh sách feature, bảng mỗi feature sở hữu và use case tương ứng xem [CAU-TRUC-DU-AN.md](CAU-TRUC-DU-AN.md).
 
 Phần dùng chung ở cấp gốc `backend/src/main/java/com/lingualoop/backend/`:
 
@@ -54,8 +54,21 @@ Quy ước đặt lớp:
 
 Quy tắc phụ thuộc:
 - `controller -> service -> repository`. Controller không được gọi thẳng repository; service không được biết `HttpServletRequest`/`HttpServletResponse`/cookie. Service được nhận DTO `request` và trả DTO `response` hoặc `View`, nhưng không được nhận hay trả entity ra ngoài feature.
-- Feature gọi feature khác **chỉ qua service interface** (danh sách ở mục 4 [planning/README.md](../../planning/README.md)), không import repository hay entity của feature khác.
-- Chỉ chủ sở hữu bảng (mục 3 planning/README.md) được ghi vào bảng đó.
+- Feature gọi feature khác **chỉ qua service interface**, không import repository hay entity của feature khác.
+- Mỗi bảng do một feature ghi; feature khác cần dữ liệu thì gọi qua service interface của feature đó.
+- Feature không sở hữu bảng (`stats`, `ai`) không có `entity/`, `repository/`; chỉ gọi service interface của feature khác.
+
+Tách theo tác nhân trong cùng feature:
+
+| Tác nhân | URL | Controller | Service |
+|---|---|---|---|
+| Học viên | `/api/v1/...` | `XxxController` | `XxxQueryService` (đọc), service nghiệp vụ của học viên |
+| Giáo viên | `/api/v1/teacher/...` | `TeacherXxxController` | `XxxAuthoringService` |
+| Quản trị viên | `/api/v1/admin/...` | `AdminXxxController` | `XxxAdminService` |
+
+- Phân quyền theo tiền tố URL đã cấu hình trong `SecurityConfig`; không đặt endpoint giáo viên hay quản trị viên dưới `/api/v1/` thường.
+- Controller của tác nhân nào chỉ gọi service của tác nhân đó (hoặc service đọc dùng chung). Service ghi của giáo viên không nằm chung class với service của học viên.
+- `entity/`, `repository/` dùng chung giữa các tác nhân; sửa chúng phải qua PR được người phụ trách tác nhân còn lại duyệt.
 
 ### 2.2 Naming
 
@@ -104,6 +117,10 @@ Quy tắc phụ thuộc:
 - Hook tự viết: tiền tố `use` (`useAuth.ts`).
 - Biến/hàm: `camelCase`; type/interface: `PascalCase`.
 - Ưu tiên function component + hooks, không dùng class component.
+- `src/features/<feature>/` dùng cùng tên feature backend (trừ `ai`, `devtools`). Không tạo feature theo tên trang (`mywords`, `today`) hay theo vai trò (`instructor`, `admin`).
+- Trang học viên đặt trong `pages/`; trang giáo viên trong `pages/teacher/`; trang quản trị viên trong `pages/admin/`. Router ở `src/app/routes.tsx` gắn chúng vào layout tương ứng.
+- Feature khác chỉ import qua `index.ts` của feature, không import sâu vào `components/`, `api.ts`.
+- Cây thư mục đầy đủ xem [CAU-TRUC-DU-AN.md](CAU-TRUC-DU-AN.md).
 
 ### 3.2 TypeScript
 

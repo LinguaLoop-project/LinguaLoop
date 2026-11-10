@@ -4,7 +4,7 @@ import SegmentedControl from "@/components/common/SegmentedControl";
 import Icon from "@/components/common/Icon";
 import NotesTab from "../components/NotesTab";
 import ReviewTab from "../components/ReviewTab";
-import { useNoteEntries, useReviewEntries } from "@/features/practice/hooks";
+import { useNoteEntries, useReviewEntries } from "../hooks";
 
 const TABS = ["review", "notes"] as const;
 type Tab = (typeof TABS)[number];
