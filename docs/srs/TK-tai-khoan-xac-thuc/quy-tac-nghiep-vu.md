@@ -5,7 +5,7 @@
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
 | BR-TK-10 | Tài khoản bị quản trị viên khóa không đăng nhập được bằng bất kỳ cách nào (email và mật khẩu, hoặc Google). Yêu cầu quên mật khẩu cho tài khoản này vẫn nhận thông báo chung như mọi email (BR-TK-04) nhưng hệ thống không gửi thư đặt lại, vì thư không giúp đăng nhập được. | UC-TK-02 (6a), UC-TK-03 (6a), UC-TK-06 (Bước 5), AC-TK-15, AC-TK-23, AC-TK-34, AC-TK-07 |
-| BR-TK-12 | Học viên phải hoàn tất thiết lập hồ sơ học tập trước khi dùng các chức năng khác. Quy tắc này chỉ áp dụng cho Học viên, không áp dụng cho Giáo viên và Quản trị viên. | UC-TK-08 (Bước 1), UC-TK-02 (8a), AC-TK-10, AC-TK-46, AC-TK-52, AC-TK-53 |
+| BR-TK-12 | Học viên phải hoàn tất thiết lập hồ sơ học tập trước khi dùng các chức năng khác. Quy tắc này chỉ áp dụng cho Học viên, không áp dụng cho Giáo viên và Quản trị viên. | UC-TK-08 (Bước 1), UC-TK-02 (8a), AC-TK-10, AC-TK-46, AC-TK-52 |
 | BR-TK-15 | Tài khoản tự đăng ký (bằng email hoặc Google) luôn có vai trò Học viên. Vai trò Giáo viên và Quản trị viên do quản trị viên cấp. | UC-TK-01 (Bước 6), UC-TK-03 (5a), AC-TK-01, AC-TK-17 |
 
 ## Dữ liệu hợp lệ
