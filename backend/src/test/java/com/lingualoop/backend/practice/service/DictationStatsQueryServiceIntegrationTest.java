@@ -40,6 +40,28 @@ class DictationStatsQueryServiceIntegrationTest {
         assertThat(counts.get("content")).isEqualTo(new ClassCountsView(2, 2));
     }
 
+    /**
+     * Học viên ở Việt Nam (UTC+7). Mốc là 06:00 sáng ngày D giờ Việt Nam, tức 23:00 UTC ngày D-1: nếu mốc bị đổi sang
+     * ngày theo UTC thì lượt luyện lúc 10:00 ngày D-1 giờ Việt Nam bị tính nhầm vào khoảng thời gian.
+     */
+    @Test
+    void countsByWordClass_usesTheLearnersTimeZoneForTheStartDay() {
+        UUID user = data.newUser();
+        UUID lesson = data.newLesson();
+        java.time.ZoneId vn = java.time.ZoneId.of("Asia/Ho_Chi_Minh");
+        java.time.LocalDate day = java.time.LocalDate.of(2026, 3, 10);
+        Instant since = day.atTime(6, 0).atZone(vn).toInstant();
+        attempt(user, data.newSentence(lesson, 0), "normal", false, false,
+                day.minusDays(1).atTime(10, 0).atZone(vn).toInstant(), "function", 5, 5);
+        attempt(user, data.newSentence(lesson, 1), "normal", false, false,
+                day.atTime(0, 30).atZone(vn).toInstant(), "content", 2, 1);
+
+        var counts = service.countsByWordClass(user, since);
+
+        assertThat(counts).containsOnlyKeys("content");
+        assertThat(counts.get("content")).isEqualTo(new ClassCountsView(2, 1));
+    }
+
     @Test
     void countsByWordClass_ignoresLaterAttemptsOfTheSameSentence() {
         UUID user = data.newUser();
