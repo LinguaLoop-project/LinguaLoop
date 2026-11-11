@@ -44,7 +44,7 @@ foreach ($name in "vocabulary-decks.sql.gz") {
 
 # Kiểm tra: dữ liệu có chữ ngoài ASCII (tiếng Việt, IPA) mà vẫn còn nguyên. Nếu mã hoá hỏng giữa đường thì mọi chữ đó
 # thành "?" và seed vẫn "thành công", nên phải tự kiểm tra thay vì tin vào mã thoát.
-$ok = Invoke-Sql @("-At", "-c", "SELECT count(*) FROM vocab_cards c JOIN vocab_card_phonetics p ON p.card_id = c.id WHERE c.translation_vi ~ '[^\x01-\x7f]' AND p.ipa ~ '[^\x01-\x7f]'")
+$ok = Invoke-Sql @("-At", "-c", "SELECT count(*) FROM vocab_cards WHERE meaning_vi ~ '[^\x01-\x7f]' AND ipa_us ~ '[^\x01-\x7f]'")
 if ([int]($ok | Select-Object -First 1) -le 0) {
     throw "Seed đã nạp nhưng mất hết ký tự ngoài ASCII (tiếng Việt, IPA): bị hỏng mã hoá. Kiểm tra lại cách chạy script."
 }
