@@ -20,6 +20,13 @@
 - [ ] Đã chạy `npx eslint . --max-warnings 0`
 - [ ] Đã kiểm tra giao diện/luồng chính nếu áp dụng
 
+### Kiểm thử và truy vết (theo `docs/convention/TESTING-CONVENTION.md`)
+
+- [ ] Chức năng mới/sửa có test, đặt đúng chỗ và ghi mã AC mới trong tên test
+- [ ] Có ca âm và ca biên cho các AC có điều kiện lỗi hoặc giới hạn
+- [ ] Đã cập nhật cột Test trong `docs/test/traceability/<module>.md` và chạy `python tools/test-report/generate.py sync`
+- [ ] Nếu là sửa lỗi: đã thêm test hồi quy và ghi vào `docs/test/BUG-REGISTER.md`
+
 ### Kiến trúc và dữ liệu
 
 - [ ] Không gọi trực tiếp repository/entity của feature khác; giao tiếp qua service interface theo quy ước dự án
