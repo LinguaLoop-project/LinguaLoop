@@ -12,12 +12,14 @@ import com.lingualoop.backend.common.exception.NotFoundException;
 import com.lingualoop.backend.shadowing.dto.AttemptSnapshot;
 import com.lingualoop.backend.shadowing.service.AttemptSnapshots;
 import com.lingualoop.backend.tutor.dto.TutorDtos;
+import com.lingualoop.backend.tutor.entity.TutorLessonEvent;
 import com.lingualoop.backend.tutor.entity.TutorOffer;
+import com.lingualoop.backend.tutor.repository.TutorLessonEventRepository;
 import com.lingualoop.backend.tutor.repository.TutorOfferRepository;
 
 import lombok.RequiredArgsConstructor;
 
-/** Lời mời gia sư: xét sau một lượt và từ chối (UC-TUTOR-01, 02). */
+/** Lời mời gia sư: xét sau một lượt, từ chối, và ghi sự kiện bật/tắt Chế độ gia sư (UC-TUTOR-01, 02, 09). */
 @Service
 @RequiredArgsConstructor
 public class TutorOfferService {
@@ -26,6 +28,7 @@ public class TutorOfferService {
     private final TutorOfferPolicy policy;
     private final PracticeWordSelector selector;
     private final TutorOfferRepository offers;
+    private final TutorLessonEventRepository lessonEvents;
     private final TransactionTemplate tx;
     private final Clock clock;
 
@@ -54,9 +57,24 @@ public class TutorOfferService {
         return new TutorDtos.OfferResponse(true, decision.reason().name(), saved.getId(), words);
     }
 
-    /** Học viên bấm "Bỏ qua câu này": chỉ kiểm lời mời là của người gọi, schema MVP không ghi lại việc bỏ qua. */
+    /** Học viên bấm "Bỏ qua câu này"; gọi lại không đổi gì. */
     public void decline(UUID userId, Long offerId) {
-        offers.findByIdAndUserId(offerId, userId).orElseThrow(() -> new NotFoundException("Offer not found"));
+        tx.executeWithoutResult(status -> offers.findByIdAndUserId(offerId, userId)
+                .orElseThrow(() -> new NotFoundException("Offer not found"))
+                .decline(clock.instant()));
+    }
+
+    /**
+     * @throws IllegalArgumentException {@code event} không thuộc {@link TutorLessonEvent#EVENTS}
+     * @throws NotFoundException không có bài {@code lessonId}
+     */
+    public void recordLessonEvent(UUID userId, UUID lessonId, String event) {
+        TutorLessonEvent saved = TutorLessonEvent.of(userId, lessonId, event, clock.instant());
+        try {
+            lessonEvents.save(saved);
+        } catch (DataIntegrityViolationException e) {
+            throw new NotFoundException("Lesson not found"); // khoá ngoại tới lessons
+        }
     }
 
     /** Số lượt đã đọc kể từ lượt của lần mời gần nhất trong bài, tính cả lượt hiện tại; null nếu chưa mời lần nào. */

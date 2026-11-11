@@ -30,6 +30,9 @@ public final class TutorDtos {
     public record CreateSessionRequest(@NotNull Long attemptId, Long offerId) {
     }
 
+    public record LessonEventRequest(@NotNull UUID lessonId, @NotBlank String event) {
+    }
+
     public record Limits(int maxSeconds, int wrapUpAtSeconds, int startTimeoutSeconds, int maxAttemptsPerWord,
             int maxSentenceAttempts, int idleAskSeconds, int idleEndSeconds, int offTopicEndStreak) {
 
