@@ -30,10 +30,17 @@ public final class TestData {
                 Timestamp.from(startsAt), Timestamp.from(endsAt));
     }
 
-    /** Đặt ví credit của người dùng (tạo nếu chưa có) với mốc đặt lại ở xa, để không bị nạp lại lúc test. */
+    /**
+     * Nửa đêm kế tiếp theo giờ Việt Nam, đúng mốc đặt lại của ví Free. Không dùng {@code now() + 1 giờ}: trong giờ cuối
+     * của ngày mốc đó vượt qua nửa đêm và dịch vụ coi ví là ví Pro cũ, nạp lại 20 credit.
+     */
+    private static final String NEXT_VN_MIDNIGHT = "((date_trunc('day', now() AT TIME ZONE 'Asia/Ho_Chi_Minh') "
+            + "+ interval '1 day') AT TIME ZONE 'Asia/Ho_Chi_Minh')";
+
+    /** Đặt ví credit của người dùng (tạo nếu chưa có), mốc đặt lại ở nửa đêm kế tiếp nên không bị nạp lại lúc test. */
     public static void setCredits(JdbcTemplate jdbc, UUID userId, int balance) {
         jdbc.update("INSERT INTO ai_wallets (user_id, balance, resets_at, updated_at) "
-                + "VALUES (?, ?, now() + interval '1 hour', now()) "
+                + "VALUES (?, ?, " + NEXT_VN_MIDNIGHT + ", now()) "
                 + "ON CONFLICT (user_id) DO UPDATE SET balance = EXCLUDED.balance, "
                 + "resets_at = EXCLUDED.resets_at, updated_at = now()", userId, balance);
     }
