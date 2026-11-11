@@ -2,6 +2,13 @@ CREATE EXTENSION IF NOT EXISTS citext;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS btree_gist;   -- chống chồng lấn mốc thời gian câu
 
+CREATE FUNCTION set_updated_at() RETURNS trigger AS $$
+BEGIN NEW.updated_at = now(); RETURN NEW; END; $$ LANGUAGE plpgsql;
+
+-- Bảng chỉ thêm: chặn sửa và xóa dòng (nhật ký thao tác).
+CREATE FUNCTION forbid_modification() RETURNS trigger AS $$
+BEGIN RAISE EXCEPTION '% chỉ cho thêm dòng, không cho %', TG_TABLE_NAME, lower(TG_OP); END; $$ LANGUAGE plpgsql;
+
 
 -- =============================================================================
 -- 1. TÀI KHOẢN VÀ XÁC THỰC
@@ -275,7 +282,7 @@ CREATE INDEX ix_vocab_sessions_user ON vocab_sessions(user_id, started_at DESC);
 CREATE TABLE vocab_review_logs (
     id                bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id           uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    card_id           uuid NOT NULL REFERENCES vocab_cards(id) ON DELETE CASCADE,
+    card_id           uuid NOT NULL REFERENCES vocab_cards(id) ON DELETE RESTRICT,   -- thẻ chỉ xóa mềm
     session_id        uuid REFERENCES vocab_sessions(id) ON DELETE SET NULL,
     mode              text NOT NULL CHECK (mode IN ('flashcard','guess','quiz','reverse_quiz')),
     is_correct        boolean NOT NULL,
@@ -293,14 +300,13 @@ CREATE INDEX ix_vrl_card ON vocab_review_logs(card_id);
 -- 7. NGỮ ÂM (dữ liệu tĩnh 44 âm vị giọng Mỹ)
 -- =============================================================================
 
--- Mẹo sửa là MỘT mẹo cho mỗi âm đích, nên gộp vào đây thay cho phoneme_confusions.
+-- Mẹo sửa phát âm tiếng Việt không nằm trong DB mà ở tệp tĩnh resources/pronunciation-tips.json (khóa theo symbol).
 -- Video khẩu hình luôn là nội dung Pro: khóa ở service, không cần cột cờ.
 CREATE TABLE phonemes (
     id              smallint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     symbol          text NOT NULL UNIQUE,
     kind            text NOT NULL CHECK (kind IN ('vowel','diphthong','consonant')),
     example_word    text,
-    tip_vi          text,
     mouth_video_url text
 );
 
@@ -314,10 +320,11 @@ CREATE TABLE phonemes (
 CREATE TABLE sentence_attempts (
     id                 bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id            uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    sentence_id        uuid NOT NULL REFERENCES sentences(id) ON DELETE CASCADE,
+    sentence_id        uuid NOT NULL REFERENCES sentences(id) ON DELETE RESTRICT,   -- câu chỉ xóa mềm; không xóa vật lý làm mất lịch sử
     mode               text NOT NULL CHECK (mode IN ('dictation','shadowing')),
     total_score        numeric(5,2) NOT NULL CHECK (total_score BETWEEN 0 AND 100),
     client_request_id  uuid,                                        -- chống trùng khi gửi lại; NULL với shadowing
+    duration_ms        integer CHECK (duration_ms >= 0),            -- thời gian làm lượt này; tổng thời gian học tính bằng sum
     created_at         timestamptz NOT NULL DEFAULT now(),
     -- chỉ nghe chép:
     level              text CHECK (level IN ('easy','normal','hard')),
@@ -361,12 +368,13 @@ CREATE TABLE sentence_attempt_phonemes (
     id                bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     attempt_word_id   bigint NOT NULL REFERENCES sentence_attempt_words(id) ON DELETE CASCADE,
     position          smallint NOT NULL,
+    azure_symbol      text,                                         -- ký hiệu gốc Azure trả về: hiển thị âm lạ, xử lý lại khi sửa bộ chuyển đổi
     target_phoneme_id smallint REFERENCES phonemes(id),             -- âm đích ghép từ ipa_us của câu
     heard_phoneme_id  smallint REFERENCES phonemes(id),             -- âm Azure nhận ra (đã đổi sang bảng phonemes)
     alt_phoneme_id    smallint REFERENCES phonemes(id),             -- ứng viên khác điểm cao nhất, cho "hay đọc nhầm thành"
     accuracy_score    numeric(5,2) NOT NULL CHECK (accuracy_score BETWEEN 0 AND 100),
     CONSTRAINT uq_attempt_phoneme_pos UNIQUE (attempt_word_id, position),
-    CONSTRAINT chk_phoneme_known CHECK (target_phoneme_id IS NOT NULL OR heard_phoneme_id IS NOT NULL)
+    CONSTRAINT chk_phoneme_known CHECK (num_nonnulls(target_phoneme_id, heard_phoneme_id, azure_symbol) >= 1)
 );
 CREATE INDEX ix_sap_target ON sentence_attempt_phonemes(target_phoneme_id);
 
@@ -433,9 +441,22 @@ CREATE TABLE tutor_offers (
     user_id    uuid   NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     lesson_id  uuid   NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
     attempt_id bigint NOT NULL REFERENCES sentence_attempts(id) ON DELETE CASCADE,
-    created_at timestamptz NOT NULL DEFAULT now()
+    created_at timestamptz NOT NULL DEFAULT now(),
+    accepted_at timestamptz,                                        -- học viên nhận lời mời
+    declined_at timestamptz,                                        -- học viên bấm "Bỏ qua câu này"
+    CONSTRAINT chk_tutor_offer_once CHECK (accepted_at IS NULL OR declined_at IS NULL)
 );
 CREATE INDEX ix_tutor_offers_user_lesson ON tutor_offers(user_id, lesson_id, created_at DESC);
+
+-- Học viên bật hoặc tắt Chế độ gia sư ở đầu bài và giữa bài.
+CREATE TABLE tutor_lesson_events (
+    id         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id    uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    lesson_id  uuid NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    event      text NOT NULL CHECK (event IN ('start_on','start_off','toggle_on','toggle_off')),
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX ix_tutor_lesson_events_user ON tutor_lesson_events(user_id, created_at DESC);
 
 -- Phiên gia sư theo câu, tối đa 10 phút. started_at NULL = gia sư chưa nói câu đầu (chưa trừ credit).
 -- Không lưu nội dung hội thoại, chỉ kết quả từng từ.
@@ -551,17 +572,21 @@ CREATE TABLE pro_orders (
     months            smallint NOT NULL,
     credits_per_month integer  NOT NULL,
     amount_vnd        integer  NOT NULL CHECK (amount_vnd >= 0),
-    status            text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','paid','expired','failed')),
+    status            text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','paid','expired','canceled','failed')),
     vnpay_transaction_no text UNIQUE,                               -- vnp_TransactionNo do VNPay trả về
     vnpay_response_code  text,                                      -- vnp_ResponseCode ('00' = thành công), để tra khi đơn 'failed'
     created_at        timestamptz NOT NULL DEFAULT now(),
     expires_at        timestamptz NOT NULL,                         -- created_at + 15 phút
     paid_at           timestamptz,
+    canceled_at       timestamptz,                                  -- đơn chờ bị thay bằng đơn mới hoặc học viên hủy
     starts_at         timestamptz,
     ends_at           timestamptz,
+    CONSTRAINT chk_order_canceled CHECK ((status = 'canceled') = (canceled_at IS NOT NULL)),
     CONSTRAINT chk_order_paid CHECK ((status = 'paid') = (paid_at IS NOT NULL AND starts_at IS NOT NULL AND ends_at IS NOT NULL))
 );
 CREATE INDEX ix_pro_orders_user ON pro_orders(user_id, created_at DESC);
+-- Mỗi học viên tối đa một đơn đang chờ thanh toán.
+CREATE UNIQUE INDEX uq_pro_orders_one_pending ON pro_orders(user_id) WHERE status = 'pending';
 CREATE INDEX ix_pro_orders_active ON pro_orders(user_id, ends_at) WHERE status = 'paid';
 
 
@@ -598,7 +623,7 @@ CREATE INDEX ix_reports_queue ON content_reports(status, created_at);
 -- Tên đối tượng và tên người thực hiện lưu tại thời điểm ghi để vẫn hiển thị khi đã bị xóa.
 CREATE TABLE audit_logs (
     id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    actor_id    uuid REFERENCES users(id) ON DELETE SET NULL,       -- NULL = "Hệ thống" (tự chuyển báo cáo)
+    actor_id    uuid,                                               -- NULL = "Hệ thống". Không có khóa ngoại: nhật ký chỉ thêm, phải còn nguyên khi tài khoản bị xóa (đã lưu actor_name)
     actor_name  text NOT NULL,
     actor_role  text NOT NULL CHECK (actor_role IN ('student','teacher','admin','system')),
     action      text NOT NULL,                                      -- create, update, delete, publish, unpublish, lock, ...
@@ -612,6 +637,8 @@ CREATE TABLE audit_logs (
 CREATE INDEX ix_audit_time   ON audit_logs(created_at DESC);
 CREATE INDEX ix_audit_target ON audit_logs(target_type, target_id, created_at DESC);
 CREATE INDEX ix_audit_actor  ON audit_logs(actor_id, created_at DESC);
+CREATE TRIGGER trg_audit_logs_append_only BEFORE UPDATE OR DELETE ON audit_logs
+    FOR EACH ROW EXECUTE FUNCTION forbid_modification();
 
 
 -- =============================================================================
@@ -634,19 +661,20 @@ WITH first_attempt AS (
     ORDER BY user_id, sentence_id, created_at
 )
 SELECT f.user_id,
-       (f.created_at AT TIME ZONE 'UTC')::date                      AS day,
+       (f.created_at AT TIME ZONE u.timezone)::date                 AS day,
        w.word_class,
        count(*)                                                     AS total_words,
        count(*) FILTER (WHERE w.outcome IN ('omitted','substituted','misspelled','revealed')) AS wrong_words
 FROM first_attempt f
+JOIN users u ON u.id = f.user_id
 JOIN sentence_attempt_words w ON w.attempt_id = f.id
 WHERE w.word_class IS NOT NULL
-GROUP BY f.user_id, (f.created_at AT TIME ZONE 'UTC')::date, w.word_class;
+GROUP BY f.user_id, (f.created_at AT TIME ZONE u.timezone)::date, w.word_class;
 
 -- Thống kê theo âm vị cho Bản đồ 44 âm vị: lỗi = điểm < 60, hoặc phụ âm nghe ra khác âm đích.
 CREATE VIEW v_user_phoneme_stats AS
 SELECT a.user_id,
-       (a.created_at AT TIME ZONE 'UTC')::date                      AS day,
+       (a.created_at AT TIME ZONE u.timezone)::date                 AS day,
        COALESCE(p.target_phoneme_id, p.heard_phoneme_id)            AS phoneme_id,
        count(*)                                                     AS total,
        count(*) FILTER (WHERE p.accuracy_score < 60
@@ -656,9 +684,10 @@ SELECT a.user_id,
 FROM sentence_attempt_phonemes p
 JOIN sentence_attempt_words w ON w.id = p.attempt_word_id
 JOIN sentence_attempts a      ON a.id = w.attempt_id
+JOIN users u                  ON u.id = a.user_id
 LEFT JOIN phonemes tgt        ON tgt.id = p.target_phoneme_id
 LEFT JOIN phonemes heard      ON heard.id = p.heard_phoneme_id
-GROUP BY a.user_id, (a.created_at AT TIME ZONE 'UTC')::date, COALESCE(p.target_phoneme_id, p.heard_phoneme_id);
+GROUP BY a.user_id, (a.created_at AT TIME ZONE u.timezone)::date, COALESCE(p.target_phoneme_id, p.heard_phoneme_id);
 
 -- Điểm cao nhất, điểm lượt gần nhất, số lượt của từng câu theo chế độ.
 CREATE VIEW v_user_sentence_stats AS
@@ -676,3 +705,25 @@ SELECT l.id AS lesson_id, count(s.id) AS sentence_count
 FROM lessons l
 LEFT JOIN sentences s ON s.lesson_id = l.id AND s.deleted_at IS NULL
 GROUP BY l.id;
+
+
+-- =============================================================================
+-- 14. TRIGGER tự cập nhật updated_at cho mọi bảng có cột này (danh sách bài, bộ sắp theo "cập nhật gần nhất")
+-- =============================================================================
+DO $$
+DECLARE t text;
+BEGIN
+    FOR t IN
+        SELECT c.table_name
+        FROM information_schema.columns c
+        JOIN information_schema.tables tb
+          ON tb.table_schema = c.table_schema AND tb.table_name = c.table_name
+        WHERE c.table_schema = current_schema()
+          AND c.column_name = 'updated_at'
+          AND tb.table_type = 'BASE TABLE'
+    LOOP
+        EXECUTE format(
+            'CREATE TRIGGER trg_%1$s_updated_at BEFORE UPDATE ON %1$I
+             FOR EACH ROW EXECUTE FUNCTION set_updated_at()', t);
+    END LOOP;
+END $$;
