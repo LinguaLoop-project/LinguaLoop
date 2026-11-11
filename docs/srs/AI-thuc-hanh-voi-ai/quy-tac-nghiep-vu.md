@@ -5,7 +5,6 @@
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
 | BR-AI-01 | Chức năng Thực hành với AI, Trò chuyện với AI theo câu và Nhận xét AI cho lượt đọc chỉ mở cho các bài học đã xuất bản và chưa bị xóa. Đối với bài học gắn nhãn Pro, quyền truy cập áp dụng theo BR-PR-13 (học viên gói Free bị hệ thống từ chối và mời nâng cấp). | UC-AI-01 (2a), AC-AI-01, AC-AI-09 |
-| BR-AI-02 | Học viên phải xác nhận đồng ý cho phép xử lý dữ liệu bằng AI trước khi hệ thống khởi tạo cuộc trò chuyện Thực hành với AI (UC-AI-01), mở Phiên gia sư theo câu (UC-AI-02), tạo Nhận xét AI cho lượt đọc (UC-AI-03) hoặc gửi bản ghi âm đi chấm phát âm (BR-SH-04). | UC-AI-01 (2a), UC-AI-02, UC-AI-03 (2b), AC-AI-01, AC-AI-09, AC-AI-26 |
 | BR-AI-03 | Học viên chỉ được xem và thao tác trên các cuộc trò chuyện, phiên gia sư, nhận xét AI và lịch sử hội thoại của chính mình; mọi yêu cầu truy cập vào dữ liệu AI hoặc lượt đọc của học viên khác đều bị hệ thống từ chối và báo không tìm thấy. | UC-AI-01 (1a), UC-AI-02, UC-AI-03 (2b), AC-AI-06, AC-AI-21, AC-AI-26 |
 
 ## Trạng thái
