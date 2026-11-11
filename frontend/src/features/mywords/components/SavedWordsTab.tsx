@@ -63,17 +63,16 @@ function WordRow({ item, selected, onToggle, onUnsave, busy }: WordRowProps) {
       <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-2">
           <b className="text-[17px]">{item.headword}</b>
-          {item.cefrLevel && <Badge variant={item.cefrLevel}>{item.cefrLevel}</Badge>}
           {item.ipaUs && <span className="text-sm text-text-muted">{item.ipaUs}</span>}
           {item.pos && <span className="text-xs font-semibold text-text-subtle">{item.pos}</span>}
         </div>
-        {item.translationVi && <span>{item.translationVi}</span>}
+        {item.meaningVi && <span>{item.meaningVi}</span>}
         {item.source === "lesson" && item.contextEn && (
           <q className="text-[13px] italic text-text-muted">{item.contextEn}</q>
         )}
         <span className="inline-flex flex-wrap items-center gap-1 text-[13px] text-text-muted">
           {item.lesson ? (
-            <Link to={`/student/lessons/${item.lesson.slug}`} className="inline-flex items-center gap-1 hover:text-text">
+            <Link to={`/student/lessons/${item.lesson.lessonId}`} className="inline-flex items-center gap-1 hover:text-text">
               <Icon name="play" className="h-3.5 w-3.5" />
               {t("words.fromLesson", { title: item.lesson.title })}
             </Link>

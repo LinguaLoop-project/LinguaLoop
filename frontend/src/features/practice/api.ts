@@ -5,11 +5,11 @@ const REQUEST_TIMEOUT_MS = 15_000;
 
 /** Câu cần ôn và ghi chú, dùng chung cho nghe chép, Shadowing và trang Từ & câu đã lưu. */
 export const practiceApi = {
-  /** Câu đang cần ôn, điểm lượt gần nhất thấp trước. Bỏ `mode` để lấy cả hai chế độ; `lessonSlug` để chỉ lấy một bài. */
-  listReview: async (mode?: PracticeMode, lessonSlug?: string): Promise<ReviewSentence[]> => {
+  /** Câu đang cần ôn, điểm lượt gần nhất thấp trước. Bỏ `mode` để lấy cả hai chế độ; `lessonId` để chỉ lấy một bài. */
+  listReview: async (mode?: PracticeMode, lessonId?: string): Promise<ReviewSentence[]> => {
     const response = await axiosClient.get<ApiResponse<ReviewSentence[]>>(
       mode ? `/review/${mode}/sentences` : "/review/sentences",
-      { params: lessonSlug ? { lessonSlug } : undefined, timeout: REQUEST_TIMEOUT_MS },
+      { params: lessonId ? { lessonId } : undefined, timeout: REQUEST_TIMEOUT_MS },
     );
     return response.data.data;
   },
@@ -31,12 +31,12 @@ export const practiceApi = {
   },
 
   /**
-   * Ghi chú của người học, mới sửa trước; truyền `lessonSlug` để chỉ lấy ghi chú của một bài và `mode` để chỉ lấy một
+   * Ghi chú của người học, mới sửa trước; truyền `lessonId` để chỉ lấy ghi chú của một bài và `mode` để chỉ lấy một
    * chế độ.
    */
-  listNotes: async (lessonSlug?: string, mode?: PracticeMode): Promise<NoteEntry[]> => {
+  listNotes: async (lessonId?: string, mode?: PracticeMode): Promise<NoteEntry[]> => {
     const response = await axiosClient.get<ApiResponse<NoteEntry[]>>("/notes", {
-      params: { ...(lessonSlug ? { lessonSlug } : {}), ...(mode ? { mode } : {}) },
+      params: { ...(lessonId ? { lessonId } : {}), ...(mode ? { mode } : {}) },
       timeout: REQUEST_TIMEOUT_MS,
     });
     return response.data.data;

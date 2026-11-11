@@ -59,7 +59,7 @@ export default function ShadowingTools({ sentence, pinned, note, panel, onPanelC
       {panel === "note" && (
         <NotePanel key={sentence.id} sentenceId={sentence.id} note={note} save={saveNote} remove={deleteNote} />
       )}
-      {panel === "history" && <HistoryPanel key={sentence.id} sentenceId={sentence.id} sentenceText={sentence.text} />}
+      {panel === "history" && <HistoryPanel key={sentence.id} sentenceId={sentence.id} sentenceText={sentence.textEn} />}
     </div>
   );
 }

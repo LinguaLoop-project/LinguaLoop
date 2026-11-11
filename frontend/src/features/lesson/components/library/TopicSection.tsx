@@ -17,14 +17,14 @@ export default function TopicSection({ row, mode = "all" }: { row: TopicRow; mod
   const { topic } = row;
 
   return (
-    <div id={`topic-sec-${topic.slug}`} className="scroll-mt-[140px]">
+    <div id={`topic-sec-${topic.id}`} className="scroll-mt-[140px]">
       <SectionHeading
-        icon={topic.icon}
+        icon={null}
         fallbackIcon="library"
         title={localizedName(i18n.language === "en", topic)}
         count={t("student.lessons.topicSec.count", { count: row.totalLessons, defaultValue: `${row.totalLessons} bài` })}
         aside={
-          <Button variant="ghost" size="sm" data-go="topic" onClick={() => navigate(`/student/topics/${topic.slug}`)}>
+          <Button variant="ghost" size="sm" data-go="topic" onClick={() => navigate(`/student/topics/${topic.id}`)}>
             {t("student.lessons.topicSec.viewAll", "Xem tất cả")}
             <Icon name="arrow-right" className="transition-transform duration-150 group-hover:translate-x-0.5" />
           </Button>

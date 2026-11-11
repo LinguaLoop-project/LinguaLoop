@@ -1,6 +1,6 @@
 // Kiểu dữ liệu khớp DTO của backend (PR1a). Xem docs/convention/API-CONVENTION.md §4–5.
 
-export type Role = "student" | "instructor" | "admin";
+export type Role = "student" | "teacher" | "admin";
 
 /** `GET /users/me` và trường `user` trong `AuthResponse`. */
 export type MeResponse = {

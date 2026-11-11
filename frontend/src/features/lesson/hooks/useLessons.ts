@@ -14,8 +14,8 @@ export const useLessonOverview = () => {
 
 export const useLessonSearch = (params: {
   q?: string;
-  topic?: string;
-  difficulty?: string;
+  topicId?: string;
+  cefrLevel?: string;
   free?: boolean;
   state?: LessonState;
   page?: number;

@@ -47,7 +47,7 @@ function ReviewRow({ item }: { item: ReviewSentence }) {
               {t(`dictation:level.${item.lastLevel}`)}
             </span>
           )}
-          <Link to={`/student/lessons/${item.lessonSlug}`} className="inline-flex items-center gap-1 text-text-muted hover:text-text">
+          <Link to={`/student/lessons/${item.lessonId}`} className="inline-flex items-center gap-1 text-text-muted hover:text-text">
             <Icon name="play" className="h-3.5 w-3.5" />
             {item.lessonTitle}
           </Link>
@@ -63,8 +63,8 @@ function ReviewRow({ item }: { item: ReviewSentence }) {
         <Button size="sm" onClick={() =>
             navigate(
               item.mode === "shadowing"
-                ? shadowingUrl(item.lessonSlug, item.sentenceId)
-                : practiceUrl(item.lessonSlug, item.sentenceId, { redo: true }),
+                ? shadowingUrl(item.lessonId, item.sentenceId)
+                : practiceUrl(item.lessonId, item.sentenceId, { redo: true }),
             )
           }>
           {t("review.practice")}

@@ -31,11 +31,6 @@ function DeckThumb({ deck }: { deck: DeckSummary }) {
             {t("deck.pro")}
           </Badge>
         )}
-        {deck.cefrLevel && (
-          <Badge variant={deck.cefrLevel} solid>
-            {deck.cefrLevel}
-          </Badge>
-        )}
       </span>
     </div>
   );
@@ -46,19 +41,19 @@ function DeckThumb({ deck }: { deck: DeckSummary }) {
  * chuột giống thẻ bài học (`LessonCard`); cả thẻ bấm được.
  */
 export default function DeckCard({ deck }: { deck: DeckSummary }) {
-  const { t, i18n } = useTranslation("vocab");
+  const { t } = useTranslation("vocab");
   const navigate = useNavigate();
   const started = isStarted(deck);
   const learned = learnedCount(deck.progress);
-  const subtitle = i18n.language.startsWith("vi") ? deck.nameVi : null;
-  const href = deckUrl(deck.slug);
+  const subtitle: string | null = null;
+  const href = deckUrl(deck.id);
 
   return (
     <article
       className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-card)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--primary)_65%,var(--border))] hover:shadow-[0_20px_45px_-15px_rgba(0,0,0,0.5),0_0_30px_color-mix(in_srgb,var(--primary)_40%,transparent),0_0_70px_color-mix(in_srgb,var(--primary)_25%,transparent)] focus-visible:outline-2 focus-visible:outline-primary"
       tabIndex={0}
       aria-label={deck.name}
-      data-deck={deck.slug}
+      data-deck={deck.id}
       onClick={() => navigate(href)}
       onKeyDown={(e) => {
         if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {

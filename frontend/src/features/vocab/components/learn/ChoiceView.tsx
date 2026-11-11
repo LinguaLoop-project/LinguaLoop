@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import { buildOptions } from "../../learn";
 import type { LearnMode } from "../../types";
-import { CardImage, Feedback, ListenButton, RoundProgress, type CardViewProps } from "./shared";
+import { Feedback, ListenButton, RoundProgress, type CardViewProps } from "./shared";
 import { speak, useCardClock, useKeys } from "./learnHooks";
 
 /**
@@ -46,13 +46,12 @@ export default function ChoiceView({
     <div>
       <RoundProgress done={done} total={total} label={t("learn.progress", { current: done + 1, total })} />
       <div className="flex items-center gap-6 rounded-lg border border-border bg-surface p-6 shadow-[var(--shadow-card)]">
-        {!reverse && <CardImage card={card} className="hidden h-24 w-24 flex-none sm:block" />}
         <div className="min-w-0 flex-1">
           <div className="text-xs font-bold uppercase tracking-wider text-text-muted">
             {reverse ? t("learn.quiz.pickWord") : t("learn.quiz.pickMeaning")}
           </div>
           {reverse ? (
-            <h2 className="mt-2 text-3xl font-bold">{card.translationVi}</h2>
+            <h2 className="mt-2 text-3xl font-bold">{card.meaningVi}</h2>
           ) : (
             <>
               <h2 lang="en" className="mt-2 text-3xl font-bold">{card.word}</h2>

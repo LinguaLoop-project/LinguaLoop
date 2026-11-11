@@ -64,7 +64,7 @@ export interface ChoiceOption {
 
 /** Chữ hiện trên đáp án: nghĩa tiếng Việt (Trắc nghiệm) hoặc từ tiếng Anh (Trắc nghiệm đảo). */
 export const choiceLabel = (card: LearnCard, mode: Extract<LearnMode, "quiz" | "reverse_quiz">) =>
-  (mode === "quiz" ? card.translationVi : card.word)?.trim() ?? "";
+  (mode === "quiz" ? card.meaningVi : card.word)?.trim() ?? "";
 
 function shuffle<T>(items: T[], random: () => number): T[] {
   const result = [...items];

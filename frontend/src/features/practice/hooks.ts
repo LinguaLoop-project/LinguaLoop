@@ -5,8 +5,8 @@ import type { PracticeMode, ReviewReason } from "./types";
 const NETWORK_MODE = "always" as const;
 
 export const practiceKeys = {
-  review: (mode?: PracticeMode, lessonSlug?: string) => ["practice", "review", mode ?? "all", lessonSlug ?? "all"] as const,
-  notes: (lessonSlug?: string, mode?: PracticeMode) => ["practice", "notes", lessonSlug ?? "all", mode ?? "all"] as const,
+  review: (mode?: PracticeMode, lessonId?: string) => ["practice", "review", mode ?? "all", lessonId ?? "all"] as const,
+  notes: (lessonId?: string, mode?: PracticeMode) => ["practice", "notes", lessonId ?? "all", mode ?? "all"] as const,
 };
 
 /**
@@ -19,20 +19,20 @@ export const refreshPractice = (queryClient: QueryClient) =>
     queryClient.invalidateQueries({ queryKey: ["dictation", "lesson"] }),
   ]);
 
-/** Câu đang cần ôn; bỏ `mode` để lấy cả hai chế độ, `lessonSlug` để chỉ lấy một bài. */
-export const useReviewEntries = (mode?: PracticeMode, lessonSlug?: string, enabled = true) =>
+/** Câu đang cần ôn; bỏ `mode` để lấy cả hai chế độ, `lessonId` để chỉ lấy một bài. */
+export const useReviewEntries = (mode?: PracticeMode, lessonId?: string, enabled = true) =>
   useQuery({
-    queryKey: practiceKeys.review(mode, lessonSlug),
-    queryFn: () => practiceApi.listReview(mode, lessonSlug),
+    queryKey: practiceKeys.review(mode, lessonId),
+    queryFn: () => practiceApi.listReview(mode, lessonId),
     enabled,
     networkMode: NETWORK_MODE,
   });
 
-/** Ghi chú của người học; bỏ `mode` để lấy cả hai chế độ, `lessonSlug` để chỉ lấy một bài. */
-export const useNoteEntries = (lessonSlug?: string, enabled = true, mode?: PracticeMode) =>
+/** Ghi chú của người học; bỏ `mode` để lấy cả hai chế độ, `lessonId` để chỉ lấy một bài. */
+export const useNoteEntries = (lessonId?: string, enabled = true, mode?: PracticeMode) =>
   useQuery({
-    queryKey: practiceKeys.notes(lessonSlug, mode),
-    queryFn: () => practiceApi.listNotes(lessonSlug, mode),
+    queryKey: practiceKeys.notes(lessonId, mode),
+    queryFn: () => practiceApi.listNotes(lessonId, mode),
     enabled,
     networkMode: NETWORK_MODE,
   });

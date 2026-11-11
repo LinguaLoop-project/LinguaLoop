@@ -6,7 +6,6 @@ import Button from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
 import Icon from "@/components/common/Icon";
 import { WordSourceProvider } from "@/features/dictionary";
-import { getYouTubeVideoId } from "@/lib/format";
 import { toast } from "@/stores/toastStore";
 import ClozeInput from "../components/ClozeInput";
 import CompletionScreen from "../components/CompletionScreen";
@@ -87,8 +86,8 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
 
   const [settings, updateSettings] = useDictationSettings();
   const online = useOnlineStatus();
-  const submitAttempt = useSubmitAttempt(lesson.slug);
-  const setReview = useSetReview(lesson.slug);
+  const submitAttempt = useSubmitAttempt(lesson.id);
+  const setReview = useSetReview(lesson.id);
   const revealWord = useRevealWord();
 
   const [searchParams] = useSearchParams();
@@ -126,10 +125,10 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   /** Hàm xử lý khi người học tự tua hoặc tự phát bằng thanh YouTube; cập nhật mỗi lần vẽ để dùng state mới nhất. */
   const followRef = useRef<(ms: number) => void>(() => undefined);
 
-  const videoId = getYouTubeVideoId(lesson.sourceUrl);
+  const videoId = lesson.youtubeId;
   const player = usePlayer({
     videoId,
-    mediaUrl: videoId ? null : lesson.sourceUrl || null,
+    mediaUrl: null,
     containerRef: videoRef,
     rate: settings.rate,
     onSeek: (ms) => followRef.current(ms),
@@ -250,6 +249,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
           replayCount: replays,
           durationMs: Math.min(elapsed, MAX_DURATION_MS),
           retry: redo.has(sentence.id),
+          clientRequestId: crypto.randomUUID(),
           ...extra,
         },
       },
@@ -414,14 +414,14 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
       <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-2">
           <Link
-            to={`/student/lessons/${lesson.slug}`}
+            to={`/student/lessons/${lesson.id}`}
             className="mb-1 inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary-text"
           >
             <Icon name="arrow-left" />
             <span className="truncate">{t("backTo", { title: lesson.title })}</span>
           </Link>
           <div className="text-xs font-semibold uppercase tracking-wider text-fn-dictation">
-            {lesson.difficulty ? t("overlineWithLevel", { cefr: lesson.difficulty }) : t("overline")}
+            {lesson.cefrLevel ? t("overlineWithLevel", { cefr: lesson.cefrLevel }) : t("overline")}
           </div>
           <h1 className="font-display text-3xl font-bold">{t("title")}</h1>
         </div>
@@ -563,7 +563,7 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
               )}
               {sentence.latest && (
                 <SentenceTools
-                  slug={lesson.slug}
+                  slug={lesson.id}
                   sentence={sentence}
                   panel={panel}
                   onPanelChange={setPanel}
@@ -580,9 +580,9 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
   );
 }
 
-/** Trang `/student/dictation/:slug`. Mỗi bài có state riêng nên đặt `key` theo slug. */
+/** Trang `/student/dictation/:id`. Mỗi bài có state riêng nên đặt `key` theo id bài. */
 export default function DictationPage() {
-  const { slug = "" } = useParams<{ slug: string }>();
+  const { id: slug = "" } = useParams<{ id: string }>();
   return <DictationSession key={slug} slug={slug} />;
 }
 
@@ -608,7 +608,7 @@ function DictationSession({ slug }: { slug: string }) {
         title={t("state.emptyTitle")}
         description={t("state.emptyDesc")}
         actionText={t("backToLesson")}
-        onAction={() => navigate(`/student/lessons/${lesson.slug}`)}
+        onAction={() => navigate(`/student/lessons/${lesson.id}`)}
       />
     );
   }

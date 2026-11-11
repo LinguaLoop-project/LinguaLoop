@@ -30,7 +30,7 @@ export default function WordsList({ cards, round, onBack }: { cards: LearnCard[]
                 <b lang="en">{card.word}</b>
                 {card.ipaUs && <div className="text-xs text-text-muted">{card.ipaUs}</div>}
               </td>
-              <td className="py-2 pr-3 text-sm">{card.translationVi}</td>
+              <td className="py-2 pr-3 text-sm">{card.meaningVi}</td>
               <td className="py-1 text-right">
                 <ListenButton card={card} label={t("learn.words.listen", { word: card.word })} />
               </td>

@@ -8,23 +8,24 @@ export interface ApiResponse<T> {
 /** Trạng thái thẻ của người học (BR-HT-08). */
 export type CardStatus = "new" | "learning" | "reviewing" | "mastered";
 
-export type SavedWordSource = "dictionary" | "lesson" | "manual";
+export type SavedWordSource = "dictionary" | "lesson";
 
 export interface SavedWordLesson {
-  slug: string;
+  lessonId: string;
   title: string;
   /** Câu trong bài mà từ được bấm lưu. */
   sentenceId: string;
 }
 
-/** Một nghĩa của một mục từ đã lưu, kèm trạng thái ôn của thẻ tương ứng. */
+/** Một nghĩa của một mục từ đã lưu, kèm trạng thái ôn của thẻ tương ứng; `id` là id thẻ. */
 export interface SavedWord {
   id: string;
   headword: string;
-  cefrLevel: string | null;
   pos: string | null;
   meaningNo: number | null;
-  translationVi: string | null;
+  meaningVi: string | null;
+  definitionEn: string | null;
+  definitionVi: string | null;
   exampleEn: string | null;
   exampleVi: string | null;
   ipaUk: string | null;
@@ -55,18 +56,14 @@ export interface DeckProgress {
 
 /** Danh mục chứa bộ: Oxford, TOEIC, IELTS ... (`DeckView.Category`). */
 export interface DeckCategory {
-  slug: string;
+  id: string;
   name: string;
-  nameVi: string | null;
 }
 
 /** Một bộ từ hệ thống kèm tiến độ của người học (`DeckView.Summary`). */
 export interface DeckSummary {
   id: string;
-  slug: string;
   name: string;
-  nameVi: string | null;
-  cefrLevel: string | null;
   pro: boolean;
   /** Ảnh bìa bộ; null khi bộ chưa có ảnh. */
   thumbnailUrl: string | null;
@@ -95,18 +92,17 @@ export interface DeckList {
 export interface DeckPart {
   index: number;
   name: string;
-  nameVi: string | null;
   cardCount: number;
   /** Số thẻ đã học (không còn Mới). */
   studiedCount: number;
-  /** Bộ Pro và người học dùng gói Free ở phần từ thứ ba trở đi. */
+  /** Bộ Pro và người học dùng gói Free. */
   locked: boolean;
 }
 
 export interface DeckSampleWord {
   word: string;
   pos: string | null;
-  translationVi: string | null;
+  meaningVi: string | null;
   ipaUk: string | null;
   ipaUs: string | null;
   audioUs: string | null;
@@ -132,12 +128,11 @@ export interface LearnCard {
   id: string;
   word: string;
   pos: string | null;
-  translationVi: string | null;
-  explanationEn: string | null;
-  explanationVi: string | null;
+  meaningVi: string | null;
+  definitionEn: string | null;
+  definitionVi: string | null;
   exampleEn: string | null;
   exampleVi: string | null;
-  imageUrl: string | null;
   ipaUk: string | null;
   ipaUs: string | null;
   audioUk: string | null;
@@ -148,13 +143,12 @@ export interface LearnCard {
   contextEn: string | null;
   contextVi: string | null;
   /** Bài học nguồn; null nếu thẻ không lưu từ bài học hoặc bài đó không còn xem được. */
-  lesson: { slug: string; title: string } | null;
+  lesson: { id: string; title: string } | null;
 }
 
 export interface LearnDeckRef {
-  slug: string;
+  id: string;
   name: string;
-  nameVi: string | null;
   pro: boolean;
 }
 
@@ -163,7 +157,6 @@ export interface PartDetail {
   deck: LearnDeckRef;
   index: number;
   name: string;
-  nameVi: string | null;
   parts: DeckPart[];
   cards: LearnCard[];
 }

@@ -30,13 +30,12 @@ const SIDE_WINDOW = 12;
 
 /** Danh sách phần của bộ ở bên cạnh: phần đang học, phần đã xong, phần bị khoá. */
 function PartsNav({ detail }: { detail: PartDetail }) {
-  const { t, i18n } = useTranslation("vocab");
+  const { t } = useTranslation("vocab");
   const openUpgrade = useQuotaStore((s) => s.setShowUpgradeModal);
   const next = nextPartIndex(detail.parts);
   const shown = visibleParts(detail.parts, detail.index, false, SIDE_WINDOW);
-  const vi = i18n.language.startsWith("vi");
 
-  const label = (part: DeckPart) => (vi ? part.nameVi : null) ?? part.name;
+  const label = (part: DeckPart) => part.name;
 
   return (
     <nav aria-label={t("learn.partsNav")} className="flex flex-col gap-0.5">
@@ -68,7 +67,7 @@ function PartsNav({ detail }: { detail: PartDetail }) {
             {content}
           </button>
         ) : (
-          <Link key={part.index} to={partUrl(detail.deck.slug, part.index)} className={className} aria-current={current ? "page" : undefined}>
+          <Link key={part.index} to={partUrl(detail.deck.id, part.index)} className={className} aria-current={current ? "page" : undefined}>
             {content}
           </Link>
         );
@@ -111,7 +110,7 @@ function Locked({ slug }: { slug: string }) {
 
 /** Trang `/student/vocab/:deckId/parts/:part` (UC-HT-02): học từ mới một phần bằng một trong năm cách học. */
 export default function PartPage() {
-  const { t, i18n } = useTranslation("vocab");
+  const { t } = useTranslation("vocab");
   const params = useParams();
   const slug = params.deckId;
   const partNumber = Number(params.part);
@@ -174,11 +173,10 @@ export default function PartPage() {
   }
 
   const detail = query.data;
-  const vi = i18n.language.startsWith("vi");
-  const partName = (vi ? detail.nameVi : null) ?? detail.name;
-  const deckName = (vi ? detail.deck.nameVi : null) ?? detail.deck.name;
+  const partName = detail.name;
+  const deckName = detail.deck.name;
   const upcoming = detail.parts[detail.index + 1];
-  const nextPartHref = upcoming && !upcoming.locked ? partUrl(detail.deck.slug, upcoming.index) : null;
+  const nextPartHref = upcoming && !upcoming.locked ? partUrl(detail.deck.id, upcoming.index) : null;
 
   return (
     <section className="w-full" id="v-part">
@@ -215,7 +213,7 @@ export default function PartPage() {
               cards={detail.cards}
               partNumber={detail.index + 1}
               nextPartHref={nextPartHref}
-              deckHref={deckUrl(detail.deck.slug)}
+              deckHref={deckUrl(detail.deck.id)}
               onAnswer={submit}
             />
           )}

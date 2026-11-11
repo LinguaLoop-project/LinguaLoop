@@ -1,4 +1,4 @@
-import type { FeatureUsage } from "@/features/subscription/types";
+import type { CreditBalance } from "@/features/subscription/types";
 
 /** Khớp với DTO backend (feature shadowing). Đổi DTO thì đổi cả file này. */
 
@@ -95,5 +95,6 @@ export interface AiFeedback {
   content: string;
   createdAt: string;
   cached: boolean;
-  usage: FeatureUsage;
+  /** Số dư sau lượt này; trống khi server không đọc được ví. */
+  credit: CreditBalance | null;
 }

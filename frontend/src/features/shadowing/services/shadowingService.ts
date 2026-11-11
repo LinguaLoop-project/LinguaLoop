@@ -89,9 +89,9 @@ export const shadowingService = {
     return response.data.data;
   },
 
-  getLatest: async (lessonSlug: string): Promise<LatestAttempt[]> => {
+  getLatest: async (lessonId: string): Promise<LatestAttempt[]> => {
     const response = await axiosClient.get<ApiResponse<LatestAttempt[]>>(
-      `/lessons/${lessonSlug}/shadowing-attempts/latest`,
+      `/lessons/${lessonId}/shadowing-attempts/latest`,
     );
     return response.data.data;
   },

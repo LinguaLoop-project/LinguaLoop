@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Skeleton from "@/components/common/Skeleton";
 import {
@@ -27,7 +26,6 @@ function Compact({ view, accent }: { view: WordView; accent: IpaAccent }) {
     <div className="flex flex-col gap-2.5">
       <div className="flex flex-wrap items-center gap-2">
         <PronunciationButtons headword={view.headword} pronunciation={mainPronunciation(view)} firstAccent={accent} />
-        {view.cefrLevel && <Badge variant={view.cefrLevel}>{view.cefrLevel}</Badge>}
       </div>
       {lemma && (
         <p className="text-[13px] text-text-muted">

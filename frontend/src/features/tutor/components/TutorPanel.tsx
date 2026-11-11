@@ -19,7 +19,7 @@ export interface TutorPanelProps {
   attemptId: number;
   sentence: string;
   /** Mã lời mời học viên đã nhận; null khi tự bấm "Hỏi gia sư". */
-  offerId: string | null;
+  offerId: number | null;
   /** Vào phiên ngay khi hiện (sau đếm ngược 3 giây hoặc "Hỏi gia sư"), không chờ bấm. */
   autoStart?: boolean;
   isPro: boolean;

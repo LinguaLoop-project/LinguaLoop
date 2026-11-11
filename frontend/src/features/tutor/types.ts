@@ -86,11 +86,11 @@ export type OfferResult = {
   offer: boolean;
   /** Lý do viết hoa, ví dụ LOW_WORD_SCORE, COOLDOWN. */
   reason: string;
-  offerId?: string;
+  offerId?: number;
   words?: PracticeWord[];
 };
 
-export type LessonEvent = "start_on" | "start_off" | "toggle_on" | "toggle_off";
+
 
 /** Một lượt hội thoại hiện trên màn hình; không lưu và không gửi lên server (BR-TUTOR-09). */
 export type TutorTurn = {

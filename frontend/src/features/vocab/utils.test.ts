@@ -23,10 +23,11 @@ import {
 const word = (over: Partial<SavedWord>): SavedWord => ({
   id: "id",
   headword: "word",
-  cefrLevel: "B1",
   pos: "noun",
   meaningNo: 1,
-  translationVi: "từ",
+  meaningVi: "từ",
+  definitionEn: null,
+  definitionVi: null,
   exampleEn: null,
   exampleVi: null,
   ipaUk: null,
@@ -44,9 +45,9 @@ const word = (over: Partial<SavedWord>): SavedWord => ({
   ...over,
 });
 
-const latte = word({ id: "1", headword: "latte", translationVi: "cà phê latte", source: "lesson", status: "new", due: true });
-const borrow = word({ id: "2", headword: "borrow", translationVi: "mượn", status: "mastered", due: false });
-const present = word({ id: "3", headword: "present", translationVi: "có mặt", status: "reviewing", due: false });
+const latte = word({ id: "1", headword: "latte", meaningVi: "cà phê latte", source: "lesson", status: "new", due: true });
+const borrow = word({ id: "2", headword: "borrow", meaningVi: "mượn", status: "mastered", due: false });
+const present = word({ id: "3", headword: "present", meaningVi: "có mặt", status: "reviewing", due: false });
 const items = [latte, borrow, present];
 
 describe("findSaved", () => {
@@ -98,7 +99,6 @@ describe("savedWordStats", () => {
 const part = (over: Partial<DeckPart>): DeckPart => ({
   index: 0,
   name: "Part 1",
-  nameVi: "Phần 1",
   cardCount: 20,
   studiedCount: 0,
   locked: false,
@@ -138,10 +138,7 @@ describe("partState", () => {
 describe("tiến độ bộ", () => {
   const deck: DeckSummary = {
     id: "d",
-    slug: "oxford-a1",
     name: "Oxford A1",
-    nameVi: null,
-    cefrLevel: "A1",
     pro: false,
     thumbnailUrl: null,
     category: null,
@@ -173,10 +170,7 @@ describe("tiến độ bộ", () => {
 describe("groupByCategory", () => {
   const base: DeckSummary = {
     id: "d",
-    slug: "x",
     name: "X",
-    nameVi: null,
-    cefrLevel: null,
     pro: false,
     thumbnailUrl: null,
     category: null,
@@ -185,21 +179,21 @@ describe("groupByCategory", () => {
     progress: { mastered: 0, reviewing: 0, learning: 0, newCount: 1 },
     dueCount: 0,
   };
-  const deck = (slug: string, category: string | null): DeckSummary => ({
+  const deck = (id: string, category: string | null): DeckSummary => ({
     ...base,
-    slug,
-    category: category ? { slug: category, name: category, nameVi: null } : null,
+    id,
+    category: category ? { id: category, name: category } : null,
   });
 
   it("gom bộ theo danh mục, giữ thứ tự xuất hiện", () => {
     const groups = groupByCategory([deck("a", "oxford"), deck("b", "toeic"), deck("c", "oxford")]);
-    expect(groups.map((g) => g.category?.slug)).toEqual(["oxford", "toeic"]);
-    expect(groups[0].decks.map((d) => d.slug)).toEqual(["a", "c"]);
+    expect(groups.map((g) => g.category?.id)).toEqual(["oxford", "toeic"]);
+    expect(groups[0].decks.map((d) => d.id)).toEqual(["a", "c"]);
   });
 
   it("bộ không có danh mục xếp cuối", () => {
     const groups = groupByCategory([deck("a", null), deck("b", "oxford")]);
-    expect(groups.map((g) => g.category?.slug ?? null)).toEqual(["oxford", null]);
+    expect(groups.map((g) => g.category?.id ?? null)).toEqual(["oxford", null]);
   });
 
   it("không có bộ thì không có nhóm", () => {
@@ -208,26 +202,21 @@ describe("groupByCategory", () => {
 });
 
 describe("filterDecks", () => {
-  const make = (slug: string, name: string, over: Partial<DeckSummary> = {}): DeckSummary => ({
-    id: slug,
-    slug,
+  const make = (id: string, name: string, over: Partial<DeckSummary> = {}): DeckSummary => ({
+    id,
     name,
-    nameVi: null,
-    cefrLevel: "A1",
     pro: false,
     thumbnailUrl: null,
-    category: { slug: "oxford", name: "Oxford", nameVi: "Từ Vựng Oxford" },
+    category: { id: "oxford", name: "Từ Vựng Oxford" },
     cardCount: 10,
     groupCount: 1,
     progress: { mastered: 0, reviewing: 0, learning: 0, newCount: 10 },
     dueCount: 0,
     ...over,
   });
-  const oxford = make("oxford-a1", "3000 Oxford Vocabulary A1", { nameVi: "Từ Vựng Oxford 3000 A1" });
-  const toeic = make("toeic-600", "600 essential words for the TOEIC", {
-    nameVi: "600 từ vựng thiết yếu cho TOEIC",
-    category: { slug: "toeic", name: "TOEIC Vocabulary", nameVi: "Từ Vựng TOEIC" },
-    cefrLevel: "B1",
+  const oxford = make("oxford-a1", "Từ Vựng Oxford 3000 A1");
+  const toeic = make("toeic-600", "600 từ vựng thiết yếu cho TOEIC", {
+    category: { id: "toeic", name: "Từ Vựng TOEIC" },
     progress: { mastered: 0, reviewing: 0, learning: 3, newCount: 7 },
   });
   const decks = [oxford, toeic];
@@ -249,9 +238,9 @@ describe("filterDecks", () => {
     expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, query: "tu vung oxford" })).toEqual([oxford]);
   });
 
-  it("lọc theo danh mục, mức CEFR và tình trạng học", () => {
+  it("lọc theo danh mục và tình trạng học; bộ không còn mức CEFR nên bộ lọc mức không loại bộ nào", () => {
     expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, category: "toeic" })).toEqual([toeic]);
-    expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, level: "A1" })).toEqual([oxford]);
+    expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, level: "A1" })).toEqual(decks);
     expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, state: "learning" })).toEqual([toeic]);
     expect(filterDecks(decks, { ...EMPTY_DECK_FILTER, state: "new" })).toEqual([oxford]);
   });

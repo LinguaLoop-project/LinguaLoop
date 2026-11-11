@@ -14,7 +14,7 @@ import { LessonGrid, LessonGridSkeleton } from "../components/LessonGrid";
 import Pagination from "../components/Pagination";
 import QueryError from "../components/QueryError";
 import type { LessonState } from "../types";
-import { difficultyParam, localizedName } from "../utils";
+import { cefrLevelParam, localizedName } from "../utils";
 
 const PAGE_SIZE = 12;
 
@@ -28,7 +28,7 @@ const BackToLibrary = () => {
 };
 
 export const TopicDetailPage = () => {
-  const { slug = "" } = useParams<{ slug: string }>();
+  const { id: slug = "" } = useParams<{ id: string }>();
   const { t, i18n } = useTranslation("pages");
   const isEn = i18n.language === "en";
 
@@ -62,8 +62,8 @@ export const TopicDetailPage = () => {
 
   const topicQuery = useTopicDetail(slug);
   const lessonsQuery = useLessonSearch({
-    topic: slug,
-    difficulty: difficultyParam(levelFilter),
+    topicId: slug,
+    cefrLevel: cefrLevelParam(levelFilter),
     state: stateFilter === "all" ? undefined : (stateFilter as LessonState),
     page,
     size: PAGE_SIZE,
@@ -122,7 +122,7 @@ export const TopicDetailPage = () => {
   }
 
   const name = localizedName(isEn, topic, slug);
-  const secondaryName = isEn ? topic.nameVi : topic.name;
+  const secondaryName: string | null = null;
   const filteredOut = levelFilter !== "all" || stateFilter !== "all";
   const ratio = totalCount ? doneCount / totalCount : 0;
   const mood: [MascotMood, string] =
@@ -147,7 +147,7 @@ export const TopicDetailPage = () => {
 
         <div className="mb-6 grid grid-cols-[72px_minmax(0,1fr)] items-center gap-5 lg:grid-cols-[72px_minmax(0,1fr)_280px]">
           <div className="grid h-[72px] w-[72px] place-items-center rounded-lg bg-primary-soft text-primary-text">
-            <Icon name={topic.icon} fallback="library" className="h-9 w-9" />
+            <Icon name={null} fallback="library" className="h-9 w-9" />
           </div>
 
           <div className="min-w-0">

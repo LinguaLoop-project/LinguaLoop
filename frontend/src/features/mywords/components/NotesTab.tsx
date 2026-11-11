@@ -65,7 +65,7 @@ function NoteCard({ note }: { note: NoteEntry }) {
         <p className="whitespace-pre-wrap break-words">{note.content}</p>
       )}
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <Link to={modeUrl(note.mode, note.lessonSlug, note.sentenceId)} className="inline-flex items-center gap-1 text-text-muted hover:text-text">
+        <Link to={modeUrl(note.mode, note.lessonId, note.sentenceId)} className="inline-flex items-center gap-1 text-text-muted hover:text-text">
           <Icon name="play" className="h-3.5 w-3.5" />
           {note.lessonTitle}
         </Link>

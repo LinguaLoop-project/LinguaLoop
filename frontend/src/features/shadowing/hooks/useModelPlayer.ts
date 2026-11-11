@@ -5,7 +5,7 @@ import type { YouTubePlayer } from "@/lib/youtube";
 export interface ModelSegment {
   startMs: number;
   endMs: number;
-  text: string;
+  textEn: string;
 }
 
 const API_TIMEOUT_MS = 9000;
@@ -240,11 +240,11 @@ export function useModelPlayer({
           .catch(() => {
             // Không phát được tệp (hết hạn, chặn tự phát…): lùi về giọng tổng hợp
             setMediaFailed(true);
-            if (runRef.current === run) speakSegment(segment.text, rate, finish);
+            if (runRef.current === run) speakSegment(segment.textEn, rate, finish);
           });
         return;
       }
-      speakSegment(segment.text, rate, finish);
+      speakSegment(segment.textEn, rate, finish);
     },
     [mediaFailed, rate, stop, videoFailed, videoReady],
   );
@@ -282,7 +282,7 @@ export function useModelPlayer({
         }
         current = k;
         onIndex(k);
-        speakSegment(segments[k].text, 1, () => speakFrom(k + 1));
+        speakSegment(segments[k].textEn, 1, () => speakFrom(k + 1));
       };
 
       const player = playerRef.current;

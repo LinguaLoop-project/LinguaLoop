@@ -17,7 +17,7 @@ import TopicChips from "../components/library/TopicChips";
 import TopicSection from "../components/library/TopicSection";
 import YouTubeImportButton from "../components/library/YouTubeImportButton";
 import type { LessonSummary } from "../types";
-import { DEFAULT_FILTERS, difficultyParam, isFiltered, sortParam } from "../utils";
+import { DEFAULT_FILTERS, cefrLevelParam, isFiltered, sortParam } from "../utils";
 
 const RECOMMEND_COUNT = 6;
 
@@ -38,7 +38,7 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
   const overview = useLessonOverview();
   const search = useLessonSearch({
     q: debouncedSearch,
-    difficulty: difficultyParam(filters.level),
+    cefrLevel: cefrLevelParam(filters.level),
     free: filters.freeOnly ? true : undefined,
     sort: sortParam(filters.sort),
     size: 60,
@@ -62,7 +62,7 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
   const b1Lessons = useMemo(
     () =>
       results
-        .filter((l) => l.difficulty === "B1" && progressOf(l, "all") === 0 && !l.pro)
+        .filter((l) => l.cefrLevel === "B1" && progressOf(l, "all") === 0 && !l.pro)
         .sort((a, b) => b.viewCount - a.viewCount)
         .slice(0, RECOMMEND_COUNT),
     [results],
@@ -165,7 +165,7 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
         )}
 
         {topicRows.length > 0 ? (
-          topicRows.map((row) => <TopicSection key={row.topic.id || row.topic.slug} row={row} mode={mode} />)
+          topicRows.map((row) => <TopicSection key={row.topic.id} row={row} mode={mode} />)
         ) : (
           <LessonGrid lessons={results} className="mt-8" mode={mode} />
         )}

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import { GRADE_QUALITIES, intervalParts } from "../../learn";
 import Icon from "@/components/common/Icon";
-import { CardImage, ListenButton, RoundProgress, type CardViewProps } from "./shared";
+import { ListenButton, RoundProgress, type CardViewProps } from "./shared";
 import { speak, useCardClock, useKeys } from "./learnHooks";
 
 const GRADE_KEYS = ["forget", "hard", "good", "easy"] as const;
@@ -59,7 +59,6 @@ export default function FlashView({ card, done, total, onAnswer }: CardViewProps
       >
         {!flipped ? (
           <div className="flex flex-col items-center gap-3">
-            <CardImage card={card} className="h-28 w-28" />
             <span lang="en" className="font-display text-5xl font-bold text-primary-text">{card.word}</span>
             <span className="flex items-center gap-2 text-text-muted">
               {card.pos && <Badge variant="default">{card.pos}</Badge>}
@@ -70,14 +69,14 @@ export default function FlashView({ card, done, total, onAnswer }: CardViewProps
         ) : (
           <div className="flex flex-col items-center gap-2">
             {card.pos && <Badge variant="default">{card.pos}</Badge>}
-            <span className="text-3xl font-bold">{card.translationVi}</span>
+            <span className="text-3xl font-bold">{card.meaningVi}</span>
             {card.exampleEn && (
               <>
                 <p lang="en" className="mt-3 italic">“{card.exampleEn}”</p>
                 {card.exampleVi && <p className="text-sm text-text-muted">{card.exampleVi}</p>}
               </>
             )}
-            {card.explanationVi && <p className="mt-2 max-w-xl text-sm text-text-muted">{card.explanationVi}</p>}
+            {card.definitionVi && <p className="mt-2 max-w-xl text-sm text-text-muted">{card.definitionVi}</p>}
           </div>
         )}
       </button>
@@ -90,7 +89,7 @@ export default function FlashView({ card, done, total, onAnswer }: CardViewProps
           <p lang="en" className="mt-1 italic">&ldquo;{card.contextEn}&rdquo;</p>
           {card.contextVi && <p className="text-text-muted">{card.contextVi}</p>}
           {card.lesson && (
-            <Link to={`/student/lessons/${card.lesson.slug}`} className="mt-1.5 inline-flex items-center gap-1 text-text-muted hover:text-text">
+            <Link to={`/student/lessons/${card.lesson.id}`} className="mt-1.5 inline-flex items-center gap-1 text-text-muted hover:text-text">
               <Icon name="play" className="h-3.5 w-3.5" />
               {t("review.fromLesson", { title: card.lesson.title })}
             </Link>

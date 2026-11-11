@@ -50,7 +50,7 @@ export type TutorState = {
 export type TutorParams = {
   /** Lượt shadowing vừa chấm; backend tự đọc kết quả của lượt này. */
   attemptId: number;
-  offerId: string | null;
+  offerId: number | null;
 };
 
 type PendingScoring = { callId: string | null; name: string; target: AttemptTarget; word: string | null };

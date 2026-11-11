@@ -18,7 +18,7 @@ export const LessonCard = ({ lesson, mode = "all" }: LessonCardProps) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation("pages");
   const locale = i18n.language === "vi" ? "vi-VN" : "en-US";
-  const open = (suffix = "") => navigate(`/student/lessons/${lesson.slug}${suffix}`);
+  const open = (suffix = "") => navigate(`/student/lessons/${lesson.id}${suffix}`);
   const modeLabel = (m: PracticeMode) => t(`student.lessons.card.${m}`, m === "dictation" ? "Nghe chép" : "Shadowing");
 
   const start = (m: PracticeMode) => {
@@ -29,7 +29,7 @@ export const LessonCard = ({ lesson, mode = "all" }: LessonCardProps) => {
       });
       return;
     }
-    navigate(`/student/${m}/${lesson.slug}`);
+    navigate(`/student/${m}/${lesson.id}`);
   };
 
   const modes: PracticeMode[] = mode === "all" ? ["dictation", "shadowing"] : [mode];
@@ -37,7 +37,7 @@ export const LessonCard = ({ lesson, mode = "all" }: LessonCardProps) => {
   return (
     <article
       className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-card)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--primary)_65%,var(--border))] hover:shadow-[0_20px_45px_-15px_rgba(0,0,0,0.5),0_0_30px_color-mix(in_srgb,var(--primary)_40%,transparent),0_0_70px_color-mix(in_srgb,var(--primary)_25%,transparent)] focus-visible:outline-2 focus-visible:outline-primary"
-      data-lesson={lesson.slug}
+      data-lesson={lesson.id}
       tabIndex={0}
       aria-label={t("student.lessons.card.aria", { title: lesson.title, defaultValue: `Bài ${lesson.title}` })}
       onClick={() => open()}
@@ -52,9 +52,7 @@ export const LessonCard = ({ lesson, mode = "all" }: LessonCardProps) => {
       <div className="flex flex-1 flex-col gap-1 p-4">
         <h3 className="line-clamp-2 text-lg font-bold leading-[1.35]">{lesson.title}</h3>
         <div className="text-[13px] leading-normal text-text-muted">
-          {i18n.language === "vi" && lesson.titleVi
-            ? lesson.titleVi
-            : t("student.lessons.card.sentences", { count: lesson.sentenceCount, defaultValue: `${lesson.sentenceCount} câu` })}
+          {t("student.lessons.card.sentences", { count: lesson.sentenceCount, defaultValue: `${lesson.sentenceCount} câu` })}
         </div>
         <span className="mt-1 flex items-center gap-2 text-[13px] text-text-subtle">
           <Icon name="headphones" />

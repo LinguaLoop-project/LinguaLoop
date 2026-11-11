@@ -82,14 +82,14 @@ export default function CompletionScreen({ lesson, level, onRedo, onSelectSenten
           </Button>
         )}
         <Link
-          to={`/student/shadowing/${lesson.slug}`}
+          to={`/student/shadowing/${lesson.id}`}
           className="inline-flex h-10 items-center gap-2 rounded-md border border-border-strong px-4 text-sm font-semibold transition-colors duration-150 hover:bg-surface-hover"
         >
           <Icon name="mic" />
           {t("done.shadowing")}
         </Link>
         <Link
-          to={`/student/lessons/${lesson.slug}`}
+          to={`/student/lessons/${lesson.id}`}
           className="inline-flex h-10 items-center gap-2 rounded-md px-4 text-sm font-semibold text-text-muted transition-colors duration-150 hover:text-text"
         >
           {t("done.back")}

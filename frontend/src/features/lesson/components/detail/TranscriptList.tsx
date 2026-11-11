@@ -92,10 +92,10 @@ export default function TranscriptList({ sentences, locked, loading, error, onRe
                   <span className={`font-semibold transition-[filter] duration-200 ${revealed ? "" : "select-none blur-[6px]"}`}>
                     {revealed ? (
                       <WordSourceProvider sentenceId={s.id}>
-                        <ClickableText text={s.text} />
+                        <ClickableText text={s.textEn} />
                       </WordSourceProvider>
                     ) : (
-                      s.text
+                      s.textEn
                     )}
                   </span>
                   {revealed && s.ipaUs && <div className="select-text text-[13px] text-text-subtle">/{s.ipaUs.replace(/^\/|\/$/g, "")}/</div>}
@@ -118,7 +118,7 @@ export default function TranscriptList({ sentences, locked, loading, error, onRe
                     variant="ghost"
                     iconOnly
                     aria-label={t(`${p}.listen`, { index: idx + 1, defaultValue: `Nghe câu ${idx + 1}` })}
-                    onClick={() => speak(s.text)}
+                    onClick={() => speak(s.textEn)}
                   >
                     <Icon name="volume-2" />
                   </Button>

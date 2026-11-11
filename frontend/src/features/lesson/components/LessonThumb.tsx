@@ -10,7 +10,7 @@ const TAG = "absolute inline-flex h-6 items-center gap-1 rounded-sm bg-bg-elevat
 /** Ảnh bìa bài học (`.l-thumb`): nền chuyển sắc primary-soft, icon lớn (khi chưa có ảnh); `corners` thêm huy hiệu và thẻ nguồn/thời lượng. */
 export default function LessonThumb({ lesson, corners = true, compact = false, className = "" }: { lesson: LessonSummary; corners?: boolean; compact?: boolean; className?: string }) {
   const { t } = useTranslation("pages");
-  const isYouTube = lesson.sourceType?.toLowerCase() === "youtube";
+  const isYouTube = true;
   return (
     <div className={`relative grid aspect-video place-items-center overflow-hidden bg-[linear-gradient(135deg,var(--primary-soft),transparent)] text-primary-text ${className}`}>
       {lesson.thumbnailUrl ? (
@@ -34,7 +34,7 @@ export default function LessonThumb({ lesson, corners = true, compact = false, c
                 PRO
               </Badge>
             )}
-            {lesson.difficulty && <Badge variant={String(lesson.difficulty)} solid>{lesson.difficulty}</Badge>}
+            {lesson.cefrLevel && <Badge variant={lesson.cefrLevel} solid>{lesson.cefrLevel}</Badge>}
           </span>
           <span className={`${TAG} bottom-2 left-2`}>
             {isYouTube ? <YouTubeLogo /> : <Icon name="audio-lines" />}

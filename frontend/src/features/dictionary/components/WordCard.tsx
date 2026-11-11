@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import Badge from "@/components/common/Badge";
 import type { MeaningGroup, Pronunciation, WordView } from "../types";
 import PronunciationButtons from "./PronunciationButtons";
 import SaveWordButton from "./SaveWordButton";
@@ -92,7 +91,6 @@ export default function WordCard({ word }: WordCardProps) {
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="font-display text-xl font-bold leading-tight text-primary-text">{word.headword}</h3>
-          {word.cefrLevel && <Badge variant={word.cefrLevel}>{word.cefrLevel}</Badge>}
         </div>
         <PronunciationButtons headword={word.headword} pronunciation={mainPronunciation} />
       </header>

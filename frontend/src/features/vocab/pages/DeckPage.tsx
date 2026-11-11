@@ -24,9 +24,9 @@ const LEGEND: { key: "mastered" | "reviewing" | "learning" | "newCount"; label: 
 ];
 
 function Hero({ detail, next }: { detail: DeckDetail; next: number | null }) {
-  const { t, i18n } = useTranslation("vocab");
+  const { t } = useTranslation("vocab");
   const { deck } = detail;
-  const subtitle = i18n.language.startsWith("vi") ? deck.nameVi : null;
+  const subtitle: string | null = null;
   const locked = detail.parts.some((part) => part.locked);
   const openUpgrade = useQuotaStore((s) => s.setShowUpgradeModal);
 
@@ -40,7 +40,6 @@ function Hero({ detail, next }: { detail: DeckDetail; next: number | null }) {
           <h1 className="text-[28px]">{deck.name}</h1>
           {subtitle && <p className="text-text-muted">{subtitle}</p>}
           <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-text-muted">
-            {deck.cefrLevel && <Badge variant={deck.cefrLevel}>{deck.cefrLevel}</Badge>}
             {deck.pro && <Badge variant="pro">{t("deck.pro")}</Badge>}
             <span>
               {t("deck.cards", { count: deck.cardCount })} · {t("deck.parts", { count: deck.groupCount })}
@@ -60,7 +59,7 @@ function Hero({ detail, next }: { detail: DeckDetail; next: number | null }) {
         </ul>
         <div className="flex flex-wrap gap-2">
           {next !== null ? (
-            <Link to={partUrl(deck.slug, next)} className={buttonClasses({ variant: "primary" })}>
+            <Link to={partUrl(deck.id, next)} className={buttonClasses({ variant: "primary" })}>
               <Icon name="play" className="h-4 w-4" />
               {t("detail.learnNew")}
             </Link>
@@ -75,7 +74,7 @@ function Hero({ detail, next }: { detail: DeckDetail; next: number | null }) {
             </span>
           )}
           {deck.dueCount > 0 && (
-            <Link to={`/student/vocab?tab=review&deck=${encodeURIComponent(deck.slug)}`} className={buttonClasses({ variant: "ghost" })}>
+            <Link to={`/student/vocab?tab=review&deck=${encodeURIComponent(deck.id)}`} className={buttonClasses({ variant: "ghost" })}>
               <Icon name="refresh-cw" className="h-4 w-4" />
               {t("detail.reviewDeck", { count: deck.dueCount })}
             </Link>
@@ -87,10 +86,10 @@ function Hero({ detail, next }: { detail: DeckDetail; next: number | null }) {
 }
 
 function PartRow({ slug, part, next }: { slug: string; part: DeckPart; next: number | null }) {
-  const { t, i18n } = useTranslation("vocab");
+  const { t } = useTranslation("vocab");
   const state = partState(part, next);
   const openUpgrade = useQuotaStore((s) => s.setShowUpgradeModal);
-  const name = (i18n.language.startsWith("vi") ? part.nameVi : null) ?? part.name;
+  const name = part.name;
   const href = partUrl(slug, part.index);
 
   return (
@@ -196,7 +195,7 @@ export default function DeckPage() {
           </div>
           <ol>
             {shown.items.map((part) => (
-              <PartRow key={part.index} slug={detail.deck.slug} part={part} next={next} />
+              <PartRow key={part.index} slug={detail.deck.id} part={part} next={next} />
             ))}
           </ol>
           {detail.parts.length > PART_WINDOW && (
@@ -231,7 +230,7 @@ export default function DeckPage() {
                         <b>{word.word}</b>
                         {word.ipaUs && <div className="text-xs text-text-muted">{word.ipaUs}</div>}
                       </td>
-                      <td className="py-2 pr-2 text-sm">{word.translationVi?.split(";")[0]}</td>
+                      <td className="py-2 pr-2 text-sm">{word.meaningVi?.split(";")[0]}</td>
                       <td className="py-1 text-right">
                         <Button
                           variant="ghost"
