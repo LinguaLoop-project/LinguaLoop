@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TK-tai-khoan-xac-thuc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. Quay lại [mục lục](../TRACEABILITY-AC-TEST.md).
 
-Tổng hợp: 53 AC, 41 đã có test, 3 một phần, 9 thiếu.
+Tổng hợp: 52 AC, 41 đã có test, 3 một phần, 8 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -58,4 +58,3 @@ Tổng hợp: 53 AC, 41 đã có test, 3 một phần, 9 thiếu.
 | AC-TK-50 | Chưa đồng ý điều khoản | UC-TK-08 | A |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
 | AC-TK-51 | Không lưu được hồ sơ | UC-TK-08 | A |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
 | AC-TK-52 | Mở lại sau khi đã hoàn tất | UC-TK-08 | D |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
-| AC-TK-53 | Chọn làm bài kiểm tra sau | UC-TK-08 | D |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |

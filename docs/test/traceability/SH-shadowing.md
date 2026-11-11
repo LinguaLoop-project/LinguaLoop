@@ -16,7 +16,7 @@ Tổng hợp: 28 AC, 0 đã có test, 0 một phần, 28 thiếu.
 | AC-SH-08 | Thêm, sửa, xóa ghi chú tối đa 1000 ký tự độc lập với Nghe chép | UC-SH-01 |  |  | Thiếu |
 | AC-SH-09 | Sử dụng phím tắt ở mục Luyện và tạm ngưng khi đang gõ chữ | UC-SH-01 |  |  | Thiếu |
 | AC-SH-10 | Từ chối khi chưa đăng nhập, bài không tồn tại hoặc bài Pro với gói Free | UC-SH-01 |  |  | Thiếu |
-| AC-SH-11 | Từ chối khi thiếu quyền micro hoặc chưa đồng ý xử lý AI | UC-SH-01 |  |  | Thiếu |
+| AC-SH-11 | Từ chối khi thiếu quyền micro | UC-SH-01 |  |  | Thiếu |
 | AC-SH-12 | Từ chối bản ghi âm không hợp lệ | UC-SH-01 |  |  | Thiếu |
 | AC-SH-13 | Thông báo khi không nghe thấy tiếng nói | UC-SH-01 |  |  | Thiếu |
 | AC-SH-14 | Xử lý khi dịch vụ chấm phát âm gặp sự cố hoặc quá tải | UC-SH-01 |  |  | Thiếu |

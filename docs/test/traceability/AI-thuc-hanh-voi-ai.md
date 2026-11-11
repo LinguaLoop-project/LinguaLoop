@@ -14,7 +14,7 @@ Tổng hợp: 30 AC, 0 đã có test, 0 một phần, 30 thiếu.
 | AC-AI-06 | Xem lại lịch sử hội thoại của riêng tác nhân không tốn credit | UC-AI-01 |  |  | Thiếu |
 | AC-AI-07 | Từ chối khi không đủ credit để bắt đầu | UC-AI-01 |  |  | Thiếu |
 | AC-AI-08 | Học viên gói Pro dùng AI theo credit của gói, không giới hạn số lượt | UC-AI-01 |  |  | Thiếu |
-| AC-AI-09 | Từ chối khi bài học thuộc gói Pro đối với gói Free hoặc chưa đồng ý xử lý AI | UC-AI-01 |  |  | Thiếu |
+| AC-AI-09 | Từ chối khi bài học thuộc gói Pro đối với gói Free | UC-AI-01 |  |  | Thiếu |
 | AC-AI-10 | Nhắc nhở khi câu trả lời trống hoặc bản ghi âm không hợp lệ | UC-AI-01 |  |  | Thiếu |
 | AC-AI-11 | Không trừ credit khi lỗi khởi tạo và cho phép thử lại khi lỗi giữa phiên | UC-AI-01 |  |  | Thiếu |
 | AC-AI-12 | Tự động mời gia sư khi có từ dưới 60 điểm hoặc lỗi âm vị lặp lại và đảm bảo giãn cách 3 câu | UC-AI-02 |  |  | Thiếu |
@@ -32,7 +32,7 @@ Tổng hợp: 30 AC, 0 đã có test, 0 một phần, 30 thiếu.
 | AC-AI-23 | Tạo nhận xét AI lần đầu xuất chữ chạy dần và trừ credit | UC-AI-03 |  |  | Thiếu |
 | AC-AI-24 | Xem lại nhận xét AI đã lưu hoặc gửi trùng đồng thời chỉ tính một lần credit | UC-AI-03 |  |  | Thiếu |
 | AC-AI-25 | Làm mới thẻ nhận xét AI khi đọc lượt mới | UC-AI-03 |  |  | Thiếu |
-| AC-AI-26 | Chặn nhận xét AI khi không đủ credit hoặc chưa đồng ý AI | UC-AI-03 |  |  | Thiếu |
+| AC-AI-26 | Chặn nhận xét AI khi không đủ credit hoặc lượt đọc của người khác | UC-AI-03 |  |  | Thiếu |
 | AC-AI-27 | Tự thử lại mô hình dự phòng khi AI quá tải trước khi có chữ | UC-AI-03 |  |  | Thiếu |
 | AC-AI-28 | Không trừ credit khi AI lỗi hoặc đóng trang giữa chừng | UC-AI-03 |  |  | Thiếu |
 | AC-AI-29 | Xem số dư credit và tự đặt lại credit miễn phí lúc 00:00 | UC-AI-03 |  |  | Thiếu |
