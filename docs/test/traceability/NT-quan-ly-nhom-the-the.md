@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/NT-quan-ly-nhom-the-the/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. Quay lại [mục lục](../TRACEABILITY-AC-TEST.md).
 
-Tổng hợp: 57 AC, 0 đã có test, 0 một phần, 57 thiếu.
+Tổng hợp: 58 AC, 0 đã có test, 0 một phần, 58 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -13,6 +13,7 @@ Tổng hợp: 57 AC, 0 đã có test, 0 một phần, 57 thiếu.
 | AC-NT-05 | Thiếu hoặc sai thông tin | UC-NT-01 |  |  | Thiếu |
 | AC-NT-06 | Tên nhóm thẻ bị trùng | UC-NT-01 |  |  | Thiếu |
 | AC-NT-07 | Mất kết nối khi lưu | UC-NT-01 |  |  | Thiếu |
+| AC-NT-58 | Thêm nhóm thẻ vào bộ đã xuất bản | UC-NT-01 |  |  | Thiếu |
 | AC-NT-08 | Sửa nhóm thẻ thành công | UC-NT-02 |  |  | Thiếu |
 | AC-NT-09 | Sửa nhóm thẻ của bộ đã xuất bản | UC-NT-02 |  |  | Thiếu |
 | AC-NT-10 | Sửa nhóm thẻ của bộ người khác | UC-NT-02 |  |  | Thiếu |
@@ -25,7 +26,7 @@ Tổng hợp: 57 AC, 0 đã có test, 0 một phần, 57 thiếu.
 | AC-NT-17 | Xóa nhóm thẻ của bộ người khác | UC-NT-03 |  |  | Thiếu |
 | AC-NT-18 | Bộ không còn tồn tại | UC-NT-03 |  |  | Thiếu |
 | AC-NT-19 | Nhóm thẻ không còn tồn tại | UC-NT-03 |  |  | Thiếu |
-| AC-NT-20 | Xóa nhóm thẻ duy nhất có thẻ của bộ đã xuất bản | UC-NT-03 |  |  | Thiếu |
+| AC-NT-20 | Xóa nhóm thẻ duy nhất của bộ đã xuất bản | UC-NT-03 |  |  | Thiếu |
 | AC-NT-21 | Hủy xóa nhóm thẻ | UC-NT-03 |  |  | Thiếu |
 | AC-NT-22 | Mất kết nối khi xóa | UC-NT-03 |  |  | Thiếu |
 | AC-NT-23 | Thêm thẻ thành công | UC-NT-04 |  |  | Thiếu |
@@ -50,7 +51,7 @@ Tổng hợp: 57 AC, 0 đã có test, 0 một phần, 57 thiếu.
 | AC-NT-42 | Xóa thẻ của bộ người khác | UC-NT-06 |  |  | Thiếu |
 | AC-NT-43 | Bộ không còn tồn tại | UC-NT-06 |  |  | Thiếu |
 | AC-NT-44 | Thẻ không còn tồn tại | UC-NT-06 |  |  | Thiếu |
-| AC-NT-45 | Xóa thẻ cuối cùng của bộ đã xuất bản | UC-NT-06 |  |  | Thiếu |
+| AC-NT-45 | Xóa thẻ cuối cùng của một nhóm thẻ thuộc bộ đã xuất bản | UC-NT-06 |  |  | Thiếu |
 | AC-NT-46 | Hủy xóa thẻ | UC-NT-06 |  |  | Thiếu |
 | AC-NT-47 | Mất kết nối khi xóa | UC-NT-06 |  |  | Thiếu |
 | AC-NT-48 | Nhập thẻ từ Excel/CSV thành công | UC-NT-07 |  |  | Thiếu |

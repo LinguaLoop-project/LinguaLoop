@@ -8,7 +8,7 @@ Tổng hợp: 57 AC, 0 đã có test, 0 một phần, 57 thiếu.
 |---|---|---|:---:|---|---|
 | AC-HT-01 | Ẩn bộ Từ đã lưu khỏi danh sách bộ từ | UC-HT-01 |  |  | Thiếu |
 | AC-HT-02 | Hiển thị mục Đang học | UC-HT-01 |  |  | Thiếu |
-| AC-HT-03 | Khóa phần của bộ Pro đối với gói Free | UC-HT-01 |  |  | Thiếu |
+| AC-HT-03 | Khóa bộ Pro đối với gói Free | UC-HT-01 |  |  | Thiếu |
 | AC-HT-04 | Mở toàn bộ phần của bộ Pro đối với gói Pro | UC-HT-01 |  |  | Thiếu |
 | AC-HT-05 | Chọn Học từ mới tự động mở phần đầu tiên còn thẻ Mới | UC-HT-01 |  |  | Thiếu |
 | AC-HT-06 | Hiển thị gợi ý khi chưa học bộ nào | UC-HT-01 |  |  | Thiếu |
@@ -41,7 +41,7 @@ Tổng hợp: 57 AC, 0 đã có test, 0 một phần, 57 thiếu.
 | AC-HT-33 | Lỗi chấm phát âm Shadowing không đánh dấu đã ôn hôm nay | UC-HT-04 |  |  | Thiếu |
 | AC-HT-34 | Thông báo khi không còn câu cần ôn trong ngày | UC-HT-04 |  |  | Thiếu |
 | AC-HT-35 | Giữ kết quả khi dừng giữa chừng hoặc mất kết nối | UC-HT-04 |  |  | Thiếu |
-| AC-HT-36 | Cấu trúc và thứ tự của phiên Ôn tập kiến thức | UC-HT-05 |  |  | Thiếu |
+| AC-HT-36 | Cấu trúc, thứ tự và định mức của phiên Ôn tập kiến thức theo thời lượng mục tiêu ngày | UC-HT-05 |  |  | Thiếu |
 | AC-HT-37 | Chọn Ôn tiếp ở cuối phiên chỉ lấy thêm thẻ từ vựng | UC-HT-05 |  |  | Thiếu |
 | AC-HT-38 | Không chọn lại câu đã ôn khi mở phiên lần hai trong ngày | UC-HT-05 |  |  | Thiếu |
 | AC-HT-39 | Bảo toàn tiến độ khi thoát phiên giữa chừng | UC-HT-05 |  |  | Thiếu |
