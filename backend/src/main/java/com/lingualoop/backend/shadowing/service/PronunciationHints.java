@@ -16,7 +16,7 @@ import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Mẹo sửa và video khẩu hình cho các âm của lượt (bấm âm nào cũng xem được). Mẹo lấy từ {@code phonemes.tip_vi},
+ * Mẹo sửa và video khẩu hình cho các âm của lượt (bấm âm nào cũng xem được). Mẹo lấy từ {@link PhonemeTips} (tệp {@code pronunciation-tips.json}),
  * âm chưa có mẹo thì không hiện (mô tả chung của bảng {@code phonemes} soạn theo giọng Anh, có thể trái bài giọng Mỹ); video chỉ mở
  * cho gói có tính năng {@code mouth_video} (hạn mức 0 thì khoá ở server: không bao giờ trả đường dẫn cho Free).
  */
@@ -29,6 +29,7 @@ class PronunciationHints {
 
     private final PhonemeRepository phonemes;
     private final SubscriptionQueryService subscriptionQueryService;
+    private final PhonemeTips tips;
 
     /** @param symbols ký hiệu theo bảng phonemes; âm không có mẹo cũng không có video thì không có trong kết quả */
     @Transactional(readOnly = true)
@@ -48,7 +49,7 @@ class PronunciationHints {
         for (Phoneme p : bySymbol.values()) {
             MouthVideo video = p.getMouthVideoUrl() == null ? null
                     : new MouthVideo(locked ? null : p.getMouthVideoUrl(), locked);
-            String tip = p.getTipVi();
+            String tip = tips.tipFor(p.getSymbol()).orElse(null);
             if (tip != null || video != null) {
                 result.put(p.getSymbol(), new Hint(tip, video));
             }
