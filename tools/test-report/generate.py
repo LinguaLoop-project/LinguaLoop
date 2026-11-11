@@ -6,6 +6,11 @@ Chạy từ thư mục gốc của repo:
     python tools/test-report/generate.py sync              # thêm AC mới vào bảng truy vết, làm mới mục lục
     python tools/test-report/generate.py report            # sinh docs/test/reports/BAO-CAO-<ngày>.md
     python tools/test-report/generate.py report --ci-status pass
+    python tools/test-report/generate.py check             # kiểm tra mọi test được ghi trong bảng truy vết còn tồn tại
+
+Có thể trỏ tới SRS hoặc thư mục test ở nơi khác (ví dụ worktree khác):
+    python tools/test-report/generate.py sync  --srs-dir ../OtherWorktree/docs/srs
+    python tools/test-report/generate.py check --tests-dir ../OtherWorktree/backend/src/test
 
 Chỉ dùng thư viện chuẩn của Python 3.9+. Không gọi mạng.
 """
@@ -48,10 +53,11 @@ def write(path: str, text: str) -> None:
 
 
 # --------------------------------------------------------------------------- AC trong SRS
-def srs_acs(root: str) -> dict[str, list[tuple[str, str, str]]]:
-    """Trả về {module: [(mã AC, tên, mã UC)]} đọc từ docs/srs/*/usecase.md."""
+def srs_acs(root: str, srs_dir: str | None = None) -> dict[str, list[tuple[str, str, str]]]:
+    """Trả về {module: [(mã AC, tên, mã UC)]} đọc từ <srs_dir>/*/usecase.md (mặc định docs/srs)."""
     result: dict[str, list[tuple[str, str, str]]] = {}
-    for f in sorted(glob.glob(os.path.join(root, "docs", "srs", "*", "usecase.md"))):
+    base = srs_dir or os.path.join(root, "docs", "srs")
+    for f in sorted(glob.glob(os.path.join(base, "*", "usecase.md"))):
         module = os.path.basename(os.path.dirname(f))
         parts = re.split(r"\n### (UC-[A-Z]+-\d+): [^\n]+\n", read(f))
         rows = []
@@ -132,8 +138,26 @@ def index_file(trace: dict[str, list[list[str]]]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def cmd_sync(root: str) -> int:
-    srs = srs_acs(root)
+def cmd_check(root: str, tests_dir: str | None) -> int:
+    """Mỗi tham chiếu `LớpTest.phươngThức` trong bảng truy vết phải có thật trong thư mục test."""
+    base = tests_dir or os.path.join(root, "backend", "src", "test")
+    src: dict[str, str] = {}
+    for f in glob.glob(os.path.join(base, "**", "*.java"), recursive=True):
+        src[os.path.basename(f)[:-5]] = read(f)
+    bad = total = 0
+    for module, rows in load_trace(root).items():
+        for r in rows:
+            for cls, method in re.findall(r"(\w+Test)\.(\w+)", r[4]):
+                total += 1
+                if cls not in src or f"void {method}(" not in src[cls]:
+                    bad += 1
+                    print(f"[THIẾU] {module} {r[0]}: {cls}.{method}")
+    print(f"Đã kiểm tra {total} tham chiếu test, {bad} không tìm thấy.")
+    return 1 if bad else 0
+
+
+def cmd_sync(root: str, srs_dir: str | None = None) -> int:
+    srs = srs_acs(root, srs_dir)
     trace = load_trace(root)
     warnings = 0
     for module, acs in srs.items():
@@ -323,13 +347,21 @@ def cmd_report(root: str, ci_status: str | None, today: str) -> int:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("command", choices=["sync", "report"])
+    ap.add_argument("command", choices=["sync", "report", "check"])
+    ap.add_argument("--srs-dir", help="thư mục chứa các module SRS (mặc định: docs/srs trong root)")
+    ap.add_argument("--tests-dir", help="thư mục test backend cho lệnh check (mặc định: backend/src/test trong root)")
     ap.add_argument("--root", default=".", help="thư mục gốc repo (mặc định: thư mục hiện tại)")
     ap.add_argument("--ci-status", choices=["pass", "fail"], help="kết quả lần chạy CI cuối trên GitHub Actions")
     ap.add_argument("--date", default=dt.date.today().isoformat(), help="ngày ghi trong báo cáo (YYYY-MM-DD)")
     a = ap.parse_args()
     root = os.path.abspath(a.root)
-    return cmd_sync(root) if a.command == "sync" else cmd_report(root, a.ci_status, a.date)
+    srs_dir = os.path.abspath(a.srs_dir) if a.srs_dir else None
+    tests_dir = os.path.abspath(a.tests_dir) if a.tests_dir else None
+    if a.command == "sync":
+        return cmd_sync(root, srs_dir)
+    if a.command == "check":
+        return cmd_check(root, tests_dir)
+    return cmd_report(root, a.ci_status, a.date)
 
 
 if __name__ == "__main__":
