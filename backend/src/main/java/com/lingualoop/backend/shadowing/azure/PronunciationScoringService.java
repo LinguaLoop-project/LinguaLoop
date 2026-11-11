@@ -2,7 +2,7 @@ package com.lingualoop.backend.shadowing.azure;
 
 /**
  * Chấm phát âm một bản ghi so với câu mẫu. Dùng chung cho shadowing, Phiên gia sư và phần nói của bài
- * kiểm tra trình độ (planning/README.md §4).
+ * kiểm tra trình độ.
  */
 public interface PronunciationScoringService {
 

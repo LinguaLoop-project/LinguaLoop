@@ -21,7 +21,7 @@ import com.lingualoop.backend.lesson.dto.LessonView;
 import com.lingualoop.backend.lesson.dto.SentenceView;
 import com.lingualoop.backend.user.service.UserAccountService;
 
-/** Hợp đồng đọc bài/câu mà feature dictation và shadowing dùng (planning/README.md §4). */
+/** Hợp đồng đọc bài/câu mà feature dictation và shadowing dùng. */
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 class SentenceQueryServiceIntegrationTest {

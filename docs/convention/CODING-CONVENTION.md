@@ -15,7 +15,7 @@
 
 ### 2.1 Cấu trúc package
 
-Chia theo **feature**, trong mỗi feature chia theo **tầng**: `com.lingualoop.backend.<feature>.{controller,service,repository,entity,dto}`. Danh sách feature và người phụ trách xem [planning/cau-truc-du-an.md](../../planning/cau-truc-du-an.md).
+Chia theo **feature**, trong mỗi feature chia theo **tầng**: `com.lingualoop.backend.<feature>.{controller,service,repository,entity,dto}`. Danh sách feature xem thư mục `backend/src/main/java/com/lingualoop/backend/`.
 
 Phần dùng chung ở cấp gốc `backend/src/main/java/com/lingualoop/backend/`:
 
@@ -54,8 +54,8 @@ Quy ước đặt lớp:
 
 Quy tắc phụ thuộc:
 - `controller -> service -> repository`. Controller không được gọi thẳng repository; service không được biết `HttpServletRequest`/`HttpServletResponse`/cookie. Service được nhận DTO `request` và trả DTO `response` hoặc `View`, nhưng không được nhận hay trả entity ra ngoài feature.
-- Feature gọi feature khác **chỉ qua service interface** (danh sách ở mục 4 [planning/README.md](../../planning/README.md)), không import repository hay entity của feature khác.
-- Chỉ chủ sở hữu bảng (mục 3 planning/README.md) được ghi vào bảng đó.
+- Feature gọi feature khác **chỉ qua service interface**, không import repository hay entity của feature khác.
+- Mỗi bảng do một feature ghi; feature khác cần dữ liệu thì gọi qua service interface của feature đó.
 
 ### 2.2 Naming
 

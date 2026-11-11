@@ -1,0 +1,239 @@
+{
+  "overline": "Từ vựng",
+  "title": "Từ vựng",
+  "subtitle": "Học bộ từ theo từng phần, ôn thẻ đúng lúc sắp quên.",
+  "loading": "Đang tải",
+  "overview": {
+    "label": "Tổng quan từ vựng",
+    "due": "Đến hạn hôm nay",
+    "dueHint": "thẻ chờ ôn",
+    "learning": "Đang học",
+    "learningHint": "thẻ mới gặp",
+    "reviewing": "Đang ôn",
+    "reviewingHint": "khoảng ôn đang giãn dần",
+    "mastered": "Đã thuộc",
+    "masteredHint": "nhớ lâu dài"
+  },
+  "learning": {
+    "title": "Đang học"
+  },
+  "explore": {
+    "title": "Khám phá bộ từ"
+  },
+  "filter": {
+    "label": "Tìm và lọc bộ từ",
+    "search": {
+      "placeholder": "Tìm bộ từ theo tên hoặc danh mục",
+      "aria": "Tìm bộ từ"
+    },
+    "state": {
+      "label": "Tình trạng học",
+      "all": "Tất cả",
+      "learning": "Đang học",
+      "new": "Chưa học"
+    },
+    "level": {
+      "label": "Mức CEFR",
+      "all": "Mọi mức"
+    },
+    "category": {
+      "label": "Danh mục",
+      "all": "Tất cả danh mục"
+    },
+    "results_other": "{{count}} bộ từ phù hợp",
+    "clear": "Xoá bộ lọc",
+    "noMatchTitle": "Không có bộ từ nào khớp",
+    "noMatchDesc": "Thử đổi từ khoá hoặc bỏ bớt bộ lọc."
+  },
+  "first": {
+    "title": "Chọn bộ từ đầu tiên",
+    "desc": "Bắt đầu với một bộ cơ bản như Oxford A1 hoặc 1000 từ thông dụng. Mỗi phần là một chủ đề, học trong vài phút."
+  },
+  "empty": {
+    "title": "Chưa có bộ từ nào",
+    "desc": "Các bộ từ sẽ xuất hiện ở đây khi được thêm vào hệ thống."
+  },
+  "deck": {
+    "cards_other": "{{count, number}} thẻ",
+    "parts_other": "{{count, number}} phần",
+    "pro": "PRO",
+    "mastered": "Đã thuộc {{mastered}}/{{total}}",
+    "percent": "{{percent}}% đã học",
+    "continue": "Tiếp tục",
+    "view": "Xem bộ từ",
+    "barLabel": "Đã thuộc {{mastered}}, đang ôn {{reviewing}}, đang học {{learning}} trên {{total}} thẻ"
+  },
+  "detail": {
+    "back": "Từ vựng",
+    "learnNew": "Học từ mới",
+    "allLearned": "Đã học hết các phần mở được",
+    "reviewDeck": "Ôn bộ này ({{count}})",
+    "unlock": "Mở khoá với Pro",
+    "legend": {
+      "mastered": "Đã thuộc",
+      "reviewing": "Đang ôn",
+      "learning": "Đang học",
+      "new": "Mới"
+    },
+    "parts": {
+      "title": "Các phần trong bộ",
+      "done": "{{done}}/{{total}} phần đã xong",
+      "cards_other": "{{count, number}} thẻ",
+      "studied": "đã học {{count}}",
+      "learn": "Học",
+      "review": "Ôn lại",
+      "open": "Xem",
+      "pro": "Pro",
+      "locked": "Phần này chỉ có ở gói Pro",
+      "partDone": "Đã xong",
+      "range": "Đang hiện phần {{from}}–{{to}} / {{total}}",
+      "showAll": "Xem tất cả phần",
+      "showLess": "Thu gọn"
+    },
+    "sample": {
+      "title": "Một số từ trong bộ",
+      "word": "Từ",
+      "meaning": "Nghĩa",
+      "listen": "Nghe từ {{word}}"
+    },
+    "tips": {
+      "title": "Cách học bộ này",
+      "one": "Mỗi phần là một chủ đề. Học từng phần bằng cách đoán từ, lật thẻ, trắc nghiệm hoặc nghe lặp lại.",
+      "two": "Thẻ quay lại đúng lúc bạn sắp quên. Nhớ càng tốt, khoảng ôn càng giãn ra.",
+      "three": "Học xong một phần, thử một cách học khác để kiểm tra lại."
+    },
+    "notFoundTitle": "Không tìm thấy bộ từ",
+    "notFoundDesc": "Bộ từ này không tồn tại hoặc đã bị ẩn.",
+    "backToDecks": "Về Từ vựng"
+  },
+  "learn": {
+    "back": "Từ vựng",
+    "partTitle": "Phần {{number}} · {{name}}",
+    "modeLabel": "Cách học",
+    "modes": {
+      "guess": "Đoán",
+      "flashcard": "Flashcard",
+      "quiz": "Trắc nghiệm",
+      "reverse_quiz": "Trắc nghiệm đảo"
+    },
+    "modeNames": {
+      "guess": "Đoán từ",
+      "flashcard": "Flashcard",
+      "quiz": "Trắc nghiệm",
+      "reverse_quiz": "Trắc nghiệm đảo"
+    },
+    "round": "Lượt {{current}}/{{total}} · {{count}} thẻ",
+    "progress": "Thẻ {{current}}/{{total}}",
+    "partsNav": "Danh sách phần trong bộ",
+    "partsRange": "Phần {{from}}–{{to}}/{{total}}",
+    "next": "Tiếp",
+    "loading": "Đang tải phần học",
+    "sending": "Đang gửi {{count}} câu trả lời",
+    "unsent": "Chưa gửi được {{count}} câu trả lời, sẽ tự gửi lại khi có mạng",
+    "empty": {
+      "title": "Phần này chưa có thẻ",
+      "desc": "Hãy chọn phần khác trong bộ."
+    },
+    "guess": {
+      "prompt": "Gõ từ tiếng Anh có nghĩa này",
+      "letters_other": "{{count}} chữ cái",
+      "placeholder": "Gõ từ tiếng Anh",
+      "inputLabel": "Từ tiếng Anh cần đoán",
+      "check": "Kiểm tra",
+      "hint": "Gợi ý",
+      "skip": "Không biết",
+      "typeFirst": "Hãy gõ một từ trước khi kiểm tra.",
+      "correct": "Chính xác!",
+      "wrong": "Chưa đúng",
+      "gaveUp": "Bạn đã dùng hết gợi ý, tính là chưa biết.",
+      "answer": "Đáp án",
+      "usedHints_other": "Đã dùng {{count}} gợi ý"
+    },
+    "quiz": {
+      "pickMeaning": "Chọn nghĩa đúng",
+      "pickWord": "Chọn từ đúng",
+      "correct": "Chính xác!",
+      "wrong": "Chưa đúng",
+      "options": "Các đáp án",
+      "single": "Phần này chỉ có một thẻ nên chưa có đáp án để chọn."
+    },
+    "flash": {
+      "front": "Bấm để lật thẻ",
+      "cardAria": "Thẻ {{word}}, bấm để lật",
+      "grades": {
+        "forget": "Quên",
+        "hard": "Khó",
+        "good": "Được",
+        "easy": "Dễ"
+      },
+      "gradesLabel": "Bạn nhớ từ này đến mức nào?"
+    },
+    "done": {
+      "title": "Tuyệt vời!",
+      "subtitle": "Bạn đã xong {{mode}} cho lượt {{round}} của Phần {{part}}",
+      "restart": "Học lại từ đầu",
+      "words": "Xem từ vựng",
+      "nextRound": "Lượt tiếp theo",
+      "nextPart": "Phần tiếp theo",
+      "backToDeck": "Về bộ từ",
+      "score": "Nhớ ngay lần đầu {{right}}/{{total}} thẻ",
+      "redone_other": "{{count}} thẻ phải làm lại trong lượt"
+    },
+    "words": {
+      "title": "Từ vựng lượt {{round}}",
+      "back": "Quay lại",
+      "word": "Từ",
+      "meaning": "Nghĩa",
+      "listen": "Nghe từ {{word}}"
+    },
+    "locked": {
+      "title": "Phần này chỉ có ở gói Pro",
+      "desc": "Đây là bộ Pro: bạn cần gói Pro để học các phần của bộ.",
+      "unlock": "Mở khoá với Pro",
+      "back": "Về bộ từ"
+    },
+    "notFound": {
+      "title": "Không tìm thấy phần này",
+      "desc": "Phần này không tồn tại hoặc đã bị ẩn."
+    },
+    "interval": {
+      "minute_other": "{{count}} phút",
+      "hour_other": "{{count}} giờ",
+      "day_other": "{{count}} ngày",
+      "month_other": "{{count}} tháng"
+    },
+    "listenAria": "Nghe từ {{word}}",
+    "again": "Thẻ này sẽ hiện lại ở cuối lượt."
+  },
+  "tabs": {
+    "label": "Chế độ từ vựng",
+    "decks": "Bộ từ",
+    "review": "Ôn thẻ"
+  },
+  "review": {
+    "title": "Ôn thẻ đến hạn",
+    "deckTitle": "Ôn bộ: {{name}}",
+    "allDecks": "Ôn mọi bộ",
+    "loading": "Đang tải thẻ đến hạn",
+    "queueInfo": "Lượt này có {{count}} thẻ",
+    "more_other": "Còn {{count}} thẻ đến hạn nữa",
+    "emptyTitle": "Hôm nay bạn đã ôn xong",
+    "emptyDesc": "Không còn thẻ nào đến hạn. Học thêm từ mới để có thẻ ôn lần sau.",
+    "nextDue": "Thẻ tiếp theo đến hạn lúc {{time}}.",
+    "nextNone": "Chưa có thẻ nào được hẹn ôn.",
+    "learnNew": "Học từ mới",
+    "practiceLessons": "Luyện bài học",
+    "doneTitle": "Xong lượt ôn!",
+    "doneSubtitle": "Bạn đã ôn {{count}} thẻ",
+    "score": "Nhớ ngay lần đầu {{right}}/{{total}} thẻ",
+    "redone_other": "{{count}} thẻ phải ôn lại trong lượt",
+    "continue": "Ôn tiếp",
+    "continueHint_other": "Còn {{count}} thẻ đến hạn",
+    "backToDecks": "Về bộ từ",
+    "context": "Câu trong bài học",
+    "fromLesson": "Bài học: {{title}}"
+  },
+  "category": {
+    "other": "Khác"
+  }
+}

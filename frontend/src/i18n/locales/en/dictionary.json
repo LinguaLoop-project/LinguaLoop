@@ -43,5 +43,15 @@
     "abbreviation": "Abbreviation",
     "prefix": "Prefix",
     "suffix": "Suffix"
+  },
+  "save": {
+    "save": "Save",
+    "saved": "Saved",
+    "saveAria": "Save this meaning of {{word}}",
+    "unsaveAria": "Remove this meaning of {{word}} from saved words",
+    "savedToast": "Saved “{{word}}” for review",
+    "removedToast": "Removed from saved words",
+    "failed": "Couldn't save. Please try again.",
+    "offline": "You're offline. Try again when you're back online."
   }
 }

@@ -28,8 +28,8 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-BT-05 | Điều kiện xuất bản: bộ có ít nhất 1 nhóm thẻ và mỗi nhóm thẻ có ít nhất 1 thẻ. | UC-BT-05 (2a), AC-BT-29 |
-| BR-BT-06 | Bộ thẻ có thể được đánh dấu yêu cầu gói Pro khi tạo hoặc sửa (mặc định là không). Học viên gói Free thấy bộ kèm nhãn Pro nhưng không học được; học viên gói Pro học bình thường. Bật yêu cầu Pro cho bộ đã xuất bản thì học viên gói Free không học tiếp được, tiến độ đã có được giữ; tắt thì học lại được. | UC-BT-01, UC-BT-02, UC-BT-03, UC-BT-05, AC-BT-03, 07, 15 |
+| BR-BT-05 | Điều kiện xuất bản: bộ có ít nhất 1 nhóm thẻ và mỗi nhóm thẻ có ít nhất 1 thẻ. Bộ Đã xuất bản luôn phải thỏa điều kiện này; thao tác làm bộ không còn thỏa bị từ chối (BR-NT-05). | UC-BT-05 (2a), UC-NT-01 (3b), UC-NT-03 (3b), UC-NT-06 (3b), AC-BT-29 |
+| BR-BT-06 | Bộ thẻ có thể được đánh dấu yêu cầu gói Pro khi tạo hoặc sửa (mặc định là không). Học viên gói Free thấy bộ kèm nhãn Pro nhưng không học được phần nào của bộ (BR-HT-07, BR-PR-14); học viên gói Pro học bình thường. Bật yêu cầu Pro cho bộ đã xuất bản thì học viên gói Free không học tiếp được, tiến độ đã có được giữ; tắt thì học lại được. | UC-BT-01, UC-BT-02, UC-BT-03, UC-BT-05, AC-BT-03, 07, 15 |
 | BR-BT-07 | Sửa bộ đã xuất bản có hiệu lực ngay sau khi lưu. Thẻ bị xóa thì tiến độ học của thẻ đó không còn được tính; tiến độ các thẻ còn lại được giữ. | UC-BT-03, UC-NT-03, UC-NT-06, AC-BT-15, AC-NT-16, 41 |
 | BR-BT-11 | Xem chi tiết không ghi nhận tiến độ học và không tính vào thống kê học của học viên. | UC-BT-04, AC-BT-22 |
 

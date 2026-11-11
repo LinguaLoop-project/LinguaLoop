@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import com.lingualoop.backend.dictionary.dto.MeaningSnapshot;
 import com.lingualoop.backend.dictionary.dto.WordView;
 import com.lingualoop.backend.dictionary.entity.DictionaryWord;
 import com.lingualoop.backend.dictionary.entity.WordMeaning;
@@ -31,6 +32,24 @@ public class WordViewMapper {
                 defaultPronunciation(word),
                 groupByPos(word),
                 lemma);
+    }
+
+    /** Một nghĩa kèm phát âm của cả từ; âm thanh giữ đường dẫn tương đối (ADR 0009). */
+    public MeaningSnapshot toSnapshot(DictionaryWord word, WordMeaning meaning) {
+        return new MeaningSnapshot(
+                word.getId(),
+                word.getHeadword(),
+                blankToNull(meaning.pos()),
+                meaning.no(),
+                meaning.meaningVi(),
+                meaning.definitionEn(),
+                meaning.definitionVi(),
+                meaning.exampleEn(),
+                meaning.exampleVi(),
+                word.getIpaUk(),
+                word.getIpaUs(),
+                word.getAudioUk(),
+                word.getAudioUs());
     }
 
     private List<WordView.MeaningGroup> groupByPos(DictionaryWord word) {

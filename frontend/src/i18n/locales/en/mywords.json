@@ -1,13 +1,14 @@
 {
   "overline": "Saved words & sentences",
   "title": "Saved words & sentences",
-  "subtitle": "Sentences to practice again and your notes.",
+  "subtitle": "Your saved words, sentences to practise again, and notes.",
   "loading": "Loading",
   "loadFailed": "Couldn't load the data. Please try again.",
   "offline": "You're offline. Try again when you're back online.",
   "retry": "Retry",
   "tabs": {
     "label": "Sections",
+    "words": "Saved words",
     "review": "Sentences to review",
     "notes": "Notes"
   },
@@ -54,5 +55,66 @@
       "label": "Filter by mode",
       "all": "All"
     }
+  },
+  "words": {
+    "stats": {
+      "label": "Saved words overview",
+      "total": "Saved",
+      "totalHint": "word meanings",
+      "due": "Due today",
+      "dueHint": "cards to review",
+      "learning": "Learning",
+      "learningHint": "new, learning, reviewing",
+      "mastered": "Mastered",
+      "masteredHint": "21+ day interval"
+    },
+    "search": {
+      "placeholder": "Search saved words…",
+      "aria": "Search saved words"
+    },
+    "source": {
+      "label": "Source",
+      "all": "All sources",
+      "dictionary": "Dictionary",
+      "lesson": "Lessons"
+    },
+    "state": {
+      "label": "Status",
+      "all": "All",
+      "due": "Due",
+      "learning": "Learning",
+      "mastered": "Mastered"
+    },
+    "status": {
+      "new": "New",
+      "learning": "Learning",
+      "reviewing": "Reviewing",
+      "mastered": "Mastered"
+    },
+    "count_one": "{{count}} word",
+    "count_other": "{{count}} words",
+    "selectAll": "Select all",
+    "select": "Select {{word}}",
+    "selected_one": "{{count}} word selected",
+    "selected_other": "{{count}} words selected",
+    "clearSelection": "Clear selection",
+    "listen": "Listen to {{word}}",
+    "unsave": "Remove",
+    "unsaveAria": "Remove {{word}} from saved words",
+    "unsaved_one": "Removed {{count}} word",
+    "unsaved_other": "Removed {{count}} words",
+    "unsaveFailed": "Couldn't remove. Please try again.",
+    "next": {
+      "due": "Today",
+      "none": "—"
+    },
+    "nextLabel": "Next review",
+    "fromDictionary": "Dictionary",
+    "fromLesson": "Lesson: {{title}}",
+    "lessonGone": "Lesson",
+    "emptyTitle": "No saved words yet",
+    "emptyDesc": "Look up a word and tap Save, or tap a word in a lesson to save it with its sentence. Saved words come back for review at the right time.",
+    "emptyFilteredTitle": "No matching words",
+    "emptyFilteredDesc": "Change the filters or the search."
   }
 }

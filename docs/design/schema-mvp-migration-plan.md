@@ -210,7 +210,7 @@ public interface CreditService {
 - [ ] `./mvnw verify` xanh (coverage ≥ 30%); `./mvnw compile spotbugs:check` không lỗi mới.
 - [ ] `./mvnw spring-boot:run` với compose: app khởi động, Flyway V1 V2 chạy, `seed-lessons.sh` nạp, đăng nhập `teacher@lingualoop.local`, `GET /api/lessons?topicId=...` trả bài.
 - [ ] Docs: `planning/README.md` §3 cập nhật bảng sở hữu theo bảng mới (Kế: users, auth_*, notifications, dictionary_words, deck_categories, vocab_*, user_card_progress, vocab_sessions, vocab_review_logs, audit_logs, content_reports; Lâm: topics, lessons, sentences, lesson_likes, sentence_attempt*, user_sentence_review, sentence_notes, phonemes, ai_*, tutor_*, pro_plans, pro_orders). Thêm `docs/adr/0008-baseline-schema-mvp.md` (lý do, quyết định slug/ipa_uk/credit, hậu quả: reset staging). Cập nhật `CLAUDE.md` dòng "Never edit V1/V2" vẫn đúng với file mới; bỏ câu "Repo is at the scaffold stage".
-- [ ] Commit `docs: cập nhật sở hữu bảng và ADR 0008 cho schema MVP`. Push khi người dùng bảo; mô tả PR nêu: reset DB staging, frontend PR nối tiếp.
+- [ ] Commit `docs: cập nhật sở hữu bảng và ADR 0011 cho schema MVP`. Push khi người dùng bảo; mô tả PR nêu: reset DB staging, frontend PR nối tiếp.
 
 ### Task 12 (PR riêng, sau khi backend merge): Frontend
 

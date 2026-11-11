@@ -34,6 +34,20 @@ Bảng `dictionary_words` (157.644 từ: nghĩa tiếng Việt, ví dụ, phiên
 DB mới tạo hoặc vừa reset (`docker compose down -v`) sẽ **không có** từ điển cho đến khi nạp lại. Khi bảng rỗng, các nơi tra
 từ (popup ở bài học và nghe chép, mục "Từ điển" ở Shadowing) hiện "Từ điển chưa có từ ..." và phần còn lại vẫn chạy bình thường.
 
+### Bộ từ vựng hệ thống
+
+Bộ từ vựng là dữ liệu riêng, **không phụ thuộc từ điển** (ADR 0010). Nạp một lần bằng script, giống seed bài học:
+
+```bash
+./seed/seed-vocabulary.sh        # Windows PowerShell: ./seed/seed-vocabulary.ps1
+# DB khác: đặt DATABASE_URL=postgresql://... trước khi chạy
+```
+
+Seed (`seed/vocabulary-decks.sql.gz`) gồm 9 bộ (Thông dụng, Oxford 3000 A1 và A2, TOEIC, IELTS, TOEFL, Tết), 267 phần
+(nhóm chủ đề) và 6.748 thẻ kèm IPA và âm thanh Anh, Mỹ. Chạy lại được: các câu lệnh dùng `ON CONFLICT (id) DO NOTHING`, không
+tạo trùng và không đụng tới tiến độ học. Ứng dụng không tự nạp khi khởi động nên prod/Neon chỉ có bộ từ khi bạn chạy script.
+Chi tiết và những gì đã bỏ khi chuyển sang schema V1: xem [seed/README.md](seed/README.md).
+
 ### Khi sinh lại seed
 
 File seed là sản phẩm sinh từ bộ dữ liệu JSON. Khi cần cập nhật, sinh lại rồi nén bằng `gzip -9 -n`

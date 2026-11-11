@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lingualoop.backend.dictionary.dto.MeaningSnapshot;
 import com.lingualoop.backend.dictionary.dto.WordView;
 import com.lingualoop.backend.dictionary.entity.DictionaryWord;
 import com.lingualoop.backend.dictionary.mapper.WordViewMapper;
 import com.lingualoop.backend.dictionary.repository.DictionaryWordRepository;
+import com.lingualoop.backend.dictionary.util.AudioUrlResolver;
 import com.lingualoop.backend.dictionary.util.WordNormalizer;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ class DictionaryQueryServiceImpl implements DictionaryQueryService {
 
     private final DictionaryWordRepository repository;
     private final WordViewMapper mapper;
+    private final AudioUrlResolver audioUrlResolver;
 
     @Override
     public Optional<WordView> lookup(String word) {
@@ -48,6 +51,22 @@ class DictionaryQueryServiceImpl implements DictionaryQueryService {
         Map<UUID, DictionaryWord> byId = repository.findAllWithLemmaByIdIn(ids).stream()
                 .collect(Collectors.toMap(DictionaryWord::getId, Function.identity()));
         return ids.stream().map(byId::get).map(mapper::toView).toList();
+    }
+
+    @Override
+    public Optional<MeaningSnapshot> findMeaning(String headword, int meaningNo) {
+        return WordNormalizer.normalize(headword)
+                .flatMap(repository::findByHeadwordWithLemma)
+                .filter(word -> word.getLemma() == null)
+                .flatMap(word -> word.getMeanings().stream()
+                        .filter(meaning -> meaning.no() == meaningNo)
+                        .findFirst()
+                        .map(meaning -> mapper.toSnapshot(word, meaning)));
+    }
+
+    @Override
+    public String resolveAudioUrl(String path) {
+        return audioUrlResolver.resolve(path);
     }
 
     private static boolean hasContent(DictionaryWord w) {

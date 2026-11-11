@@ -13,6 +13,8 @@ Flyway chỉ nạp dữ liệu tham chiếu nhỏ (V2: 44 âm vị, cấu hình 
 | `seed-lessons.ps1` | script nạp cho Windows PowerShell |
 | `dictionary-words.sql.gz` | 157.644 từ điển (`dictionary_words`), chỉ cần V1; độc lập với bài học |
 | `seed-dictionary.sh` / `seed-dictionary.ps1` | script nạp từ điển (Git Bash/Linux/macOS và PowerShell) |
+| `vocabulary-decks.sql.gz` | 8 danh mục, 9 bộ từ hệ thống, 267 phần, 6.748 thẻ kèm IPA và âm thanh Anh, Mỹ; chỉ cần V1 |
+| `seed-vocabulary.sh` / `seed-vocabulary.ps1` | script nạp bộ từ vựng |
 
 Số trong tên file là thứ tự nạp. Script tự nạp đúng thứ tự, không cần chạy từng file.
 
@@ -44,6 +46,17 @@ Cột nạp vào: `id`, `headword` (chữ thường, duy nhất), `lemma_id` (NU
 ```
 
 `definition_en` và `definition_vi` chưa có dữ liệu (nguồn chỉ có nghĩa tiếng Việt và ví dụ).
+
+## Nạp bộ từ vựng
+
+Sau V1: `./seed/seed-vocabulary.sh` (Windows: `.\seed\seed-vocabulary.ps1`). Cùng cách chọn DB như bài học. Chạy lại an
+toàn (`ON CONFLICT (id) DO NOTHING`), không đụng tới tiến độ học.
+
+Bộ là bộ thư viện hệ thống (`kind = 'library'`, `owner_id` trống, `status = 'published'`). Tên danh mục, bộ và phần lấy bản
+tiếng Việt. Thứ tự phần và thẻ theo `created_at` (ghi sẵn mốc tăng dần). Khi chuyển từ bản seed cũ đã bỏ: 70 thẻ trùng từ
+trong cùng bộ (giữ thẻ xuất hiện đầu tiên, vì `uq_vocab_cards_word`), ảnh của thẻ, nhãn của bộ, mức CEFR. Loại từ ngoài danh
+sách của `vocab_cards.pos` (`auxiliary verb`) để trống. Nội dung, ảnh bìa và âm thanh (`assets.parroto.app`) lấy từ Parroto,
+có thể hỏng nếu bên đó đổi đường dẫn.
 
 ## Sinh lại file seed
 
