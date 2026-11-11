@@ -33,10 +33,11 @@ class ShadowingAttemptRecorder {
 
     @Transactional
     public long save(UUID userId, UUID lessonId, UUID sentenceId, PronunciationAssessment assessment,
-            List<List<String>> targets) {
+            List<List<String>> targets, int durationMs) {
         SentenceAttempt attempt = SentenceAttempt.azureShadowing(userId, sentenceId, assessment.pronunciationScore(),
                 assessment.accuracyScore(), assessment.fluencyScore(), assessment.completenessScore(),
                 assessment.prosodyScore());
+        attempt.setDurationMs(durationMs);
 
         Map<String, Short> phonemeIds = phonemeRepository.idsBySymbol();
         int position = 0;
@@ -70,14 +71,13 @@ class ShadowingAttemptRecorder {
             PronunciationAssessment.PhonemeResult p = word.phonemes().get(i);
             Short id = table.get(i) == null ? null : phonemeIds.get(table.get(i));
             Short target = targets.get(i) == null ? null : phonemeIds.get(targets.get(i));
-            if (id == null && target == null) {
-                // chk_phoneme_known: phải biết ít nhất âm đích hoặc âm nghe được
-                log.warn("Âm vị Azure '{}' không chuyển được sang bảng phonemes và không có âm đích (từ '{}'), bỏ qua",
+            if (id == null) {
+                // Vẫn lưu (heard rỗng, giữ ký hiệu gốc) để hiển thị và xử lý lại khi bổ sung bộ chuyển đổi
+                log.warn("Âm vị Azure '{}' chưa chuyển được sang bảng phonemes (từ '{}'), lưu với ký hiệu gốc",
                         azure.get(i), word.word());
-                continue;
             }
             PronunciationAssessment.Candidate alt = topAlternative(p, table.get(i), phonemeIds);
-            row.addPhoneme(i, target, id, alt == null ? null : phonemeIds.get(toTable(alt.symbol())),
+            row.addPhoneme(i, p.symbol(), target, id, alt == null ? null : phonemeIds.get(toTable(alt.symbol())),
                     p.accuracyScore());
         }
     }

@@ -33,6 +33,10 @@ public class AttemptPhoneme {
     @Column(name = "position", nullable = false, updatable = false)
     private Short position;
 
+    /** Ký hiệu gốc Azure trả về, giữ nguyên để hiển thị âm lạ và xử lý lại khi sửa bộ chuyển đổi. */
+    @Column(name = "azure_symbol", updatable = false)
+    private String azureSymbol;
+
     /** Âm đích ghép từ phiên âm của câu; null nếu không ghép được. */
     @Column(name = "target_phoneme_id", updatable = false)
     private Short targetPhonemeId;
@@ -48,10 +52,11 @@ public class AttemptPhoneme {
     @Column(name = "accuracy_score", nullable = false, precision = 5, scale = 2)
     private BigDecimal accuracyScore;
 
-    AttemptPhoneme(SentenceAttemptWord word, int position, Short targetPhonemeId, Short heardPhonemeId,
-            Short altPhonemeId, BigDecimal accuracyScore) {
+    AttemptPhoneme(SentenceAttemptWord word, int position, String azureSymbol, Short targetPhonemeId,
+            Short heardPhonemeId, Short altPhonemeId, BigDecimal accuracyScore) {
         this.word = word;
         this.position = (short) position;
+        this.azureSymbol = azureSymbol;
         this.targetPhonemeId = targetPhonemeId;
         this.heardPhonemeId = heardPhonemeId;
         this.altPhonemeId = altPhonemeId;
