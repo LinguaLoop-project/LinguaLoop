@@ -8,7 +8,7 @@ import Icon from "@/components/common/Icon";
 import ProgressRing from "@/components/common/ProgressRing";
 import { useNoteEntries } from "@/features/practice/hooks";
 import type { NoteEntry } from "@/features/practice/types";
-import { modeUrl } from "@/features/mywords/links";
+import { modeUrl } from "@/features/practice";
 import { formatDuration } from "@/lib/format";
 import type { LessonSummary, ModeProgress } from "../../types";
 import LessonThumb from "../LessonThumb";

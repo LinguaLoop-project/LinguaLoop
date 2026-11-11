@@ -35,7 +35,7 @@ const TopicDetailPage = lazy(() =>
   import("@/features/lesson/pages/TopicDetailPage").then((m) => ({ default: m.TopicDetailPage })),
 );
 const DictationPage = lazy(() => import("@/features/dictation/pages/DictationPage"));
-const MyWordsPage = lazy(() => import("@/features/mywords/pages/MyWordsPage"));
+const MyWordsPage = lazy(() => import("@/features/practice/pages/MyWordsPage"));
 const VocabPage = lazy(() => import("@/features/vocab/pages/VocabPage"));
 const DeckPage = lazy(() => import("@/features/vocab/pages/DeckPage"));
 const PartPage = lazy(() => import("@/features/vocab/pages/PartPage"));

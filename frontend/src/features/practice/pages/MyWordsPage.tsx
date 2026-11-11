@@ -5,7 +5,7 @@ import Icon from "@/components/common/Icon";
 import NotesTab from "../components/NotesTab";
 import ReviewTab from "../components/ReviewTab";
 import SavedWordsTab from "../components/SavedWordsTab";
-import { useNoteEntries, useReviewEntries } from "@/features/practice/hooks";
+import { useNoteEntries, useReviewEntries } from "../hooks";
 import { useSavedWords } from "@/features/vocab";
 
 const TABS = ["words", "review", "notes"] as const;
