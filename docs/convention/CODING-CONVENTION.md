@@ -99,7 +99,8 @@ Tách theo tác nhân trong cùng feature:
 ### 2.6 Test & coverage
 
 - Test bắt buộc chạy qua `mvn verify` (Surefire + JaCoCo), khớp job "3 · Kiểm thử & coverage" trong CI.
-- Ngưỡng coverage dòng hiện tại: **≥ 30%** toàn bundle (cấu hình trong `pom.xml`, sẽ tăng dần lên 50% rồi 70%) — không hạ ngưỡng này để né lỗi CI, thay vào đó viết thêm test.
+- Ngưỡng coverage dòng hiện tại: **≥ 70%** toàn bundle (cấu hình trong `pom.xml`) — không hạ ngưỡng này để né lỗi CI, thay vào đó viết thêm test.
+- Chi tiết vị trí đặt test, cách đặt tên và nội dung cần test (cả frontend): xem `TESTING-CONVENTION.md`.
 - `config/`, `dto/`, `entity/`, `BackendApplication` được loại khỏi phép đo coverage (ít logic) — service/mapper/exception-handler là nơi bắt buộc phải có test.
 - Test tích hợp dùng Testcontainers (Postgres) đã cấu hình sẵn (`TestcontainersConfiguration.java`), không mock DB bằng H2 để né setup — tránh sai khác hành vi so với Postgres prod.
 - Gọi API ngoài (dịch, TTS...) trong test dùng WireMock (`wiremock-standalone` đã có trong `pom.xml`), không gọi API thật trong test.

@@ -136,7 +136,7 @@ jobs:
   # ===========================================================================
   # JOB 3 — KIỂM THỬ & COVERAGE
   # mvn verify chạy: surefire (unit test) -> jacoco:report -> jacoco:check
-  # (ngưỡng LINE >= 0.30 cấu hình trong pom).
+  # (ngưỡng LINE >= 0.70 cấu hình trong pom).
   # Runner ubuntu-latest có sẵn Docker daemon nên Testcontainers chạy được.
   # ===========================================================================
   test:

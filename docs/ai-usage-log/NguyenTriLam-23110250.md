@@ -807,6 +807,18 @@
 - **Commit:** 291ffd7, f93e986, 5a6411f, 2eb3233
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-071
+
+- **Ngày:** 2026-11-12
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5)
+- **Phạm vi (`Scope`):** TESTING
+- **Loại công việc (`Task Type`):** DOCUMENTATION
+- **Prompt chính / yêu cầu:** Đối chiếu rubric kiểm thử với hiện trạng dự án; đo coverage backend và nâng cổng JaCoCo lên 70%; lập quy ước kiểm thử, kế hoạch kiểm thử (kèm bản ví dụ), bảng truy vết AC sang test cho 18 module (điền module TK), sổ lỗi, mẫu issue và PR, khung e2e/perf, script sinh báo cáo đối chiếu rubric
+- **Vị trí code do AI sinh (`file:hàm`):** `tools/test-report/generate.py:cmd_sync`, `:cmd_report`; `docs/convention/TESTING-CONVENTION.md`; `docs/test/TEST-PLAN.md`, `TEST-PLAN-EXAMPLE.md`, `RUBRIC-CHECKLIST.md`, `BUG-REGISTER.md`, `TRACEABILITY-AC-TEST.md`, `traceability/*.md`; `.github/ISSUE_TEMPLATE/bug_report.yml`; `e2e/README.md`, `perf/README.md`, `frontend/src/test/README.md`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên cung cấp rubric và mẫu báo cáo, yêu cầu từng phần, chọn người phụ trách tài liệu là cả hai thành viên, yêu cầu bổ sung Priority và Assignee cho sổ lỗi theo danh sách chuẩn. Số liệu coverage 91,1% lấy từ chạy `./mvnw verify` thật; 41 dòng AC của module TK được đối chiếu với tên test hiện có bằng script kiểm tra mọi tham chiếu test tồn tại. Các module khác, tên người phụ trách theo module, ngưỡng frontend và hiệu năng trong bản ví dụ là đề xuất chưa xác nhận
+- **Commit:** 589afbe, f02fa26, ae49e9e, 17a4802, fcb5bcb, 4125eda, df3708c
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).

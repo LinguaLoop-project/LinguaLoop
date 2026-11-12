@@ -332,9 +332,9 @@
 						</goals>
 					</execution>
 					<execution>
-						<!-- Cổng chất lượng: coverage dòng < 30% thì build đỏ.
-						     Đặt 0.30 vì dự án mới bắt đầu; nâng dần theo thời gian
-						     (0.50 rồi 0.70) để tránh coverage tụt lùi. -->
+						<!-- Cổng chất lượng: coverage dòng < 70% thì build đỏ.
+						     Đo thực tế ~91% (nhiều gói đã loại khỏi phép đo, xem excludes);
+						     ngưỡng 0.70 khớp rubric kiểm thử và chặn coverage tụt lùi. -->
 						<id>check</id>
 						<phase>verify</phase>
 						<goals>
@@ -349,7 +349,7 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.30</minimum>
+											<minimum>0.70</minimum>
 										</limit>
 									</limits>
 								</rule>

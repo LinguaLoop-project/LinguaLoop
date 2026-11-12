@@ -1,0 +1,72 @@
+name: Báo lỗi
+description: Ghi nhận một lỗi để theo dõi vòng đời và viết test hồi quy
+title: "[Lỗi] "
+labels: ["bug", "trạng-thái:mới"]
+body:
+  - type: input
+    id: ac
+    attributes:
+      label: AC liên quan
+      description: Mã tiêu chí chấp nhận bị vi phạm (ví dụ AC-TK-13). Ghi N/A nếu không có.
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Mức độ
+      description: Xem định nghĩa trong docs/test/BUG-REGISTER.md
+      options:
+        - Blocker
+        - Critical
+        - Major
+        - Minor
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Ưu tiên
+      description: P1 sửa ngay, P2 sửa trong tuần, P3 sửa trước tuần 12
+      options:
+        - P1
+        - P2
+        - P3
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Mô tả lỗi
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Các bước tái hiện
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Kết quả mong đợi
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Kết quả thực tế
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Môi trường
+      description: Nhánh hoặc commit, trình duyệt, hệ điều hành
+  - type: textarea
+    id: regression
+    attributes:
+      label: Test hồi quy (điền khi sửa xong)
+      description: Tên lớp và phương thức test tái hiện lỗi này, ví dụ LoginIntegrationTest.login_xxx
