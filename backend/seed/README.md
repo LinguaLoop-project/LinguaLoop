@@ -12,6 +12,7 @@ Flyway chỉ nạp dữ liệu tham chiếu nhỏ (V2: 44 âm vị, cấu hình 
 | `seed-lessons.sh` | script nạp cho Linux, macOS, Git Bash |
 | `seed-lessons.ps1` | script nạp cho Windows PowerShell |
 | `dictionary-words.sql.gz` | 157.644 từ điển (`dictionary_words`), chỉ cần V1; độc lập với bài học |
+| `dictionary-pos-pronunciations.sql.gz` | phát âm riêng theo loại từ (`pos_pronunciations`) cho 44 từ đồng tự khác âm (present, record, use...), IPA từ Wiktionary; nạp sau từ điển |
 | `seed-dictionary.sh` / `seed-dictionary.ps1` | script nạp từ điển (Git Bash/Linux/macOS và PowerShell) |
 | `vocabulary-decks.sql.gz` | 8 danh mục, 9 bộ từ hệ thống, 267 phần, 6.748 thẻ kèm IPA và âm thanh Anh, Mỹ; chỉ cần V1 |
 | `seed-vocabulary.sh` / `seed-vocabulary.ps1` | script nạp bộ từ vựng |
@@ -46,6 +47,12 @@ Cột nạp vào: `id`, `headword` (chữ thường, duy nhất), `lemma_id` (NU
 ```
 
 `definition_en` và `definition_vi` chưa có dữ liệu (nguồn chỉ có nghĩa tiếng Việt và ví dụ).
+
+Script nạp tiếp `dictionary-pos-pronunciations.sql.gz`: ghi `pos_pronunciations` cho từ đồng tự khác âm, khoá là `pos` của
+nghĩa, vd `{"verb":{"ipa_uk":"/pɹɪˈzɛnt/","ipa_us":"/pɹɪˈzɛnt/"}}`. IPA lấy nguyên từ Wiktionary (dump kaikki.org, qua
+`dictionary_words.final.jsonl` của FluentDict); danh sách từ và cách gán IPA cho loại từ chọn tay, lý do ghi ở đầu file.
+Chỉ ghi loại từ đọc khác phát âm mặc định; chưa có âm thanh riêng nên `audio_*` để trống (giao diện không phát âm thanh
+mặc định cho loại từ đó vì đó là cách đọc khác).
 
 ## Nạp bộ từ vựng
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.lingualoop.backend.dictionary.dto.MeaningSnapshot;
 import com.lingualoop.backend.dictionary.dto.WordView;
 import com.lingualoop.backend.dictionary.entity.DictionaryWord;
+import com.lingualoop.backend.dictionary.entity.PosPronunciation;
 import com.lingualoop.backend.dictionary.entity.WordMeaning;
 import com.lingualoop.backend.dictionary.util.AudioUrlResolver;
 
@@ -34,8 +35,9 @@ public class WordViewMapper {
                 lemma);
     }
 
-    /** Một nghĩa kèm phát âm của cả từ; âm thanh giữ đường dẫn tương đối (ADR 0009). */
+    /** Một nghĩa kèm phát âm của loại từ đó (hoặc của cả từ); âm thanh giữ đường dẫn tương đối (ADR 0009). */
     public MeaningSnapshot toSnapshot(DictionaryWord word, WordMeaning meaning) {
+        PosPronunciation p = rawPronunciationFor(word, blankToNull(meaning.pos()));
         return new MeaningSnapshot(
                 word.getId(),
                 word.getHeadword(),
@@ -46,10 +48,10 @@ public class WordViewMapper {
                 meaning.definitionVi(),
                 meaning.exampleEn(),
                 meaning.exampleVi(),
-                word.getIpaUk(),
-                word.getIpaUs(),
-                word.getAudioUk(),
-                word.getAudioUs());
+                p.ipaUk(),
+                p.ipaUs(),
+                p.audioUk(),
+                p.audioUs());
     }
 
     private List<WordView.MeaningGroup> groupByPos(DictionaryWord word) {
@@ -61,13 +63,29 @@ public class WordViewMapper {
         }
         List<WordView.MeaningGroup> groups = new ArrayList<>(byPos.size());
         byPos.forEach((pos, meanings) -> groups.add(
-                new WordView.MeaningGroup(pos, defaultPronunciation(word), List.copyOf(meanings))));
+                new WordView.MeaningGroup(pos, pronunciationFor(word, pos), List.copyOf(meanings))));
         return groups;
     }
 
+    private WordView.Pronunciation pronunciationFor(DictionaryWord word, String pos) {
+        return resolved(rawPronunciationFor(word, pos));
+    }
+
     private WordView.Pronunciation defaultPronunciation(DictionaryWord word) {
-        return new WordView.Pronunciation(word.getIpaUk(), word.getIpaUs(),
-                audioUrlResolver.resolve(word.getAudioUk()), audioUrlResolver.resolve(word.getAudioUs()));
+        return resolved(rawPronunciationFor(word, null));
+    }
+
+    /** Ghi đè phát âm theo loại từ nếu có, không thì dùng mặc định của từ; âm thanh còn là đường dẫn gốc. */
+    private PosPronunciation rawPronunciationFor(DictionaryWord word, String pos) {
+        Map<String, PosPronunciation> overrides = word.getPosPronunciations();
+        PosPronunciation override = overrides == null || pos == null ? null : overrides.get(pos);
+        return override != null ? override
+                : new PosPronunciation(word.getIpaUk(), word.getIpaUs(), word.getAudioUk(), word.getAudioUs());
+    }
+
+    private WordView.Pronunciation resolved(PosPronunciation p) {
+        return new WordView.Pronunciation(p.ipaUk(), p.ipaUs(),
+                audioUrlResolver.resolve(p.audioUk()), audioUrlResolver.resolve(p.audioUs()));
     }
 
     private String blankToNull(String s) {

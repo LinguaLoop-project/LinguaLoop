@@ -2,7 +2,7 @@ package com.lingualoop.backend.dictionary.dto;
 
 import java.util.List;
 
-/** Một từ để hiển thị: các nghĩa đã gom theo loại từ, mỗi nhóm kèm phát âm của cả từ. */
+/** Một từ để hiển thị: các nghĩa đã gom theo loại từ, mỗi nhóm kèm phát âm riêng của loại từ đó (nếu có) hoặc của cả từ. */
 public record WordView(
         String headword,
         Pronunciation pronunciation,

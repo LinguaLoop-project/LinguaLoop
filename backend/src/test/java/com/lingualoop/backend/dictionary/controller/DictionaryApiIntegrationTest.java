@@ -1,5 +1,6 @@
 package com.lingualoop.backend.dictionary.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,6 +19,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
+import com.lingualoop.backend.dictionary.dto.MeaningSnapshot;
+import com.lingualoop.backend.dictionary.service.DictionaryQueryService;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
 import com.lingualoop.backend.user.service.UserAccountService;
@@ -37,6 +40,7 @@ class DictionaryApiIntegrationTest {
     @Autowired private JwtTokenService jwtTokenService;
     @Autowired private UserAccountService userAccountService;
     @Autowired private JdbcTemplate jdbc;
+    @Autowired private DictionaryQueryService dictionaryQueryService;
 
     /** Mỗi test một tiền tố riêng (chỉ chữ cái và số) để headword không đụng dữ liệu của test khác. */
     private final String base = "zq" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
@@ -73,6 +77,41 @@ class DictionaryApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.pronunciation.audioUk").value("audio/" + base + "-uk.mp3"))
                 .andExpect(jsonPath("$.data.pronunciation.audioUs").value("audio/" + base + "-us.mp3"));
+    }
+
+    /** Từ đồng tự khác âm (vd "present"): nhóm động từ lấy phát âm riêng, nhóm danh từ giữ phát âm mặc định. */
+    @Test
+    void lookup_usesPosOverrideOnlyForThatPos() throws Exception {
+        String override = """
+                {"verb":{"ipa_uk":"/v-uk/","ipa_us":"/v-us/","audio_uk":null,"audio_us":"audio/v-us.mp3"}}""";
+        insert(base, "A1", null, "/n-uk/", "/n-us/", override, NOUN_AND_VERB);
+
+        as(get("/api/v1/dictionary/word/{word}", base))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.pronunciation.ipaUk").value("/n-uk/"))
+                .andExpect(jsonPath("$.data.groups[0].pos").value("noun"))
+                .andExpect(jsonPath("$.data.groups[0].pronunciation.ipaUs").value("/n-us/"))
+                .andExpect(jsonPath("$.data.groups[1].pos").value("verb"))
+                .andExpect(jsonPath("$.data.groups[1].pronunciation.ipaUk").value("/v-uk/"))
+                .andExpect(jsonPath("$.data.groups[1].pronunciation.audioUs").value("audio/v-us.mp3"))
+                .andExpect(jsonPath("$.data.groups[1].pronunciation.audioUk").doesNotExist());
+    }
+
+    /** Lưu nghĩa động từ vào thẻ từ vựng phải kèm phát âm động từ, không phải phát âm mặc định (danh từ). */
+    @Test
+    void findMeaning_usesPosOverrideOfThatMeaning() {
+        String override = """
+                {"verb":{"ipa_uk":"/v-uk/","ipa_us":"/v-us/","audio_uk":null,"audio_us":"audio/v-us.mp3"}}""";
+        insert(base, "A1", null, "/n-uk/", "/n-us/", override, NOUN_AND_VERB);
+
+        MeaningSnapshot noun = dictionaryQueryService.findMeaning(base, 1).orElseThrow();
+        MeaningSnapshot verb = dictionaryQueryService.findMeaning(base, 3).orElseThrow();
+
+        assertThat(noun.ipaUk()).isEqualTo("/n-uk/");
+        assertThat(verb.ipaUk()).isEqualTo("/v-uk/");
+        assertThat(verb.ipaUs()).isEqualTo("/v-us/");
+        assertThat(verb.audioUs()).isEqualTo("audio/v-us.mp3");
+        assertThat(verb.audioUk()).isNull();
     }
 
     @Test
@@ -227,10 +266,10 @@ class DictionaryApiIntegrationTest {
         UUID id = UUID.randomUUID();
         jdbc.update("""
                 INSERT INTO dictionary_words
-                    (id, headword, lemma_id, ipa_uk, ipa_us, audio_uk, audio_us, meanings)
-                VALUES (?, ?, CAST(? AS uuid), ?, ?, ?, ?, CAST(? AS jsonb))""",
+                    (id, headword, lemma_id, ipa_uk, ipa_us, audio_uk, audio_us, pos_pronunciations, meanings)
+                VALUES (?, ?, CAST(? AS uuid), ?, ?, ?, ?, CAST(? AS jsonb), CAST(? AS jsonb))""",
                 id, headword, lemmaId == null ? null : lemmaId.toString(), ipaUk, ipaUs,
-                audioUk, audioUs, meaningsJson);
+                audioUk, audioUs, posPronunciations, meaningsJson);
         return id;
     }
 }

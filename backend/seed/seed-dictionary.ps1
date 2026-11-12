@@ -14,7 +14,7 @@ function Invoke-Sql([string[]]$psqlArgs) {
     }
 }
 
-foreach ($name in "dictionary-words.sql.gz") {
+foreach ($name in "dictionary-words.sql.gz", "dictionary-pos-pronunciations.sql.gz") {
     Write-Host "Nạp $name ..."
     $tmp = Join-Path ([IO.Path]::GetTempPath()) ([IO.Path]::GetFileNameWithoutExtension($name))
     $in = [IO.File]::OpenRead((Join-Path $here $name))

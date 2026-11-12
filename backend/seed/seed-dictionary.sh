@@ -14,7 +14,7 @@ run_psql() {
   fi
 }
 
-for f in dictionary-words.sql.gz; do
+for f in dictionary-words.sql.gz dictionary-pos-pronunciations.sql.gz; do
   echo "Nạp $f ..."
   gzip -dc "$f" | run_psql
 done

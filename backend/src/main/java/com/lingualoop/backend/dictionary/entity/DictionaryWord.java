@@ -2,6 +2,7 @@ package com.lingualoop.backend.dictionary.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -48,6 +49,11 @@ public class DictionaryWord {
 
     @Column(name = "audio_us")
     private String audioUs;
+
+    /** Ghi đè phát âm theo loại từ (khoá là pos của nghĩa); NULL thì mọi loại từ dùng phát âm mặc định. */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "pos_pronunciations")
+    private Map<String, PosPronunciation> posPronunciations;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false)
