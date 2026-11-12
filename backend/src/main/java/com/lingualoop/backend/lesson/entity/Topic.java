@@ -1,5 +1,6 @@
 package com.lingualoop.backend.lesson.entity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -23,4 +24,8 @@ public class Topic {
 
     @Column(name = "name", nullable = false)
     private String name;
+
+    /** Thứ tự hiển thị của chủ đề (thêm mới = cuối danh sách). DB tự đặt, không sửa. */
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+    private Instant createdAt;
 }
