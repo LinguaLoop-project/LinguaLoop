@@ -363,6 +363,66 @@
 - **Commit:** 5804a8a
 - **Lỗi liên quan:** NONE
 
+### AI-KE-033
+
+- **Ngày:** 2026-11-10
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DATABASE
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Gộp migration cũ thành baseline theo schema MVP Kế thiết kế; seed phoneme, tài khoản dev, bài học, từ điển; thêm `created_at` cho `topics`, `deck_categories`
+- **Vị trí code do AI sinh (`file:hàm`):** `db/migration/V1__init_schema.sql`, `V2__seed_reference_data.sql`; `docs/design/schema-mvp-migration-plan.md`; `backend/seed/seed-dictionary.{sh,ps1}`, `backend/seed/README.md`; `docs/adr/0011-baseline-schema-mvp.md`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế thiết kế schema MVP (`docs/design/schema-mvp.sql`) và quyết định gộp về một baseline
+- **Commit:** 4398e5c, 2a4931f, 284d597, fa99d69, 89805b7
+- **Lỗi liên quan:** NONE
+
+### AI-KE-034
+
+- **Ngày:** 2026-11-10
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** BACKEND_COMMON
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Sửa entity, repository, service các feature cho khớp schema MVP; thay quota năng lượng AI bằng ví credit; gộp nhật ký về `audit_logs`; phạm vi phụ: AUTH, LESSON, SUBSCRIPTION, AUDIT, DICTIONARY
+- **Vị trí code do AI sinh (`file:hàm`):** `user/entity/User.java`, xoá `ConsentService`; `lesson/entity/Lesson.java`, `LessonStatusConverter.java`; `practice/repository/SentenceReviewRepository.java`, `practice/service/PracticeAttemptServiceImpl.java:recordDictationAttempt`; `credit/service/CreditServiceImpl.java` (`refill`, `nextMonthly`), `subscription/entity/ProOrder.java`; `shadowing/entity/AiFeedback.java`; `tutor/TutorSessionService.java`; `audit/entity/AuditLog.java`; `dictionary/entity/DictionaryWord.java`, `dictionary/mapper/WordViewMapper.java`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế quyết định bỏ `ConsentService` và bảng tiến độ bài, tiến độ tính từ `sentence_attempts`, mô hình credit (Free nạp mỗi ngày, Pro theo tháng của gói, trừ theo token), một bảng `audit_logs` chung
+- **Commit:** b56cf1b, 951d371, d78829e, 05da4fd, 798580b, e2fd865, 933b81c, edb4f0e, 7fcc075
+- **Lỗi liên quan:** AI-ERR-KE-002
+
+### AI-KE-035
+
+- **Ngày:** 2026-11-10
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** BACKEND_COMMON
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Tổ chức lại feature backend và frontend theo domain, viết tài liệu cấu trúc dự án; phạm vi phụ: FRONTEND, DOCUMENTATION
+- **Vị trí code do AI sinh (`file:hàm`):** `docs/convention/CAU-TRUC-DU-AN.md`; `frontend/src/features/practice/` (chuyển từ `mywords/`); khung thư mục `credit`, `stats`, `weakness`, `plan`, `phoneme`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chọn danh sách feature theo domain và cách chia actor trong feature
+- **Commit:** 9b19344
+- **Lỗi liên quan:** NONE
+
+### AI-KE-036
+
+- **Ngày:** 2026-11-11
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_MODIFICATION
+- **Prompt chính / yêu cầu:** Sửa frontend theo API mới: id thay slug, ví credit thay quota, vai trò Giáo viên
+- **Vị trí code do AI sinh (`file:hàm`):** `features/lesson/services/lessonService.ts`; `features/subscription/hooks/useCredit.ts`; `features/shadowing/components/ShadowingPractice.tsx`; `features/practice/hooks.ts`; `app/routes.tsx`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế xác định các thay đổi API mà frontend phải theo
+- **Commit:** 1b43d95
+- **Lỗi liên quan:** NONE
+
+### AI-KE-037
+
+- **Ngày:** 2026-11-12
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DICTIONARY
+- **Loại công việc (`Task Type`):** DEBUGGING
+- **Prompt chính / yêu cầu:** Khôi phục phát âm riêng theo loại từ (`pos_pronunciations`) cho từ đồng tự khác âm bị bỏ nhầm khi refactor; seed dữ liệu
+- **Vị trí code do AI sinh (`file:hàm`):** `db/migration/V20261112_1600__dictionary_pos_pronunciations.sql`; `dictionary/entity/PosPronunciation.java`; `dictionary/mapper/WordViewMapper.java:rawPronunciationFor`, `:toSnapshot`; `DictionaryApiIntegrationTest.java:lookup_usesPosOverrideOnlyForThatPos`, `:findMeaning_usesPosOverrideOfThatMeaning`; `backend/seed/dictionary-pos-pronunciations.sql.gz`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế phát hiện lỗi; loại bỏ bản IPA đầu tiên AI tự soạn không có nguồn, yêu cầu lấy dữ liệu từ FluentDict (Wiktionary); AI chỉ giữ 44 từ đồng tự khác âm kinh điển vì dữ liệu tự động có nhiều ghi đè sai; chưa có audio theo loại từ
+- **Commit:** c9e4aa2
+- **Lỗi liên quan:** AI-ERR-KE-002
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
@@ -380,6 +440,21 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit gây ra lỗi (đưa đầu ra AI vào code):** b7c15af
 - **Commit sửa (bắt buộc, khác commit trên):** 264726a
 - **Kiểm chứng sau sửa:** `SessionIntegrationTest.java:refresh_fromUnknownOrigin_isRejectedByCors_AC27`, `:logout_fromUnknownOrigin_isRejectedByCorsAndSessionSurvives_AC25`; `./mvnw clean verify` (132/132 xanh).
+- **Trạng thái (`Error Status`):** VERIFIED
+
+### AI-ERR-KE-002
+
+- **Liên kết bản ghi AI:** AI-KE-034
+- **Loại lỗi (`Error Type`):** LOGIC_ERROR
+- **Ngày phát hiện:** 2026-11-12
+- **Đầu ra sai/thiếu sót và bối cảnh:** Khi đưa từ điển về schema MVP, AI xếp cột `pos_pronunciations` vào nhóm "chỉ để chờ tính năng chưa làm" (ADR 0011) rồi xoá cột, `PosPronunciation` và hàm `pronunciationFor`. Thực tế tính năng đang chạy: mỗi nhóm loại từ hiện phát âm riêng cho từ đồng tự khác âm (present danh từ /ˈprez.ənt/, động từ /prɪˈzent/). Sau refactor mọi loại từ dùng chung một phát âm.
+- **Vị trí (`file:hàm`):** `dictionary/mapper/WordViewMapper.java:groupByPos`, `:toSnapshot`; `dictionary/entity/DictionaryWord.java`
+- **Nguyên nhân phân tích:** AI gộp cột này chung với `cefr_level`, `source` (thật sự không dùng) mà không kiểm tra code đang đọc cột; test có dùng cột cũng bị sửa theo thay vì giữ làm bằng chứng.
+- **Cách phát hiện / bằng chứng:** Kế hỏi lý do bỏ cột; `git show edb4f0e` cho thấy xoá `pronunciationFor` và test `lookup_usesPosOverrideOnlyForThatPos`.
+- **Cách sửa:** Migration thêm lại cột; khôi phục `PosPronunciation`, ghi đè theo loại từ trong `WordViewMapper` (cả `toSnapshot` khi lưu thẻ); seed 44 từ (IPA từ Wiktionary); sửa ADR 0011.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** edb4f0e
+- **Commit sửa (bắt buộc, khác commit trên):** c9e4aa2
+- **Kiểm chứng sau sửa:** `DictionaryApiIntegrationTest` 16/16 qua (thêm `lookup_usesPosOverrideOnlyForThatPos`, `findMeaning_usesPosOverrideOfThatMeaning`); `SavedWordApiIntegrationTest` 16/16; seed chạy hai lần liên tiếp trên Postgres 17.
 - **Trạng thái (`Error Status`):** VERIFIED
 
 ## 3. Bằng chứng bổ sung (nếu cần)
