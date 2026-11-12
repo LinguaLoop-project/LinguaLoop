@@ -69,9 +69,9 @@ public class SentenceAttemptWord {
     @OrderBy("position")
     private List<AttemptPhoneme> phonemes = new ArrayList<>();
 
-    public void addPhoneme(int position, Short targetPhonemeId, Short heardPhonemeId, Short altPhonemeId,
-            double accuracy) {
-        phonemes.add(new AttemptPhoneme(this, position, targetPhonemeId, heardPhonemeId, altPhonemeId,
+    public void addPhoneme(int position, String azureSymbol, Short targetPhonemeId, Short heardPhonemeId,
+            Short altPhonemeId, double accuracy) {
+        phonemes.add(new AttemptPhoneme(this, position, azureSymbol, targetPhonemeId, heardPhonemeId, altPhonemeId,
                 SentenceAttempt.scale(accuracy)));
     }
 }

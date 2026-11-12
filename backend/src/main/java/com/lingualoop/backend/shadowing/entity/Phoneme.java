@@ -31,10 +31,6 @@ public class Phoneme {
     @Column(name = "example_word")
     private String exampleWord;
 
-    /** Mẹo sửa phát âm cho người học Việt; null nếu chưa có. */
-    @Column(name = "tip_vi")
-    private String tipVi;
-
     @Column(name = "mouth_video_url")
     private String mouthVideoUrl;
 }

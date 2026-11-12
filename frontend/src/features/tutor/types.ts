@@ -113,3 +113,5 @@ export type TutorNotice =
   | { code: "holdTooShort" }
   | { code: "switchFailed" }
   | { code: "server"; message: string };
+
+export type LessonEvent = "start_on" | "start_off" | "toggle_on" | "toggle_off";

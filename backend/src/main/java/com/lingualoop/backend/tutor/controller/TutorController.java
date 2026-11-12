@@ -48,6 +48,17 @@ public class TutorController {
         return ApiResponse.ok(null);
     }
 
+    @PostMapping("/lesson-events")
+    public ApiResponse<Void> lessonEvent(@CurrentUserId UUID userId,
+            @Valid @RequestBody TutorDtos.LessonEventRequest request) {
+        try {
+            offerService.recordLessonEvent(userId, request.lessonId(), request.event());
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED, "Sự kiện không hợp lệ");
+        }
+        return ApiResponse.ok(null);
+    }
+
     @PostMapping("/sessions")
     public ApiResponse<TutorDtos.SessionResponse> createSession(@CurrentUserId UUID userId,
             @Valid @RequestBody TutorDtos.CreateSessionRequest request) {

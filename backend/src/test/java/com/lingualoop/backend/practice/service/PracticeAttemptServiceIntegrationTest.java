@@ -56,6 +56,7 @@ class PracticeAttemptServiceIntegrationTest {
         assertThat(row.get("listen_count")).isEqualTo(2);
         assertThat((BigDecimal) row.get("total_score")).isEqualByComparingTo("66.67");
         assertThat(row.get("client_request_id")).isNull();
+        assertThat(row.get("duration_ms")).isEqualTo(4200);
         assertThat(row.get("is_retry")).isEqualTo(false);
         assertThat(row.get("gave_up")).isEqualTo(false);
         assertThat(row.get("created_at")).isNotNull();

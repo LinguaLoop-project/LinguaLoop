@@ -144,7 +144,7 @@ class TutorOfferAndSessionIntegrationTest {
     // ── UC-TUTOR-02 ─────────────────────────────────────────────────────────────────
 
     @Test
-    void decline_acceptsTheOwnerAndRejectsOtherPeople_AC_TUTOR_06() throws Exception {
+    void decline_marksTheOfferOnceAndRejectsOtherPeople_AC_TUTOR_06() throws Exception {
         Fx f = fx();
         long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20));
         long offerId = jdbcOfferId(f.user, attempt);
@@ -156,7 +156,7 @@ class TutorOfferAndSessionIntegrationTest {
         mockMvc.perform(post("/api/v1/tutor/offers/{id}/decline", offerId).headers(auth(f.user)))
                 .andExpect(status().isOk());
 
-        assertThat(count("tutor_offers WHERE id = ?", offerId)).isEqualTo(1); // việc bỏ qua không được lưu
+        assertThat(count("tutor_offers WHERE id = ? AND declined_at IS NOT NULL AND accepted_at IS NULL", offerId)).isEqualTo(1);
     }
 
     // ── UC-TUTOR-03 ─────────────────────────────────────────────────────────────────
@@ -229,7 +229,27 @@ class TutorOfferAndSessionIntegrationTest {
     }
 
     @Test
-    void createSession_withAnOfferOfAnotherAttempt_returns404() throws Exception {
+    void lessonEvent_isStoredAndAnUnknownOneIsRejected_AC_TUTOR_29() throws Exception {
+        Fx f = fx();
+        String body = "{\"lessonId\":\"%s\",\"event\":\"%s\"}";
+
+        mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
+                        .content(body.formatted(f.lesson, "toggle_on")))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
+                        .content(body.formatted(f.lesson, "toggle_sideways")))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
+                        .content(body.formatted(UUID.randomUUID(), "toggle_on")))
+                .andExpect(status().isNotFound());
+
+        assertThat(count("tutor_lesson_events WHERE user_id = ?", f.user)).isEqualTo(1);
+        verify(tokenIssuer, never()).issue(any());
+    }
+
+    @Test
+    void createSession_withAnOfferOfAnotherAttempt_returns404AndLeavesTheOfferPending() throws Exception {
         Fx f = fx();
         long attemptA = attempt(f, "Think about it", word("think", 45, "θ", 20));
         long attemptB = attempt(f, "Think again", word("think", 45, "θ", 20));
@@ -237,6 +257,7 @@ class TutorOfferAndSessionIntegrationTest {
 
         createSession(f.user, attemptB, offerOfA).andExpect(status().isNotFound());
 
+        assertThat(count("tutor_offers WHERE id = ? AND accepted_at IS NULL", offerOfA)).isEqualTo(1);
         assertThat(count("tutor_sessions WHERE attempt_id = ?", attemptB)).isZero();
         verifyNoInteractions(tokenIssuer);
     }

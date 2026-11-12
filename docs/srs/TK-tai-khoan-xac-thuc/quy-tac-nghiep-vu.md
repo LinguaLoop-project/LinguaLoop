@@ -5,7 +5,7 @@
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
 | BR-TK-10 | Tài khoản bị quản trị viên khóa không đăng nhập được bằng bất kỳ cách nào (email và mật khẩu, hoặc Google). Yêu cầu quên mật khẩu cho tài khoản này vẫn nhận thông báo chung như mọi email (BR-TK-04) nhưng hệ thống không gửi thư đặt lại, vì thư không giúp đăng nhập được. | UC-TK-02 (6a), UC-TK-03 (6a), UC-TK-06 (Bước 5), AC-TK-15, AC-TK-23, AC-TK-34, AC-TK-07 |
-| BR-TK-12 | Học viên phải hoàn tất thiết lập hồ sơ học tập trước khi dùng các chức năng khác. Quy tắc này chỉ áp dụng cho Học viên, không áp dụng cho Giáo viên và Quản trị viên. | UC-TK-08 (Bước 1), UC-TK-02 (8a), AC-TK-10, AC-TK-46, AC-TK-52, AC-TK-53 |
+| BR-TK-12 | Học viên phải hoàn tất thiết lập hồ sơ học tập trước khi dùng các chức năng khác. Quy tắc này chỉ áp dụng cho Học viên, không áp dụng cho Giáo viên và Quản trị viên. | UC-TK-08 (Bước 1), UC-TK-02 (8a), AC-TK-10, AC-TK-46, AC-TK-52 |
 | BR-TK-15 | Tài khoản tự đăng ký (bằng email hoặc Google) luôn có vai trò Học viên. Vai trò Giáo viên và Quản trị viên do quản trị viên cấp. | UC-TK-01 (Bước 6), UC-TK-03 (5a), AC-TK-01, AC-TK-17 |
 
 ## Dữ liệu hợp lệ
@@ -16,7 +16,7 @@
 | BR-TK-02 | Mật khẩu có ít nhất 8 ký tự. Không bắt buộc chữ hoa, chữ số hay ký tự đặc biệt. | UC-TK-01 (4a), UC-TK-06 (9a), UC-TK-07 (4b), AC-TK-02, AC-TK-40, AC-TK-45, AC-TK-36, AC-TK-42, AC-TK-43 |
 | BR-TK-11 | Tên hiển thị dài từ 1 đến 50 ký tự (không tính khoảng trắng đầu và cuối). | UC-TK-01 (4a), UC-TK-08 (4a), AC-TK-02, AC-TK-49, AC-TK-48 |
 | BR-TK-13 | Thời lượng học mỗi ngày chọn một trong 10, 15, 20, 30 phút, mặc định 15 phút. Đây là mục tiêu thời gian học hằng ngày của học viên và dùng để xác định số lượng thẻ từ vựng cùng số câu cần ôn trong phiên Ôn tập kiến thức hằng ngày (BR-HT-24); học viên có thể thay đổi lại bất kỳ lúc nào trong phần hồ sơ/cài đặt. Ngôn ngữ giao diện: tiếng Việt hoặc tiếng Anh. | UC-TK-08 (4a), UC-TK-09, AC-TK-47, AC-TK-49 |
-| BR-TK-14 | Người dùng phải đồng ý Điều khoản sử dụng và Chính sách quyền riêng tư trước khi dùng hệ thống: ở biểu mẫu đăng ký nếu đăng ký bằng email, ở bước thiết lập hồ sơ nếu đăng nhập bằng Google. Việc đồng ý lưu giọng nói và xử lý bằng AI được hỏi riêng ở lần ghi âm đầu tiên, không thuộc module này. | UC-TK-01 (4b), UC-TK-08 (4b), AC-TK-03, AC-TK-50 |
+| BR-TK-14 | Người dùng phải đồng ý Điều khoản sử dụng và Chính sách quyền riêng tư trước khi dùng hệ thống: ở biểu mẫu đăng ký nếu đăng ký bằng email, ở bước thiết lập hồ sơ nếu đăng nhập bằng Google. | UC-TK-01 (4b), UC-TK-08 (4b), AC-TK-03, AC-TK-50 |
 
 ## Điều kiện
 

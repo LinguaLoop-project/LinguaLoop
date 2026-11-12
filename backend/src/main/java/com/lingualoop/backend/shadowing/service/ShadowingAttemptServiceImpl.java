@@ -59,14 +59,15 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
 
     @Override
     public ShadowingAttemptResponse assess(UUID userId, UUID sentenceId, byte[] wav) {
-        WavAudio.parse(wav);
+        WavAudio audio = WavAudio.parse(wav);
         SentenceView sentence = sentenceQueryService.findSentence(sentenceId)
                 .orElseThrow(() -> new NotFoundException("Sentence not found"));
         sentenceQueryService.assertCanPractice(userId, sentence.lessonId());
 
         PronunciationAssessment assessment = scoringService.assess(wav, sentence.text());
         List<List<String>> targets = PhonemeTargets.forAssessment(sentence, assessment);
-        long attemptId = recorder.save(userId, sentence.lessonId(), sentenceId, assessment, targets);
+        long attemptId = recorder.save(userId, sentence.lessonId(), sentenceId, assessment, targets,
+                audio.durationMs());
         return toResponse(userId, attemptId, sentence, assessment, targets);
     }
 

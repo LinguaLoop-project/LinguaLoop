@@ -10,8 +10,8 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-CD-01 | Chủ đề: tên bắt buộc, dài 1 đến 100 ký tự; tên tiếng Việt không bắt buộc, tối đa 100 ký tự. Tên chủ đề không trùng với chủ đề khác (không phân biệt chữ hoa, chữ thường). | UC-CD-02 (5a, 5b), UC-CD-03 (5a, 5b), AC-CD-07, 08, 12, 13 |
-| BR-CD-02 | Danh mục: tên bắt buộc, dài 1 đến 100 ký tự; tên tiếng Việt không bắt buộc, tối đa 100 ký tự. Tên danh mục không trùng với danh mục khác (không phân biệt chữ hoa, chữ thường). | UC-CD-05 (5a, 5b), UC-CD-06 (5a, 5b), AC-CD-21, 22, 26, 27 |
+| BR-CD-01 | Chủ đề: tên bắt buộc, dài 1 đến 100 ký tự. Tên chủ đề không trùng với chủ đề khác (không phân biệt chữ hoa, chữ thường). | UC-CD-02 (5a, 5b), UC-CD-03 (5a, 5b), AC-CD-07, 08, 12, 13 |
+| BR-CD-02 | Danh mục: tên bắt buộc, dài 1 đến 100 ký tự. Tên danh mục không trùng với danh mục khác (không phân biệt chữ hoa, chữ thường). | UC-CD-05 (5a, 5b), UC-CD-06 (5a, 5b), AC-CD-21, 22, 26, 27 |
 
 ## Điều kiện
 

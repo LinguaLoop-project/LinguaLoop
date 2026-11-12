@@ -79,9 +79,11 @@ public class TutorSessionService {
                 snapshots.previous(userId, attemptId, TutorThresholds.REPEAT_WINDOW - 1)));
 
         if (offerId != null) {
-            // Lời mời phải là của người gọi và thuộc đúng lượt này
-            offers.findByIdAndUserId(offerId, userId).filter(o -> o.getAttemptId() == attemptId)
-                    .orElseThrow(() -> new NotFoundException("Offer not found"));
+            // Lời mời phải là của người gọi và thuộc đúng lượt này; học viên đã nhận lời (hoặc đếm ngược xong)
+            // kể cả khi sau đó không kết nối được
+            tx.executeWithoutResult(status -> offers.findByIdAndUserId(offerId, userId)
+                    .filter(o -> o.getAttemptId() == attemptId)
+                    .orElseThrow(() -> new NotFoundException("Offer not found")).accept(clock.instant()));
         }
 
         LiveTokenIssuer.LiveToken token;

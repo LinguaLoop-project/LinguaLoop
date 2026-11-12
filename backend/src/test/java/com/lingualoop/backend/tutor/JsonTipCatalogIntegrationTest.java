@@ -9,13 +9,15 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
+import com.lingualoop.backend.shadowing.service.PhonemeTips;
 
-/** Mẹo của gia sư đọc từ bảng phoneme_confusions (đã nạp bằng migration). */
+/** Mẹo của gia sư đọc từ tệp pronunciation-tips.json và phải phủ đủ các âm của bảng phonemes (đã nạp bằng migration). */
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
-class DbTipCatalogIntegrationTest {
+class JsonTipCatalogIntegrationTest {
 
     @Autowired private TipCatalog tips;
+    @Autowired private PhonemeTips phonemeTips;
     @Autowired private JdbcTemplate jdbc;
 
     @Test
@@ -28,10 +30,7 @@ class DbTipCatalogIntegrationTest {
     }
 
     @Test
-    void theTipIsTheOneStoredInTheTable() {
-        String stored = jdbc.queryForObject("""
-                SELECT tip_vi FROM phonemes WHERE symbol = 'θ'""", String.class);
-
-        assertThat(tips.tipFor("θ")).contains(stored);
+    void theTipIsTheOneStoredInTheFile() {
+        assertThat(tips.tipFor("θ")).contains(phonemeTips.all().get("θ"));
     }
 }

@@ -88,6 +88,10 @@ public class SentenceAttempt {
     @Column(name = "total_score", nullable = false, precision = 5, scale = 2)
     private BigDecimal totalScore;
 
+    /** Thời gian làm lượt này (ms); tổng thời gian học tính bằng sum, không lưu số cộng dồn. */
+    @Column(name = "duration_ms")
+    private Integer durationMs;
+
     /** Chống trùng khi gửi lại lượt nghe chép (uq_sa_request); null với shadowing. */
     @Column(name = "client_request_id", updatable = false)
     private UUID clientRequestId;

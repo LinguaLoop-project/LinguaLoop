@@ -15,10 +15,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * Một Lời mời gia sư đã đưa ra sau một Lượt shadowing. Schema MVP chỉ lưu việc đã mời (để giãn cách lời mời); nhận
- * hay bỏ qua không được ghi.
- */
+/** Một Lời mời gia sư đã đưa ra sau một Lượt shadowing; trả lời đúng một lần (nhận hoặc bỏ qua). */
 @Getter
 @Entity
 @Table(name = "tutor_offers")
@@ -42,11 +39,35 @@ public class TutorOffer {
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "accepted_at")
+    private Instant acceptedAt;
+
+    @Column(name = "declined_at")
+    private Instant declinedAt;
+
     public static TutorOffer of(UUID userId, UUID lessonId, long attemptId) {
         TutorOffer offer = new TutorOffer();
         offer.userId = userId;
         offer.lessonId = lessonId;
         offer.attemptId = attemptId;
         return offer;
+    }
+
+    public boolean pending() {
+        return acceptedAt == null && declinedAt == null;
+    }
+
+    /** Học viên nhận lời (hoặc đếm ngược xong): chỉ ghi lần đầu, gọi lại không đổi gì. */
+    public void accept(Instant now) {
+        if (pending()) {
+            acceptedAt = now;
+        }
+    }
+
+    /** Học viên bỏ qua: chỉ ghi lần đầu, gọi lại hay đã nhận lời thì không đổi gì. */
+    public void decline(Instant now) {
+        if (pending()) {
+            declinedAt = now;
+        }
     }
 }

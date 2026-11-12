@@ -34,6 +34,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import com.lingualoop.backend.shadowing.service.PhonemeTips;
 import com.lingualoop.backend.support.TestData;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.common.exception.BusinessException;
@@ -63,6 +64,7 @@ import com.lingualoop.backend.user.service.UserAccountService;
 class ShadowingAttemptIntegrationTest {
 
     @Autowired private MockMvc mockMvc;
+    @Autowired private PhonemeTips phonemeTips;
     @Autowired private JwtTokenService jwtTokenService;
     @Autowired private UserAccountService userAccountService;
     @Autowired private TopicRepository topics;
@@ -295,7 +297,7 @@ class ShadowingAttemptIntegrationTest {
     // ── UC-SHADOW-02 ────────────────────────────────────────────────────────────────
 
     @Test
-    void assess_unknownPhoneme_isReturnedButNotStored_AC_SHADOW_14() throws Exception {
+    void assess_unknownPhoneme_isReturnedAndStoredWithItsRawSymbol_AC_SHADOW_14() throws Exception {
         UUID user = newUser();
         Sentence s = sentence(lesson("unknown-ph", false), 0, "Hello");
         when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("hello", 80, 80, 80, 80, null,
@@ -307,13 +309,26 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data.words[0].phonemes.length()").value(3))
                 .andExpect(jsonPath("$.data.words[0].phonemes[1].symbol").value("zzz"));
 
-        // Âm lạ không đổi được sang bảng phonemes và không có âm đích nên không có dòng nào để lưu
-        // (chk_phoneme_known); vị trí các âm còn lại vẫn giữ nguyên
+        // Âm lạ vẫn được lưu: heard rỗng, giữ ký hiệu gốc để hiển thị và xử lý lại khi bổ sung bộ chuyển đổi
         assertThat(jdbc.queryForList("""
-                SELECT p.position FROM sentence_attempt_phonemes p
+                SELECT p.position || ':' || COALESCE(p.azure_symbol, '-') || ':' || (p.heard_phoneme_id IS NULL)
+                FROM sentence_attempt_phonemes p
                 JOIN sentence_attempt_words w ON w.id = p.attempt_word_id
                 JOIN sentence_attempts a ON a.id = w.attempt_id WHERE a.user_id = ? ORDER BY p.position""",
-                Integer.class, user)).containsExactly(0, 2);
+                String.class, user)).containsExactly("0:h:false", "1:zzz:true", "2:l:false");
+    }
+
+    @Test
+    void assess_storesTheDurationOfTheRecording() throws Exception {
+        UUID user = newUser();
+        Sentence s = sentence(lesson("duration-ms", false), 0, "Hello");
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("hello", 80, 80, 80, 80, null,
+                List.of(new WordResult("hello", 80, ErrorType.NONE, List.of(new PhonemeResult("h", 90))))));
+
+        post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+
+        assertThat(jdbc.queryForObject("SELECT duration_ms FROM sentence_attempts WHERE user_id = ?", Integer.class, user))
+                .isEqualTo(1_000);
     }
 
     // ── UC-SHADOW-07 / UC-SHADOW-08 ──────────────────────────────────────────────────
@@ -487,13 +502,12 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
-    void tipTable_coversAll44Phonemes_AC_SHADOW_21() {
-        List<String> withTip = jdbc.queryForList("SELECT symbol FROM phonemes WHERE tip_vi IS NOT NULL", String.class);
-        assertThat(withTip).contains("θ", "ð", "ʃ", "ʒ", "z", "v", "ɹ", "s", "t", "d", "l", "ɪ", "i", "æ", "ɚ");
+    void tipFile_coversAll44Phonemes_AC_SHADOW_21() {
+        List<String> symbols = jdbc.queryForList("SELECT symbol FROM phonemes", String.class);
+        assertThat(phonemeTips.all().keySet()).contains("θ", "ð", "ʃ", "ʒ", "z", "v", "ɹ", "s", "t", "d", "l", "ɪ", "i", "æ", "ɚ");
         // Mọi âm của bảng phonemes đều có mẹo, và không mẹo nào nói riêng về giọng Anh
-        assertThat(withTip).hasSameSizeAs(jdbc.queryForList("SELECT symbol FROM phonemes", String.class));
-        assertThat(jdbc.queryForList("SELECT tip_vi FROM phonemes WHERE tip_vi ILIKE '%Anh-Anh%'", String.class))
-                .isEmpty();
+        assertThat(phonemeTips.all().keySet()).containsAll(symbols);
+        assertThat(phonemeTips.all().values()).noneMatch(tip -> tip.toLowerCase().contains("anh-anh"));
     }
 
     @Test
@@ -574,8 +588,9 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data[0].fluency").value(70.0))
                 .andExpect(jsonPath("$.data[0].completeness").value(70.0))
                 // âm vị theo bảng phonemes, mẹo sửa cho âm yếu, video bị khoá với gói Free
-                // âm lạ không có dòng lưu nên không được khôi phục
-                .andExpect(jsonPath("$.data[0].words[0].phonemes.length()").value(2))
+                // âm lạ cũng được khôi phục (đã lưu với ký hiệu gốc)
+                .andExpect(jsonPath("$.data[0].words[0].phonemes.length()").value(3))
+                .andExpect(jsonPath("$.data[0].words[0].phonemes[2].symbol").value("zzz"))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].symbol").value("θ"))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].tip").isNotEmpty())
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.locked").value(true))

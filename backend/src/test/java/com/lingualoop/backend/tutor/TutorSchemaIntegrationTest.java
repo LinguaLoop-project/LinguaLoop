@@ -70,14 +70,21 @@ class TutorSchemaIntegrationTest {
     }
 
     @Test
-    void offer_isStoredPerAttempt_andNoLessonEventTableExists() {
+    void offer_cannotBeBothAcceptedAndDeclined_andLessonEventsAcceptOnlyKnownValues() {
         Fixture f = fixture();
+        assertThatThrownBy(() -> jdbc.update(
+                "INSERT INTO tutor_offers (user_id, lesson_id, attempt_id, accepted_at, declined_at) VALUES (?, ?, ?, now(), now())",
+                f.user, f.lesson, f.attempt))
+                .isInstanceOf(DataIntegrityViolationException.class);
         jdbc.update("INSERT INTO tutor_offers (user_id, lesson_id, attempt_id) VALUES (?, ?, ?)",
                 f.user, f.lesson, f.attempt);
-
         assertThat(jdbc.queryForObject("SELECT count(*) FROM tutor_offers WHERE user_id = ?", Integer.class, f.user))
                 .isEqualTo(1);
-        assertThat(jdbc.queryForObject("SELECT to_regclass('tutor_lesson_events')::text", String.class)).isNull();
+
+        jdbc.update("INSERT INTO tutor_lesson_events (user_id, lesson_id, event) VALUES (?, ?, 'toggle_on')", f.user, f.lesson);
+        assertThatThrownBy(() -> jdbc.update(
+                "INSERT INTO tutor_lesson_events (user_id, lesson_id, event) VALUES (?, ?, 'toggle_sideways')", f.user, f.lesson))
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     private record Fixture(UUID user, UUID lesson, long attempt) {
