@@ -42,22 +42,22 @@ public interface ShadowingAttemptRepository extends JpaRepository<SentenceAttemp
      * Postgres và view {@code v_user_sentence_stats}.
      */
     @Query(nativeQuery = true, value = """
-            SELECT t.sentence_id AS "sentenceId", t.id AS "attemptId", t.score AS "score",
+            SELECT t.sentence_id AS "sentenceId", t.id AS "attemptId", t.total_score AS "score",
                    t.accuracy_score AS "accuracyScore", t.fluency_score AS "fluencyScore",
                    t.completeness_score AS "completenessScore", t.prosody_score AS "prosodyScore",
-                   t.attempted_at AS "attemptedAt", t.best_score AS "bestScore", t.attempt_count AS "attemptCount"
+                   t.created_at AS "attemptedAt", t.best_score AS "bestScore", t.attempt_count AS "attemptCount"
             FROM (
-                SELECT DISTINCT ON (a.sentence_id) a.sentence_id, a.id, a.score, a.accuracy_score, a.fluency_score,
-                       a.completeness_score, a.prosody_score, a.attempted_at,
-                       st.best_score, st.attempt_count, s.sort_order
+                SELECT DISTINCT ON (a.sentence_id) a.sentence_id, a.id, a.total_score, a.accuracy_score, a.fluency_score,
+                       a.completeness_score, a.prosody_score, a.created_at,
+                       st.best_score, st.attempt_count, s.start_ms
                 FROM sentence_attempts a
                 JOIN sentences s ON s.id = a.sentence_id
                 JOIN v_user_sentence_stats st
                   ON st.user_id = a.user_id AND st.sentence_id = a.sentence_id AND st.mode = a.mode
                 WHERE a.user_id = :userId AND s.lesson_id = :lessonId AND a.mode = 'shadowing'
-                ORDER BY a.sentence_id, a.attempted_at DESC, a.id DESC
+                ORDER BY a.sentence_id, a.created_at DESC, a.id DESC
             ) t
-            ORDER BY t.sort_order""")
+            ORDER BY t.start_ms""")
     List<LatestHead> findLatestByLesson(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId);
 
     /** Một dòng của lịch sử: điểm các lượt đọc của một câu, chưa kèm từng từ. */
@@ -80,20 +80,20 @@ public interface ShadowingAttemptRepository extends JpaRepository<SentenceAttemp
 
     /** Mọi lượt shadowing của người học trên một câu, mới nhất trước. */
     @Query(nativeQuery = true, value = """
-            SELECT a.id AS "attemptId", a.score AS "score", a.accuracy_score AS "accuracyScore",
+            SELECT a.id AS "attemptId", a.total_score AS "score", a.accuracy_score AS "accuracyScore",
                    a.fluency_score AS "fluencyScore", a.completeness_score AS "completenessScore",
-                   a.prosody_score AS "prosodyScore", a.attempted_at AS "attemptedAt"
+                   a.prosody_score AS "prosodyScore", a.created_at AS "attemptedAt"
             FROM sentence_attempts a
             WHERE a.user_id = :userId AND a.sentence_id = :sentenceId AND a.mode = 'shadowing'
-            ORDER BY a.attempted_at DESC, a.id DESC""")
+            ORDER BY a.created_at DESC, a.id DESC""")
     List<HistoryRow> findHistory(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId);
 
     /** Một lượt shadowing cụ thể, chỉ khi thuộc người học, cùng thống kê của câu như {@link #findLatestByLesson}. */
     @Query(nativeQuery = true, value = """
-            SELECT a.sentence_id AS "sentenceId", a.id AS "attemptId", a.score AS "score",
+            SELECT a.sentence_id AS "sentenceId", a.id AS "attemptId", a.total_score AS "score",
                    a.accuracy_score AS "accuracyScore", a.fluency_score AS "fluencyScore",
                    a.completeness_score AS "completenessScore", a.prosody_score AS "prosodyScore",
-                   a.attempted_at AS "attemptedAt", st.best_score AS "bestScore", st.attempt_count AS "attemptCount"
+                   a.created_at AS "attemptedAt", st.best_score AS "bestScore", st.attempt_count AS "attemptCount"
             FROM sentence_attempts a
             JOIN v_user_sentence_stats st
               ON st.user_id = a.user_id AND st.sentence_id = a.sentence_id AND st.mode = a.mode

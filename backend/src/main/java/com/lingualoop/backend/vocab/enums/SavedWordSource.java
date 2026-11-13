@@ -4,11 +4,10 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-/** Nơi từ được lưu: hộp tra từ điển, một câu trong bài học, hoặc tự gõ (chưa làm). Khớp CHECK của {@code user_saved_words.source}. */
+/** Nơi từ được lưu: hộp tra từ điển, hoặc một câu trong bài học (thẻ có {@code source_sentence_id}). */
 public enum SavedWordSource {
     DICTIONARY("dictionary"),
-    LESSON("lesson"),
-    MANUAL("manual");
+    LESSON("lesson");
 
     private final String dbValue;
 

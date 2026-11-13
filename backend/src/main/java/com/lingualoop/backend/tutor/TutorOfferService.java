@@ -53,12 +53,12 @@ public class TutorOfferService {
             return new TutorDtos.OfferResponse(false, TutorOfferPolicy.Reason.NO_SIGNIFICANT_ERROR.name(), null, List.of());
         }
         TutorOffer saved = tx.execute(status -> offers.save(
-                TutorOffer.of(userId, current.lessonId(), attemptId, decision.reason(), clock.instant())));
+                TutorOffer.of(userId, current.lessonId(), attemptId)));
         return new TutorDtos.OfferResponse(true, decision.reason().name(), saved.getId(), words);
     }
 
     /** Học viên bấm "Bỏ qua câu này"; gọi lại không đổi gì. */
-    public void decline(UUID userId, UUID offerId) {
+    public void decline(UUID userId, Long offerId) {
         tx.executeWithoutResult(status -> offers.findByIdAndUserId(offerId, userId)
                 .orElseThrow(() -> new NotFoundException("Offer not found"))
                 .decline(clock.instant()));

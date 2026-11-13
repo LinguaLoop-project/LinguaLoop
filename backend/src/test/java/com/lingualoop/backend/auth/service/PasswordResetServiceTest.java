@@ -67,9 +67,9 @@ class PasswordResetServiceTest {
                 Clock.fixed(NOW, ZoneOffset.UTC), new TransactionTemplate(txManager));
     }
 
-    private static UserAccountView account(boolean disabled, String passwordHash) {
+    private static UserAccountView account(boolean locked, String passwordHash) {
         return new UserAccountView(UUID.randomUUID(), "a@x.com", "A", null, passwordHash, Role.STUDENT, "vi", false,
-                disabled, false, false);
+                locked, false, false);
     }
 
     private static EmailToken tokenOf(UserAccountView account, Instant createdAt, Duration ttl) {

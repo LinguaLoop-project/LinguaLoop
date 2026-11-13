@@ -52,9 +52,9 @@ public class ShadowingController {
         }
     }
 
-    @GetMapping("/lessons/{slug}/shadowing-attempts/latest")
-    public ApiResponse<List<LatestAttemptResponse>> latest(@CurrentUserId UUID userId, @PathVariable String slug) {
-        return ApiResponse.ok(shadowingAttemptService.latestByLesson(userId, slug));
+    @GetMapping("/lessons/{id}/shadowing-attempts/latest")
+    public ApiResponse<List<LatestAttemptResponse>> latest(@CurrentUserId UUID userId, @PathVariable UUID id) {
+        return ApiResponse.ok(shadowingAttemptService.latestByLesson(userId, id));
     }
 
     /** Nhận xét AI cho một lượt; lượt đã có nhận xét thì trả lại bản đã lưu (không trừ thêm lượt). */
@@ -114,7 +114,12 @@ public class ShadowingController {
         data.put("content", r.content());
         data.put("createdAt", r.createdAt() == null ? null : r.createdAt().toString());
         data.put("cached", r.cached());
-        data.put("usage", r.usage());
+        // SseStream tự dựng ObjectMapper không có module thời gian nên mốc đặt lại đi dưới dạng chuỗi
+        Map<String, Object> credit = new LinkedHashMap<>();
+        credit.put("balance", r.credit().balance());
+        credit.put("kind", r.credit().kind());
+        credit.put("resetsAt", r.credit().resetsAt() == null ? null : r.credit().resetsAt().toString());
+        data.put("credit", credit);
         return data;
     }
 }

@@ -1,14 +1,19 @@
 package com.lingualoop.backend.lesson.entity;
 
+import java.time.Instant;
+
 import com.lingualoop.backend.common.entity.BaseEntity;
-import com.lingualoop.backend.lesson.enums.CefrLevel;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Instant;
-import java.util.UUID;
-
+/** Một câu của bài; thứ tự câu theo {@code startMs}. */
 @Entity
 @Table(name = "sentences")
 @Getter
@@ -19,16 +24,13 @@ public class Sentence extends BaseEntity {
     @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
 
-    @Column(name = "sort_order", nullable = false)
-    private Integer sortOrder;
-
-    @Column(name = "text", nullable = false)
-    private String text;
+    @Column(name = "text_en", nullable = false)
+    private String textEn;
 
     @Column(name = "text_vi")
     private String textVi;
 
-    /** Phiên âm Mỹ, nguồn của âm đích khi chấm (ADR 0007). */
+    /** Phiên âm Mỹ, nguồn của âm đích khi chấm. */
     @Column(name = "ipa_us")
     private String ipaUs;
 
@@ -42,26 +44,7 @@ public class Sentence extends BaseEntity {
     @Column(name = "end_ms", nullable = false)
     private Integer endMs;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "cefr_level", columnDefinition = "cefr_code")
-    private CefrLevel cefrLevel;
-
-    @Column(name = "cefr_source", nullable = false)
-    private String cefrSource = "editor_guess";
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "cefr_suggested_by_ai", columnDefinition = "cefr_code")
-    private CefrLevel cefrSuggestedByAi;
-
-    @Column(name = "ai_model")
-    private String aiModel;
-
-    @Column(name = "ai_confidence", columnDefinition = "numeric(4,3)")
-    private java.math.BigDecimal aiConfidence;
-
-    @Column(name = "reviewed_by")
-    private UUID reviewedBy;
-
-    @Column(name = "reviewed_at")
-    private Instant reviewedAt;
+    /** Xoá mềm để giữ lịch sử lượt làm. */
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 }

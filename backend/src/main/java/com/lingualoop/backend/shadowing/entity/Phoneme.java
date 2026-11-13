@@ -24,6 +24,13 @@ public class Phoneme {
     @Column(name = "symbol", nullable = false)
     private String symbol;
 
+    /** vowel, diphthong hoặc consonant. */
+    @Column(name = "kind", nullable = false)
+    private String kind;
+
+    @Column(name = "example_word")
+    private String exampleWord;
+
     @Column(name = "mouth_video_url")
     private String mouthVideoUrl;
 }

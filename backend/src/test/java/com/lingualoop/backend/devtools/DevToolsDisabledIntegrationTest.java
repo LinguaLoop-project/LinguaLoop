@@ -43,7 +43,8 @@ class DevToolsDisabledIntegrationTest {
         mockMvc.perform(put("/api/v1/dev/plan").header(HttpHeaders.AUTHORIZATION, bearer)
                         .contentType(MediaType.APPLICATION_JSON).content("{\"plan\":\"pro\"}"))
                 .andExpect(status().isNotFound());
-        mockMvc.perform(post("/api/v1/dev/usage/reset").header(HttpHeaders.AUTHORIZATION, bearer))
+        mockMvc.perform(put("/api/v1/dev/credits").header(HttpHeaders.AUTHORIZATION, bearer)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"balance\":10}"))
                 .andExpect(status().isNotFound());
     }
 }

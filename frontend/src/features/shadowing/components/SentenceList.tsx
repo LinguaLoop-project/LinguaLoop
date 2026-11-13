@@ -103,7 +103,7 @@ export default function SentenceList({ sentences, records, current, disabled, re
                   )}
                 </span>
                 <span className={`break-words text-[13px] leading-normal ${show ? "text-text" : "tracking-wide text-text-muted"}`}>
-                  {show ? s.text : maskText(s.text)}
+                  {show ? s.textEn : maskText(s.textEn)}
                 </span>
                 {showVi && show && s.textVi && <span className="text-xs italic text-text-subtle">{s.textVi}</span>}
               </button>

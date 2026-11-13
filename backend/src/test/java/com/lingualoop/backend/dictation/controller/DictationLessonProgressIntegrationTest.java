@@ -1,6 +1,5 @@
 package com.lingualoop.backend.dictation.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,7 +14,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -31,7 +29,6 @@ class DictationLessonProgressIntegrationTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private DictationTestData data;
-    @Autowired private JdbcTemplate jdbc;
 
     private final String tag = UUID.randomUUID().toString().substring(0, 8);
 
@@ -41,7 +38,7 @@ class DictationLessonProgressIntegrationTest {
 
     private ResultActions submit(UUID user, UUID sentence, String json) throws Exception {
         return as(user, post("/api/v1/dictation/sentences/" + sentence + "/attempts")
-                .contentType(MediaType.APPLICATION_JSON).content(json));
+                .contentType(MediaType.APPLICATION_JSON).content(DictationTestData.withRequestId(json)));
     }
 
     @Test
@@ -53,17 +50,13 @@ class DictationLessonProgressIntegrationTest {
 
         submit(user, first, "{\"level\":\"normal\",\"typedText\":\"could i\",\"durationMs\":4000}")
                 .andExpect(status().isOk());
-        as(user, get("/api/v1/lessons/lp-" + tag))
+        as(user, get("/api/v1/lessons/" + lesson))
                 .andExpect(jsonPath("$.data.progress.dictationPercent").value(50));
-        assertThat(jdbc.queryForObject("SELECT total_time_sec FROM user_lesson_mode_progress WHERE user_id = ? "
-                + "AND lesson_id = ?", Integer.class, user, lesson)).isEqualTo(4);
 
         submit(user, second, "{\"level\":\"hard\",\"gaveUp\":true}").andExpect(status().isOk());
-        as(user, get("/api/v1/lessons/lp-" + tag))
+        as(user, get("/api/v1/lessons/" + lesson))
                 .andExpect(jsonPath("$.data.progress.dictationPercent").value(100));
-        assertThat(jdbc.queryForObject("SELECT completed_at IS NOT NULL FROM user_lesson_mode_progress "
-                + "WHERE user_id = ? AND lesson_id = ?", Boolean.class, user, lesson)).isTrue();
-        as(user, get("/api/v1/lessons/lp-" + tag + "/sentences"))
+        as(user, get("/api/v1/lessons/" + lesson + "/sentences"))
                 .andExpect(jsonPath("$.data[0].myBestScore.dictation").value(33));
     }
 }

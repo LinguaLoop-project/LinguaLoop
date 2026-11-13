@@ -1,149 +1,137 @@
 package com.lingualoop.backend.vocab.repository;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
-import com.lingualoop.backend.vocab.entity.UserSavedWord;
+import lombok.RequiredArgsConstructor;
 
 /**
- * Từ đã lưu và bộ "Từ đã lưu" của học viên. Bộ, phần và thẻ chỉ ghi bằng SQL vì lát này chưa cần đọc chúng thành
- * entity; các lát sau (danh sách bộ, học, ôn) sẽ thêm entity cho chúng.
+ * Từ đã lưu của học viên (ADR 0008 về từ đã lưu): mỗi nghĩa đã lưu là một thẻ trong bộ {@code kind = 'saved'} của học
+ * viên, có {@code dict_word_id} và {@code dict_meaning_no}. Id của từ đã lưu là id của thẻ. Viết bằng SQL thuần vì
+ * cần {@code ON CONFLICT}.
  */
 @Repository
-public interface SavedWordRepository extends JpaRepository<UserSavedWord, UUID> {
+@RequiredArgsConstructor
+public class SavedWordRepository {
 
-    Optional<UserSavedWord> findByUserIdAndWordIdAndMeaningNo(UUID userId, UUID wordId, Integer meaningNo);
+    private final JdbcClient jdbc;
 
-    Optional<UserSavedWord> findByIdAndUserId(UUID id, UUID userId);
-
-    @Query(value = "SELECT id FROM vocab_decks WHERE owner_id = :userId AND kind = 'saved'", nativeQuery = true)
-    Optional<UUID> findSavedDeckId(@Param("userId") UUID userId);
+    public Optional<UUID> findSavedDeckId(UUID userId) {
+        return jdbc.sql("SELECT id FROM vocab_decks WHERE owner_id = :user AND kind = 'saved'")
+                .param("user", userId).query(UUID.class).optional();
+    }
 
     /** Tạo bộ "Từ đã lưu"; hai yêu cầu cùng tạo thì một bên vi phạm ràng buộc duy nhất và được thử lại. */
-    @Query(value = """
-            INSERT INTO vocab_decks (owner_id, kind, name, name_vi, visibility, status)
-            VALUES (:userId, 'saved', 'Saved words', 'Từ đã lưu', 'private', 'APPROVED')
-            RETURNING id""", nativeQuery = true)
-    UUID insertSavedDeck(@Param("userId") UUID userId);
+    public UUID insertSavedDeck(UUID userId) {
+        return jdbc.sql("""
+                INSERT INTO vocab_decks (owner_id, kind, name) VALUES (:user, 'saved', 'Từ đã lưu') RETURNING id""")
+                .param("user", userId).query(UUID.class).single();
+    }
 
-    @Query(value = """
-            SELECT id FROM vocab_groups WHERE deck_id = :deckId AND deleted_at IS NULL ORDER BY sort_order LIMIT 1""",
-            nativeQuery = true)
-    Optional<UUID> findFirstGroupId(@Param("deckId") UUID deckId);
+    public Optional<UUID> findFirstGroupId(UUID deckId) {
+        return jdbc.sql("""
+                SELECT id FROM vocab_groups WHERE deck_id = :deck AND deleted_at IS NULL
+                ORDER BY created_at, id LIMIT 1""")
+                .param("deck", deckId).query(UUID.class).optional();
+    }
 
-    @Query(value = """
-            INSERT INTO vocab_groups (deck_id, name, name_vi, sort_order)
-            VALUES (:deckId, 'Saved words', 'Từ đã lưu', 0)
-            RETURNING id""", nativeQuery = true)
-    UUID insertGroup(@Param("deckId") UUID deckId);
+    public UUID insertGroup(UUID deckId) {
+        return jdbc.sql("INSERT INTO vocab_groups (deck_id, name) VALUES (:deck, 'Từ đã lưu') RETURNING id")
+                .param("deck", deckId).query(UUID.class).single();
+    }
 
-    /**
-     * Tạo thẻ cho một nghĩa, hoặc khôi phục thẻ đã ẩn khi bỏ lưu (giữ nguyên nội dung cũ, ADR 0009; câu gốc mới thay
-     * câu cũ nếu có). {@code sort_order} lấy lớn hơn mọi thẻ của phần, kể cả thẻ đã ẩn, nên không bao giờ trùng.
-     */
-    @Query(value = """
-            INSERT INTO vocab_cards (group_id, word_id, meaning_no, word, pos, translation_vi, example_en, example_vi,
-                                     context_en, context_vi, difficulty, sort_order)
-            VALUES (:groupId, :wordId, :meaningNo, :word, :pos, :translationVi, :exampleEn, :exampleVi,
-                    :contextEn, :contextVi, CAST(:difficulty AS cefr_code),
-                    (SELECT coalesce(max(sort_order), -1) + 1 FROM vocab_cards WHERE group_id = :groupId))
-            ON CONFLICT (group_id, word_id, meaning_no) WHERE word_id IS NOT NULL AND meaning_no IS NOT NULL
-            DO UPDATE SET deleted_at = NULL,
-                          context_en = coalesce(EXCLUDED.context_en, vocab_cards.context_en),
-                          context_vi = coalesce(EXCLUDED.context_vi, vocab_cards.context_vi)
-            RETURNING id""", nativeQuery = true)
-    UUID upsertCard(@Param("groupId") UUID groupId, @Param("wordId") UUID wordId, @Param("meaningNo") int meaningNo,
-            @Param("word") String word, @Param("pos") String pos, @Param("translationVi") String translationVi,
-            @Param("exampleEn") String exampleEn, @Param("exampleVi") String exampleVi,
-            @Param("contextEn") String contextEn, @Param("contextVi") String contextVi,
-            @Param("difficulty") String difficulty);
+    /** Thẻ đang hiện của một nghĩa trong bộ "Từ đã lưu"; trống nếu chưa lưu hoặc đã bỏ lưu. */
+    public Optional<UUID> findVisibleCard(UUID deckId, UUID wordId, int meaningNo) {
+        return jdbc.sql("""
+                SELECT id FROM vocab_cards
+                WHERE deck_id = :deck AND dict_word_id = :word AND dict_meaning_no = :no AND deleted_at IS NULL""")
+                .param("deck", deckId).param("word", wordId).param("no", meaningNo).query(UUID.class).optional();
+    }
 
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query(value = """
-            INSERT INTO vocab_card_phonetics (card_id, accent, ipa, audio_url)
-            VALUES (:cardId, :accent, :ipa, :audioUrl)
-            ON CONFLICT (card_id, accent) DO NOTHING""", nativeQuery = true)
-    int insertPhonetic(@Param("cardId") UUID cardId, @Param("accent") String accent, @Param("ipa") String ipa,
-            @Param("audioUrl") String audioUrl);
-
-    /** Ẩn thẻ khi bỏ lưu; tiến độ và nhật ký của thẻ được giữ để lưu lại thì khôi phục (BR-HT-04). */
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query(value = "UPDATE vocab_cards SET deleted_at = now() WHERE id = :cardId AND deleted_at IS NULL",
-            nativeQuery = true)
-    int hideCard(@Param("cardId") UUID cardId);
+    /** Nội dung chép từ từ điển vào thẻ (ADR 0009). */
+    public record CardContent(UUID wordId, int meaningNo, String word, String pos, String meaningVi,
+            String definitionEn, String definitionVi, String exampleEn, String exampleVi, String ipaUk, String ipaUs,
+            String audioUk, String audioUs, UUID sentenceId) {
+    }
 
     /**
-     * Từ đã lưu kèm nội dung thẻ, trạng thái và bài nguồn, mới lưu trước. Truyền {@code savedWordId} để lấy một dòng.
-     * Thẻ chưa có dòng tiến độ là Mới. Bài đã ẩn hoặc đã xoá thì không còn liên kết.
+     * Tạo thẻ cho một nghĩa, hoặc khôi phục thẻ đã ẩn khi bỏ lưu (giữ nguyên nội dung cũ, ADR 0009; câu gốc mới thay câu
+     * cũ nếu có). Tiến độ của thẻ khôi phục vẫn còn (BR-HT-04).
      */
-    @Query(value = """
-            SELECT s.id AS id, c.word AS headword, CAST(c.difficulty AS text) AS cefrLevel, c.pos AS pos,
-                   s.meaning_no AS meaningNo, c.translation_vi AS translationVi, c.example_en AS exampleEn,
-                   c.example_vi AS exampleVi, pk.ipa AS ipaUk, pu.ipa AS ipaUs, pk.audio_url AS audioUk,
-                   pu.audio_url AS audioUs, s.source AS source, s.sentence_id AS sentenceId,
-                   l.slug AS lessonSlug, l.title AS lessonTitle, c.context_en AS contextEn, c.context_vi AS contextVi,
-                   coalesce(p.status, 'new') AS status, p.next_review_at AS nextReviewAt, s.created_at AS savedAt
-            FROM user_saved_words s
-            JOIN vocab_cards c ON c.id = s.card_id AND c.deleted_at IS NULL
-            LEFT JOIN vocab_card_phonetics pu ON pu.card_id = c.id AND pu.accent = 'us'
-            LEFT JOIN vocab_card_phonetics pk ON pk.card_id = c.id AND pk.accent = 'uk'
-            LEFT JOIN user_card_progress p ON p.card_id = c.id AND p.user_id = s.user_id
-            LEFT JOIN sentences se ON se.id = s.sentence_id
-            LEFT JOIN lessons l ON l.id = se.lesson_id AND l.deleted_at IS NULL AND l.status = 'APPROVED'
-            WHERE s.user_id = :userId
-              AND (CAST(:savedWordId AS uuid) IS NULL OR s.id = CAST(:savedWordId AS uuid))
-            ORDER BY s.created_at DESC, s.id""", nativeQuery = true)
-    List<SavedWordRow> findRows(@Param("userId") UUID userId, @Param("savedWordId") UUID savedWordId);
+    public UUID upsertCard(UUID deckId, UUID groupId, CardContent c) {
+        return jdbc.sql("""
+                INSERT INTO vocab_cards (deck_id, group_id, word, pos, meaning_vi, definition_en, definition_vi,
+                                         example_en, example_vi, ipa_uk, ipa_us, audio_uk_url, audio_us_url,
+                                         dict_word_id, dict_meaning_no, source_sentence_id)
+                VALUES (:deck, :group, :word, :pos, :meaningVi, :defEn, :defVi, :exEn, :exVi, :ipaUk, :ipaUs,
+                        :audioUk, :audioUs, :wordId, :no, :sentence)
+                ON CONFLICT (deck_id, dict_word_id, dict_meaning_no) WHERE dict_word_id IS NOT NULL
+                DO UPDATE SET deleted_at = NULL, updated_at = now(),
+                              source_sentence_id = coalesce(EXCLUDED.source_sentence_id, vocab_cards.source_sentence_id)
+                RETURNING id""")
+                .param("deck", deckId).param("group", groupId).param("word", c.word()).param("pos", c.pos())
+                .param("meaningVi", c.meaningVi()).param("defEn", c.definitionEn()).param("defVi", c.definitionVi())
+                .param("exEn", c.exampleEn()).param("exVi", c.exampleVi()).param("ipaUk", c.ipaUk())
+                .param("ipaUs", c.ipaUs()).param("audioUk", c.audioUk()).param("audioUs", c.audioUs())
+                .param("wordId", c.wordId()).param("no", c.meaningNo()).param("sentence", c.sentenceId())
+                .query(UUID.class).single();
+    }
 
-    interface SavedWordRow {
-        UUID getId();
+    /** Ẩn thẻ khi bỏ lưu; tiến độ và nhật ký được giữ để lưu lại thì khôi phục (BR-HT-04). False nếu không có thẻ đó. */
+    public boolean hideCard(UUID userId, UUID cardId) {
+        return jdbc.sql("""
+                UPDATE vocab_cards c SET deleted_at = now(), updated_at = now()
+                FROM vocab_decks d
+                WHERE c.id = :card AND c.deleted_at IS NULL AND d.id = c.deck_id
+                  AND d.kind = 'saved' AND d.owner_id = :user""")
+                .param("card", cardId).param("user", userId).update() > 0;
+    }
 
-        String getHeadword();
+    public record SavedWordRow(UUID id, String headword, String pos, Integer meaningNo, String meaningVi,
+            String definitionEn, String definitionVi, String exampleEn, String exampleVi, String ipaUk, String ipaUs,
+            String audioUk, String audioUs, UUID sentenceId, UUID lessonId, String lessonTitle, String contextEn,
+            String contextVi, String status, Instant dueAt, Instant savedAt) {
+    }
 
-        String getCefrLevel();
+    /**
+     * Từ đã lưu kèm câu gốc, trạng thái và bài nguồn, mới lưu trước. Truyền {@code cardId} để lấy một dòng. Bài đã ẩn
+     * hoặc chưa xuất bản thì không còn liên kết, nhưng câu gốc vẫn hiện.
+     */
+    public List<SavedWordRow> findRows(UUID userId, UUID cardId) {
+        return jdbc.sql("""
+                SELECT c.id, c.word, c.pos, c.dict_meaning_no, c.meaning_vi, c.definition_en, c.definition_vi,
+                       c.example_en, c.example_vi, c.ipa_uk, c.ipa_us, c.audio_uk_url, c.audio_us_url,
+                       c.source_sentence_id, l.id AS lesson_id, l.title AS lesson_title,
+                       se.text_en AS context_en, se.text_vi AS context_vi,
+                       """ + CardSql.STATUS + """
+                        AS status, p.due_at, c.created_at
+                FROM vocab_cards c
+                JOIN vocab_decks d ON d.id = c.deck_id AND d.kind = 'saved' AND d.owner_id = :user
+                LEFT JOIN user_card_progress p ON p.card_id = c.id AND p.user_id = :user
+                LEFT JOIN sentences se ON se.id = c.source_sentence_id AND se.deleted_at IS NULL
+                LEFT JOIN lessons l ON l.id = se.lesson_id AND l.deleted_at IS NULL AND l.status = 'published'
+                WHERE c.deleted_at IS NULL AND (CAST(:card AS uuid) IS NULL OR c.id = CAST(:card AS uuid))
+                ORDER BY c.created_at DESC, c.id""")
+                .param("user", userId).param("card", cardId)
+                .query((rs, n) -> new SavedWordRow(rs.getObject("id", UUID.class), rs.getString("word"),
+                        rs.getString("pos"), (Integer) rs.getObject("dict_meaning_no"), rs.getString("meaning_vi"),
+                        rs.getString("definition_en"), rs.getString("definition_vi"), rs.getString("example_en"),
+                        rs.getString("example_vi"), rs.getString("ipa_uk"), rs.getString("ipa_us"),
+                        rs.getString("audio_uk_url"), rs.getString("audio_us_url"),
+                        rs.getObject("source_sentence_id", UUID.class), rs.getObject("lesson_id", UUID.class),
+                        rs.getString("lesson_title"), rs.getString("context_en"), rs.getString("context_vi"),
+                        rs.getString("status"), instant(rs.getTimestamp("due_at")),
+                        instant(rs.getTimestamp("created_at"))))
+                .list();
+    }
 
-        String getPos();
-
-        Integer getMeaningNo();
-
-        String getTranslationVi();
-
-        String getExampleEn();
-
-        String getExampleVi();
-
-        String getIpaUk();
-
-        String getIpaUs();
-
-        String getAudioUk();
-
-        String getAudioUs();
-
-        String getSource();
-
-        UUID getSentenceId();
-
-        String getLessonSlug();
-
-        String getLessonTitle();
-
-        String getContextEn();
-
-        String getContextVi();
-
-        String getStatus();
-
-        Instant getNextReviewAt();
-
-        Instant getSavedAt();
+    private static Instant instant(Timestamp ts) {
+        return ts == null ? null : ts.toInstant();
     }
 }

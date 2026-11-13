@@ -59,8 +59,8 @@ final class PhonemeTargets {
 
     /** Ký hiệu cách đọc Azure báo: theo bảng phonemes, hoặc ký hiệu gốc khi chưa chuyển được. */
     static String reportedSymbol(AttemptPhoneme p, Map<Short, String> symbolById) {
-        if (p.getPhonemeId() != null) {
-            return symbolById.getOrDefault(p.getPhonemeId(), "?");
+        if (p.getHeardPhonemeId() != null) {
+            return symbolById.getOrDefault(p.getHeardPhonemeId(), "?");
         }
         return p.getAzureSymbol() != null ? p.getAzureSymbol() : "?";
     }

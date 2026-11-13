@@ -15,7 +15,7 @@ import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.practice.AttemptTestData;
 import com.lingualoop.backend.practice.dto.ClassCountsView;
 
-/** Số liệu điểm yếu theo nhóm từ mà dictation dùng để chọn ô Easy. */
+/** Số liệu điểm yếu theo nhóm từ (v_user_dictation_stats): chỉ lượt đầu tiên của mỗi câu. */
 @SpringBootTest
 @Import({TestcontainersConfiguration.class, AttemptTestData.class})
 class DictationStatsQueryServiceIntegrationTest {
@@ -26,13 +26,12 @@ class DictationStatsQueryServiceIntegrationTest {
     @Autowired private AttemptTestData data;
 
     @Test
-    void countsByWordClass_sumsNormalAndHardOnly() {
+    void countsByWordClass_sumsTheFirstAttemptOfEachSentence() {
         UUID user = data.newUser();
-        UUID sentence = data.newSentence(data.newLesson(), 0);
-        attempt(user, sentence, "normal", false, false, Instant.now(), "function", 3, 1);
-        attempt(user, sentence, "normal", false, false, Instant.now(), "content", 2, 2);
-        attempt(user, sentence, "hard", false, false, Instant.now(), "function", 4, 0);
-        attempt(user, sentence, "easy", false, false, Instant.now(), "function", 5, 5);
+        UUID lesson = data.newLesson();
+        attempt(user, data.newSentence(lesson, 0), "normal", false, false, Instant.now(), "function", 3, 1);
+        attempt(user, data.newSentence(lesson, 1), "normal", false, false, Instant.now(), "content", 2, 2);
+        attempt(user, data.newSentence(lesson, 2), "hard", false, false, Instant.now(), "function", 4, 0);
 
         var counts = service.countsByWordClass(user, LONG_AGO);
 
@@ -41,14 +40,47 @@ class DictationStatsQueryServiceIntegrationTest {
         assertThat(counts.get("content")).isEqualTo(new ClassCountsView(2, 2));
     }
 
+    /**
+     * Học viên ở Việt Nam (UTC+7). Mốc là 06:00 sáng ngày D giờ Việt Nam, tức 23:00 UTC ngày D-1: nếu mốc bị đổi sang
+     * ngày theo UTC thì lượt luyện lúc 10:00 ngày D-1 giờ Việt Nam bị tính nhầm vào khoảng thời gian.
+     */
+    @Test
+    void countsByWordClass_usesTheLearnersTimeZoneForTheStartDay() {
+        UUID user = data.newUser();
+        UUID lesson = data.newLesson();
+        java.time.ZoneId vn = java.time.ZoneId.of("Asia/Ho_Chi_Minh");
+        java.time.LocalDate day = java.time.LocalDate.of(2026, 3, 10);
+        Instant since = day.atTime(6, 0).atZone(vn).toInstant();
+        attempt(user, data.newSentence(lesson, 0), "normal", false, false,
+                day.minusDays(1).atTime(10, 0).atZone(vn).toInstant(), "function", 5, 5);
+        attempt(user, data.newSentence(lesson, 1), "normal", false, false,
+                day.atTime(0, 30).atZone(vn).toInstant(), "content", 2, 1);
+
+        var counts = service.countsByWordClass(user, since);
+
+        assertThat(counts).containsOnlyKeys("content");
+        assertThat(counts.get("content")).isEqualTo(new ClassCountsView(2, 1));
+    }
+
+    @Test
+    void countsByWordClass_ignoresLaterAttemptsOfTheSameSentence() {
+        UUID user = data.newUser();
+        UUID sentence = data.newSentence(data.newLesson(), 0);
+        Instant now = Instant.now();
+        attempt(user, sentence, "normal", false, false, now.minusSeconds(60), "function", 2, 1);
+        attempt(user, sentence, "normal", false, false, now, "function", 4, 4);
+
+        assertThat(service.countsByWordClass(user, LONG_AGO)).containsEntry("function", new ClassCountsView(2, 1));
+    }
+
     @Test
     void countsByWordClass_excludesRetryGaveUpAndInsertedWords() {
         UUID user = data.newUser();
-        UUID sentence = data.newSentence(data.newLesson(), 0);
-        attempt(user, sentence, "normal", false, false, Instant.now(), "function", 2, 1);
-        attempt(user, sentence, "normal", true, false, Instant.now(), "function", 4, 4);
-        attempt(user, sentence, "hard", false, true, Instant.now(), "function", 4, 4);
-        long inserted = data.insertAttempt(user, sentence, "normal", false, false, Instant.now());
+        UUID lesson = data.newLesson();
+        attempt(user, data.newSentence(lesson, 0), "normal", false, false, Instant.now(), "function", 2, 1);
+        attempt(user, data.newSentence(lesson, 1), "normal", true, false, Instant.now(), "function", 4, 4);
+        attempt(user, data.newSentence(lesson, 2), "hard", false, true, Instant.now(), "function", 4, 4);
+        long inserted = data.insertAttempt(user, data.newSentence(lesson, 3), "normal", false, false, Instant.now());
         data.insertWord(inserted, 0, null, "very", "inserted", null);
 
         assertThat(service.countsByWordClass(user, LONG_AGO)).containsOnlyKeys("function")
@@ -69,10 +101,11 @@ class DictationStatsQueryServiceIntegrationTest {
     @Test
     void countsByWordClass_respectsSince() {
         UUID user = data.newUser();
-        UUID sentence = data.newSentence(data.newLesson(), 0);
+        UUID lesson = data.newLesson();
         Instant now = Instant.now();
-        attempt(user, sentence, "normal", false, false, now.minus(Duration.ofDays(40)), "content", 5, 5);
-        attempt(user, sentence, "normal", false, false, now, "content", 2, 1);
+        attempt(user, data.newSentence(lesson, 0), "normal", false, false, now.minus(Duration.ofDays(40)), "content",
+                5, 5);
+        attempt(user, data.newSentence(lesson, 1), "normal", false, false, now, "content", 2, 1);
 
         assertThat(service.countsByWordClass(user, now.minus(Duration.ofDays(30))))
                 .containsOnlyKeys("content").containsEntry("content", new ClassCountsView(2, 1));

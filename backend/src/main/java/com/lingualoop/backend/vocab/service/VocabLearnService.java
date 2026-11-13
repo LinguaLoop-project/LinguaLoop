@@ -12,10 +12,10 @@ public interface VocabLearnService {
      * Các thẻ của phần {@code partNumber} (tính từ 1, như đường dẫn) kèm tiến độ của học viên. 404 nếu bộ hoặc phần không
      * có; 403 nếu phần bị khoá với gói Free (BR-HT-07).
      */
-    LearnView.PartDetail part(UUID userId, String slug, int partNumber);
+    LearnView.PartDetail part(UUID userId, UUID deckId, int partNumber);
 
     /** Mở phiên học mới cho phần này và đóng phiên còn mở trước đó (BR-HT-15). */
-    LearnView.SessionRef openSession(UUID userId, String slug, int partNumber);
+    LearnView.SessionRef openSession(UUID userId, UUID deckId, int partNumber);
 
     /**
      * Ghi một câu trả lời và cập nhật thẻ theo BR-HT-10, BR-HT-11 và BR-HT-12. Gửi lại cùng {@code answerId} thì không ghi

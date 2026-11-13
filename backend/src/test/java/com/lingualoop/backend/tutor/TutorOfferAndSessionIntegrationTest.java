@@ -38,26 +38,25 @@ import com.lingualoop.backend.lesson.repository.SentenceRepository;
 import com.lingualoop.backend.lesson.repository.TopicRepository;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.subscription.service.UsageService;
-import com.lingualoop.backend.user.service.ConsentService;
+import com.lingualoop.backend.support.TestData;
 import com.lingualoop.backend.user.service.UserAccountService;
 
-/** UC-TUTOR-01 đến 03: xét lời mời, từ chối, tạo phiên (Gemini Live và consent là bản giả). */
+/** UC-TUTOR-01 đến 03: xét lời mời, từ chối, tạo phiên (Gemini Live là bản giả). */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
 class TutorOfferAndSessionIntegrationTest {
 
+    private static final java.util.concurrent.atomic.AtomicInteger NEXT_SLOT = new java.util.concurrent.atomic.AtomicInteger();
+
     @Autowired private MockMvc mockMvc;
     @Autowired private JwtTokenService jwtTokenService;
     @Autowired private UserAccountService userAccountService;
-    @Autowired private UsageService usageService;
     @Autowired private TopicRepository topics;
     @Autowired private LessonRepository lessons;
     @Autowired private SentenceRepository sentences;
     @Autowired private JdbcTemplate jdbc;
 
-    @MockitoBean private ConsentService consent;
     @MockitoBean private LiveTokenIssuer tokenIssuer;
 
     private final String tag = UUID.randomUUID().toString().substring(0, 8);
@@ -65,7 +64,6 @@ class TutorOfferAndSessionIntegrationTest {
 
     @BeforeEach
     void defaults() {
-        when(consent.hasConsent(any(), any())).thenReturn(true);
         when(tokenIssuer.issue(any())).thenReturn(
                 new LiveTokenIssuer.LiveToken("tok-123", "live-model", Instant.parse("2026-10-21T10:00:00Z")));
     }
@@ -135,8 +133,8 @@ class TutorOfferAndSessionIntegrationTest {
         long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20));
         UUID stranger = newUser();
         UUID sentence = jdbc.queryForObject("SELECT sentence_id FROM sentence_attempts WHERE id = ?", UUID.class, attempt);
-        long dictation = jdbc.queryForObject("INSERT INTO sentence_attempts (user_id, sentence_id, mode, submitted_text) "
-                + "VALUES (?, ?, 'dictation', 'x') RETURNING id", Long.class, f.user, sentence);
+        long dictation = jdbc.queryForObject("INSERT INTO sentence_attempts (user_id, sentence_id, mode, level, submitted_text, total_score) "
+                + "VALUES (?, ?, 'dictation', 'normal', 'x', 0) RETURNING id", Long.class, f.user, sentence);
 
         offer(stranger, attempt).andExpect(status().isNotFound());
         offer(f.user, dictation).andExpect(status().isNotFound());
@@ -149,7 +147,7 @@ class TutorOfferAndSessionIntegrationTest {
     void decline_marksTheOfferOnceAndRejectsOtherPeople_AC_TUTOR_06() throws Exception {
         Fx f = fx();
         long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20));
-        UUID offerId = UUID.fromString(jdbcOfferId(f.user, attempt));
+        long offerId = jdbcOfferId(f.user, attempt);
 
         mockMvc.perform(post("/api/v1/tutor/offers/{id}/decline", offerId).headers(auth(newUser())))
                 .andExpect(status().isNotFound());
@@ -167,7 +165,7 @@ class TutorOfferAndSessionIntegrationTest {
     void createSession_returnsTokenWordsAndLimits_AC_TUTOR_07() throws Exception {
         Fx f = fx();
         long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20, "ɪ", 80), word("about", 90, "ə", 90));
-        UUID offerId = UUID.fromString(jdbcOfferId(f.user, attempt));
+        long offerId = jdbcOfferId(f.user, attempt);
 
         createSession(f.user, attempt, offerId)
                 .andExpect(status().isOk())
@@ -183,11 +181,10 @@ class TutorOfferAndSessionIntegrationTest {
                 .andExpect(jsonPath("$.data.limits.startTimeoutSeconds").value(15))
                 .andExpect(jsonPath("$.data.limits.maxAttemptsPerWord").value(3));
 
-        assertThat(count("tutor_sessions WHERE user_id = ? AND attempt_id = ? AND started_at IS NULL AND charged = false",
+        assertThat(count("tutor_sessions WHERE user_id = ? AND attempt_id = ? AND started_at IS NULL",
                 f.user, attempt)).isEqualTo(1);
         assertThat(count("tutor_session_words w JOIN tutor_sessions s ON s.id = w.session_id "
                 + "JOIN phonemes p ON p.id = w.focus_phoneme_id WHERE s.user_id = ? AND p.symbol = 'θ'", f.user)).isEqualTo(1);
-        assertThat(count("tutor_offers WHERE id = ? AND accepted_at IS NOT NULL", offerId)).isEqualTo(1);
         assertThat(usageOf(f.user)).isZero(); // chỉ kiểm tra hạn mức, trừ lượt khi started
     }
 
@@ -215,26 +212,40 @@ class TutorOfferAndSessionIntegrationTest {
     }
 
     @Test
-    void createSession_withoutConsentOrQuota_isRefusedBeforeAnyToken_AC_TUTOR_10() throws Exception {
+    void createSession_withoutQuota_isRefusedBeforeAnyToken_AC_TUTOR_10() throws Exception {
         Fx f = fx();
         long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20));
 
-        when(consent.hasConsent(any(), any())).thenReturn(false);
-        createSession(f.user, attempt, null)
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("AI_CONSENT_REQUIRED"));
-
-        when(consent.hasConsent(any(), any())).thenReturn(true);
-        usageService.tryConsume(f.user, "ai_energy", 6); // còn 2, mà một phiên gia sư tốn 3 năng lượng
+        TestData.setCredits(jdbc, f.user, 2); // dưới ngưỡng 5 credit để bắt đầu
         createSession(f.user, attempt, null)
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
-                .andExpect(jsonPath("$.details.feature").value("ai_energy"))
-                .andExpect(jsonPath("$.details.action").value("tutor_session"))
-                .andExpect(jsonPath("$.details.limit").value(8));
+                .andExpect(jsonPath("$.details.feature").value("tutor_session"))
+                .andExpect(jsonPath("$.details.balance").value(2))
+                .andExpect(jsonPath("$.details.minBalance").value(5));
 
         verifyNoInteractions(tokenIssuer);
         assertThat(count("tutor_sessions WHERE attempt_id = ?", attempt)).isZero();
+    }
+
+    @Test
+    void lessonEvent_isStoredAndAnUnknownOneIsRejected_AC_TUTOR_29() throws Exception {
+        Fx f = fx();
+        String body = "{\"lessonId\":\"%s\",\"event\":\"%s\"}";
+
+        mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
+                        .content(body.formatted(f.lesson, "toggle_on")))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
+                        .content(body.formatted(f.lesson, "toggle_sideways")))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
+                        .content(body.formatted(UUID.randomUUID(), "toggle_on")))
+                .andExpect(status().isNotFound());
+
+        assertThat(count("tutor_lesson_events WHERE user_id = ?", f.user)).isEqualTo(1);
+        verify(tokenIssuer, never()).issue(any());
     }
 
     @Test
@@ -242,7 +253,7 @@ class TutorOfferAndSessionIntegrationTest {
         Fx f = fx();
         long attemptA = attempt(f, "Think about it", word("think", 45, "θ", 20));
         long attemptB = attempt(f, "Think again", word("think", 45, "θ", 20));
-        UUID offerOfA = UUID.fromString(jdbcOfferId(f.user, attemptA));
+        long offerOfA = jdbcOfferId(f.user, attemptA);
 
         createSession(f.user, attemptB, offerOfA).andExpect(status().isNotFound());
 
@@ -274,7 +285,7 @@ class TutorOfferAndSessionIntegrationTest {
     void createSession_whenGeminiFails_answers503WithTheWordsForATextFallback_AC_TUTOR_11() throws Exception {
         Fx f = fx();
         long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20));
-        UUID offerId = UUID.fromString(jdbcOfferId(f.user, attempt));
+        long offerId = jdbcOfferId(f.user, attempt);
         when(tokenIssuer.issue(any())).thenThrow(new IllegalStateException("Gemini quá tải"));
 
         createSession(f.user, attempt, offerId)
@@ -285,29 +296,7 @@ class TutorOfferAndSessionIntegrationTest {
 
         assertThat(count("tutor_sessions WHERE attempt_id = ?", attempt)).isZero();
         assertThat(usageOf(f.user)).isZero();
-        assertThat(count("tutor_offers WHERE id = ? AND accepted_at IS NOT NULL", offerId)).isEqualTo(1);
-    }
 
-    // ── UC-TUTOR-09 ─────────────────────────────────────────────────────────────────
-
-    @Test
-    void lessonEvent_isStoredAndAnUnknownOneIsRejected_AC_TUTOR_29() throws Exception {
-        Fx f = fx();
-        String body = "{\"lessonId\":\"%s\",\"event\":\"%s\"}";
-
-        mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
-                        .content(body.formatted(f.lesson, "toggle_on")))
-                .andExpect(status().isOk());
-        mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
-                        .content(body.formatted(f.lesson, "toggle_sideways")))
-                .andExpect(status().isBadRequest());
-
-        mockMvc.perform(post("/api/v1/tutor/lesson-events").headers(auth(f.user)).contentType(MediaType.APPLICATION_JSON)
-                        .content(body.formatted(UUID.randomUUID(), "toggle_on")))
-                .andExpect(status().isNotFound());
-
-        assertThat(count("tutor_lesson_events WHERE user_id = ?", f.user)).isEqualTo(1);
-        verify(tokenIssuer, never()).issue(any());
     }
 
     // ── helpers ─────────────────────────────────────────────────────────────────────
@@ -325,16 +314,17 @@ class TutorOfferAndSessionIntegrationTest {
     private Fx fx() {
         UUID user = newUser();
         Topic topic = new Topic();
-        topic.setSlug("tu-t-" + UUID.randomUUID().toString().substring(0, 8));
-        topic.setName("tutor topic");
+        topic.setName("tutor topic " + UUID.randomUUID());
         topic = topics.save(topic);
         Lesson l = new Lesson();
         l.setTopic(topic);
-        l.setSlug("tu-" + UUID.randomUUID().toString().substring(0, 8));
         l.setTitle("tutor " + tag);
-        l.setDifficulty(CefrLevel.B1);
+        l.setOwnerId(com.lingualoop.backend.lesson.LessonFixtures.SYSTEM_TEACHER);
+        l.setYoutubeId(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 11));
+        l.setDurationSec(600);
+        l.setCefrLevel(CefrLevel.B1);
         l.setPro(false);
-        l.setStatus(LessonStatus.APPROVED);
+        l.setStatus(LessonStatus.PUBLISHED);
         l = lessons.save(l);
         return new Fx(user, l.getId());
     }
@@ -343,21 +333,20 @@ class TutorOfferAndSessionIntegrationTest {
     private long attempt(Fx f, String text, W... words) {
         Sentence s = new Sentence();
         s.setLesson(lessons.findById(f.lesson).orElseThrow());
-        s.setSortOrder(order++);
-        s.setText(text);
-        s.setStartMs(0);
-        s.setEndMs(900);
-        s.setCefrLevel(CefrLevel.A1);
+        s.setTextEn(text);
+        int start = (NEXT_SLOT.getAndIncrement() % 500) * 1000; // câu cùng bài không được chồng mốc thời gian
+        s.setStartMs(start);
+        s.setEndMs(start + 900);
         s = sentences.save(s);
-        long attempt = jdbc.queryForObject("INSERT INTO sentence_attempts (user_id, sentence_id, mode, provider, score, accuracy_score) "
-                + "VALUES (?, ?, 'shadowing', 'azure', 70, 70) RETURNING id", Long.class, f.user, s.getId());
+        long attempt = jdbc.queryForObject("INSERT INTO sentence_attempts (user_id, sentence_id, mode, total_score, accuracy_score) "
+                + "VALUES (?, ?, 'shadowing', 70, 70) RETURNING id", Long.class, f.user, s.getId());
         int wordPos = 0;
         for (W w : words) {
             long wordId = jdbc.queryForObject("INSERT INTO sentence_attempt_words (attempt_id, position, expected_word, actual_word, "
                     + "outcome, accuracy_score) VALUES (?, ?, ?, ?, ?, ?) RETURNING id", Long.class, attempt, wordPos++,
                     w.text, w.text, w.accuracy < 60 ? "mispronounced" : "correct", w.accuracy);
             for (int i = 0; i < w.phonemes.length; i += 2) {
-                jdbc.update("INSERT INTO sentence_attempt_phonemes (attempt_word_id, position, phoneme_id, accuracy_score) "
+                jdbc.update("INSERT INTO sentence_attempt_phonemes (attempt_word_id, position, heard_phoneme_id, accuracy_score) "
                         + "VALUES (?, ?, (SELECT id FROM phonemes WHERE symbol = ?), ?)", wordId, i / 2,
                         w.phonemes[i], ((Number) w.phonemes[i + 1]).doubleValue());
             }
@@ -370,16 +359,16 @@ class TutorOfferAndSessionIntegrationTest {
                 .content("{\"attemptId\":" + attemptId + "}"));
     }
 
-    private ResultActions createSession(UUID user, long attemptId, UUID offerId) throws Exception {
+    private ResultActions createSession(UUID user, long attemptId, Long offerId) throws Exception {
         String body = offerId == null ? "{\"attemptId\":" + attemptId + "}"
-                : "{\"attemptId\":" + attemptId + ",\"offerId\":\"" + offerId + "\"}";
+                : "{\"attemptId\":" + attemptId + ",\"offerId\":" + offerId + "}";
         return mockMvc.perform(post("/api/v1/tutor/sessions").headers(auth(user)).contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     /** Mã lời mời của lượt (gọi API để lời mời được tạo đúng như thực tế). */
-    private String jdbcOfferId(UUID user, long attemptId) throws Exception {
+    private long jdbcOfferId(UUID user, long attemptId) throws Exception {
         offer(user, attemptId).andExpect(status().isOk()).andExpect(jsonPath("$.data.offer").value(true));
-        return jdbc.queryForObject("SELECT id::text FROM tutor_offers WHERE attempt_id = ?", String.class, attemptId);
+        return jdbc.queryForObject("SELECT id FROM tutor_offers WHERE attempt_id = ?", Long.class, attemptId);
     }
 
     private HttpHeaders auth(UUID user) {
@@ -394,7 +383,7 @@ class TutorOfferAndSessionIntegrationTest {
 
     private int usageOf(UUID user) {
         Integer n = jdbc.queryForObject(
-                "SELECT coalesce(sum(used), 0) FROM usage_counters WHERE user_id = ? AND feature = 'ai_energy'",
+                "SELECT coalesce(sum(credits_charged), 0) FROM ai_usage_logs WHERE user_id = ? AND status = 'success'",
                 Integer.class, user);
         return n == null ? 0 : n;
     }

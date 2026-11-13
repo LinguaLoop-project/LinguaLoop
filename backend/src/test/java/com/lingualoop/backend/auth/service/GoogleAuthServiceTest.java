@@ -46,12 +46,12 @@ class GoogleAuthServiceTest {
         authService = mock(AuthService.class);
         service = new GoogleAuthService(exchanger, users, refreshTokens, authService);
         when(exchanger.exchange("id-token")).thenReturn(IDENTITY);
-        when(authService.openSession(any(UserAccountView.class), anyString())).thenReturn(session);
+        when(authService.openSession(any(UserAccountView.class))).thenReturn(session);
     }
 
-    private static UserAccountView account(boolean verified, boolean disabled, boolean hasPassword, boolean googleLinked) {
+    private static UserAccountView account(boolean verified, boolean locked, boolean hasPassword, boolean googleLinked) {
         return new UserAccountView(UUID.randomUUID(), "minh@gmail.com", "Minh", null, hasPassword ? "hash" : null,
-                Role.STUDENT, "vi", verified, disabled, false, googleLinked);
+                Role.STUDENT, "vi", verified, locked, false, googleLinked);
     }
 
     @Test
@@ -59,10 +59,10 @@ class GoogleAuthServiceTest {
         UserAccountView existing = account(true, false, false, true);
         when(users.findByGoogleSub(SUB)).thenReturn(Optional.of(existing));
 
-        AuthSession result = service.login("id-token", "ua");
+        AuthSession result = service.login("id-token");
 
         assertThat(result).isSameAs(session);
-        verify(authService).openSession(existing, "ua");
+        verify(authService).openSession(existing);
         verify(users, never()).createFromGoogle(anyString(), anyString(), any(), any());
         verify(users, never()).linkGoogle(any(), anyString());
     }
@@ -74,9 +74,9 @@ class GoogleAuthServiceTest {
         when(users.findByEmail("minh@gmail.com")).thenReturn(Optional.empty());
         when(users.createFromGoogle(SUB, "minh@gmail.com", "Minh", "https://img/m.png")).thenReturn(created);
 
-        service.login("id-token", "ua");
+        service.login("id-token");
 
-        verify(authService).openSession(created, "ua");
+        verify(authService).openSession(created);
     }
 
     @Test
@@ -88,10 +88,10 @@ class GoogleAuthServiceTest {
         when(users.linkGoogle(local.id(), SUB)).thenReturn(false);
         when(users.findById(local.id())).thenReturn(Optional.of(linked));
 
-        service.login("id-token", "ua");
+        service.login("id-token");
 
         verify(refreshTokens, never()).revokeAllForUser(any());
-        verify(authService).openSession(linked, "ua");
+        verify(authService).openSession(linked);
     }
 
     @Test
@@ -103,10 +103,10 @@ class GoogleAuthServiceTest {
         when(users.linkGoogle(local.id(), SUB)).thenReturn(true);
         when(users.findById(local.id())).thenReturn(Optional.of(linked));
 
-        service.login("id-token", "ua");
+        service.login("id-token");
 
         verify(refreshTokens).revokeAllForUser(local.id());
-        verify(authService).openSession(linked, "ua");
+        verify(authService).openSession(linked);
     }
 
     @Test
@@ -114,7 +114,7 @@ class GoogleAuthServiceTest {
         when(users.findByGoogleSub(SUB)).thenReturn(Optional.empty());
         when(users.findByEmail("minh@gmail.com")).thenReturn(Optional.of(account(true, false, false, true)));
 
-        assertThatThrownBy(() -> service.login("id-token", "ua"))
+        assertThatThrownBy(() -> service.login("id-token"))
                 .isInstanceOfSatisfying(BusinessException.class,
                         e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.AUTH_GOOGLE_LINK_CONFLICT));
         verify(users, never()).linkGoogle(any(), anyString());
@@ -124,10 +124,10 @@ class GoogleAuthServiceTest {
     void login_disabledAccountFoundBySub_isRejected_AC24() {
         when(users.findByGoogleSub(SUB)).thenReturn(Optional.of(account(true, true, false, true)));
 
-        assertThatThrownBy(() -> service.login("id-token", "ua"))
+        assertThatThrownBy(() -> service.login("id-token"))
                 .isInstanceOfSatisfying(BusinessException.class,
                         e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.AUTH_ACCOUNT_DISABLED));
-        verify(authService, never()).openSession(any(), anyString());
+        verify(authService, never()).openSession(any());
     }
 
     @Test
@@ -135,7 +135,7 @@ class GoogleAuthServiceTest {
         when(users.findByGoogleSub(SUB)).thenReturn(Optional.empty());
         when(users.findByEmail("minh@gmail.com")).thenReturn(Optional.of(account(false, true, true, false)));
 
-        assertThatThrownBy(() -> service.login("id-token", "ua"))
+        assertThatThrownBy(() -> service.login("id-token"))
                 .isInstanceOfSatisfying(BusinessException.class,
                         e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.AUTH_ACCOUNT_DISABLED));
         verify(users, never()).linkGoogle(any(), anyString());
@@ -149,9 +149,9 @@ class GoogleAuthServiceTest {
         when(users.findByEmail("minh@gmail.com")).thenReturn(Optional.empty());
         when(users.createFromGoogle(eq(SUB), anyString(), any(), any())).thenThrow(new DataIntegrityViolationException("dup"));
 
-        service.login("id-token", "ua");
+        service.login("id-token");
 
-        verify(authService).openSession(created, "ua");
+        verify(authService).openSession(created);
     }
 
     @Test
@@ -160,14 +160,14 @@ class GoogleAuthServiceTest {
         when(users.findByEmail("minh@gmail.com")).thenReturn(Optional.empty());
         when(users.createFromGoogle(eq(SUB), anyString(), any(), any())).thenThrow(new DataIntegrityViolationException("dup"));
 
-        assertThatThrownBy(() -> service.login("id-token", "ua")).isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> service.login("id-token")).isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     void login_exchangerRejectsCode_propagatesAndTouchesNothing_AC22() {
         when(exchanger.exchange("bad")).thenThrow(new BusinessException(ErrorCode.AUTH_GOOGLE_TOKEN_INVALID));
 
-        assertThatThrownBy(() -> service.login("bad", "ua")).isInstanceOf(BusinessException.class);
+        assertThatThrownBy(() -> service.login("bad")).isInstanceOf(BusinessException.class);
         verify(users, never()).findByGoogleSub(anyString());
     }
 
@@ -175,6 +175,6 @@ class GoogleAuthServiceTest {
     void login_googleUnavailable_propagates_AC23() {
         when(exchanger.exchange("id-token")).thenThrow(new GoogleUnavailableException("down"));
 
-        assertThatThrownBy(() -> service.login("id-token", "ua")).isInstanceOf(GoogleUnavailableException.class);
+        assertThatThrownBy(() -> service.login("id-token")).isInstanceOf(GoogleUnavailableException.class);
     }
 }

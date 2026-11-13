@@ -3,17 +3,17 @@ package com.lingualoop.backend.dictionary.entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import com.lingualoop.backend.common.entity.BaseEntity;
-import com.lingualoop.backend.lesson.enums.CefrLevel;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -25,14 +25,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "dictionary_words")
-public class DictionaryWord extends BaseEntity {
+public class DictionaryWord {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false)
     private String headword;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "cefr_level", columnDefinition = "cefr_code")
-    private CefrLevel cefrLevel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lemma_id")
@@ -50,6 +50,7 @@ public class DictionaryWord extends BaseEntity {
     @Column(name = "audio_us")
     private String audioUs;
 
+    /** Ghi đè phát âm theo loại từ (khoá là pos của nghĩa); NULL thì mọi loại từ dùng phát âm mặc định. */
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "pos_pronunciations")
     private Map<String, PosPronunciation> posPronunciations;
@@ -57,7 +58,4 @@ public class DictionaryWord extends BaseEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false)
     private List<WordMeaning> meanings = new ArrayList<>();
-
-    @Column(nullable = false)
-    private String source;
 }

@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * Kết quả từng từ của một phiên: Từ luyện, số Lượt chấm, điểm trước và sau. {@code attempts} là của vòng luyện hiện
- * tại (quay lại từ thì về 0), {@code totalAttempts} đếm cả phiên.
+ * tại (quay lại từ thì về 0).
  */
 @Getter
 @Entity
@@ -44,10 +44,6 @@ public class TutorSessionWord {
     @Column(name = "word", nullable = false, updatable = false)
     private String word;
 
-    /** Từ đã chuẩn hóa ({@code Words.normalize}). */
-    @Column(name = "word_key", nullable = false, updatable = false)
-    private String wordKey;
-
     /** Âm đích cần sửa; null khi từ không có âm (Azure bỏ sót từ). */
     @Column(name = "focus_phoneme_id", updatable = false)
     private Short focusPhonemeId;
@@ -62,21 +58,22 @@ public class TutorSessionWord {
     @Column(name = "attempts", nullable = false)
     private Short attempts = 0;
 
-    @Column(name = "total_attempts", nullable = false)
-    private Short totalAttempts = 0;
-
     @Convert(converter = TutorConverters.Status.class)
     @Column(name = "status", nullable = false)
     private WordStatus status = WordStatus.PENDING;
 
-    TutorSessionWord(TutorSession session, int position, String word, String wordKey, Short focusPhonemeId,
+    TutorSessionWord(TutorSession session, int position, String word, Short focusPhonemeId,
             double scoreBefore) {
         this.session = session;
         this.position = (short) position;
         this.word = word;
-        this.wordKey = wordKey;
         this.focusPhonemeId = focusPhonemeId;
         this.scoreBefore = scale(scoreBefore);
+    }
+
+    /** Từ đã chuẩn hóa ({@code Words.normalize}), tính tại chỗ vì DB không lưu. */
+    public String getWordKey() {
+        return com.lingualoop.backend.tutor.Words.normalize(word);
     }
 
     public Double best() {
@@ -86,7 +83,6 @@ public class TutorSessionWord {
     /** Ghi một Lượt chấm: tăng số lượt, giữ điểm tốt nhất, đặt trạng thái. */
     void recordAttempt(double score, WordStatus newStatus) {
         attempts = (short) (attempts + 1);
-        totalAttempts = (short) (totalAttempts + 1);
         double best = scoreAfter == null ? score : Math.max(scoreAfter.doubleValue(), score);
         scoreAfter = scale(best);
         status = newStatus;

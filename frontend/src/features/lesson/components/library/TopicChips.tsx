@@ -85,8 +85,8 @@ export default function TopicChips({ topics, selected, onSelect }: TopicChipsPro
         {topics.map((topic) => {
           const full = localizedName(i18n.language === "en", topic);
           return (
-            <Chip key={topic.id || topic.slug} active={selected === topic.slug} onClick={() => onSelect(topic.slug)} count={topic.totalLessons} title={full}>
-              <Icon name={topic.icon} fallback="hash" className="text-xl" />
+            <Chip key={topic.id} active={selected === topic.id} onClick={() => onSelect(topic.id)} count={topic.totalLessons} title={full}>
+              <Icon name={null} fallback="hash" className="text-xl" />
               <span className="max-w-[160px] truncate">{shortName(full)}</span>
             </Chip>
           );

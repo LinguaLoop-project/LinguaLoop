@@ -24,6 +24,6 @@ public interface SentenceNoteService {
     /** Xoá ghi chú; không có ghi chú thì không làm gì. */
     void delete(UUID userId, UUID sentenceId, PracticeMode mode);
 
-    /** Mọi ghi chú của người dùng, mới sửa trước; {@code mode} null là cả hai chế độ, {@code lessonSlug} null là mọi bài. */
-    List<SentenceNoteEntryView> list(UUID userId, PracticeMode mode, String lessonSlug);
+    /** Mọi ghi chú của người dùng, mới sửa trước; {@code mode} null là cả hai chế độ, {@code lessonId} null là mọi bài. */
+    List<SentenceNoteEntryView> list(UUID userId, PracticeMode mode, UUID lessonId);
 }

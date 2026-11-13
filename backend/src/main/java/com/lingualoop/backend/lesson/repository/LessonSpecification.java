@@ -1,21 +1,19 @@
 package com.lingualoop.backend.lesson.repository;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
 
 import com.lingualoop.backend.lesson.entity.Lesson;
-import com.lingualoop.backend.lesson.entity.UserLessonProgress;
 import com.lingualoop.backend.lesson.enums.CefrLevel;
 import com.lingualoop.backend.lesson.enums.LessonState;
 import com.lingualoop.backend.lesson.enums.LessonStatus;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Subquery;
 
 public final class LessonSpecification {
 
@@ -23,42 +21,42 @@ public final class LessonSpecification {
     }
 
     /**
-     * Bộ lọc thư viện bài. Luôn chỉ lấy bài APPROVED chưa xoá mềm.
+     * Bộ lọc thư viện bài. Luôn chỉ lấy bài của thư viện chung đã xuất bản và chưa xoá mềm.
      *
-     * @param state  lọc theo tiến độ của {@code userId}; null = không lọc
-     * @param userId người dùng hiện tại, cần khi {@code state != null}
+     * @param state          lọc theo tiến độ của người dùng; null = không lọc
+     * @param attemptedIds   bài người dùng đã có lượt làm, cần khi {@code state != null}
+     * @param completedIds   bài người dùng đã hoàn thành, cần khi {@code state != null}
      */
-    public static Specification<Lesson> filterLessons(String q, String topicSlug, String difficulty,
-                                                      Boolean free, LessonState state, UUID userId) {
+    public static Specification<Lesson> filterLessons(String q, UUID topicId, String cefrLevel, Boolean free,
+                                                      LessonState state, Collection<UUID> attemptedIds,
+                                                      Collection<UUID> completedIds) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(cb.equal(root.get("status"), LessonStatus.APPROVED));
+            predicates.add(cb.equal(root.get("kind"), Lesson.KIND_LIBRARY));
+            predicates.add(cb.equal(root.get("status"), LessonStatus.PUBLISHED));
             predicates.add(cb.isNull(root.get("deletedAt")));
 
             if (q != null && !q.trim().isEmpty()) {
-                String pattern = "%" + q.trim().toLowerCase() + "%";
-                Predicate matchTitle = cb.like(cb.lower(root.get("title")), pattern);
-                Predicate matchTitleVi = cb.like(cb.lower(root.get("titleVi")), pattern);
-                predicates.add(cb.or(matchTitle, matchTitleVi));
+                String pattern = "%" + q.trim().toLowerCase(Locale.ROOT) + "%";
+                predicates.add(cb.like(cb.lower(root.get("title")), pattern));
             }
 
-            if (topicSlug != null && !topicSlug.trim().isEmpty()) {
-                predicates.add(cb.equal(root.get("topic").get("slug"), topicSlug));
+            if (topicId != null) {
+                predicates.add(cb.equal(root.get("topic").get("id"), topicId));
             }
 
-            if (difficulty != null && !difficulty.trim().isEmpty()) {
-                List<Predicate> diffPredicates = new ArrayList<>();
-                for (String level : difficulty.split(",")) {
+            if (cefrLevel != null && !cefrLevel.trim().isEmpty()) {
+                List<Predicate> levels = new ArrayList<>();
+                for (String level : cefrLevel.split(",")) {
                     try {
-                        diffPredicates.add(cb.equal(root.get("difficulty"),
-                                CefrLevel.valueOf(level.trim().toUpperCase())));
+                        levels.add(cb.equal(root.get("cefrLevel"), CefrLevel.valueOf(level.trim().toUpperCase(Locale.ROOT))));
                     } catch (IllegalArgumentException ignored) {
                         // mức không hợp lệ thì bỏ qua, các mức còn lại vẫn áp dụng
                     }
                 }
-                if (!diffPredicates.isEmpty()) {
-                    predicates.add(cb.or(diffPredicates.toArray(new Predicate[0])));
+                if (!levels.isEmpty()) {
+                    predicates.add(cb.or(levels.toArray(new Predicate[0])));
                 }
             }
 
@@ -66,26 +64,28 @@ public final class LessonSpecification {
                 predicates.add(cb.equal(root.get("pro"), false));
             }
 
-            if (state != null && userId != null) {
-                predicates.add(stateMatches(state, userId, root, query.subquery(Integer.class), cb));
+            if (state != null) {
+                predicates.add(stateMatches(state, attemptedIds, completedIds, root.get("id"), cb));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
 
-    private static Predicate stateMatches(LessonState state, UUID userId, Root<Lesson> lesson,
-                                          Subquery<Integer> sub, CriteriaBuilder cb) {
-        Root<UserLessonProgress> progress = sub.from(UserLessonProgress.class);
-        List<Predicate> where = new ArrayList<>();
-        where.add(cb.equal(progress.get("lessonId"), lesson.get("id")));
-        where.add(cb.equal(progress.get("userId"), userId));
-        if (state == LessonState.DOING) {
-            where.add(cb.isNull(progress.get("completedAt")));
-        } else if (state == LessonState.DONE) {
-            where.add(cb.isNotNull(progress.get("completedAt")));
-        }
-        sub.select(cb.literal(1)).where(where.toArray(new Predicate[0]));
-        return state == LessonState.TODO ? cb.not(cb.exists(sub)) : cb.exists(sub);
+    private static Predicate stateMatches(LessonState state, Collection<UUID> attemptedIds,
+                                          Collection<UUID> completedIds,
+                                          jakarta.persistence.criteria.Path<UUID> id,
+                                          jakarta.persistence.criteria.CriteriaBuilder cb) {
+        return switch (state) {
+            case TODO -> attemptedIds.isEmpty() ? cb.conjunction() : cb.not(id.in(attemptedIds));
+            case DONE -> completedIds.isEmpty() ? cb.disjunction() : id.in(completedIds);
+            case DOING -> {
+                if (attemptedIds.isEmpty()) {
+                    yield cb.disjunction();
+                }
+                Predicate attempted = id.in(attemptedIds);
+                yield completedIds.isEmpty() ? attempted : cb.and(attempted, cb.not(id.in(completedIds)));
+            }
+        };
     }
 }

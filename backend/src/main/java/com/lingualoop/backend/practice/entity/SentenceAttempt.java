@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.practice.enums.AttemptOutcome;
 import com.lingualoop.backend.practice.enums.DictationLevel;
@@ -47,16 +50,13 @@ public class SentenceAttempt {
     private UUID sentenceId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "mode", nullable = false, updatable = false, columnDefinition = "practice_mode")
+    @Column(name = "mode", nullable = false, updatable = false)
     private PracticeMode mode = PracticeMode.dictation;
 
     // Nghe chép
     @Enumerated(EnumType.STRING)
     @Column(name = "level")
     private DictationLevel level;
-
-    @Column(name = "playback_rate", columnDefinition = "numeric(3,2)")
-    private BigDecimal playbackRate;
 
     @Column(name = "is_retry", nullable = false)
     private boolean retry;
@@ -67,13 +67,11 @@ public class SentenceAttempt {
     @Column(name = "submitted_text")
     private String submittedText;
 
-    @Column(name = "replay_count", nullable = false)
-    private int replayCount;
+    @JdbcTypeCode(SqlTypes.SMALLINT)
+    @Column(name = "listen_count", nullable = false)
+    private int listenCount;
 
     // Shadowing
-    @Column(name = "provider", updatable = false)
-    private String provider;
-
     @Column(name = "accuracy_score", precision = 5, scale = 2)
     private BigDecimal accuracyScore;
 
@@ -87,15 +85,20 @@ public class SentenceAttempt {
     private BigDecimal prosodyScore;
 
     // Chung
-    @Column(name = "score", precision = 5, scale = 2)
-    private BigDecimal score;
+    @Column(name = "total_score", nullable = false, precision = 5, scale = 2)
+    private BigDecimal totalScore;
 
+    /** Thời gian làm lượt này (ms); tổng thời gian học tính bằng sum, không lưu số cộng dồn. */
     @Column(name = "duration_ms")
     private Integer durationMs;
 
+    /** Chống trùng khi gửi lại lượt nghe chép (uq_sa_request); null với shadowing. */
+    @Column(name = "client_request_id", updatable = false)
+    private UUID clientRequestId;
+
     /** Cột có mặc định {@code now()} ở DB nên không ghi từ ứng dụng. */
-    @Column(name = "attempted_at", insertable = false, updatable = false)
-    private Instant attemptedAt;
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private Instant createdAt;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "attempt_id", nullable = false)
@@ -103,18 +106,16 @@ public class SentenceAttempt {
     private List<SentenceAttemptWord> words = new ArrayList<>();
 
     public static SentenceAttempt azureShadowing(UUID userId, UUID sentenceId, double score, double accuracy,
-            double fluency, double completeness, Double prosody, int durationMs) {
+            double fluency, double completeness, Double prosody) {
         SentenceAttempt attempt = new SentenceAttempt();
         attempt.userId = userId;
         attempt.sentenceId = sentenceId;
         attempt.mode = PracticeMode.shadowing;
-        attempt.provider = "azure";
-        attempt.score = scale(score);
+        attempt.totalScore = scale(score);
         attempt.accuracyScore = scale(accuracy);
         attempt.fluencyScore = scale(fluency);
         attempt.completenessScore = scale(completeness);
         attempt.prosodyScore = prosody == null ? null : scale(prosody);
-        attempt.durationMs = durationMs;
         return attempt;
     }
 

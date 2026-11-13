@@ -34,6 +34,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import com.lingualoop.backend.support.TestData;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.ai.AiFeedbackGenerator;
 import com.lingualoop.backend.ai.FeedbackRequest;
@@ -50,10 +51,9 @@ import com.lingualoop.backend.lesson.repository.SentenceRepository;
 import com.lingualoop.backend.lesson.repository.TopicRepository;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.service.ConsentService;
 import com.lingualoop.backend.user.service.UserAccountService;
 
-/** Nhận xét AI cho một lượt shadowing (UC-SHADOW-09): một lượt một nhận xét, hạn mức theo gói, hoàn lượt khi lỗi. */
+/** Nhận xét AI cho một lượt shadowing (UC-SHADOW-09): một lượt một nhận xét, trừ credit theo token, không trừ khi lỗi. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
@@ -71,14 +71,12 @@ class AiFeedbackIntegrationTest {
     @Autowired private JdbcTemplate jdbc;
 
     @MockitoBean private AiFeedbackGenerator generator;
-    @MockitoBean private ConsentService consent;
 
     private final String tag = UUID.randomUUID().toString().substring(0, 8);
 
     @BeforeEach
     void defaults() {
         reset(generator);
-        when(consent.hasConsent(any(), any())).thenReturn(true);
         when(generator.generate(any())).thenReturn(FEEDBACK);
     }
 
@@ -91,21 +89,23 @@ class AiFeedbackIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").value(FEEDBACK.content()))
                 .andExpect(jsonPath("$.data.cached").value(false))
-                .andExpect(jsonPath("$.data.usage.feature").value("ai_energy"))
-                .andExpect(jsonPath("$.data.usage.used").value(1))
-                .andExpect(jsonPath("$.data.usage.limit").value(8));
+                .andExpect(jsonPath("$.data.credit.kind").value("free"))
+                .andExpect(jsonPath("$.data.credit.balance").value(19)); // ví Free 20, giá seed 0 nên trừ tối thiểu 1
 
         feedback(user, attempt)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").value(FEEDBACK.content()))
                 .andExpect(jsonPath("$.data.cached").value(true))
-                .andExpect(jsonPath("$.data.usage.used").value(1));
+                .andExpect(jsonPath("$.data.credit.balance").value(19));
 
         verify(generator, times(1)).generate(any());
-        assertThat(jdbc.queryForObject("""
-                SELECT model || '|' || prompt_version || '|' || input_tokens || '|' || output_tokens
-                FROM ai_feedback WHERE attempt_id = ?""", String.class, attempt))
-                .isEqualTo("gemini-test|shadowing-feedback-v1|120|40");
+        assertThat(jdbc.queryForObject("SELECT content FROM ai_feedback WHERE attempt_id = ?", String.class, attempt))
+                .isEqualTo(FEEDBACK.content());
+        // số token thật của Gemini đi vào nhật ký dùng AI để tính credit
+        assertThat(jdbc.queryForMap("""
+                SELECT input_units, output_units, status FROM ai_usage_logs WHERE user_id = ?""", user))
+                .containsEntry("input_units", 120).containsEntry("output_units", 40)
+                .containsEntry("status", "success");
     }
 
     @Test
@@ -117,9 +117,10 @@ class AiFeedbackIntegrationTest {
                 INSERT INTO sentence_attempt_words (attempt_id, position, expected_word, actual_word, outcome, accuracy_score)
                 VALUES (?, 0, 'think', 'think', 'mispronounced', 55) RETURNING id""", Long.class, attempt);
         jdbc.update("""
-                INSERT INTO sentence_attempt_phonemes (attempt_word_id, position, phoneme_id, accuracy_score)
-                VALUES (?, 0, (SELECT id FROM phonemes WHERE symbol = 'θ'), 30),
-                       (?, 1, (SELECT id FROM phonemes WHERE symbol = 'ɪ'), 90)""", word, word);
+                INSERT INTO sentence_attempt_phonemes
+                    (attempt_word_id, position, target_phoneme_id, heard_phoneme_id, accuracy_score)
+                VALUES (?, 0, (SELECT id FROM phonemes WHERE symbol = 'θ'), (SELECT id FROM phonemes WHERE symbol = 'θ'), 30),
+                       (?, 1, (SELECT id FROM phonemes WHERE symbol = 'ɪ'), (SELECT id FROM phonemes WHERE symbol = 'ɪ'), 90)""", word, word);
 
         feedback(user, attempt).andExpect(status().isOk());
 
@@ -145,45 +146,36 @@ class AiFeedbackIntegrationTest {
     }
 
     @Test
-    void feedback_withoutAiConsent_returns403AndDoesNotCharge_AC_SHADOW_26() throws Exception {
-        UUID user = newUser();
-        long attempt = attempt(user, sentence("consent"));
-        when(consent.hasConsent(any(), any())).thenReturn(false);
-
-        feedback(user, attempt)
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("AI_CONSENT_REQUIRED"));
-
-        assertThat(used(user)).isZero();
-        verify(generator, times(0)).generate(any());
-    }
-
-    @Test
-    void feedback_costsOneEnergy_freeHasEightPerDay_proIsUnlimited_AC_SHADOW_27() throws Exception {
+    void feedback_needsTheMinimumBalance_freeIsRejectedProKeepsGoing_AC_SHADOW_27() throws Exception {
         UUID free = newUser();
         UUID pro = newUser();
         makePro(pro);
+        TestData.setCredits(jdbc, free, 5); // đúng ngưỡng min_balance_to_start
         Sentence s = sentence("limits");
-        for (int i = 0; i < 8; i++) {
-            feedback(free, attempt(free, s)).andExpect(status().isOk());
-        }
-        long ninth = attempt(free, s);
 
-        feedback(free, ninth)
+        feedback(free, attempt(free, s)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.credit.balance").value(4));
+        long second = attempt(free, s);
+
+        feedback(free, second)
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
-                .andExpect(jsonPath("$.details.feature").value("ai_energy"))
-                .andExpect(jsonPath("$.details.action").value("ai_feedback"));
-        assertThat(count("ai_feedback WHERE attempt_id = ?", ninth)).isZero();
+                .andExpect(jsonPath("$.details.feature").value("shadowing_feedback"))
+                .andExpect(jsonPath("$.details.balance").value(4))
+                .andExpect(jsonPath("$.details.minBalance").value(5));
+        assertThat(count("ai_feedback WHERE attempt_id = ?", second)).isZero();
+        assertThat(count("ai_usage_logs WHERE user_id = ? AND status = 'rejected_no_credit'", free)).isEqualTo(1);
+        verify(generator, times(1)).generate(any());
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 3; i++) {
             feedback(pro, attempt(pro, s)).andExpect(status().isOk());
         }
-        assertThat(used(pro)).isEqualTo(7);
+        assertThat(used(pro)).isEqualTo(3);
+        assertThat(balance(pro)).isEqualTo(TestData.PRO_CREDITS_PER_MONTH - 3);
     }
 
     @Test
-    void feedback_whenAiFails_returns502AndGivesTheAttemptBack_AC_SHADOW_28() throws Exception {
+    void feedback_whenAiFails_returns502AndChargesNothing_AC_SHADOW_28() throws Exception {
         UUID user = newUser();
         long attempt = attempt(user, sentence("fail"));
         when(generator.generate(any())).thenThrow(new BusinessException(ErrorCode.AI_FEEDBACK_UNAVAILABLE));
@@ -194,13 +186,14 @@ class AiFeedbackIntegrationTest {
 
         assertThat(used(user)).isZero();
         assertThat(count("ai_feedback WHERE attempt_id = ?", attempt)).isZero();
+        assertThat(count("ai_usage_logs WHERE user_id = ? AND status = 'failed'", user)).isEqualTo(1);
     }
 
     @Test
     void feedback_twoRequestsAtOnce_storeOneFeedbackAndChargeOnce_AC_SHADOW_29() throws Exception {
         UUID user = newUser();
         long attempt = attempt(user, sentence("race"));
-        // Cả hai yêu cầu cùng qua bước "chưa có nhận xét" rồi mới cùng viết xong: bên chậm hơn đụng UNIQUE(attempt_id)
+        // Cả hai yêu cầu cùng qua bước "chưa có nhận xét" rồi mới cùng viết xong: bên chậm hơn đụng khoá chính attempt_id
         CyclicBarrier bothInside = new CyclicBarrier(2);
         when(generator.generate(any())).thenAnswer(invocation -> {
             bothInside.await(10, TimeUnit.SECONDS);
@@ -305,13 +298,11 @@ class AiFeedbackIntegrationTest {
     }
 
     @Test
-    void stream_withoutAiConsentOrOfAnotherUser_isRejectedBeforeStreaming_AC_SHADOW_31() throws Exception {
+    void stream_ofAnotherUser_isRejectedBeforeStreaming_AC_SHADOW_31() throws Exception {
         UUID owner = newUser();
         long attempt = attempt(owner, sentence("stream-guard"));
 
         streamOf(newUser(), attempt).andExpect(status().isNotFound());
-        when(consent.hasConsent(any(), any())).thenReturn(false);
-        streamOf(owner, attempt).andExpect(status().isForbidden());
 
         verify(generator, times(0)).generate(any(), any());
     }
@@ -343,21 +334,26 @@ class AiFeedbackIntegrationTest {
     }
 
     private void makePro(UUID user) {
-        jdbc.update("INSERT INTO user_subscriptions (user_id, status, expires_at) "
-                + "VALUES (?, 'active', now() + interval '10 days')", user);
+        TestData.grantPro(jdbc, user, 1);
     }
 
     private long attempt(UUID user, Sentence sentence) {
         Long id = jdbc.queryForObject("""
-                INSERT INTO sentence_attempts (user_id, sentence_id, mode, provider, score)
-                VALUES (?, ?, 'shadowing', 'azure', 70) RETURNING id""", Long.class, user, sentence.getId());
+                INSERT INTO sentence_attempts (user_id, sentence_id, mode, total_score)
+                VALUES (?, ?, 'shadowing', 70) RETURNING id""", Long.class, user, sentence.getId());
         return id == null ? 0 : id;
     }
 
+    /** Tổng credit đã trừ thật của người dùng (nhật ký dùng AI thành công). */
     private int used(UUID user) {
         Integer n = jdbc.queryForObject(
-                "SELECT coalesce(sum(used), 0) FROM usage_counters WHERE user_id = ? AND feature = 'ai_energy'",
+                "SELECT coalesce(sum(credits_charged), 0) FROM ai_usage_logs WHERE user_id = ? AND status = 'success'",
                 Integer.class, user);
+        return n == null ? 0 : n;
+    }
+
+    private int balance(UUID user) {
+        Integer n = jdbc.queryForObject("SELECT balance FROM ai_wallets WHERE user_id = ?", Integer.class, user);
         return n == null ? 0 : n;
     }
 
@@ -368,26 +364,25 @@ class AiFeedbackIntegrationTest {
 
     private Sentence sentence(String name) {
         Topic topic = new Topic();
-        topic.setSlug(name + "-t-" + tag);
         topic.setName(name + " topic");
         topic = topics.save(topic);
 
         Lesson lesson = new Lesson();
         lesson.setTopic(topic);
-        lesson.setSlug(name + "-" + tag);
         lesson.setTitle(name + " " + tag);
-        lesson.setDifficulty(CefrLevel.B1);
+        lesson.setOwnerId(com.lingualoop.backend.lesson.LessonFixtures.SYSTEM_TEACHER);
+        lesson.setYoutubeId(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 11));
+        lesson.setDurationSec(600);
+        lesson.setCefrLevel(CefrLevel.B1);
         lesson.setPro(false);
-        lesson.setStatus(LessonStatus.APPROVED);
+        lesson.setStatus(LessonStatus.PUBLISHED);
         lesson = lessons.save(lesson);
 
         Sentence s = new Sentence();
         s.setLesson(lesson);
-        s.setSortOrder(0);
-        s.setText("Think about it");
+        s.setTextEn("Think about it");
         s.setStartMs(0);
         s.setEndMs(900);
-        s.setCefrLevel(CefrLevel.A1);
         return sentences.save(s);
     }
 }

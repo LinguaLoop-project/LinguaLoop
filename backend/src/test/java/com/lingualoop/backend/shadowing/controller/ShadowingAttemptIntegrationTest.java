@@ -34,6 +34,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import com.lingualoop.backend.shadowing.service.PhonemeTips;
+import com.lingualoop.backend.support.TestData;
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
@@ -54,7 +56,6 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.PhonemeRes
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.WordResult;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.support.WavFixtures;
-import com.lingualoop.backend.user.service.ConsentService;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 @SpringBootTest
@@ -63,6 +64,7 @@ import com.lingualoop.backend.user.service.UserAccountService;
 class ShadowingAttemptIntegrationTest {
 
     @Autowired private MockMvc mockMvc;
+    @Autowired private PhonemeTips phonemeTips;
     @Autowired private JwtTokenService jwtTokenService;
     @Autowired private UserAccountService userAccountService;
     @Autowired private TopicRepository topics;
@@ -71,13 +73,11 @@ class ShadowingAttemptIntegrationTest {
     @Autowired private JdbcTemplate jdbc;
 
     @MockitoBean private PronunciationScoringService scoring;
-    @MockitoBean private ConsentService consent;
 
     private final String tag = UUID.randomUUID().toString().substring(0, 8);
 
     @BeforeEach
     void defaults() {
-        when(consent.hasConsent(any(), any())).thenReturn(true);
         when(scoring.assess(any(), any())).thenReturn(helloWorld());
     }
 
@@ -98,20 +98,20 @@ class ShadowingAttemptIntegrationTest {
                 // phản hồi dùng ký hiệu bảng phonemes (giọng Mỹ, cùng hệ với IPA mẫu của câu và với Azure)
                 .andExpect(jsonPath("$.data.words[0].phonemes[3].symbol").value("oʊ"))
                 .andExpect(jsonPath("$.data.words[1].outcome").value("mispronounced"))
-                // chấm shadowing không tốn năng lượng AI nên phản hồi không còn mức dùng (BR-QUOTA-01)
+                // chấm shadowing bằng Azure không tốn credit AI nên phản hồi không có số dư
                 .andExpect(jsonPath("$.data.usage").doesNotExist());
 
-        assertThat(count("sentence_attempts WHERE user_id = ? AND mode = 'shadowing' AND provider = 'azure'", user))
+        assertThat(count("sentence_attempts WHERE user_id = ? AND mode = 'shadowing'", user))
                 .isEqualTo(1);
         assertThat(jdbc.queryForObject("""
-                SELECT score FROM sentence_attempts WHERE user_id = ?""", Double.class, user)).isEqualTo(72.5);
+                SELECT total_score FROM sentence_attempts WHERE user_id = ?""", Double.class, user)).isEqualTo(72.5);
         assertThat(jdbc.queryForList("""
                 SELECT w.position FROM sentence_attempt_words w JOIN sentence_attempts a ON a.id = w.attempt_id
                 WHERE a.user_id = ? ORDER BY w.position""", Integer.class, user)).containsExactly(0, 1);
         // oʊ của Azure được lưu đúng ký hiệu đó trong bảng phonemes (không còn đổi sang ký hiệu Anh)
         assertThat(jdbc.queryForObject("""
                 SELECT count(*) FROM sentence_attempt_phonemes p
-                JOIN phonemes ph ON ph.id = p.phoneme_id
+                JOIN phonemes ph ON ph.id = p.heard_phoneme_id
                 JOIN sentence_attempt_words w ON w.id = p.attempt_word_id
                 JOIN sentence_attempts a ON a.id = w.attempt_id
                 WHERE a.user_id = ? AND ph.symbol = 'oʊ'""", Integer.class, user)).isEqualTo(1);
@@ -243,20 +243,6 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
-    void assess_withoutAiConsent_isForbiddenAndFree_AC_SHADOW_08() throws Exception {
-        UUID user = newUser();
-        Sentence s = sentence(lesson("consent", false), 0, "Hello world");
-        when(consent.hasConsent(any(), any())).thenReturn(false);
-
-        post(user, s.getId(), WavFixtures.valid(1_000))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("AI_CONSENT_REQUIRED"));
-
-        verifyNoInteractions(scoring);
-        assertThat(energyUsed(user)).isZero();
-    }
-
-    @Test
     void assess_unknownSentenceAndProLesson_AC_SHADOW_09() throws Exception {
         UUID user = newUser();
         Sentence paid = sentence(lesson("paid", true), 0, "Hello world");
@@ -277,7 +263,7 @@ class ShadowingAttemptIntegrationTest {
                         .file(new MockMultipartFile("audio", "a.wav", "audio/wav", WavFixtures.valid(1_000))))
                 .andExpect(status().isUnauthorized());
         mockMvc.perform(get("/api/v1/lessons/x/shadowing-attempts/latest")).andExpect(status().isUnauthorized());
-        mockMvc.perform(get("/api/v1/me/usage")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/v1/credits/balance")).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -323,13 +309,26 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data.words[0].phonemes.length()").value(3))
                 .andExpect(jsonPath("$.data.words[0].phonemes[1].symbol").value("zzz"));
 
-        // Âm lạ vẫn được lưu: phoneme_id rỗng, giữ ký hiệu gốc để xử lý lại khi bổ sung bộ chuyển đổi
+        // Âm lạ vẫn được lưu: heard rỗng, giữ ký hiệu gốc để hiển thị và xử lý lại khi bổ sung bộ chuyển đổi
         assertThat(jdbc.queryForList("""
-                SELECT p.position || ':' || COALESCE(p.azure_symbol, '-') || ':' || (p.phoneme_id IS NULL)
+                SELECT p.position || ':' || COALESCE(p.azure_symbol, '-') || ':' || (p.heard_phoneme_id IS NULL)
                 FROM sentence_attempt_phonemes p
                 JOIN sentence_attempt_words w ON w.id = p.attempt_word_id
                 JOIN sentence_attempts a ON a.id = w.attempt_id WHERE a.user_id = ? ORDER BY p.position""",
                 String.class, user)).containsExactly("0:h:false", "1:zzz:true", "2:l:false");
+    }
+
+    @Test
+    void assess_storesTheDurationOfTheRecording() throws Exception {
+        UUID user = newUser();
+        Sentence s = sentence(lesson("duration-ms", false), 0, "Hello");
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("hello", 80, 80, 80, 80, null,
+                List.of(new WordResult("hello", 80, ErrorType.NONE, List.of(new PhonemeResult("h", 90))))));
+
+        post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
+
+        assertThat(jdbc.queryForObject("SELECT duration_ms FROM sentence_attempts WHERE user_id = ?", Integer.class, user))
+                .isEqualTo(1_000);
     }
 
     // ── UC-SHADOW-07 / UC-SHADOW-08 ──────────────────────────────────────────────────
@@ -425,7 +424,7 @@ class ShadowingAttemptIntegrationTest {
                         List.of(new PhonemeResult("ɪ", 50), new PhonemeResult("v", 38))))));
         post(pro, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(pro)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", lesson.getId()).headers(auth(pro)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].expected").value("ɪ"))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[1].symbol").value("v"))
@@ -450,23 +449,22 @@ class ShadowingAttemptIntegrationTest {
         post(user, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
 
         assertThat(jdbc.queryForMap("""
-                SELECT p.azure_symbol, rep.symbol AS reported, tgt.symbol AS target, alt.symbol AS alternative,
-                       p.produced_score
+                SELECT rep.symbol AS reported, tgt.symbol AS target, alt.symbol AS alternative
                 FROM sentence_attempt_phonemes p
                 JOIN sentence_attempt_words w ON w.id = p.attempt_word_id
                 JOIN sentence_attempts a ON a.id = w.attempt_id
-                JOIN phonemes rep ON rep.id = p.phoneme_id
+                JOIN phonemes rep ON rep.id = p.heard_phoneme_id
                 JOIN phonemes tgt ON tgt.id = p.target_phoneme_id
-                JOIN phonemes alt ON alt.id = p.produced_phoneme_id
+                JOIN phonemes alt ON alt.id = p.alt_phoneme_id
                 WHERE a.user_id = ? AND p.position = 1""", user))
-                .containsEntry("azure_symbol", "v").containsEntry("reported", "v")
+                .containsEntry("reported", "v")
                 .containsEntry("target", "f").containsEntry("alternative", "f");
 
         // Thống kê theo âm đích: /f/ có 1 cơ hội và 1 lỗi (phụ âm khác âm đích dù điểm 100)
         assertThat(jdbc.queryForMap("""
-                SELECT s.opportunities, s.errors FROM v_user_phoneme_stats s
+                SELECT s.total, s.errors FROM v_user_phoneme_stats s
                 JOIN phonemes p ON p.id = s.phoneme_id WHERE s.user_id = ? AND p.symbol = 'f'""", user))
-                .containsEntry("opportunities", 1L).containsEntry("errors", 1L);
+                .containsEntry("total", 1L).containsEntry("errors", 1L);
     }
 
     @Test
@@ -483,7 +481,7 @@ class ShadowingAttemptIntegrationTest {
         s.setIpaUs(null);
         sentences.save(s);
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(user)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", lesson.getId()).headers(auth(user)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[1].symbol").value("v"))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[1].expected").value("f"))
@@ -504,15 +502,12 @@ class ShadowingAttemptIntegrationTest {
     }
 
     @Test
-    void tipTable_coversAll44Phonemes_AC_SHADOW_21() {
-        List<String> withTip = jdbc.queryForList("""
-                SELECT p.symbol FROM phoneme_confusions c JOIN phonemes p ON p.id = c.target_phoneme_id
-                WHERE c.l1 = 'vi' AND c.produced_phoneme_id IS NULL""", String.class);
-        assertThat(withTip).contains("θ", "ð", "ʃ", "ʒ", "z", "v", "ɹ", "s", "t", "d", "l", "ɪ", "i", "æ", "ɚ");
+    void tipFile_coversAll44Phonemes_AC_SHADOW_21() {
+        List<String> symbols = jdbc.queryForList("SELECT symbol FROM phonemes", String.class);
+        assertThat(phonemeTips.all().keySet()).contains("θ", "ð", "ʃ", "ʒ", "z", "v", "ɹ", "s", "t", "d", "l", "ɪ", "i", "æ", "ɚ");
         // Mọi âm của bảng phonemes đều có mẹo, và không mẹo nào nói riêng về giọng Anh
-        assertThat(withTip).hasSameSizeAs(jdbc.queryForList("SELECT symbol FROM phonemes", String.class));
-        assertThat(jdbc.queryForList("SELECT tip_vi FROM phoneme_confusions WHERE tip_vi ILIKE '%Anh-Anh%'", String.class))
-                .isEmpty();
+        assertThat(phonemeTips.all().keySet()).containsAll(symbols);
+        assertThat(phonemeTips.all().values()).noneMatch(tip -> tip.toLowerCase().contains("anh-anh"));
     }
 
     @Test
@@ -556,10 +551,10 @@ class ShadowingAttemptIntegrationTest {
         post(me, first.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
         post(me, second.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
         post(other, second.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
-        jdbc.update("INSERT INTO sentence_attempts (user_id, sentence_id, mode, submitted_text, score) "
-                + "VALUES (?, ?, 'dictation', 'x', 100)", me, first.getId());
+        jdbc.update("INSERT INTO sentence_attempts (user_id, sentence_id, mode, level, submitted_text, "
+                + "total_score) VALUES (?, ?, 'dictation', 'normal', 'x', 100)", me, first.getId());
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(me)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", lesson.getId()).headers(auth(me)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(2))
                 .andExpect(jsonPath("$.data[0].sentenceId").value(first.getId().toString()))
@@ -583,17 +578,17 @@ class ShadowingAttemptIntegrationTest {
         post(free, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
         post(pro, s.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
         long proAttempt = jdbc.queryForObject("SELECT id FROM sentence_attempts WHERE user_id = ?", Long.class, pro);
-        jdbc.update("INSERT INTO ai_feedback (attempt_id, content, model, prompt_version) VALUES (?, ?, 'm', 'v1')",
+        jdbc.update("INSERT INTO ai_feedback (attempt_id, content) VALUES (?, ?)",
                 proAttempt, "Bạn đọc khá tốt.");
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(free)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", lesson.getId()).headers(auth(free)))
                 .andExpect(status().isOk())
                 // điểm thành phần
                 .andExpect(jsonPath("$.data[0].accuracy").value(70.0))
                 .andExpect(jsonPath("$.data[0].fluency").value(70.0))
                 .andExpect(jsonPath("$.data[0].completeness").value(70.0))
                 // âm vị theo bảng phonemes, mẹo sửa cho âm yếu, video bị khoá với gói Free
-                // âm lạ cũng được khôi phục (đã lưu với phoneme_id rỗng)
+                // âm lạ cũng được khôi phục (đã lưu với ký hiệu gốc)
                 .andExpect(jsonPath("$.data[0].words[0].phonemes.length()").value(3))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[2].symbol").value("zzz"))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].symbol").value("θ"))
@@ -604,7 +599,7 @@ class ShadowingAttemptIntegrationTest {
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[1].tip").isNotEmpty())
                 .andExpect(jsonPath("$.data[0].aiFeedback").value((Object) null));
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", lesson.getSlug()).headers(auth(pro)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", lesson.getId()).headers(auth(pro)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.locked").value(false))
                 .andExpect(jsonPath("$.data[0].words[0].phonemes[0].mouthVideo.url").isNotEmpty())
@@ -617,9 +612,9 @@ class ShadowingAttemptIntegrationTest {
         UUID user = newUser();
         Lesson paid = lesson("latest-paid", true);
 
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", "no-such-lesson").headers(auth(user)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", UUID.randomUUID()).headers(auth(user)))
                 .andExpect(status().isNotFound());
-        mockMvc.perform(get("/api/v1/lessons/{slug}/shadowing-attempts/latest", paid.getSlug()).headers(auth(user)))
+        mockMvc.perform(get("/api/v1/lessons/{id}/shadowing-attempts/latest", paid.getId()).headers(auth(user)))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("LESSON_PRO_REQUIRED"));
     }
@@ -627,28 +622,26 @@ class ShadowingAttemptIntegrationTest {
     // ── UC-SHADOW-05 ────────────────────────────────────────────────────────────────
 
     @Test
-    void progress_isRecordedAndModeCompletesWhenAllSentencesRead_AC_SHADOW_19_20() throws Exception {
+    void progress_isDerivedFromAttempts_AC_SHADOW_19_20() throws Exception {
         UUID user = newUser();
         Lesson lesson = lesson("progress", false);
         Sentence a = sentence(lesson, 0, "One");
         Sentence b = sentence(lesson, 1, "Two");
 
         post(user, a.getId(), WavFixtures.valid(2_500)).andExpect(status().isOk());
-
-        assertThat(count("user_lesson_progress WHERE user_id = ? AND lesson_id = '" + lesson.getId() + "'", user))
-                .isEqualTo(1);
-        assertThat(jdbc.queryForObject("""
-                SELECT total_time_sec FROM user_lesson_mode_progress
-                WHERE user_id = ? AND lesson_id = ? AND mode = 'shadowing'""", Integer.class, user, lesson.getId()))
-                .isEqualTo(3);
-        assertThat(modeCompletedAt(user, lesson)).isNull();
+        shadowingPercent(user, lesson, 50);
 
         post(user, b.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
-        Object completedAt = modeCompletedAt(user, lesson);
-        assertThat(completedAt).isNotNull();
+        shadowingPercent(user, lesson, 100);
 
         post(user, a.getId(), WavFixtures.valid(1_000)).andExpect(status().isOk());
-        assertThat(modeCompletedAt(user, lesson)).isEqualTo(completedAt);
+        shadowingPercent(user, lesson, 100);
+    }
+
+    private void shadowingPercent(UUID user, Lesson lesson, int expected) throws Exception {
+        mockMvc.perform(get("/api/v1/lessons/{id}", lesson.getId()).headers(auth(user)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.progress.shadowingPercent").value(expected));
     }
 
     // ── helpers ─────────────────────────────────────────────────────────────────────
@@ -670,13 +663,12 @@ class ShadowingAttemptIntegrationTest {
     }
 
     private void makePro(UUID user) {
-        jdbc.update("INSERT INTO user_subscriptions (user_id, status, expires_at) "
-                + "VALUES (?, 'active', now() + interval '10 days')", user);
+        TestData.grantPro(jdbc, user, 1);
     }
 
-    /** Tổng mọi bộ đếm của người dùng: luyện shadowing không được tăng bộ đếm nào. */
+    /** Tổng credit đã trừ của người dùng: chấm shadowing bằng Azure không được trừ credit nào. */
     private int energyUsed(UUID user) {
-        Integer n = jdbc.queryForObject("SELECT coalesce(sum(used), 0) FROM usage_counters WHERE user_id = ?",
+        Integer n = jdbc.queryForObject("SELECT coalesce(sum(credits_charged), 0) FROM ai_usage_logs WHERE user_id = ?",
                 Integer.class, user);
         return n == null ? 0 : n;
     }
@@ -684,12 +676,6 @@ class ShadowingAttemptIntegrationTest {
     private int count(String fromWhere, Object... args) {
         Integer n = jdbc.queryForObject("SELECT count(*) FROM " + fromWhere, Integer.class, args);
         return n == null ? 0 : n;
-    }
-
-    private Object modeCompletedAt(UUID user, Lesson lesson) {
-        return jdbc.queryForObject("""
-                SELECT completed_at FROM user_lesson_mode_progress
-                WHERE user_id = ? AND lesson_id = ? AND mode = 'shadowing'""", Object.class, user, lesson.getId());
     }
 
     private static PronunciationAssessment helloWorld() {
@@ -709,28 +695,27 @@ class ShadowingAttemptIntegrationTest {
 
     private Lesson lesson(String name, boolean pro) {
         Topic topic = new Topic();
-        topic.setSlug(name + "-t-" + tag);
         topic.setName(name + " topic");
         topic = topics.save(topic);
 
         Lesson l = new Lesson();
         l.setTopic(topic);
-        l.setSlug(name + "-" + tag);
         l.setTitle(name + " " + tag);
-        l.setDifficulty(CefrLevel.B1);
+        l.setOwnerId(com.lingualoop.backend.lesson.LessonFixtures.SYSTEM_TEACHER);
+        l.setYoutubeId(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 11));
+        l.setDurationSec(600);
+        l.setCefrLevel(CefrLevel.B1);
         l.setPro(pro);
-        l.setStatus(LessonStatus.APPROVED);
+        l.setStatus(LessonStatus.PUBLISHED);
         return lessons.save(l);
     }
 
     private Sentence sentence(Lesson lesson, int order, String text) {
         Sentence s = new Sentence();
         s.setLesson(lesson);
-        s.setSortOrder(order);
-        s.setText(text);
+        s.setTextEn(text);
         s.setStartMs(order * 1000);
         s.setEndMs(order * 1000 + 900);
-        s.setCefrLevel(CefrLevel.A1);
         return sentences.save(s);
     }
 }

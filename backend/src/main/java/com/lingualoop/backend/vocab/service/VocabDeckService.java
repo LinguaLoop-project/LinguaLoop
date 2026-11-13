@@ -11,5 +11,5 @@ public interface VocabDeckService {
     DeckView.ListResult list(UUID userId);
 
     /** Một bộ hệ thống; 404 nếu không có, đã ẩn, hoặc là bộ "Từ đã lưu" hay bộ của người khác (BR-HT-06). */
-    DeckView.Detail detail(UUID userId, String slug);
+    DeckView.Detail detail(UUID userId, UUID deckId);
 }

@@ -48,8 +48,8 @@ public class PasswordResetService {
 
     private Optional<PendingMail> prepareRequest(String email) {
         Optional<UserAccountView> found = userAccountService.findByEmail(email);
-        // Tài khoản bị khoá thì có gửi thư cũng vô ích: BR-AUTH-10 vẫn chặn đăng nhập
-        if (found.isEmpty() || found.get().disabled()) {
+        // Tài khoản bị khoá thì có gửi thư cũng vô ích: tài khoản này không đăng nhập được
+        if (found.isEmpty() || found.get().locked()) {
             return Optional.empty();
         }
         UserAccountView account = found.get();

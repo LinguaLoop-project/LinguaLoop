@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { DEFAULT_FREE_AI_ENERGY } from "@/hooks/useAiEnergy";
 import { toApiError } from "@/features/auth";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
@@ -31,9 +32,9 @@ export default function AiFeedbackCard({ attemptId, saved, onUpgrade }: AiFeedba
           <Icon name="sparkles" />
         </span>
         <b className="text-sm">{t(`${K}.title`)}</b>
-        {data && data.usage.remaining !== null && data.usage.limit !== null && (
+        {data?.credit && data.credit.kind === "free" && (
           <span className="rounded-full border border-border-strong px-2 text-[11px] leading-5 text-text-muted">
-            {t(`${K}.remaining`, { remaining: data.usage.remaining, limit: data.usage.limit })}
+            {t(`${K}.remaining`, { remaining: data.credit.balance, limit: DEFAULT_FREE_AI_ENERGY })}
           </span>
         )}
       </div>

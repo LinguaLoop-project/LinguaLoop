@@ -23,7 +23,7 @@ class UserMapperTest {
         User user = User.createLocal("a@x.com", "An", "hash", Instant.now());
         UUID id = UUID.randomUUID();
         ReflectionTestUtils.setField(user, "id", id);
-        user.markEmailVerified();
+        user.markEmailVerified(Instant.now());
 
         UserAccountView account = mapper.toUserAccountView(user);
 
@@ -34,16 +34,16 @@ class UserMapperTest {
         assertThat(account.role()).isEqualTo(Role.STUDENT);
         assertThat(account.uiLanguage()).isEqualTo("vi");
         assertThat(account.emailVerified()).isTrue();
-        assertThat(account.disabled()).isFalse();
+        assertThat(account.locked()).isFalse();
         assertThat(account.onboarded()).isFalse();
         assertThat(account.googleLinked()).isFalse();
         assertThat(account.hasPassword()).isTrue();
     }
 
     @Test
-    void toUserAccount_userWithAuthUid_isGoogleLinked() {
+    void toUserAccount_userWithGoogleSub_isGoogleLinked() {
         User user = User.createLocal("g@x.com", "Gg", null, Instant.now());
-        ReflectionTestUtils.setField(user, "authUid", "google-sub-123");
+        ReflectionTestUtils.setField(user, "googleSub", "google-sub-123");
 
         UserAccountView account = mapper.toUserAccountView(user);
 

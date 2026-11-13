@@ -53,7 +53,7 @@ class DictationApiIntegrationTest {
         return data.newLesson(name + "-" + tag, pro, "APPROVED", false);
     }
 
-    // ---------------------------------------------------------------- GET lessons/{slug}
+    // ---------------------------------------------------------------- GET lessons/{id}
 
     @Test
     void getLesson_returnsLessonInfoAndSentencesWithWordCountsAndHidesUntouchedText() throws Exception {
@@ -62,18 +62,16 @@ class DictationApiIntegrationTest {
         data.newSentence(lesson, 1, "Oh wow", "Ồ");
         data.newSentence(lesson, 2, "Could I get that to go?", "Mang đi được không?");
 
-        as(data.newUser(), get("/api/v1/dictation/lessons/info-" + tag))
+        as(data.newUser(), get("/api/v1/dictation/lessons/" + lesson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(lesson.toString()))
-                .andExpect(jsonPath("$.data.slug").value("info-" + tag))
-                .andExpect(jsonPath("$.data.title").value("Title info-" + tag))
-                .andExpect(jsonPath("$.data.sourceType").value("youtube"))
-                .andExpect(jsonPath("$.data.sourceUrl").isNotEmpty())
+                .andExpect(jsonPath("$.data.title").isNotEmpty())
+                .andExpect(jsonPath("$.data.youtubeId").isNotEmpty())
                 .andExpect(jsonPath("$.data.pro").value(false))
                 .andExpect(jsonPath("$.data.sentences.length()").value(3))
                 .andExpect(jsonPath("$.data.sentences[0].id").value(first.toString()))
-                .andExpect(jsonPath("$.data.sentences[0].sortOrder").value(0))
+                .andExpect(jsonPath("$.data.sentences[0].sortOrder").value(1))
                 .andExpect(jsonPath("$.data.sentences[0].startMs").value(0))
                 .andExpect(jsonPath("$.data.sentences[0].endMs").value(900))
                 .andExpect(jsonPath("$.data.sentences[0].wordCount").value(6))
@@ -93,7 +91,7 @@ class DictationApiIntegrationTest {
         practiceAttempts.recordDictationAttempt(new DictationAttemptRequest(user, done, DictationLevel.normal, null,
                 0, null, false, false, "could I get that to go", new BigDecimal("80"), List.of()));
 
-        as(user, get("/api/v1/dictation/lessons/done-" + tag))
+        as(user, get("/api/v1/dictation/lessons/" + lesson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.sentences[0].latest.score").value(80.0))
                 .andExpect(jsonPath("$.data.sentences[0].latest.level").value("normal"))
@@ -106,24 +104,24 @@ class DictationApiIntegrationTest {
 
     @Test
     void getLesson_blocksProLessonForFreeUserButNotForProUser() throws Exception {
-        lesson("paid", true);
+        UUID paid = lesson("paid", true);
 
-        as(data.newUser(), get("/api/v1/dictation/lessons/paid-" + tag))
+        as(data.newUser(), get("/api/v1/dictation/lessons/" + paid))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("LESSON_PRO_REQUIRED"));
-        as(data.newProUser(), get("/api/v1/dictation/lessons/paid-" + tag))
+        as(data.newProUser(), get("/api/v1/dictation/lessons/" + paid))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.pro").value(true));
     }
 
     @Test
     void getLesson_unknownDraftOrDeletedLesson_returns404() throws Exception {
-        data.newLesson("draft-" + tag, false, "DRAFT", false);
-        data.newLesson("deleted-" + tag, false, "APPROVED", true);
+        UUID draft = data.newLesson("draft-" + tag, false, "DRAFT", false);
+        UUID deleted = data.newLesson("deleted-" + tag, false, "APPROVED", true);
         UUID user = data.newUser();
 
-        for (String slug : List.of("missing-" + tag, "draft-" + tag, "deleted-" + tag)) {
-            as(user, get("/api/v1/dictation/lessons/" + slug))
+        for (UUID id : List.of(UUID.randomUUID(), draft, deleted)) {
+            as(user, get("/api/v1/dictation/lessons/" + id))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.code").value("NOT_FOUND"));
         }
@@ -131,9 +129,9 @@ class DictationApiIntegrationTest {
 
     @Test
     void getLesson_withoutToken_returns401() throws Exception {
-        lesson("anon", false);
+        UUID lesson = lesson("anon", false);
 
-        mockMvc.perform(get("/api/v1/dictation/lessons/anon-" + tag))
+        mockMvc.perform(get("/api/v1/dictation/lessons/" + lesson))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
     }
@@ -245,7 +243,7 @@ class DictationApiIntegrationTest {
 
     private ResultActions submit(UUID user, UUID sentence, String json) throws Exception {
         return as(user, post("/api/v1/dictation/sentences/" + sentence + "/attempts")
-                .contentType(MediaType.APPLICATION_JSON).content(json));
+                .contentType(MediaType.APPLICATION_JSON).content(DictationTestData.withRequestId(json)));
     }
 
     private int attemptCount(UUID user) {
@@ -287,19 +285,17 @@ class DictationApiIntegrationTest {
                 .andExpect(jsonPath("$.data.text").value("Could I get that to go?"))
                 .andExpect(jsonPath("$.data.textVi").value("Mang đi được không?"));
 
-        Map<String, Object> row = jdbc.queryForMap("SELECT mode::text AS mode, level, submitted_text, is_retry, "
-                + "gave_up, playback_rate, replay_count, duration_ms, score FROM sentence_attempts WHERE user_id = ?",
+        Map<String, Object> row = jdbc.queryForMap("SELECT mode, level, submitted_text, is_retry, "
+                + "gave_up, listen_count, total_score FROM sentence_attempts WHERE user_id = ?",
                 user);
         assertThat(row).containsEntry("mode", "dictation").containsEntry("level", "normal")
                 .containsEntry("submitted_text", "could I get that to go").containsEntry("is_retry", false)
-                .containsEntry("gave_up", false).containsEntry("replay_count", 2)
-                .containsEntry("duration_ms", 4200);
-        assertThat((BigDecimal) row.get("playback_rate")).isEqualByComparingTo("0.75");
-        assertThat((BigDecimal) row.get("score")).isEqualByComparingTo("100");
+                .containsEntry("gave_up", false).containsEntry("listen_count", 2);
+        assertThat((BigDecimal) row.get("total_score")).isEqualByComparingTo("100");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM sentence_attempt_words w JOIN sentence_attempts a "
                 + "ON a.id = w.attempt_id WHERE a.user_id = ?", Integer.class, user)).isEqualTo(6);
 
-        as(user, get("/api/v1/dictation/lessons/sn-" + tag))
+        as(user, get("/api/v1/dictation/lessons/" + lesson))
                 .andExpect(jsonPath("$.data.sentences[0].latest.score").value(100.0));
     }
 
@@ -582,7 +578,7 @@ class DictationApiIntegrationTest {
     void openApi_listsDictationEndpoints() throws Exception {
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.paths['/api/v1/dictation/lessons/{slug}']").exists())
+                .andExpect(jsonPath("$.paths['/api/v1/dictation/lessons/{id}']").exists())
                 .andExpect(jsonPath("$.paths['/api/v1/dictation/sentences/{id}/prompt']").exists())
                 .andExpect(jsonPath("$.paths['/api/v1/dictation/sentences/{id}/attempts']").exists())
                 .andExpect(jsonPath("$.paths['/api/v1/dictation/sentences/{id}/reveal']").exists());

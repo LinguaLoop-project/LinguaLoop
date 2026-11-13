@@ -9,11 +9,11 @@ import com.lingualoop.backend.vocab.dto.ReviewView;
 public interface VocabReviewService {
 
     /**
-     * Hàng đợi ôn: tối đa 50 thẻ đến hạn của mọi bộ, hoặc chỉ của bộ {@code deckSlug} nếu có (BR-HT-13, BR-HT-14). 404
+     * Hàng đợi ôn: tối đa 50 thẻ đến hạn của mọi bộ, hoặc chỉ của bộ {@code deckId} nếu có (BR-HT-13, BR-HT-14). 404
      * nếu bộ không có hoặc không phải của học viên (BR-HT-06).
      */
-    ReviewView.Queue queue(UUID userId, String deckSlug);
+    ReviewView.Queue queue(UUID userId, UUID deckId);
 
     /** Mở phiên ôn mới và đóng phiên còn mở trước đó (BR-HT-15). */
-    LearnView.SessionRef openSession(UUID userId, String deckSlug);
+    LearnView.SessionRef openSession(UUID userId, UUID deckId);
 }

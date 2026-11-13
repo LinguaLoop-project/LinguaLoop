@@ -32,7 +32,7 @@ import com.lingualoop.backend.vocab.VocabTestData;
 
 /**
  * Học từ mới một phần (UC-HT-02) trên Postgres thật: thẻ của phần, phiên học, ghi câu trả lời theo BR-HT-10, BR-HT-11, 08,
- * 11, 12, 13 và khoá Pro ở server (BR-HT-07). Mỗi test dùng slug riêng nên không đụng nhau.
+ * 11, 12, 13 và khoá Pro ở server (BR-HT-07). Mỗi test dùng bộ riêng nên không đụng nhau.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -58,8 +58,8 @@ class VocabLearnApiIntegrationTest {
         return vocab.fill(vocab.deck(base, false), 2, 4, base);
     }
 
-    private UUID openSession(UUID user, String slug, int part) throws Exception {
-        String body = as(user, post(DECKS + slug + "/parts/" + part + "/sessions")).andExpect(status().isOk())
+    private UUID openSession(UUID user, String prefix, int part) throws Exception {
+        String body = as(user, post(DECKS + VocabTestData.idOf(prefix) + "/parts/" + part + "/sessions")).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         return UUID.fromString(JsonPath.read(body, "$.data.id"));
     }
@@ -82,8 +82,9 @@ class VocabLearnApiIntegrationTest {
     }
 
     private Map<String, Object> progressOf(UUID user, UUID card) {
-        return jdbc.queryForMap("SELECT status, repetitions, interval_days, easiness_factor, next_review_at, "
-                + "correct_count, incorrect_count FROM user_card_progress WHERE user_id = ? AND card_id = ?", user, card);
+        return jdbc.queryForMap("SELECT CASE WHEN interval_days >= 21 THEN 'mastered' WHEN repetitions < 2 THEN 'learning' "
+                + "ELSE 'reviewing' END AS status, repetitions, interval_days, ease_factor AS easiness_factor, "
+                + "due_at AS next_review_at FROM user_card_progress WHERE user_id = ? AND card_id = ?", user, card);
     }
 
     private int logCount(UUID user, UUID card) {
@@ -101,10 +102,10 @@ class VocabLearnApiIntegrationTest {
     void part_returnsTheCardsInOrder_withProgressPhoneticsAndPreviews() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
-        vocab.progress(user, cards.get(1), "reviewing", 2, 6, "now() + interval '6 days'");
+        vocab.progress(user, cards.get(1), 2, 6, "now() + interval '6 days'");
 
-        as(user, get(DECKS + base + "/parts/1")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.deck.slug").value(base))
+        as(user, get(DECKS + VocabTestData.idOf(base) + "/parts/1")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.deck.id").value(VocabTestData.idOf(base).toString()))
                 .andExpect(jsonPath("$.data.index").value(0))
                 .andExpect(jsonPath("$.data.name").value("Topic 1"))
                 .andExpect(jsonPath("$.data.parts.length()").value(2))
@@ -128,9 +129,9 @@ class VocabLearnApiIntegrationTest {
     void part_unknownDeckOrPart_is404() throws Exception {
         freeDeck();
         UUID user = users.newUser();
-        as(user, get(DECKS + "no-such-deck/parts/1")).andExpect(status().isNotFound());
-        as(user, get(DECKS + base + "/parts/0")).andExpect(status().isNotFound());
-        as(user, get(DECKS + base + "/parts/3")).andExpect(status().isNotFound());
+        as(user, get(DECKS + UUID.randomUUID() + "/parts/1")).andExpect(status().isNotFound());
+        as(user, get(DECKS + VocabTestData.idOf(base) + "/parts/0")).andExpect(status().isNotFound());
+        as(user, get(DECKS + VocabTestData.idOf(base) + "/parts/3")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -139,11 +140,11 @@ class VocabLearnApiIntegrationTest {
         UUID free = users.newUser();
 
         for (int part = 1; part <= 4; part++) {
-            as(free, get(DECKS + base + "/parts/" + part)).andExpect(status().isForbidden());
-            as(free, post(DECKS + base + "/parts/" + part + "/sessions")).andExpect(status().isForbidden());
+            as(free, get(DECKS + VocabTestData.idOf(base) + "/parts/" + part)).andExpect(status().isForbidden());
+            as(free, post(DECKS + VocabTestData.idOf(base) + "/parts/" + part + "/sessions")).andExpect(status().isForbidden());
         }
-        as(users.newProUser(), get(DECKS + base + "/parts/1")).andExpect(status().isOk());
-        as(users.newProUser(), get(DECKS + base + "/parts/4")).andExpect(status().isOk());
+        as(users.newProUser(), get(DECKS + VocabTestData.idOf(base) + "/parts/1")).andExpect(status().isOk());
+        as(users.newProUser(), get(DECKS + VocabTestData.idOf(base) + "/parts/4")).andExpect(status().isOk());
     }
 
     // ---------------------------------------------------------------- phiên học (BR-HT-15)
@@ -157,10 +158,10 @@ class VocabLearnApiIntegrationTest {
         UUID second = openSession(user, base, 2);
 
         assertThat(second).isNotEqualTo(first);
-        assertThat(jdbc.queryForObject("SELECT ended_at IS NOT NULL FROM vocab_study_sessions WHERE id = ?", Boolean.class, first)).isTrue();
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM vocab_study_sessions WHERE user_id = ? AND ended_at IS NULL",
+        assertThat(jdbc.queryForObject("SELECT ended_at IS NOT NULL FROM vocab_sessions WHERE id = ?", Boolean.class, first)).isTrue();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM vocab_sessions WHERE user_id = ? AND ended_at IS NULL",
                 Integer.class, user)).isEqualTo(1);
-        assertThat(jdbc.queryForObject("SELECT session_type FROM vocab_study_sessions WHERE id = ?", String.class, second)).isEqualTo("learn");
+        assertThat(jdbc.queryForObject("SELECT kind FROM vocab_sessions WHERE id = ?", String.class, second)).isEqualTo("learn");
     }
 
     // ---------------------------------------------------------------- câu trả lời
@@ -170,7 +171,7 @@ class VocabLearnApiIntegrationTest {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
         // Thẻ B đang Đang học với 1 lần nhớ liên tiếp
-        vocab.progress(user, cards.get(1), "learning", 1, 1, "now() + interval '1 day'");
+        vocab.progress(user, cards.get(1), 1, 1, "now() + interval '1 day'");
         UUID session = openSession(user, base, 1);
 
         answer(user, session, cards.get(0), "quiz", true, null).andExpect(status().isOk())
@@ -204,7 +205,7 @@ class VocabLearnApiIntegrationTest {
         for (String mode : new String[] {"quiz", "reverse_quiz", "guess"}) {
             List<UUID> cards = vocab.fill(vocab.deck(base + mode.charAt(0), false), 1, 2, base + mode.charAt(0));
             UUID user = users.newUser();
-            vocab.progress(user, cards.get(0), "reviewing", 2, 6, "now() + interval '6 days'");
+            vocab.progress(user, cards.get(0), 2, 6, "now() + interval '6 days'");
             UUID session = openSession(user, base + mode.charAt(0), 1);
 
             answer(user, session, cards.get(0), mode, false, null).andExpect(status().isOk())
@@ -213,8 +214,7 @@ class VocabLearnApiIntegrationTest {
                     .andExpect(jsonPath("$.data.quality").value(1));
 
             Map<String, Object> progress = progressOf(user, cards.get(0));
-            assertThat(progress).containsEntry("status", "learning").containsEntry("repetitions", 0)
-                    .containsEntry("incorrect_count", 1);
+            assertThat(progress).containsEntry("status", "learning").containsEntry("repetitions", 0);
             assertThat(Duration.between(Instant.now(), instant(progress.get("next_review_at"))))
                     .isCloseTo(Duration.ofMinutes(10), Duration.ofSeconds(30));
             Map<String, Object> log = jdbc.queryForMap("SELECT is_correct, quality FROM vocab_review_logs WHERE user_id = ?", user);
@@ -282,7 +282,7 @@ class VocabLearnApiIntegrationTest {
 
         Map<String, Object> progress = progressOf(user, cards.get(0));
         assertThat(progress).containsEntry("status", "learning").containsEntry("repetitions", 1)
-                .containsEntry("interval_days", 1).containsEntry("correct_count", 1);
+                .containsEntry("interval_days", 1);
         assertThat(((Number) progress.get("easiness_factor")).doubleValue()).isEqualTo(2.5);
         // flashcard: "đúng" suy ra từ quality, không tin cờ client
         Map<String, Object> log = jdbc.queryForMap("SELECT is_correct, quality FROM vocab_review_logs WHERE user_id = ?", user);
@@ -294,7 +294,7 @@ class VocabLearnApiIntegrationTest {
     void flashcardForgot_retriesInTenMinutes_thenGoodStartsOver_BR_HT_11() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
-        vocab.progress(user, cards.get(0), "reviewing", 3, 15, "now() - interval '1 day'");
+        vocab.progress(user, cards.get(0), 3, 15, "now() - interval '1 day'");
         UUID session = openSession(user, base, 1);
 
         answer(user, session, cards.get(0), "flashcard", true, 1).andExpect(status().isOk())
@@ -321,6 +321,18 @@ class VocabLearnApiIntegrationTest {
     }
 
     @Test
+    void flashcardQualityOutsideTheFourButtons_is400() throws Exception {
+        List<UUID> cards = freeDeck();
+        UUID user = users.newUser();
+        UUID session = openSession(user, base, 1);
+
+        // chỉ có Quên (1), Khó (3), Được (4), Dễ (5); bảng nhật ký không nhận mức khác
+        answer(user, session, cards.get(0), "flashcard", true, 2).andExpect(status().isBadRequest());
+        answer(user, session, cards.get(0), "flashcard", true, 0).andExpect(status().isBadRequest());
+        assertThat(logCount(user, cards.get(0))).isZero();
+    }
+
+    @Test
     void unknownMode_is400() throws Exception {
         List<UUID> cards = freeDeck();
         UUID user = users.newUser();
@@ -343,7 +355,7 @@ class VocabLearnApiIntegrationTest {
 
         assertThat(logCount(user, cards.get(0))).isEqualTo(1);
         Map<String, Object> progress = progressOf(user, cards.get(0));
-        assertThat(progress).containsEntry("repetitions", 1).containsEntry("correct_count", 1);
+        assertThat(progress).containsEntry("repetitions", 1);
     }
 
     // ---------------------------------------------------------------- quyền (BR-HT-07, BR-HT-06)
@@ -368,8 +380,8 @@ class VocabLearnApiIntegrationTest {
         UUID owner = users.newUser();
         UUID other = users.newUser();
         UUID privateDeck = UUID.randomUUID();
-        jdbc.update("INSERT INTO vocab_decks (id, owner_id, slug, name, visibility, status) VALUES (?, ?, ?, 'Riêng', 'private', 'APPROVED')",
-                privateDeck, owner, base + "-priv");
+        jdbc.update("INSERT INTO vocab_decks (id, owner_id, kind, name) VALUES (?, ?, 'personal', 'Riêng')",
+                privateDeck, owner);
         UUID card = vocab.card(vocab.group(privateDeck, 1), 1, base + "priv");
         UUID session = openSession(other, base, 1);
 
@@ -408,7 +420,7 @@ class VocabLearnApiIntegrationTest {
         UUID session = openSession(user, base, 1);
         answer(user, session, cards.get(0), "quiz", true, null).andExpect(status().isOk());
 
-        as(user, get(DECKS + base)).andExpect(status().isOk())
+        as(user, get(DECKS + VocabTestData.idOf(base))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.deck.progress.learning").value(1))
                 .andExpect(jsonPath("$.data.parts[0].studiedCount").value(1))
                 .andExpect(jsonPath("$.data.parts[1].studiedCount").value(0));

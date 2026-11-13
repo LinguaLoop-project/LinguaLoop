@@ -13,7 +13,6 @@ import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 import com.lingualoop.backend.vocab.dto.DeckView;
 import com.lingualoop.backend.vocab.dto.LearnView;
 import com.lingualoop.backend.vocab.dto.request.AnswerRequest;
-import com.lingualoop.backend.vocab.enums.CardStatus;
 import com.lingualoop.backend.vocab.repository.VocabDeckRepository;
 import com.lingualoop.backend.vocab.repository.VocabDeckRepository.DeckRow;
 import com.lingualoop.backend.vocab.repository.VocabLearnRepository;
@@ -34,24 +33,24 @@ class VocabLearnServiceImpl implements VocabLearnService {
     private final CardViews cardViews;
 
     @Override
-    public LearnView.PartDetail part(UUID userId, String slug, int partNumber) {
-        DeckRow deck = deckOrThrow(userId, slug);
+    public LearnView.PartDetail part(UUID userId, UUID deckId, int partNumber) {
+        DeckRow deck = deckOrThrow(userId, deckId);
         List<DeckView.Part> parts = partsOf(userId, deck);
         int index = partNumber - 1;
         GroupRow group = openPart(deck, parts, index);
         DeckView.Part current = parts.get(index);
         List<LearnView.Card> cards = learn.findCards(userId, group.id()).stream().map(cardViews::of).toList();
-        return new LearnView.PartDetail(new LearnView.DeckRef(deck.getSlug(), deck.getName(), deck.getNameVi(), deck.getPro()),
-                index, current.name(), current.nameVi(), parts, cards);
+        return new LearnView.PartDetail(new LearnView.DeckRef(deck.getId(), deck.getName(), deck.getPro()),
+                index, current.name(), parts, cards);
     }
 
     @Override
     @Transactional
-    public LearnView.SessionRef openSession(UUID userId, String slug, int partNumber) {
-        DeckRow deck = deckOrThrow(userId, slug);
+    public LearnView.SessionRef openSession(UUID userId, UUID deckId, int partNumber) {
+        DeckRow deck = deckOrThrow(userId, deckId);
         List<DeckView.Part> parts = partsOf(userId, deck);
-        GroupRow group = openPart(deck, parts, partNumber - 1);
-        return new LearnView.SessionRef(learn.openSession(userId, deck.getId(), group.id(), "learn"));
+        openPart(deck, parts, partNumber - 1);
+        return new LearnView.SessionRef(learn.openSession(userId, deck.getId(), "learn"));
     }
 
     @Override
@@ -62,13 +61,13 @@ class VocabLearnServiceImpl implements VocabLearnService {
         }
         CardAccess access = learn.findCardAccess(request.cardId(), userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_CARD_NOT_FOUND));
-        if (access.system() && VocabDeckServiceImpl.isLocked(access.pro(), subscriptions.isPro(userId))) {
+        if (access.library() && VocabDeckServiceImpl.isLocked(access.pro(), subscriptions.isPro(userId))) {
             throw new BusinessException(ErrorCode.VOCAB_PART_LOCKED);
         }
 
         // Mọi cách học đều chấm theo SM-2 (BR-HT-12): Flashcard do học viên chọn q, các cách khác quy đổi từ kết quả.
         boolean flashcard = request.mode() == AnswerRequest.Mode.FLASHCARD;
-        if (flashcard && request.quality() == null) {
+        if (flashcard && (request.quality() == null || !Sm2.isQuality(request.quality()))) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED);
         }
         int quality = flashcard ? request.quality() : Sm2.qualityOf(request.isCorrect(), request.isHintUsed());
@@ -81,23 +80,22 @@ class VocabLearnServiceImpl implements VocabLearnService {
             return toResult(progress);
         }
 
-        boolean isNew = CardStatus.fromDb(progress.status()) == CardStatus.NEW;
-        Sm2.Result result = Sm2.grade(isNew ? Sm2.State.FRESH : stateOf(progress), quality);
+        Sm2.Result result = Sm2.grade(progress.fresh() ? Sm2.State.FRESH : stateOf(progress), quality);
         Instant next = Instant.now().plus(result.delay());
-        learn.updateSchedule(userId, request.cardId(), result.status().dbValue(), result.state().repetitions(),
-                result.state().intervalDays(), result.state().easiness(), next, correct);
+        learn.updateSchedule(userId, request.cardId(), result.state().repetitions(), result.state().intervalDays(),
+                result.state().easiness(), next);
         return new LearnView.AnswerResult(result.status(), next, result.state().intervalDays(), quality);
     }
 
-    private DeckRow deckOrThrow(UUID userId, String slug) {
-        return decks.findDecks(userId, slug, subscriptions.isPro(userId)).stream().findFirst()
+    private DeckRow deckOrThrow(UUID userId, UUID deckId) {
+        return decks.findDecks(userId, deckId, subscriptions.isPro(userId)).stream().findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));
     }
 
     private List<DeckView.Part> partsOf(UUID userId, DeckRow deck) {
         boolean userPro = subscriptions.isPro(userId);
         return decks.findParts(userId, deck.getId()).stream()
-                .map(p -> new DeckView.Part(p.getIdx(), p.getName(), p.getNameVi(), (int) p.getCardCount(),
+                .map(p -> new DeckView.Part(p.getIdx(), p.getName(), (int) p.getCardCount(),
                         (int) p.getStudiedCount(), VocabDeckServiceImpl.isLocked(deck.getPro(), userPro)))
                 .toList();
     }
@@ -119,6 +117,7 @@ class VocabLearnServiceImpl implements VocabLearnService {
     }
 
     private static LearnView.AnswerResult toResult(ProgressRow progress) {
-        return new LearnView.AnswerResult(CardStatus.fromDb(progress.status()), progress.nextReviewAt(), progress.intervalDays(), null);
+        return new LearnView.AnswerResult(Sm2.statusOf(progress.repetitions(), progress.intervalDays()), progress.dueAt(),
+                progress.intervalDays(), null);
     }
 }

@@ -20,8 +20,9 @@ public interface SentenceAttemptMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "mode", ignore = true)
-    @Mapping(target = "attemptedAt", ignore = true)
-    @Mapping(target = "provider", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "listenCount", source = "replayCount")
+    @Mapping(target = "totalScore", source = "score")
     @Mapping(target = "accuracyScore", ignore = true)
     @Mapping(target = "fluencyScore", ignore = true)
     @Mapping(target = "completenessScore", ignore = true)
@@ -32,14 +33,17 @@ public interface SentenceAttemptMapper {
     @Mapping(target = "attemptId", ignore = true)
     @Mapping(target = "accuracyScore", ignore = true)
     @Mapping(target = "phonemes", ignore = true)
+    @Mapping(target = "homophone", ignore = true)
+    @Mapping(target = "wordClass", source = "expectedWordClass")
     SentenceAttemptWord toEntity(AttemptWordRequest word);
 
     @Mapping(target = "attemptId", source = "id")
+    @Mapping(target = "score", source = "totalScore")
+    @Mapping(target = "attemptedAt", source = "createdAt")
     DictationAttemptView toView(SentenceAttempt attempt);
 
     List<DictationAttemptView> toViews(List<SentenceAttempt> attempts);
 
-    @Mapping(target = "wordClass", source = "expectedWordClass")
     AttemptWordView toWordView(SentenceAttemptWord word);
 
     /** Các từ xếp theo vị trí, vì bảng lưu không bảo đảm thứ tự. */
@@ -48,7 +52,7 @@ public interface SentenceAttemptMapper {
                 .sorted(Comparator.comparing(SentenceAttemptWord::getPosition))
                 .map(this::toWordView).toList();
         return new DictationAttemptDetailView(attempt.getId(), attempt.getSentenceId(), attempt.getLevel(),
-                attempt.getScore(), attempt.isRetry(), attempt.isGaveUp(), attempt.getAttemptedAt(), words);
+                attempt.getTotalScore(), attempt.isRetry(), attempt.isGaveUp(), attempt.getCreatedAt(), words);
     }
 
     default List<Integer> toBlankPositions(SentenceAttempt attempt) {

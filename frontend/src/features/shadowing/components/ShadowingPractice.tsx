@@ -34,7 +34,6 @@ import {
   recordFromAttempt,
   sentenceAt,
   wordIpa,
-  youtubeId,
   type IpaAccent,
 } from "../utils";
 import AiFeedbackCard from "./AiFeedbackCard";
@@ -64,10 +63,10 @@ type Note =
   | { kind: "message"; title?: string; body: string; retry: boolean };
 
 /** Lời mời gia sư vừa nhận được sau một Lượt shadowing, chờ đếm ngược xong hoặc bị bỏ qua. */
-type TutorOfferState = { attemptId: number; sentenceId: string; offerId: string; words: PracticeWord[] };
+type TutorOfferState = { attemptId: number; sentenceId: string; offerId: number; words: PracticeWord[] };
 
 /** Phiên gia sư đang mở; `offerId` null khi người học tự bấm "Hỏi gia sư". */
-type TutorSessionState = { attemptId: number; sentenceId: string; offerId: string | null };
+type TutorSessionState = { attemptId: number; sentenceId: string; offerId: number | null };
 
 export interface ShadowingPracticeProps {
   lesson: LessonDetail;
@@ -131,9 +130,9 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   /** Gửi lại đúng bản ghi vừa lỗi (lỗi mạng hoặc server, không tính lượt). */
   const retryRef = useRef<(() => void) | null>(null);
 
-  const videoId = lesson.sourceType === "youtube" ? youtubeId(lesson.sourceUrl) : null;
-  // Bài âm thanh/video tải lên: phát đoạn của câu từ chính tệp đó
-  const mediaUrl = lesson.sourceType === "youtube" ? null : lesson.sourceUrl;
+  const videoId = lesson.youtubeId;
+  // Mọi bài là video YouTube; không còn bài âm thanh hay video tải lên
+  const mediaUrl: string | null = null;
   const seekRef = useRef<(ms: number) => void>(() => undefined);
   const {
     hostRef: videoHostRef,
@@ -158,8 +157,8 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
   const record = records[sentence.id];
 
   // Câu cần ôn và ghi chú của bài, để hiện dấu ở danh sách câu và trạng thái trong thanh công cụ
-  const reviewQuery = useReviewEntries("shadowing", lesson.slug);
-  const notesQuery = useNoteEntries(lesson.slug, true, "shadowing");
+  const reviewQuery = useReviewEntries("shadowing", lesson.id);
+  const notesQuery = useNoteEntries(lesson.id, true, "shadowing");
   const pinnedIds = useMemo(() => new Set((reviewQuery.data ?? []).map((e) => e.sentenceId)), [reviewQuery.data]);
   const noteById = useMemo(
     () => new Map((notesQuery.data ?? []).map((n) => [n.sentenceId, n.content])),
@@ -255,7 +254,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
     [assess, dropOffer, offerTutor, t, tutorOn, tutorQuotaOut],
   );
 
-  const startTutor = (attemptId: number, offerId: string | null) => {
+  const startTutor = (attemptId: number, offerId: number | null) => {
     stopPlayer();
     mineAudioRef.current?.pause();
     dropOffer();
@@ -435,18 +434,18 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 
   // Đồng hồ, thanh các câu và từ đang sáng bám theo vị trí phát
   const selectedToken =
-    selectedWord === null ? -1 : alignWords(sentence.text, record?.words ?? []).find((d) => d.result === selectedWord)?.tokenIndex ?? -1;
+    selectedWord === null ? -1 : alignWords(sentence.textEn, record?.words ?? []).find((d) => d.result === selectedWord)?.tokenIndex ?? -1;
   // Phiên âm hiển thị theo giọng người học chọn; chưa có phiên âm Anh thì hiện phiên âm Mỹ kèm ghi chú (ADR 0007)
   const ukMissing = settings.accent === "uk" && !sentence.ipaUk;
   const shownIpaAccent: IpaAccent = settings.accent === "uk" && !ukMissing ? "uk" : "us";
   const shownIpa = shownIpaAccent === "uk" ? sentence.ipaUk : sentence.ipaUs;
-  const sentenceIpaWords = wordIpa(sentence.text, shownIpa);
+  const sentenceIpaWords = wordIpa(sentence.textEn, shownIpa);
   const selectedIpa = selectedToken >= 0 ? (sentenceIpaWords?.[selectedToken] ?? null) : null;
   const wordPhonetics = settings.ipa ? sentenceIpaWords : null;
   const lit =
     positionMs !== null && modelPlaying
       ? litTokenIndex(
-          sentence.text,
+          sentence.textEn,
           clamp((positionMs - sentence.startMs) / Math.max(500, sentence.endMs - sentence.startMs), 0, 1),
         )
       : -1;
@@ -456,7 +455,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
       <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-2 min-w-0">
           <Link
-            to={`/student/lessons/${lesson.slug}`}
+            to={`/student/lessons/${lesson.id}`}
             className="mb-1 inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary-text"
           >
             <Icon name="arrow-left" />
@@ -547,7 +546,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                 playing={modelPlaying}
                 sentenceNo={index + 1}
                 subtitles={settings.subs}
-                caption={sentence.text}
+                caption={sentence.textEn}
                 onToggle={toggleWatch}
                 onPractice={() => switchTab("practice")}
               />
@@ -556,7 +555,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                 <TutorPanel
                   key={`${tutorSession.attemptId}-${tutorSession.offerId ?? "ask"}`}
                   attemptId={tutorSession.attemptId}
-                  sentence={sentence.text}
+                  sentence={sentence.textEn}
                   offerId={tutorSession.offerId}
                   autoStart
                   isPro={isPro}
@@ -599,7 +598,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
 
                 <WordSourceProvider sentenceId={sentence.id}>
                   <SentenceWords
-                    text={sentence.text}
+                    text={sentence.textEn}
                     words={record?.words ?? []}
                     ipa={wordPhonetics}
                     lit={lit}
@@ -646,7 +645,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                       record={record}
                       isFinish={isLastDone}
                       onListen={listen}
-                      onNext={isLastDone ? () => navigate(`/student/lessons/${lesson.slug}`) : goNext}
+                      onNext={isLastDone ? () => navigate(`/student/lessons/${lesson.id}`) : goNext}
                       extraActions={
                         <Button
                           variant="ghost"
@@ -712,7 +711,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                 <b className="font-display text-lg">{t(`${K}.finished.title`)}</b>
                 <p className="text-sm text-text-muted">{t(`${K}.finished.body`, { avg: average })}</p>
               </div>
-              <Link to={`/student/lessons/${lesson.slug}`}>
+              <Link to={`/student/lessons/${lesson.id}`}>
                 <Button variant="ghost">{t(`${K}.finished.backToLesson`)}</Button>
               </Link>
             </div>

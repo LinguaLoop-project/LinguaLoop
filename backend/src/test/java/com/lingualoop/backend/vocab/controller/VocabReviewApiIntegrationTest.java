@@ -32,7 +32,7 @@ import com.lingualoop.backend.vocab.VocabTestData;
 
 /**
  * Ôn thẻ từ vựng đến hạn (UC-HT-03) trên Postgres thật: hàng đợi gộp mọi bộ (BR-HT-13, BR-HT-14), phiên ôn (BR-HT-15) và
- * chấm từng thẻ qua endpoint trả lời chung. Mỗi test dùng slug riêng và học viên riêng nên không đụng nhau.
+ * chấm từng thẻ qua endpoint trả lời chung. Mỗi test dùng bộ riêng và học viên riêng nên không đụng nhau.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -52,8 +52,8 @@ class VocabReviewApiIntegrationTest {
         return mockMvc.perform(request.header(HttpHeaders.AUTHORIZATION, "Bearer " + users.tokenFor(user)));
     }
 
-    private void due(UUID user, UUID card, String status, int repetitions, int intervalDays, String when) {
-        vocab.progress(user, card, status, repetitions, intervalDays, "now() + interval '" + when + "'");
+    private void due(UUID user, UUID card, int repetitions, int intervalDays, String when) {
+        vocab.progress(user, card, repetitions, intervalDays, "now() + interval '" + when + "'");
     }
 
     /** Lưu một nghĩa của một từ điển (tuỳ chọn kèm câu của bài học) và trả id thẻ vừa tạo. */
@@ -61,16 +61,16 @@ class VocabReviewApiIntegrationTest {
         jdbc.update("""
                 INSERT INTO dictionary_words (id, headword, ipa_uk, ipa_us, meanings)
                 VALUES (?, ?, '/uk/', '/us/', CAST(? AS jsonb))""", UUID.randomUUID(), headword,
-                "[{\"no\":1,\"pos\":\"noun\",\"translation_vi\":\"nghĩa\",\"example_en\":\"an example\",\"example_vi\":\"ví dụ\"}]");
+                "[{\"no\":1,\"pos\":\"noun\",\"meaning_vi\":\"nghĩa\",\"example_en\":\"an example\",\"example_vi\":\"ví dụ\"}]");
         String body = "{\"headword\":\"" + headword + "\",\"meaningNo\":1" + (sentenceId == null ? "" : ",\"sentenceId\":\"" + sentenceId + "\"") + "}";
         as(user, put("/api/v1/vocab/saved-words").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isOk());
         return jdbc.queryForObject("""
-                SELECT s.card_id FROM user_saved_words s JOIN vocab_cards c ON c.id = s.card_id
-                WHERE s.user_id = ? AND c.word = ?""", UUID.class, user, headword);
+                SELECT c.id FROM vocab_cards c JOIN vocab_decks d ON d.id = c.deck_id
+                WHERE d.owner_id = ? AND d.kind = 'saved' AND c.word = ?""", UUID.class, user, headword);
     }
 
-    private UUID openSession(UUID user, String deck) throws Exception {
-        String url = REVIEW + "/sessions" + (deck == null ? "" : "?deck=" + deck);
+    private UUID openSession(UUID user, String prefix) throws Exception {
+        String url = REVIEW + "/sessions" + (prefix == null ? "" : "?deck=" + VocabTestData.idOf(prefix));
         String body = as(user, post(url)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         return UUID.fromString(JsonPath.read(body, "$.data.id"));
     }
@@ -86,9 +86,9 @@ class VocabReviewApiIntegrationTest {
     void queue_mergesEveryDeck_earliestDueFirst_andIncludesNewSavedWords_AC_HT_17() throws Exception {
         List<UUID> cards = vocab.fill(vocab.deck(base, false), 1, 3, base);
         UUID user = users.newUser();
-        due(user, cards.get(1), "learning", 1, 1, "-2 days");
-        due(user, cards.get(0), "learning", 1, 1, "-3 days");
-        due(user, cards.get(2), "learning", 1, 1, "1 day"); // hẹn ngày mai: chưa đến hạn
+        due(user, cards.get(1), 1, 1, "-2 days");
+        due(user, cards.get(0), 1, 1, "-3 days");
+        due(user, cards.get(2), 1, 1, "1 day"); // hẹn ngày mai: chưa đến hạn
         UUID saved = save(user, base + "saved", null);
 
         as(user, get(REVIEW)).andExpect(status().isOk())
@@ -105,7 +105,7 @@ class VocabReviewApiIntegrationTest {
         List<UUID> cards = vocab.fill(vocab.deck(base, false), 7, 10, base);
         UUID user = users.newUser();
         for (int i = 0; i < 70; i++) {
-            due(user, cards.get(i), "reviewing", 2, 6, "-" + (100 - i) + " minutes");
+            due(user, cards.get(i), 2, 6, "-" + (100 - i) + " minutes");
         }
 
         as(user, get(REVIEW)).andExpect(status().isOk())
@@ -114,7 +114,7 @@ class VocabReviewApiIntegrationTest {
                 .andExpect(jsonPath("$.data.cards[0].id").value(cards.get(0).toString()));
 
         // sau khi chấm 50 thẻ đầu (lịch ôn dời ra xa), lượt tiếp theo có 20 thẻ còn lại
-        jdbc.update("UPDATE user_card_progress SET next_review_at = now() + interval '3 days' WHERE user_id = ? AND card_id = ANY (?)",
+        jdbc.update("UPDATE user_card_progress SET due_at = now() + interval '3 days' WHERE user_id = ? AND card_id = ANY (?)",
                 user, cards.subList(0, 50).toArray(new UUID[0]));
         as(user, get(REVIEW)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.cards.length()").value(20))
@@ -125,8 +125,8 @@ class VocabReviewApiIntegrationTest {
     void queue_aForgottenCardWaitsTenMinutes_andAMasteredCardComesBackWhenDue_AC_HT_19_AC_HT_20() throws Exception {
         List<UUID> cards = vocab.fill(vocab.deck(base, false), 1, 2, base);
         UUID user = users.newUser();
-        due(user, cards.get(0), "learning", 0, 0, "10 minutes");
-        due(user, cards.get(1), "mastered", 5, 25, "-1 minute");
+        due(user, cards.get(0), 0, 0, "10 minutes");
+        due(user, cards.get(1), 5, 25, "-1 minute");
 
         as(user, get(REVIEW)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.cards.length()").value(1))
@@ -139,8 +139,8 @@ class VocabReviewApiIntegrationTest {
     void queue_withNothingDue_reportsWhenTheNextCardIsDue_AC_HT_21() throws Exception {
         List<UUID> cards = vocab.fill(vocab.deck(base, false), 1, 3, base);
         UUID user = users.newUser();
-        due(user, cards.get(0), "reviewing", 2, 6, "5 days");
-        due(user, cards.get(1), "reviewing", 2, 6, "2 days");
+        due(user, cards.get(0), 2, 6, "5 days");
+        due(user, cards.get(1), 2, 6, "2 days");
 
         String body = as(user, get(REVIEW)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.cards.length()").value(0))
@@ -160,13 +160,12 @@ class VocabReviewApiIntegrationTest {
         UUID other = users.newUser();
         UUID kept = save(user, base + "kept", null);
         UUID dropped = save(user, base + "dropped", null);
-        String droppedId = jdbc.queryForObject("SELECT id FROM user_saved_words WHERE card_id = ?", String.class, dropped);
-        as(user, delete("/api/v1/vocab/saved-words/" + droppedId)).andExpect(status().isOk());
+        as(user, delete("/api/v1/vocab/saved-words/" + dropped)).andExpect(status().isOk());
 
         List<UUID> pro = vocab.fill(vocab.deck(base, true), 3, 2, base);
         for (UUID card : pro) {
-            due(user, card, "learning", 1, 1, "-1 day");
-            due(other, card, "learning", 1, 1, "-1 day");
+            due(user, card, 1, 1, "-1 day");
+            due(other, card, 1, 1, "-1 day");
         }
 
         // gói Free không học được bộ Pro nên chỉ còn từ đã lưu đang hoạt động
@@ -178,7 +177,7 @@ class VocabReviewApiIntegrationTest {
         // gói Pro thấy cả bộ; thẻ của học viên khác không lẫn vào
         UUID proUser = users.newProUser();
         for (UUID card : pro) {
-            due(proUser, card, "learning", 1, 1, "-1 day");
+            due(proUser, card, 1, 1, "-1 day");
         }
         as(proUser, get(REVIEW)).andExpect(status().isOk()).andExpect(jsonPath("$.data.dueTotal").value(6));
     }
@@ -189,12 +188,12 @@ class VocabReviewApiIntegrationTest {
         List<UUID> b = vocab.fill(vocab.deck(base + "b", false), 1, 3, base + "b");
         UUID user = users.newUser();
         for (int i = 0; i < 4; i++) {
-            due(user, a.get(i), "learning", 1, 1, "-1 day");
+            due(user, a.get(i), 1, 1, "-1 day");
         }
-        due(user, b.get(0), "learning", 1, 1, "-1 day");
+        due(user, b.get(0), 1, 1, "-1 day");
 
-        as(user, get(REVIEW + "?deck=" + base + "a")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.deck.slug").value(base + "a"))
+        as(user, get(REVIEW + "?deck=" + VocabTestData.idOf(base + "a"))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.deck.id").value(VocabTestData.idOf(base + "a").toString()))
                 .andExpect(jsonPath("$.data.cards.length()").value(4))
                 .andExpect(jsonPath("$.data.dueTotal").value(4));
         as(user, get(REVIEW)).andExpect(jsonPath("$.data.dueTotal").value(5));
@@ -202,18 +201,18 @@ class VocabReviewApiIntegrationTest {
 
     @Test
     void queue_ofAnUnknownDeck_is404() throws Exception {
-        as(users.newUser(), get(REVIEW + "?deck=no-such-deck")).andExpect(status().isNotFound());
+        as(users.newUser(), get(REVIEW + "?deck=" + UUID.randomUUID())).andExpect(status().isNotFound());
         UUID owner = users.newUser();
         UUID privateDeck = UUID.randomUUID();
-        jdbc.update("INSERT INTO vocab_decks (id, owner_id, slug, name, visibility, status) VALUES (?, ?, ?, 'Riêng', 'private', 'APPROVED')",
-                privateDeck, owner, base + "-priv");
-        as(users.newUser(), get(REVIEW + "?deck=" + base + "-priv")).andExpect(status().isNotFound());
-        as(users.newUser(), post(REVIEW + "/sessions?deck=" + base + "-priv")).andExpect(status().isNotFound());
+        jdbc.update("INSERT INTO vocab_decks (id, owner_id, kind, name) VALUES (?, ?, 'personal', 'Riêng')",
+                privateDeck, owner);
+        as(users.newUser(), get(REVIEW + "?deck=" + privateDeck)).andExpect(status().isNotFound());
+        as(users.newUser(), post(REVIEW + "/sessions?deck=" + privateDeck)).andExpect(status().isNotFound());
     }
 
     @Test
     void queue_aSavedWordFromALessonCarriesTheSentenceAndTheLesson_BR_HT_03() throws Exception {
-        UUID lesson = users.newLesson(base + "-lesson", false, "APPROVED", false);
+        UUID lesson = users.newLesson(base + "-lesson", false, "published", false);
         UUID sentence = users.newSentence(lesson, 1, "He went home.", "Anh ấy về nhà.");
         UUID user = users.newUser();
         UUID card = save(user, base + "go", sentence);
@@ -222,7 +221,7 @@ class VocabReviewApiIntegrationTest {
                 .andExpect(jsonPath("$.data.cards[0].id").value(card.toString()))
                 .andExpect(jsonPath("$.data.cards[0].contextEn").value("He went home."))
                 .andExpect(jsonPath("$.data.cards[0].contextVi").value("Anh ấy về nhà."))
-                .andExpect(jsonPath("$.data.cards[0].lesson.slug").value(base + "-lesson"));
+                .andExpect(jsonPath("$.data.cards[0].lesson.id").value(lesson.toString()));
     }
 
     // ---------------------------------------------------------------- phiên và chấm thẻ
@@ -235,13 +234,11 @@ class VocabReviewApiIntegrationTest {
         UUID first = openSession(user, null);
         UUID second = openSession(user, base);
 
-        assertThat(jdbc.queryForObject("SELECT ended_at IS NOT NULL FROM vocab_study_sessions WHERE id = ?", Boolean.class, first)).isTrue();
-        assertThat(jdbc.queryForMap("SELECT session_type, deck_id, group_id FROM vocab_study_sessions WHERE id = ?", first))
-                .containsEntry("session_type", "review").containsEntry("deck_id", null).containsEntry("group_id", null);
-        assertThat(jdbc.queryForMap("SELECT session_type, deck_id FROM vocab_study_sessions WHERE id = ?", second))
-                .containsEntry("session_type", "review");
-        assertThat(jdbc.queryForObject("SELECT d.slug FROM vocab_study_sessions s JOIN vocab_decks d ON d.id = s.deck_id WHERE s.id = ?",
-                String.class, second)).isEqualTo(base);
+        assertThat(jdbc.queryForObject("SELECT ended_at IS NOT NULL FROM vocab_sessions WHERE id = ?", Boolean.class, first)).isTrue();
+        assertThat(jdbc.queryForMap("SELECT kind, deck_id FROM vocab_sessions WHERE id = ?", first))
+                .containsEntry("kind", "review").containsEntry("deck_id", null);
+        assertThat(jdbc.queryForMap("SELECT kind, deck_id FROM vocab_sessions WHERE id = ?", second))
+                .containsEntry("kind", "review").containsEntry("deck_id", VocabTestData.idOf(base));
         assertThat(cards).hasSize(1);
     }
 
@@ -249,7 +246,7 @@ class VocabReviewApiIntegrationTest {
     void gradingACard_updatesItsScheduleAndTakesItOutOfTheQueue_UC_HT_03() throws Exception {
         List<UUID> cards = vocab.fill(vocab.deck(base, false), 1, 2, base);
         UUID user = users.newUser();
-        due(user, cards.get(0), "learning", 1, 1, "-1 day");
+        due(user, cards.get(0), 1, 1, "-1 day");
         UUID saved = save(user, base + "saved", null);
         UUID session = openSession(user, null);
 

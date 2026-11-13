@@ -1,6 +1,6 @@
 # Bể năng lượng AI chung cho các tính năng LLM, chấm phát âm Shadowing không giới hạn
 
-Status: accepted (thay thế một phần cơ chế hạn mức của ADR 0001, ADR 0002 và lát A)
+Status: superseded by ADR 0011 (trước đó: thay thế một phần cơ chế hạn mức của ADR 0001, ADR 0002 và lát A)
 
 Ngày: 2026-10-23
 

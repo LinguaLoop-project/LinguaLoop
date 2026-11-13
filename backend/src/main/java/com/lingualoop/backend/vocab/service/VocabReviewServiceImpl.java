@@ -31,30 +31,30 @@ class VocabReviewServiceImpl implements VocabReviewService {
     private final CardViews cardViews;
 
     @Override
-    public ReviewView.Queue queue(UUID userId, String deckSlug) {
+    public ReviewView.Queue queue(UUID userId, UUID deckId) {
         boolean userPro = subscriptions.isPro(userId);
-        DeckRow deck = deckSlug == null ? null : deckOrThrow(userId, deckSlug, userPro);
-        List<LearnView.Card> cards = review.findDue(userId, deckSlug, userPro).stream().map(this::toCard).toList();
-        int dueTotal = review.countDue(userId, deckSlug, userPro);
+        DeckRow deck = deckId == null ? null : deckOrThrow(userId, deckId, userPro);
+        List<LearnView.Card> cards = review.findDue(userId, deckId, userPro).stream().map(this::toCard).toList();
+        int dueTotal = review.countDue(userId, deckId, userPro);
         return new ReviewView.Queue(
-                deck == null ? null : new LearnView.DeckRef(deck.getSlug(), deck.getName(), deck.getNameVi(), deck.getPro()),
-                cards, dueTotal, review.findNextDueAt(userId, deckSlug, userPro));
+                deck == null ? null : new LearnView.DeckRef(deck.getId(), deck.getName(), deck.getPro()),
+                cards, dueTotal, review.findNextDueAt(userId, deckId, userPro));
     }
 
     @Override
     @Transactional
-    public LearnView.SessionRef openSession(UUID userId, String deckSlug) {
-        DeckRow deck = deckSlug == null ? null : deckOrThrow(userId, deckSlug, subscriptions.isPro(userId));
-        return new LearnView.SessionRef(learn.openSession(userId, deck == null ? null : deck.getId(), null, "review"));
+    public LearnView.SessionRef openSession(UUID userId, UUID deckId) {
+        DeckRow deck = deckId == null ? null : deckOrThrow(userId, deckId, subscriptions.isPro(userId));
+        return new LearnView.SessionRef(learn.openSession(userId, deck == null ? null : deck.getId(), "review"));
     }
 
-    private DeckRow deckOrThrow(UUID userId, String slug, boolean userPro) {
-        return decks.findDecks(userId, slug, userPro).stream().findFirst()
+    private DeckRow deckOrThrow(UUID userId, UUID deckId, boolean userPro) {
+        return decks.findDecks(userId, deckId, userPro).stream().findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));
     }
 
     private LearnView.Card toCard(DueCard due) {
-        LearnView.LessonRef lesson = due.lessonSlug() == null ? null : new LearnView.LessonRef(due.lessonSlug(), due.lessonTitle());
+        LearnView.LessonRef lesson = due.lessonId() == null ? null : new LearnView.LessonRef(due.lessonId(), due.lessonTitle());
         return cardViews.of(due.card(), due.contextEn(), due.contextVi(), lesson);
     }
 }

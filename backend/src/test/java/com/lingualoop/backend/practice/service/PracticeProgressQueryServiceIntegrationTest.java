@@ -40,18 +40,17 @@ class PracticeProgressQueryServiceIntegrationTest {
     }
 
     @Test
-    void bestScores_skipsSentencesWithoutScoreOtherUsersAndSentencesNotAsked() {
+    void bestScores_skipsUntriedSentencesOtherUsersAndSentencesNotAsked() {
         UUID user = data.newUser();
         UUID lesson = data.newLesson();
         UUID scored = data.newSentence(lesson, 0);
-        UUID unscored = data.newSentence(lesson, 1);
+        UUID untried = data.newSentence(lesson, 1);
         UUID notAsked = data.newSentence(lesson, 2);
         data.setScore(data.insertAttempt(user, scored, "normal", false, false, Instant.now()), "60.00");
-        data.insertAttempt(user, unscored, "normal", false, false, Instant.now());
         data.setScore(data.insertAttempt(user, notAsked, "normal", false, false, Instant.now()), "90.00");
-        data.setScore(data.insertAttempt(data.newUser(), unscored, "normal", false, false, Instant.now()), "100.00");
+        data.setScore(data.insertAttempt(data.newUser(), untried, "normal", false, false, Instant.now()), "100.00");
 
-        assertThat(service.bestScores(user, List.of(scored, unscored))).containsOnlyKeys(scored);
+        assertThat(service.bestScores(user, List.of(scored, untried))).containsOnlyKeys(scored);
         assertThat(service.bestScores(user, List.of())).isEmpty();
     }
 }

@@ -6,10 +6,14 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 
-/** Đồng hồ chỉnh được cho test: mặc định chạy theo giờ thật, {@link #advance} cộng thêm độ lệch. */
+/**
+ * Đồng hồ chỉnh được cho test: mặc định chạy theo giờ thật, {@link #advance} cộng thêm độ lệch,
+ * {@link #fixAt} dừng đồng hồ ở một thời điểm cố định.
+ */
 public class MutableClock extends Clock {
 
     private volatile Duration offset = Duration.ZERO;
+    private volatile Instant fixed;
 
     @Override
     public ZoneId getZone() {
@@ -23,14 +27,21 @@ public class MutableClock extends Clock {
 
     @Override
     public Instant instant() {
-        return Instant.now().plus(offset);
+        Instant pinned = fixed;
+        return pinned != null ? pinned : Instant.now().plus(offset);
     }
 
     public void advance(Duration duration) {
         offset = offset.plus(duration);
     }
 
+    /** Dừng đồng hồ ở đúng thời điểm này cho tới khi {@link #reset}. */
+    public void fixAt(Instant instant) {
+        fixed = instant;
+    }
+
     public void reset() {
         offset = Duration.ZERO;
+        fixed = null;
     }
 }

@@ -25,7 +25,7 @@ export function filterSavedWords(items: SavedWord[], filter: SavedWordFilter): S
     if (filter.state === "learning" && item.status === "mastered") return false;
     if (filter.state === "mastered" && item.status !== "mastered") return false;
     if (!query) return true;
-    return `${item.headword} ${item.translationVi ?? ""}`.toLowerCase().includes(query);
+    return `${item.headword} ${item.meaningVi ?? ""}`.toLowerCase().includes(query);
   });
 }
 
@@ -47,10 +47,10 @@ export function savedWordStats(items: SavedWord[]): SavedWordStats {
 }
 
 /** Đường dẫn trang một bộ. */
-export const deckUrl = (slug: string) => `/student/vocab/${encodeURIComponent(slug)}`;
+export const deckUrl = (deckId: string) => `/student/vocab/${encodeURIComponent(deckId)}`;
 
 /** Đường dẫn học một phần; số phần trên đường dẫn tính từ 1 cho dễ đọc, còn `index` của API tính từ 0. */
-export const partUrl = (slug: string, index: number) => `${deckUrl(slug)}/parts/${index + 1}`;
+export const partUrl = (deckId: string, index: number) => `${deckUrl(deckId)}/parts/${index + 1}`;
 
 /** Số thẻ đã học (không còn Mới) trong một bộ. */
 export const learnedCount = (progress: DeckProgress) => progress.mastered + progress.reviewing + progress.learning;
@@ -65,7 +65,7 @@ export type DeckStateFilter = "all" | "learning" | "new";
 
 export interface DeckFilter {
   query: string;
-  /** `slug` của danh mục, `OTHER_CATEGORY` cho bộ không có danh mục, hoặc "all". */
+  /** id của danh mục, `OTHER_CATEGORY` cho bộ không có danh mục, hoặc "all". */
   category: string;
   state: DeckStateFilter;
   /** Mức CEFR, hoặc "all". */
@@ -91,12 +91,11 @@ export function filterDecks(decks: DeckSummary[], filter: DeckFilter): DeckSumma
   return decks.filter((deck) => {
     if (filter.category === OTHER_CATEGORY) {
       if (deck.category) return false;
-    } else if (filter.category !== "all" && deck.category?.slug !== filter.category) return false;
-    if (filter.level !== "all" && deck.cefrLevel !== filter.level) return false;
+    } else if (filter.category !== "all" && deck.category?.id !== filter.category) return false;
     if (filter.state === "learning" && !isStarted(deck)) return false;
     if (filter.state === "new" && isStarted(deck)) return false;
     if (!query) return true;
-    const haystack = [deck.name, deck.nameVi, deck.category?.name, deck.category?.nameVi].filter(Boolean).join(" ");
+    const haystack = [deck.name, deck.category?.name].filter(Boolean).join(" ");
     return foldText(haystack).includes(query);
   });
 }
@@ -105,7 +104,7 @@ export function filterDecks(decks: DeckSummary[], filter: DeckFilter): DeckSumma
 export function groupByCategory(decks: DeckSummary[]): { category: DeckCategory | null; decks: DeckSummary[] }[] {
   const groups = new Map<string, { category: DeckCategory | null; decks: DeckSummary[] }>();
   for (const deck of decks) {
-    const key = deck.category?.slug ?? "";
+    const key = deck.category?.id ?? "";
     const group = groups.get(key) ?? { category: deck.category, decks: [] };
     group.decks.push(deck);
     groups.set(key, group);

@@ -18,9 +18,9 @@ import type {
 const REQUEST_TIMEOUT_MS = 15_000;
 
 export const dictationApi = {
-  getLesson: async (slug: string): Promise<DictationLesson> => {
+  getLesson: async (lessonId: string): Promise<DictationLesson> => {
     const response = await axiosClient.get<ApiResponse<DictationLesson>>(
-      `/dictation/lessons/${encodeURIComponent(slug)}`,
+      `/dictation/lessons/${encodeURIComponent(lessonId)}`,
       { timeout: REQUEST_TIMEOUT_MS },
     );
     return response.data.data;

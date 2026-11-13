@@ -1,21 +1,24 @@
 package com.lingualoop.backend.lesson.mapper;
 
-import com.lingualoop.backend.lesson.dto.response.LessonDetailResponse;
-import com.lingualoop.backend.lesson.dto.response.LessonSummaryResponse;
-import com.lingualoop.backend.lesson.dto.LessonView;
-import com.lingualoop.backend.lesson.entity.Lesson;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+import com.lingualoop.backend.lesson.dto.LessonView;
+import com.lingualoop.backend.lesson.dto.response.LessonDetailResponse;
+import com.lingualoop.backend.lesson.dto.response.LessonSummaryResponse;
+import com.lingualoop.backend.lesson.entity.Lesson;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface LessonMapper {
 
+    @Mapping(target = "thumbnailUrl", expression = "java(thumbnailUrl(lesson))")
     @Mapping(target = "locked", ignore = true)
     @Mapping(target = "sentenceCount", ignore = true)
     @Mapping(target = "progress", ignore = true)
     LessonSummaryResponse toSummary(Lesson lesson);
 
+    @Mapping(target = "thumbnailUrl", expression = "java(thumbnailUrl(lesson))")
     @Mapping(target = "locked", ignore = true)
     @Mapping(target = "sentenceCount", ignore = true)
     @Mapping(target = "progress", ignore = true)
@@ -25,4 +28,9 @@ public interface LessonMapper {
 
     /** Dạng gọn cho feature dictation/shadowing (SentenceQueryService). */
     LessonView toView(Lesson lesson);
+
+    /** Ảnh đại diện dựng từ mã video YouTube. */
+    default String thumbnailUrl(Lesson lesson) {
+        return "https://img.youtube.com/vi/" + lesson.getYoutubeId() + "/hqdefault.jpg";
+    }
 }

@@ -1,8 +1,7 @@
-import { getYouTubeVideoId } from "@/lib/format";
 import type { LessonDetail } from "./types";
 
-/** Nhóm trình độ ở thanh lọc → tham số `difficulty` của GET /lessons. */
-export function difficultyParam(level: string): string | undefined {
+/** Nhóm trình độ ở thanh lọc → tham số `cefrLevel` của GET /lessons. */
+export function cefrLevelParam(level: string): string | undefined {
   if (level === "basic") return "A1,A2";
   if (level === "mid") return "B1,B2";
   if (level === "adv") return "C1,C2";
@@ -41,15 +40,9 @@ export function isFiltered(f: LibraryFilters): boolean {
   return Boolean(f.search.trim()) || f.level !== "all" || f.freeOnly || f.sort !== "pop";
 }
 
-/** Nguồn phát của bài: YouTube nhúng, audio hoặc video trực tiếp. */
-export function resolveMedia(lesson: LessonDetail) {
-  const rawUrl = lesson.sourceUrl || "";
-  const videoId = getYouTubeVideoId(rawUrl);
-  const isYouTube =
-    Boolean(videoId) ||
-    lesson.sourceType?.toLowerCase() === "youtube" ||
-    rawUrl.includes("youtube.com") ||
-    rawUrl.includes("youtu.be");
-  const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : rawUrl;
-  return { rawUrl, isYouTube, embedUrl };
+/** Mọi bài là video YouTube; dựng link xem và link nhúng từ `youtubeId`. */
+export function resolveMedia(lesson: Pick<LessonDetail, "youtubeId">) {
+  const rawUrl = `https://www.youtube.com/watch?v=${lesson.youtubeId}`;
+  const embedUrl = `https://www.youtube.com/embed/${lesson.youtubeId}?autoplay=1&rel=0`;
+  return { rawUrl, isYouTube: true, embedUrl };
 }

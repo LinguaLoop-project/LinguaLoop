@@ -9,16 +9,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * Một bộ từ: bộ hệ thống ({@code visibility = system}), bộ "Từ đã lưu" của một học viên ({@code kind = saved}) hoặc
- * bộ học viên tự tạo. Lát này chỉ đọc bộ hệ thống bằng SQL; entity có để các lát sau thêm cột cần dùng.
+ * Một bộ từ: bộ thư viện ({@code kind = library}, bộ hệ thống khi {@code owner_id} trống), bộ cá nhân ({@code personal})
+ * hoặc bộ "Từ đã lưu" của một học viên ({@code saved}). Các màn học viên đọc bộ bằng SQL; entity có để màn soạn bộ dùng.
  */
 @Getter
 @NoArgsConstructor
 @Entity
 @Table(name = "vocab_decks")
 public class VocabDeck extends BaseEntity {
-
-    private String slug;
 
     @Column(nullable = false)
     private String name;

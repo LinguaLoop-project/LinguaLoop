@@ -20,24 +20,16 @@ function sayFor(lesson: LessonDetail, t: (key: string, fallback: string) => stri
 
 function Player({ lesson, onClose }: { lesson: LessonDetail; onClose: () => void }) {
   const { t } = useTranslation(["pages", "common"]);
-  const { rawUrl, isYouTube, embedUrl } = resolveMedia(lesson);
+  const { embedUrl } = resolveMedia(lesson);
   return (
     <div className="relative aspect-video overflow-hidden rounded-lg border border-border bg-black">
-      {isYouTube ? (
-        <iframe
-          src={embedUrl}
-          title={lesson.title}
-          className="h-full w-full border-0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        />
-      ) : lesson.sourceType?.toLowerCase() === "audio" ? (
-        <div className="grid h-full w-full place-items-center bg-surface-hover p-6">
-          <audio src={rawUrl} controls autoPlay className="w-full max-w-md" />
-        </div>
-      ) : (
-        <video src={rawUrl} controls autoPlay className="h-full w-full object-cover" />
-      )}
+      <iframe
+        src={embedUrl}
+        title={lesson.title}
+        className="h-full w-full border-0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+      />
       <button
         type="button"
         className="absolute right-2.5 top-2.5 z-20 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-0 bg-black/60 text-white transition-colors hover:bg-black/90"
@@ -110,8 +102,6 @@ export default function LessonHead({ lesson }: { lesson: LessonDetail }) {
           </span>
         </div>
         <h1 className="mt-2 font-display text-4xl font-bold leading-[1.15] tracking-[-0.02em]">{lesson.title}</h1>
-        {lesson.titleVi && <p className="text-text-muted">{lesson.titleVi}</p>}
-        {lesson.description && <p className="mt-2 text-sm leading-relaxed text-text-muted">{lesson.description}</p>}
         <LoopiSay mood={mood} text={say} className="mt-4" />
       </div>
     </section>

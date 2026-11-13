@@ -49,26 +49,27 @@ class UserAccountServiceImpl implements UserAccountService {
     @Override
     @Transactional
     public void markEmailVerified(UUID userId) {
-        load(userId).markEmailVerified();
+        load(userId).markEmailVerified(Instant.now(clock));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<UserAccountView> findByGoogleSub(String sub) {
-        return userRepository.findByAuthUid(sub).map(userMapper::toUserAccountView);
+        return userRepository.findByGoogleSub(sub).map(userMapper::toUserAccountView);
     }
 
     @Override
     @Transactional
     public UserAccountView createFromGoogle(String sub, String email, String name, String pictureUrl) {
-        User user = User.createFromGoogle(sub, email, googleDisplayName(name, email), pictureUrl);
+        User user = User.createFromGoogle(sub, email, googleDisplayName(name, email), pictureUrl,
+                Instant.now(clock));
         return userMapper.toUserAccountView(userRepository.saveAndFlush(user));
     }
 
     @Override
     @Transactional
     public boolean linkGoogle(UUID userId, String sub) {
-        return load(userId).linkGoogle(sub);
+        return load(userId).linkGoogle(sub, Instant.now(clock));
     }
 
     @Override

@@ -35,7 +35,7 @@ const TopicDetailPage = lazy(() =>
   import("@/features/lesson/pages/TopicDetailPage").then((m) => ({ default: m.TopicDetailPage })),
 );
 const DictationPage = lazy(() => import("@/features/dictation/pages/DictationPage"));
-const MyWordsPage = lazy(() => import("@/features/mywords/pages/MyWordsPage"));
+const MyWordsPage = lazy(() => import("@/features/practice/pages/MyWordsPage"));
 const VocabPage = lazy(() => import("@/features/vocab/pages/VocabPage"));
 const DeckPage = lazy(() => import("@/features/vocab/pages/DeckPage"));
 const PartPage = lazy(() => import("@/features/vocab/pages/PartPage"));
@@ -121,7 +121,7 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <LessonLibraryPage />,
         },
         {
-          path: "lessons/:slug",
+          path: "lessons/:id",
           element: <LessonDetailPage />,
         },
         {
@@ -129,7 +129,7 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <LessonLibraryPage mode="dictation" />,
         },
         {
-          path: "dictation/:slug",
+          path: "dictation/:id",
           element: <DictationPage />,
         },
         {
@@ -137,7 +137,7 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <LessonLibraryPage mode="shadowing" />,
         },
         {
-          path: "shadowing/:slug",
+          path: "shadowing/:id",
           element: <ShadowingPage />,
         },
         {
@@ -161,7 +161,7 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <PlaceholderPage pageKey="student.topics" />,
         },
         {
-          path: "topics/:slug",
+          path: "topics/:id",
           element: <TopicDetailPage />,
         },
         {
@@ -201,7 +201,7 @@ const getRoutesConfig = (): RouteObject[] => {
     {
       path: "instructor",
       element: (
-        <AuthGuard allowedRoles={["instructor", "admin"]}>
+        <AuthGuard allowedRoles={["teacher", "admin"]}>
           <InstructorLayout />
         </AuthGuard>
       ),

@@ -28,7 +28,7 @@ class UserAccountServiceTest {
         UserAccountView created = service.createLocal(email, "Lan", "hash");
 
         assertThat(created.emailVerified()).isFalse();
-        assertThat(created.disabled()).isFalse();
+        assertThat(created.locked()).isFalse();
         assertThat(service.findByEmail(email.toUpperCase()))
                 .hasValueSatisfying(found -> assertThat(found.id()).isEqualTo(created.id()));
         assertThat(service.findById(created.id())).isPresent();

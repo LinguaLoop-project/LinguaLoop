@@ -13,17 +13,14 @@ public final class DeckView {
     public record Progress(int mastered, int reviewing, int learning, int newCount) {
     }
 
-    /** Danh mục chứa bộ (Oxford, TOEIC, IELTS ...); {@code slug} dùng để nhóm bộ trên trang Từ vựng. */
-    public record Category(String slug, String name, String nameVi) {
+    /** Danh mục chứa bộ (Oxford, TOEIC, IELTS ...); {@code id} dùng để nhóm bộ trên trang Từ vựng. */
+    public record Category(UUID id, String name) {
     }
 
     /** Một bộ kèm tiến độ của người học; {@code dueCount} là số thẻ của bộ đã đến hạn ôn (BR-HT-13). */
     public record Summary(
             UUID id,
-            String slug,
             String name,
-            String nameVi,
-            String cefrLevel,
             boolean pro,
             String thumbnailUrl,
             Category category,
@@ -42,13 +39,13 @@ public final class DeckView {
 
     /**
      * Một phần của bộ. {@code index} tính từ 0 và là số trong đường dẫn học phần. {@code locked} khi bộ là Pro và
-     * người học dùng gói Free ở phần từ thứ ba trở đi (BR-HT-07).
+     * người học dùng gói Free (BR-HT-07).
      */
-    public record Part(int index, String name, String nameVi, int cardCount, int studiedCount, boolean locked) {
+    public record Part(int index, String name, int cardCount, int studiedCount, boolean locked) {
     }
 
     /** Một từ mẫu của bộ để xem trước; {@code audioUs} là URL phát được. */
-    public record SampleWord(String word, String pos, String translationVi, String ipaUk, String ipaUs,
+    public record SampleWord(String word, String pos, String meaningVi, String ipaUk, String ipaUs,
             String audioUs) {
     }
 

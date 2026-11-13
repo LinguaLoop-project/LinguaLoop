@@ -1,36 +1,31 @@
-import type { FeatureUsage } from "../features/subscription/types";
-import { AI_ACTION_TUTOR } from "../features/subscription/types";
+import type { CreditBalance } from "../features/subscription/types";
+import { CREDIT_MIN_TO_START, FREE_DAILY_CREDITS, TUTOR_SESSION_COST } from "../features/subscription/types";
 
-/** Năng lượng Free mỗi ngày, chỉ để hiển thị khi chưa tải xong hạn mức từ server (BR-QUOTA-01). */
-export const DEFAULT_FREE_AI_ENERGY = 8;
+/** Credit Free mỗi ngày, dùng để hiển thị khi chưa tải xong số dư (BR-GA). */
+export const DEFAULT_FREE_AI_ENERGY = FREE_DAILY_CREDITS;
 
 export interface EnergyView {
   energyUsed: number;
-  /** null: không giới hạn (Pro). */
+  /** null với Pro và tài khoản nhân viên: credit theo gói, không hiện hạn mức ngày. */
   energyLimit: number | null;
-  /** null: không giới hạn (Pro). */
+  /** Số dư hiện tại; null với Pro và nhân viên để giao diện không hiện chip đếm. */
   remaining: number | null;
-  /** Số phiên gia sư tối đa một ngày của gói Free; null khi chưa biết giá hoặc Pro. */
+  /** Số phiên gia sư tối đa một ngày của gói Free; null với Pro. */
   tutorSessionsPerDay: number | null;
-  /** Free không đủ năng lượng cho một phiên gia sư. */
+  /** Không đủ số dư tối thiểu để mở phiên gia sư. */
   tutorOut: boolean;
 }
 
-/** Số liệu năng lượng AI hiển thị từ mức dùng và bảng giá của server; chưa có số liệu thì dùng mức Free mặc định. */
-export function deriveEnergy(
-  isPro: boolean,
-  usage: FeatureUsage | undefined,
-  costs: Record<string, number>,
-): EnergyView {
-  const energyUsed = usage?.used ?? 0;
-  const energyLimit = isPro ? null : (usage?.limit ?? DEFAULT_FREE_AI_ENERGY);
-  const remaining = isPro ? null : (usage?.remaining ?? Math.max(DEFAULT_FREE_AI_ENERGY - energyUsed, 0));
-  const tutorCost = costs[AI_ACTION_TUTOR];
+/** Số liệu credit AI hiển thị từ số dư của server; chưa có số liệu thì dùng mức Free mặc định. */
+export function deriveEnergy(isPro: boolean, credit: CreditBalance | undefined): EnergyView {
+  const balance = credit?.balance ?? (isPro ? null : DEFAULT_FREE_AI_ENERGY);
+  const energyLimit = isPro ? null : DEFAULT_FREE_AI_ENERGY;
+  const remaining = isPro ? null : balance;
   return {
-    energyUsed,
+    energyUsed: energyLimit !== null && remaining !== null ? Math.max(energyLimit - remaining, 0) : 0,
     energyLimit,
     remaining,
-    tutorSessionsPerDay: energyLimit !== null && tutorCost ? Math.floor(energyLimit / tutorCost) : null,
-    tutorOut: remaining !== null && tutorCost !== undefined && remaining < tutorCost,
+    tutorSessionsPerDay: energyLimit !== null ? Math.floor(energyLimit / TUTOR_SESSION_COST) : null,
+    tutorOut: balance !== null && balance < CREDIT_MIN_TO_START,
   };
 }

@@ -49,7 +49,7 @@ class SentenceNoteApiIntegrationTest {
 
     private void practice(UUID user, UUID sentence) throws Exception {
         as(user, post("/api/v1/dictation/sentences/" + sentence + "/attempts")
-                .contentType(MediaType.APPLICATION_JSON).content("{\"level\":\"hard\",\"typedText\":\"hello\"}"))
+                .contentType(MediaType.APPLICATION_JSON).content(DictationTestData.withRequestId("{\"level\":\"hard\",\"typedText\":\"hello\"}")))
                 .andExpect(status().isOk());
     }
 
@@ -136,7 +136,7 @@ class SentenceNoteApiIntegrationTest {
     }
 
     @Test
-    void list_carriesTheSentenceAndLesson_andFiltersByLessonSlugAndMode() throws Exception {
+    void list_carriesTheSentenceAndLesson_andFiltersByLessonAndMode() throws Exception {
         UUID user = data.newUser();
         UUID first = sentence("n7a");
         UUID second = sentence("n7b");
@@ -149,10 +149,10 @@ class SentenceNoteApiIntegrationTest {
                 .andExpect(jsonPath("$.data[0].content").value("ghi chú b"))
                 .andExpect(jsonPath("$.data[0].mode").value("dictation"))
                 .andExpect(jsonPath("$.data[0].text").value("Hello there."));
-        as(user, get("/api/v1/notes").param("lessonSlug", "n7a-" + tag))
+        as(user, get("/api/v1/notes").param("lessonId", data.lessonOf(first).toString()))
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.data[0].sentenceId").value(first.toString()))
-                .andExpect(jsonPath("$.data[0].lessonSlug").value("n7a-" + tag));
+                .andExpect(jsonPath("$.data[0].lessonId").value(data.lessonOf(first).toString()));
         as(user, get("/api/v1/notes").param("mode", "shadowing")).andExpect(jsonPath("$.data.length()").value(0));
     }
 
@@ -165,7 +165,7 @@ class SentenceNoteApiIntegrationTest {
         practice(user, noted);
         saveNote(user, noted, "nhớ cách nối âm").andExpect(status().isOk());
 
-        as(user, get("/api/v1/dictation/lessons/n8-" + tag))
+        as(user, get("/api/v1/dictation/lessons/" + lesson))
                 .andExpect(jsonPath("$.data.sentences[0].note").value("nhớ cách nối âm"))
                 .andExpect(jsonPath("$.data.sentences[1].note").doesNotExist());
     }

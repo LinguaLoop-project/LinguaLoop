@@ -39,21 +39,17 @@ public class RefreshToken {
     @Column(name = "revoked_at")
     private Instant revokedAt;
 
-    @Column(name = "user_agent", updatable = false)
-    private String userAgent;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    public static RefreshToken issue(UUID userId, UUID familyId, String tokenHash, Instant now, Instant expiresAt,
-            String userAgent) {
+    public static RefreshToken issue(UUID userId, UUID familyId, String tokenHash, Instant now, Instant expiresAt) {
         RefreshToken token = new RefreshToken();
         token.userId = userId;
         token.familyId = familyId;
         token.tokenHash = tokenHash;
         token.createdAt = now;
         token.expiresAt = expiresAt;
-        token.userAgent = userAgent;
         return token;
     }
 

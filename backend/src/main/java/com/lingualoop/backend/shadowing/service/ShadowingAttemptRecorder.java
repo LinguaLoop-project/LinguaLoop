@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.lesson.enums.PracticeMode;
-import com.lingualoop.backend.lesson.service.LessonProgressService;
 import com.lingualoop.backend.practice.entity.SentenceAttempt;
 import com.lingualoop.backend.practice.entity.SentenceAttemptWord;
 import com.lingualoop.backend.practice.enums.AttemptOutcome;
@@ -31,14 +30,14 @@ class ShadowingAttemptRecorder {
 
     private final ShadowingAttemptRepository repository;
     private final PhonemeRepository phonemeRepository;
-    private final LessonProgressService lessonProgressService;
 
     @Transactional
     public long save(UUID userId, UUID lessonId, UUID sentenceId, PronunciationAssessment assessment,
             List<List<String>> targets, int durationMs) {
         SentenceAttempt attempt = SentenceAttempt.azureShadowing(userId, sentenceId, assessment.pronunciationScore(),
                 assessment.accuracyScore(), assessment.fluencyScore(), assessment.completenessScore(),
-                assessment.prosodyScore(), durationMs);
+                assessment.prosodyScore());
+        attempt.setDurationMs(durationMs);
 
         Map<String, Short> phonemeIds = phonemeRepository.idsBySymbol();
         int position = 0;
@@ -46,10 +45,7 @@ class ShadowingAttemptRecorder {
             addWord(attempt, position, word, targets.get(position), phonemeIds);
             position++;
         }
-        long attemptId = repository.save(attempt).getId();
-
-        lessonProgressService.recordActivity(userId, lessonId, PracticeMode.shadowing, (durationMs + 999) / 1000);
-        return attemptId;
+        return repository.save(attempt).getId();
     }
 
     /** Loại lỗi của Azure đổi sang {@code outcome} của DB; ràng buộc: từ thừa không có từ mong đợi, từ bỏ sót không có từ thực tế. */
@@ -74,15 +70,14 @@ class ShadowingAttemptRecorder {
         for (int i = 0; i < table.size(); i++) {
             PronunciationAssessment.PhonemeResult p = word.phonemes().get(i);
             Short id = table.get(i) == null ? null : phonemeIds.get(table.get(i));
+            Short target = targets.get(i) == null ? null : phonemeIds.get(targets.get(i));
             if (id == null) {
-                // Vẫn lưu (phoneme_id rỗng, giữ ký hiệu gốc) để xử lý lại khi bổ sung bộ chuyển đổi
+                // Vẫn lưu (heard rỗng, giữ ký hiệu gốc) để hiển thị và xử lý lại khi bổ sung bộ chuyển đổi
                 log.warn("Âm vị Azure '{}' chưa chuyển được sang bảng phonemes (từ '{}'), lưu với ký hiệu gốc",
                         azure.get(i), word.word());
             }
-            Short target = targets.get(i) == null ? null : phonemeIds.get(targets.get(i));
             PronunciationAssessment.Candidate alt = topAlternative(p, table.get(i), phonemeIds);
-            row.addPhoneme(i, id, p.symbol(), target,
-                    alt == null ? null : phonemeIds.get(toTable(alt.symbol())), alt == null ? null : alt.score(),
+            row.addPhoneme(i, p.symbol(), target, id, alt == null ? null : phonemeIds.get(toTable(alt.symbol())),
                     p.accuracyScore());
         }
     }

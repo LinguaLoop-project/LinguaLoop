@@ -22,12 +22,11 @@ const card = (id: string, over: Partial<LearnCard> = {}): LearnCard => ({
   id,
   word: id,
   pos: "noun",
-  translationVi: `nghĩa ${id}`,
-  explanationEn: null,
-  explanationVi: null,
+  meaningVi: `nghĩa ${id}`,
+  definitionEn: null,
+  definitionVi: null,
   exampleEn: null,
   exampleVi: null,
-  imageUrl: null,
   ipaUk: null,
   ipaUs: null,
   audioUk: null,
@@ -153,7 +152,7 @@ describe("đáp án Trắc nghiệm", () => {
   });
 
   it("bỏ đáp án nhiễu trùng chữ hoặc trống, nên phần ít thẻ có ít đáp án hơn", () => {
-    const dup = [card("a", { translationVi: "chung" }), card("b", { translationVi: "Chung" }), card("c", { translationVi: null }), card("d")];
+    const dup = [card("a", { meaningVi: "chung" }), card("b", { meaningVi: "Chung" }), card("c", { meaningVi: null }), card("d")];
     const options = buildOptions(dup[0], dup, "quiz", seeded());
     expect(options.map((option) => option.label).sort()).toEqual(["chung", "nghĩa d"]);
     expect(buildOptions(dup[0], [dup[0]], "quiz", seeded())).toHaveLength(1);

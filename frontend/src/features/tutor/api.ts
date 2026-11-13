@@ -65,7 +65,7 @@ export function evaluateOffer(attemptId: number): Promise<OfferResult> {
 }
 
 /** Người học bỏ qua lần tự mở này. */
-export async function declineOffer(offerId: string): Promise<void> {
+export async function declineOffer(offerId: number): Promise<void> {
   await call(axiosClient.post(`${BASE}/offers/${offerId}/decline`));
 }
 
@@ -74,7 +74,7 @@ export async function sendLessonEvent(lessonId: string, event: LessonEvent): Pro
   await call(axiosClient.post(`${BASE}/lesson-events`, { lessonId, event }));
 }
 
-export function createSession(attemptId: number, offerId: string | null): Promise<CreatedSession> {
+export function createSession(attemptId: number, offerId: number | null): Promise<CreatedSession> {
   return call(axiosClient.post(`${BASE}/sessions`, { attemptId, offerId }));
 }
 

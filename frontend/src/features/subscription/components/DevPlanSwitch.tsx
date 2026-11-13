@@ -2,9 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import Icon from "@/components/common/Icon";
 import { useMyPlan, PLAN_QUERY_KEY } from "../hooks/useMyPlan";
-import { USAGE_QUERY_KEY } from "../hooks/useUsage";
+import { CREDIT_QUERY_KEY } from "../hooks/useCredit";
 import { subscriptionService } from "../services/subscriptionService";
-import type { PlanCode } from "../types";
+import { FREE_DAILY_CREDITS, type PlanCode } from "../types";
 
 const BTN =
   "inline-flex h-7 cursor-pointer items-center rounded-full px-2.5 text-xs font-semibold transition-colors disabled:cursor-wait disabled:opacity-60";
@@ -22,13 +22,13 @@ export default function DevPlanSwitch() {
     onSuccess: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: PLAN_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: USAGE_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: CREDIT_QUERY_KEY }),
       ]),
   });
 
   const reset = useMutation({
-    mutationFn: () => subscriptionService.devResetUsage(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: USAGE_QUERY_KEY }),
+    mutationFn: () => subscriptionService.devSetCredits(FREE_DAILY_CREDITS),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: CREDIT_QUERY_KEY }),
   });
 
   return (

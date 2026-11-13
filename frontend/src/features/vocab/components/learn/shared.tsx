@@ -82,18 +82,3 @@ export function Feedback({
   );
 }
 
-/** Ảnh của thẻ; ẩn đi khi tải lỗi. */
-export function CardImage({ card, className = "" }: { card: LearnCard; className?: string }) {
-  if (!card.imageUrl) return null;
-  return (
-    <img
-      src={card.imageUrl}
-      alt=""
-      loading="lazy"
-      className={`rounded-md object-cover ${className}`}
-      onError={(event) => {
-        (event.target as HTMLElement).style.display = "none";
-      }}
-    />
-  );
-}

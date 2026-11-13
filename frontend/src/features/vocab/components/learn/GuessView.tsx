@@ -70,7 +70,7 @@ export default function GuessView({ card, done, total, onAnswer, onNext }: CardV
         <div className="text-xs font-bold uppercase tracking-wider text-text-muted">{t("learn.guess.prompt")}</div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {card.pos && <Badge variant="default">{card.pos}</Badge>}
-          <h2 className="text-2xl font-bold">{card.translationVi}</h2>
+          <h2 className="text-2xl font-bold">{card.meaningVi}</h2>
         </div>
         {masked && (
           <div className="mt-4 rounded-md bg-surface-hover p-3.5">

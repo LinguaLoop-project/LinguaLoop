@@ -18,7 +18,7 @@ class CardViews {
 
     private final CardAudioUrls audio;
 
-    /** Thẻ của bộ hệ thống: không có câu gốc của bài học. */
+    /** Thẻ của bộ thư viện: không có câu gốc của bài học. */
     LearnView.Card of(CardRow row) {
         return of(row, null, null, null);
     }
@@ -31,8 +31,8 @@ class CardViews {
         List<LearnView.Preview> previews = Arrays.stream(Sm2.QUALITIES)
                 .mapToObj(q -> new LearnView.Preview(q, Sm2.grade(state, q).delay().toMinutes()))
                 .toList();
-        return new LearnView.Card(row.id(), row.word(), row.pos(), row.translationVi(), row.explanationEn(),
-                row.explanationVi(), row.exampleEn(), row.exampleVi(), row.imageUrl(), row.ipaUk(), row.ipaUs(),
+        return new LearnView.Card(row.id(), row.word(), row.pos(), row.meaningVi(), row.definitionEn(),
+                row.definitionVi(), row.exampleEn(), row.exampleVi(), row.ipaUk(), row.ipaUs(),
                 audio.resolve(row.audioUk()), audio.resolve(row.audioUs()), status, previews, contextEn, contextVi, lesson);
     }
 }

@@ -30,37 +30,36 @@ public class WordViewMapper {
     private WordView build(DictionaryWord word, WordView lemma) {
         return new WordView(
                 word.getHeadword(),
-                word.getCefrLevel() == null ? null : word.getCefrLevel().name(),
                 defaultPronunciation(word),
                 groupByPos(word),
                 lemma);
     }
 
-    /** Một nghĩa với phát âm theo loại từ của nghĩa đó; âm thanh giữ đường dẫn tương đối (ADR 0009). */
+    /** Một nghĩa kèm phát âm của loại từ đó (hoặc của cả từ); âm thanh giữ đường dẫn tương đối (ADR 0009). */
     public MeaningSnapshot toSnapshot(DictionaryWord word, WordMeaning meaning) {
-        String pos = blankToNull(meaning.pos());
-        Map<String, PosPronunciation> overrides = word.getPosPronunciations();
-        PosPronunciation override = overrides == null || pos == null ? null : overrides.get(pos);
+        PosPronunciation p = rawPronunciationFor(word, blankToNull(meaning.pos()));
         return new MeaningSnapshot(
                 word.getId(),
                 word.getHeadword(),
-                word.getCefrLevel() == null ? null : word.getCefrLevel().name(),
-                pos,
+                blankToNull(meaning.pos()),
                 meaning.no(),
-                meaning.translationVi(),
+                meaning.meaningVi(),
+                meaning.definitionEn(),
+                meaning.definitionVi(),
                 meaning.exampleEn(),
                 meaning.exampleVi(),
-                override == null ? word.getIpaUk() : override.ipaUk(),
-                override == null ? word.getIpaUs() : override.ipaUs(),
-                override == null ? word.getAudioUk() : override.audioUk(),
-                override == null ? word.getAudioUs() : override.audioUs());
+                p.ipaUk(),
+                p.ipaUs(),
+                p.audioUk(),
+                p.audioUs());
     }
 
     private List<WordView.MeaningGroup> groupByPos(DictionaryWord word) {
         Map<String, List<WordView.Meaning>> byPos = new LinkedHashMap<>();
         for (WordMeaning m : word.getMeanings()) {
             byPos.computeIfAbsent(blankToNull(m.pos()), k -> new ArrayList<>())
-                    .add(new WordView.Meaning(m.no(), m.translationVi(), m.exampleEn(), m.exampleVi()));
+                    .add(new WordView.Meaning(m.no(), m.meaningVi(), m.definitionEn(), m.definitionVi(),
+                            m.exampleEn(), m.exampleVi()));
         }
         List<WordView.MeaningGroup> groups = new ArrayList<>(byPos.size());
         byPos.forEach((pos, meanings) -> groups.add(
@@ -68,20 +67,25 @@ public class WordViewMapper {
         return groups;
     }
 
-    /** Ghi đè phát âm theo loại từ nếu có, không thì dùng mặc định của từ. */
     private WordView.Pronunciation pronunciationFor(DictionaryWord word, String pos) {
-        Map<String, PosPronunciation> overrides = word.getPosPronunciations();
-        PosPronunciation override = overrides == null || pos == null ? null : overrides.get(pos);
-        if (override == null) {
-            return defaultPronunciation(word);
-        }
-        return new WordView.Pronunciation(override.ipaUk(), override.ipaUs(),
-                audioUrlResolver.resolve(override.audioUk()), audioUrlResolver.resolve(override.audioUs()));
+        return resolved(rawPronunciationFor(word, pos));
     }
 
     private WordView.Pronunciation defaultPronunciation(DictionaryWord word) {
-        return new WordView.Pronunciation(word.getIpaUk(), word.getIpaUs(),
-                audioUrlResolver.resolve(word.getAudioUk()), audioUrlResolver.resolve(word.getAudioUs()));
+        return resolved(rawPronunciationFor(word, null));
+    }
+
+    /** Ghi đè phát âm theo loại từ nếu có, không thì dùng mặc định của từ; âm thanh còn là đường dẫn gốc. */
+    private PosPronunciation rawPronunciationFor(DictionaryWord word, String pos) {
+        Map<String, PosPronunciation> overrides = word.getPosPronunciations();
+        PosPronunciation override = overrides == null || pos == null ? null : overrides.get(pos);
+        return override != null ? override
+                : new PosPronunciation(word.getIpaUk(), word.getIpaUs(), word.getAudioUk(), word.getAudioUs());
+    }
+
+    private WordView.Pronunciation resolved(PosPronunciation p) {
+        return new WordView.Pronunciation(p.ipaUk(), p.ipaUs(),
+                audioUrlResolver.resolve(p.audioUk()), audioUrlResolver.resolve(p.audioUs()));
     }
 
     private String blankToNull(String s) {

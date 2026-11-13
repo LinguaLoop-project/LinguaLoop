@@ -35,7 +35,6 @@ import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.PhonemeRes
 import com.lingualoop.backend.shadowing.azure.PronunciationAssessment.WordResult;
 import com.lingualoop.backend.shadowing.azure.PronunciationScoringService;
 import com.lingualoop.backend.support.WavFixtures;
-import com.lingualoop.backend.user.service.ConsentService;
 
 /**
  * UC-SHADOW-10..12: lịch sử lượt đọc, ghi chú dùng chung với nghe chép và Câu cần ôn của Shadowing. Azure được giả
@@ -52,13 +51,11 @@ class ShadowingReviewHistoryNotesIntegrationTest {
     @Autowired private DictationTestData data;
 
     @MockitoBean private PronunciationScoringService scoring;
-    @MockitoBean private ConsentService consent;
 
     private final String tag = UUID.randomUUID().toString().substring(0, 8);
 
     @BeforeEach
     void defaults() {
-        when(consent.hasConsent(any(), any())).thenReturn(true);
     }
 
     private ResultActions as(UUID user, MockHttpServletRequestBuilder request) throws Exception {
@@ -83,7 +80,7 @@ class ShadowingReviewHistoryNotesIntegrationTest {
     /** Một lượt nghe chép gõ sai hoàn toàn (0 điểm). */
     private void dictate(UUID user, UUID sentence) throws Exception {
         as(user, post("/api/v1/dictation/sentences/" + sentence + "/attempts")
-                .contentType(MediaType.APPLICATION_JSON).content("{\"level\":\"hard\",\"typedText\":\"zzz\"}"))
+                .contentType(MediaType.APPLICATION_JSON).content(DictationTestData.withRequestId("{\"level\":\"hard\",\"typedText\":\"zzz\"}")))
                 .andExpect(status().isOk());
     }
 
@@ -190,10 +187,10 @@ class ShadowingReviewHistoryNotesIntegrationTest {
                 // điểm thấp trước: nghe chép 0, Shadowing 30
                 .andExpect(jsonPath("$.data[0].mode").value("dictation"))
                 .andExpect(jsonPath("$.data[1].mode").value("shadowing"));
-        as(user, get("/api/v1/review/sentences").param("lessonSlug", "mix-s-" + tag))
+        as(user, get("/api/v1/review/sentences").param("lessonId", data.lessonOf(read).toString()))
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.data[0].sentenceId").value(read.toString()))
-                .andExpect(jsonPath("$.data[0].lessonSlug").value("mix-s-" + tag));
+                .andExpect(jsonPath("$.data[0].lessonId").value(data.lessonOf(read).toString()));
     }
 
     @Test
@@ -247,7 +244,7 @@ class ShadowingReviewHistoryNotesIntegrationTest {
                 .andExpect(jsonPath("$.data[0].mode").value("shadowing"))
                 .andExpect(jsonPath("$.data[0].content").value("nối âm ở cuối"));
         // màn nghe chép chỉ thấy ghi chú của nghe chép
-        as(user, get("/api/v1/dictation/lessons/note-" + tag))
+        as(user, get("/api/v1/dictation/lessons/" + data.lessonOf(sentence)))
                 .andExpect(jsonPath("$.data.sentences[0].note").value("nghe nhầm từ ba"));
 
         as(user, delete("/api/v1/sentences/" + sentence + "/notes/dictation")).andExpect(status().isOk());

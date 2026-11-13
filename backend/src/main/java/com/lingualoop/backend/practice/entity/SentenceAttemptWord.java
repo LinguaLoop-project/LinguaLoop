@@ -55,8 +55,11 @@ public class SentenceAttemptWord {
 
     // Nghe chép
     @Enumerated(EnumType.STRING)
-    @Column(name = "expected_word_class")
-    private AttemptWordClass expectedWordClass;
+    @Column(name = "word_class")
+    private AttemptWordClass wordClass;
+
+    @Column(name = "is_homophone", nullable = false)
+    private boolean homophone;
 
     // Shadowing
     @Column(name = "accuracy_score", precision = 5, scale = 2)
@@ -66,9 +69,9 @@ public class SentenceAttemptWord {
     @OrderBy("position")
     private List<AttemptPhoneme> phonemes = new ArrayList<>();
 
-    public void addPhoneme(int position, Short phonemeId, String azureSymbol, Short targetPhonemeId,
-            Short producedPhonemeId, Double producedScore, double accuracy) {
-        phonemes.add(new AttemptPhoneme(this, position, phonemeId, azureSymbol, targetPhonemeId, producedPhonemeId,
-                producedScore == null ? null : SentenceAttempt.scale(producedScore), SentenceAttempt.scale(accuracy)));
+    public void addPhoneme(int position, String azureSymbol, Short targetPhonemeId, Short heardPhonemeId,
+            Short altPhonemeId, double accuracy) {
+        phonemes.add(new AttemptPhoneme(this, position, azureSymbol, targetPhonemeId, heardPhonemeId, altPhonemeId,
+                SentenceAttempt.scale(accuracy)));
     }
 }

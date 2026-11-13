@@ -43,7 +43,7 @@ public class TutorController {
     }
 
     @PostMapping("/offers/{offerId}/decline")
-    public ApiResponse<Void> decline(@CurrentUserId UUID userId, @PathVariable UUID offerId) {
+    public ApiResponse<Void> decline(@CurrentUserId UUID userId, @PathVariable Long offerId) {
         offerService.decline(userId, offerId);
         return ApiResponse.ok(null);
     }

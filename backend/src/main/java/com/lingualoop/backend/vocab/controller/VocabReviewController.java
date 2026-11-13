@@ -26,14 +26,14 @@ public class VocabReviewController {
 
     /** Lượt ôn tiếp theo: tối đa 50 thẻ đến hạn; truyền {@code deck} để chỉ ôn một bộ. */
     @GetMapping
-    public ApiResponse<ReviewView.Queue> queue(@CurrentUserId UUID userId, @RequestParam(required = false) String deck) {
+    public ApiResponse<ReviewView.Queue> queue(@CurrentUserId UUID userId, @RequestParam(required = false) UUID deck) {
         return ApiResponse.ok(reviewService.queue(userId, deck));
     }
 
     /** Mở phiên ôn mới (đóng phiên còn mở); truyền {@code deck} khi ôn riêng một bộ. */
     @PostMapping("/sessions")
     public ApiResponse<LearnView.SessionRef> openSession(@CurrentUserId UUID userId,
-            @RequestParam(required = false) String deck) {
+            @RequestParam(required = false) UUID deck) {
         return ApiResponse.ok(reviewService.openSession(userId, deck));
     }
 }

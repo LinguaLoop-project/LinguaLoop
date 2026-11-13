@@ -40,13 +40,10 @@ export interface DictationSentence {
 
 export interface DictationLesson {
   id: string;
-  slug: string;
   title: string;
-  titleVi: string | null;
-  difficulty: string | null;
+  cefrLevel: string;
   pro: boolean;
-  sourceType: string | null;
-  sourceUrl: string | null;
+  youtubeId: string;
   durationSec: number | null;
   sentences: DictationSentence[];
 }
@@ -136,6 +133,8 @@ export interface SubmitAttemptBody {
   playbackRate?: number;
   replayCount?: number;
   durationMs?: number;
+  /** Id client sinh cho mỗi lần nộp; gửi lại (mất mạng) cùng id thì server không tạo lượt thứ hai. */
+  clientRequestId: string;
 }
 
 export type PlaybackRate = 0.5 | 0.75 | 1;

@@ -29,8 +29,8 @@ public class VocabDeckController {
     }
 
     /** Một bộ: các phần kèm tiến độ (phần bị khoá với gói Free của bộ Pro) và vài từ mẫu. */
-    @GetMapping("/{slug}")
-    public ApiResponse<DeckView.Detail> detail(@CurrentUserId UUID userId, @PathVariable String slug) {
-        return ApiResponse.ok(deckService.detail(userId, slug));
+    @GetMapping("/{deckId}")
+    public ApiResponse<DeckView.Detail> detail(@CurrentUserId UUID userId, @PathVariable UUID deckId) {
+        return ApiResponse.ok(deckService.detail(userId, deckId));
     }
 }

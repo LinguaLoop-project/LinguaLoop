@@ -18,8 +18,6 @@ import com.lingualoop.backend.shadowing.service.WavAudio;
 import com.lingualoop.backend.tutor.dto.TutorDtos;
 import com.lingualoop.backend.tutor.entity.TutorSession;
 import com.lingualoop.backend.tutor.entity.TutorSessionWord;
-import com.lingualoop.backend.user.service.ConsentService;
-import com.lingualoop.backend.user.service.ConsentService.ConsentType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +36,6 @@ public class TutorAttemptService {
     static final String NOT_ASSESSED = "Hệ thống không nghe rõ lượt vừa rồi, lượt này không bị tính. "
             + "Nhắc người học giữ nút, nói to và rõ hơn rồi gọi lại request_retry với cùng target.";
 
-    private final ConsentService consentService;
     private final PronunciationScoringService scoring;
     private final AttemptSnapshots snapshots;
     private final AttemptRule attemptRule;
@@ -61,9 +58,6 @@ public class TutorAttemptService {
             target = AttemptTarget.fromWire(targetWire);
         } catch (IllegalArgumentException e) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED, "target phải là word hoặc sentence");
-        }
-        if (!consentService.hasConsent(userId, ConsentType.AI_PROCESSING)) {
-            throw new BusinessException(ErrorCode.AI_CONSENT_REQUIRED);
         }
 
         Prepared prepared = locked.run(userId, sessionId, session -> prepare(userId, session, target));

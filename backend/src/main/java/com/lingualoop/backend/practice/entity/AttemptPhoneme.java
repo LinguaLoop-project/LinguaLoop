@@ -33,11 +33,7 @@ public class AttemptPhoneme {
     @Column(name = "position", nullable = false, updatable = false)
     private Short position;
 
-    /** Cách đọc Azure báo, đã chuyển sang bảng phonemes; null nếu chưa chuyển được (khi đó có {@code azureSymbol}). */
-    @Column(name = "phoneme_id", updatable = false)
-    private Short phonemeId;
-
-    /** Ký hiệu gốc Azure trả; null ở dòng lưu trước khi có cột này. */
+    /** Ký hiệu gốc Azure trả về, giữ nguyên để hiển thị âm lạ và xử lý lại khi sửa bộ chuyển đổi. */
     @Column(name = "azure_symbol", updatable = false)
     private String azureSymbol;
 
@@ -45,25 +41,25 @@ public class AttemptPhoneme {
     @Column(name = "target_phoneme_id", updatable = false)
     private Short targetPhonemeId;
 
-    /** Ứng viên khác cao điểm nhất trong NBestPhonemes của Azure. */
-    @Column(name = "produced_phoneme_id", updatable = false)
-    private Short producedPhonemeId;
+    /** Âm Azure nhận ra, đã đổi sang bảng phonemes; null nếu chưa đổi được. */
+    @Column(name = "heard_phoneme_id", updatable = false)
+    private Short heardPhonemeId;
 
-    @Column(name = "produced_score", updatable = false, precision = 5, scale = 2)
-    private BigDecimal producedScore;
+    /** Ứng viên khác cao điểm nhất trong NBestPhonemes của Azure. */
+    @Column(name = "alt_phoneme_id", updatable = false)
+    private Short altPhonemeId;
 
     @Column(name = "accuracy_score", nullable = false, precision = 5, scale = 2)
     private BigDecimal accuracyScore;
 
-    AttemptPhoneme(SentenceAttemptWord word, int position, Short phonemeId, String azureSymbol, Short targetPhonemeId,
-            Short producedPhonemeId, BigDecimal producedScore, BigDecimal accuracyScore) {
+    AttemptPhoneme(SentenceAttemptWord word, int position, String azureSymbol, Short targetPhonemeId,
+            Short heardPhonemeId, Short altPhonemeId, BigDecimal accuracyScore) {
         this.word = word;
         this.position = (short) position;
-        this.phonemeId = phonemeId;
         this.azureSymbol = azureSymbol;
         this.targetPhonemeId = targetPhonemeId;
-        this.producedPhonemeId = producedPhonemeId;
-        this.producedScore = producedScore;
+        this.heardPhonemeId = heardPhonemeId;
+        this.altPhonemeId = altPhonemeId;
         this.accuracyScore = accuracyScore;
     }
 }

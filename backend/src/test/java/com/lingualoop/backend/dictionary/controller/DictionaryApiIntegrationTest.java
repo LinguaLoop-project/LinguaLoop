@@ -1,5 +1,6 @@
 package com.lingualoop.backend.dictionary.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,6 +19,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
+import com.lingualoop.backend.dictionary.dto.MeaningSnapshot;
+import com.lingualoop.backend.dictionary.service.DictionaryQueryService;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
 import com.lingualoop.backend.user.service.UserAccountService;
@@ -29,14 +32,15 @@ import com.lingualoop.backend.user.service.UserAccountService;
 class DictionaryApiIntegrationTest {
 
     private static final String NOUN_AND_VERB = """
-            [{"no":1,"pos":"noun","translation_vi":"món quà","example_en":"a gift","example_vi":"một món quà"},
-             {"no":2,"pos":"noun","translation_vi":"hiện tại","example_en":null,"example_vi":null},
-             {"no":3,"pos":"verb","translation_vi":"trình bày","example_en":"to present","example_vi":"để trình bày"}]""";
+            [{"no":1,"pos":"noun","meaning_vi":"món quà","example_en":"a gift","example_vi":"một món quà"},
+             {"no":2,"pos":"noun","meaning_vi":"hiện tại","example_en":null,"example_vi":null},
+             {"no":3,"pos":"verb","meaning_vi":"trình bày","example_en":"to present","example_vi":"để trình bày"}]""";
 
     @Autowired private MockMvc mockMvc;
     @Autowired private JwtTokenService jwtTokenService;
     @Autowired private UserAccountService userAccountService;
     @Autowired private JdbcTemplate jdbc;
+    @Autowired private DictionaryQueryService dictionaryQueryService;
 
     /** Mỗi test một tiền tố riêng (chỉ chữ cái và số) để headword không đụng dữ liệu của test khác. */
     private final String base = "zq" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
@@ -51,7 +55,6 @@ class DictionaryApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.headword").value(base))
-                .andExpect(jsonPath("$.data.cefrLevel").value("A1"))
                 .andExpect(jsonPath("$.data.pronunciation.ipaUs").value("/ɪpa-us/"))
                 .andExpect(jsonPath("$.data.lemma").doesNotExist())
                 .andExpect(jsonPath("$.data.groups.length()").value(2))
@@ -76,6 +79,7 @@ class DictionaryApiIntegrationTest {
                 .andExpect(jsonPath("$.data.pronunciation.audioUs").value("audio/" + base + "-us.mp3"));
     }
 
+    /** Từ đồng tự khác âm (vd "present"): nhóm động từ lấy phát âm riêng, nhóm danh từ giữ phát âm mặc định. */
     @Test
     void lookup_usesPosOverrideOnlyForThatPos() throws Exception {
         String override = """
@@ -93,14 +97,30 @@ class DictionaryApiIntegrationTest {
                 .andExpect(jsonPath("$.data.groups[1].pronunciation.audioUk").doesNotExist());
     }
 
+    /** Lưu nghĩa động từ vào thẻ từ vựng phải kèm phát âm động từ, không phải phát âm mặc định (danh từ). */
+    @Test
+    void findMeaning_usesPosOverrideOfThatMeaning() {
+        String override = """
+                {"verb":{"ipa_uk":"/v-uk/","ipa_us":"/v-us/","audio_uk":null,"audio_us":"audio/v-us.mp3"}}""";
+        insert(base, "A1", null, "/n-uk/", "/n-us/", override, NOUN_AND_VERB);
+
+        MeaningSnapshot noun = dictionaryQueryService.findMeaning(base, 1).orElseThrow();
+        MeaningSnapshot verb = dictionaryQueryService.findMeaning(base, 3).orElseThrow();
+
+        assertThat(noun.ipaUk()).isEqualTo("/n-uk/");
+        assertThat(verb.ipaUk()).isEqualTo("/v-uk/");
+        assertThat(verb.ipaUs()).isEqualTo("/v-us/");
+        assertThat(verb.audioUs()).isEqualTo("audio/v-us.mp3");
+        assertThat(verb.audioUk()).isNull();
+    }
+
     @Test
     void lookup_normalizesCaseCurlyApostropheAndTrailingPunctuation() throws Exception {
         insert(base + "'t", null, null, null, "/x/", null, NOUN_AND_VERB);
 
         as(get("/api/v1/dictionary/word/{word}", base.toUpperCase() + "’T."))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.headword").value(base + "'t"))
-                .andExpect(jsonPath("$.data.cefrLevel").doesNotExist());
+                .andExpect(jsonPath("$.data.headword").value(base + "'t"));
     }
 
     @Test
@@ -121,7 +141,7 @@ class DictionaryApiIntegrationTest {
     void lookup_wordWithOwnMeaningsAndLemmaReturnsBoth() throws Exception {
         UUID lemma = insert(base, "A1", null, null, null, null, NOUN_AND_VERB);
         insert(base + "d", "A1", lemma, null, null, null,
-                "[{\"no\":1,\"pos\":\"noun\",\"translation_vi\":\"khung chì\",\"example_en\":null,\"example_vi\":null}]");
+                "[{\"no\":1,\"pos\":\"noun\",\"meaning_vi\":\"khung chì\",\"example_en\":null,\"example_vi\":null}]");
 
         as(get("/api/v1/dictionary/word/{word}", base + "d"))
                 .andExpect(status().isOk())
@@ -132,8 +152,8 @@ class DictionaryApiIntegrationTest {
     @Test
     void lookup_blankPosMeaningsFormOneGroupWithNullPos() throws Exception {
         insert(base, null, null, null, null, null,
-                "[{\"no\":1,\"pos\":\"\",\"translation_vi\":\"a\",\"example_en\":null,\"example_vi\":null},"
-                        + "{\"no\":2,\"pos\":null,\"translation_vi\":\"b\",\"example_en\":null,\"example_vi\":null}]");
+                "[{\"no\":1,\"pos\":\"\",\"meaning_vi\":\"a\",\"example_en\":null,\"example_vi\":null},"
+                        + "{\"no\":2,\"pos\":null,\"meaning_vi\":\"b\",\"example_en\":null,\"example_vi\":null}]");
 
         as(get("/api/v1/dictionary/word/{word}", base))
                 .andExpect(status().isOk())
@@ -246,9 +266,9 @@ class DictionaryApiIntegrationTest {
         UUID id = UUID.randomUUID();
         jdbc.update("""
                 INSERT INTO dictionary_words
-                    (id, headword, cefr_level, lemma_id, ipa_uk, ipa_us, audio_uk, audio_us, pos_pronunciations, meanings)
-                VALUES (?, ?, CAST(? AS cefr_code), CAST(? AS uuid), ?, ?, ?, ?, CAST(? AS jsonb), CAST(? AS jsonb))""",
-                id, headword, cefr, lemmaId == null ? null : lemmaId.toString(), ipaUk, ipaUs,
+                    (id, headword, lemma_id, ipa_uk, ipa_us, audio_uk, audio_us, pos_pronunciations, meanings)
+                VALUES (?, ?, CAST(? AS uuid), ?, ?, ?, ?, CAST(? AS jsonb), CAST(? AS jsonb))""",
+                id, headword, lemmaId == null ? null : lemmaId.toString(), ipaUk, ipaUs,
                 audioUk, audioUs, posPronunciations, meaningsJson);
         return id;
     }

@@ -68,14 +68,14 @@ class DevToolsEnabledIntegrationTest {
     }
 
     @Test
-    void setPlan_pro_twice_keepsSingleActiveSubscription() throws Exception {
+    void setPlan_pro_twice_keepsSingleActiveOrder() throws Exception {
         UUID userId = newUser();
 
         putPlan(userId, "pro").andExpect(status().isOk());
         putPlan(userId, "pro").andExpect(status().isOk());
 
-        Integer active = jdbc.sql("SELECT count(*) FROM user_subscriptions WHERE user_id = :u AND status = 'active'")
-                .param("u", userId).query(Integer.class).single();
+        Integer active = jdbc.sql("SELECT count(*) FROM pro_orders WHERE user_id = :u AND status = 'paid' "
+                + "AND starts_at <= now() AND ends_at > now()").param("u", userId).query(Integer.class).single();
         assertThat(active).isEqualTo(1);
         assertThat(subscriptionQueryService.isPro(userId)).isTrue();
     }
@@ -93,17 +93,24 @@ class DevToolsEnabledIntegrationTest {
     }
 
     @Test
-    void resetUsage_clearsOnlyCallersCounters() throws Exception {
+    void setCredits_setsOnlyCallersWallet() throws Exception {
         UUID me = newUser();
         UUID other = newUser();
-        addUsage(me, 5);
-        addUsage(other, 3);
 
-        mockMvc.perform(post("/api/v1/dev/usage/reset").header(HttpHeaders.AUTHORIZATION, bearer(me)))
+        mockMvc.perform(put("/api/v1/dev/credits").header(HttpHeaders.AUTHORIZATION, bearer(me))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"balance\":7}"))
                 .andExpect(status().isNoContent());
 
-        assertThat(usedCount(me)).isZero();
-        assertThat(usedCount(other)).isEqualTo(1);
+        assertThat(balance(me)).isEqualTo(7);
+        assertThat(jdbc.sql("SELECT count(*) FROM ai_wallets WHERE user_id = :u").param("u", other)
+                .query(Integer.class).single()).isZero();
+    }
+
+    @Test
+    void setCredits_negativeBalance_returns400() throws Exception {
+        mockMvc.perform(put("/api/v1/dev/credits").header(HttpHeaders.AUTHORIZATION, bearer(newUser()))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"balance\":-1}"))
+                .andExpect(status().isBadRequest());
     }
 
     private org.springframework.test.web.servlet.ResultActions putPlan(UUID userId, String plan) throws Exception {
@@ -113,13 +120,8 @@ class DevToolsEnabledIntegrationTest {
                 .content("{\"plan\":\"" + plan + "\"}"));
     }
 
-    private void addUsage(UUID userId, int used) {
-        jdbc.sql("INSERT INTO usage_counters (user_id, feature, period_start, used) VALUES (:u, 'ai_energy', current_date, :n)")
-                .param("u", userId).param("n", used).update();
-    }
-
-    private int usedCount(UUID userId) {
-        return jdbc.sql("SELECT count(*) FROM usage_counters WHERE user_id = :u")
+    private int balance(UUID userId) {
+        return jdbc.sql("SELECT balance FROM ai_wallets WHERE user_id = :u")
                 .param("u", userId).query(Integer.class).single();
     }
 

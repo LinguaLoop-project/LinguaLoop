@@ -33,9 +33,9 @@ public class DictationController {
 
     private final DictationService dictationService;
 
-    @GetMapping("/lessons/{slug}")
-    public ApiResponse<DictationLessonResponse> getLesson(@CurrentUserId UUID userId, @PathVariable String slug) {
-        return ApiResponse.ok(dictationService.getLesson(userId, slug));
+    @GetMapping("/lessons/{id}")
+    public ApiResponse<DictationLessonResponse> getLesson(@CurrentUserId UUID userId, @PathVariable UUID id) {
+        return ApiResponse.ok(dictationService.getLesson(userId, id));
     }
 
     @GetMapping("/sentences/{id}/prompt")

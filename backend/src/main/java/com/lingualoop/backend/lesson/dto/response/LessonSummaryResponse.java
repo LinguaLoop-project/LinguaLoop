@@ -4,11 +4,9 @@ import java.util.UUID;
 
 public record LessonSummaryResponse(
     UUID id,
-    String slug,
     String title,
-    String titleVi,
-    String difficulty,
-    String sourceType,
+    String cefrLevel,
+    String youtubeId,
     Integer durationSec,
     Integer viewCount,
     String thumbnailUrl,

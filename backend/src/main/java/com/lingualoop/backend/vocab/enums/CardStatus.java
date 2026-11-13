@@ -5,8 +5,8 @@ import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * Trạng thái thẻ của một học viên (BR-HT-08). Giá trị lưu ở {@code user_card_progress.status}; thẻ chưa có dòng
- * tiến độ là {@link #NEW}.
+ * Trạng thái thẻ của một học viên (BR-HT-08). Không lưu trong bảng mà suy ra từ {@code user_card_progress} (xem
+ * {@code CardSql#STATUS}); thẻ chưa có dòng tiến độ là {@link #NEW}.
  */
 public enum CardStatus {
     NEW("new"),

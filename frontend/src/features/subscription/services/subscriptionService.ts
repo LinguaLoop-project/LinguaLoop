@@ -1,6 +1,6 @@
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/lesson/types";
-import type { PlanCode, PlanResponse, UsageResponse } from "../types";
+import type { CreditBalance, PlanCode, PlanResponse } from "../types";
 
 export const subscriptionService = {
   getMyPlan: async (): Promise<PlanResponse> => {
@@ -8,8 +8,8 @@ export const subscriptionService = {
     return response.data.data;
   },
 
-  getUsage: async (): Promise<UsageResponse> => {
-    const response = await axiosClient.get<ApiResponse<UsageResponse>>("/me/usage");
+  getCredit: async (): Promise<CreditBalance> => {
+    const response = await axiosClient.get<ApiResponse<CreditBalance>>("/credits/balance");
     return response.data.data;
   },
 
@@ -19,7 +19,8 @@ export const subscriptionService = {
     return response.data.data;
   },
 
-  devResetUsage: async (): Promise<void> => {
-    await axiosClient.post("/dev/usage/reset");
+  /** Đặt số dư ví credit của chính mình (công cụ thử). */
+  devSetCredits: async (balance: number): Promise<void> => {
+    await axiosClient.put("/dev/credits", { balance });
   },
 };

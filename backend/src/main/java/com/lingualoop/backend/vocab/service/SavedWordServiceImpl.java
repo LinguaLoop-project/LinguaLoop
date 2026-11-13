@@ -13,7 +13,6 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.dictionary.service.DictionaryQueryService;
 import com.lingualoop.backend.vocab.dto.SavedWordView;
-import com.lingualoop.backend.vocab.entity.UserSavedWord;
 import com.lingualoop.backend.vocab.enums.CardStatus;
 import com.lingualoop.backend.vocab.enums.SavedWordSource;
 import com.lingualoop.backend.vocab.repository.SavedWordRepository;
@@ -38,7 +37,7 @@ class SavedWordServiceImpl implements SavedWordService {
     }
 
     /**
-     * Không chạy trong giao dịch: nếu hai yêu cầu tranh nhau tạo cùng bộ, thẻ hoặc dòng từ đã lưu thì một bên vi phạm
+     * Không chạy trong giao dịch: nếu hai yêu cầu tranh nhau tạo cùng bộ, phần hoặc thẻ thì một bên vi phạm
      * ràng buộc duy nhất; thử lại bằng giao dịch mới sẽ thấy dữ liệu bên kia vừa tạo và trả đúng một từ đã lưu
      * (AC-HT-43).
      */
@@ -59,25 +58,22 @@ class SavedWordServiceImpl implements SavedWordService {
     @Override
     @Transactional
     public void unsave(UUID userId, UUID savedWordId) {
-        UserSavedWord saved = repository.findByIdAndUserId(savedWordId, userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_SAVED_WORD_NOT_FOUND));
-        repository.delete(saved);
-        if (saved.getCardId() != null) {
-            repository.hideCard(saved.getCardId());
+        if (!repository.hideCard(userId, savedWordId)) {
+            throw new BusinessException(ErrorCode.VOCAB_SAVED_WORD_NOT_FOUND);
         }
     }
 
     private SavedWordView toView(SavedWordRow row, Instant now) {
-        CardStatus status = CardStatus.fromDb(row.getStatus());
-        Instant next = row.getNextReviewAt();
+        CardStatus status = CardStatus.fromDb(row.status());
+        Instant next = row.dueAt();
         boolean due = status == CardStatus.NEW || next == null || !next.isAfter(now);
-        SavedWordView.Lesson lesson = row.getLessonSlug() == null
+        SavedWordView.Lesson lesson = row.lessonId() == null
                 ? null
-                : new SavedWordView.Lesson(row.getLessonSlug(), row.getLessonTitle(), row.getSentenceId());
-        return new SavedWordView(row.getId(), row.getHeadword(), row.getCefrLevel(), row.getPos(),
-                row.getMeaningNo(), row.getTranslationVi(), row.getExampleEn(), row.getExampleVi(),
-                row.getIpaUk(), row.getIpaUs(), dictionary.resolveAudioUrl(row.getAudioUk()),
-                dictionary.resolveAudioUrl(row.getAudioUs()), SavedWordSource.fromDb(row.getSource()), lesson,
-                row.getContextEn(), row.getContextVi(), status, next, due, row.getSavedAt());
+                : new SavedWordView.Lesson(row.lessonId(), row.lessonTitle(), row.sentenceId());
+        SavedWordSource source = row.sentenceId() == null ? SavedWordSource.DICTIONARY : SavedWordSource.LESSON;
+        return new SavedWordView(row.id(), row.headword(), row.pos(), row.meaningNo(), row.meaningVi(),
+                row.definitionEn(), row.definitionVi(), row.exampleEn(), row.exampleVi(), row.ipaUk(), row.ipaUs(),
+                dictionary.resolveAudioUrl(row.audioUk()), dictionary.resolveAudioUrl(row.audioUs()), source, lesson,
+                row.contextEn(), row.contextVi(), status, next, due, row.savedAt());
     }
 }

@@ -4,23 +4,23 @@ export interface PlanResponse {
   plan: PlanCode;
 }
 
-/** Mức dùng một tính năng trong chu kỳ hiện tại; `limit` và `remaining` là null khi không giới hạn. */
-export interface FeatureUsage {
-  feature: string;
-  period: "day" | "month" | "none";
-  limit: number | null;
-  used: number;
-  remaining: number | null;
+/**
+ * Ví credit AI (`GET /credits/balance`). `kind`: `free` làm mới mỗi ngày lúc 00:00 giờ Việt Nam, `pro` làm mới theo tháng
+ * của gói, `staff` (giáo viên, quản trị viên) không tự làm mới. `resetsAt` trống với `staff`.
+ */
+export interface CreditBalance {
+  balance: number;
+  resetsAt: string | null;
+  kind: "free" | "pro" | "staff";
 }
 
-export interface UsageResponse {
-  features: FeatureUsage[];
-  costs?: Record<string, number>;
-}
-
-/** Mã tính năng có hạn mức (feature_code ở backend). */
-export const FEATURE_AI_ENERGY = "ai_energy";
-
-/** Mã hoạt động tốn năng lượng AI: khoá của `costs` và của `details.action` trong lỗi QUOTA_EXCEEDED. */
-export const AI_ACTION_FEEDBACK = "ai_feedback";
+/** Mã tính năng AI tính credit: khoá `details.feature` trong lỗi QUOTA_EXCEEDED (khớp `AiFeature` ở backend). */
+export const AI_ACTION_FEEDBACK = "shadowing_feedback";
 export const AI_ACTION_TUTOR = "tutor_session";
+
+/** Credit Free mỗi ngày (`ai_settings.free_daily_credits`), để hiển thị hạn mức vì server chỉ trả số dư. */
+export const FREE_DAILY_CREDITS = 20;
+/** Số dư tối thiểu để bắt đầu một tính năng AI (`ai_settings.min_balance_to_start`). */
+export const CREDIT_MIN_TO_START = 5;
+/** Giá cố định một phiên gia sư (`app.credit.tutor-session-cost`). */
+export const TUTOR_SESSION_COST = 3;

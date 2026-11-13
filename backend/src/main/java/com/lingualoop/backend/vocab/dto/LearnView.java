@@ -26,12 +26,11 @@ public final class LearnView {
             UUID id,
             String word,
             String pos,
-            String translationVi,
-            String explanationEn,
-            String explanationVi,
+            String meaningVi,
+            String definitionEn,
+            String definitionVi,
             String exampleEn,
             String exampleVi,
-            String imageUrl,
             String ipaUk,
             String ipaUs,
             String audioUk,
@@ -44,11 +43,11 @@ public final class LearnView {
     }
 
     /** Bài học mà từ được lưu, để mặt sau thẻ dẫn về bài (BR-HT-03). */
-    public record LessonRef(String slug, String title) {
+    public record LessonRef(UUID id, String title) {
     }
 
     /** Bộ chứa phần, để hiện tiêu đề và nút quay lại. */
-    public record DeckRef(String slug, String name, String nameVi, boolean pro) {
+    public record DeckRef(UUID id, String name, boolean pro) {
     }
 
     /**
@@ -59,7 +58,6 @@ public final class LearnView {
             DeckRef deck,
             int index,
             String name,
-            String nameVi,
             List<DeckView.Part> parts,
             List<Card> cards) {
     }

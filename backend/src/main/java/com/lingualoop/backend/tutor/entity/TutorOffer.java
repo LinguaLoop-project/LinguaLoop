@@ -7,8 +7,6 @@ import com.lingualoop.backend.tutor.TutorOfferPolicy;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,8 +23,8 @@ import lombok.NoArgsConstructor;
 public class TutorOffer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "user_id", nullable = false, updatable = false)
     private UUID userId;
@@ -37,12 +35,8 @@ public class TutorOffer {
     @Column(name = "attempt_id", nullable = false, updatable = false)
     private Long attemptId;
 
-    /** {@code LOW_WORD_SCORE} hoặc {@code REPEATED_PHONEME_ERROR} (đúng giá trị CHECK của DB). */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "reason", nullable = false, updatable = false)
-    private TutorOfferPolicy.Reason reason;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
+    /** Cột có mặc định {@code now()} ở DB nên không ghi từ ứng dụng. */
+    @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
 
     @Column(name = "accepted_at")
@@ -51,13 +45,11 @@ public class TutorOffer {
     @Column(name = "declined_at")
     private Instant declinedAt;
 
-    public static TutorOffer of(UUID userId, UUID lessonId, long attemptId, TutorOfferPolicy.Reason reason, Instant now) {
+    public static TutorOffer of(UUID userId, UUID lessonId, long attemptId) {
         TutorOffer offer = new TutorOffer();
         offer.userId = userId;
         offer.lessonId = lessonId;
         offer.attemptId = attemptId;
-        offer.reason = reason;
-        offer.createdAt = now;
         return offer;
     }
 

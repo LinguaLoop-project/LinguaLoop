@@ -28,8 +28,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.dictation.DictationTestData;
-import com.lingualoop.backend.lesson.enums.PracticeMode;
-import com.lingualoop.backend.lesson.service.LessonProgressService;
 import com.lingualoop.backend.practice.dto.request.AttemptWordRequest;
 import com.lingualoop.backend.practice.dto.request.DictationAttemptRequest;
 import com.lingualoop.backend.practice.enums.AttemptOutcome;
@@ -46,7 +44,6 @@ class DictationAttemptForwardingTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private DictationTestData data;
     @MockitoBean private PracticeAttemptService practiceAttempts;
-    @MockitoBean private LessonProgressService lessonProgress;
 
     private UUID lesson;
 
@@ -63,7 +60,7 @@ class DictationAttemptForwardingTest {
     private ResultActions submit(UUID sentence, String json) throws Exception {
         return mockMvc.perform(post("/api/v1/dictation/sentences/" + sentence + "/attempts")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + data.tokenFor(data.newUser()))
-                .contentType(MediaType.APPLICATION_JSON).content(json));
+                .contentType(MediaType.APPLICATION_JSON).content(DictationTestData.withRequestId(json)));
     }
 
     private DictationAttemptRequest forwarded() {
@@ -98,7 +95,6 @@ class DictationAttemptForwardingTest {
                 AttemptOutcome.correct, AttemptOutcome.correct, AttemptOutcome.correct, AttemptOutcome.correct,
                 AttemptOutcome.omitted, AttemptOutcome.omitted);
         assertThat(request.words().get(0).expectedWordClass()).isEqualTo(AttemptWordClass.function);
-        verify(lessonProgress).recordActivity(eq(request.userId()), eq(lesson), eq(PracticeMode.dictation), eq(4));
     }
 
     @Test
@@ -130,14 +126,5 @@ class DictationAttemptForwardingTest {
         assertThat(inserted).extracting(AttemptWordRequest::expectedWord).containsOnlyNulls();
         assertThat(inserted).extracting(AttemptWordRequest::expectedWordClass).containsOnlyNulls();
         assertThat(inserted).extracting(AttemptWordRequest::actualWord).containsExactly("x", "y", "z");
-    }
-
-    @Test
-    void submit_withoutDuration_recordsZeroSeconds() throws Exception {
-        UUID sentence = sentence("Hello there");
-
-        submit(sentence, "{\"level\":\"hard\",\"typedText\":\"hello there\"}").andExpect(status().isOk());
-
-        verify(lessonProgress).recordActivity(any(), eq(lesson), eq(PracticeMode.dictation), eq(0));
     }
 }

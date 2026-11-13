@@ -82,14 +82,14 @@ function recommendedMode(d: number, s: number): PracticeMode | null {
 }
 
 export const LessonDetailPage = () => {
-  const { slug = "" } = useParams<{ slug: string }>();
+  const { id = "" } = useParams<{ id: string }>();
   const { t, i18n } = useTranslation("pages");
 
-  const lessonQuery = useLessonDetail(slug);
+  const lessonQuery = useLessonDetail(id);
   const lesson = lessonQuery.data;
 
   // Bài Pro bị khoá thì không gọi /sentences (sẽ trả 403 LESSON_PRO_REQUIRED).
-  const sentencesQuery = useLessonSentences(lesson && !lesson.locked ? lesson.slug : undefined);
+  const sentencesQuery = useLessonSentences(lesson && !lesson.locked ? lesson.id : undefined);
 
   if (lessonQuery.isLoading) return <DetailSkeleton />;
 
@@ -108,7 +108,7 @@ export const LessonDetailPage = () => {
     );
   }
 
-  const topicSlug = lesson.topic?.slug ?? "";
+  const topicSlug = lesson.topic?.id ?? "";
   const isEn = i18n.language === "en";
   const topicName = localizedName(isEn, lesson.topic, isEn ? "Topic" : "Chủ đề");
   const { dictationPercent: d, shadowingPercent: s } = lesson.progress;
@@ -129,8 +129,8 @@ export const LessonDetailPage = () => {
           <LessonHead lesson={lesson} />
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <PracticeModeCard mode="dictation" slug={lesson.slug} sentenceCount={lesson.sentenceCount} percent={d} recommended={rec === "dictation"} locked={lesson.locked} />
-            <PracticeModeCard mode="shadowing" slug={lesson.slug} sentenceCount={lesson.sentenceCount} percent={s} recommended={rec === "shadowing"} locked={lesson.locked} />
+            <PracticeModeCard mode="dictation" slug={lesson.id} sentenceCount={lesson.sentenceCount} percent={d} recommended={rec === "dictation"} locked={lesson.locked} />
+            <PracticeModeCard mode="shadowing" slug={lesson.id} sentenceCount={lesson.sentenceCount} percent={s} recommended={rec === "shadowing"} locked={lesson.locked} />
           </div>
 
           <TranscriptList
@@ -147,7 +147,7 @@ export const LessonDetailPage = () => {
         <aside className="flex min-w-0 flex-col gap-6">
           <ProgressCard progress={lesson.progress} />
           <VocabCard />
-          <NotesCard slug={lesson.slug} locked={lesson.locked} />
+          <NotesCard slug={lesson.id} locked={lesson.locked} />
           <RelatedLessons lessons={lesson.relatedLessons ?? []} topicSlug={topicSlug} />
         </aside>
       </div>

@@ -12,12 +12,11 @@ const pron = (ipaUs: string | null, ipaUk: string | null = null): Pronunciation 
 const group = (pos: string, pronunciation: Pronunciation): MeaningGroup => ({
   pos,
   pronunciation,
-  meanings: [{ no: 1, translationVi: "nghĩa", exampleEn: null, exampleVi: null }],
+  meanings: [{ no: 1, translationVi: "nghĩa", definitionEn: null, definitionVi: null, exampleEn: null, exampleVi: null }],
 });
 
 const view = (over: Partial<WordView>): WordView => ({
   headword: "word",
-  cefrLevel: null,
   pronunciation: pron("/w/"),
   groups: [],
   lemma: null,

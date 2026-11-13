@@ -37,13 +37,13 @@ public class LessonController {
     public ApiResponse<PageResponse<LessonSummaryResponse>> searchLessons(
             @CurrentUserId UUID userId,
             @RequestParam(required = false) String q,
-            @RequestParam(required = false) String topic,
-            @RequestParam(required = false) String difficulty,
+            @RequestParam(required = false) UUID topicId,
+            @RequestParam(required = false) String cefrLevel,
             @RequestParam(required = false) Boolean free,
             @RequestParam(required = false) String state,
             Pageable pageable) {
         return ApiResponse.ok(PageResponse.from(lessonQueryService.searchLessons(
-                q, topic, difficulty, free, LessonState.parse(state), userId, pageable)));
+                q, topicId, cefrLevel, free, LessonState.parse(state), userId, pageable)));
     }
 
     @GetMapping("/overview")
@@ -51,13 +51,13 @@ public class LessonController {
         return ApiResponse.ok(lessonQueryService.getOverview(userId));
     }
 
-    @GetMapping("/{slug}")
-    public ApiResponse<LessonDetailResponse> getLessonDetail(@CurrentUserId UUID userId, @PathVariable String slug) {
-        return ApiResponse.ok(lessonQueryService.getLessonDetail(slug, userId));
+    @GetMapping("/{id}")
+    public ApiResponse<LessonDetailResponse> getLessonDetail(@CurrentUserId UUID userId, @PathVariable UUID id) {
+        return ApiResponse.ok(lessonQueryService.getLessonDetail(id, userId));
     }
 
-    @GetMapping("/{slug}/sentences")
-    public ApiResponse<List<SentenceResponse>> getSentences(@CurrentUserId UUID userId, @PathVariable String slug) {
-        return ApiResponse.ok(lessonQueryService.getSentences(slug, userId));
+    @GetMapping("/{id}/sentences")
+    public ApiResponse<List<SentenceResponse>> getSentences(@CurrentUserId UUID userId, @PathVariable UUID id) {
+        return ApiResponse.ok(lessonQueryService.getSentences(id, userId));
     }
 }

@@ -47,6 +47,11 @@ final class Sm2 {
      * Quy đổi kết quả làm bài ở Đoán, Trắc nghiệm và Trắc nghiệm đảo sang mức chất lượng q (BR-HT-12): đúng ngay là Được
      * (4), đúng nhưng có dùng gợi ý là Khó (3), sai hoặc Không biết là Quên (1). Flashcard do học viên tự chọn q.
      */
+    /** Mức q hợp lệ của Flashcard: 1 Quên, 3 Khó, 4 Được, 5 Dễ (CHECK của {@code vocab_review_logs.quality}). */
+    static boolean isQuality(int quality) {
+        return quality == 1 || quality == 3 || quality == 4 || quality == 5;
+    }
+
     static int qualityOf(boolean correct, boolean hintUsed) {
         if (!correct) {
             return 1;

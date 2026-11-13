@@ -27,17 +27,17 @@ public class VocabLearnController {
     private final VocabLearnService learnService;
 
     /** Các thẻ của phần kèm tiến độ; 403 nếu phần bị khoá với gói Free. */
-    @GetMapping("/decks/{slug}/parts/{part}")
-    public ApiResponse<LearnView.PartDetail> part(@CurrentUserId UUID userId, @PathVariable String slug,
+    @GetMapping("/decks/{deckId}/parts/{part}")
+    public ApiResponse<LearnView.PartDetail> part(@CurrentUserId UUID userId, @PathVariable UUID deckId,
             @PathVariable int part) {
-        return ApiResponse.ok(learnService.part(userId, slug, part));
+        return ApiResponse.ok(learnService.part(userId, deckId, part));
     }
 
     /** Mở phiên học mới cho phần này. */
-    @PostMapping("/decks/{slug}/parts/{part}/sessions")
-    public ApiResponse<LearnView.SessionRef> openSession(@CurrentUserId UUID userId, @PathVariable String slug,
+    @PostMapping("/decks/{deckId}/parts/{part}/sessions")
+    public ApiResponse<LearnView.SessionRef> openSession(@CurrentUserId UUID userId, @PathVariable UUID deckId,
             @PathVariable int part) {
-        return ApiResponse.ok(learnService.openSession(userId, slug, part));
+        return ApiResponse.ok(learnService.openSession(userId, deckId, part));
     }
 
     /** Ghi một câu trả lời trong phiên; gửi lại cùng {@code answerId} thì không ghi lại. */

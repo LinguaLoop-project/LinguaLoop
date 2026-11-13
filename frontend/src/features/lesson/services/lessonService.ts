@@ -21,8 +21,8 @@ export const lessonService = {
 
   searchLessons: async (params: {
     q?: string;
-    topic?: string;
-    difficulty?: string;
+    topicId?: string;
+    cefrLevel?: string;
     free?: boolean;
     state?: LessonState;
     page?: number;
@@ -35,16 +35,16 @@ export const lessonService = {
     return response.data.data;
   },
 
-  getLessonDetail: async (slug: string): Promise<LessonDetail> => {
+  getLessonDetail: async (id: string): Promise<LessonDetail> => {
     const response = await axiosClient.get<ApiResponse<LessonDetail>>(
-      `/lessons/${slug}`
+      `/lessons/${id}`
     );
     return response.data.data;
   },
 
-  getSentences: async (slug: string): Promise<SentenceResponse[]> => {
+  getSentences: async (id: string): Promise<SentenceResponse[]> => {
     const response = await axiosClient.get<ApiResponse<SentenceResponse[]>>(
-      `/lessons/${slug}/sentences`
+      `/lessons/${id}/sentences`
     );
     return response.data.data;
   },
@@ -56,9 +56,9 @@ export const lessonService = {
     return response.data.data;
   },
 
-  getTopic: async (slug: string): Promise<TopicRow> => {
+  getTopic: async (id: string): Promise<TopicRow> => {
     const response = await axiosClient.get<ApiResponse<TopicRow>>(
-      `/topics/${slug}`
+      `/topics/${id}`
     );
     return response.data.data;
   },

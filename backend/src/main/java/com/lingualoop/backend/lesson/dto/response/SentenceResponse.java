@@ -4,13 +4,12 @@ import java.util.UUID;
 
 public record SentenceResponse(
     UUID id,
-    String text,
+    String textEn,
     String textVi,
     String ipaUs,
     String ipaUk,
     Integer startMs,
     Integer endMs,
-    String cefrLevel,
     BestScores myBestScore
 ) {
 

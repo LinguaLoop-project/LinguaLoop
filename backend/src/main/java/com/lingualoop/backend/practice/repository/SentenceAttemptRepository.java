@@ -17,10 +17,10 @@ public interface SentenceAttemptRepository extends JpaRepository<SentenceAttempt
     /** Lượt nghe chép mới nhất của mỗi câu trong bài, theo thứ tự câu. */
     @Query(value = """
             SELECT t.* FROM (
-                SELECT DISTINCT ON (a.sentence_id) a.*, s.sort_order AS sentence_order
+                SELECT DISTINCT ON (a.sentence_id) a.*, s.start_ms AS sentence_order
                 FROM sentence_attempts a JOIN sentences s ON s.id = a.sentence_id
                 WHERE a.user_id = :userId AND s.lesson_id = :lessonId AND a.mode = 'dictation'
-                ORDER BY a.sentence_id, a.attempted_at DESC, a.id DESC) t
+                ORDER BY a.sentence_id, a.created_at DESC, a.id DESC) t
             ORDER BY t.sentence_order""", nativeQuery = true)
     List<SentenceAttempt> findLatestDictationPerSentence(@Param("userId") UUID userId,
             @Param("lessonId") UUID lessonId);
@@ -29,15 +29,22 @@ public interface SentenceAttemptRepository extends JpaRepository<SentenceAttempt
     @Query(value = """
             SELECT * FROM sentence_attempts
             WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = 'dictation'
-            ORDER BY attempted_at DESC, id DESC LIMIT 1""", nativeQuery = true)
+            ORDER BY created_at DESC, id DESC LIMIT 1""", nativeQuery = true)
     Optional<SentenceAttempt> findLatestDictationOfSentence(@Param("userId") UUID userId,
             @Param("sentenceId") UUID sentenceId);
+
+    /** Lượt đã lưu cho một {@code clientRequestId} của người dùng (BR-DI-21), nếu có. */
+    @Query(value = """
+            SELECT id FROM sentence_attempts WHERE user_id = :userId AND client_request_id = :clientRequestId""",
+            nativeQuery = true)
+    Optional<Long> findIdByClientRequestId(@Param("userId") UUID userId,
+            @Param("clientRequestId") UUID clientRequestId);
 
     /** Mọi lượt nghe chép của một câu, mới nhất trước. */
     @Query(value = """
             SELECT * FROM sentence_attempts
             WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = 'dictation'
-            ORDER BY attempted_at DESC, id DESC""", nativeQuery = true)
+            ORDER BY created_at DESC, id DESC""", nativeQuery = true)
     List<SentenceAttempt> findDictationOfSentence(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId);
 
     /** Một lượt nghe chép cụ thể, chỉ khi thuộc đúng người dùng và đúng câu. */
@@ -66,7 +73,7 @@ public interface SentenceAttemptRepository extends JpaRepository<SentenceAttempt
     @Query(value = """
             SELECT * FROM sentence_attempts
             WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = 'dictation' AND level = 'easy'
-            ORDER BY attempted_at DESC, id DESC LIMIT :limit""", nativeQuery = true)
+            ORDER BY created_at DESC, id DESC LIMIT :limit""", nativeQuery = true)
     List<SentenceAttempt> findRecentEasyAttempts(@Param("userId") UUID userId,
             @Param("sentenceId") UUID sentenceId, @Param("limit") int limit);
 }

@@ -39,16 +39,16 @@ class VocabDeckServiceImpl implements VocabDeckService {
     }
 
     @Override
-    public DeckView.Detail detail(UUID userId, String slug) {
+    public DeckView.Detail detail(UUID userId, UUID deckId) {
         boolean userPro = subscriptions.isPro(userId);
-        DeckRow row = decks.findDecks(userId, slug, userPro).stream().findFirst()
+        DeckRow row = decks.findDecks(userId, deckId, userPro).stream().findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));
         List<DeckView.Part> parts = decks.findParts(userId, row.getId()).stream()
-                .map(p -> new DeckView.Part(p.getIdx(), p.getName(), p.getNameVi(), (int) p.getCardCount(),
+                .map(p -> new DeckView.Part(p.getIdx(), p.getName(), (int) p.getCardCount(),
                         (int) p.getStudiedCount(), isLocked(row.getPro(), userPro)))
                 .toList();
         List<DeckView.SampleWord> sample = decks.findSampleCards(row.getId(), SAMPLE_WORDS).stream()
-                .map(s -> new DeckView.SampleWord(s.getWord(), s.getPos(), s.getTranslationVi(), s.getIpaUk(),
+                .map(s -> new DeckView.SampleWord(s.getWord(), s.getPos(), s.getMeaningVi(), s.getIpaUk(),
                         s.getIpaUs(), audio.resolve(s.getAudioUs())))
                 .toList();
         return new DeckView.Detail(toSummary(row), parts, sample);
@@ -63,8 +63,7 @@ class VocabDeckServiceImpl implements VocabDeckService {
     }
 
     private static DeckView.Category toCategory(DeckRow row) {
-        return row.getCategorySlug() == null ? null
-                : new DeckView.Category(row.getCategorySlug(), row.getCategoryName(), row.getCategoryNameVi());
+        return row.getCategoryId() == null ? null : new DeckView.Category(row.getCategoryId(), row.getCategoryName());
     }
 
     private static DeckView.Summary toSummary(DeckRow row) {
@@ -72,8 +71,7 @@ class VocabDeckServiceImpl implements VocabDeckService {
         int mastered = (int) row.getMastered();
         int reviewing = (int) row.getReviewing();
         int learning = (int) row.getLearning();
-        return new DeckView.Summary(row.getId(), row.getSlug(), row.getName(), row.getNameVi(), row.getCefrLevel(),
-                row.getPro(), row.getThumbnailUrl(), toCategory(row), cards, (int) row.getGroupCount(),
+        return new DeckView.Summary(row.getId(), row.getName(), row.getPro(), row.getThumbnailUrl(), toCategory(row), cards, (int) row.getGroupCount(),
                 new DeckView.Progress(mastered, reviewing, learning, cards - mastered - reviewing - learning),
                 (int) row.getDue());
     }

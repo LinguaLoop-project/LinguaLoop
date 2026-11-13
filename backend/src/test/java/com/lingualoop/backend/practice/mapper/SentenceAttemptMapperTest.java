@@ -29,26 +29,27 @@ class SentenceAttemptMapperTest {
     void toEntity_mapsEveryFieldAndWordsAndLeavesDatabaseManagedFieldsEmpty() {
         UUID user = UUID.randomUUID();
         UUID sentence = UUID.randomUUID();
+        UUID requestId = UUID.randomUUID();
         DictationAttemptRequest request = new DictationAttemptRequest(user, sentence, DictationLevel.easy,
                 new BigDecimal("0.75"), 2, 4200, true, false, "typed", new BigDecimal("66.67"),
                 List.of(new AttemptWordRequest(0, "the", "the", AttemptOutcome.correct, AttemptWordClass.function),
-                        new AttemptWordRequest(3, null, "very", AttemptOutcome.inserted, null)));
+                        new AttemptWordRequest(3, null, "very", AttemptOutcome.inserted, null)),
+                requestId);
 
         SentenceAttempt attempt = mapper.toEntity(request);
 
         assertThat(attempt.getId()).isNull();
-        assertThat(attempt.getAttemptedAt()).isNull();
+        assertThat(attempt.getCreatedAt()).isNull();
         assertThat(attempt.getMode()).isEqualTo(PracticeMode.dictation);
         assertThat(attempt.getUserId()).isEqualTo(user);
         assertThat(attempt.getSentenceId()).isEqualTo(sentence);
         assertThat(attempt.getLevel()).isEqualTo(DictationLevel.easy);
-        assertThat(attempt.getPlaybackRate()).isEqualByComparingTo("0.75");
-        assertThat(attempt.getReplayCount()).isEqualTo(2);
-        assertThat(attempt.getDurationMs()).isEqualTo(4200);
+        assertThat(attempt.getListenCount()).isEqualTo(2);
+        assertThat(attempt.getClientRequestId()).isEqualTo(requestId);
         assertThat(attempt.isRetry()).isTrue();
         assertThat(attempt.isGaveUp()).isFalse();
         assertThat(attempt.getSubmittedText()).isEqualTo("typed");
-        assertThat(attempt.getScore()).isEqualByComparingTo("66.67");
+        assertThat(attempt.getTotalScore()).isEqualByComparingTo("66.67");
         assertThat(attempt.getWords()).hasSize(2);
         SentenceAttemptWord first = attempt.getWords().get(0);
         assertThat(first.getId()).isNull();
@@ -56,10 +57,10 @@ class SentenceAttemptMapperTest {
         assertThat(first.getExpectedWord()).isEqualTo("the");
         assertThat(first.getActualWord()).isEqualTo("the");
         assertThat(first.getOutcome()).isEqualTo(AttemptOutcome.correct);
-        assertThat(first.getExpectedWordClass()).isEqualTo(AttemptWordClass.function);
+        assertThat(first.getWordClass()).isEqualTo(AttemptWordClass.function);
         SentenceAttemptWord inserted = attempt.getWords().get(1);
         assertThat(inserted.getExpectedWord()).isNull();
-        assertThat(inserted.getExpectedWordClass()).isNull();
+        assertThat(inserted.getWordClass()).isNull();
     }
 
     @Test
@@ -79,10 +80,10 @@ class SentenceAttemptMapperTest {
         Instant at = Instant.now();
         SentenceAttempt attempt = new SentenceAttempt();
         ReflectionTestUtils.setField(attempt, "id", 42L);
-        ReflectionTestUtils.setField(attempt, "attemptedAt", at);
+        ReflectionTestUtils.setField(attempt, "createdAt", at);
         attempt.setSentenceId(sentence);
         attempt.setLevel(DictationLevel.hard);
-        attempt.setScore(new BigDecimal("90.00"));
+        attempt.setTotalScore(new BigDecimal("90.00"));
         attempt.setRetry(true);
         attempt.setGaveUp(true);
 

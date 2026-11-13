@@ -2,7 +2,7 @@ package com.lingualoop.backend.user.dto.response;
 
 import java.util.UUID;
 
-/** Hồ sơ của người đang đăng nhập; {@code role} là giá trị DB ({@code student|instructor|admin}). */
+/** Hồ sơ của người đang đăng nhập; {@code role} là giá trị DB ({@code student|teacher|admin}). */
 public record MeResponse(
         UUID id,
         String email,

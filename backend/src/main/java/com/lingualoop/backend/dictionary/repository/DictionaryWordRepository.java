@@ -31,7 +31,6 @@ public interface DictionaryWordRepository extends JpaRepository<DictionaryWord, 
                      (w.headword LIKE :prefix) DESC,
                      (w.lemma_id IS NOT NULL AND jsonb_array_length(w.meanings) = 0) ASC,
                      CASE WHEN w.headword LIKE :prefix THEN 0 ELSE 1 - similarity(w.headword, :q) END ASC,
-                     w.cefr_level ASC NULLS LAST,
                      length(w.headword) ASC,
                      w.headword ASC
             LIMIT :limit

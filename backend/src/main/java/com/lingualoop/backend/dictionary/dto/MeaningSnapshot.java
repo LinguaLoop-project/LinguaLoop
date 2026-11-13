@@ -9,10 +9,11 @@ import java.util.UUID;
 public record MeaningSnapshot(
         UUID wordId,
         String headword,
-        String cefrLevel,
         String pos,
         int meaningNo,
-        String translationVi,
+        String meaningVi,
+        String definitionEn,
+        String definitionVi,
         String exampleEn,
         String exampleVi,
         String ipaUk,

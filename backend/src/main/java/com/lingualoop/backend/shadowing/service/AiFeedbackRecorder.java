@@ -21,7 +21,6 @@ class AiFeedbackRecorder {
 
     @Transactional
     public AiFeedback save(long attemptId, GeneratedFeedback feedback) {
-        return repository.saveAndFlush(AiFeedback.of(attemptId, feedback.content(), feedback.model(),
-                feedback.promptVersion(), feedback.inputTokens(), feedback.outputTokens()));
+        return repository.saveAndFlush(AiFeedback.of(attemptId, feedback.content()));
     }
 }

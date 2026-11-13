@@ -29,16 +29,16 @@ import {
 const GRID = "grid gap-4 sm:grid-cols-2 xl:grid-cols-3";
 const STATES: DeckStateFilter[] = ["all", "learning", "new"];
 
-const categoryName = (category: DeckCategory, vi: boolean) => (vi ? category.nameVi : null) ?? category.name;
+const categoryName = (category: DeckCategory) => category.name;
 
 /** Các bộ gom theo danh mục, mỗi danh mục một tiêu đề nhỏ. */
-function CategoryGroups({ decks, vi }: { decks: DeckSummary[]; vi: boolean }) {
+function CategoryGroups({ decks }: { decks: DeckSummary[] }) {
   const { t } = useTranslation("vocab");
   return (
     <div className="flex flex-col gap-6">
       {groupByCategory(decks).map(({ category, decks: inCategory }) => (
-        <div key={category?.slug ?? "other"}>
-          <h3 className="mb-3 text-base font-bold text-text-muted">{category ? categoryName(category, vi) : t("category.other")}</h3>
+        <div key={category?.id ?? "other"}>
+          <h3 className="mb-3 text-base font-bold text-text-muted">{category ? categoryName(category) : t("category.other")}</h3>
           <div className={GRID}>
             {inCategory.map((deck) => (
               <DeckCard key={deck.id} deck={deck} />
@@ -55,17 +55,15 @@ function Filters({
   decks,
   filter,
   onChange,
-  vi,
 }: {
   decks: DeckSummary[];
   filter: DeckFilter;
   onChange: (filter: DeckFilter) => void;
-  vi: boolean;
 }) {
   const { t } = useTranslation("vocab");
   const categories = groupByCategory(decks).flatMap((group) => (group.category ? [{ ...group.category, count: group.decks.length }] : []));
   const hasOther = decks.some((deck) => !deck.category);
-  const levels = [...new Set(decks.flatMap((deck) => (deck.cefrLevel ? [deck.cefrLevel] : [])))].sort();
+  const levels: string[] = []; // bộ từ không còn mức CEFR (ADR 0011)
   const patch = (change: Partial<DeckFilter>) => onChange({ ...filter, ...change });
 
   return (
@@ -99,12 +97,12 @@ function Filters({
           </Chip>
           {categories.map((category) => (
             <Chip
-              key={category.slug}
-              active={filter.category === category.slug}
-              onClick={() => patch({ category: category.slug })}
+              key={category.id}
+              active={filter.category === category.id}
+              onClick={() => patch({ category: category.id })}
               count={category.count}
             >
-              {categoryName(category, vi)}
+              {categoryName(category)}
             </Chip>
           ))}
           {hasOther && (
@@ -124,13 +122,12 @@ function Filters({
 
 /** Trang `/student/vocab` (UC-HT-01): tổng quan thẻ, tìm và lọc bộ, các bộ đang học và khám phá bộ hệ thống. */
 export default function VocabPage() {
-  const { t, i18n } = useTranslation("vocab");
+  const { t } = useTranslation("vocab");
   const query = useDecks();
   const [params, setParams] = useSearchParams();
   const tab = params.get("tab") === "review" ? "review" : "decks";
   const reviewDeck = params.get("deck") ?? undefined;
   const [filter, setFilter] = useState<DeckFilter>(EMPTY_DECK_FILTER);
-  const vi = i18n.language.startsWith("vi");
 
   const decks = useMemo(() => query.data?.decks ?? [], [query.data]);
   const filtered = useMemo(() => filterDecks(decks, filter), [decks, filter]);
@@ -174,7 +171,7 @@ export default function VocabPage() {
           <EmptyState title={t("empty.title")} description={t("empty.desc")} />
         ) : (
           <>
-            <Filters decks={decks} filter={filter} onChange={setFilter} vi={vi} />
+            <Filters decks={decks} filter={filter} onChange={setFilter} />
 
             {active ? (
               <section aria-labelledby="vocab-results" aria-live="polite">
@@ -195,7 +192,7 @@ export default function VocabPage() {
                     onAction={() => setFilter(EMPTY_DECK_FILTER)}
                   />
                 ) : (
-                  <CategoryGroups decks={filtered} vi={vi} />
+                  <CategoryGroups decks={filtered} />
                 )}
               </section>
             ) : (
@@ -224,7 +221,7 @@ export default function VocabPage() {
                     <Icon name="layers" className="h-5 w-5 text-fn-vocab" />
                     {t("explore.title")}
                   </h2>
-                  <CategoryGroups decks={decks} vi={vi} />
+                  <CategoryGroups decks={decks} />
                 </section>
               </>
             )}

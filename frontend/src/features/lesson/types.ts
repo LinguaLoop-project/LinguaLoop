@@ -19,28 +19,20 @@ export interface ApiResponse<T> {
 export interface ModeProgress {
   dictationPercent: number;
   shadowingPercent: number;
-  /** Tổng thời gian học bài này (giây), cả hai chế độ. */
-  studyTimeSec: number;
 }
 
 export interface TopicResponse {
   id: string;
-  slug: string;
   name: string;
-  nameVi: string | null;
-  icon: string | null;
-  sortOrder: number;
   totalLessons: number;
   completedLessons: number;
 }
 
 export interface LessonSummary {
   id: string;
-  slug: string;
   title: string;
-  titleVi: string | null;
-  difficulty: string | null;
-  sourceType: string | null;
+  cefrLevel: string;
+  youtubeId: string;
   durationSec: number | null;
   viewCount: number;
   thumbnailUrl: string | null;
@@ -64,7 +56,7 @@ export interface LibraryOverview {
 
 export interface SentenceResponse {
   id: string;
-  text: string;
+  textEn: string;
   textVi: string | null;
   /** Phiên âm Mỹ: là âm đích khi chấm (ADR 0007). */
   ipaUs: string | null;
@@ -72,7 +64,6 @@ export interface SentenceResponse {
   ipaUk: string | null;
   startMs: number;
   endMs: number;
-  cefrLevel: string | null;
   myBestScore: SentenceBestScores;
 }
 
@@ -84,13 +75,9 @@ export interface SentenceBestScores {
 
 export interface LessonDetail {
   id: string;
-  slug: string;
   title: string;
-  titleVi: string | null;
-  description: string | null;
-  difficulty: string | null;
-  sourceType: string | null;
-  sourceUrl: string | null;
+  cefrLevel: string;
+  youtubeId: string;
   durationSec: number | null;
   viewCount: number;
   thumbnailUrl: string | null;

@@ -18,7 +18,7 @@ export interface ReviewSentence {
   mode: PracticeMode;
   reason: ReviewReason;
   addedAt: string;
-  lessonSlug: string;
+  lessonId: string;
   lessonTitle: string;
   sortOrder: number;
   text: string;
@@ -43,7 +43,7 @@ export interface NoteEntry {
   mode: PracticeMode;
   content: string;
   updatedAt: string;
-  lessonSlug: string;
+  lessonId: string;
   lessonTitle: string;
   sortOrder: number;
   text: string;

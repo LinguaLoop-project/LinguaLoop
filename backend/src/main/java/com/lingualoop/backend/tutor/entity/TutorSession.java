@@ -56,12 +56,6 @@ public class TutorSession {
     @Column(name = "attempt_id", nullable = false, updatable = false)
     private Long attemptId;
 
-    @Column(name = "offer_id", updatable = false)
-    private UUID offerId;
-
-    @Column(name = "live_model", updatable = false)
-    private String liveModel;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -75,8 +69,9 @@ public class TutorSession {
     @Column(name = "outcome")
     private SessionOutcome outcome;
 
-    @Column(name = "current_word_key")
-    private String currentWordKey;
+    /** Vị trí (trong danh sách từ của phiên) của từ đang luyện. */
+    @Column(name = "current_position", nullable = false)
+    private Short currentPosition = 0;
 
     @Column(name = "off_topic_streak", nullable = false)
     private Short offTopicStreak = 0;
@@ -84,26 +79,20 @@ public class TutorSession {
     @Column(name = "sentence_tries", nullable = false)
     private Short sentenceTries = 0;
 
-    @Column(name = "charged", nullable = false)
-    private boolean charged;
-
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("position")
     private List<TutorSessionWord> words = new ArrayList<>();
 
     /** @param seeds Danh sách từ lỗi theo thứ tự; từ đầu tiên là Từ đang luyện. Có thể rỗng. */
-    public static TutorSession open(UUID userId, long attemptId, UUID offerId, String liveModel, Instant now,
-            List<WordSeed> seeds) {
+    public static TutorSession open(UUID userId, long attemptId, Instant now, List<WordSeed> seeds) {
         TutorSession session = new TutorSession();
         session.userId = userId;
         session.attemptId = attemptId;
-        session.offerId = offerId;
-        session.liveModel = liveModel;
         session.createdAt = now;
         for (WordSeed seed : seeds) {
             session.addWordIfAbsent(seed);
         }
-        session.currentWordKey = session.words.isEmpty() ? null : session.words.get(0).getWordKey();
+        session.currentPosition = 0;
         return session;
     }
 
@@ -135,12 +124,9 @@ public class TutorSession {
         return true;
     }
 
-    /** Ghi nhận đã trừ lượt hạn mức; chỉ hợp lệ sau khi đã bắt đầu. */
-    public void markCharged() {
-        if (startedAt == null) {
-            throw new IllegalStateException("Phiên chưa bắt đầu nên chưa thể trừ lượt.");
-        }
-        charged = true;
+    /** Credit được trừ khi bắt đầu phiên, nên phiên đã started tức là đã trừ. */
+    public boolean charged() {
+        return startedAt != null;
     }
 
     public boolean open() {
@@ -162,7 +148,7 @@ public class TutorSession {
     // --- từ luyện ---
 
     public Optional<TutorSessionWord> currentWord() {
-        return currentWordKey == null ? Optional.empty() : wordOf(currentWordKey);
+        return words.stream().filter(w -> w.getPosition().equals(currentPosition)).findFirst();
     }
 
     public Optional<TutorSessionWord> wordOf(String key) {
@@ -180,7 +166,7 @@ public class TutorSession {
         if (word.getAttempts() >= TutorThresholds.MAX_ATTEMPTS_PER_WORD || word.getStatus() != WordStatus.PENDING) {
             word.restart();
         }
-        currentWordKey = word.getWordKey();
+        currentPosition = word.getPosition();
         return word;
     }
 
@@ -248,7 +234,7 @@ public class TutorSession {
         if (existing.isPresent()) {
             return existing.get();
         }
-        TutorSessionWord word = new TutorSessionWord(this, words.size(), seed.word(), seed.key(),
+        TutorSessionWord word = new TutorSessionWord(this, words.size(), seed.word(),
                 seed.focusPhonemeId(), seed.scoreBefore());
         words.add(word);
         return word;

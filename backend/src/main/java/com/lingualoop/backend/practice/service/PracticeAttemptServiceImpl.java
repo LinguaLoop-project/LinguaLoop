@@ -2,11 +2,14 @@ package com.lingualoop.backend.practice.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.practice.dto.request.AttemptWordRequest;
@@ -25,12 +28,32 @@ class PracticeAttemptServiceImpl implements PracticeAttemptService {
 
     private final SentenceAttemptRepository attempts;
     private final SentenceAttemptMapper mapper;
+    private final TransactionTemplate tx;
 
+    /**
+     * Gửi lại cùng {@code clientRequestId} không tạo lượt thứ hai mà trả lượt cũ (BR-DI-21). Không đặt @Transactional ở
+     * đây: khi hai yêu cầu cùng id chạy đồng thời, yêu cầu thua vi phạm {@code uq_sa_request} và phải đọc lại lượt của
+     * yêu cầu thắng trong một giao dịch mới.
+     */
     @Override
-    @Transactional
     public long recordDictationAttempt(DictationAttemptRequest record) {
         record.words().forEach(PracticeAttemptServiceImpl::validate);
-        return attempts.save(mapper.toEntity(record)).getId();
+        UUID requestId = record.clientRequestId();
+        if (requestId != null) {
+            Optional<Long> existing = attempts.findIdByClientRequestId(record.userId(), requestId);
+            if (existing.isPresent()) {
+                return existing.get();
+            }
+        }
+        try {
+            Long id = tx.execute(status -> attempts.save(mapper.toEntity(record)).getId());
+            return Objects.requireNonNull(id);
+        } catch (DataIntegrityViolationException e) {
+            if (requestId == null) {
+                throw e;
+            }
+            return attempts.findIdByClientRequestId(record.userId(), requestId).orElseThrow(() -> e);
+        }
     }
 
     @Override

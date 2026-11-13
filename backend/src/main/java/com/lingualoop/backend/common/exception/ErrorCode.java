@@ -24,7 +24,7 @@ public enum ErrorCode {
     CONFLICT(HttpStatus.CONFLICT, "Dữ liệu bị trùng hoặc xung đột"),
     PAYLOAD_TOO_LARGE(HttpStatus.CONTENT_TOO_LARGE, "Tệp tải lên quá lớn"),
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Định dạng dữ liệu không được hỗ trợ"),
-    QUOTA_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "Bạn đã dùng hết lượt trong ngày"),
+    QUOTA_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "Bạn không đủ credit AI"),
 
     AUTH_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu chưa đúng"),
     AUTH_ACCOUNT_LOCKED(HttpStatus.LOCKED, "Tài khoản tạm thời bị khoá do đăng nhập sai nhiều lần"),
@@ -52,7 +52,6 @@ public enum ErrorCode {
 
     DICTATION_EASY_UNAVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Câu này chưa có ô nào để điền, hãy chọn mức khác"),
     PRACTICE_SENTENCE_NOT_PRACTICED(HttpStatus.UNPROCESSABLE_ENTITY, "Bạn cần làm câu này ít nhất một lần trước"),
-    AI_CONSENT_REQUIRED(HttpStatus.FORBIDDEN, "Bạn cần đồng ý cho phép xử lý giọng nói bằng AI để dùng tính năng này"),
     SHADOWING_AUDIO_INVALID(HttpStatus.BAD_REQUEST, "Bản ghi âm không hợp lệ"),
     SHADOWING_NO_SPEECH(HttpStatus.UNPROCESSABLE_CONTENT, "Không nghe thấy giọng nói trong bản ghi âm"),
     SHADOWING_SCORING_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "Dịch vụ chấm phát âm tạm thời không dùng được"),

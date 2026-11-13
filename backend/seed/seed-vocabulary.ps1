@@ -1,6 +1,6 @@
-﻿# Nạp bộ từ vựng (9 bộ, ~270 phần, ~6.800 thẻ kèm phát âm) vào Postgres.
+﻿# Nạp bộ từ vựng (9 bộ, 267 phần, 6.748 thẻ kèm phát âm) vào Postgres.
 # Mặc định nạp vào container "postgres" của compose.yaml; đặt $env:DATABASE_URL để nạp DB khác.
-# Chạy lại an toàn: các câu lệnh dùng ON CONFLICT DO UPDATE, không đụng tới tiến độ học của người dùng.
+# Chạy lại an toàn: các câu lệnh dùng ON CONFLICT (id) DO NOTHING, không đụng tới tiến độ học của người dùng.
 # Lưu UTF-8 có BOM: Windows PowerShell 5.1 đọc tệp .ps1 không BOM bằng bảng mã ANSI nên chữ có dấu bị vỡ.
 $ErrorActionPreference = "Stop"
 $here = $PSScriptRoot
@@ -14,7 +14,7 @@ function Invoke-Sql([string[]]$psqlArgs) {
     }
 }
 
-foreach ($name in "03_vocabulary.sql.gz") {
+foreach ($name in "vocabulary-decks.sql.gz") {
     Write-Host "Nạp $name ..."
     $tmp = Join-Path ([IO.Path]::GetTempPath()) ([IO.Path]::GetFileNameWithoutExtension($name))
     $in = [IO.File]::OpenRead((Join-Path $here $name))
@@ -44,7 +44,7 @@ foreach ($name in "03_vocabulary.sql.gz") {
 
 # Kiểm tra: dữ liệu có chữ ngoài ASCII (tiếng Việt, IPA) mà vẫn còn nguyên. Nếu mã hoá hỏng giữa đường thì mọi chữ đó
 # thành "?" và seed vẫn "thành công", nên phải tự kiểm tra thay vì tin vào mã thoát.
-$ok = Invoke-Sql @("-At", "-c", "SELECT count(*) FROM vocab_cards c JOIN vocab_card_phonetics p ON p.card_id = c.id WHERE c.translation_vi ~ '[^\x01-\x7f]' AND p.ipa ~ '[^\x01-\x7f]'")
+$ok = Invoke-Sql @("-At", "-c", "SELECT count(*) FROM vocab_cards WHERE meaning_vi ~ '[^\x01-\x7f]' AND ipa_us ~ '[^\x01-\x7f]'")
 if ([int]($ok | Select-Object -First 1) -le 0) {
     throw "Seed đã nạp nhưng mất hết ký tự ngoài ASCII (tiếng Việt, IPA): bị hỏng mã hoá. Kiểm tra lại cách chạy script."
 }

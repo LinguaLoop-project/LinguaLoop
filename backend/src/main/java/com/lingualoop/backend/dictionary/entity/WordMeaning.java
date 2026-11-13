@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record WordMeaning(
         int no,
         String pos,
-        @JsonProperty("translation_vi") String translationVi,
+        @JsonProperty("meaning_vi") String meaningVi,
+        @JsonProperty("definition_en") String definitionEn,
+        @JsonProperty("definition_vi") String definitionVi,
         @JsonProperty("example_en") String exampleEn,
         @JsonProperty("example_vi") String exampleVi) {
 }

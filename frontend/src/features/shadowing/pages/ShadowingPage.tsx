@@ -27,16 +27,16 @@ const PracticeSkeleton = () => (
   </section>
 );
 
-/** Trang luyện shadowing của một bài: `/student/shadowing/:slug`. */
+/** Trang luyện shadowing của một bài: `/student/shadowing/:id`. */
 export default function ShadowingPage() {
-  const { slug = "" } = useParams<{ slug: string }>();
+  const { id: slug = "" } = useParams<{ id: string }>();
   const { t } = useTranslation("pages");
   const setShowUpgradeModal = useQuotaStore((s) => s.setShowUpgradeModal);
 
   const lessonQuery = useLessonDetail(slug);
   const lesson = lessonQuery.data;
   // Bài Pro bị khoá thì không gọi các API còn lại (sẽ trả 403 LESSON_PRO_REQUIRED)
-  const openSlug = lesson && !lesson.locked ? lesson.slug : undefined;
+  const openSlug = lesson && !lesson.locked ? lesson.id : undefined;
   const sentencesQuery = useLessonSentences(openSlug);
   const latestQuery = useLatestAttempts(openSlug);
 
