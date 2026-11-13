@@ -23,8 +23,8 @@
 | [QT-quan-tri-tai-khoan](traceability/QT-quan-tri-tai-khoan.md) | 45 | 0 | 0 | 45 | 0% |
 | [SH-shadowing](traceability/SH-shadowing.md) | 28 | 0 | 0 | 28 | 0% |
 | [TC-tra-cuu-hoc-thu-dong](traceability/TC-tra-cuu-hoc-thu-dong.md) | 33 | 0 | 0 | 33 | 0% |
-| [TH-xem-thong-ke-hoc-tap](traceability/TH-xem-thong-ke-hoc-tap.md) | 20 | 0 | 0 | 20 | 0% |
+| [TH-xem-thong-ke-hoc-tap](traceability/TH-xem-thong-ke-hoc-tap.md) | 22 | 0 | 0 | 22 | 0% |
 | [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 52 | 41 | 3 | 8 | 79% |
 | [TN-xem-thong-ke-noi-dung](traceability/TN-xem-thong-ke-noi-dung.md) | 23 | 0 | 0 | 23 | 0% |
 | [XL-xu-ly-bao-cao](traceability/XL-xu-ly-bao-cao.md) | 62 | 0 | 0 | 62 | 0% |
-| **Tổng** | **704** | **41** | **3** | **660** | **6%** |
+| **Tổng** | **706** | **41** | **3** | **662** | **6%** |
