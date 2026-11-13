@@ -15,7 +15,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AiSettings {
 
-    public static final short ID = 1;
+    /** Khoá chính của dòng cấu hình duy nhất. */
+    public static final short SINGLETON_ID = 1;
 
     @Id
     private Short id;

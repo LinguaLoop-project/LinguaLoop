@@ -6,6 +6,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -106,15 +107,15 @@ class CreditServiceImpl implements CreditService {
     }
 
     private int deduct(UUID userId, AiFeature feature, long inputUnits, long outputUnits, Integer fixedCost) {
-        Integer charged = tx.execute(status -> {
+        // Lambda luôn trả về số (không null) nên execute không trả null
+        return Objects.requireNonNull(tx.execute(status -> {
             AiWallet wallet = refresh(userId).wallet();
             int cost = fixedCost != null ? fixedCost : costOf(feature, inputUnits, outputUnits);
             int paid = wallet.deduct(cost, clock.instant());
             logs.save(AiUsageLog.of(userId, feature.dbValue(), AiUsageLog.SUCCESS, clamp(inputUnits),
                     clamp(outputUnits), paid));
             return paid;
-        });
-        return charged == null ? 0 : charged;
+        }));
     }
 
     /** {@code ceil((in*priceIn + out*priceOut) / 1e6 / creditValueVnd)}, tối thiểu 1 (BR-GA-06). */
@@ -128,7 +129,7 @@ class CreditServiceImpl implements CreditService {
     }
 
     private AiSettings settings() {
-        return settingsRepository.findById(AiSettings.ID).orElseThrow();
+        return settingsRepository.findById(AiSettings.SINGLETON_ID).orElseThrow();
     }
 
     /**
