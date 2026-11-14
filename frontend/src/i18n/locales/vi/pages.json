@@ -591,18 +591,10 @@
       }
     }
   },
-  "instructor": {
+  "teacher": {
     "overview": {
-      "title": "Tổng quan giảng viên",
-      "description": "Bảng điều khiển nhanh các chỉ số lớp học, bài giảng cần duyệt và báo lỗi cần xử lý."
-    },
-    "topics": {
-      "title": "Quản lý chủ đề",
-      "description": "Phân loại hệ thống chủ đề bài học theo các cấp độ chuẩn CEFR từ A1 đến C2."
-    },
-    "topicDetail": {
-      "title": "Chi tiết chủ đề",
-      "description": "Xem và quản lý các bài học, bộ từ vựng nằm trong chủ đề này."
+      "title": "Tổng quan giáo viên",
+      "description": "Tổng quan số liệu nội dung bạn tạo: bài học, bộ thẻ, lượt luyện và báo cáo đang chờ xử lý."
     },
     "lessons": {
       "title": "Quản lý bài học",
@@ -624,57 +616,17 @@
       "title": "Chi tiết bộ từ vựng",
       "description": "Danh sách từ vựng, phiên âm IPA, nghĩa tiếng Việt và câu ví dụ minh họa."
     },
-    "cefr": {
-      "title": "Duyệt CEFR AI",
-      "description": "Hàng đợi duyệt phân loại độ khó từ vựng và câu do thuật toán AI tự động gợi ý."
-    },
-    "dict": {
-      "title": "Từ điển chuyên môn",
-      "description": "Tra cứu và tinh chỉnh các định nghĩa từ vựng, ngữ nghĩa theo ngữ cảnh tiếng Việt."
-    },
-    "phoneme": {
-      "title": "Ngữ âm & Phát âm",
-      "description": "Cơ sở dữ liệu âm vị học, cặp âm tối thiểu (minimal pairs) và bài luyện âm IPA."
-    },
-    "qbank": {
-      "title": "Ngân hàng câu hỏi",
-      "description": "Kho câu hỏi trắc nghiệm, điền từ, nghe chép và kiểm tra phát âm."
-    },
     "reports": {
-      "title": "Báo lỗi của tôi",
-      "description": "Theo dõi và phản hồi các góp ý, báo cáo sai sót nội dung từ người học."
+      "title": "Báo cáo của học viên",
+      "description": "Danh sách báo cáo của học viên về câu và thẻ trong nội dung của bạn, cần xử lý hoặc chuyển cho quản trị viên."
     },
     "reportDetail": {
       "title": "Xử lý báo lỗi",
       "description": "Xem chi tiết nội dung bị báo lỗi và xác nhận cập nhật chỉnh sửa."
     },
-    "audit": {
-      "title": "Lịch sử thay đổi",
-      "description": "Nhật ký các thao tác tạo mới, cập nhật hoặc xoá nội dung trong tài khoản giáo viên."
-    },
-    "classes": {
-      "title": "Quản lý lớp học",
-      "description": "Danh sách các lớp giảng dạy, sĩ số, bài tập phân công và kết quả kiểm tra."
-    },
-    "students": {
-      "title": "Danh sách học viên",
-      "description": "Hồ sơ theo dõi từng học viên, tỷ lệ chuyên cần và mức độ tiến bộ qua thời gian."
-    },
-    "progress": {
-      "title": "Tiến độ lớp",
-      "description": "Biểu đồ thống kê mức độ hoàn thành bài học và phân bố điểm số của học viên."
-    },
-    "weakness": {
-      "title": "Điểm yếu chung",
-      "description": "Tổng hợp các lỗi phát âm và từ vựng học viên trong lớp thường gặp nhất."
-    },
     "settings": {
-      "title": "Cài đặt giảng viên",
-      "description": "Tùy chỉnh thông báo, lịch giảng dạy, liên kết tài khoản và phương thức dạy học."
-    },
-    "profile": {
-      "title": "Hồ sơ giảng viên",
-      "description": "Thông tin cá nhân giảng viên, bằng cấp, chứng chỉ và môn giảng dạy."
+      "title": "Cài đặt tài khoản",
+      "description": "Quản lý hồ sơ và mật khẩu đăng nhập."
     }
   },
   "admin": {
@@ -684,7 +636,7 @@
     },
     "users": {
       "title": "Quản lý người dùng",
-      "description": "Danh sách tài khoản học viên, giảng viên và quản trị viên kèm phân quyền hệ thống."
+      "description": "Danh sách tài khoản học viên, giáo viên và quản trị viên kèm phân quyền hệ thống."
     },
     "userDetail": {
       "title": "Chi tiết người dùng",
@@ -708,7 +660,7 @@
     },
     "audit": {
       "title": "Nhật ký nội dung",
-      "description": "Truy vết toàn bộ lịch sử chỉnh sửa, xuất bản nội dung của các giảng viên."
+      "description": "Truy vết toàn bộ lịch sử chỉnh sửa, xuất bản nội dung của các giáo viên."
     },
     "limits": {
       "title": "Gói & Hạn mức",
@@ -722,9 +674,9 @@
       "title": "Danh mục lỗi",
       "description": "Quản lý bảng phân loại nguyên nhân lỗi phục vụ phân loại báo cáo và thống kê."
     },
-    "instructors": {
+    "teachers": {
       "title": "Quản lý giáo viên",
-      "description": "Xét duyệt hồ sơ, cấp quyền giảng viên và đánh giá chất lượng biên soạn."
+      "description": "Xét duyệt hồ sơ, cấp quyền giáo viên và đánh giá chất lượng biên soạn."
     },
     "subscriptions": {
       "title": "Cấu hình gói dịch vụ",

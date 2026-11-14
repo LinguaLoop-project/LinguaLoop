@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lingualoop.backend.dictionary.dto.AudioSnapshot;
 import com.lingualoop.backend.dictionary.dto.MeaningSnapshot;
 import com.lingualoop.backend.dictionary.dto.WordView;
 import com.lingualoop.backend.dictionary.entity.DictionaryWord;
@@ -62,6 +63,14 @@ class DictionaryQueryServiceImpl implements DictionaryQueryService {
                         .filter(meaning -> meaning.no() == meaningNo)
                         .findFirst()
                         .map(meaning -> mapper.toSnapshot(word, meaning)));
+    }
+
+    @Override
+    public Optional<AudioSnapshot> findAudio(String headword, String pos) {
+        return WordNormalizer.normalize(headword)
+                .flatMap(repository::findByHeadwordWithLemma)
+                .map(word -> mapper.toAudio(word, pos))
+                .filter(audio -> audio.audioUk() != null || audio.audioUs() != null);
     }
 
     @Override

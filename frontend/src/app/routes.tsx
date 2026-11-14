@@ -8,11 +8,11 @@ import RouteErrorBoundary from "@/components/common/RouteErrorBoundary";
 import LoadingScreen from "@/components/common/LoadingScreen";
 
 // Mỗi layout/trang là một chunk riêng: người dùng chỉ tải phần mình cần
-// (khách không phải tải layout admin, học viên không tải layout giảng viên...).
+// (khách không phải tải layout admin, học viên không tải layout giáo viên...).
 const AuthLayout = lazy(() => import("@/components/layouts/AuthLayout"));
 const MainLayout = lazy(() => import("@/components/layouts/MainLayout"));
 const StudentLayout = lazy(() => import("@/components/layouts/StudentLayout"));
-const InstructorLayout = lazy(() => import("@/components/layouts/InstructorLayout"));
+const TeacherLayout = lazy(() => import("@/components/layouts/TeacherLayout"));
 const AdminLayout = lazy(() => import("@/components/layouts/AdminLayout"));
 
 const Login = lazy(() => import("@/features/auth/pages/Login"));
@@ -39,6 +39,11 @@ const MyWordsPage = lazy(() => import("@/features/practice/pages/MyWordsPage"));
 const VocabPage = lazy(() => import("@/features/vocab/pages/VocabPage"));
 const DeckPage = lazy(() => import("@/features/vocab/pages/DeckPage"));
 const PartPage = lazy(() => import("@/features/vocab/pages/PartPage"));
+const TeacherDeckListPage = lazy(() => import("@/features/vocab/pages/teacher/TeacherDeckListPage"));
+const TeacherDeckCreatePage = lazy(() => import("@/features/vocab/pages/teacher/TeacherDeckCreatePage"));
+const TeacherDeckDetailPage = lazy(() => import("@/features/vocab/pages/teacher/TeacherDeckDetailPage"));
+const AdminDeckListPage = lazy(() => import("@/features/vocab/pages/admin/AdminDeckListPage"));
+const AdminDeckDetailPage = lazy(() => import("@/features/vocab/pages/admin/AdminDeckDetailPage"));
 
 const ShadowingPage = lazy(() => import("@/features/shadowing/pages/ShadowingPage"));
 
@@ -196,99 +201,55 @@ const getRoutesConfig = (): RouteObject[] => {
     },
   ];
 
-  // ── Instructor routes ──
-  const instructorRoutes: RouteObject[] = [
+  // ── Teacher routes ──
+  const teacherRoutes: RouteObject[] = [
     {
-      path: "instructor",
+      path: "teacher",
       element: (
         <AuthGuard allowedRoles={["teacher", "admin"]}>
-          <InstructorLayout />
+          <TeacherLayout />
         </AuthGuard>
       ),
       children: [
         {
           index: true,
-          element: <PlaceholderPage pageKey="instructor.overview" />,
-        },
-        {
-          path: "topics",
-          element: <PlaceholderPage pageKey="instructor.topics" />,
-        },
-        {
-          path: "topics/:id",
-          element: <PlaceholderPage pageKey="instructor.topicDetail" />,
+          element: <PlaceholderPage pageKey="teacher.overview" />,
         },
         {
           path: "lessons",
-          element: <PlaceholderPage pageKey="instructor.lessons" />,
+          element: <PlaceholderPage pageKey="teacher.lessons" />,
         },
         {
           path: "lessons/:id",
-          element: <PlaceholderPage pageKey="instructor.lessonDetail" />,
+          element: <PlaceholderPage pageKey="teacher.lessonDetail" />,
         },
         {
           path: "compose",
-          element: <PlaceholderPage pageKey="instructor.compose" />,
+          element: <PlaceholderPage pageKey="teacher.compose" />,
         },
         {
           path: "decks",
-          element: <PlaceholderPage pageKey="instructor.decks" />,
+          element: <TeacherDeckListPage />,
+        },
+        {
+          path: "decks/new",
+          element: <TeacherDeckCreatePage />,
         },
         {
           path: "decks/:id",
-          element: <PlaceholderPage pageKey="instructor.deckDetail" />,
-        },
-        {
-          path: "cefr",
-          element: <PlaceholderPage pageKey="instructor.cefr" />,
-        },
-        {
-          path: "dict",
-          element: <PlaceholderPage pageKey="instructor.dict" />,
-        },
-        {
-          path: "phoneme",
-          element: <PlaceholderPage pageKey="instructor.phoneme" />,
-        },
-        {
-          path: "qbank",
-          element: <PlaceholderPage pageKey="instructor.qbank" />,
+          element: <TeacherDeckDetailPage />,
         },
         {
           path: "reports",
-          element: <PlaceholderPage pageKey="instructor.reports" />,
+          element: <PlaceholderPage pageKey="teacher.reports" />,
         },
         {
           path: "reports/:id",
-          element: <PlaceholderPage pageKey="instructor.reportDetail" />,
-        },
-        {
-          path: "audit",
-          element: <PlaceholderPage pageKey="instructor.audit" />,
-        },
-        {
-          path: "classes",
-          element: <PlaceholderPage pageKey="instructor.classes" />,
-        },
-        {
-          path: "students",
-          element: <PlaceholderPage pageKey="instructor.students" />,
-        },
-        {
-          path: "progress",
-          element: <PlaceholderPage pageKey="instructor.progress" />,
-        },
-        {
-          path: "weakness",
-          element: <PlaceholderPage pageKey="instructor.weakness" />,
+          element: <PlaceholderPage pageKey="teacher.reportDetail" />,
         },
         {
           path: "settings",
           element: <Settings />,
-        },
-        {
-          path: "profile",
-          element: <PlaceholderPage pageKey="instructor.profile" />,
         },
       ],
     },
@@ -326,11 +287,11 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "decks",
-          element: <PlaceholderPage pageKey="admin.decks" />,
+          element: <AdminDeckListPage />,
         },
         {
           path: "decks/:id",
-          element: <PlaceholderPage pageKey="admin.deckDetail" />,
+          element: <AdminDeckDetailPage />,
         },
         {
           path: "audit",
@@ -349,8 +310,8 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <PlaceholderPage pageKey="admin.errors" />,
         },
         {
-          path: "instructors",
-          element: <PlaceholderPage pageKey="admin.instructors" />,
+          path: "teachers",
+          element: <PlaceholderPage pageKey="admin.teachers" />,
         },
         {
           path: "subscriptions",
@@ -385,7 +346,7 @@ const getRoutesConfig = (): RouteObject[] => {
   return [
     ...publicRoutes,
     ...studentRoutes,
-    ...instructorRoutes,
+    ...teacherRoutes,
     ...adminRoutes,
     ...catchAll,
   ];

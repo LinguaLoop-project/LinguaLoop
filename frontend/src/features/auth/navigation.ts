@@ -4,7 +4,7 @@ import type { MeResponse } from "./types";
 export function homePathFor(user: Pick<MeResponse, "role" | "onboarded">): string {
   switch (user.role) {
     case "teacher":
-      return "/instructor";
+      return "/teacher";
     case "admin":
       return "/admin";
     default:

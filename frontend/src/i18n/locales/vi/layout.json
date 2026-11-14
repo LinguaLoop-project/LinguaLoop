@@ -74,57 +74,36 @@
       "plan": "Gói hiện tại"
     }
   },
-  "instructor": {
+  "teacher": {
     "sidebar": {
-      "aria": "Điều hướng giảng viên",
-      "homeLabel": "LinguaLoop Giảng viên",
-      "viewAsStudent": "Xem như học viên",
+      "aria": "Điều hướng giáo viên",
+      "homeLabel": "LinguaLoop Giáo viên",
       "groups": {
         "content": "NỘI DUNG",
-        "language": "NGÔN NGỮ",
         "tracking": "THEO DÕI"
       },
       "items": {
         "dashboard": "Tổng quan",
-        "topics": "Chủ đề",
         "lessons": "Bài học",
         "decks": "Bộ từ vựng",
-        "cefr": "Duyệt CEFR AI",
-        "dict": "Từ điển",
-        "phoneme": "Ngữ âm",
-        "qbank": "Câu hỏi kiểm tra",
-        "reports": "Báo lỗi của tôi",
-        "audit": "Lịch sử thay đổi"
+        "reports": "Báo cáo"
       }
     },
     "topbar": {
-      "homeLabel": "LinguaLoop Giảng viên",
+      "homeLabel": "LinguaLoop Giáo viên",
       "breadcrumbAria": "Vị trí hiện tại",
-      "root": "Giảng viên",
-      "accountAria": "Tài khoản giảng viên",
+      "root": "Giáo viên",
+      "accountAria": "Tài khoản giáo viên",
       "menuAria": "Tài khoản",
-      "myHistory": "Lịch sử của tôi",
-      "viewAsStudent": "Xem như học viên",
+      "settings": "Cài đặt",
       "logout": "Đăng xuất",
       "titles": {
         "overview": "Tổng quan",
-        "topics": "Chủ đề",
         "lessons": "Bài học",
         "compose": "Soạn bài học mới",
         "decks": "Bộ từ vựng",
-        "cefr": "Duyệt CEFR AI",
-        "dict": "Từ điển",
-        "phoneme": "Ngữ âm",
-        "qbank": "Câu hỏi kiểm tra",
-        "reports": "Báo lỗi của tôi",
-        "audit": "Lịch sử thay đổi",
-        "classes": "Lớp học",
-        "students": "Học viên",
-        "progress": "Tiến độ lớp",
-        "weakness": "Điểm yếu chung",
+        "reports": "Báo cáo",
         "settings": "Cài đặt",
-        "profile": "Hồ sơ giảng viên",
-        "topicDetail": "Chi tiết chủ đề",
         "lessonDetail": "Chi tiết bài học",
         "deckDetail": "Chi tiết bộ từ",
         "reportDetail": "Chi tiết báo cáo lỗi"
@@ -168,7 +147,7 @@
         "limits": "Gói & Hạn mức",
         "subs": "Đăng ký Pro",
         "errors": "Danh mục lỗi",
-        "instructors": "Giáo viên",
+        "teachers": "Giáo viên",
         "subscriptions": "Gói dịch vụ",
         "content": "Nội dung",
         "settings": "Cài đặt hệ thống",

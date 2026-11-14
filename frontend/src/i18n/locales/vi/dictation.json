@@ -26,7 +26,7 @@
     "blockedTitle": "Không phát được âm thanh",
     "blockedDesc": "Trình duyệt đang chặn tiếng hoặc video chưa tải xong. Bấm phát lại một lần nữa hoặc tải lại.",
     "noSourceTitle": "Bài này chưa có nguồn phát",
-    "noSourceDesc": "Bạn vẫn xem được danh sách câu, nhưng chưa nghe được. Báo giảng viên của bài nếu lỗi kéo dài.",
+    "noSourceDesc": "Bạn vẫn xem được danh sách câu, nhưng chưa nghe được. Báo giáo viên của bài nếu lỗi kéo dài.",
     "reload": "Tải lại"
   },
   "controls": {
@@ -149,7 +149,7 @@
     "proTitle": "Bài này dành cho gói Pro",
     "proDesc": "Nâng cấp lên Pro để nghe chép bài này.",
     "emptyTitle": "Bài này chưa có câu nào",
-    "emptyDesc": "Giảng viên chưa cắt câu cho bài này nên chưa thể nghe chép.",
+    "emptyDesc": "Giáo viên chưa cắt câu cho bài này nên chưa thể nghe chép.",
     "promptLoading": "Đang chuẩn bị câu",
     "promptFailed": "Chưa tải được đề của câu này. Kiểm tra kết nối rồi thử lại."
   },

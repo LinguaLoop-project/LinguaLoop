@@ -589,18 +589,10 @@
       }
     }
   },
-  "instructor": {
+  "teacher": {
     "overview": {
-      "title": "Instructor overview",
-      "description": "A quick dashboard of class metrics, lessons awaiting review and reported errors to handle."
-    },
-    "topics": {
-      "title": "Topic management",
-      "description": "Organize lesson topics by CEFR levels from A1 to C2."
-    },
-    "topicDetail": {
-      "title": "Topic details",
-      "description": "View and manage the lessons and vocabulary decks in this topic."
+      "title": "Teacher overview",
+      "description": "Overview of the content you created: lessons, decks, practice activity and reports awaiting you."
     },
     "lessons": {
       "title": "Lesson management",
@@ -622,57 +614,17 @@
       "title": "Deck details",
       "description": "Vocabulary list with IPA, Vietnamese meanings and illustrative example sentences."
     },
-    "cefr": {
-      "title": "CEFR AI review",
-      "description": "A queue for reviewing difficulty levels of words and sentences suggested by AI."
-    },
-    "dict": {
-      "title": "Specialized dictionary",
-      "description": "Look up and refine definitions and context-based meanings in Vietnamese."
-    },
-    "phoneme": {
-      "title": "Phonetics & Pronunciation",
-      "description": "A phonology database, minimal pairs and IPA sound drills."
-    },
-    "qbank": {
-      "title": "Question bank",
-      "description": "Multiple-choice, fill-in, dictation and pronunciation-check questions."
-    },
     "reports": {
-      "title": "My error reports",
-      "description": "Track and respond to learner feedback and content error reports."
+      "title": "Learner reports",
+      "description": "Learner reports on sentences and cards in your content, to resolve or escalate to an admin."
     },
     "reportDetail": {
       "title": "Handle error report",
       "description": "See the reported content and confirm the corrections."
     },
-    "audit": {
-      "title": "Change history",
-      "description": "A log of create, update and delete actions on your instructor account content."
-    },
-    "classes": {
-      "title": "Class management",
-      "description": "Your classes, class sizes, assigned work and test results."
-    },
-    "students": {
-      "title": "Student list",
-      "description": "Per-student profiles, attendance rates and progress over time."
-    },
-    "progress": {
-      "title": "Class progress",
-      "description": "Charts of lesson completion and the score distribution of your students."
-    },
-    "weakness": {
-      "title": "Common weaknesses",
-      "description": "The pronunciation and vocabulary errors your class makes most often."
-    },
     "settings": {
-      "title": "Instructor settings",
-      "description": "Customize notifications, teaching schedule, linked accounts and teaching methods."
-    },
-    "profile": {
-      "title": "Instructor profile",
-      "description": "Personal info, degrees, certificates and subjects taught."
+      "title": "Account settings",
+      "description": "Manage your profile and sign-in password."
     }
   },
   "admin": {
@@ -682,7 +634,7 @@
     },
     "users": {
       "title": "User management",
-      "description": "Student, instructor and administrator accounts with system permissions."
+      "description": "Student, teacher and administrator accounts with system permissions."
     },
     "userDetail": {
       "title": "User details",
@@ -706,7 +658,7 @@
     },
     "audit": {
       "title": "Content log",
-      "description": "Trace the full edit and publishing history of instructors content."
+      "description": "Trace the full edit and publishing history of teachers content."
     },
     "limits": {
       "title": "Plans & Quotas",
@@ -720,9 +672,9 @@
       "title": "Error categories",
       "description": "Manage the cause taxonomy used to classify reports and statistics."
     },
-    "instructors": {
-      "title": "Instructor management",
-      "description": "Review applications, grant instructor access and assess authoring quality."
+    "teachers": {
+      "title": "Teacher management",
+      "description": "Review applications, grant teacher access and assess authoring quality."
     },
     "subscriptions": {
       "title": "Plan configuration",

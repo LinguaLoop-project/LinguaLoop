@@ -26,7 +26,7 @@
     "blockedTitle": "Couldn't play the audio",
     "blockedDesc": "Your browser may be blocking sound, or the video hasn't finished loading. Press play again or reload.",
     "noSourceTitle": "This lesson has no audio source",
-    "noSourceDesc": "You can still see the sentence list, but you can't listen yet. Tell the lesson's instructor if this continues.",
+    "noSourceDesc": "You can still see the sentence list, but you can't listen yet. Tell the lesson's teacher if this continues.",
     "reload": "Reload"
   },
   "controls": {
@@ -151,7 +151,7 @@
     "proTitle": "This lesson is for Pro",
     "proDesc": "Upgrade to Pro to practice this lesson.",
     "emptyTitle": "This lesson has no sentences yet",
-    "emptyDesc": "The instructor hasn't split this lesson into sentences yet, so dictation isn't available.",
+    "emptyDesc": "The teacher hasn't split this lesson into sentences yet, so dictation isn't available.",
     "promptLoading": "Preparing the sentence",
     "promptFailed": "Couldn't load this sentence's blanks. Check your connection and try again."
   },

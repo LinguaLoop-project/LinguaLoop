@@ -11,6 +11,8 @@ export interface TextFieldProps extends Omit<React.InputHTMLAttributes<HTMLInput
   hint?: React.ReactNode;
   /** Đặt cùng hàng với nhãn, ví dụ liên kết "Quên mật khẩu?". */
   labelAside?: React.ReactNode;
+  /** Trường bắt buộc: thêm dấu `*` sau nhãn và `aria-required`; không bật kiểm tra mặc định của trình duyệt. */
+  requiredMark?: boolean;
   /** Phần tử cuối ô nhập, ví dụ nút hiện mật khẩu. */
   trailing?: React.ReactNode;
   /** Nội dung đặt giữa ô nhập và dòng thông báo, ví dụ thanh độ mạnh mật khẩu. */
@@ -21,13 +23,18 @@ export interface TextFieldProps extends Omit<React.InputHTMLAttributes<HTMLInput
 
 /** Ô nhập chung: nhãn, icon, trạng thái lỗi/focus và thông báo theo token. */
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
-  ({ id, label, icon, error, hint, labelAside, trailing, below, footer, className = "", ...props }, ref) => {
+  ({ id, label, icon, error, hint, labelAside, requiredMark, trailing, below, footer, className = "", ...props }, ref) => {
     const messageId = `${id}-msg`;
     return (
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
           <label htmlFor={id} className="text-sm font-semibold text-text">
             {label}
+            {requiredMark && (
+              <span aria-hidden="true" className="ml-0.5 text-danger">
+                *
+              </span>
+            )}
           </label>
           {labelAside}
         </div>
@@ -43,6 +50,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             ref={ref}
             id={id}
             aria-invalid={error ? true : undefined}
+            aria-required={requiredMark || undefined}
             aria-describedby={error || hint ? messageId : undefined}
             className={`h-full min-w-0 flex-1 border-0 bg-transparent text-[15px] leading-[1.4] text-text outline-none placeholder:text-text-subtle ${className}`}
             {...props}

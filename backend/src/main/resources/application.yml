@@ -26,8 +26,9 @@ spring:
   servlet:
     multipart:
       # ghi âm shadowing tối đa 30 giây ~ 0,94 MB (BR-SHADOW-03)
+      # tệp nhập thẻ Excel/CSV tối đa 2 MB (BR-NT-07); yêu cầu chừa thêm chỗ cho phần đầu multipart
       max-file-size: 2MB
-      max-request-size: 2MB
+      max-request-size: 3MB
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT:587}
@@ -88,6 +89,21 @@ app:
     zone: Asia/Ho_Chi_Minh
     # credit cố định của một phiên gia sư
     tutor-session-cost: 3
+  storage:
+    s3:
+      # Bucket riêng tư; client tải thẳng lên bằng presigned URL. Bucket rỗng thì tải tệp báo STORAGE_UNAVAILABLE.
+      bucket: ${AWS_S3_BUCKET:}
+      region: ${AWS_REGION:ap-southeast-2}
+      # Để trống thì SDK tự tìm credential (IAM role khi deploy).
+      access-key: ${AWS_ACCESS_KEY_ID:}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:}
+      # Chỉ đặt khi dùng MinIO/LocalStack, vd http://localhost:4566
+      endpoint: ${AWS_S3_ENDPOINT:}
+      # Gốc URL đọc công khai (thư mục được bucket policy cho public, vd vocab-decks/). Trống thì tự suy ra
+      # https://<bucket>.s3.<region>.amazonaws.com/; dùng CloudFront thì đặt domain CloudFront vào đây.
+      public-base-url: ${AWS_S3_PUBLIC_BASE_URL:}
+      upload-url-ttl: 5m
+      download-url-ttl: 1h
   azure:
     speech:
       key: ${AZURE_SPEECH_KEY:}

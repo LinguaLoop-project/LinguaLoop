@@ -423,6 +423,54 @@
 - **Commit:** c9e4aa2
 - **Lỗi liên quan:** AI-ERR-KE-002
 
+### AI-KE-038
+
+- **Ngày:** 2026-11-14
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DOCUMENTATION
+- **Loại công việc (`Task Type`):** DOCUMENTATION
+- **Prompt chính / yêu cầu:** Rà đặc tả use case NT bằng skill `lingualoop-usecase-spec` và sửa theo kết quả rà; thêm UC-NT-08 (gắn ảnh hàng loạt), BR-NT-09; sau khi có code, rà lại BT và NT cho khớp code (điều kiện tiên quyết, UC-BT-03/04 sửa ngay trên trang bộ, bộ chưa gán chủ, báo cáo theo thẻ), viết quy trình nghiệp vụ NT; cập nhật bảng truy vết
+- **Vị trí code do AI sinh (`file:hàm`):** `docs/srs/NT-quan-ly-nhom-the-the/usecase.md`, `quy-tac-nghiep-vu.md`, `quy-trinh-nghiep-vu.md`; `docs/srs/BT-quan-ly-bo-the/usecase.md` (UC-BT-01 đến 08, AC-BT-70 đến 73), `quy-tac-nghiep-vu.md`, `quy-trinh-nghiep-vu.md`; `docs/test/traceability/BT-quan-ly-bo-the.md`, `NT-quan-ly-nhom-the-the.md`, `docs/test/TRACEABILITY-AC-TEST.md`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chốt các câu hỏi của bản rà: mỗi bộ đều có giáo viên chủ, bộ chưa có chủ chỉ là dữ liệu thu thập chưa làm sạch (giữ trong code, spec ghi "bộ chưa gán chủ"); thêm cột ảnh cho thẻ, tệp nhập không có cột ảnh. Kế sửa đề xuất sai của AI: AI định thêm UC-BT-09 "giao lại quyền sở hữu bộ", Kế chỉ ra chức năng này đã có ở UC-QT-06/07 nên BR-NT-01, BR-BT-01 tham chiếu UC-QT thay vì tạo UC mới. Kế xác nhận báo cáo chỉ áp dụng cho câu và thẻ, nên BR-BT-09 đổi "báo cáo về bộ" thành "báo cáo về thẻ của bộ".
+- **Commit:** 55a5b74, dafa657
+- **Lỗi liên quan:** NONE
+
+### AI-KE-039
+
+- **Ngày:** 2026-11-14
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** OTHER
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Viết backend quản lý nhóm thẻ và thẻ cho giáo viên (UC-NT-01 đến 08): thêm, sửa, xóa nhóm và thẻ, nhập thẻ từ Excel/CSV kèm tệp mẫu, ảnh thẻ (tải từng thẻ và gắn hàng loạt theo tên tệp), lấy âm thanh từ từ điển theo loại từ khi lưu thẻ. Phạm vi chính: module vocab (BT/NT), phạm vi phụ DATABASE, DICTIONARY
+- **Vị trí code do AI sinh (`file:hàm`):** `vocab/controller/TeacherVocabContentController.java`; `vocab/service/VocabDeckContentServiceImpl.java:addGroup`, `:renameGroup`, `:deleteGroup`, `:addCard`, `:updateCard`, `:deleteCard`, `:previewImport`, `:importCards`, `:attachImages`; `vocab/service/CardSheetReader.java`, `CardImportTemplate.java`, `CardPos.java`, `CardImages.java`; `vocab/repository/VocabDeckContentRepository.java`; `vocab/dto/request/CardRequest.java`, `GroupRequest.java`, `AttachCardImagesRequest.java`; `dictionary/service/DictionaryQueryServiceImpl.java:findAudio`; `storage/service/UploadPurpose.java` (`CARD_IMAGE`); migration `V20261114_1000__vocab_cards_image.sql`; `TeacherVocabContentApiIntegrationTest`, `CardSheetReaderTest`. Commit cũng gộp phần backend quản lý bộ thẻ (BT) làm ở phiên trước
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chọn phạm vi (backend + test trước, frontend sau), giữ hai cột phiên âm UK/US, chọn cách lấy âm thanh (chép từ từ điển khi lưu, không có thì dùng giọng đọc trình duyệt) và cách gắn ảnh (từng thẻ và hàng loạt theo tên tệp). Kế kiểm tra quy tắc trùng tên bộ theo chủ bộ và cách xóa ảnh cũ trên S3 khi thay ảnh. Kiểm chứng: `./mvnw verify` 1151 test xanh, JaCoCo đạt ngưỡng (chạy trước khi thêm audio vào màn quản lý); sau thay đổi đó chạy lại các lớp test vocab liên quan, đều xanh.
+- **Commit:** 302abff
+- **Lỗi liên quan:** NONE
+
+### AI-KE-040
+
+- **Ngày:** 2026-11-14
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Làm giao diện quản lý nhóm thẻ và thẻ trên trang bộ, tham khảo Parroto: danh sách nhóm có thanh cuộn, hộp thoại thẻ có tra từ điển và chọn ảnh, nhập Excel/CSV, gắn ảnh hàng loạt; sau đó làm lại hiển thị thẻ có nhãn từng trường và nút nghe UK/US, thêm dấu `*` cho trường bắt buộc, làm lại danh sách bộ và đầu trang bộ có icon
+- **Vị trí code do AI sinh (`file:hàm`):** `features/vocab/components/manage/GroupList.tsx`, `CardDialog.tsx`, `CardRow.tsx`, `CardImportDialog.tsx`, `CardImagesDialog.tsx`, `GroupDialog.tsx`, `ContentDeleteDialog.tsx`, `DeckBits.tsx`, `DeckDetailView.tsx`, `DeckInfoEditor.tsx`, `ManageDeckList.tsx`; `features/vocab/deckContentApi.ts`, `deckContentHooks.ts`, `deckContentForm.ts:validateCard`, `:attachImagesInBatches`, `:formatIpa`, `:splitByWord`; `components/common/TextField.tsx` (`requiredMark`); `deckContentForm.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế duyệt giao diện qua ảnh chụp màn hình và yêu cầu sửa nhiều lần: dùng một icon chung cho mọi nhóm thay vì icon theo chủ đề, chọn icon `gallery-vertical-end`, hiển thị rõ tên từng trường, thêm dấu `*`, thêm icon cho danh sách bộ và đầu trang bộ. Kế phát hiện phiên âm hiện hai cặp dấu gạch (`//səˈsteɪn//`) do AI bọc thêm `/` quanh dữ liệu đã có sẵn; AI sửa bằng `formatIpa` trước khi commit. Kiểm chứng: `tsc`, `eslint` không lỗi, Vitest 239 test xanh, `npm run build`.
+- **Commit:** 55a5b74
+- **Lỗi liên quan:** NONE
+
+### AI-KE-041
+
+- **Ngày:** 2026-11-14
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** TESTING
+- **Loại công việc (`Task Type`):** TEST_GENERATION
+- **Prompt chính / yêu cầu:** Viết test cho các AC của BT, NT còn thiếu và cập nhật bảng truy vết theo test thực có
+- **Vị trí code do AI sinh (`file:hàm`):** `VocabDeckLifecycleApiIntegrationTest.java:publish_otherTeachersDeck_returns403AndStaysDraft_AC_BT_71`, `:publish_deletedDeck_returns404_AC_BT_72`; `TeacherVocabContentApiIntegrationTest.java` lớp `GoneTargets` (AC-NT-11, 18, 26, 35, 43, 51, 70, 71), `:updateCard_blankWordOrMeaning_rejectedAndCardKept_AC_NT_38`, `:updateCard_newImageNotJpgOrPng_keepsOldImage_AC_NT_76`, `:attachImages_groupWithoutCards_attachesNothing_AC_NT_72`; `docs/test/traceability/BT-quan-ly-bo-the.md`, `NT-quan-ly-nhom-the-the.md`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế quyết định chưa làm xóa thẻ hàng loạt để ưu tiên test. Script truy vết của AI bỏ sót các AC ghi dạng danh sách trong một tên test (`AC-BT-31, 38, 44, 49`), AI tự phát hiện và sửa AC-BT-38, 44, 49 thành "Một phần" trước khi commit. Các AC "Hủy", "Mất kết nối" trên giao diện vẫn chưa có test vì frontend chưa có thư viện test component. Kiểm chứng: hai lớp test 104/104 xanh; BT 59/73 AC có test, NT 54/76.
+- **Commit:** dafa657
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).

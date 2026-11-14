@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import com.lingualoop.backend.dictionary.dto.AudioSnapshot;
 import com.lingualoop.backend.dictionary.dto.MeaningSnapshot;
 import com.lingualoop.backend.dictionary.dto.WordView;
 import com.lingualoop.backend.dictionary.entity.DictionaryWord;
@@ -33,6 +34,12 @@ public class WordViewMapper {
                 defaultPronunciation(word),
                 groupByPos(word),
                 lemma);
+    }
+
+    /** Âm thanh của loại từ {@code pos} (hoặc của cả từ), giữ đường dẫn tương đối để chép vào thẻ. */
+    public AudioSnapshot toAudio(DictionaryWord word, String pos) {
+        PosPronunciation p = rawPronunciationFor(word, blankToNull(pos));
+        return new AudioSnapshot(blankToNull(p.audioUk()), blankToNull(p.audioUs()));
     }
 
     /** Một nghĩa kèm phát âm của loại từ đó (hoặc của cả từ); âm thanh giữ đường dẫn tương đối (ADR 0009). */
