@@ -257,6 +257,23 @@ class VocabDeckLifecycleApiIntegrationTest {
     }
 
     @Test
+    void publish_otherTeachersDeck_returns403AndStaysDraft_AC_BT_71() throws Exception {
+        UUID deck = deckWithCards(teacherB, "Nháp của B", 1, false);
+        asA(post(TEACHER + "/" + deck + "/publish")).andExpect(status().isForbidden());
+        assertThat(statusOf(deck)).isEqualTo("draft");
+    }
+
+    @Test
+    void publish_deletedDeck_returns404_AC_BT_72() throws Exception {
+        UUID deck = deckWithCards(teacherA, "Đã xóa khi đang mở", 1, false);
+        jdbc.update("UPDATE vocab_decks SET deleted_at = now() WHERE id = ?", deck);
+        asA(post(TEACHER + "/" + deck + "/publish"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("VOCAB_DECK_NOT_FOUND"));
+        assertThat(statusOf(deck)).isEqualTo("draft");
+    }
+
+    @Test
     void publish_alreadyPublished_returns409_AC_BT_28() throws Exception {
         UUID deck = deckWithCards(teacherA, "XB rồi", 1, true);
         asA(post(TEACHER + "/" + deck + "/publish"))
@@ -383,7 +400,7 @@ class VocabDeckLifecycleApiIntegrationTest {
     }
 
     @Test
-    void restore_otherTeachersDeck_returns403() throws Exception {
+    void restore_otherTeachersDeck_returns403_AC_BT_73() throws Exception {
         UUID deck = data.deck(teacherB, "Của B").deletedAt(Instant.now()).insert();
         asA(post(TEACHER + "/" + deck + "/restore")).andExpect(status().isForbidden());
         verify(storage, never()).discardUpload(eq(teacherA), any(), anyString());

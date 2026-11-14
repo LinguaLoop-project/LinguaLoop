@@ -531,6 +531,19 @@ class TeacherVocabContentApiIntegrationTest {
     class UpdateCard {
 
         @Test
+        void updateCard_blankWordOrMeaning_rejectedAndCardKept_AC_NT_38() throws Exception {
+            UUID deck = draftDeck();
+            UUID group = data.group(deck, "Nhóm", false);
+            UUID card = data.card(group, "sustain", false);
+
+            asTeacher(teacher, put(cardsOf(deck, group) + "/" + card).contentType(MediaType.APPLICATION_JSON)
+                    .content(cardJson("   ", "")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[*].field").value(containsInAnyOrder("word", "meaningVi")));
+            assertThat(words(group)).containsExactly("sustain");
+        }
+
+        @Test
         void updateCard_valid_keepsPosition_AC_NT_32() throws Exception {
             UUID deck = draftDeck();
             UUID group = data.group(deck, "Nhóm", false);
@@ -716,6 +729,40 @@ class TeacherVocabContentApiIntegrationTest {
                     .andExpect(jsonPath("$.errors[0].code").value("ImageType"));
 
             assertThat(words(group)).isEmpty();
+            verify(storage).discardUpload(teacher, UploadPurpose.CARD_IMAGE, key);
+        }
+
+        @Test
+        void updateCard_newImageNotJpgOrPng_keepsOldImage_AC_NT_76() throws Exception {
+            UUID deck = draftDeck();
+            UUID group = data.group(deck, "Nhóm", false);
+            UUID card = data.card(group, "sustain", false);
+            String oldKey = keyOf(teacher);
+            setImage(card, oldKey);
+            String badKey = keyOf(teacher);
+            when(storage.readHead(eq(badKey), anyInt())).thenReturn(PDF_HEAD);
+
+            asTeacher(teacher, put(cardsOf(deck, group) + "/" + card).contentType(MediaType.APPLICATION_JSON)
+                    .content(cardWithImage("sustain", badKey)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[0].field").value("image"));
+
+            assertThat(imageOf(card)).isEqualTo(oldKey);
+            verify(storage).discardUpload(teacher, UploadPurpose.CARD_IMAGE, badKey);
+            verify(storage, never()).discardUpload(teacher, UploadPurpose.CARD_IMAGE, oldKey);
+        }
+
+        @Test
+        void attachImages_groupWithoutCards_attachesNothing_AC_NT_72() throws Exception {
+            UUID deck = draftDeck();
+            UUID group = data.group(deck, "Nhóm trống", false);
+            String key = keyOf(teacher);
+
+            asTeacher(teacher, post(cardsOf(deck, group) + "/images").contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"items\":[{\"fileName\":\"sustain.jpg\",\"imageKey\":\"" + key + "\"}]}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.attached").isEmpty())
+                    .andExpect(jsonPath("$.data.unmatched").value(contains("sustain.jpg")));
             verify(storage).discardUpload(teacher, UploadPurpose.CARD_IMAGE, key);
         }
 
@@ -1130,6 +1177,92 @@ class TeacherVocabContentApiIntegrationTest {
                 workbook.write(out);
                 return out.toByteArray();
             }
+        }
+    }
+
+    // ================================================================ bộ hoặc nhóm không còn
+
+    /** Bộ bị xóa (hoặc nhóm bị xóa) trong lúc giáo viên đang xem trang cũ: mọi thao tác báo không tìm thấy, không ghi gì. */
+    @Nested
+    class GoneTargets {
+
+        private UUID deck;
+        private UUID group;
+        private UUID card;
+
+        @BeforeEach
+        void deletedDeckWithContent() {
+            deck = data.deck(teacher, "Bộ vừa xóa " + UUID.randomUUID()).insert();
+            group = data.group(deck, "Nhóm", false);
+            card = data.card(group, "sustain", false);
+            jdbc.update("UPDATE vocab_decks SET deleted_at = now() WHERE id = ?", deck);
+        }
+
+        private void expectDeckNotFound(ResultActions result) throws Exception {
+            result.andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("VOCAB_DECK_NOT_FOUND"));
+        }
+
+        @Test
+        void renameGroup_deletedDeck_notFound_AC_NT_11() throws Exception {
+            expectDeckNotFound(asTeacher(teacher, put(groupOf(deck, group)).contentType(MediaType.APPLICATION_JSON)
+                    .content(json("Tên mới"))));
+            assertThat(groupNames(deck)).containsExactly("Nhóm");
+        }
+
+        @Test
+        void deleteGroup_deletedDeck_notFound_AC_NT_18() throws Exception {
+            expectDeckNotFound(asTeacher(teacher, delete(groupOf(deck, group))));
+            assertThat(groupNames(deck)).containsExactly("Nhóm");
+        }
+
+        @Test
+        void addCard_deletedDeck_notFound_AC_NT_26() throws Exception {
+            expectDeckNotFound(asTeacher(teacher, post(cardsOf(deck, group)).contentType(MediaType.APPLICATION_JSON)
+                    .content(cardJson("apple", "táo"))));
+            assertThat(words(group)).containsExactly("sustain");
+        }
+
+        @Test
+        void updateCard_deletedDeck_notFound_AC_NT_35() throws Exception {
+            expectDeckNotFound(asTeacher(teacher, put(cardsOf(deck, group) + "/" + card)
+                    .contentType(MediaType.APPLICATION_JSON).content(cardJson("sustained", "được duy trì"))));
+            assertThat(words(group)).containsExactly("sustain");
+        }
+
+        @Test
+        void deleteCard_deletedDeck_notFound_AC_NT_43() throws Exception {
+            expectDeckNotFound(asTeacher(teacher, delete(cardsOf(deck, group) + "/" + card)));
+            assertThat(words(group)).containsExactly("sustain");
+        }
+
+        @Test
+        void importCards_deletedDeck_notFound_AC_NT_51() throws Exception {
+            MockMultipartFile file = new MockMultipartFile("file", "the.csv", "text/csv",
+                    "Từ vựng,Nghĩa tiếng Việt\napple,táo".getBytes(StandardCharsets.UTF_8));
+            expectDeckNotFound(asTeacher(teacher, multipart(cardsOf(deck, group) + "/import").file(file)));
+            assertThat(words(group)).containsExactly("sustain");
+        }
+
+        @Test
+        void attachImages_deletedDeck_notFound_AC_NT_70() throws Exception {
+            expectDeckNotFound(asTeacher(teacher, post(cardsOf(deck, group) + "/images")
+                    .contentType(MediaType.APPLICATION_JSON).content(attachJson("sustain.jpg"))));
+        }
+
+        @Test
+        void attachImages_deletedGroup_notFound_AC_NT_71() throws Exception {
+            UUID liveDeck = draftDeck();
+            UUID goneGroup = data.group(liveDeck, "Đã xóa", true);
+
+            asTeacher(teacher, post(cardsOf(liveDeck, goneGroup) + "/images").contentType(MediaType.APPLICATION_JSON)
+                    .content(attachJson("sustain.jpg")))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("VOCAB_GROUP_NOT_FOUND"));
+        }
+
+        private String attachJson(String fileName) {
+            String key = "vocab-decks/cards/" + teacher + "/" + UUID.randomUUID() + ".jpg";
+            return "{\"items\":[{\"fileName\":\"" + fileName + "\",\"imageKey\":\"" + key + "\"}]}";
         }
     }
 }
