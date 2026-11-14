@@ -9,11 +9,11 @@ Tổng hợp: 76 AC, 54 đã có test, 5 một phần, 17 thiếu.
 | AC-NT-01 | Thêm nhóm thẻ thành công | UC-NT-01 | D | TeacherVocabContentApiIntegrationTest.addGroup_validName_appendsEmptyGroupAtEnd_AC_NT_01 | Đã có |
 | AC-NT-02 | Thêm nhóm thẻ vào bộ của người khác | UC-NT-01 | A | TeacherVocabContentApiIntegrationTest.addGroup_deckOfOtherTeacher_forbidden_AC_NT_02 | Đã có |
 | AC-NT-03 | Bộ không còn tồn tại | UC-NT-01 | A | TeacherVocabContentApiIntegrationTest.addGroup_deletedDeck_notFound_AC_NT_03 | Đã có |
+| AC-NT-58 | Thêm nhóm thẻ vào bộ đã xuất bản | UC-NT-01 | A | TeacherVocabContentApiIntegrationTest.addGroup_publishedDeck_rejected_AC_NT_58 | Đã có |
 | AC-NT-04 | Hủy thêm nhóm thẻ | UC-NT-01 |  |  | Thiếu |
 | AC-NT-05 | Thiếu hoặc sai thông tin | UC-NT-01 | A, B | TeacherVocabContentApiIntegrationTest.addGroup_blankOrWhitespaceName_rejected_AC_NT_05; TeacherVocabContentApiIntegrationTest.addGroup_nameOver100Chars_rejected_AC_NT_05; `frontend/src/features/vocab/deckContentForm.test.ts` | Đã có |
 | AC-NT-06 | Tên nhóm thẻ bị trùng | UC-NT-01 | A | TeacherVocabContentApiIntegrationTest.addGroup_nameTakenIgnoringCase_conflict_AC_NT_06; `frontend/src/features/vocab/deckContentForm.test.ts` | Đã có |
 | AC-NT-07 | Mất kết nối khi lưu | UC-NT-01 |  | `frontend/src/features/vocab/deckContentForm.test.ts` | Đã có |
-| AC-NT-58 | Thêm nhóm thẻ vào bộ đã xuất bản | UC-NT-01 | A | TeacherVocabContentApiIntegrationTest.addGroup_publishedDeck_rejected_AC_NT_58 | Đã có |
 | AC-NT-08 | Sửa nhóm thẻ thành công | UC-NT-02 | D | TeacherVocabContentApiIntegrationTest.renameGroup_valid_keepsCards_AC_NT_08 | Đã có |
 | AC-NT-09 | Sửa nhóm thẻ của bộ đã xuất bản | UC-NT-02 | D | TeacherVocabContentApiIntegrationTest.renameGroup_publishedDeck_staysPublished_AC_NT_09 | Đã có |
 | AC-NT-10 | Sửa nhóm thẻ của bộ người khác | UC-NT-02 | A | TeacherVocabContentApiIntegrationTest.renameGroup_deckOfOtherTeacher_forbidden_AC_NT_10 | Đã có |
@@ -40,6 +40,8 @@ Tổng hợp: 76 AC, 54 đã có test, 5 một phần, 17 thiếu.
 | AC-NT-28 | Hủy thêm thẻ | UC-NT-04 |  |  | Thiếu |
 | AC-NT-29 | Thiếu từ vựng | UC-NT-04 | A | TeacherVocabContentApiIntegrationTest.addCard_blankWordOrMeaning_rejected_AC_NT_29; `frontend/src/features/vocab/deckContentForm.test.ts` | Đã có |
 | AC-NT-30 | Từ vựng bị trùng trong bộ | UC-NT-04 | A | TeacherVocabContentApiIntegrationTest.addCard_wordInOtherGroupIgnoringCase_conflict_AC_NT_30; `frontend/src/features/vocab/deckContentForm.test.ts` | Đã có |
+| AC-NT-73 | Thêm thẻ kèm ảnh | UC-NT-04 | D | TeacherVocabContentApiIntegrationTest.addCard_withImage_storesKeyAndReturnsPublicUrl_AC_NT_73 | Đã có |
+| AC-NT-74 | Ảnh của thẻ không hợp lệ | UC-NT-04 | A | TeacherVocabContentApiIntegrationTest.addCard_imageNotJpgOrPng_rejectedOnImageFieldAndDiscarded_AC_NT_74 | Đã có |
 | AC-NT-31 | Mất kết nối khi lưu | UC-NT-04 |  |  | Thiếu |
 | AC-NT-32 | Sửa thẻ thành công | UC-NT-05 | D | TeacherVocabContentApiIntegrationTest.updateCard_valid_keepsPosition_AC_NT_32 | Đã có |
 | AC-NT-33 | Sửa thẻ bằng từ trong từ điển | UC-NT-05 | D | `frontend/src/features/vocab/deckContentForm.test.ts` (chưa test luồng giao diện xác nhận thay thông tin) | Một phần |
@@ -51,6 +53,8 @@ Tổng hợp: 76 AC, 54 đã có test, 5 một phần, 17 thiếu.
 | AC-NT-37 | Hủy sửa thẻ | UC-NT-05 |  |  | Thiếu |
 | AC-NT-38 | Thiếu từ vựng | UC-NT-05 |  | TeacherVocabContentApiIntegrationTest.updateCard_blankWordOrMeaning_rejectedAndCardKept_AC_NT_38 | Đã có |
 | AC-NT-39 | Từ vựng bị trùng trong bộ | UC-NT-05 | A | TeacherVocabContentApiIntegrationTest.updateCard_wordOfOtherCard_conflict_AC_NT_39 | Đã có |
+| AC-NT-75 | Đổi hoặc bỏ ảnh của thẻ | UC-NT-05 | D | TeacherVocabContentApiIntegrationTest.updateCard_newImage_replacesAndDiscardsOldImage_AC_NT_75; TeacherVocabContentApiIntegrationTest.updateCard_removeImage_clearsAndDiscards_AC_NT_75 | Đã có |
+| AC-NT-76 | Ảnh mới không hợp lệ | UC-NT-05 | A | TeacherVocabContentApiIntegrationTest.updateCard_newImageNotJpgOrPng_keepsOldImage_AC_NT_76 | Đã có |
 | AC-NT-40 | Mất kết nối khi lưu | UC-NT-05 |  |  | Thiếu |
 | AC-NT-41 | Xóa thẻ thành công | UC-NT-06 | D | TeacherVocabContentApiIntegrationTest.deleteCard_valid_softDeletes_AC_NT_41 (chưa kiểm tiến độ học (BR-BT-07)) | Một phần |
 | AC-NT-42 | Xóa thẻ của bộ người khác | UC-NT-06 | A | TeacherVocabContentApiIntegrationTest.deleteCard_deckOfOtherTeacher_forbidden_AC_NT_42 | Đã có |
@@ -78,7 +82,3 @@ Tổng hợp: 76 AC, 54 đã có test, 5 một phần, 17 thiếu.
 | AC-NT-70 | Bộ không còn tồn tại | UC-NT-08 |  | TeacherVocabContentApiIntegrationTest.attachImages_deletedDeck_notFound_AC_NT_70 | Đã có |
 | AC-NT-71 | Nhóm thẻ không còn tồn tại | UC-NT-08 |  | TeacherVocabContentApiIntegrationTest.attachImages_deletedGroup_notFound_AC_NT_71 | Đã có |
 | AC-NT-72 | Nhóm chưa có thẻ | UC-NT-08 |  | TeacherVocabContentApiIntegrationTest.attachImages_groupWithoutCards_attachesNothing_AC_NT_72 | Đã có |
-| AC-NT-73 | Thêm thẻ kèm ảnh | UC-NT-04 | D | TeacherVocabContentApiIntegrationTest.addCard_withImage_storesKeyAndReturnsPublicUrl_AC_NT_73 | Đã có |
-| AC-NT-74 | Ảnh của thẻ không hợp lệ | UC-NT-04 | A | TeacherVocabContentApiIntegrationTest.addCard_imageNotJpgOrPng_rejectedOnImageFieldAndDiscarded_AC_NT_74 | Đã có |
-| AC-NT-75 | Đổi hoặc bỏ ảnh của thẻ | UC-NT-05 | D | TeacherVocabContentApiIntegrationTest.updateCard_newImage_replacesAndDiscardsOldImage_AC_NT_75; TeacherVocabContentApiIntegrationTest.updateCard_removeImage_clearsAndDiscards_AC_NT_75 | Đã có |
-| AC-NT-76 | Ảnh mới không hợp lệ | UC-NT-05 | A | TeacherVocabContentApiIntegrationTest.updateCard_newImageNotJpgOrPng_keepsOldImage_AC_NT_76 | Đã có |
