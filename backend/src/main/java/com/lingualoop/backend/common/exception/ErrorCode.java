@@ -49,6 +49,22 @@ public enum ErrorCode {
     VOCAB_PART_LOCKED(HttpStatus.FORBIDDEN, "Bạn cần gói Pro để học phần này"),
     VOCAB_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy phiên học này"),
     VOCAB_CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy thẻ này"),
+    VOCAB_GROUP_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy nhóm thẻ này"),
+    VOCAB_DECK_ALREADY_PUBLISHED(HttpStatus.CONFLICT, "Bộ thẻ đã được xuất bản"),
+    VOCAB_DECK_NOT_PUBLISHED(HttpStatus.CONFLICT, "Bộ thẻ chưa được xuất bản"),
+    VOCAB_DECK_NOT_PUBLISHABLE(HttpStatus.UNPROCESSABLE_CONTENT,
+            "Bộ thẻ cần ít nhất một nhóm thẻ và mỗi nhóm thẻ cần ít nhất một thẻ"),
+    VOCAB_DECK_NOT_DELETED(HttpStatus.CONFLICT, "Bộ thẻ đã được khôi phục"),
+    VOCAB_DECK_RESTORE_EXPIRED(HttpStatus.GONE, "Bộ thẻ đã bị xóa quá 30 ngày, không thể khôi phục"),
+    VOCAB_DECK_NAME_TAKEN(HttpStatus.CONFLICT, "Bạn đã có bộ thẻ cùng tên, hãy nhập tên mới"),
+    VOCAB_GROUP_NAME_TAKEN(HttpStatus.CONFLICT, "Bộ đã có nhóm thẻ cùng tên, hãy đổi tên"),
+    VOCAB_CARD_WORD_TAKEN(HttpStatus.CONFLICT, "Từ này đã có trong bộ thẻ"),
+    VOCAB_DECK_MUST_STAY_PUBLISHABLE(HttpStatus.CONFLICT,
+            "Bộ đang xuất bản phải có ít nhất một nhóm thẻ và mỗi nhóm có ít nhất một thẻ, hãy gỡ xuất bản bộ trước"),
+    VOCAB_IMPORT_FILE_INVALID(HttpStatus.BAD_REQUEST, "Tệp nhập thẻ không hợp lệ"),
+    VOCAB_IMPORT_TOO_MANY_ROWS(HttpStatus.UNPROCESSABLE_CONTENT, "Tệp có quá 500 dòng dữ liệu, hãy chia nhỏ tệp"),
+    VOCAB_IMPORT_ROWS_INVALID(HttpStatus.UNPROCESSABLE_CONTENT,
+            "Một số dòng trong tệp chưa hợp lệ, chưa thẻ nào được thêm"),
 
     DICTATION_EASY_UNAVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Câu này chưa có ô nào để điền, hãy chọn mức khác"),
     PRACTICE_SENTENCE_NOT_PRACTICED(HttpStatus.UNPROCESSABLE_ENTITY, "Bạn cần làm câu này ít nhất một lần trước"),
@@ -63,6 +79,10 @@ public enum ErrorCode {
     TUTOR_WORD_NOT_IN_SENTENCE(HttpStatus.BAD_REQUEST, "Từ này không có trong câu đang học"),
     TUTOR_TOO_MANY_FAILED_STARTS(HttpStatus.TOO_MANY_REQUESTS,
             "Hôm nay bạn đã mở gia sư nhiều lần không thành công, hãy thử lại vào ngày mai"),
+
+    STORAGE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Chức năng tải tệp tạm thời không dùng được"),
+    STORAGE_UPLOAD_NOT_FOUND(HttpStatus.BAD_REQUEST, "Không tìm thấy tệp đã tải lên, hãy tải lại"),
+    STORAGE_FILE_INVALID(HttpStatus.BAD_REQUEST, "Tệp tải lên sai định dạng hoặc quá dung lượng"),
 
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi hệ thống, vui lòng thử lại sau");
 
