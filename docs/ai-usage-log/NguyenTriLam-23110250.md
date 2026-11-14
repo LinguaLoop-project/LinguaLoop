@@ -819,6 +819,18 @@
 - **Commit:** 589afbe, f02fa26, ae49e9e, 17a4802, fcb5bcb, 4125eda, df3708c
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-072
+
+- **Ngày:** 2026-11-13
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5)
+- **Phạm vi (`Scope`):** DOCUMENTATION
+- **Loại công việc (`Task Type`):** DOCUMENTATION
+- **Prompt chính / yêu cầu:** Rà soát điều kiện sau của các use case để viết thành kết quả đạt được thay cho "không thay đổi thông tin", rút gọn; bổ sung thống kê lỗi nghe chép theo nhóm từ vào đặc tả module Thống kê học tập
+- **Vị trí code do AI sinh (`file:hàm`):** `docs/srs/TH-xem-thong-ke-hoc-tap/quy-tac-nghiep-vu.md` (BR-TH-05, BR-TH-12), `docs/srs/DI-dictation-cau-da-luu/quy-tac-nghiep-vu.md` (BR-DI-10), `docs/srs/TH-xem-thong-ke-hoc-tap/usecase.md` (UC-TH-01, AC-TH-04, AC-TH-21, AC-TH-22), điều kiện sau của UC-HT-01, UC-HT-07, UC-PR-01, UC-TC-01, UC-TC-02, UC-TC-03, UC-TH-01, UC-TH-02, UC-TH-03; `GLOSSARY.md` (Nhóm từ); `docs/test/traceability/TH-xem-thong-ke-hoc-tap.md`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên nêu tiêu chuẩn viết điều kiện sau theo các module quản lý của Kế, yêu cầu rút gọn, chọn thêm thống kê theo nhóm từ dựa trên khảo sát và cách phân loại đã có trong mã nguồn. Sáu nhóm từ và quy tắc xếp nhóm được đối chiếu với `WordClassifier`, `WordClass` và các danh sách từ trong `backend/src/main/resources/dictation/`; chưa kiểm tra trang thống kê ở frontend. Ví dụ AC-TH-21 và AC-TH-22 chưa chạy thử trên hệ thống
+- **Commit:** 5c056a0, 3129c8e, c8200f8
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
