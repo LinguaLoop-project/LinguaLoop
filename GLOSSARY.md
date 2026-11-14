@@ -22,6 +22,10 @@ _Tránh_: câu ôn lại, câu yếu, hàng đợi ôn
 Đoạn văn bản riêng tư học viên viết cho một câu ở một chế độ luyện; mỗi học viên có tối đa một ghi chú cho một câu ở mỗi chế độ, ghi chú của hai chế độ độc lập nhau.
 _Tránh_: note, bình luận
 
+**Nhóm từ**:
+Nhóm mà hệ thống xếp một từ của câu nghe chép vào để thống kê lỗi: từ chức năng, từ nội dung, từ chia đuôi, số, tên riêng, khác.
+_Tránh_: loại từ (dùng cho từ loại trong từ điển như danh từ, động từ)
+
 ### Phát âm
 
 **Giọng chấm**:

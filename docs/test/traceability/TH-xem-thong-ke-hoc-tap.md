@@ -2,17 +2,19 @@
 
 > Nguồn AC: `docs/srs/TH-xem-thong-ke-hoc-tap/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. Quay lại [mục lục](../TRACEABILITY-AC-TEST.md).
 
-Tổng hợp: 20 AC, 0 đã có test, 0 một phần, 20 thiếu.
+Tổng hợp: 22 AC, 0 đã có test, 0 một phần, 22 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
 | AC-TH-01 | Hiển thị thống kê tổng quát mặc định trong 30 ngày của riêng tác nhân | UC-TH-01 |  |  | Thiếu |
 | AC-TH-02 | Tính chuỗi ngày học liên tiếp và kỷ lục theo múi giờ của học viên | UC-TH-01 |  |  | Thiếu |
 | AC-TH-03 | Lọc thống kê theo khoảng thời gian 7 ngày, 30 ngày và Toàn bộ | UC-TH-01 |  |  | Thiếu |
-| AC-TH-04 | Phân tích lỗi nghe chép theo loại từ và không tính lượt làm lại ôn câu | UC-TH-01 |  |  | Thiếu |
+| AC-TH-04 | Phân tích lỗi nghe chép theo nhóm từ và không tính lượt làm lại ôn câu | UC-TH-01 |  |  | Thiếu |
 | AC-TH-05 | Hiển thị trạng thái khởi đầu khi học viên chưa có dữ liệu học tập | UC-TH-01 |  |  | Thiếu |
 | AC-TH-06 | Bảo mật dữ liệu thống kê cá nhân giữa các học viên | UC-TH-01 |  |  | Thiếu |
 | AC-TH-07 | Thông báo lỗi khi mất kết nối mạng lúc tải thống kê | UC-TH-01 |  |  | Thiếu |
+| AC-TH-21 | Xếp từ vào nhóm từ chia đuôi và nhóm tên riêng | UC-TH-01 |  |  | Thiếu |
+| AC-TH-22 | Chữ hoa đầu câu không bị xếp vào nhóm tên riêng | UC-TH-01 |  |  | Thiếu |
 | AC-TH-08 | Hiển thị danh sách lịch sử luyện tập từ mới nhất đến cũ nhất | UC-TH-02 |  |  | Thiếu |
 | AC-TH-09 | Lọc lịch sử luyện tập theo chế độ học và khoảng thời gian | UC-TH-02 |  |  | Thiếu |
 | AC-TH-10 | Phân trang danh sách lịch sử luyện tập | UC-TH-02 |  |  | Thiếu |

@@ -144,5 +144,5 @@ Phân công theo bảng phụ trách trong `planning/README.md`: mỗi người 
 | Số test backend | 951 (1 lỗi do môi trường chạy cục bộ, 3 bỏ qua) |
 | Coverage dòng backend | 92,6% (đã loại `config`, `dto`, `entity`) |
 | Coverage nhánh backend | 84,4% |
-| Số AC trong SRS | 704 (18 module) |
+| Số AC trong SRS | 706 (18 module) |
 | Số AC đã truy vết tới test | 41 (module TK, 52 AC); các module khác chưa điền |
