@@ -74,57 +74,36 @@
       "plan": "Current plan"
     }
   },
-  "instructor": {
+  "teacher": {
     "sidebar": {
-      "aria": "Instructor navigation",
-      "homeLabel": "LinguaLoop Instructor",
-      "viewAsStudent": "View as student",
+      "aria": "Teacher navigation",
+      "homeLabel": "LinguaLoop Teacher",
       "groups": {
         "content": "CONTENT",
-        "language": "LANGUAGE",
         "tracking": "TRACKING"
       },
       "items": {
         "dashboard": "Overview",
-        "topics": "Topics",
         "lessons": "Lessons",
         "decks": "Vocabulary decks",
-        "cefr": "CEFR AI review",
-        "dict": "Dictionary",
-        "phoneme": "Phonetics",
-        "qbank": "Test questions",
-        "reports": "My error reports",
-        "audit": "Change history"
+        "reports": "Reports"
       }
     },
     "topbar": {
-      "homeLabel": "LinguaLoop Instructor",
+      "homeLabel": "LinguaLoop Teacher",
       "breadcrumbAria": "Current location",
-      "root": "Instructor",
-      "accountAria": "Instructor account",
+      "root": "Teacher",
+      "accountAria": "Teacher account",
       "menuAria": "Account",
-      "myHistory": "My history",
-      "viewAsStudent": "View as student",
+      "settings": "Settings",
       "logout": "Sign out",
       "titles": {
         "overview": "Overview",
-        "topics": "Topics",
         "lessons": "Lessons",
         "compose": "Create new lesson",
         "decks": "Vocabulary decks",
-        "cefr": "CEFR AI review",
-        "dict": "Dictionary",
-        "phoneme": "Phonetics",
-        "qbank": "Test questions",
-        "reports": "My error reports",
-        "audit": "Change history",
-        "classes": "Classes",
-        "students": "Students",
-        "progress": "Class progress",
-        "weakness": "Common weaknesses",
+        "reports": "Reports",
         "settings": "Settings",
-        "profile": "Instructor profile",
-        "topicDetail": "Topic details",
         "lessonDetail": "Lesson details",
         "deckDetail": "Deck details",
         "reportDetail": "Error report details"
@@ -168,7 +147,7 @@
         "limits": "Plans & Quotas",
         "subs": "Pro subscriptions",
         "errors": "Error categories",
-        "instructors": "Instructors",
+        "teachers": "Teachers",
         "subscriptions": "Service plans",
         "content": "Content",
         "settings": "System settings",

@@ -25,33 +25,20 @@ const studentGroups: NavGroup[] = [
   },
 ];
 
-const instructorGroups: NavGroup[] = [
+const teacherGroups: NavGroup[] = [
   {
-    items: [{ id: "dashboard", icon: "layout-grid", labelKey: k("instructor", "sidebar.items", "dashboard"), to: "/instructor" }],
+    items: [{ id: "dashboard", icon: "layout-grid", labelKey: k("teacher", "sidebar.items", "dashboard"), to: "/teacher" }],
   },
   {
-    titleKey: "instructor.sidebar.groups.content",
+    titleKey: "teacher.sidebar.groups.content",
     items: [
-      { id: "topics", icon: "folders", labelKey: k("instructor", "sidebar.items", "topics"), to: "/instructor/topics" },
-      { id: "lessons", icon: "film", labelKey: k("instructor", "sidebar.items", "lessons"), to: "/instructor/lessons" },
-      { id: "decks", icon: "layers", labelKey: k("instructor", "sidebar.items", "decks"), to: "/instructor/decks" },
+      { id: "lessons", icon: "film", labelKey: k("teacher", "sidebar.items", "lessons"), to: "/teacher/lessons" },
+      { id: "decks", icon: "layers", labelKey: k("teacher", "sidebar.items", "decks"), to: "/teacher/decks" },
     ],
   },
   {
-    titleKey: "instructor.sidebar.groups.language",
-    items: [
-      { id: "cefr", icon: "bot", labelKey: k("instructor", "sidebar.items", "cefr"), to: "/instructor/cefr", badge: "12", badgeType: "warn" },
-      { id: "dict", icon: "book-open-text", labelKey: k("instructor", "sidebar.items", "dict"), to: "/instructor/dict" },
-      { id: "phoneme", icon: "audio-lines", labelKey: k("instructor", "sidebar.items", "phoneme"), to: "/instructor/phoneme" },
-      { id: "qbank", icon: "file-check", labelKey: k("instructor", "sidebar.items", "qbank"), to: "/instructor/qbank" },
-    ],
-  },
-  {
-    titleKey: "instructor.sidebar.groups.tracking",
-    items: [
-      { id: "reports", icon: "flag", labelKey: k("instructor", "sidebar.items", "reports"), to: "/instructor/reports", badge: "3", badgeType: "bad" },
-      { id: "audit", icon: "history", labelKey: k("instructor", "sidebar.items", "audit"), to: "/instructor/audit" },
-    ],
+    titleKey: "teacher.sidebar.groups.tracking",
+    items: [{ id: "reports", icon: "flag", labelKey: k("teacher", "sidebar.items", "reports"), to: "/teacher/reports" }],
   },
 ];
 
@@ -100,19 +87,15 @@ export const STUDENT_SHELL: ShellConfig = {
   ],
 };
 
-export const INSTRUCTOR_SHELL: ShellConfig = {
-  role: "instructor",
-  homePath: "/instructor",
-  ns: "instructor",
+export const TEACHER_SHELL: ShellConfig = {
+  role: "teacher",
+  homePath: "/teacher",
+  ns: "teacher",
   density: "dense",
-  groups: instructorGroups,
-  sidebarAction: { icon: "graduation-cap", labelKey: "instructor.sidebar.viewAsStudent", to: "/student" },
+  groups: teacherGroups,
   topBar: { kind: "workspace" },
-  accountAriaKey: "instructor.topbar.accountAria",
-  menu: [
-    { icon: "history", labelKey: "instructor.topbar.myHistory", to: "/instructor/audit" },
-    { icon: "graduation-cap", labelKey: "instructor.topbar.viewAsStudent", to: "/student" },
-  ],
+  accountAriaKey: "teacher.topbar.accountAria",
+  menu: [{ icon: "settings", labelKey: "teacher.topbar.settings", to: "/teacher/settings" }],
 };
 
 export const ADMIN_SHELL: ShellConfig = {

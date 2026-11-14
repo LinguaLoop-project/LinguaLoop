@@ -26,12 +26,13 @@ class VocabDeckServiceImpl implements VocabDeckService {
     private final VocabDeckRepository decks;
     private final SubscriptionQueryService subscriptions;
     private final CardAudioUrls audio;
+    private final DeckImageUrls images;
 
     @Override
     public DeckView.ListResult list(UUID userId) {
         boolean userPro = subscriptions.isPro(userId);
         OverviewRow overview = decks.findOverview(userId, userPro);
-        List<DeckView.Summary> summaries = decks.findDecks(userId, null, userPro).stream().map(VocabDeckServiceImpl::toSummary).toList();
+        List<DeckView.Summary> summaries = decks.findDecks(userId, null, userPro).stream().map(this::toSummary).toList();
         return new DeckView.ListResult(
                 new DeckView.Overview((int) overview.getDue(), (int) overview.getLearning(),
                         (int) overview.getReviewing(), (int) overview.getMastered()),
@@ -66,12 +67,12 @@ class VocabDeckServiceImpl implements VocabDeckService {
         return row.getCategoryId() == null ? null : new DeckView.Category(row.getCategoryId(), row.getCategoryName());
     }
 
-    private static DeckView.Summary toSummary(DeckRow row) {
+    private DeckView.Summary toSummary(DeckRow row) {
         int cards = (int) row.getCardCount();
         int mastered = (int) row.getMastered();
         int reviewing = (int) row.getReviewing();
         int learning = (int) row.getLearning();
-        return new DeckView.Summary(row.getId(), row.getName(), row.getPro(), row.getThumbnailUrl(), toCategory(row), cards, (int) row.getGroupCount(),
+        return new DeckView.Summary(row.getId(), row.getName(), row.getPro(), images.resolve(row.getThumbnailUrl()), toCategory(row), cards, (int) row.getGroupCount(),
                 new DeckView.Progress(mastered, reviewing, learning, cards - mastered - reviewing - learning),
                 (int) row.getDue());
     }

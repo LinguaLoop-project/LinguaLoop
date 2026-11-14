@@ -39,6 +39,7 @@
 		<springdoc.version>3.1.1</springdoc.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<spring-cloud.version>2025.1.3</spring-cloud.version>
+		<awssdk.version>2.59.0</awssdk.version>
 		<argLine></argLine>
 
 		<!-- ===== Cấu hình SonarCloud ===== -->
@@ -62,6 +63,13 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
 				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>${awssdk.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -127,6 +135,17 @@
 			<groupId>io.github.resilience4j</groupId>
 			<artifactId>resilience4j-circuitbreaker</artifactId>
 			<version>2.3.0</version>
+		</dependency>
+		<!-- Lưu tệp người dùng tải lên (S3). Client tải thẳng lên S3 bằng presigned URL, backend chỉ ký URL. -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+		</dependency>
+		<!-- Đọc và tạo tệp Excel (.xlsx) khi giáo viên nhập thẻ từ tệp (UC-NT-07). -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>

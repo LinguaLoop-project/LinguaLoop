@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { lessonService } from "../services/lessonService";
 import type { LessonState } from "../types";
 
-// Nội dung do giảng viên soạn, không đổi theo người học: giữ lâu để chuyển trang không gọi lại API.
+// Nội dung do giáo viên soạn, không đổi theo người học: giữ lâu để chuyển trang không gọi lại API.
 const STATIC_CONTENT_STALE_TIME = 10 * 60 * 1000;
 
 export const useLessonOverview = () => {
