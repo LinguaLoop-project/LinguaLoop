@@ -28,7 +28,7 @@ const PAGE_ICONS: Record<string, string> = {
   users: "users",
   user: "users",
   students: "users",
-  instructors: "users",
+  teachers: "users",
   reports: "flag",
   report: "flag",
   test: "file-check",
@@ -77,14 +77,14 @@ export default function PlaceholderPage({
   // Xác định trang chủ theo layout
   const homePath = location.pathname.startsWith("/admin")
     ? "/admin"
-    : location.pathname.startsWith("/instructor")
-    ? "/instructor"
+    : location.pathname.startsWith("/teacher")
+    ? "/teacher"
     : "/student";
 
   const homeLabel = location.pathname.startsWith("/admin")
     ? t("common:placeholder.homeAdmin")
-    : location.pathname.startsWith("/instructor")
-    ? t("common:placeholder.homeInstructor")
+    : location.pathname.startsWith("/teacher")
+    ? t("common:placeholder.homeTeacher")
     : t("common:placeholder.homeStudent");
 
   return (

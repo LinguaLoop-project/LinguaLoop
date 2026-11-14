@@ -30,9 +30,9 @@ export type MenuItem = {
 };
 
 export type ShellConfig = {
-  role: "student" | "instructor" | "admin";
+  role: "student" | "teacher" | "admin";
   homePath: string;
-  /** Tiền tố khoá i18n của vai trò: "student" | "instructor" | "admin". */
+  /** Tiền tố khoá i18n của vai trò: "student" | "teacher" | "admin". */
   ns: string;
   /** "comfortable" cho học viên; "dense" cho giáo viên/admin (DESIGN.v2 §4). */
   density: "comfortable" | "dense";
