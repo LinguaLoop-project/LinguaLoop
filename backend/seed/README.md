@@ -37,7 +37,7 @@ V2). Prod không tự nạp seed; chỉ chạy script khi có chủ đích.
 
 Sau V1: `./seed/seed-dictionary.sh` (Windows: `.\seed\seed-dictionary.ps1`). Cùng cách chọn DB như bài học (`DATABASE_URL`).
 Một giao dịch duy nhất; khoá ngoại `lemma_id` hoãn kiểm tra tới COMMIT nên không cần sắp thứ tự từ gốc. Chạy lại an toàn
-(`ON CONFLICT DO NOTHING`).
+(`ON CONFLICT (id) DO UPDATE`): nạp lại sẽ cập nhật các từ đã có bằng dữ liệu trong seed.
 
 Cột nạp vào: `id`, `headword` (chữ thường, duy nhất), `lemma_id` (NULL với từ gốc), `ipa_uk`, `ipa_us`, `audio_uk`,
 `audio_us`, `meanings` (jsonb). Một phần tử của `meanings`:
@@ -45,6 +45,13 @@ Cột nạp vào: `id`, `headword` (chữ thường, duy nhất), `lemma_id` (NU
 ```json
 {"no":1,"pos":"noun","meaning_vi":"...","example_en":"...","example_vi":"..."}
 ```
+
+`audio_uk` và `audio_us` lưu **key** dạng `audio/<tên-file>.mp3`, không lưu URL; backend ghép với `AUDIO_BASE_URL` khi trả
+về cho giao diện. Tệp âm thanh nằm trên S3 dưới `dictionary/audio/`, nên `AUDIO_BASE_URL` là gốc bucket (hoặc CDN) cộng
+`dictionary/`, vd `https://<bucket>.s3.<region>.amazonaws.com/dictionary/`. Đổi bucket hay CDN chỉ cần đổi biến này, không
+đụng DB. Thư mục `dictionary/audio/` phải cho đọc công khai (hoặc đi qua CDN); thiếu `AUDIO_BASE_URL` thì backend trả
+nguyên key và giao diện không phát được âm thanh. Hơn 49.000 tệp trong số này lấy từ `assets.parroto.app` (bên thứ ba) và
+đã sao chép về bucket của dự án, tên tệp giữ nguyên của nguồn (ký tự ngoài `A-Za-z0-9._-` đổi thành `_`).
 
 `definition_en` và `definition_vi` chưa có dữ liệu (nguồn chỉ có nghĩa tiếng Việt và ví dụ).
 
