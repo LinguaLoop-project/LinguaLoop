@@ -63,14 +63,25 @@ mặc định cho loại từ đó vì đó là cách đọc khác).
 
 ## Nạp bộ từ vựng
 
-Sau V1: `./seed/seed-vocabulary.sh` (Windows: `.\seed\seed-vocabulary.ps1`). Cùng cách chọn DB như bài học. Chạy lại an
-toàn (`ON CONFLICT (id) DO NOTHING`), không đụng tới tiến độ học.
+Sau V1 và migration `V20261114_1000` (cột `vocab_cards.image_url`): `./seed/seed-vocabulary.sh` (Windows:
+`.\seed\seed-vocabulary.ps1`). Cùng cách chọn DB như bài học. Chạy lại an toàn (`ON CONFLICT (id) DO NOTHING`), không đụng
+tới tiến độ học. Riêng câu INSERT thẻ dùng `DO UPDATE SET image_url = EXCLUDED.image_url`, nên DB đã nạp bộ từ vựng trước
+đó nhận được ảnh khi nạp lại, còn các cột khác của thẻ không bị ghi đè.
 
 Bộ là bộ thư viện hệ thống (`kind = 'library'`, `owner_id` trống, `status = 'published'`). Tên danh mục, bộ và phần lấy bản
 tiếng Việt. Thứ tự phần và thẻ theo `created_at` (ghi sẵn mốc tăng dần). Khi chuyển từ bản seed cũ đã bỏ: 70 thẻ trùng từ
-trong cùng bộ (giữ thẻ xuất hiện đầu tiên, vì `uq_vocab_cards_word`), ảnh của thẻ, nhãn của bộ, mức CEFR. Loại từ ngoài danh
-sách của `vocab_cards.pos` (`auxiliary verb`) để trống. Nội dung, ảnh bìa và âm thanh (`assets.parroto.app`) lấy từ Parroto,
-có thể hỏng nếu bên đó đổi đường dẫn.
+trong cùng bộ (giữ thẻ xuất hiện đầu tiên, vì `uq_vocab_cards_word`), nhãn của bộ, mức CEFR. Loại từ ngoài danh sách của
+`vocab_cards.pos` (`auxiliary verb`) để trống. Nội dung lấy từ Parroto (`assets.parroto.app`); ảnh và âm thanh đã được sao
+chép về bucket S3 của dự án, nên seed lưu **key** chứ không lưu URL của Parroto:
+
+- Âm thanh (`audio_uk_url`, `audio_us_url`): key `audio/<tên-file>.mp3`, dùng chung `AUDIO_BASE_URL` với từ điển (thư mục
+  `dictionary/` trên S3, xem phần "Nạp từ điển").
+- Ảnh (`vocab_decks.image_url`, `vocab_cards.image_url`): key đầy đủ, ghép với `AWS_S3_PUBLIC_BASE_URL` (gốc bucket hoặc
+  CloudFront). Ảnh bìa bộ ở `vocab-decks/system/`, ảnh thẻ ở `vocab-decks/cards/system/`. `system` thay cho id người dùng
+  trong cách đặt thư mục của ảnh do giáo viên tải lên (`vocab-decks/<userId>/`, `vocab-decks/cards/<userId>/`); bộ seed không
+  có chủ, và backend chỉ cho giáo viên xóa hay ghi đè key nằm dưới thư mục có id của chính họ, nên họ không phá được các tệp này.
+- Thẻ `oculist` không có ảnh vì ảnh gốc trên Parroto trả lỗi 503 khi chuyển dữ liệu.
+- Tên tệp giữ nguyên của nguồn; ký tự ngoài `A-Za-z0-9._-` (dấu cách, dấu `'`) đổi thành `_`.
 
 ## Sinh lại file seed
 
