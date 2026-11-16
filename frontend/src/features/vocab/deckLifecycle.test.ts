@@ -82,4 +82,11 @@ describe("deckLifecycle (UC-BT-05 đến UC-BT-08)", () => {
     );
     expect(failure).toEqual({ kind: "field", field: "reason", code: "NotBlank" });
   });
+
+  it("Bộ bị gỡ do báo cáo thì đóng hộp và chỉ tới yêu cầu duyệt (AC-BT-74)", () => {
+    expect(actionFailure("publish", apiError({ kind: "conflict", code: "REPORT_REVIEW_REQUIRED" }))).toEqual({
+      kind: "close",
+      messageKey: "manage.feedback.reviewRequired",
+    });
+  });
 });

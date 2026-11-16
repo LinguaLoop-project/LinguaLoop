@@ -34,6 +34,8 @@ import com.lingualoop.backend.vocab.repository.VocabDeckManageRepository.DeckMan
 import com.lingualoop.backend.vocab.repository.VocabDeckManageRepository.DeckStateRow;
 import com.lingualoop.backend.vocab.repository.VocabDeckRepository;
 
+import com.lingualoop.backend.report.service.TakedownQueryService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,6 +61,7 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
     private final DeckImageUrls images;
     private final CardAudioUrls audio;
     private final Clock clock;
+    private final TakedownQueryService takedowns;
 
     @Override
     @Transactional(readOnly = true)
@@ -230,6 +233,10 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
         if (VocabDeck.STATUS_PUBLISHED.equals(deck.getStatus())) {
             throw new BusinessException(ErrorCode.VOCAB_DECK_ALREADY_PUBLISHED);
         }
+        // Bộ mang dấu "Bị gỡ do báo cáo" chỉ xuất bản lại khi quản trị viên duyệt (UC-BT-05 nhánh 2b, BR-XL-13).
+        if (takedowns.isDeckTakenDown(deckId)) {
+            throw new BusinessException(ErrorCode.REPORT_REVIEW_REQUIRED);
+        }
         boolean noGroups = repository.countGroups(deckId) == 0;
         List<String> emptyGroups = repository.findEmptyGroupNames(deckId);
         if (noGroups || !emptyGroups.isEmpty()) {
@@ -326,12 +333,15 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
         return deck;
     }
 
-    /** Quản trị viên chỉ xem bộ thư viện Đã xuất bản chưa xóa (BR-BT-01, AC-BT-52). */
+    /**
+     * Quản trị viên chỉ xem bộ thư viện Đã xuất bản chưa xóa (BR-BT-01, AC-BT-52); ngoại lệ là bộ Nháp đang bị gỡ do
+     * báo cáo, để xem toàn bộ nội dung trước khi duyệt xuất bản lại (UC-XL-05, AC-BT-76).
+     */
     private void adminViewableDeck(UUID deckId) {
         DeckStateRow deck = repository.findState(deckId)
                 .filter(d -> VocabDeck.KIND_LIBRARY.equals(d.getKind()) && d.getDeletedAt() == null)
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));
-        if (!VocabDeck.STATUS_PUBLISHED.equals(deck.getStatus())) {
+        if (!VocabDeck.STATUS_PUBLISHED.equals(deck.getStatus()) && !takedowns.isDeckTakenDown(deckId)) {
             throw new ForbiddenException("Quản trị viên chỉ xem được bộ thẻ Đã xuất bản");
         }
     }

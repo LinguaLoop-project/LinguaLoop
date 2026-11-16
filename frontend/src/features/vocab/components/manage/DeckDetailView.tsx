@@ -30,6 +30,10 @@ import { MetaChip, StatusBadge } from "./DeckBits";
 export interface DeckDetailViewProps {
   role: ManageRole;
   deckId: string;
+  /** Ẩn dòng lý do gỡ xuất bản khi trang đã hiện khung "Bị gỡ do báo cáo" cùng lý do đó. */
+  hideUnpublishReason?: boolean;
+  /** Nút quay lại đầu trang trỏ về nơi đã mở bộ (ví dụ yêu cầu duyệt xuất bản lại) thay cho danh sách bộ thẻ. */
+  back?: { path: string; label: string };
 }
 
 function formatDate(iso: string, language: string): string {
@@ -41,7 +45,7 @@ function formatDate(iso: string, language: string): string {
  * chung, nhóm thẻ, thẻ của nhóm đang chọn (20 thẻ mỗi trang, tìm theo từ vựng). Giáo viên xuất bản, gỡ, xóa ngay trên
  * trang; quản trị viên chỉ xem và gỡ xuất bản. Xem không ghi tiến độ học (BR-BT-11).
  */
-export default function DeckDetailView({ role, deckId }: DeckDetailViewProps) {
+export default function DeckDetailView({ role, deckId, hideUnpublishReason = false, back }: DeckDetailViewProps) {
   const { t, i18n } = useTranslation("vocab");
   const navigate = useNavigate();
   const listPath = role === "teacher" ? TEACHER_DECKS_PATH : ADMIN_DECKS_PATH;
@@ -147,9 +151,9 @@ export default function DeckDetailView({ role, deckId }: DeckDetailViewProps) {
         variant="text"
         className="self-start"
         leftIcon={<Icon name="chevron-left" />}
-        onClick={() => navigate(listPath)}
+        onClick={() => navigate(back?.path ?? listPath)}
       >
-        {t("manage.detail.back")}
+        {back?.label ?? t("manage.detail.back")}
       </Button>
 
       <header className="flex flex-wrap items-start gap-4 rounded-xl border border-border bg-surface p-5">
@@ -207,7 +211,7 @@ export default function DeckDetailView({ role, deckId }: DeckDetailViewProps) {
         </div>
       </header>
 
-      {role === "teacher" && deck.status === "draft" && deck.unpublishReason && (
+      {role === "teacher" && deck.status === "draft" && deck.unpublishReason && !hideUnpublishReason && (
         <FormAlert variant="warning">{t("manage.unpublishedByAdmin", { reason: deck.unpublishReason })}</FormAlert>
       )}
 

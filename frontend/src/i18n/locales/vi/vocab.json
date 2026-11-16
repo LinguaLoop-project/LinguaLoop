@@ -341,7 +341,8 @@
       "alreadyRestored": "Bộ thẻ đã được khôi phục",
       "restoreExpired": "Bộ thẻ đã bị xóa quá 30 ngày, không thể khôi phục",
       "notFound": "Không tìm thấy bộ thẻ",
-      "forbidden": "Bạn không có quyền thực hiện thao tác này trên bộ thẻ"
+      "forbidden": "Bạn không có quyền thực hiện thao tác này trên bộ thẻ",
+      "reviewRequired": "Bộ thẻ bị gỡ do báo cáo. Hãy mở trang bộ thẻ và gửi yêu cầu duyệt xuất bản lại."
     },
     "groupCount_one": "{{count}} nhóm",
     "groupCount_other": "{{count}} nhóm",

@@ -28,6 +28,7 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ConflictException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.FieldValidationException;
+import com.lingualoop.backend.report.service.TakedownQueryService;
 import com.lingualoop.backend.storage.dto.StoredObject;
 import com.lingualoop.backend.storage.service.FileStorageService;
 import com.lingualoop.backend.storage.service.UploadPurpose;
@@ -47,6 +48,7 @@ class VocabDeckManageServiceImplTest {
     @Mock private VocabDeckManageRepository repository;
     @Mock private VocabDeckRepository deckRepository;
     @Mock private FileStorageService storage;
+    @Mock private TakedownQueryService takedowns;
 
     private VocabDeckManageServiceImpl service;
     private final UUID teacher = UUID.randomUUID();
@@ -56,7 +58,7 @@ class VocabDeckManageServiceImplTest {
     void setUp() {
         Clock clock = Clock.fixed(Instant.parse("2026-11-13T03:30:00Z"), ZoneOffset.UTC);
         service = new VocabDeckManageServiceImpl(repository, deckRepository, new DeckImageValidator(), storage,
-                new DeckImageUrls(storage), new CardAudioUrls(null), clock);
+                new DeckImageUrls(storage), new CardAudioUrls(null), clock, takedowns);
         when(repository.existsActiveName(any(), anyString())).thenReturn(false);
         when(deckRepository.saveAndFlush(any(VocabDeck.class))).thenAnswer(inv -> inv.getArgument(0));
         when(storage.publicUrl(anyString())).thenAnswer(inv -> BASE_URL + inv.getArgument(0));

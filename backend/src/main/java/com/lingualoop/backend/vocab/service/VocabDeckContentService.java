@@ -1,5 +1,6 @@
 package com.lingualoop.backend.vocab.service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import com.lingualoop.backend.vocab.dto.CardImagesView;
@@ -42,6 +43,18 @@ public interface VocabDeckContentService {
      * lưu.
      */
     DeckManageView.Card updateCard(UUID teacherId, UUID deckId, UUID groupId, UUID cardId, CardRequest request);
+
+    /**
+     * Ghi bản sửa đề xuất của học viên vào một trường của thẻ, đi qua cùng luồng lưu với {@link #updateCard} (quyền chủ
+     * bộ, trùng từ, âm thanh theo từ điển) (UC-XL-02 nhánh 2a, BR-XL-10). {@code column} là tên cột của thẻ:
+     * {@code word}, {@code ipa_us}, {@code ipa_uk}, {@code meaning_vi}, {@code definition_en}, {@code definition_vi},
+     * {@code example_en}, {@code example_vi}. Thẻ đã xóa ném {@code VOCAB_CARD_NOT_FOUND}; giá trị vượt giới hạn của
+     * trường ném {@code FieldValidationException} trên trường đó. Trả về giá trị cũ của trường.
+     */
+    String applyReportFix(UUID teacherId, UUID cardId, String column, String value);
+
+    /** URL đọc của ảnh minh họa của thẻ chưa xóa; thẻ không có ảnh hoặc đã xóa trả rỗng (UC-XL-01 nhánh 8a). */
+    Optional<String> cardImageUrl(UUID cardId);
 
     /** Xóa tạm thẻ (UC-NT-06, BR-NT-04). */
     void deleteCard(UUID teacherId, UUID deckId, UUID groupId, UUID cardId);

@@ -55,7 +55,8 @@ public class AdminVocabDeckController {
         return ApiResponse.ok(deckManageService.listForAdmin(query, page));
     }
 
-    /** Thông tin chung, chủ bộ và nhóm thẻ của bộ Đã xuất bản; bộ Nháp trả 403 (UC-BT-04, AC-BT-52). */
+    /** Thông tin chung, chủ bộ và nhóm thẻ của bộ Đã xuất bản; bộ Nháp trả 403 (UC-BT-04, AC-BT-52), trừ
+     * bộ đang bị gỡ do báo cáo để quản trị viên xem trước khi duyệt xuất bản lại (UC-XL-05, AC-BT-76). */
     @GetMapping("/{deckId}")
     public ApiResponse<DeckManageView.Detail> detail(@PathVariable UUID deckId) {
         return ApiResponse.ok(deckManageService.getForAdmin(deckId));

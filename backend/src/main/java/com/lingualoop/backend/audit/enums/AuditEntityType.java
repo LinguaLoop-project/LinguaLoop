@@ -7,7 +7,10 @@ import java.util.Optional;
 public enum AuditEntityType {
     TOPIC,
     LESSON,
-    SENTENCE;
+    SENTENCE,
+    DECK,
+    CARD,
+    REPORT;
 
     public String value() {
         return name().toLowerCase(Locale.ROOT);

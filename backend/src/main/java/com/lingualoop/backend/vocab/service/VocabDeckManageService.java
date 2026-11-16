@@ -42,7 +42,7 @@ public interface VocabDeckManageService {
 
     /**
      * Thông tin chung, chủ bộ và nhóm thẻ của bộ Đã xuất bản (UC-BT-04). Bộ Nháp ném {@code ForbiddenException}
-     * (AC-BT-52); bộ đã xóa, bộ cá nhân ném {@code VOCAB_DECK_NOT_FOUND}.
+     * (AC-BT-52), trừ bộ đang bị gỡ do báo cáo (AC-BT-76); bộ đã xóa, bộ cá nhân ném {@code VOCAB_DECK_NOT_FOUND}.
      */
     DeckManageView.Detail getForAdmin(UUID deckId);
 

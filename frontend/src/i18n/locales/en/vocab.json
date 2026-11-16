@@ -355,7 +355,8 @@
       "alreadyRestored": "This deck has already been restored",
       "restoreExpired": "This deck was deleted more than 30 days ago and can't be restored",
       "notFound": "Deck not found",
-      "forbidden": "You don't have permission to do this on the deck"
+      "forbidden": "You don't have permission to do this on the deck",
+      "reviewRequired": "This deck was taken down after a report. Open the deck and send a republish request."
     },
     "groupCount_one": "{{count}} group",
     "groupCount_other": "{{count}} groups",
