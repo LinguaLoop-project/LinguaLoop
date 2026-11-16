@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/BT-quan-ly-bo-the/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. Quay lại [mục lục](../TRACEABILITY-AC-TEST.md).
 
-Tổng hợp: 73 AC, 59 đã có test, 6 một phần, 8 thiếu.
+Tổng hợp: 76 AC, 59 đã có test, 9 một phần, 8 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -59,6 +59,9 @@ Tổng hợp: 73 AC, 59 đã có test, 6 một phần, 8 thiếu.
 | AC-BT-31 | Mất kết nối khi xuất bản | UC-BT-05 |  | `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
 | AC-BT-71 | Xuất bản bộ của người khác | UC-BT-05 |  | VocabDeckLifecycleApiIntegrationTest.publish_otherTeachersDeck_returns403AndStaysDraft_AC_BT_71 | Đã có |
 | AC-BT-72 | Xuất bản bộ không còn tồn tại | UC-BT-05 |  | VocabDeckLifecycleApiIntegrationTest.publish_deletedDeck_returns404_AC_BT_72 | Đã có |
+| AC-BT-74 | Gửi duyệt xuất bản lại bộ bị gỡ do báo cáo | UC-BT-05 | D, A | ReportModerationApiIntegrationTest.republish_requiresFixThenApprovalOnce_AC_BT_74_75_AC_XL_48; ReportModerationApiIntegrationTest.takedown_draftDeck_onlyMarksAndBlocksTeacherPublish_AC_XL_42; `frontend/src/features/report/reportForm.test.ts` (E2E chưa viết: chưa có Playwright) | Một phần |
+| AC-BT-75 | Đã có yêu cầu đang chờ duyệt | UC-BT-05 | A | ReportModerationApiIntegrationTest.republish_requiresFixThenApprovalOnce_AC_BT_74_75_AC_XL_48; `frontend/src/features/report/reportForm.test.ts` (E2E chưa viết: chưa có Playwright) | Một phần |
+| AC-BT-76 | Quản trị viên xem bộ bị gỡ do báo cáo trước khi duyệt | UC-BT-04 | D, A | ReportModerationApiIntegrationTest.adminDeckDetail_takenDownDraftIsViewable_plainDraftIsNot_AC_BT_76 (E2E chưa viết: chưa có Playwright) | Một phần |
 | AC-BT-32 | Giáo viên gỡ bộ của mình | UC-BT-06 |  | VocabDeckLifecycleApiIntegrationTest.unpublish_teacherOwnDeck_becomesDraft_AC_BT_32 | Đã có |
 | AC-BT-33 | Quản trị viên gỡ bộ kèm lý do | UC-BT-06 |  | VocabDeckLifecycleApiIntegrationTest.unpublish_adminWithReason_reasonShownToOwner_AC_BT_33 | Đã có |
 | AC-BT-34 | Gỡ bộ của người khác | UC-BT-06 |  | VocabDeckLifecycleApiIntegrationTest.unpublish_otherTeachersDeck_returns403_AC_BT_34 | Đã có |

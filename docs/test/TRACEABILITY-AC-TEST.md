@@ -24,7 +24,7 @@
 | [SH-shadowing](traceability/SH-shadowing.md) | 28 | 0 | 0 | 28 | 0% |
 | [TC-tra-cuu-hoc-thu-dong](traceability/TC-tra-cuu-hoc-thu-dong.md) | 33 | 0 | 0 | 33 | 0% |
 | [TH-xem-thong-ke-hoc-tap](traceability/TH-xem-thong-ke-hoc-tap.md) | 22 | 0 | 0 | 22 | 0% |
-| [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 52 | 41 | 3 | 8 | 79% |
+| [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 58 | 41 | 5 | 12 | 71% |
 | [TN-xem-thong-ke-noi-dung](traceability/TN-xem-thong-ke-noi-dung.md) | 23 | 0 | 0 | 23 | 0% |
 | [XL-xu-ly-bao-cao](traceability/XL-xu-ly-bao-cao.md) | 62 | 0 | 0 | 62 | 0% |
-| **Tổng** | **739** | **154** | **14** | **571** | **21%** |
+| **Tổng** | **745** | **154** | **16** | **575** | **21%** |

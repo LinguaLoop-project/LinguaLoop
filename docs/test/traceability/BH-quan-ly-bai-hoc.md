@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/BH-quan-ly-bai-hoc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. Quay lại [mục lục](../TRACEABILITY-AC-TEST.md).
 
-Tổng hợp: 75 AC, 0 đã có test, 0 một phần, 75 thiếu.
+Tổng hợp: 77 AC, 0 đã có test, 0 một phần, 77 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -55,6 +55,8 @@ Tổng hợp: 75 AC, 0 đã có test, 0 một phần, 75 thiếu.
 | AC-BH-47 | Bài của giáo viên khác hoặc đã xuất bản | UC-BH-06 |  |  | Thiếu |
 | AC-BH-48 | Hủy xuất bản | UC-BH-06 |  |  | Thiếu |
 | AC-BH-49 | Mất kết nối khi xuất bản | UC-BH-06 |  |  | Thiếu |
+| AC-BH-76 | Gửi duyệt xuất bản lại bài bị gỡ do báo cáo | UC-BH-06 |  |  | Thiếu |
+| AC-BH-77 | Đã có yêu cầu đang chờ duyệt | UC-BH-06 |  |  | Thiếu |
 | AC-BH-50 | Giáo viên gỡ bài của mình | UC-BH-07 |  |  | Thiếu |
 | AC-BH-51 | Quản trị viên gỡ bài kèm lý do | UC-BH-07 |  |  | Thiếu |
 | AC-BH-52 | Gỡ bài của người khác | UC-BH-07 |  |  | Thiếu |

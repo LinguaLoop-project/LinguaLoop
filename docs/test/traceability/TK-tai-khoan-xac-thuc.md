@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TK-tai-khoan-xac-thuc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. Quay lại [mục lục](../TRACEABILITY-AC-TEST.md).
 
-Tổng hợp: 52 AC, 41 đã có test, 3 một phần, 8 thiếu.
+Tổng hợp: 58 AC, 41 đã có test, 5 một phần, 12 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -58,3 +58,9 @@ Tổng hợp: 52 AC, 41 đã có test, 3 một phần, 8 thiếu.
 | AC-TK-50 | Chưa đồng ý điều khoản | UC-TK-08 | A |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
 | AC-TK-51 | Không lưu được hồ sơ | UC-TK-08 | A |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
 | AC-TK-52 | Mở lại sau khi đã hoàn tất | UC-TK-08 | D |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
+| AC-TK-53 | Xem và đọc một thông báo | UC-TK-09 | D, A | NotificationApiIntegrationTest.latest_newestFirstWithUnreadCount_onlyOwn_AC_TK_53; NotificationApiIntegrationTest.markRead_oneThenAll_andNotOthers_AC_TK_53_AC_TK_55; `frontend/src/features/user/notifications.test.ts` (E2E chưa viết: chưa có Playwright) | Một phần |
+| AC-TK-54 | Số chưa đọc tự cập nhật | UC-TK-09 | D |  | Thiếu (chỉ ở giao diện, cần E2E) |
+| AC-TK-55 | Đánh dấu tất cả đã đọc | UC-TK-09 | D | NotificationApiIntegrationTest.markRead_oneThenAll_andNotOthers_AC_TK_53_AC_TK_55 (E2E chưa viết: chưa có Playwright) | Một phần |
+| AC-TK-56 | Chưa có thông báo | UC-TK-09 | B |  | Thiếu (chỉ ở giao diện, cần E2E) |
+| AC-TK-57 | Không tải được thông báo | UC-TK-09 | A |  | Thiếu (chỉ ở giao diện, cần E2E) |
+| AC-TK-58 | Không ghi nhận được đã đọc | UC-TK-09 | A |  | Thiếu (chỉ ở giao diện, cần E2E) |

@@ -17,7 +17,7 @@ Bộ thẻ có ba trạng thái (BR-BT-02): **Nháp**, **Đã xuất bản**, **
 
 - **Giáo viên**: thao tác trên bộ mình là chủ (BR-BT-01). Chủ bộ đổi khi quản trị viên giao lại nội dung của giáo viên bị khóa (UC-QT-06, UC-QT-07); giáo viên nhận có toàn quyền như chủ bộ.
 - **Quản trị viên**: chỉ xem danh sách, xem chi tiết và gỡ xuất bản (BR-BT-01, BR-BT-08); không thêm, sửa, xóa hay khôi phục bộ.
-- **Bộ chưa gán chủ**: dữ liệu nhập ban đầu, quản trị viên thấy với chủ bộ "Hệ thống"; không giáo viên nào thao tác được cho đến khi được gán chủ lúc làm sạch dữ liệu.
+- **Bộ chưa gán chủ**: dữ liệu nhập ban đầu, quản trị viên thấy với chủ bộ "Hệ thống"; không giáo viên nào thao tác được cho đến khi quản trị viên giao bộ cho một giáo viên (UC-QT-06), ví dụ ngay từ chi tiết một báo cáo về thẻ của bộ (UC-XL-01).
 
 ## 3. Phạm vi danh sách
 
