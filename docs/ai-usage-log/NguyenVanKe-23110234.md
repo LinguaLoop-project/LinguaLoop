@@ -471,6 +471,66 @@
 - **Commit:** dafa657
 - **Lỗi liên quan:** NONE
 
+### AI-KE-042
+
+- **Ngày:** 2026-11-16
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** OTHER — báo cáo nội dung (feature `report`), README §4.2 chưa có giá trị riêng; phạm vi phụ DATABASE, LESSON
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Viết backend xử lý báo cáo hai luồng (UC-BC, UC-XL): học viên gửi báo cáo câu/thẻ, giáo viên chủ sửa theo báo cáo hoặc từ chối, quản trị viên xử lý báo cáo Phản cảm và gỡ nội dung, giáo viên gửi yêu cầu xuất bản lại, quản trị viên duyệt; tự đánh dấu quá hạn và tự đóng báo cáo khi nội dung bị xóa. Sau đó thêm áp dụng bản sửa đề xuất, xem ảnh thẻ bị báo, bộ lọc theo giáo viên chủ, cho quản trị viên xem bộ Nháp bị gỡ do báo cáo, và siết kiểm tra "đã sửa" theo trường học viên chọn
+- **Vị trí code do AI sinh (`file:hàm`):** `db/migration/V20261115_1400__report_two_track.sql`; `report/service/ReportSubmitServiceImpl.java:submit`; `report/service/ReportReviewServiceImpl.java:resolve`, `:columnsToCheck`, `:reject`, `:applyFix`, `:detail`, `:listOwners`; `report/service/ReportModerationServiceImpl.java:takedown`, `:requestRepublish`, `:approve`, `:reject`, `:status`, `:getRequest`; `report/service/ReportMaintenanceService.java:runOnce`; `report/service/ReportCleanupService.java`; `report/service/TakedownQueryServiceImpl.java`; `report/repository/ReportRepository.java:findOwners`, `CARD_FIELDS`; `report/repository/ModerationRepository.java:findUnchanged`, `:takedownItems`; `report/enums/ReportReason.java:changedColumns`; `report/enums/ReportTargetType.java`; `report/controller/TeacherReportController.java:applyFix`; `AdminReportController.java:owners`; `AdminRepublishController.java`, `TeacherRepublishController.java`; `lesson/service/LessonModerationServiceImpl.java:applyReportFix`; `vocab/service/VocabDeckContentServiceImpl.java:applyReportFix`, `:cardImageUrl`; `vocab/service/CardFix.java`; `vocab/service/DeckModerationServiceImpl.java`; `vocab/service/VocabDeckManageServiceImpl.java:adminViewableDeck`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chốt các quyết định nghiệp vụ: tách hai luồng theo lý do, lý do hiển thị dạng "Sai …" và gom nhóm (chọn phương án 1 khi phân biệt lỗi IPA với lỗi phiên âm), báo cáo ảnh thì sửa bất kỳ trường nào cũng tính là đã sửa, nhưng có trường học viên chọn (`fix_field`) thì chỉ trường đó được tính. Kế chạy thử thủ công và phát hiện: quản trị viên không mở được bộ Nháp bị gỡ để xem trước khi duyệt, gửi xuất bản lại bị chặn vì thay ảnh không được tính là đã sửa và giao diện không nói mục nào chưa sửa; AI sửa cả hai trước khi commit. Đối chiếu đặc tả (design-sync): Kế chọn thêm bộ lọc giáo viên chủ vào code, còn hai chỗ lệch khác sửa đặc tả.
+- **Commit:** 62758de
+- **Lỗi liên quan:** NONE
+
+### AI-KE-043
+
+- **Ngày:** 2026-11-16
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Làm giao diện báo cáo cho học viên, giáo viên, quản trị viên: nút báo cáo, danh sách và chi tiết báo cáo, áp dụng bản sửa đề xuất, xem nội dung bị báo (kèm ảnh thẻ), thông báo nội dung bị gỡ và gửi xuất bản lại, danh sách và chi tiết yêu cầu xuất bản lại; đếm số thật trên menu; gom cụm nút thanh trên cùng
+- **Vị trí code do AI sinh (`file:hàm`):** `features/report/components/ReportButton.tsx`, `ReportDialog.tsx`, `ReportListView.tsx`, `ReportListScreen.tsx`, `ReportDetailScreen.tsx`, `HandleReportDialog.tsx`, `ApplyFixDialog.tsx`, `ContentPreviewDialog.tsx`, `TakedownNotice.tsx`, `RepublishListScreen.tsx`, `RepublishDetailScreen.tsx`, `reportBits.tsx`; `features/report/pages/admin/*`, `pages/teacher/*`; `features/report/api.ts`, `hooks.ts:useReportBadge`, `:useApplyFix`, `:useReportOwners`, `:useIsTakenDown`; `reportForm.ts:reasonFilterGroups`, `:reasonFitsType`, `:listParams`; `reportFormat.ts:statusKey`, `:cellText`, `:compareRows`; `paths.ts:adminContentPath`; `features/vocab/components/manage/DeckDetailView.tsx` (`back`, `hideUnpublishReason`); `vocab/pages/admin/AdminDeckDetailPage.tsx:backOf`; `vocab/pages/teacher/TeacherDeckDetailPage.tsx`; `components/layouts/shell/Sidebar.tsx`, `TopBar.tsx`, `shellConfigs.ts`, `AccountMenu.tsx` (`compact`); `components/common/LanguageSwitcher.tsx` (variant `bare`); `app/routes.tsx` (guard `/teacher`); `i18n/locales/{vi,en}/report.json`, `layout.json`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế duyệt qua ảnh chụp màn hình và yêu cầu sửa: đổi tên trạng thái "Chờ giáo viên/Chờ quản trị viên" cho tự nhiên, bỏ số "5" giả trên menu và nhãn "Duyệt bộ từ công…" bị cắt chữ, đổi tên menu cho khớp đặc tả, gom ba khối rời ở thanh trên cùng thành một cụm. Kế phát hiện qua chạy thử: trang xem toàn bộ bộ thẻ của quản trị viên không có nút quay về yêu cầu xuất bản lại, giáo viên phải tải lại trang mới thấy nút gửi xuất bản lại, quản trị viên vào được trang giáo viên; AI sửa cả ba trước khi commit.
+- **Commit:** 62758de
+- **Lỗi liên quan:** NONE
+
+### AI-KE-044
+
+- **Ngày:** 2026-11-16
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** USER
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Thêm chuông thông báo trên thanh trên cùng cho mọi vai trò: xem 20 thông báo mới nhất, số chưa đọc, đánh dấu một hoặc tất cả đã đọc, tự tải lại định kỳ
+- **Vị trí code do AI sinh (`file:hàm`):** `user/repository/NotificationRepository.java:insert`, `:findLatest`, `:countUnread`, `:markRead`, `:markAllRead`; `user/service/NotificationServiceImpl.java:send`, `:latest`, `:markRead`, `:markAllRead`; `user/controller/NotificationController.java`; `user/dto/response/NotificationsResponse.java`; `features/user/notifications.ts:useNotifications`, `:relativeTime`; `features/user/components/NotificationBell.tsx:NotificationBell`, `:PanelBody`; `components/common/Icon.tsx` (`bell`, `check-check`)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế hỏi vì sao chưa có biểu tượng thông báo, rồi quyết định đặt chuông chung trong cụm nút thanh trên cùng. Các giá trị 20 thông báo, "99+", 60 giây, 7 ngày do AI đề xuất, Kế duyệt khi duyệt UC-TK-09.
+- **Commit:** 62758de
+- **Lỗi liên quan:** NONE
+
+### AI-KE-045
+
+- **Ngày:** 2026-11-16
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** TESTING
+- **Loại công việc (`Task Type`):** TEST_GENERATION
+- **Prompt chính / yêu cầu:** Viết test cho AC của BC, XL, phần BT liên quan báo cáo và UC-TK-09; soạn kịch bản kiểm thử thủ công đi qua mọi trạng thái báo cáo
+- **Vị trí code do AI sinh (`file:hàm`):** `report/ReportTestData.java:setFix`, `:field`, `:countContentUpdates`; `ReportSubmitApiIntegrationTest.java`; `ReportReviewApiIntegrationTest.java:applyFix_*` (AC-XL-19, 20, 21), `:detail_cardIncludesImageForPreview_sentenceHasNone_AC_XL_14`, `:resolve_onlyChosenFixFieldCounts_AC_XL_27`, `:list_adminFiltersByOwner_andListsOwners_AC_XL_09`; `ReportModerationApiIntegrationTest.java:adminDeckDetail_takenDownDraftIsViewable_plainDraftIsNot_AC_BT_76`, `:republish_replacingReportedImageCountsAsFixed_UC_BT_05_2c`; `user/controller/NotificationApiIntegrationTest.java:latest_newestFirstWithUnreadCount_onlyOwn_AC_TK_53`, `:markRead_oneThenAll_andNotOthers_AC_TK_53_AC_TK_55`, `:latest_withoutToken_returns401`; `vocab/service/VocabDeckManageServiceImplTest.java`; `features/report/reportForm.test.ts`; `features/user/notifications.test.ts`; `features/vocab/deckLifecycle.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế đi theo kịch bản thủ công trên giao diện thật; các lỗi Kế tìm được ghi ở AI-KE-042 và AI-KE-043. Các AC chỉ quan sát được trên giao diện (AC-TK-54, 56, 57, 58 và nhiều AC XL) vẫn để "Thiếu" hoặc "Một phần" vì chưa có Playwright.
+- **Commit:** 62758de
+- **Lỗi liên quan:** NONE
+
+### AI-KE-046
+
+- **Ngày:** 2026-11-16
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DOCUMENTATION
+- **Loại công việc (`Task Type`):** DOCUMENTATION
+- **Prompt chính / yêu cầu:** Đối chiếu đặc tả với code báo cáo và sửa đặc tả theo quyết định; viết UC-TK-09 "Xem thông báo"; review UC-TK-09; cập nhật bảng truy vết AC → test
+- **Vị trí code do AI sinh (`file:hàm`):** `docs/srs/XL-xu-ly-bao-cao/usecase.md` (UC-XL-01 bước 5, UC-XL-02 bước 3, 5, 4a, AC-XL-22, UC-XL-05 bước 4), `quy-tac-nghiep-vu.md` (BR-XL-02, 03, 05, 11); `docs/srs/BC-bao-cao-noi-dung/quy-tac-nghiep-vu.md` (BR-BC-05, 10, 11); `docs/srs/BT-quan-ly-bo-the/usecase.md` (UC-BT-04 1c, AC-BT-76, UC-BT-05 2b), `quy-tac-nghiep-vu.md` (BR-BT-01); `docs/srs/TK-tai-khoan-xac-thuc/usecase.md` (UC-TK-09, AC-TK-53 đến 58), `quy-tac-nghiep-vu.md` (BR-TK-16, 17); `docs/srs/NK-nhat-ky-thong-ke-he-thong/usecase.md`, `TN-xem-thong-ke-noi-dung/usecase.md` (tên menu); `docs/test/traceability/XL-xu-ly-bao-cao.md`, `BC-bao-cao-noi-dung.md`, `BT-quan-ly-bo-the.md`, `TK-tai-khoan-xac-thuc.md`; `docs/design/sync-report.md`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế quyết định từng chỗ lệch khi đối chiếu: bỏ "các báo cáo dẫn tới việc gỡ" khỏi đặc tả, sửa đặc tả để giáo viên tự quay lại chi tiết báo cáo, để sau thông báo AC-XL-53 nêu tên câu bị thiếu. Kế phát hiện luồng "3a. Chưa có thông báo nào" của UC-TK-09 bị đặt nhầm vào luồng ngoại lệ; review lại tìm thêm BR-TK-17 nêu sai các sự kiện gửi thông báo và AC-TK-54 dùng học viên trong khi chưa có sự kiện nào gửi thông báo cho học viên; Kế chọn sửa BR-XL-11 theo code (một thông báo gộp mỗi giáo viên) rồi duyệt UC-TK-09. Ở f444d1a, bản ghi này chỉ gồm phần AI sửa tên 6 test cũ trong `BT-quan-ly-bo-the.md` (AC-BT-12, 13, 69, 73); phần còn lại của commit đó không thuộc bản ghi này.
+- **Commit:** d7d6101, f444d1a
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
