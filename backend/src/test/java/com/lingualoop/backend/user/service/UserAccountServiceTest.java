@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
+import com.lingualoop.backend.common.exception.FieldValidationException;
 import com.lingualoop.backend.common.exception.NotFoundException;
 import com.lingualoop.backend.user.dto.UserAccountView;
 
@@ -125,5 +126,103 @@ class UserAccountServiceTest {
     void updatePasswordHash_unknownUser_throwsNotFound() {
         assertThatThrownBy(() -> service.updatePasswordHash(UUID.randomUUID(), "x"))
                 .isInstanceOf(NotFoundException.class);
+    }
+
+    // ── Hồ sơ học tập (UC-TK-08) ──
+
+    private UserAccountView newGoogleStudent() {
+        return service.createFromGoogle(uniqueSub(), "lp-" + UUID.randomUUID() + "@x.com", "Linh", null);
+    }
+
+    @Test
+    void saveLearningProfile_firstTime_marksOnboardedAndStoresEverything() {
+        UserAccountView google = newGoogleStudent();
+        assertThat(google.onboarded()).isFalse();
+        assertThat(google.termsAccepted()).isFalse();
+
+        UserAccountView saved = service.saveLearningProfile(google.id(), "  Linh Nguyen ", 20, "en", "Asia/Tokyo", true);
+
+        assertThat(saved.onboarded()).isTrue();
+        assertThat(saved.termsAccepted()).isTrue();
+        assertThat(saved.displayName()).isEqualTo("Linh Nguyen");
+        assertThat(saved.dailyMinutes()).isEqualTo(20);
+        assertThat(saved.uiLanguage()).isEqualTo("en");
+        assertThat(saved.timezone()).isEqualTo("Asia/Tokyo");
+    }
+
+    @Test
+    void saveLearningProfile_termsNotAcceptedYet_rejectsAndStoresNothing() {
+        UserAccountView google = newGoogleStudent();
+
+        assertThatThrownBy(() -> service.saveLearningProfile(google.id(), "Linh", 15, "vi", "Asia/Ho_Chi_Minh", false))
+                .isInstanceOfSatisfying(FieldValidationException.class,
+                        e -> assertThat(e.fieldErrors().get(0).field()).isEqualTo("acceptTerms"));
+
+        UserAccountView after = service.findById(google.id()).orElseThrow();
+        assertThat(after.onboarded()).isFalse();
+        assertThat(after.termsAccepted()).isFalse();
+    }
+
+    @Test
+    void saveLearningProfile_emailRegisteredUser_doesNotNeedToAcceptTermsAgain() {
+        UserAccountView local = service.createLocal("lp-" + UUID.randomUUID() + "@x.com", "Lan", "hash");
+        assertThat(local.termsAccepted()).isTrue();
+
+        UserAccountView saved = service.saveLearningProfile(local.id(), "Lan", 10, "vi", "Asia/Ho_Chi_Minh", false);
+
+        assertThat(saved.onboarded()).isTrue();
+        assertThat(saved.dailyMinutes()).isEqualTo(10);
+    }
+
+    @Test
+    void saveLearningProfile_secondTime_updatesWithoutChangingOnboardedFlag() {
+        UserAccountView google = newGoogleStudent();
+        service.saveLearningProfile(google.id(), "Linh", 15, "vi", "Asia/Ho_Chi_Minh", true);
+
+        UserAccountView saved = service.saveLearningProfile(google.id(), "Linh", 30, "en", "Asia/Seoul", false);
+
+        assertThat(saved.onboarded()).isTrue();
+        assertThat(saved.termsAccepted()).isTrue();
+        assertThat(saved.dailyMinutes()).isEqualTo(30);
+        assertThat(saved.timezone()).isEqualTo("Asia/Seoul");
+    }
+
+    @Test
+    void saveLearningProfile_invalidFields_reportTheRightField() {
+        UserAccountView local = service.createLocal("lp-" + UUID.randomUUID() + "@x.com", "Lan", "hash");
+        UUID id = local.id();
+
+        assertThat(rejectedField(() -> service.saveLearningProfile(id, "   ", 15, "vi", "Asia/Ho_Chi_Minh", true)))
+                .isEqualTo("displayName");
+        assertThat(rejectedField(() -> service.saveLearningProfile(id, "N".repeat(51), 15, "vi", "Asia/Ho_Chi_Minh", true)))
+                .isEqualTo("displayName");
+        assertThat(rejectedField(() -> service.saveLearningProfile(id, "Lan", 25, "vi", "Asia/Ho_Chi_Minh", true)))
+                .isEqualTo("dailyMinutes");
+        assertThat(rejectedField(() -> service.saveLearningProfile(id, "Lan", 15, "fr", "Asia/Ho_Chi_Minh", true)))
+                .isEqualTo("uiLanguage");
+        assertThat(rejectedField(() -> service.saveLearningProfile(id, "Lan", 15, "vi", "Not/AZone", true)))
+                .isEqualTo("timezone");
+        assertThat(service.findById(id).orElseThrow().onboarded()).isFalse();
+    }
+
+    @Test
+    void saveLearningProfile_nameWith50Chars_isAccepted() {
+        UserAccountView local = service.createLocal("lp-" + UUID.randomUUID() + "@x.com", "Lan", "hash");
+
+        UserAccountView saved = service.saveLearningProfile(local.id(), "N".repeat(50), 15, "vi", "Asia/Ho_Chi_Minh", true);
+
+        assertThat(saved.displayName()).hasSize(50);
+    }
+
+    @Test
+    void saveLearningProfile_unknownUser_throwsNotFound() {
+        assertThatThrownBy(() -> service.saveLearningProfile(UUID.randomUUID(), "A", 15, "vi", "Asia/Ho_Chi_Minh", true))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    private static String rejectedField(org.assertj.core.api.ThrowableAssert.ThrowingCallable call) {
+        Throwable thrown = org.assertj.core.api.Assertions.catchThrowable(call);
+        assertThat(thrown).isInstanceOf(FieldValidationException.class);
+        return ((FieldValidationException) thrown).fieldErrors().get(0).field();
     }
 }

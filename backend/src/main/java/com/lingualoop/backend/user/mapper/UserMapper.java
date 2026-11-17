@@ -13,6 +13,7 @@ public interface UserMapper {
 
     // User không có thuộc tính googleLinked: suy ra từ việc đã gắn Google sub
     @Mapping(target = "googleLinked", expression = "java(user.getGoogleSub() != null)")
+    @Mapping(target = "termsAccepted", expression = "java(user.getTermsAcceptedAt() != null)")
     UserAccountView toUserAccountView(User user);
 
     @Mapping(target = "role", expression = "java(view.role().value())")

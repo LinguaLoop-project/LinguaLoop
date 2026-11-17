@@ -1,6 +1,7 @@
 package com.lingualoop.backend.user.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -12,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
@@ -63,6 +65,92 @@ class UserControllerIntegrationTest {
     @Test
     void me_tokenOfDeletedUser_returns401() throws Exception {
         mockMvc.perform(get("/api/v1/users/me").header(HttpHeaders.AUTHORIZATION, bearer(UUID.randomUUID())))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void me_exposesLearningProfileDefaults() throws Exception {
+        UserAccountView account = userAccountService.createLocal(
+                "me-" + UUID.randomUUID() + "@x.com", "Minh", "bcrypt-hash");
+
+        mockMvc.perform(get("/api/v1/users/me").header(HttpHeaders.AUTHORIZATION, bearer(account.id())))
+                .andExpect(jsonPath("$.data.dailyMinutes").value(15))
+                .andExpect(jsonPath("$.data.uiLanguage").value("vi"))
+                .andExpect(jsonPath("$.data.timezone").value("Asia/Ho_Chi_Minh"))
+                .andExpect(jsonPath("$.data.termsAccepted").value(true));
+    }
+
+    @Test
+    void saveLearningProfile_valid_marksOnboardedAndReturnsProfile() throws Exception {
+        UserAccountView account = userAccountService.createFromGoogle(
+                "sub-" + UUID.randomUUID(), "lp-" + UUID.randomUUID() + "@x.com", "Linh", null);
+
+        mockMvc.perform(put("/api/v1/users/me/learning-profile")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(account.id()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"displayName":" Linh Tran ","dailyMinutes":30,"uiLanguage":"en",
+                                 "timezone":"Asia/Tokyo","acceptTerms":true}"""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.displayName").value("Linh Tran"))
+                .andExpect(jsonPath("$.data.onboarded").value(true))
+                .andExpect(jsonPath("$.data.dailyMinutes").value(30))
+                .andExpect(jsonPath("$.data.uiLanguage").value("en"))
+                .andExpect(jsonPath("$.data.timezone").value("Asia/Tokyo"))
+                .andExpect(jsonPath("$.data.termsAccepted").value(true));
+    }
+
+    @Test
+    void saveLearningProfile_blankName_returns400WithFieldError() throws Exception {
+        UserAccountView account = userAccountService.createLocal(
+                "lp-" + UUID.randomUUID() + "@x.com", "Minh", "bcrypt-hash");
+
+        mockMvc.perform(put("/api/v1/users/me/learning-profile")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(account.id()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"displayName":"  ","dailyMinutes":15,"uiLanguage":"vi",
+                                 "timezone":"Asia/Ho_Chi_Minh","acceptTerms":false}"""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.errors[0].field").value("displayName"));
+    }
+
+    @Test
+    void saveLearningProfile_invalidMinutes_returns400() throws Exception {
+        UserAccountView account = userAccountService.createLocal(
+                "lp-" + UUID.randomUUID() + "@x.com", "Minh", "bcrypt-hash");
+
+        mockMvc.perform(put("/api/v1/users/me/learning-profile")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(account.id()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"displayName":"Minh","dailyMinutes":25,"uiLanguage":"vi",
+                                 "timezone":"Asia/Ho_Chi_Minh","acceptTerms":true}"""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("dailyMinutes"));
+    }
+
+    @Test
+    void saveLearningProfile_googleUserWithoutTerms_returns400() throws Exception {
+        UserAccountView account = userAccountService.createFromGoogle(
+                "sub-" + UUID.randomUUID(), "lp-" + UUID.randomUUID() + "@x.com", "Linh", null);
+
+        mockMvc.perform(put("/api/v1/users/me/learning-profile")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(account.id()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"displayName":"Linh","dailyMinutes":15,"uiLanguage":"vi",
+                                 "timezone":"Asia/Ho_Chi_Minh","acceptTerms":false}"""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("acceptTerms"));
+    }
+
+    @Test
+    void saveLearningProfile_withoutToken_returns401() throws Exception {
+        mockMvc.perform(put("/api/v1/users/me/learning-profile")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
                 .andExpect(status().isUnauthorized());
     }
 

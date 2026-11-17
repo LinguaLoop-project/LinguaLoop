@@ -123,4 +123,22 @@ public class User extends BaseEntity {
     public boolean hasPassword() {
         return passwordHash != null;
     }
+
+    /**
+     * Lưu hồ sơ học tập. Lần đầu thành công thì đánh dấu đã thiết lập hồ sơ (UC-TK-08); các lần sau chỉ cập nhật.
+     * Điều khoản chỉ ghi nhận một lần: thời điểm đồng ý đầu tiên được giữ nguyên.
+     */
+    public void saveLearningProfile(String displayName, short dailyMinutes, String uiLanguage, String timezone,
+            boolean acceptTerms, Instant now) {
+        this.displayName = displayName;
+        this.dailyMinutes = dailyMinutes;
+        this.uiLanguage = uiLanguage;
+        this.timezone = timezone;
+        if (acceptTerms && termsAcceptedAt == null) {
+            this.termsAcceptedAt = now;
+        }
+        if (onboardedAt == null) {
+            this.onboardedAt = now;
+        }
+    }
 }
