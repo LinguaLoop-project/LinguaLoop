@@ -233,6 +233,35 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
+    void sentencePlan_takesTwoPerModeByDefault_andTheNextGroupAfterMarking_BR_HT_20() throws Exception {
+        UUID user = student(10);                          // mục tiêu ngày không ảnh hưởng phiên Ôn câu riêng
+        UUID lesson = lesson(false, "published", false);
+        List<UUID> dictation = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            UUID s = sentenceIn(lesson, i);
+            dictation.add(s);
+            list(user, s, "dictation", String.valueOf(10 + i), "1 hour");
+        }
+        UUID shadow = sentenceIn(lesson, 9);
+        list(user, shadow, "shadowing", "30", "1 hour");
+
+        as(user, get("/api/v1/review/sentence-plan")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(3))
+                .andExpect(jsonPath("$.data[0].sentenceId").value(dictation.get(0).toString()))
+                .andExpect(jsonPath("$.data[1].sentenceId").value(dictation.get(1).toString()))
+                .andExpect(jsonPath("$.data[2].sentenceId").value(shadow.toString()));
+
+        attempts.insertAttempt(user, dictation.get(0), "dictation", "normal", true, false, Instant.now());
+        as(user, post(reviewed(dictation.get(0), "dictation"))).andExpect(status().isOk());
+
+        as(user, get("/api/v1/review/sentence-plan")).andExpect(jsonPath("$.data.length()").value(3))
+                .andExpect(jsonPath("$.data[0].sentenceId").value(dictation.get(1).toString()))
+                .andExpect(jsonPath("$.data[1].sentenceId").value(dictation.get(2).toString()));
+        as(user, get("/api/v1/review/sentence-plan").param("perMode", "1"))
+                .andExpect(jsonPath("$.data.length()").value(2));
+    }
+
+    @Test
     void plan_withoutToken_returns401() throws Exception {
         mockMvc.perform(get(PLAN)).andExpect(status().isUnauthorized());
     }

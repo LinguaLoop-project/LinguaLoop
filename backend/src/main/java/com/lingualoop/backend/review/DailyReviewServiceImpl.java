@@ -28,6 +28,9 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 class DailyReviewServiceImpl implements DailyReviewService {
 
+    /** Số câu tối đa mỗi chế độ cho phiên Ôn câu riêng. */
+    private static final int MAX_PER_MODE = 10;
+
     private final UserAccountService users;
     private final SubscriptionQueryService subscriptions;
     private final VocabReviewService vocabReview;
@@ -40,20 +43,32 @@ class DailyReviewServiceImpl implements DailyReviewService {
         DailyQuota quota = DailyQuota.of(user.dailyMinutes());
 
         ReviewView.DueSummary due = vocabReview.dueSummary(userId);
+        List<ReviewPlanSentence> reviewable = reviewableToday(userId, user);
 
+        return new DailyPlanView(user.dailyMinutes(), quota.cards(), due.dueTotal(), Math.min(quota.cards(), due.dueTotal()),
+                due.nextDueAt(), quota.sentencesPerMode(), reviewable.size(),
+                choose(reviewable, quota.sentencesPerMode()));
+    }
+
+    @Override
+    public List<ReviewPlanSentence> sentencePlan(UUID userId, int perMode) {
+        UserAccountView user = users.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
+        return choose(reviewableToday(userId, user), Math.max(1, Math.min(perMode, MAX_PER_MODE)));
+    }
+
+    private List<ReviewPlanSentence> reviewableToday(UUID userId, UserAccountView user) {
         // "Hôm nay" tính theo múi giờ của học viên (BR-HT-21).
         ZoneId zone = ZoneId.of(user.timezone());
         Instant dayStart = clock.instant().atZone(zone).toLocalDate().atStartOfDay(zone).toInstant();
-        List<ReviewPlanSentence> reviewable = sentenceReview.findReviewableToday(userId, subscriptions.isPro(userId),
-                dayStart);
+        return sentenceReview.findReviewableToday(userId, subscriptions.isPro(userId), dayStart);
+    }
 
-        // Chế độ nào thiếu câu thì lấy số câu hiện có, không lấy bù từ chế độ kia (BR-HT-20).
+    /** Mỗi chế độ lấy tối đa {@code perMode} câu, Nghe chép trước rồi tới Shadowing; chế độ thiếu câu thì không lấy bù (BR-HT-20). */
+    private static List<ReviewPlanSentence> choose(List<ReviewPlanSentence> reviewable, int perMode) {
         List<ReviewPlanSentence> chosen = new ArrayList<>();
         for (PracticeMode mode : List.of(PracticeMode.dictation, PracticeMode.shadowing)) {
-            reviewable.stream().filter(s -> s.mode() == mode).limit(quota.sentencesPerMode()).forEach(chosen::add);
+            reviewable.stream().filter(s -> s.mode() == mode).limit(perMode).forEach(chosen::add);
         }
-
-        return new DailyPlanView(user.dailyMinutes(), quota.cards(), due.dueTotal(), Math.min(quota.cards(), due.dueTotal()),
-                due.nextDueAt(), quota.sentencesPerMode(), reviewable.size(), chosen);
+        return chosen;
     }
 }
