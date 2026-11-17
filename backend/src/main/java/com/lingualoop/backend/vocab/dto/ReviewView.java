@@ -16,4 +16,8 @@ public final class ReviewView {
      */
     public record Queue(LearnView.DeckRef deck, List<LearnView.Card> cards, int dueTotal, Instant nextDueAt) {
     }
+
+    /** Số thẻ đến hạn của mọi bộ và thời điểm thẻ kế tiếp đến hạn (không kèm nội dung thẻ). */
+    public record DueSummary(int dueTotal, Instant nextDueAt) {
+    }
 }

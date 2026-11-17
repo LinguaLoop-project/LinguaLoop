@@ -1,10 +1,12 @@
 package com.lingualoop.backend.practice.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import com.lingualoop.backend.lesson.enums.PracticeMode;
+import com.lingualoop.backend.practice.dto.ReviewPlanSentence;
 import com.lingualoop.backend.practice.dto.ReviewSentenceView;
 import com.lingualoop.backend.practice.enums.ReviewReason;
 
@@ -28,4 +30,16 @@ public interface SentenceReviewService {
      * mọi bài.
      */
     List<ReviewSentenceView> list(UUID userId, PracticeMode mode, UUID lessonId);
+
+    /**
+     * Câu có thể ôn hôm nay của cả hai chế độ, thứ tự ưu tiên theo BR-HT-20, chưa cắt theo định mức. {@code dayStart} là
+     * đầu ngày của học viên (theo múi giờ của họ): câu đã ôn từ mốc này trở đi bị loại (BR-HT-21).
+     */
+    List<ReviewPlanSentence> findReviewableToday(UUID userId, boolean userPro, Instant dayStart);
+
+    /**
+     * Đánh dấu câu "đã ôn hôm nay" sau một lượt trong phiên ôn câu (BR-HT-21). Câu phải đang trong danh sách và học viên
+     * phải vừa có lượt thật ở chế độ đó; gọi lại nhiều lần không đổi gì thêm.
+     */
+    void markReviewed(UUID userId, UUID sentenceId, PracticeMode mode);
 }

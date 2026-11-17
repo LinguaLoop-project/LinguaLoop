@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,6 +50,17 @@ public class SentenceReviewController {
     public ApiResponse<Void> pin(@CurrentUserId UUID userId, @PathVariable PracticeMode mode,
             @PathVariable UUID sentenceId, @RequestParam(defaultValue = "manual") ReviewReason reason) {
         reviewService.pin(userId, sentenceId, mode, reason);
+        return ApiResponse.ok(null);
+    }
+
+    /**
+     * Đánh dấu câu "đã ôn hôm nay" sau một lượt trong phiên ôn câu (BR-HT-21). Chỉ gọi khi lượt đã được lưu và chấm
+     * thành công; câu bỏ qua hoặc lỗi chấm thì không gọi. Gọi lại không đổi gì thêm.
+     */
+    @PostMapping("/{mode}/sentences/{sentenceId}/reviewed")
+    public ApiResponse<Void> markReviewed(@CurrentUserId UUID userId, @PathVariable PracticeMode mode,
+            @PathVariable UUID sentenceId) {
+        reviewService.markReviewed(userId, sentenceId, mode);
         return ApiResponse.ok(null);
     }
 
