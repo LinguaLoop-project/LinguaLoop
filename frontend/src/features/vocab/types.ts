@@ -137,6 +137,8 @@ export interface LearnCard {
   ipaUs: string | null;
   audioUk: string | null;
   audioUs: string | null;
+  /** Ảnh minh họa của thẻ; null nếu thẻ không có ảnh. */
+  imageUrl: string | null;
   status: CardStatus;
   previews: LearnPreview[];
   /** Câu gốc và bản dịch khi thẻ là từ đã lưu từ bài học (BR-HT-03). */

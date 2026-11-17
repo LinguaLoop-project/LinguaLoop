@@ -18,6 +18,8 @@ const GRADE_TONE = ["border-danger/50 text-danger", "border-warning/50 text-warn
 export default function FlashView({ card, done, total, onAnswer }: CardViewProps) {
   const { t } = useTranslation("vocab");
   const [flipped, setFlipped] = useState(false);
+  /** Ảnh lỗi tải (hỏng link, mất mạng) thì ẩn đi, thẻ vẫn ôn được bằng chữ. */
+  const [imageFailed, setImageFailed] = useState(false);
   const cardButton = useRef<HTMLButtonElement>(null);
   const elapsed = useCardClock(card.id);
 
@@ -68,6 +70,16 @@ export default function FlashView({ card, done, total, onAnswer }: CardViewProps
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
+            {card.imageUrl && !imageFailed && (
+              <img
+                src={card.imageUrl}
+                alt=""
+                loading="lazy"
+                draggable={false}
+                onError={() => setImageFailed(true)}
+                className="mb-2 max-h-44 w-auto max-w-full rounded-md border border-border object-contain"
+              />
+            )}
             {card.pos && <Badge variant="default">{card.pos}</Badge>}
             <span className="text-3xl font-bold">{card.meaningVi}</span>
             {card.exampleEn && (
