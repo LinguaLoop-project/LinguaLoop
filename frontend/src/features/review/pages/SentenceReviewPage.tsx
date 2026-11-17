@@ -29,6 +29,7 @@ function Session({ sentences, onMore }: { sentences: PlanSentence[]; onMore: () 
     <ReviewShell
       title={t("sentences.title")}
       steps={[{ key: "sentences", state: "active", label: t("steps.sentencesAt", { current: outcomes.length + 1, total: sentences.length }) }]}
+      scrollKey={outcomes.length}
       percent={(outcomes.length / sentences.length) * 100}
       progressLabel={t("steps.sentences")}
       onExit={() => setExited(true)}

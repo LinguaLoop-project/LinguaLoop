@@ -5,6 +5,7 @@ import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import ProgressBar from "@/components/common/ProgressBar";
 import type { StepState } from "../flow";
+import { useScrollTopOn } from "../hooks";
 
 export interface ShellStep {
   key: "cards" | "sentences";
@@ -22,6 +23,8 @@ export interface ReviewShellProps {
   progressLabel?: string;
   /** Có thì hiện nút "Thoát"; không có (vd chặng thẻ, đã có nút thoát riêng) thì ẩn. */
   onExit?: () => void;
+  /** Đổi giá trị này (chặng, số câu đã xong) thì trang cuộn về đầu. */
+  scrollKey: string | number;
   children: ReactNode;
 }
 
@@ -32,8 +35,9 @@ const CHIP: Record<StepState, string> = {
 };
 
 /** Khung dùng chung của phiên ôn: tiêu đề, thanh tiến độ nối các chặng (thẻ rồi câu) và nút thoát. */
-export default function ReviewShell({ title, steps, percent, progressLabel, onExit, children }: ReviewShellProps) {
+export default function ReviewShell({ title, steps, percent, progressLabel, onExit, scrollKey, children }: ReviewShellProps) {
   const { t } = useTranslation("review");
+  useScrollTopOn(scrollKey);
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-4">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -52,7 +56,7 @@ export default function ReviewShell({ title, steps, percent, progressLabel, onEx
       </header>
 
       <div className="flex flex-col gap-2">
-        <ol className="flex flex-wrap items-center gap-2" aria-label={t("steps")}>
+        <ol className="flex flex-wrap items-center gap-2" aria-label={t("stepsLabel")}>
           {steps.map((step, i) => (
             <li key={step.key} className="flex items-center gap-2">
               {i > 0 && <Icon name="chevron-right" className="text-text-subtle" />}
@@ -66,7 +70,7 @@ export default function ReviewShell({ title, steps, percent, progressLabel, onEx
             </li>
           ))}
         </ol>
-        {percent !== undefined && <ProgressBar value={percent} tone="primary" thin label={progressLabel ?? t("steps")} />}
+        {percent !== undefined && <ProgressBar value={percent} tone="primary" thin label={progressLabel ?? t("stepsLabel")} />}
       </div>
 
       {children}

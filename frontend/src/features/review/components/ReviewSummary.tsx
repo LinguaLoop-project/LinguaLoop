@@ -6,6 +6,7 @@ import Mascot from "@/components/common/Mascot";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import type { RoundSummary } from "@/features/vocab/components/review/ReviewSession";
 import { summarizeSentences } from "../flow";
+import { useScrollTopOn } from "../hooks";
 import type { SentenceOutcome } from "../types";
 
 export interface ReviewSummaryProps {
@@ -25,6 +26,7 @@ export interface ReviewSummaryProps {
 /** Tổng kết chung của một phiên ôn: kết quả ôn thẻ, kết quả ôn câu và đường đi tiếp. */
 export default function ReviewSummary({ cards, sentences, exited, moreCards = 0, onContinueCards, onMoreSentences }: ReviewSummaryProps) {
   const { t } = useTranslation("review");
+  useScrollTopOn("summary");
   const stats = summarizeSentences(sentences);
   const nothingDone = (cards?.total ?? 0) === 0 && stats.reviewed === 0;
 

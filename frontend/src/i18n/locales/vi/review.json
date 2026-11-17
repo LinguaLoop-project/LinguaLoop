@@ -2,7 +2,7 @@
   "loading": "Đang chuẩn bị phiên ôn…",
   "backToToday": "Về trang Hôm nay",
   "exit": "Thoát",
-  "steps": "Các phần của phiên ôn",
+  "stepsLabel": "Các phần của phiên ôn",
   "next": "Câu tiếp theo",
   "retry": "Thử lại",
   "skip": "Bỏ qua câu này",

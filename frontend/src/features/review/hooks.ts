@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PracticeMode } from "@/features/practice/types";
 import { reviewApi } from "./api";
@@ -7,6 +8,13 @@ import { reviewApi } from "./api";
  * giao diện báo mất mạng kèm nút Thử lại.
  */
 const NETWORK_MODE = "always" as const;
+
+/** Cuộn về đầu trang mỗi khi `key` đổi (sang câu, chặng hoặc màn tổng kết mới), nếu không bước mới mở ra ở giữa trang. */
+export function useScrollTopOn(key: string | number): void {
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [key]);
+}
 
 export const reviewKeys = {
   dailyPlan: (run: number) => ["review", "daily-plan", run] as const,

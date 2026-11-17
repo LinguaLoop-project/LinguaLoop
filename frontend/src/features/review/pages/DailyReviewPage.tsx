@@ -116,6 +116,7 @@ function DailySession({ plan, run, extra, onContinue }: SessionProps) {
     <ReviewShell
       title={extra ? t("daily.titleMore") : t("daily.title")}
       steps={steps}
+      scrollKey={`${phase}-${outcomes.length}`}
       percent={inSentences ? (outcomes.length / sentences.length) * 100 : undefined}
       progressLabel={t("steps.sentences")}
       onExit={

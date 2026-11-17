@@ -2,7 +2,7 @@
   "loading": "Getting your review ready…",
   "backToToday": "Back to Today",
   "exit": "Exit",
-  "steps": "Parts of the review",
+  "stepsLabel": "Parts of the review",
   "next": "Next sentence",
   "retry": "Try again",
   "skip": "Skip this sentence",
