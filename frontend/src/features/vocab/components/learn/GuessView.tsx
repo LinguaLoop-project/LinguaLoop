@@ -4,7 +4,7 @@ import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import { hintMask, isGuessCorrect, isHintExhausted, letterCount, maskExample } from "../../learn";
-import { Feedback, ListenButton, RoundProgress, type CardViewProps } from "./shared";
+import { CardImage, Feedback, ListenButton, RoundProgress, type CardViewProps } from "./shared";
 import { speak, useCardClock, useKeys } from "./learnHooks";
 
 interface Outcome {
@@ -13,8 +13,9 @@ interface Outcome {
 }
 
 /**
- * Cách học Đoán (BR-HT-17, BR-HT-18): xem loại từ, nghĩa tiếng Việt và câu ví dụ đã che từ, gõ từ tiếng Anh. Từ cần đoán
- * không xuất hiện ở đâu trên màn hình cho tới khi có kết quả: không hiện ảnh, phiên âm hay giải thích của thẻ.
+ * Cách học Đoán (BR-HT-17, BR-HT-18): xem loại từ, nghĩa tiếng Việt, ảnh minh họa (nếu thẻ có) và câu ví dụ đã che từ, gõ
+ * từ tiếng Anh. Từ cần đoán không xuất hiện ở đâu trên màn hình cho tới khi có kết quả: không hiện phiên âm hay giải
+ * thích của thẻ. Ảnh là gợi ý hình ảnh nên không được chứa chữ của từ, việc đó thuộc về người nhập thẻ.
  */
 export default function GuessView({ card, done, total, onAnswer, onNext }: CardViewProps) {
   const { t } = useTranslation("vocab");
@@ -72,6 +73,7 @@ export default function GuessView({ card, done, total, onAnswer, onNext }: CardV
           {card.pos && <Badge variant="default">{card.pos}</Badge>}
           <h2 className="text-2xl font-bold">{card.meaningVi}</h2>
         </div>
+        <CardImage url={card.imageUrl} className="mt-4" />
         {masked && (
           <div className="mt-4 rounded-md bg-surface-hover p-3.5">
             <p lang="en" className="text-lg">{outcome ? card.exampleEn : masked}</p>
