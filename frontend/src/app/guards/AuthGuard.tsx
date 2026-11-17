@@ -1,5 +1,5 @@
 import { type PropsWithChildren } from "react";
-import { useAuth, homePathFor } from "@/features/auth";
+import { useAuth, homePathFor, onboardingRedirectFor } from "@/features/auth";
 import { Navigate, useLocation } from "react-router-dom";
 import LoadingScreen from "@/components/common/LoadingScreen";
 
@@ -25,6 +25,11 @@ const AuthGuard = ({ children, allowedRoles }: AuthGuardProps) => {
       // Sai vai trò: về trang của vai trò mình, không vào được trang của vai trò khác
       return <Navigate to={homePathFor(user)} replace />;
     }
+  }
+
+  // Học viên chưa thiết lập hồ sơ học tập thì mở trang nào cũng bị đưa về màn thiết lập (BR-TK-12, AC-TK-46)
+  if (user && onboardingRedirectFor(user, location.pathname)) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <>{children}</>;

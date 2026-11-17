@@ -83,3 +83,17 @@ _Tránh_: tiến độ thẻ, độ nhớ (dùng cho vòng phần trăm trên gi
 **Ôn thẻ**:
 Ôn các thẻ từ vựng đến hạn theo lịch lặp lại ngắt quãng. Chỉ dùng cho bộ từ, không dùng cho câu.
 _Tránh_: ôn câu, ôn lại
+
+**Ôn câu**:
+Luyện lại các câu trong danh sách Câu cần ôn, mỗi lần một số câu ít ở từng chế độ. Khác với ôn thẻ, không theo lịch lặp lại ngắt quãng; câu nào chưa ôn hôm nay thì được chọn.
+_Tránh_: ôn thẻ, ôn lại
+
+### Học hằng ngày
+
+**Mục tiêu ngày**:
+Số phút học mỗi ngày mà học viên chọn (10, 15, 20 hoặc 30). Quyết định số thẻ và số câu tối đa của Phiên ôn tập hằng ngày.
+_Tránh_: thời lượng học, hạn mức ngày (dùng cho credit AI)
+
+**Phiên ôn tập hằng ngày**:
+Một lần học viên ôn thẻ đến hạn rồi ôn câu, theo định mức của Mục tiêu ngày. Không được lưu ở máy chủ: thoát giữa chừng thì kết quả đã chấm vẫn giữ, lần mở sau lập lại danh sách theo dữ liệu hiện tại.
+_Tránh_: bài ôn, phiên học (là bản ghi gom nhật ký của Học từ mới)

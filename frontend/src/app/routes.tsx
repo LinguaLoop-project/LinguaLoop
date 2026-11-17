@@ -2,7 +2,6 @@ import { lazy, Suspense } from "react";
 import NotFound from "@/components/common/NotFound";
 import { Navigate, useRoutes, type RouteObject } from "react-router-dom";
 import { AuthGuard, GuestGuard } from "@/app/guards";
-import OnboardingPlaceholder from "@/app/placeholders/OnboardingPlaceholder";
 import PlaceholderPage from "@/components/common/PlaceholderPage";
 import RouteErrorBoundary from "@/components/common/RouteErrorBoundary";
 import LoadingScreen from "@/components/common/LoadingScreen";
@@ -24,6 +23,7 @@ const ResetPassword = lazy(() => import("@/features/auth/pages/ResetPassword"));
 const GoogleCallback = lazy(() => import("@/features/auth/pages/GoogleCallback"));
 
 const Settings = lazy(() => import("@/features/user/pages/Settings"));
+const OnboardingPage = lazy(() => import("@/features/user/pages/OnboardingPage"));
 
 const LessonLibraryPage = lazy(() =>
   import("@/features/lesson/pages/LessonLibraryPage").then((m) => ({ default: m.LessonLibraryPage })),
@@ -74,14 +74,15 @@ const getRoutesConfig = (): RouteObject[] => {
         { path: "forgot", element: <ForgotPassword /> },
       ],
     },
-    // Placeholder: trang thiết lập hồ sơ làm ở PR onboarding (UC-AUTH-08)
+    // Thiết lập hồ sơ học tập sau lần đăng nhập đầu tiên (UC-TK-08)
     {
       path: "onboarding",
       element: (
         <AuthGuard allowedRoles={["student"]}>
-          <OnboardingPlaceholder />
+          <AuthLayout />
         </AuthGuard>
       ),
+      children: [{ index: true, element: <OnboardingPage /> }],
     },
     // Đích Google chuyển về sau khi người dùng đồng ý (redirect URI khai trong Google Console)
     { path: "authenticate", element: <GoogleCallback /> },
