@@ -93,5 +93,19 @@
     "nextNone": "Chưa có thẻ nào được hẹn ôn.",
     "learnNew": "Học từ mới",
     "practiceLessons": "Luyện bài học"
+  },
+  "suggest": {
+    "title": "Gợi ý cho mục tiêu {{minutes}} phút hôm nay",
+    "newWords": {
+      "title_other": "Học {{count}} từ mới",
+      "continuing": "Tiếp tục bộ {{deck}} · Phần {{number}}: {{part}}",
+      "starting": "Bắt đầu với bộ {{deck}} · Phần {{number}}: {{part}}",
+      "action": "Học ngay"
+    },
+    "lesson": {
+      "title": "Nghe chép: {{title}}",
+      "meta_other": "Mức {{level}} · {{count}} câu · bài bạn chưa luyện nghe chép",
+      "action": "Luyện ngay"
+    }
   }
 }

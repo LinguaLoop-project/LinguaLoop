@@ -69,11 +69,14 @@ export default function GuessView({ card, done, total, onAnswer, onNext }: CardV
       <RoundProgress done={done} total={total} label={t("learn.progress", { current: done + 1, total })} />
       <div className="rounded-lg border border-border bg-surface p-6 shadow-[var(--shadow-card)]">
         <div className="text-xs font-bold uppercase tracking-wider text-text-muted">{t("learn.guess.prompt")}</div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          {card.pos && <Badge variant="default">{card.pos}</Badge>}
-          <h2 className="text-2xl font-bold">{card.meaningVi}</h2>
+        <div className="mt-6 flex flex-col items-center gap-2 justify-center ">
+          <CardImage url={card.imageUrl}/>
+          <div className="mt-2 flex gap-3 items-center">
+            {card.pos && <Badge variant="default">{card.pos}</Badge>}
+            <ListenButton card={card} label={t("learn.listenAria", { word: card.word }    )} />
+          </div>
+          <h2 className="text-3xl font-bold">{card.meaningVi}</h2>
         </div>
-        <CardImage url={card.imageUrl} className="mt-4" />
         {masked && (
           <div className="mt-4 rounded-md bg-surface-hover p-3.5">
             <p lang="en" className="text-lg">{outcome ? card.exampleEn : masked}</p>

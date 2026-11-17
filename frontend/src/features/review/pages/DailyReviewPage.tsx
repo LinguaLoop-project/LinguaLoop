@@ -13,6 +13,7 @@ import type { RoundSummary } from "@/features/vocab/components/review/ReviewSess
 import DailyCards from "../components/DailyCards";
 import ReviewShell, { type ShellStep } from "../components/ReviewShell";
 import ReviewSummary from "../components/ReviewSummary";
+import SuggestionCards from "../components/SuggestionCards";
 import SentenceReviewFlow from "../components/SentenceReviewFlow";
 import { phaseAfterCards, startPhase, stepStates, type DailyPhase } from "../flow";
 import { useDailyPlan, useRemainingPlan } from "../hooks";
@@ -30,15 +31,21 @@ function NothingToReview({ plan }: { plan: DailyPlan }) {
     : t("empty.nextNone");
   return (
     <EmptyState title={t("empty.title")} description={`${t("empty.desc")} ${next}`}>
-      <div className="mt-4 flex flex-wrap justify-center gap-2">
-        <Link to="/student/vocab" className={buttonClasses({ variant: "primary" })}>
-          <Icon name="layers" className="h-4 w-4" />
-          {t("empty.learnNew")}
-        </Link>
-        <Link to="/student/lessons" className={buttonClasses({ variant: "ghost" })}>
-          {t("empty.practiceLessons")}
-        </Link>
-      </div>
+      {plan.suggestions && (plan.suggestions.newWords || plan.suggestions.dictationLesson) ? (
+        <div className="mt-4 w-full max-w-xl text-left">
+          <SuggestionCards suggestions={plan.suggestions} dailyMinutes={plan.dailyMinutes} />
+        </div>
+      ) : (
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <Link to="/student/vocab" className={buttonClasses({ variant: "primary" })}>
+            <Icon name="layers" className="h-4 w-4" />
+            {t("empty.learnNew")}
+          </Link>
+          <Link to="/student/lessons" className={buttonClasses({ variant: "ghost" })}>
+            {t("empty.practiceLessons")}
+          </Link>
+        </div>
+      )}
     </EmptyState>
   );
 }

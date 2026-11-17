@@ -7,6 +7,7 @@ import Mascot from "@/components/common/Mascot";
 import Skeleton from "@/components/common/Skeleton";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import { useAuthStore } from "@/features/auth";
+import SuggestionCards from "../components/SuggestionCards";
 import { useDailyPlan } from "../hooks";
 import type { DailyPlan } from "../types";
 
@@ -25,6 +26,7 @@ function Stat({ icon, value, label }: { icon: string; value: number | string; la
 function ReviewCard({ plan }: { plan: DailyPlan }) {
   const { t, i18n } = useTranslation("review");
   const hasWork = plan.cardsInPlan > 0 || plan.sentences.length > 0;
+  const hasSuggestions = Boolean(plan.suggestions && (plan.suggestions.newWords || plan.suggestions.dictationLesson));
   const next = plan.nextCardDueAt
     ? t("empty.nextDue", {
         time: new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(new Date(plan.nextCardDueAt)),
@@ -51,22 +53,29 @@ function ReviewCard({ plan }: { plan: DailyPlan }) {
         <Stat icon="target" value={t("today.minutes", { count: plan.dailyMinutes })} label={t("today.goal")} />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {hasWork ? (
+      {hasWork ? (
+        <div className="flex flex-wrap gap-2">
           <Link to="/student/review/daily" className={buttonClasses({ variant: "primary", size: "lg" })}>
             <Icon name="play" />
             {t("today.start")}
           </Link>
-        ) : (
+          <Link to="/student/lessons" className={buttonClasses({ variant: "ghost", size: "lg" })}>
+            {t("empty.practiceLessons")}
+          </Link>
+        </div>
+      ) : hasSuggestions ? (
+        <SuggestionCards suggestions={plan.suggestions!} dailyMinutes={plan.dailyMinutes} />
+      ) : (
+        <div className="flex flex-wrap gap-2">
           <Link to="/student/vocab" className={buttonClasses({ variant: "primary", size: "lg" })}>
             <Icon name="layers" />
             {t("empty.learnNew")}
           </Link>
-        )}
-        <Link to="/student/lessons" className={buttonClasses({ variant: "ghost", size: "lg" })}>
-          {t("empty.practiceLessons")}
-        </Link>
-      </div>
+          <Link to="/student/lessons" className={buttonClasses({ variant: "ghost", size: "lg" })}>
+            {t("empty.practiceLessons")}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

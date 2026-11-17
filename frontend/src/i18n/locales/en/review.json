@@ -98,5 +98,21 @@
     "nextNone": "No cards are scheduled yet.",
     "learnNew": "Learn new words",
     "practiceLessons": "Practice lessons"
+  },
+  "suggest": {
+    "title": "Suggestions for your {{minutes}}-minute goal today",
+    "newWords": {
+      "title_one": "Learn {{count}} new word",
+      "title_other": "Learn {{count}} new words",
+      "continuing": "Keep going with {{deck}} · Part {{number}}: {{part}}",
+      "starting": "Start with {{deck}} · Part {{number}}: {{part}}",
+      "action": "Learn now"
+    },
+    "lesson": {
+      "title": "Dictation: {{title}}",
+      "meta_one": "Level {{level}} · {{count}} sentence · a lesson you haven't practiced yet",
+      "meta_other": "Level {{level}} · {{count}} sentences · a lesson you haven't practiced yet",
+      "action": "Practice now"
+    }
   }
 }
