@@ -1,12 +1,14 @@
 package com.lingualoop.backend.lesson.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.lingualoop.backend.lesson.dto.response.LessonDetailResponse;
+import com.lingualoop.backend.lesson.dto.response.LessonSuggestionResponse;
 import com.lingualoop.backend.lesson.dto.response.LessonSummaryResponse;
 import com.lingualoop.backend.lesson.dto.response.LibraryOverviewResponse;
 import com.lingualoop.backend.lesson.dto.response.SentenceResponse;
@@ -30,6 +32,12 @@ public interface LessonQueryService {
                                       LessonState state, UUID userId, Pageable pageable);
 
     LibraryOverviewResponse getOverview(UUID userId);
+
+    /**
+     * Một bài chưa từng luyện nghe chép để gợi ý khi người học không còn gì để ôn: mức CEFR thấp trước, rồi bài nhiều lượt
+     * xem. Rỗng nếu người học đã luyện mọi bài họ xem được.
+     */
+    Optional<LessonSuggestionResponse> suggestDictationLesson(UUID userId, boolean userPro);
 
     LessonDetailResponse getLessonDetail(UUID lessonId, UUID userId);
 

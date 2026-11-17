@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import com.lingualoop.backend.TestcontainersConfiguration;
 import com.lingualoop.backend.dictation.DictationTestData;
+import com.lingualoop.backend.lesson.LessonFixtures;
 import com.lingualoop.backend.practice.AttemptTestData;
 import com.lingualoop.backend.vocab.VocabTestData;
 
@@ -43,6 +44,7 @@ class DailyReviewApiIntegrationTest {
     @Autowired private DictationTestData users;
     @Autowired private AttemptTestData attempts;
     @Autowired private VocabTestData vocab;
+    @Autowired private LessonFixtures lessonFixtures;
 
     private final String base = "zz" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
     private int deckSeq;
@@ -202,6 +204,81 @@ class DailyReviewApiIntegrationTest {
 
         as(user, get(PLAN)).andExpect(jsonPath("$.data.sentencesPending").value(1))
                 .andExpect(jsonPath("$.data.sentences[0].sentenceId").value(reviewedYesterday.toString()));
+    }
+
+    // ── Gợi ý việc hôm nay khi không còn gì để ôn ──
+
+    @Test
+    void plan_withSomethingToReview_hasNoSuggestions() throws Exception {
+        UUID user = student(15);
+        dueCards(user, 2);
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsInPlan").value(2))
+                .andExpect(jsonPath("$.data.suggestions").doesNotExist());
+    }
+
+    @Test
+    void plan_nothingToReview_suggestsTheNextNewWordsOfTheDeckBeingLearned() throws Exception {
+        UUID user = student(15);
+        UUID deck = vocab.deck(base + "next", false);
+        UUID part1 = vocab.group(deck, 1);
+        UUID part2 = vocab.group(deck, 2);
+        List<UUID> first = List.of(vocab.card(part1, 1, base + "a"), vocab.card(part1, 2, base + "b"));
+        for (int i = 1; i <= 12; i++) {
+            vocab.card(part2, i, base + "n" + i);
+        }
+        for (UUID card : first) {
+            vocab.progress(user, card, 2, 6, "now() + interval '3 days'");   // đã học hết phần 1, chưa đến hạn
+        }
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsInPlan").value(0))
+                .andExpect(jsonPath("$.data.suggestions.newWords.deckId").value(deck.toString()))
+                .andExpect(jsonPath("$.data.suggestions.newWords.partNumber").value(2))
+                .andExpect(jsonPath("$.data.suggestions.newWords.newCards").value(10))
+                .andExpect(jsonPath("$.data.suggestions.newWords.continuing").value(true));
+    }
+
+    @Test
+    void plan_nothingToReview_neverStudied_suggestsAFirstPartToStartWith() throws Exception {
+        UUID user = student(15);
+        vocab.fill(vocab.deck(base + "start", false), 1, 3, base + "s");
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.newWords.deckId").isNotEmpty())
+                .andExpect(jsonPath("$.data.suggestions.newWords.partNumber").value(1))
+                .andExpect(jsonPath("$.data.suggestions.newWords.continuing").value(false));
+    }
+
+    @Test
+    void plan_nothingToReview_suggestsAnUnpracticedDictationLessonOfTheLowestLevel() throws Exception {
+        UUID user = student(15);
+        UUID topic = lessonFixtures.topic("Suggest " + base);
+        UUID easy = lessonFixtures.lesson(topic, "Easy " + base, false, "published", "A1", 1_000_000, false);
+        lessonFixtures.sentence(easy, 0, "Hello there.");
+        lessonFixtures.sentence(easy, 1, "How are you.");
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.dictationLesson.id").value(easy.toString()))
+                .andExpect(jsonPath("$.data.suggestions.dictationLesson.cefrLevel").value("A1"))
+                .andExpect(jsonPath("$.data.suggestions.dictationLesson.sentenceCount").value(2));
+
+        // luyện nghe chép bài đó rồi thì không gợi ý lại
+        UUID sentence = jdbc.queryForObject("SELECT id FROM sentences WHERE lesson_id = ? ORDER BY start_ms LIMIT 1",
+                UUID.class, easy);
+        attempts.insertAttempt(user, sentence, "dictation", "normal", false, false, Instant.now());
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.dictationLesson.id").value(
+                org.hamcrest.Matchers.not(easy.toString())));
+    }
+
+    @Test
+    void plan_nothingToReview_skipsProLessonsForFreeLearners() throws Exception {
+        UUID free = student(15);
+        UUID pro = users.newProUser();
+        UUID topic = lessonFixtures.topic("Pro suggest " + base);
+        UUID proLesson = lessonFixtures.lesson(topic, "Pro " + base, true, "published", "A1", 2_000_000, false);
+        lessonFixtures.sentence(proLesson, 0, "Pro sentence one.");
+
+        as(free, get(PLAN)).andExpect(jsonPath("$.data.suggestions.dictationLesson.id").value(
+                org.hamcrest.Matchers.not(proLesson.toString())));
+        as(pro, get(PLAN)).andExpect(jsonPath("$.data.suggestions.dictationLesson.id").value(proLesson.toString()));
     }
 
     @Test

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.lesson.enums.PracticeMode;
+import com.lingualoop.backend.lesson.service.LessonQueryService;
 import com.lingualoop.backend.practice.dto.ReviewPlanSentence;
 import com.lingualoop.backend.practice.service.SentenceReviewService;
 import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
@@ -20,6 +21,7 @@ import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
 import com.lingualoop.backend.vocab.dto.ReviewView;
 import com.lingualoop.backend.vocab.service.VocabReviewService;
+import com.lingualoop.backend.vocab.service.VocabSuggestionService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +37,8 @@ class DailyReviewServiceImpl implements DailyReviewService {
     private final SubscriptionQueryService subscriptions;
     private final VocabReviewService vocabReview;
     private final SentenceReviewService sentenceReview;
+    private final VocabSuggestionService vocabSuggestions;
+    private final LessonQueryService lessons;
     private final Clock clock;
 
     @Override
@@ -45,9 +49,19 @@ class DailyReviewServiceImpl implements DailyReviewService {
         ReviewView.DueSummary due = vocabReview.dueSummary(userId);
         List<ReviewPlanSentence> reviewable = reviewableToday(userId, user);
 
-        return new DailyPlanView(user.dailyMinutes(), quota.cards(), due.dueTotal(), Math.min(quota.cards(), due.dueTotal()),
-                due.nextDueAt(), quota.sentencesPerMode(), reviewable.size(),
-                choose(reviewable, quota.sentencesPerMode()));
+        List<ReviewPlanSentence> chosen = choose(reviewable, quota.sentencesPerMode());
+        int cardsInPlan = Math.min(quota.cards(), due.dueTotal());
+        // Không còn gì để ôn thì đề xuất việc khác thay vì để học viên đứng trước một màn trống.
+        TodaySuggestions suggestions = cardsInPlan == 0 && chosen.isEmpty() ? suggestionsFor(userId) : null;
+
+        return new DailyPlanView(user.dailyMinutes(), quota.cards(), due.dueTotal(), cardsInPlan, due.nextDueAt(),
+                quota.sentencesPerMode(), reviewable.size(), chosen, suggestions);
+    }
+
+    private TodaySuggestions suggestionsFor(UUID userId) {
+        return new TodaySuggestions(
+                vocabSuggestions.nextNewWords(userId).orElse(null),
+                lessons.suggestDictationLesson(userId, subscriptions.isPro(userId)).orElse(null));
     }
 
     @Override

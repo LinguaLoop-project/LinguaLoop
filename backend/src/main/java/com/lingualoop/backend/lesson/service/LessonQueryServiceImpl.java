@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -28,6 +29,7 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.NotFoundException;
 import com.lingualoop.backend.lesson.dto.response.LessonDetailResponse;
+import com.lingualoop.backend.lesson.dto.response.LessonSuggestionResponse;
 import com.lingualoop.backend.lesson.dto.response.LessonSummaryResponse;
 import com.lingualoop.backend.lesson.dto.response.LibraryOverviewResponse;
 import com.lingualoop.backend.lesson.dto.response.ModeProgressResponse;
@@ -151,6 +153,12 @@ class LessonQueryServiceImpl implements LessonQueryService {
                 progressOf(userId, Map.of(lesson.getId(), sentenceCount)).getOrDefault(lesson.getId(), NO_PROGRESS),
                 topicMapper.toResponse(lesson.getTopic()),
                 related);
+    }
+
+    @Override
+    public Optional<LessonSuggestionResponse> suggestDictationLesson(UUID userId, boolean userPro) {
+        return lessonRepository.findUnpracticedDictationLesson(userId, userPro).stream().findFirst()
+                .map(l -> new LessonSuggestionResponse(l.getId(), l.getTitle(), l.getCefrLevel(), (int) l.getSentenceCount()));
     }
 
     @Override
