@@ -306,8 +306,14 @@ class VocabLearnApiIntegrationTest {
                 .isCloseTo(Duration.ofMinutes(10), Duration.ofSeconds(30));
         assertThat(jdbc.queryForObject("SELECT is_correct FROM vocab_review_logs WHERE user_id = ?", Boolean.class, user)).isFalse();
 
-        answer(user, session, cards.get(0), "flashcard", false, 5).andExpect(status().isOk());
+        answer(user, session, cards.get(0), "flashcard", false, 4).andExpect(status().isOk());
         assertThat(progressOf(user, cards.get(0))).containsEntry("repetitions", 1).containsEntry("interval_days", 1);
+
+        // Dễ sau khi quên cũng là lần nhớ đầu tiên của chuỗi mới nên được hẹn xa hơn (BR-HT-11)
+        vocab.progress(user, cards.get(1), 3, 15, "now() - interval '1 day'");
+        answer(user, session, cards.get(1), "flashcard", true, 1).andExpect(status().isOk());
+        answer(user, session, cards.get(1), "flashcard", false, 5).andExpect(status().isOk());
+        assertThat(progressOf(user, cards.get(1))).containsEntry("repetitions", 1).containsEntry("interval_days", 4);
     }
 
     @Test
