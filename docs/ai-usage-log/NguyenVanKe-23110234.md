@@ -577,8 +577,8 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Cách sửa:** `LessonModerationServiceImpl` dùng `LessonRepository.findLibraryForUpdate` và `SentenceRepository.findActiveForUpdate` (JPA, khóa `PESSIMISTIC_WRITE`), đổi trạng thái và trường qua entity. Các repository của `report` chuyển sang câu lệnh hằng chọn theo loại nội dung; danh sách cột và điều kiện lọc truyền bằng tham số.
 - **Commit gây ra lỗi (đưa đầu ra AI vào code):** 62758de
 - **Commit sửa (bắt buộc, khác commit trên):** 08814d9, f05f474 (08814d9 gồm `ModerationRepository` và `ReportMaintenanceService` vì hai file này lẫn với phần gỡ tay; f05f474 gồm `LessonRepository`, `SentenceRepository`, `LessonModerationServiceImpl`, `ReportRepository`)
-- **Kiểm chứng sau sửa:** `./mvnw verify` trên f05f474: 1226 test, 0 lỗi, 3 bỏ qua, BUILD SUCCESS. Chờ SonarCloud phân tích lại PR #62 sau khi push.
-- **Trạng thái (`Error Status`):** FIXED
+- **Kiểm chứng sau sửa:** `./mvnw verify` trên f05f474: 1226 test, 0 lỗi, 3 bỏ qua, BUILD SUCCESS.
+- **Trạng thái (`Error Status`):** VERIFIED
 
 ## 3. Bằng chứng bổ sung (nếu cần)
 
