@@ -843,6 +843,18 @@
 - **Commit:** 4bf8ba7, b711e70, 00bb921, a14c21b, 1227489, 37e36a1
 - **Lỗi liên quan:** AI-ERR-LAM-007
 
+### AI-LAM-074
+
+- **Ngày:** 2026-11-18
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Bổ sung ảnh minh họa thẻ ở Flashcard và Đoán; cho mức Dễ có ý nghĩa ngay từ lần nhớ đầu; khi không còn gì để ôn thì trang Hôm nay gợi ý phần từ mới kế tiếp và một bài nghe chép chưa làm
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../vocab/repository/VocabLearnRepository.java:CARD_COLUMNS`, `vocab/service/CardViews.java:of`, `vocab/dto/LearnView.java:Card`; `vocab/service/Sm2.java:grade`; `vocab/repository/VocabSuggestionRepository.java:findParts`, `vocab/service/VocabSuggestionServiceImpl.java:pick`; `lesson/repository/LessonRepository.java:findUnpracticedDictationLesson`, `lesson/service/LessonQueryServiceImpl.java:suggestDictationLesson`; `review/DailyReviewServiceImpl.java:suggestionsFor`; `frontend/src/features/vocab/components/learn/shared.tsx:CardImage`, `FlashView.tsx`, `GuessView.tsx`; `features/review/components/SuggestionCards.tsx`; test `Sm2Test`, `VocabLearnApiIntegrationTest`, `VocabSuggestionServiceTest`, `DailyReviewApiIntegrationTest`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chọn hướng A trong bốn hướng AI đề xuất cho người học chưa có gì để ôn, yêu cầu thêm ảnh ở Đoán dù đặc tả cũ ghi Đoán không hiện ảnh, và yêu cầu đổi quy tắc SM-2 để Dễ khác Được từ đầu. AI tự chọn các con số 4 và 10 ngày cho Dễ ở hai lần nhớ đầu, cách xếp ưu tiên bộ gợi ý (bộ vừa chấm thẻ gần nhất, rồi bộ hệ thống đầu tiên) và bài nghe chép gợi ý (mức CEFR thấp nhất, nhiều lượt xem nhất); sinh viên chưa xác nhận các con số và thứ tự này. Đã sửa BR-HT-11, BR-HT-17 và mô tả UC-HT-05 theo các thay đổi đó. Chạy thật trên trình duyệt thấy gợi ý hiện đúng, nút Dễ ghi 4 ngày với thẻ mới; chưa thử ảnh thẻ lưu trên S3 thật.
+- **Commit:** d7fbd01, fab5c54, 055e564, f66e48d, dd9b78d
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
