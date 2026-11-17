@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { playPronunciation } from "@/features/dictionary";
 import type { LearnCard } from "../../types";
+import { preloadImage } from "./imagePreload";
 
 /** Thời gian từ lúc thẻ hiện ra tới lúc trả lời; đặt lại mỗi khi `key` đổi. */
 export function useCardClock(key: string) {
@@ -35,3 +36,18 @@ export function useKeys(handler: (event: KeyboardEvent) => void, enabled = true)
 
 /** Phát âm giọng Mỹ của thẻ; thẻ không có âm thanh hoặc âm thanh lỗi thì dùng giọng đọc của trình duyệt. */
 export const speak = (card: LearnCard) => playPronunciation(card.word, "us", card.audioUs);
+
+/**
+ * Nạp sẵn ảnh của `count` thẻ đầu hàng đợi (thẻ hiện tại và các thẻ kế tiếp) mỗi khi hàng đợi đổi, để ảnh đã tải xong
+ * trước khi học viên lật tới thẻ đó.
+ */
+export function useImagePreload(queue: readonly LearnCard[], count = 4): void {
+  const urls = queue
+    .slice(0, count)
+    .map((card) => card.imageUrl)
+    .filter((url): url is string => Boolean(url));
+  const key = urls.join("\n");
+  useEffect(() => {
+    if (key) key.split("\n").forEach(preloadImage);
+  }, [key]);
+}

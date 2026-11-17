@@ -8,6 +8,7 @@ import { buttonClasses } from "@/components/common/buttonStyles";
 import { answerCard, isRoundDone, nextCard, roundScore, startRound } from "../../learn";
 import type { AnswerDraft, ReviewQueue } from "../../types";
 import FlashView from "../learn/FlashView";
+import { useImagePreload } from "../learn/learnHooks";
 import UnsentNotice from "../learn/UnsentNotice";
 
 export type RoundSummary = ReturnType<typeof roundScore>;
@@ -34,6 +35,8 @@ export default function ReviewSession({ queue, onAnswer, onContinue, embedded }:
   const completed = useRef(false);
   const done = isRoundDone(state);
   const onComplete = embedded?.onComplete;
+  // Nạp sẵn ảnh của thẻ hiện tại và vài thẻ kế tiếp để lúc lật thẻ ảnh đã có.
+  useImagePreload(state.queue);
 
   useEffect(() => {
     if (!done || !onComplete || completed.current) return;

@@ -46,6 +46,16 @@ public enum UploadPurpose {
         this.roles = roles;
     }
 
+    /**
+     * Cache-Control ghi vào tệp khi tải lên. Mọi mục đích hiện có là ảnh đọc công khai và mỗi lần tải lên có một key mới
+     * (UUID) nên nội dung của một key không bao giờ đổi: cho trình duyệt giữ một năm để lần xem lại không tải lại ảnh.
+     * Header này nằm trong chữ ký nên client phải gửi đúng nó (xem {@code PresignedUpload#headers}) và CORS của bucket
+     * phải cho phép header {@code Cache-Control}.
+     */
+    public String cacheControl() {
+        return "public, max-age=31536000, immutable";
+    }
+
     public String prefix() {
         return prefix;
     }

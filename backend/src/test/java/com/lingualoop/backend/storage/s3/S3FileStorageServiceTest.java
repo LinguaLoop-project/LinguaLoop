@@ -68,6 +68,9 @@ class S3FileStorageServiceTest {
                 .contains("X-Amz-Expires=300")
                 .containsIgnoringCase("content-type");
         assertThat(upload.headers()).containsEntry("Content-Type", "image/png");
+        // ảnh đọc công khai, key mới mỗi lần tải: cho trình duyệt giữ lâu và bắt client gửi đúng header đã ký
+        assertThat(upload.headers()).containsEntry("Cache-Control", "public, max-age=31536000, immutable");
+        assertThat(upload.uploadUrl()).containsIgnoringCase("cache-control");
         assertThat(upload.expiresAt()).isAfter(Instant.now());
     }
 

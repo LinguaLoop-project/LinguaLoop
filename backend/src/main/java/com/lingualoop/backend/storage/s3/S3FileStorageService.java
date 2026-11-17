@@ -64,12 +64,13 @@ public class S3FileStorageService implements FileStorageService {
         requireConfigured();
 
         String key = ownerPrefix(purpose, userId) + UUID.randomUUID() + "." + purpose.extensionOf(type);
-        // Content-Type và Content-Length nằm trong chữ ký: client gửi khác (đổi loại, tệp to hơn) thì S3 trả 403.
+        // Content-Type, Content-Length và Cache-Control nằm trong chữ ký: client gửi khác (đổi loại, tệp to hơn) thì S3 trả 403.
         PutObjectRequest put = PutObjectRequest.builder()
                 .bucket(props.bucket())
                 .key(key)
                 .contentType(type)
                 .contentLength(contentLength)
+                .cacheControl(purpose.cacheControl())
                 .build();
         try {
             PresignedPutObjectRequest signed = s3Presigner.presignPutObject(PutObjectPresignRequest.builder()
@@ -77,7 +78,7 @@ public class S3FileStorageService implements FileStorageService {
                     .putObjectRequest(put)
                     .build());
             return new PresignedUpload(key, signed.url().toString(), "PUT",
-                    Map.of("Content-Type", type), signed.expiration());
+                    Map.of("Content-Type", type, "Cache-Control", purpose.cacheControl()), signed.expiration());
         } catch (SdkException e) {
             log.warn("Không ký được URL tải lên S3: {}", e.getMessage());
             throw new BusinessException(ErrorCode.STORAGE_UNAVAILABLE);

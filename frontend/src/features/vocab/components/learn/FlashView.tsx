@@ -18,7 +18,7 @@ const GRADE_TONE = ["border-danger/50 text-danger", "border-warning/50 text-warn
 export default function FlashView({ card, done, total, onAnswer }: CardViewProps) {
   const { t } = useTranslation("vocab");
   const [flipped, setFlipped] = useState(false);
-  const cardButton = useRef<HTMLButtonElement>(null);
+  const cardButton = useRef<HTMLDivElement>(null);
   const elapsed = useCardClock(card.id);
 
   useEffect(() => {
@@ -49,10 +49,19 @@ export default function FlashView({ card, done, total, onAnswer }: CardViewProps
   return (
     <div>
       <RoundProgress done={done} total={total} label={t("learn.progress", { current: done + 1, total })} />
-      <button
+      {/* div role="button" thay cho <button>: bên trong có nút nghe, mà HTML không cho nút lồng trong nút. */}
+      <div
         ref={cardButton}
-        type="button"
+        role="button"
+        tabIndex={0}
         onClick={flip}
+        onKeyDown={(event) => {
+          // Chỉ khi chính thẻ đang được focus; Space hoặc Enter trên nút nghe là việc của nút đó.
+          if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+            event.preventDefault();
+            flip();
+          }
+        }}
         aria-label={t("learn.flash.cardAria", { word: card.word })}
         aria-pressed={flipped}
         className="relative block min-h-[300px] w-full cursor-pointer rounded-lg border border-border bg-surface p-8 text-center shadow-[var(--shadow-card)] transition-colors hover:border-border-strong"
@@ -63,6 +72,7 @@ export default function FlashView({ card, done, total, onAnswer }: CardViewProps
             <span className="flex items-center gap-2 text-text-muted">
               {card.pos && <Badge variant="default">{card.pos}</Badge>}
               {card.ipaUs}
+              <ListenButton card={card} label={t("learn.listenAria", { word: card.word })} />
             </span>
             <span className="mt-2 text-sm text-text-subtle">{t("learn.flash.front")}</span>
           </div>
@@ -71,6 +81,9 @@ export default function FlashView({ card, done, total, onAnswer }: CardViewProps
             <CardImage url={card.imageUrl} className="mb-2" />
             {card.pos && <Badge variant="default">{card.pos}</Badge>}
             <span className="text-3xl font-bold">{card.meaningVi}</span>
+            <div className="mt-2 flex justify-center">
+              <ListenButton card={card} label={t("learn.listenAria", { word: card.word })} />
+            </div>
             {card.exampleEn && (
               <>
                 <p lang="en" className="mt-3 italic">“{card.exampleEn}”</p>
@@ -80,9 +93,6 @@ export default function FlashView({ card, done, total, onAnswer }: CardViewProps
             {card.definitionVi && <p className="mt-2 max-w-xl text-sm text-text-muted">{card.definitionVi}</p>}
           </div>
         )}
-      </button>
-      <div className="mt-2 flex justify-center">
-        <ListenButton card={card} label={t("learn.listenAria", { word: card.word })} />
       </div>
       {flipped && card.contextEn && (
         <div className="mt-2 rounded-md border border-border bg-surface p-3 text-sm">
