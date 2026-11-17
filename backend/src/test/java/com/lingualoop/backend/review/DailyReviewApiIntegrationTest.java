@@ -48,6 +48,15 @@ class DailyReviewApiIntegrationTest {
 
     private final String base = "zz" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
     private int deckSeq;
+    /**
+     * Số lượt xem tăng dần cho mỗi bài gợi ý được tạo: các test dùng chung một cơ sở dữ liệu nên bài của test chạy sau luôn
+     * xếp trên bài của các test trước và gợi ý không bị lệch.
+     */
+    private static final java.util.concurrent.atomic.AtomicInteger VIEWS = new java.util.concurrent.atomic.AtomicInteger(1_000_000);
+
+    private static int nextViews() {
+        return VIEWS.addAndGet(1_000);
+    }
 
     private ResultActions as(UUID user, MockHttpServletRequestBuilder request) throws Exception {
         return mockMvc.perform(request.header(HttpHeaders.AUTHORIZATION, "Bearer " + users.tokenFor(user)));
@@ -252,7 +261,7 @@ class DailyReviewApiIntegrationTest {
     void plan_nothingToReview_suggestsAnUnpracticedDictationLessonOfTheLowestLevel() throws Exception {
         UUID user = student(15);
         UUID topic = lessonFixtures.topic("Suggest " + base);
-        UUID easy = lessonFixtures.lesson(topic, "Easy " + base, false, "published", "A1", 1_000_000, false);
+        UUID easy = lessonFixtures.lesson(topic, "Easy " + base, false, "published", "A1", nextViews(), false);
         lessonFixtures.sentence(easy, 0, "Hello there.");
         lessonFixtures.sentence(easy, 1, "How are you.");
 
@@ -269,11 +278,45 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
+    void plan_nothingToReview_suggestsShadowingOnALessonAlreadyDictated_beforeLowerLevelOnes() throws Exception {
+        UUID user = student(15);
+        UUID topic = lessonFixtures.topic("Shadow suggest " + base);
+        // bài mức thấp, rất nhiều lượt xem nhưng chưa nghe chép
+        UUID untouched = lessonFixtures.lesson(topic, "Untouched " + base, false, "published", "A1", nextViews(), false);
+        lessonFixtures.sentence(untouched, 0, "Plain sentence.");
+        // bài mức cao hơn nhưng học viên đã nghe chép xong
+        UUID dictated = lessonFixtures.lesson(topic, "Dictated " + base, false, "published", "B2", 10, false);
+        UUID sentence = lessonFixtures.sentence(dictated, 0, "Heard before.");
+        attempts.insertAttempt(user, sentence, "dictation", "normal", false, false, Instant.now().minusSeconds(86_400));
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.shadowingLesson.id").value(dictated.toString()))
+                .andExpect(jsonPath("$.data.suggestions.shadowingLesson.sentenceCount").value(1));
+
+        // luyện Shadowing bài đó rồi thì gợi ý chuyển sang bài khác
+        attempts.insertAttempt(user, sentence, "shadowing", null, false, false, Instant.now());
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.shadowingLesson.id").value(
+                org.hamcrest.Matchers.not(dictated.toString())));
+    }
+
+    @Test
+    void plan_nothingToReview_shadowingSuggestionSkipsProLessonsForFreeLearners() throws Exception {
+        UUID free = student(15);
+        UUID pro = users.newProUser();
+        UUID topic = lessonFixtures.topic("Pro shadow " + base);
+        UUID proLesson = lessonFixtures.lesson(topic, "ProShadow " + base, true, "published", "A1", nextViews(), false);
+        lessonFixtures.sentence(proLesson, 0, "Pro shadow sentence.");
+
+        as(free, get(PLAN)).andExpect(jsonPath("$.data.suggestions.shadowingLesson.id").value(
+                org.hamcrest.Matchers.not(proLesson.toString())));
+        as(pro, get(PLAN)).andExpect(jsonPath("$.data.suggestions.shadowingLesson.id").value(proLesson.toString()));
+    }
+
+    @Test
     void plan_nothingToReview_skipsProLessonsForFreeLearners() throws Exception {
         UUID free = student(15);
         UUID pro = users.newProUser();
         UUID topic = lessonFixtures.topic("Pro suggest " + base);
-        UUID proLesson = lessonFixtures.lesson(topic, "Pro " + base, true, "published", "A1", 2_000_000, false);
+        UUID proLesson = lessonFixtures.lesson(topic, "Pro " + base, true, "published", "A1", nextViews(), false);
         lessonFixtures.sentence(proLesson, 0, "Pro sentence one.");
 
         as(free, get(PLAN)).andExpect(jsonPath("$.data.suggestions.dictationLesson.id").value(

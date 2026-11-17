@@ -162,6 +162,12 @@ class LessonQueryServiceImpl implements LessonQueryService {
     }
 
     @Override
+    public Optional<LessonSuggestionResponse> suggestShadowingLesson(UUID userId, boolean userPro) {
+        return lessonRepository.findUnpracticedShadowingLesson(userId, userPro).stream().findFirst()
+                .map(l -> new LessonSuggestionResponse(l.getId(), l.getTitle(), l.getCefrLevel(), (int) l.getSentenceCount()));
+    }
+
+    @Override
     public List<SentenceResponse> getSentences(UUID lessonId, UUID userId) {
         Lesson lesson = findVisibleLesson(lessonId);
         if (lesson.isPro() && !subscriptionQueryService.isPro(userId)) {

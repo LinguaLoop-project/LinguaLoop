@@ -38,6 +38,8 @@ export interface LessonSuggestion {
 export interface TodaySuggestions {
   newWords: NewWordsSuggestion | null;
   dictationLesson: LessonSuggestion | null;
+  /** Bài chưa luyện Shadowing; ưu tiên bài người học đã nghe chép xong. */
+  shadowingLesson: LessonSuggestion | null;
 }
 
 /** Kế hoạch Ôn tập hằng ngày (`DailyPlanView`). Thẻ lấy riêng từ `GET /vocab/review?limit=`. */

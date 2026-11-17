@@ -39,6 +39,12 @@ public interface LessonQueryService {
      */
     Optional<LessonSuggestionResponse> suggestDictationLesson(UUID userId, boolean userPro);
 
+    /**
+     * Một bài chưa từng luyện Shadowing để gợi ý: bài đã luyện nghe chép đứng trước, rồi mức CEFR thấp và nhiều lượt xem.
+     * Rỗng nếu người học đã luyện Shadowing mọi bài họ xem được.
+     */
+    Optional<LessonSuggestionResponse> suggestShadowingLesson(UUID userId, boolean userPro);
+
     LessonDetailResponse getLessonDetail(UUID lessonId, UUID userId);
 
     List<SentenceResponse> getSentences(UUID lessonId, UUID userId);

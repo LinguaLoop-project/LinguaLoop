@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Icon from "@/components/common/Icon";
 import { buttonClasses } from "@/components/common/buttonStyles";
+import { hasSuggestions } from "../flow";
 import type { TodaySuggestions } from "../types";
 
 export interface SuggestionCardsProps {
@@ -43,8 +44,8 @@ function Row({ icon, tone, title, meta, to, action }: RowProps) {
  */
 export default function SuggestionCards({ suggestions, dailyMinutes }: SuggestionCardsProps) {
   const { t } = useTranslation("review");
-  const { newWords, dictationLesson } = suggestions;
-  if (!newWords && !dictationLesson) return null;
+  const { newWords, dictationLesson, shadowingLesson } = suggestions;
+  if (!hasSuggestions(suggestions)) return null;
 
   return (
     <section aria-labelledby="today-suggest" className="flex flex-col gap-3">
@@ -74,6 +75,16 @@ export default function SuggestionCards({ suggestions, dailyMinutes }: Suggestio
             meta={t("suggest.lesson.meta", { level: dictationLesson.cefrLevel, count: dictationLesson.sentenceCount })}
             to={`/student/dictation/${dictationLesson.id}`}
             action={t("suggest.lesson.action")}
+          />
+        )}
+        {shadowingLesson && (
+          <Row
+            icon="mic"
+            tone="text-fn-shadowing"
+            title={t("suggest.shadowing.title", { title: shadowingLesson.title })}
+            meta={t("suggest.shadowing.meta", { level: shadowingLesson.cefrLevel, count: shadowingLesson.sentenceCount })}
+            to={`/student/shadowing/${shadowingLesson.id}`}
+            action={t("suggest.shadowing.action")}
           />
         )}
       </ul>

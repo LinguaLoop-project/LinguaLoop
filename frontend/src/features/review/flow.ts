@@ -1,4 +1,4 @@
-import type { SentenceOutcome } from "./types";
+import type { SentenceOutcome, TodaySuggestions } from "./types";
 
 /** Các chặng của phiên Ôn tập hằng ngày: thẻ, đoạn chuyển ngắn, câu, tổng kết (UC-HT-05). */
 export type DailyPhase = "cards" | "bridge" | "sentences" | "summary";
@@ -44,6 +44,11 @@ export function stepStates(
         ? "done"
         : "todo";
   return { cards, sentences };
+}
+
+/** Có ít nhất một việc gợi ý để hiện (không có thì giữ hai nút "Học từ mới" và "Luyện bài học"). */
+export function hasSuggestions(suggestions: TodaySuggestions | null | undefined): suggestions is TodaySuggestions {
+  return Boolean(suggestions && (suggestions.newWords || suggestions.dictationLesson || suggestions.shadowingLesson));
 }
 
 export interface SentenceSummary {

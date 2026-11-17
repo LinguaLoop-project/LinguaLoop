@@ -113,6 +113,12 @@
       "meta_one": "Level {{level}} · {{count}} sentence · a lesson you haven't practiced yet",
       "meta_other": "Level {{level}} · {{count}} sentences · a lesson you haven't practiced yet",
       "action": "Practice now"
+    },
+    "shadowing": {
+      "title": "Shadowing: {{title}}",
+      "meta_one": "Level {{level}} · {{count}} sentence · a lesson you haven't shadowed yet",
+      "meta_other": "Level {{level}} · {{count}} sentences · a lesson you haven't shadowed yet",
+      "action": "Speak along now"
     }
   }
 }

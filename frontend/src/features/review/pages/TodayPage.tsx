@@ -8,6 +8,7 @@ import Skeleton from "@/components/common/Skeleton";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import { useAuthStore } from "@/features/auth";
 import SuggestionCards from "../components/SuggestionCards";
+import { hasSuggestions } from "../flow";
 import { useDailyPlan } from "../hooks";
 import type { DailyPlan } from "../types";
 
@@ -26,7 +27,7 @@ function Stat({ icon, value, label }: { icon: string; value: number | string; la
 function ReviewCard({ plan }: { plan: DailyPlan }) {
   const { t, i18n } = useTranslation("review");
   const hasWork = plan.cardsInPlan > 0 || plan.sentences.length > 0;
-  const hasSuggestions = Boolean(plan.suggestions && (plan.suggestions.newWords || plan.suggestions.dictationLesson));
+  const suggestions = hasSuggestions(plan.suggestions) ? plan.suggestions : null;
   const next = plan.nextCardDueAt
     ? t("empty.nextDue", {
         time: new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(new Date(plan.nextCardDueAt)),
@@ -63,8 +64,8 @@ function ReviewCard({ plan }: { plan: DailyPlan }) {
             {t("empty.practiceLessons")}
           </Link>
         </div>
-      ) : hasSuggestions ? (
-        <SuggestionCards suggestions={plan.suggestions!} dailyMinutes={plan.dailyMinutes} />
+      ) : suggestions ? (
+        <SuggestionCards suggestions={suggestions} dailyMinutes={plan.dailyMinutes} />
       ) : (
         <div className="flex flex-wrap gap-2">
           <Link to="/student/vocab" className={buttonClasses({ variant: "primary", size: "lg" })}>

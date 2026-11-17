@@ -59,9 +59,11 @@ class DailyReviewServiceImpl implements DailyReviewService {
     }
 
     private TodaySuggestions suggestionsFor(UUID userId) {
+        boolean pro = subscriptions.isPro(userId);
         return new TodaySuggestions(
                 vocabSuggestions.nextNewWords(userId).orElse(null),
-                lessons.suggestDictationLesson(userId, subscriptions.isPro(userId)).orElse(null));
+                lessons.suggestDictationLesson(userId, pro).orElse(null),
+                lessons.suggestShadowingLesson(userId, pro).orElse(null));
     }
 
     @Override

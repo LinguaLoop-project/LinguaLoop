@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { phaseAfterCards, startPhase, stepStates, summarizeSentences } from "./flow";
+import { hasSuggestions, phaseAfterCards, startPhase, stepStates, summarizeSentences } from "./flow";
 
 const plan = (cardsInPlan: number, sentences: number) => ({ cardsInPlan, sentences: new Array<unknown>(sentences).fill(0) });
 
@@ -44,6 +44,20 @@ describe("stepStates", () => {
   it("leaves out a part the session does not have", () => {
     expect(stepStates("sentences", false, true)).toEqual({ cards: null, sentences: "active" });
     expect(stepStates("cards", true, false)).toEqual({ cards: "active", sentences: null });
+  });
+});
+
+describe("hasSuggestions", () => {
+  const lesson = { id: "l", title: "t", cefrLevel: "A1", sentenceCount: 3 };
+
+  it("is true when any one of the suggestions exists", () => {
+    expect(hasSuggestions({ newWords: null, dictationLesson: null, shadowingLesson: lesson })).toBe(true);
+    expect(hasSuggestions({ newWords: null, dictationLesson: lesson, shadowingLesson: null })).toBe(true);
+  });
+
+  it("is false when there is nothing to suggest or no suggestions at all", () => {
+    expect(hasSuggestions({ newWords: null, dictationLesson: null, shadowingLesson: null })).toBe(false);
+    expect(hasSuggestions(null)).toBe(false);
   });
 });
 
