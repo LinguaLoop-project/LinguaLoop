@@ -35,9 +35,19 @@ STATUS_NA = "Không áp dụng"
 
 LEGEND = (
     "> Nguồn AC: `docs/srs/{m}/usecase.md`. **Loại**: D (dương), A (âm), B (biên). "
-    "**Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. "
-    "Quay lại [mục lục](../TRACEABILITY-AC-TEST.md)."
+    "**Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` "
+    "(định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái))."
 )
+STATUS_DEFS = [
+    (STATUS_HAVE, "AC đã có test tự động (JUnit, Vitest hoặc Playwright) kiểm tra đầy đủ."),
+    (STATUS_PART, "Đã có test nhưng chưa phủ hết AC. Ví dụ chỉ có luồng thành công mà thiếu trường hợp lỗi hoặc biên, "
+                  "hoặc chỉ test ở backend mà chưa test giao diện. Cần bổ sung test."),
+    (STATUS_MISS, "Chưa có test nào cho AC này và cần viết."),
+    (STATUS_MANUAL, "AC chỉ kiểm tra bằng tay, vì khó hoặc không đáng tự động hoá. Ví dụ phát âm với Azure Speech thật, "
+                    "nghe chất lượng audio, cảm nhận giao diện, thanh toán thật. Kết quả ghi trong biên bản test tay hoặc nghiệm thu."),
+    (STATUS_NA, "AC không cần test case. Ví dụ ràng buộc phi chức năng hoặc yêu cầu chỉ mang tính tài liệu, "
+                "hoặc AC thuộc phạm vi đã bỏ hay do dịch vụ bên thứ ba đảm nhiệm."),
+]
 TABLE_HEAD = ["| AC | Tên | UC | Loại | Test | Trạng thái |", "|---|---|---|:---:|---|---|"]
 
 
@@ -97,15 +107,31 @@ def counts(rows: list[list[str]]) -> dict[str, int]:
     return c
 
 
+def automation_rate(c: dict[str, int]) -> float:
+    """Tỉ lệ test tự động theo rubric: AC có test tự động (Đã có + Một phần) / (AC tự động + AC Thủ công)."""
+    auto = c[STATUS_HAVE] + c[STATUS_PART]
+    return round(100 * auto / (auto + c[STATUS_MANUAL]), 1) if auto + c[STATUS_MANUAL] else 0.0
+
+
 def module_file(root: str, module: str, rows: list[list[str]]) -> str:
     c = counts(rows)
     summary = (
         f"Tổng hợp: {len(rows)} AC, {c[STATUS_HAVE]} đã có test, "
-        f"{c[STATUS_PART]} một phần, {c[STATUS_MISS]} thiếu."
+        f"{c[STATUS_PART]} một phần, {c[STATUS_MISS]} thiếu"
+        + (f", {c[STATUS_MANUAL]} thủ công" if c[STATUS_MANUAL] else "")
+        + (f", {c[STATUS_NA]} không áp dụng" if c[STATUS_NA] else "")
+        + "."
     )
     body = [f"# Truy vết AC → test: {module}", "", LEGEND.format(m=module), "", summary, "", *TABLE_HEAD]
     body += ["| " + " | ".join(r) + " |" for r in rows]
     return "\n".join(body) + "\n"
+
+
+def fmt_auto(c: dict[str, int]) -> str:
+    """'—' khi chưa có AC nào được kiểm tra (tự động hay thủ công), tránh hiện 0% gây hiểu nhầm."""
+    if c[STATUS_HAVE] + c[STATUS_PART] + c[STATUS_MANUAL] == 0:
+        return "—"
+    return f"{automation_rate(c):g}%"
 
 
 def index_file(trace: dict[str, list[list[str]]]) -> str:
@@ -116,25 +142,39 @@ def index_file(trace: dict[str, list[list[str]]]) -> str:
         "> Bảng tổng hợp bên dưới do `python tools/test-report/generate.py sync` tự tính lại; không sửa tay.",
         "",
         "> Cột **Test** ghi `LớpTest.phươngThức` (backend) hoặc file Vitest/Playwright. **Loại**: D (dương), A (âm), B (biên). "
-        "**Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`.",
+        "**Trạng thái**: xem định nghĩa bên dưới.",
+        "",
+        "## Định nghĩa trạng thái",
+        "",
+        "| Trạng thái | Ý nghĩa |",
+        "|---|---|",
+        *[f"| **{s}** | {d} |" for s, d in STATUS_DEFS],
         "",
         "## Tổng hợp theo module",
         "",
-        "| Module | Số AC | Đã có test | Một phần | Thiếu | % có test |",
-        "|---|---:|---:|---:|---:|---:|",
+        "Hai tỉ lệ ở cột cuối đo hai việc khác nhau:",
+        "",
+        "- **% phủ đủ AC** = Đã có / Số AC: bao nhiêu AC đã được test kiểm tra đầy đủ.",
+        "- **% tự động** = (Đã có + Một phần) / (Đã có + Một phần + Thủ công): trong các AC đã được kiểm tra, "
+        "bao nhiêu phần trăm kiểm bằng test tự động (chỉ tiêu rubric ≥ 70%). AC `Thiếu` và `Không áp dụng` không tính.",
+        "",
+        "| Module | Số AC | Đã có test | Một phần | Thiếu | Thủ công | Không áp dụng | % phủ đủ AC | % tự động |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
-    tot = [0, 0, 0, 0]
+    keys = [STATUS_HAVE, STATUS_PART, STATUS_MISS, STATUS_MANUAL, STATUS_NA]
+    tot_n, tot = 0, dict.fromkeys(keys, 0)
     for module, rows in trace.items():
         c = counts(rows)
         n = len(rows)
         pct = round(100 * c[STATUS_HAVE] / n) if n else 0
-        lines.append(f"| [{module}](traceability/{module}.md) | {n} | {c[STATUS_HAVE]} | {c[STATUS_PART]} | {c[STATUS_MISS]} | {pct}% |")
-        tot[0] += n
-        tot[1] += c[STATUS_HAVE]
-        tot[2] += c[STATUS_PART]
-        tot[3] += c[STATUS_MISS]
-    pct = round(100 * tot[1] / tot[0]) if tot[0] else 0
-    lines.append(f"| **Tổng** | **{tot[0]}** | **{tot[1]}** | **{tot[2]}** | **{tot[3]}** | **{pct}%** |")
+        cells = " | ".join(str(c[k]) for k in keys)
+        lines.append(f"| [{module}](traceability/{module}.md) | {n} | {cells} | {pct}% | {fmt_auto(c)} |")
+        tot_n += n
+        for k in keys:
+            tot[k] += c[k]
+    pct = round(100 * tot[STATUS_HAVE] / tot_n) if tot_n else 0
+    cells = " | ".join(f"**{tot[k]}**" for k in keys)
+    lines.append(f"| **Tổng** | **{tot_n}** | {cells} | **{pct}%** | **{fmt_auto(tot)}** |")
     return "\n".join(lines) + "\n"
 
 
@@ -274,7 +314,7 @@ def cmd_report(root: str, ci_status: str | None, today: str) -> int:
     c = counts(rows)
     have, manual = c[STATUS_HAVE], c[STATUS_MANUAL]
     cov_ac = round(100 * have / tot, 1) if tot else 0.0
-    auto = round(100 * have / (have + manual), 1) if have + manual else 0.0
+    auto = automation_rate(c)
     neg = sum(1 for r in rows if "A" in [x.strip() for x in r[3].split(",")] and status_key(r[5]) == STATUS_HAVE)
     edge = sum(1 for r in rows if "B" in [x.strip() for x in r[3].split(",")] and status_key(r[5]) == STATUS_HAVE)
     bt, jc, fc = backend_tests(root), jacoco(root), frontend_cov(root)

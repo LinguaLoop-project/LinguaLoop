@@ -1,6 +1,6 @@
 # Truy vết AC → test: AI-thuc-hanh-voi-ai
 
-> Nguồn AC: `docs/srs/AI-thuc-hanh-voi-ai/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. Quay lại [mục lục](../TRACEABILITY-AC-TEST.md).
+> Nguồn AC: `docs/srs/AI-thuc-hanh-voi-ai/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
 Tổng hợp: 30 AC, 0 đã có test, 0 một phần, 30 thiếu.
 

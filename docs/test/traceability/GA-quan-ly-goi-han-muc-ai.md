@@ -1,6 +1,6 @@
 # Truy vết AC → test: GA-quan-ly-goi-han-muc-ai
 
-> Nguồn AC: `docs/srs/GA-quan-ly-goi-han-muc-ai/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. Quay lại [mục lục](../TRACEABILITY-AC-TEST.md).
+> Nguồn AC: `docs/srs/GA-quan-ly-goi-han-muc-ai/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
 Tổng hợp: 37 AC, 0 đã có test, 0 một phần, 37 thiếu.
 
