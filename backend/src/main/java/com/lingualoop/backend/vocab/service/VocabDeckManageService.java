@@ -69,12 +69,17 @@ public interface VocabDeckManageService {
     void unpublishByTeacher(UUID teacherId, UUID deckId);
 
     /**
-     * Quản trị viên gỡ bộ Đã xuất bản bất kỳ về Nháp kèm lý do bắt buộc (UC-BT-06, BR-BT-08). Lý do trống ném
-     * {@code FieldValidationException} trên trường {@code reason}; bộ Nháp ném {@code VOCAB_DECK_NOT_PUBLISHED}.
+     * Quản trị viên gỡ bộ Đã xuất bản bất kỳ về Nháp kèm lý do bắt buộc và gắn dấu "Bị quản trị viên gỡ": báo cáo Phản
+     * cảm đang mở về thẻ của bộ được đóng cùng, giáo viên chủ nhận thông báo, xuất bản lại phải qua duyệt (UC-BT-06,
+     * BR-BT-08, BR-XL-13). Lý do trống ném {@code FieldValidationException} trên trường {@code reason}; bộ Nháp ném
+     * {@code VOCAB_DECK_NOT_PUBLISHED}.
      */
-    void unpublishByAdmin(UUID deckId, UnpublishDeckRequest request);
+    void unpublishByAdmin(UUID adminId, UUID deckId, UnpublishDeckRequest request);
 
-    /** Xóa tạm bộ Nháp hoặc Đã xuất bản của giáo viên, giữ 30 ngày (UC-BT-07, BR-BT-09, 10). */
+    /**
+     * Xóa tạm bộ Nháp hoặc Đã xuất bản của giáo viên, giữ 30 ngày; yêu cầu xuất bản lại đang chờ (nếu có) bị hủy
+     * (UC-BT-07, BR-BT-09, 10, BR-XL-13).
+     */
     void deleteDeck(UUID teacherId, UUID deckId);
 
     /**

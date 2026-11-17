@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lingualoop.backend.common.response.ApiResponse;
 import com.lingualoop.backend.common.response.PageResponse;
+import com.lingualoop.backend.security.CurrentUserId;
 import com.lingualoop.backend.vocab.dto.DeckManageView;
 import com.lingualoop.backend.vocab.dto.request.DeckListQuery;
 import com.lingualoop.backend.vocab.dto.request.DeckStatusFilter;
@@ -71,10 +72,14 @@ public class AdminVocabDeckController {
         return ApiResponse.ok(deckManageService.listCardsForAdmin(deckId, groupId, q, page));
     }
 
-    /** Gỡ xuất bản kèm lý do bắt buộc; lý do hiện cho giáo viên chủ bộ (UC-BT-06, BR-BT-08). */
+    /**
+     * Gỡ xuất bản kèm lý do bắt buộc; lý do hiện cho giáo viên chủ bộ, bộ mang dấu "Bị quản trị viên gỡ" (UC-BT-06,
+     * BR-BT-08, BR-XL-13).
+     */
     @PostMapping("/{deckId}/unpublish")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unpublish(@PathVariable UUID deckId, @RequestBody UnpublishDeckRequest request) {
-        deckManageService.unpublishByAdmin(deckId, request);
+    public void unpublish(@CurrentUserId UUID adminId, @PathVariable UUID deckId,
+            @RequestBody UnpublishDeckRequest request) {
+        deckManageService.unpublishByAdmin(adminId, deckId, request);
     }
 }

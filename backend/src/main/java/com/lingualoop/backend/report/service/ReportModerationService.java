@@ -18,15 +18,26 @@ public interface ReportModerationService {
      */
     void takedown(UUID adminId, UUID reportId, String reason);
 
-    /** Tình trạng dấu của bài học hoặc bộ thẻ của giáo viên; không phải của giáo viên ném {@code ForbiddenException}. */
+    /**
+     * Tình trạng dấu của bài học hoặc bộ thẻ của giáo viên, kể cả đã xóa (để hộp khôi phục nhắc dấu còn); không phải của
+     * giáo viên ném {@code ForbiddenException}.
+     */
     RepublishView.Status status(UUID teacherId, String targetType, UUID targetId);
 
     /**
      * Giáo viên gửi yêu cầu xuất bản lại (nhánh 2b). Không có dấu ném {@code REPORT_TAKEDOWN_NOT_FOUND}; đã có yêu cầu
      * đang chờ ném {@code REPUBLISH_PENDING} (2d); còn câu hoặc thẻ bị báo chưa sửa ném {@code REPUBLISH_NOT_FIXED} kèm
      * {@code details.unchanged} (số lượng) và {@code details.items} (từ vựng của thẻ hoặc câu tiếng Anh chưa sửa) (2c).
+     * {@code note} tối đa 500 ký tự; bản chụp rỗng (gỡ tay không kèm báo cáo) thì bắt buộc, thiếu ném
+     * {@code FieldValidationException} trên trường {@code note} (BR-XL-13).
      */
-    void requestRepublish(UUID teacherId, String targetType, UUID targetId);
+    void requestRepublish(UUID teacherId, String targetType, UUID targetId, String note);
+
+    /**
+     * Số báo cáo Phản cảm đang mở về nội dung của bài học hoặc bộ thẻ, sẽ được đóng cùng khi quản trị viên gỡ (BR-XL-13).
+     * {@code targetType} sai ném {@code FieldValidationException}.
+     */
+    long countOpenOffensive(String targetType, UUID targetId);
 
     /** Yêu cầu đang chờ, cũ nhất trước, 10 dòng mỗi trang (UC-XL-05). */
     PageResponse<RepublishView.Item> listPending(int page);

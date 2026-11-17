@@ -35,11 +35,6 @@ public class ReportMaintenanceService implements ReportCleanupService {
     static final String NOTE_DELETED = "Hệ thống đóng: nội dung đã bị xóa";
     static final String NOTE_PURGED = "Hệ thống đóng: nội dung đã bị xóa vĩnh viễn";
 
-    /** Câu, thẻ hoặc nhóm thẻ đã bị xóa riêng (nhánh 1a). */
-    private static final String DELETED_ITEM = """
-            EXISTS (SELECT 1 FROM sentences s WHERE s.id = cr.sentence_id AND s.deleted_at IS NOT NULL)
-            OR EXISTS (SELECT 1 FROM vocab_cards c JOIN vocab_groups g ON g.id = c.group_id
-                       WHERE c.id = cr.card_id AND (c.deleted_at IS NOT NULL OR g.deleted_at IS NOT NULL))""";
 
     private final ModerationRepository repository;
     private final NotificationService notifications;
@@ -63,7 +58,7 @@ public class ReportMaintenanceService implements ReportCleanupService {
         perTeacher.forEach((teacher, count) -> notifications.send(teacher,
                 "Bạn có %d báo cáo chờ quá 7 ngày".formatted(count)));
 
-        List<UUID> closed = repository.closeWhere(DELETED_ITEM, Map.of(), NOTE_DELETED, now);
+        List<UUID> closed = repository.closeForDeletedItems(NOTE_DELETED, now);
         List<UUID> purged = repository.closeForPermanentlyDeleted(now.minus(RESTORE_WINDOW), NOTE_PURGED, now);
         record(closed, NOTE_DELETED);
         record(purged, NOTE_PURGED);
@@ -75,23 +70,19 @@ public class ReportMaintenanceService implements ReportCleanupService {
     @Override
     @Transactional
     public void closeForDeletedCard(UUID cardId) {
-        close("cr.card_id = :id", cardId);
+        record(repository.closeForCard(cardId, NOTE_DELETED, clock.instant()), NOTE_DELETED);
     }
 
     @Override
     @Transactional
     public void closeForDeletedGroup(UUID groupId) {
-        close("cr.card_id IN (SELECT id FROM vocab_cards WHERE group_id = :id)", groupId);
+        record(repository.closeForGroup(groupId, NOTE_DELETED, clock.instant()), NOTE_DELETED);
     }
 
     @Override
     @Transactional
     public void closeForDeletedSentence(UUID sentenceId) {
-        close("cr.sentence_id = :id", sentenceId);
-    }
-
-    private void close(String where, UUID id) {
-        record(repository.closeWhere(where, Map.of("id", id), NOTE_DELETED, clock.instant()), NOTE_DELETED);
+        record(repository.closeForSentence(sentenceId, NOTE_DELETED, clock.instant()), NOTE_DELETED);
     }
 
     private void record(List<UUID> reportIds, String note) {

@@ -264,8 +264,18 @@ describe("reportApi", () => {
     post.mockResolvedValue({ data: {} });
     await reportApi.takedown("r1", "Phản cảm");
     await reportApi.requestRepublish("deck", "d1");
+    await reportApi.requestRepublish("deck", "d2", "Đã bỏ quảng cáo");
     expect(post).toHaveBeenCalledWith("/admin/reports/r1/takedown", { note: "Phản cảm" }, expect.anything());
-    expect(post).toHaveBeenCalledWith("/teacher/republish-requests", { targetType: "deck", targetId: "d1" }, expect.anything());
+    expect(post).toHaveBeenCalledWith(
+      "/teacher/republish-requests",
+      { targetType: "deck", targetId: "d1", note: null },
+      expect.anything(),
+    );
+    expect(post).toHaveBeenCalledWith(
+      "/teacher/republish-requests",
+      { targetType: "deck", targetId: "d2", note: "Đã bỏ quảng cáo" },
+      expect.anything(),
+    );
   });
 
   it("còn nội dung chưa sửa khi gửi yêu cầu thì báo notFixed kèm số lượng (UC-BT-05 2c)", async () => {

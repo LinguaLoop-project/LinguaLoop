@@ -83,6 +83,15 @@ public class AdminReportController {
     }
 
     /** Giáo viên chủ có nội dung bị báo, theo tên, cho bộ lọc "Giáo viên chủ" (UC-XL-01 Bước 5, AC-XL-09). */
+    /**
+     * Số báo cáo Phản cảm đang mở về nội dung của bài học hoặc bộ thẻ, để hộp gỡ tay nêu số báo cáo sẽ được đóng cùng
+     * (UC-BH-07, UC-BT-06 Bước 2). {@code targetType}: {@code lesson} hoặc {@code deck}.
+     */
+    @GetMapping("/offensive-count")
+    public ApiResponse<Map<String, Long>> offensiveCount(@RequestParam String targetType, @RequestParam UUID targetId) {
+        return ApiResponse.ok(Map.of("count", moderationService.countOpenOffensive(targetType, targetId)));
+    }
+
     @GetMapping("/owners")
     public ApiResponse<List<ReportView.Owner>> owners() {
         return ApiResponse.ok(reviewService.listOwners());

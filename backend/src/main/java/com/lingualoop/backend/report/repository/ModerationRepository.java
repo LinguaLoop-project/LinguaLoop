@@ -33,16 +33,19 @@ public class ModerationRepository {
 
     private final JdbcClient jdbc;
 
-    private static String containerColumn(ReportTargetType type) {
-        return type == ReportTargetType.SENTENCE ? "lesson_id" : "deck_id";
-    }
+    // Mọi câu lệnh là hằng chọn theo loại nội dung, không ghép chuỗi lúc chạy (Sonar java:S2077).
 
-    // ---------------------------------------------------------------- dấu "Bị gỡ do báo cáo" (UC-XL-04)
+    // ---------------------------------------------------------------- dấu "Bị quản trị viên gỡ" (BR-XL-13)
+
+    /** Nguồn gỡ ghi ở {@code content_takedowns.source}. */
+    public static final String SOURCE_REPORT = "report";
+    public static final String SOURCE_MANUAL = "manual";
 
     public boolean isTakenDown(ReportTargetType type, UUID containerId) {
-        return jdbc.sql("SELECT EXISTS (SELECT 1 FROM content_takedowns WHERE " + containerColumn(type)
-                + " = :id AND cleared_at IS NULL)")
-                .param("id", containerId).query(Boolean.class).single();
+        String sql = type == ReportTargetType.SENTENCE
+                ? "SELECT EXISTS (SELECT 1 FROM content_takedowns WHERE lesson_id = :id AND cleared_at IS NULL)"
+                : "SELECT EXISTS (SELECT 1 FROM content_takedowns WHERE deck_id = :id AND cleared_at IS NULL)";
+        return jdbc.sql(sql).param("id", containerId).query(Boolean.class).single();
     }
 
     /** Số báo cáo Phản cảm đang mở về nội dung của bài học hoặc bộ thẻ (BR-XL-13). */
@@ -55,22 +58,31 @@ public class ModerationRepository {
         return jdbc.sql(sql).param("id", containerId).query(Long.class).single();
     }
 
+    private static final String CLOSE_OFFENSIVE = "UPDATE content_reports cr SET status = 'resolved', "
+            + "handled_by = :actor, handled_at = :at, handling_note = :note, status_changed_at = :at";
+
     /** Đóng mọi báo cáo Phản cảm đang mở về nội dung của bài học hoặc bộ thẻ, cùng lý do gỡ (BR-XL-13). */
     public List<UUID> closeOpenOffensive(ReportTargetType type, UUID containerId, UUID actorId, String note,
             Instant at) {
-        String from = type == ReportTargetType.SENTENCE
-                ? " FROM sentences s WHERE s.id = cr.sentence_id AND s.lesson_id = :id"
-                : " FROM vocab_cards c WHERE c.id = cr.card_id AND c.deck_id = :id";
-        return jdbc.sql("UPDATE content_reports cr SET status = 'resolved', handled_by = :actor, handled_at = :at, "
-                + "handling_note = :note, status_changed_at = :at" + from
-                + " AND cr.status = 'waiting_admin' RETURNING cr.id")
+        String sql = type == ReportTargetType.SENTENCE
+                ? CLOSE_OFFENSIVE + " FROM sentences s WHERE s.id = cr.sentence_id AND s.lesson_id = :id"
+                        + " AND cr.status = 'waiting_admin' RETURNING cr.id"
+                : CLOSE_OFFENSIVE + " FROM vocab_cards c WHERE c.id = cr.card_id AND c.deck_id = :id"
+                        + " AND cr.status = 'waiting_admin' RETURNING cr.id";
+        return jdbc.sql(sql)
                 .param("id", containerId).param("actor", actorId, Types.OTHER).param("note", note)
                 .param("at", Timestamp.from(at))
                 .query(UUID.class).list();
     }
 
-    /** Bản chụp hiện tại các câu hoặc thẻ của những báo cáo này, dạng {"<id>": {"<cột>": "<giá trị>"}}. */
+    /**
+     * Bản chụp hiện tại các câu hoặc thẻ của những báo cáo này, dạng {"<id>": {"<cột>": "<giá trị>"}}; không có báo cáo
+     * nào (gỡ tay khi không có báo cáo Phản cảm đang mở) thì bản chụp rỗng.
+     */
     public String snapshotOfReports(ReportTargetType type, List<UUID> reportIds) {
+        if (reportIds.isEmpty()) {
+            return "{}";
+        }
         String sql = type == ReportTargetType.SENTENCE
                 ? "SELECT jsonb_object_agg(s.id::text, " + ReportRepository.SENTENCE_FIELDS + ")::text "
                         + "FROM sentences s WHERE s.id IN (SELECT sentence_id FROM content_reports WHERE id IN (:ids))"
@@ -80,21 +92,29 @@ public class ModerationRepository {
     }
 
     /**
-     * Gắn dấu cho bài học hoặc bộ thẻ. Đang có dấu thì gộp bản chụp vào dòng đang có và lấy lý do mới; chưa có thì thêm
-     * dòng mới.
+     * Gắn dấu cho bài học hoặc bộ thẻ. Đang có dấu thì gộp bản chụp vào dòng đang có và lấy lý do mới, giữ nguồn gỡ cũ;
+     * chưa có thì thêm dòng mới với nguồn {@code source} ({@link #SOURCE_REPORT} hoặc {@link #SOURCE_MANUAL}).
      */
     public void markTakenDown(ReportTargetType type, UUID containerId, String reason, String snapshotJson,
-            UUID actorId, Instant at) {
-        String column = containerColumn(type);
-        int updated = jdbc.sql("UPDATE content_takedowns SET snapshot = snapshot || CAST(:snap AS jsonb), "
-                + "reason = :reason WHERE " + column + " = :id AND cleared_at IS NULL")
+            UUID actorId, Instant at, String source) {
+        boolean sentence = type == ReportTargetType.SENTENCE;
+        String merge = sentence
+                ? "UPDATE content_takedowns SET snapshot = snapshot || CAST(:snap AS jsonb), reason = :reason "
+                        + "WHERE lesson_id = :id AND cleared_at IS NULL"
+                : "UPDATE content_takedowns SET snapshot = snapshot || CAST(:snap AS jsonb), reason = :reason "
+                        + "WHERE deck_id = :id AND cleared_at IS NULL";
+        int updated = jdbc.sql(merge)
                 .param("snap", snapshotJson).param("reason", reason).param("id", containerId)
                 .update();
         if (updated == 0) {
-            jdbc.sql("INSERT INTO content_takedowns (" + column + ", reason, snapshot, taken_down_by, created_at) "
-                    + "VALUES (:id, :reason, CAST(:snap AS jsonb), :actor, :at)")
+            String insert = sentence
+                    ? "INSERT INTO content_takedowns (lesson_id, reason, snapshot, taken_down_by, created_at, source) "
+                            + "VALUES (:id, :reason, CAST(:snap AS jsonb), :actor, :at, :source)"
+                    : "INSERT INTO content_takedowns (deck_id, reason, snapshot, taken_down_by, created_at, source) "
+                            + "VALUES (:id, :reason, CAST(:snap AS jsonb), :actor, :at, :source)";
+            jdbc.sql(insert)
                     .param("id", containerId).param("reason", reason).param("snap", snapshotJson)
-                    .param("actor", actorId, Types.OTHER).param("at", Timestamp.from(at))
+                    .param("actor", actorId, Types.OTHER).param("at", Timestamp.from(at)).param("source", source)
                     .update();
         }
     }
@@ -117,21 +137,31 @@ public class ModerationRepository {
                 .optional();
     }
 
-    /** Dấu đang hiệu lực: mã, lý do gỡ, lý do từ chối của yêu cầu gần nhất (nếu bị từ chối), có yêu cầu đang chờ. */
-    public record TakedownRow(UUID id, String reason, String lastRejectReason, boolean pending) {
+    /**
+     * Dấu đang hiệu lực: mã, lý do gỡ, lý do từ chối của yêu cầu gần nhất (nếu bị từ chối), có yêu cầu đang chờ, nguồn
+     * gỡ, bản chụp rỗng không (rỗng thì gửi yêu cầu được ngay nhưng ghi chú bắt buộc, BR-XL-13).
+     */
+    public record TakedownRow(UUID id, String reason, String lastRejectReason, boolean pending, String source,
+            boolean snapshotEmpty) {
     }
 
+    private static final String ACTIVE_TAKEDOWN = """
+            SELECT t.id, t.reason, t.source, t.snapshot = '{}'::jsonb AS snapshot_empty,
+                   (SELECT r.reject_reason FROM republish_requests r WHERE r.takedown_id = t.id
+                    ORDER BY r.created_at DESC LIMIT 1) AS last_reject_reason,
+                   EXISTS (SELECT 1 FROM republish_requests r
+                           WHERE r.takedown_id = t.id AND r.status = 'pending') AS pending
+            FROM content_takedowns t WHERE t.cleared_at IS NULL AND\s""";
+
     public Optional<TakedownRow> findActiveTakedown(ReportTargetType type, UUID containerId) {
-        return jdbc.sql("""
-                SELECT t.id, t.reason,
-                       (SELECT r.reject_reason FROM republish_requests r WHERE r.takedown_id = t.id
-                        ORDER BY r.created_at DESC LIMIT 1) AS last_reject_reason,
-                       EXISTS (SELECT 1 FROM republish_requests r
-                               WHERE r.takedown_id = t.id AND r.status = 'pending') AS pending
-                FROM content_takedowns t WHERE t.""" + containerColumn(type) + " = :id AND t.cleared_at IS NULL")
+        String sql = type == ReportTargetType.SENTENCE
+                ? ACTIVE_TAKEDOWN + "t.lesson_id = :id"
+                : ACTIVE_TAKEDOWN + "t.deck_id = :id";
+        return jdbc.sql(sql)
                 .param("id", containerId)
                 .query((rs, n) -> new TakedownRow(rs.getObject("id", UUID.class), rs.getString("reason"),
-                        rs.getString("last_reject_reason"), rs.getBoolean("pending")))
+                        rs.getString("last_reject_reason"), rs.getBoolean("pending"), rs.getString("source"),
+                        rs.getBoolean("snapshot_empty")))
                 .optional();
     }
 
@@ -166,21 +196,37 @@ public class ModerationRepository {
         return jdbc.sql(sql).param("id", takedownId).query(String.class).list();
     }
 
-    public UUID insertRequest(UUID takedownId, UUID teacherId, Instant at) {
-        return jdbc.sql("INSERT INTO republish_requests (takedown_id, requested_by, created_at) "
-                + "VALUES (:t, :u, :at) RETURNING id")
-                .param("t", takedownId).param("u", teacherId).param("at", Timestamp.from(at))
+    public UUID insertRequest(UUID takedownId, UUID teacherId, String note, Instant at) {
+        return jdbc.sql("INSERT INTO republish_requests (takedown_id, requested_by, note, created_at) "
+                + "VALUES (:t, :u, :note, :at) RETURNING id")
+                .param("t", takedownId).param("u", teacherId).param("note", note, Types.VARCHAR)
+                .param("at", Timestamp.from(at))
                 .query(UUID.class).single();
     }
 
-    /** Một yêu cầu kèm dấu và nội dung của nó. {@code type} {@code SENTENCE} là bài học, {@code CARD} là bộ thẻ. */
+    /**
+     * Hủy yêu cầu đang chờ của bài học hoặc bộ thẻ vừa bị xóa (BR-XL-13); dấu giữ nguyên. Trả về số yêu cầu đã hủy.
+     */
+    public int cancelPending(ReportTargetType type, UUID containerId, Instant at) {
+        String sql = type == ReportTargetType.SENTENCE
+                ? "UPDATE republish_requests r SET status = 'cancelled', decided_at = :at FROM content_takedowns t "
+                        + "WHERE t.id = r.takedown_id AND t.lesson_id = :id AND r.status = 'pending'"
+                : "UPDATE republish_requests r SET status = 'cancelled', decided_at = :at FROM content_takedowns t "
+                        + "WHERE t.id = r.takedown_id AND t.deck_id = :id AND r.status = 'pending'";
+        return jdbc.sql(sql).param("at", Timestamp.from(at)).param("id", containerId).update();
+    }
+
+    /**
+     * Một yêu cầu kèm dấu và nội dung của nó. {@code type} {@code SENTENCE} là bài học, {@code CARD} là bộ thẻ;
+     * {@code source} là nguồn gỡ, {@code note} là ghi chú của giáo viên (có thể rỗng).
+     */
     public record RequestRow(UUID id, String status, Instant requestedAt, UUID takedownId, String takedownReason,
             ReportTargetType type, UUID containerId, String containerName, UUID ownerId, String ownerName,
-            boolean containerDeleted) {
+            boolean containerDeleted, String source, String note) {
     }
 
     private static final String REQUEST_SELECT = """
-            SELECT r.id, r.status, r.created_at, t.id AS takedown_id, t.reason AS takedown_reason,
+            SELECT r.id, r.status, r.created_at, r.note, t.source, t.id AS takedown_id, t.reason AS takedown_reason,
                    CASE WHEN t.lesson_id IS NOT NULL THEN 'SENTENCE' ELSE 'CARD' END AS type,
                    COALESCE(t.lesson_id, t.deck_id) AS container_id, COALESCE(l.title, d.name) AS container_name,
                    COALESCE(l.owner_id, d.owner_id) AS owner_id, o.display_name AS owner_name,
@@ -197,7 +243,8 @@ public class ModerationRepository {
                 rs.getTimestamp("created_at").toInstant(), rs.getObject("takedown_id", UUID.class),
                 rs.getString("takedown_reason"), ReportTargetType.valueOf(rs.getString("type")),
                 rs.getObject("container_id", UUID.class), rs.getString("container_name"),
-                rs.getObject("owner_id", UUID.class), rs.getString("owner_name"), rs.getBoolean("container_deleted"));
+                rs.getObject("owner_id", UUID.class), rs.getString("owner_name"), rs.getBoolean("container_deleted"),
+                rs.getString("source"), rs.getString("note"));
     }
 
     /** Yêu cầu đang chờ, cũ nhất trước (UC-XL-05 Bước 2). */
@@ -225,18 +272,22 @@ public class ModerationRepository {
 
     /** So sánh lúc gỡ và hiện tại cho từng câu hoặc thẻ trong bản chụp (UC-XL-05 Bước 4). */
     public List<SnapshotItem> snapshotItems(UUID takedownId, ReportTargetType type) {
-        boolean sentence = type == ReportTargetType.SENTENCE;
-        String join = sentence
-                ? "LEFT JOIN sentences s ON s.id = e.key::uuid"
-                : "LEFT JOIN vocab_cards c ON c.id = e.key::uuid LEFT JOIN vocab_groups g ON g.id = c.group_id";
-        String deleted = sentence ? "(s.id IS NULL OR s.deleted_at IS NOT NULL)"
-                : "(c.id IS NULL OR c.deleted_at IS NOT NULL OR g.deleted_at IS NOT NULL)";
-        String current = sentence ? "CASE WHEN s.id IS NULL THEN NULL ELSE " + ReportRepository.SENTENCE_FIELDS + " END"
-                : "CASE WHEN c.id IS NULL THEN NULL ELSE " + ReportRepository.CARD_FIELDS + " END";
+        String sql = type == ReportTargetType.SENTENCE
+                ? "SELECT e.key AS target_id, f.key AS field, f.value AS before, "
+                        + "(CASE WHEN s.id IS NULL THEN NULL ELSE " + ReportRepository.SENTENCE_FIELDS
+                        + " END) ->> f.key AS after, (s.id IS NULL OR s.deleted_at IS NOT NULL) AS deleted "
+                        + "FROM content_takedowns t CROSS JOIN LATERAL jsonb_each(t.snapshot) e "
+                        + "LEFT JOIN sentences s ON s.id = e.key::uuid "
+                        + "CROSS JOIN LATERAL jsonb_each_text(e.value) f WHERE t.id = :id ORDER BY e.key"
+                : "SELECT e.key AS target_id, f.key AS field, f.value AS before, "
+                        + "(CASE WHEN c.id IS NULL THEN NULL ELSE " + ReportRepository.CARD_FIELDS
+                        + " END) ->> f.key AS after, "
+                        + "(c.id IS NULL OR c.deleted_at IS NOT NULL OR g.deleted_at IS NOT NULL) AS deleted "
+                        + "FROM content_takedowns t CROSS JOIN LATERAL jsonb_each(t.snapshot) e "
+                        + "LEFT JOIN vocab_cards c ON c.id = e.key::uuid LEFT JOIN vocab_groups g ON g.id = c.group_id "
+                        + "CROSS JOIN LATERAL jsonb_each_text(e.value) f WHERE t.id = :id ORDER BY e.key";
         Map<UUID, SnapshotItem> items = new LinkedHashMap<>();
-        jdbc.sql("SELECT e.key AS target_id, f.key AS field, f.value AS before, (" + current + ") ->> f.key AS after, "
-                + deleted + " AS deleted FROM content_takedowns t CROSS JOIN LATERAL jsonb_each(t.snapshot) e "
-                + join + " CROSS JOIN LATERAL jsonb_each_text(e.value) f WHERE t.id = :id ORDER BY e.key")
+        jdbc.sql(sql)
                 .param("id", takedownId)
                 .query(rs -> {
                     UUID target = UUID.fromString(rs.getString("target_id"));
@@ -313,15 +364,38 @@ public class ModerationRepository {
                 .query(UUID.class).list();
     }
 
-    /**
-     * Đóng báo cáo đang mở về câu, thẻ đã bị xóa riêng hoặc thuộc nhóm thẻ đã xóa (nhánh 1a). {@code where} là điều kiện
-     * trên bí danh {@code cr}, chỉ lấy từ hằng trong lớp gọi.
-     */
-    public List<UUID> closeWhere(String where, Map<String, Object> params, String note, Instant at) {
-        return jdbc.sql("UPDATE content_reports cr SET status = 'resolved', handled_by = NULL, handled_at = :at, "
-                + "handling_note = :note, status_changed_at = :at WHERE cr.status IN " + OPEN + " AND (" + where
-                + ") RETURNING cr.id")
-                .params(params).param("note", note).param("at", Timestamp.from(at))
+    private static final String CLOSE_BY_SYSTEM = "UPDATE content_reports cr SET status = 'resolved', handled_by = NULL, "
+            + "handled_at = :at, handling_note = :note, status_changed_at = :at WHERE cr.status IN " + OPEN + " AND ";
+
+    /** Đóng báo cáo đang mở về câu, thẻ đã bị xóa riêng hoặc thuộc nhóm thẻ đã xóa (nhánh 1a), cho lượt quét định kỳ. */
+    public List<UUID> closeForDeletedItems(String note, Instant at) {
+        return jdbc.sql(CLOSE_BY_SYSTEM + """
+                (EXISTS (SELECT 1 FROM sentences s WHERE s.id = cr.sentence_id AND s.deleted_at IS NOT NULL)
+                 OR EXISTS (SELECT 1 FROM vocab_cards c JOIN vocab_groups g ON g.id = c.group_id
+                            WHERE c.id = cr.card_id AND (c.deleted_at IS NOT NULL OR g.deleted_at IS NOT NULL)))
+                RETURNING cr.id""")
+                .param("note", note).param("at", Timestamp.from(at))
+                .query(UUID.class).list();
+    }
+
+    /** Đóng báo cáo đang mở về một câu vừa bị xóa (nhánh 1a). */
+    public List<UUID> closeForSentence(UUID sentenceId, String note, Instant at) {
+        return jdbc.sql(CLOSE_BY_SYSTEM + "cr.sentence_id = :id RETURNING cr.id")
+                .param("id", sentenceId).param("note", note).param("at", Timestamp.from(at))
+                .query(UUID.class).list();
+    }
+
+    /** Đóng báo cáo đang mở về một thẻ vừa bị xóa (nhánh 1a). */
+    public List<UUID> closeForCard(UUID cardId, String note, Instant at) {
+        return jdbc.sql(CLOSE_BY_SYSTEM + "cr.card_id = :id RETURNING cr.id")
+                .param("id", cardId).param("note", note).param("at", Timestamp.from(at))
+                .query(UUID.class).list();
+    }
+
+    /** Đóng báo cáo đang mở về các thẻ của một nhóm thẻ vừa bị xóa (nhánh 1a). */
+    public List<UUID> closeForGroup(UUID groupId, String note, Instant at) {
+        return jdbc.sql(CLOSE_BY_SYSTEM + "cr.card_id IN (SELECT id FROM vocab_cards WHERE group_id = :id) RETURNING cr.id")
+                .param("id", groupId).param("note", note).param("at", Timestamp.from(at))
                 .query(UUID.class).list();
     }
 }

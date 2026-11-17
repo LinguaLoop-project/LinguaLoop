@@ -40,6 +40,7 @@ export default function RepublishListScreen() {
             >
               <div className="flex flex-wrap items-center gap-2">
                 <Badge tone="primary">{t(`republish.type.${item.targetType}`)}</Badge>
+                <Badge tone="info">{t(`republish.source.${item.source}`)}</Badge>
                 <span className="font-semibold text-text">{item.targetName}</span>
               </div>
               <p className="line-clamp-2 text-sm text-text">{t("republish.takedownReason", { reason: item.takedownReason })}</p>

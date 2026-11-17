@@ -11,7 +11,7 @@ export default function TeacherDeckDetailPage() {
   const updatedAt = useDeckDetail("teacher", id || undefined).data?.updatedAt;
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-5 p-6">
-      {/* Bộ bị gỡ do báo cáo: lý do và nút gửi yêu cầu duyệt xuất bản lại (UC-BT-05 nhánh 2b). */}
+      {/* Bộ bị quản trị viên gỡ: lý do và nút gửi yêu cầu duyệt xuất bản lại (UC-BT-05 nhánh 2b). */}
       {id && <TakedownNotice targetType="deck" targetId={id} contentVersion={updatedAt} />}
       {/* Khung trên đã nêu lý do gỡ, nên không lặp lại dòng "Quản trị viên đã gỡ xuất bản". */}
       <DeckDetailView key={id} role="teacher" deckId={id} hideUnpublishReason={takenDown} />

@@ -48,7 +48,7 @@ const CLOSE_BY_CODE: Record<string, string> = {
   VOCAB_DECK_NOT_DELETED: "manage.feedback.alreadyRestored",
   VOCAB_DECK_RESTORE_EXPIRED: "manage.feedback.restoreExpired",
   VOCAB_DECK_NOT_FOUND: "manage.feedback.notFound",
-  // Bộ bị gỡ do báo cáo: giáo viên gửi yêu cầu duyệt ở trang bộ (UC-BT-05 nhánh 2b).
+  // Bộ bị quản trị viên gỡ: giáo viên gửi yêu cầu duyệt ở trang bộ (UC-BT-05 nhánh 2b).
   REPORT_REVIEW_REQUIRED: "manage.feedback.reviewRequired",
 };
 

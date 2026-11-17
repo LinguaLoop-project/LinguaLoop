@@ -104,7 +104,7 @@ export const reportApi = {
       await axiosClient.post(`/admin/reports/${reportId}/takedown`, { note }, { timeout: REQUEST_TIMEOUT_MS });
     }),
 
-  /** Dấu "Bị gỡ do báo cáo" của bài học hoặc bộ thẻ của giáo viên. */
+  /** Dấu "Bị quản trị viên gỡ" của bài học hoặc bộ thẻ của giáo viên. */
   takedownStatus: (targetType: RepublishTarget, targetId: string) =>
     wrap(async () => {
       const res = await axiosClient.get<ApiResponse<TakedownStatus>>("/teacher/republish-requests/status", {
@@ -114,10 +114,24 @@ export const reportApi = {
       return res.data.data;
     }),
 
-  /** Giáo viên gửi yêu cầu xuất bản lại (UC-BT-05, UC-BH-06 nhánh 2b). */
-  requestRepublish: (targetType: RepublishTarget, targetId: string) =>
+  /** Giáo viên gửi yêu cầu xuất bản lại kèm ghi chú (UC-BT-05, UC-BH-06 nhánh 2b, BR-XL-13). */
+  requestRepublish: (targetType: RepublishTarget, targetId: string, note: string | null = null) =>
     wrap(async () => {
-      await axiosClient.post("/teacher/republish-requests", { targetType, targetId }, { timeout: REQUEST_TIMEOUT_MS });
+      await axiosClient.post(
+        "/teacher/republish-requests",
+        { targetType, targetId, note },
+        { timeout: REQUEST_TIMEOUT_MS },
+      );
+    }),
+
+  /** Số báo cáo Phản cảm đang mở sẽ được đóng cùng khi quản trị viên gỡ tay (UC-BH-07, UC-BT-06 Bước 2). */
+  offensiveCount: (targetType: RepublishTarget, targetId: string) =>
+    wrap(async () => {
+      const res = await axiosClient.get<ApiResponse<{ count: number }>>("/admin/reports/offensive-count", {
+        params: { targetType, targetId },
+        timeout: REQUEST_TIMEOUT_MS,
+      });
+      return res.data.data.count;
     }),
 
   /** Giáo viên chủ có nội dung bị báo, cho bộ lọc của quản trị viên (AC-XL-09). */

@@ -41,6 +41,6 @@ public class TeacherRepublishController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void request(@CurrentUserId UUID userId, @RequestBody RepublishRequest request) {
-        moderationService.requestRepublish(userId, request.targetType(), request.targetId());
+        moderationService.requestRepublish(userId, request.targetType(), request.targetId(), request.note());
     }
 }

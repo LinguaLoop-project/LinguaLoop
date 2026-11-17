@@ -175,7 +175,18 @@ public class ReportTestData {
         jdbc.update("UPDATE vocab_decks SET status = ? WHERE id = ?", status, deck);
     }
 
-    /** Số dấu "Bị gỡ do báo cáo" đang hiệu lực của bài học hoặc bộ thẻ; {@code column}: lesson_id hoặc deck_id. */
+    /** Nguồn gỡ (report hoặc manual) của dấu đang hiệu lực; {@code column}: lesson_id hoặc deck_id. */
+    public String takedownSource(String column, UUID container) {
+        return jdbc.queryForObject("SELECT source FROM content_takedowns WHERE " + column
+                + " = ? AND cleared_at IS NULL", String.class, container);
+    }
+
+    /** Trạng thái của một yêu cầu xuất bản lại. */
+    public String requestStatus(UUID request) {
+        return jdbc.queryForObject("SELECT status FROM republish_requests WHERE id = ?", String.class, request);
+    }
+
+    /** Số dấu "Bị quản trị viên gỡ" đang hiệu lực của bài học hoặc bộ thẻ; {@code column}: lesson_id hoặc deck_id. */
     public int activeTakedowns(String column, UUID container) {
         Integer n = jdbc.queryForObject("SELECT count(*) FROM content_takedowns WHERE " + column
                 + " = ? AND cleared_at IS NULL", Integer.class, container);

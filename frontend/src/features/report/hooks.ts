@@ -9,6 +9,8 @@ export const reportKeys = {
   detail: (role: ReviewRole, reportId: string) => [...reportKeys.all, "detail", role, reportId] as const,
   takedown: (targetType: RepublishTarget, targetId: string) =>
     [...reportKeys.all, "takedown", targetType, targetId] as const,
+  offensiveCount: (targetType: RepublishTarget, targetId: string) =>
+    [...reportKeys.all, "offensive-count", targetType, targetId] as const,
   republishList: (page: number) => [...reportKeys.all, "republish", "list", page] as const,
   republishDetail: (requestId: string) => [...reportKeys.all, "republish", "detail", requestId] as const,
 };
@@ -112,7 +114,7 @@ export function useTakedownReport() {
   );
 }
 
-/** Dấu "Bị gỡ do báo cáo" của nội dung giáo viên đang xem; không thử lại khi lỗi. */
+/** Dấu "Bị quản trị viên gỡ" của nội dung giáo viên đang xem; không thử lại khi lỗi. */
 export function useTakedownStatus(targetType: RepublishTarget, targetId: string | undefined) {
   return useQuery({
     queryKey: reportKeys.takedown(targetType, targetId ?? ""),
@@ -122,14 +124,32 @@ export function useTakedownStatus(targetType: RepublishTarget, targetId: string 
   });
 }
 
-/** Bài học hoặc bộ thẻ có đang mang dấu "Bị gỡ do báo cáo" không; dùng chung truy vấn với khung TakedownNotice. */
+/** Bài học hoặc bộ thẻ có đang mang dấu "Bị quản trị viên gỡ" không; dùng chung truy vấn với khung TakedownNotice. */
 export function useIsTakenDown(targetType: RepublishTarget, targetId: string | undefined): boolean {
   return useTakedownStatus(targetType, targetId).data?.takenDown ?? false;
 }
 
+/** Có yêu cầu xuất bản lại đang chờ duyệt không; xóa nội dung sẽ hủy yêu cầu này (BR-XL-13). */
+export function useHasPendingRepublish(targetType: RepublishTarget, targetId: string | undefined): boolean {
+  return useTakedownStatus(targetType, targetId).data?.pending ?? false;
+}
+
+/** Số báo cáo Phản cảm đang mở của nội dung, cho hộp gỡ tay của quản trị viên; không có id thì không gọi. */
+export function useOpenOffensiveCount(targetType: RepublishTarget, targetId: string | undefined): number {
+  return (
+    useQuery({
+      queryKey: reportKeys.offensiveCount(targetType, targetId ?? ""),
+      queryFn: () => reportApi.offensiveCount(targetType, targetId ?? ""),
+      enabled: Boolean(targetId),
+      retry: false,
+    }).data ?? 0
+  );
+}
+
 export function useRequestRepublish() {
-  return useReportMutation(({ targetType, targetId }: { targetType: RepublishTarget; targetId: string }) =>
-    reportApi.requestRepublish(targetType, targetId),
+  return useReportMutation(
+    ({ targetType, targetId, note }: { targetType: RepublishTarget; targetId: string; note: string | null }) =>
+      reportApi.requestRepublish(targetType, targetId, note),
   );
 }
 

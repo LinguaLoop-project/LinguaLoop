@@ -147,7 +147,7 @@
 | Mục | Nội dung |
 |---|---|
 | Tác nhân | Học viên, Giáo viên, Quản trị viên |
-| Mô tả | Cho phép tác nhân xem các thông báo hệ thống gửi cho mình (ví dụ nội dung bị gỡ do báo cáo, kết quả duyệt xuất bản lại, nhắc báo cáo chờ quá hạn) và đánh dấu đã đọc. |
+| Mô tả | Cho phép tác nhân xem các thông báo hệ thống gửi cho mình (ví dụ nội dung bị quản trị viên gỡ, kết quả duyệt xuất bản lại, nhắc báo cáo chờ quá hạn) và đánh dấu đã đọc. |
 | Điều kiện tiên quyết | Tác nhân đã đăng nhập (UC-TK-02 hoặc UC-TK-03). |
 | Điều kiện sau | Thông báo tác nhân đã chọn được ghi nhận là đã đọc; số thông báo chưa đọc trên biểu tượng chuông được cập nhật. Thông báo không bị xóa. |
 | Luồng chính | 1. Hệ thống hiển thị biểu tượng chuông trên thanh trên cùng của mọi trang sau khi đăng nhập, kèm số thông báo chưa đọc của tác nhân (BR-TK-16).<br>2. Tác nhân chọn biểu tượng chuông.<br>3. Hệ thống hiển thị 20 thông báo mới nhất của chính tác nhân, mới nhất ở đầu; mỗi thông báo gồm nội dung, thời điểm nhận (dạng "5 phút trước", quá 7 ngày thì hiện ngày) và dấu chưa đọc nếu chưa đọc (BR-TK-16, BR-TK-17).<br>4. Tác nhân chọn một thông báo chưa đọc.<br>5. Hệ thống ghi nhận thông báo đó đã đọc, bỏ dấu chưa đọc và giảm số trên biểu tượng chuông. |

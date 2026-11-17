@@ -168,8 +168,8 @@
   },
   "takedown": {
     "title": {
-      "lesson": "Bài học bị gỡ do báo cáo",
-      "deck": "Bộ thẻ bị gỡ do báo cáo"
+      "lesson": "Bài học bị quản trị viên gỡ",
+      "deck": "Bộ thẻ bị quản trị viên gỡ"
     },
     "reason": "Lý do gỡ: {{reason}}",
     "lastRejected": "Yêu cầu trước bị từ chối: {{reason}}",
@@ -185,6 +185,11 @@
     "unfixed": "Chưa sửa",
     "readyHint": "Các nội dung bị báo đã được sửa. Gửi yêu cầu để quản trị viên duyệt xuất bản lại.",
     "stillUnfixed": "Vẫn còn nội dung bị báo chưa được sửa",
+    "manualHint": "Quản trị viên đã gỡ nội dung này. Sửa theo lý do gỡ rồi gửi yêu cầu kèm ghi chú nêu những gì đã sửa để quản trị viên duyệt xuất bản lại.",
+    "note": "Ghi chú cho quản trị viên",
+    "noteOptional": "Ghi chú cho quản trị viên (không bắt buộc)",
+    "noteRequired": "Ghi chú là bắt buộc",
+    "noteTooLong": "Ghi chú tối đa 500 ký tự",
     "confirmTitle": "Gửi yêu cầu duyệt xuất bản lại?",
     "confirm": "Gửi yêu cầu",
     "confirmBody": {
@@ -203,8 +208,14 @@
     "status": {
       "pending": "Đang chờ",
       "approved": "Đã duyệt",
-      "rejected": "Đã từ chối"
+      "rejected": "Đã từ chối",
+      "cancelled": "Đã hủy"
     },
+    "source": {
+      "report": "Gỡ từ báo cáo",
+      "manual": "Gỡ tay"
+    },
+    "note": "Ghi chú của giáo viên: {{note}}",
     "takedownReason": "Lý do gỡ: {{reason}}",
     "requestedAt": "Gửi yêu cầu lúc {{at}}",
     "changes": "Nội dung bị báo ({{count}})",

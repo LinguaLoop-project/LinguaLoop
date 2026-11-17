@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/XL-xu-ly-bao-cao/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 61 AC, 14 đã có test, 26 một phần, 21 thiếu.
+Tổng hợp: 62 AC, 14 đã có test, 27 một phần, 21 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -60,6 +60,7 @@ Tổng hợp: 61 AC, 14 đã có test, 26 một phần, 21 thiếu.
 | AC-XL-52 | Yêu cầu không còn hiệu lực | UC-XL-05 |  |  | Thiếu |
 | AC-XL-53 | Không còn đủ điều kiện xuất bản | UC-XL-05 | A | ReportModerationApiIntegrationTest.approve_lessonMissingTranslation_isNotPublishable_AC_XL_53 (chưa test giao diện) | Một phần |
 | AC-XL-54 | Mất kết nối khi duyệt | UC-XL-05 |  |  | Thiếu |
+| AC-XL-62 | Duyệt yêu cầu của nội dung bị gỡ tay | UC-XL-05 | D | ReportModerationApiIntegrationTest.manualUnpublish_emptySnapshot_requiresNoteThenAdminSeesSourceAndNote_AC_BT_33_AC_BT_80_AC_XL_62 (chưa test giao diện) | Một phần |
 | AC-XL-55 | Nhắc giáo viên khi báo cáo quá 7 ngày | UC-XL-06 | D | ReportModerationApiIntegrationTest.maintenance_remindsOnceAfterSevenDays_AC_XL_55_56 (chưa test giao diện) | Một phần |
 | AC-XL-56 | Mỗi dòng chỉ được nhắc một lần | UC-XL-06 | D | ReportModerationApiIntegrationTest.maintenance_remindsOnceAfterSevenDays_AC_XL_55_56 | Đã có |
 | AC-XL-57 | Không có dòng nào mới quá hạn hoặc dòng đang bị ẩn | UC-XL-06 | A | ReportModerationApiIntegrationTest.maintenance_noHandlerAndDeletedLesson_areNotNotified_AC_XL_57_58 | Đã có |

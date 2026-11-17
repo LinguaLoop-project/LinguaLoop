@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/BT-quan-ly-bo-the/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 76 AC, 55 đã có test, 14 một phần, 7 thiếu.
+Tổng hợp: 80 AC, 54 đã có test, 19 một phần, 7 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -48,7 +48,7 @@ Tổng hợp: 76 AC, 55 đã có test, 14 một phần, 7 thiếu.
 | AC-BT-25 | Bộ chưa có thẻ | UC-BT-04 |  |  | Thiếu |
 | AC-BT-51 | Quản trị viên xem chi tiết bộ đã xuất bản | UC-BT-04 |  | VocabDeckLifecycleApiIntegrationTest.detail_adminPublished_showsOwner_AC_BT_51 (chưa test nút Gỡ xuất bản và hộp xác nhận trên trang chi tiết) | Một phần |
 | AC-BT-52 | Quản trị viên mở bộ không có quyền xem | UC-BT-04 |  | VocabDeckLifecycleApiIntegrationTest.detail_adminDraftOrDeleted_rejected_AC_BT_52_AC_BT_55 (chưa test trang chi tiết báo không có quyền) | Một phần |
-| AC-BT-76 | Quản trị viên xem bộ bị gỡ do báo cáo trước khi duyệt | UC-BT-04 | D, A | ReportModerationApiIntegrationTest.adminDeckDetail_takenDownDraftIsViewable_plainDraftIsNot_AC_BT_76 (chưa test trang chi tiết chỉ xem, không có nút Gỡ xuất bản) | Một phần |
+| AC-BT-76 | Quản trị viên xem bộ bị quản trị viên gỡ trước khi duyệt | UC-BT-04 | D, A | ReportModerationApiIntegrationTest.adminDeckDetail_takenDownDraftIsViewable_plainDraftIsNot_AC_BT_76 (chưa test trang chi tiết chỉ xem, không có nút Gỡ xuất bản) | Một phần |
 | AC-BT-53 | Tìm thẻ và phân trang | UC-BT-04 |  | VocabDeckLifecycleApiIntegrationTest.cards_searchAndPaging_AC_BT_53_AC_BT_54 | Đã có |
 | AC-BT-54 | Không có thẻ khớp từ khóa | UC-BT-04 |  | VocabDeckLifecycleApiIntegrationTest.cards_searchAndPaging_AC_BT_53_AC_BT_54 (chưa test thông báo 'Không tìm thấy thẻ phù hợp' và nút xóa từ khóa) | Một phần |
 | AC-BT-55 | Bộ không còn xem được | UC-BT-04 |  | VocabDeckLifecycleApiIntegrationTest.detail_adminDraftOrDeleted_rejected_AC_BT_52_AC_BT_55 (chưa test trang chi tiết báo không tìm thấy và chuyển về danh sách) | Một phần |
@@ -60,21 +60,24 @@ Tổng hợp: 76 AC, 55 đã có test, 14 một phần, 7 thiếu.
 | AC-BT-31 | Mất kết nối khi xuất bản | UC-BT-05 |  | `frontend/src/features/vocab/deckLifecycle.test.ts` (chưa test giao diện hộp thoại) | Một phần |
 | AC-BT-71 | Xuất bản bộ của người khác | UC-BT-05 |  | VocabDeckLifecycleApiIntegrationTest.publish_otherTeachersDeck_returns403AndStaysDraft_AC_BT_71; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
 | AC-BT-72 | Xuất bản bộ không còn tồn tại | UC-BT-05 |  | VocabDeckLifecycleApiIntegrationTest.publish_deletedDeck_returns404_AC_BT_72; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
-| AC-BT-74 | Gửi duyệt xuất bản lại bộ bị gỡ do báo cáo | UC-BT-05 | D, A | ReportModerationApiIntegrationTest.republish_requiresFixThenApprovalOnce_AC_BT_74_75_AC_XL_48; ReportModerationApiIntegrationTest.takedown_draftDeck_onlyMarksAndBlocksTeacherPublish_AC_XL_42; `frontend/src/features/report/reportForm.test.ts`; `frontend/src/features/vocab/deckLifecycle.test.ts` (chưa test giao diện nêu thẻ chưa sửa kèm lý do gỡ) | Một phần |
+| AC-BT-74 | Gửi duyệt xuất bản lại bộ bị quản trị viên gỡ | UC-BT-05 | D, A | ReportModerationApiIntegrationTest.republish_requiresFixThenApprovalOnce_AC_BT_74_75_AC_XL_48; ReportModerationApiIntegrationTest.takedown_draftDeck_onlyMarksAndBlocksTeacherPublish_AC_XL_42; `frontend/src/features/report/reportForm.test.ts`; `frontend/src/features/vocab/deckLifecycle.test.ts` (chưa test giao diện nêu thẻ chưa sửa kèm lý do gỡ) | Một phần |
 | AC-BT-75 | Đã có yêu cầu đang chờ duyệt | UC-BT-05 | A | ReportModerationApiIntegrationTest.republish_requiresFixThenApprovalOnce_AC_BT_74_75_AC_XL_48 (chưa test thông báo bộ đang chờ duyệt ở giao diện) | Một phần |
+| AC-BT-80 | Gửi duyệt bộ bị gỡ tay kèm ghi chú | UC-BT-05 | D, A | ReportModerationApiIntegrationTest.manualUnpublish_emptySnapshot_requiresNoteThenAdminSeesSourceAndNote_AC_BT_33_AC_BT_80_AC_XL_62 (chưa test giao diện) | Một phần |
 | AC-BT-32 | Giáo viên gỡ bộ của mình | UC-BT-06 |  | VocabDeckLifecycleApiIntegrationTest.unpublish_teacherOwnDeck_becomesDraft_AC_BT_32 | Đã có |
-| AC-BT-33 | Quản trị viên gỡ bộ kèm lý do | UC-BT-06 |  | VocabDeckLifecycleApiIntegrationTest.unpublish_adminWithReason_reasonShownToOwner_AC_BT_33 | Đã có |
+| AC-BT-33 | Quản trị viên gỡ bộ kèm lý do | UC-BT-06 |  | VocabDeckLifecycleApiIntegrationTest.unpublish_adminWithReason_reasonShownToOwner_AC_BT_33; ReportModerationApiIntegrationTest.manualUnpublish_emptySnapshot_requiresNoteThenAdminSeesSourceAndNote_AC_BT_33_AC_BT_80_AC_XL_62 (chưa test giao diện) | Một phần |
 | AC-BT-34 | Gỡ bộ của người khác | UC-BT-06 |  | VocabDeckLifecycleApiIntegrationTest.unpublish_otherTeachersDeck_returns403_AC_BT_34; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
 | AC-BT-35 | Bộ không ở trạng thái Đã xuất bản | UC-BT-06 |  | VocabDeckLifecycleApiIntegrationTest.unpublish_draft_returns409_AC_BT_35; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
 | AC-BT-36 | Quản trị viên chưa nhập lý do | UC-BT-06 |  | VocabDeckLifecycleApiIntegrationTest.unpublish_adminBlankReason_returns400_AC_BT_36; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
 | AC-BT-37 | Hủy gỡ xuất bản | UC-BT-06 |  |  | Thiếu |
 | AC-BT-38 | Mất kết nối khi gỡ | UC-BT-06 | A | `frontend/src/features/vocab/deckLifecycle.test.ts` (chưa test giao diện hộp thoại) | Một phần |
+| AC-BT-79 | Quản trị viên gỡ tay đóng báo cáo Phản cảm của bộ | UC-BT-06 | D | ReportModerationApiIntegrationTest.manualUnpublish_closesOffensiveReportsAndKeepsErrorReports_AC_BT_79 (gồm API đếm báo cáo cho hộp xác nhận; chưa test giao diện) | Một phần |
 | AC-BT-39 | Giáo viên xóa bộ Nháp | UC-BT-07 |  | VocabDeckLifecycleApiIntegrationTest.delete_publishedDeck_softDeletedAndListedUnderDeleted_AC_BT_39_AC_BT_40 | Đã có |
 | AC-BT-40 | Giáo viên xóa bộ đang xuất bản | UC-BT-07 |  | VocabDeckLifecycleApiIntegrationTest.delete_publishedDeck_softDeletedAndListedUnderDeleted_AC_BT_39_AC_BT_40 | Đã có |
 | AC-BT-41 | Xóa bộ của người khác | UC-BT-07 |  | VocabDeckLifecycleApiIntegrationTest.delete_otherTeacherOrAlreadyDeleted_rejected_AC_BT_41_AC_BT_42; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
 | AC-BT-42 | Bộ không còn tồn tại | UC-BT-07 |  | VocabDeckLifecycleApiIntegrationTest.delete_otherTeacherOrAlreadyDeleted_rejected_AC_BT_41_AC_BT_42; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
 | AC-BT-43 | Hủy xóa | UC-BT-07 |  |  | Thiếu |
 | AC-BT-44 | Mất kết nối khi xóa | UC-BT-07 | A | `frontend/src/features/vocab/deckLifecycle.test.ts` (chưa test giao diện hộp thoại) | Một phần |
+| AC-BT-77 | Xóa bộ đang chờ duyệt xuất bản lại | UC-BT-07 | D | ReportModerationApiIntegrationTest.deleteDeck_cancelsPendingRequest_AC_BT_77 (chưa test giao diện hộp xác nhận) | Một phần |
 | AC-BT-45 | Khôi phục thành công | UC-BT-08 |  | VocabDeckLifecycleApiIntegrationTest.restore_withinRetention_backToDraftWithContent_AC_BT_45 | Đã có |
 | AC-BT-46 | Tên bộ bị trùng khi khôi phục | UC-BT-08 |  | VocabDeckLifecycleApiIntegrationTest.restore_nameTaken_asksNewName_AC_BT_46; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
 | AC-BT-47 | Bộ quá hạn khôi phục | UC-BT-08 |  | VocabDeckLifecycleApiIntegrationTest.restore_expiredOrNotDeleted_rejected_AC_BT_47_AC_BT_56; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
@@ -82,3 +85,4 @@ Tổng hợp: 76 AC, 55 đã có test, 14 một phần, 7 thiếu.
 | AC-BT-49 | Mất kết nối khi khôi phục | UC-BT-08 | A | `frontend/src/features/vocab/deckLifecycle.test.ts` (chưa test giao diện hộp thoại) | Một phần |
 | AC-BT-56 | Bộ đã được khôi phục trước đó | UC-BT-08 |  | VocabDeckLifecycleApiIntegrationTest.restore_expiredOrNotDeleted_rejected_AC_BT_47_AC_BT_56; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
 | AC-BT-73 | Khôi phục bộ của người khác | UC-BT-08 | A | VocabDeckLifecycleApiIntegrationTest.restore_otherTeachersDeck_returns403_AC_BT_73; `frontend/src/features/vocab/deckLifecycle.test.ts` | Đã có |
+| AC-BT-78 | Khôi phục bộ bị quản trị viên gỡ vẫn giữ dấu | UC-BT-08 | D | ReportModerationApiIntegrationTest.restoreDeck_keepsTakedownMark_AC_BT_78 (chưa test giao diện hộp xác nhận) | Một phần |

@@ -21,7 +21,7 @@ export type ReviewRole = "teacher" | "admin";
 /** Thao tác tác nhân được làm trên một dòng (BR-XL-02). `takedown` và `assign` chưa có màn hình. */
 export type ReportAction = "resolve" | "reject" | "takedown" | "assign";
 
-/** Loại nội dung mang dấu "Bị gỡ do báo cáo". */
+/** Loại nội dung mang dấu "Bị quản trị viên gỡ". */
 export type RepublishTarget = "lesson" | "deck";
 
 export interface ApiResponse<T> {
@@ -137,7 +137,10 @@ export interface ReportApiError {
   details: Record<string, unknown>;
 }
 
-/** Dấu "Bị gỡ do báo cáo" của bài học hoặc bộ thẻ, cho màn giáo viên (BR-XL-13). */
+/** Nguồn gỡ: từ báo cáo (UC-XL-04) hoặc quản trị viên gỡ tay (UC-BH-07, UC-BT-06). */
+export type TakedownSource = "report" | "manual";
+
+/** Dấu "Bị quản trị viên gỡ" của bài học hoặc bộ thẻ, cho màn giáo viên (BR-XL-13). */
 export interface TakedownStatus {
   takenDown: boolean;
   reason: string | null;
@@ -145,6 +148,9 @@ export interface TakedownStatus {
   lastRejectReason: string | null;
   /** Câu hoặc thẻ bị báo trong bản chụp lúc gỡ; `fixed` là đã khác lúc gỡ hoặc đã xóa (BR-XL-13). */
   items: TakedownItem[];
+  source: TakedownSource | null;
+  /** Bản chụp rỗng (gỡ tay không kèm báo cáo): gửi được ngay nhưng phải kèm ghi chú. */
+  noteRequired: boolean;
 }
 
 export interface TakedownItem {
@@ -161,6 +167,8 @@ export interface RepublishItem {
   ownerName: string | null;
   takedownReason: string;
   requestedAt: string;
+  source: TakedownSource;
+  note: string | null;
 }
 
 /** Một câu hoặc thẻ bị báo: nội dung lúc gỡ và hiện tại; `deleted` thì `current` rỗng. */
@@ -173,6 +181,6 @@ export interface RepublishChange {
 
 export interface RepublishDetail {
   item: RepublishItem;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "cancelled";
   changes: RepublishChange[];
 }

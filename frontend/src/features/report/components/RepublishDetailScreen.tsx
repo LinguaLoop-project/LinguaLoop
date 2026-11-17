@@ -114,6 +114,7 @@ function DetailBody({
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="primary">{t(`republish.type.${item.targetType}`)}</Badge>
+          <Badge tone="info">{t(`republish.source.${item.source}`)}</Badge>
           {!pending && <Badge tone="info">{t(`republish.status.${detail.status}`)}</Badge>}
         </div>
         <h1 className="text-xl font-bold text-text">{item.targetName}</h1>
@@ -121,6 +122,7 @@ function DetailBody({
           {item.ownerName ? t("list.owner", { name: item.ownerName }) : t("list.noOwner")}
         </p>
         <p className="text-sm text-text">{t("republish.takedownReason", { reason: item.takedownReason })}</p>
+        {item.note && <p className="text-sm text-text">{t("republish.note", { note: item.note })}</p>}
         {contentPath && (
           <Link
             to={contentPath}

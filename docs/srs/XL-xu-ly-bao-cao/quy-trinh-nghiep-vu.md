@@ -26,7 +26,7 @@ Học viên gửi báo cáo ở module BC (UC-BC-01) về một **câu** của b
           ▼          ▼                            ▼           ▼        được gỡ nội dung (UC-XL-04)
        ĐÃ XỬ LÝ    TỪ CHỐI                     ĐÃ XỬ LÝ     TỪ CHỐI
           │
-     bài/bộ mang dấu "Bị gỡ do báo cáo" ──► giáo viên sửa ──► gửi yêu cầu ──► quản trị viên duyệt (UC-XL-05)
+     bài/bộ mang dấu "Bị quản trị viên gỡ" ──► giáo viên sửa ──► gửi yêu cầu ──► quản trị viên duyệt (UC-XL-05)
 ```
 
 Báo cáo có 4 trạng thái (BR-XL-02): **Chờ giáo viên**, **Chờ quản trị viên**, **Đã xử lý**, **Từ chối**. Hai trạng thái Đã xử lý và Từ chối là kết thúc.
@@ -39,7 +39,7 @@ Báo cáo có 4 trạng thái (BR-XL-02): **Chờ giáo viên**, **Chờ quản 
 | Chờ giáo viên | Từ chối | Giáo viên chủ | UC-XL-03 | Báo cáo không đúng; bắt buộc lý do |
 | Chờ giáo viên | Từ chối | Quản trị viên | UC-XL-03 | Chỉ khi không có giáo viên xử lý (BR-XL-12) |
 | Chờ giáo viên | Đã xử lý | Quản trị viên | UC-XL-04 | Chỉ khi báo cáo đã chờ quá 30 ngày (BR-XL-11); gỡ bài học hoặc bộ thẻ |
-| Chờ quản trị viên | Đã xử lý | Quản trị viên | UC-XL-04 | Gỡ bài học hoặc bộ thẻ, gắn dấu "Bị gỡ do báo cáo" |
+| Chờ quản trị viên | Đã xử lý | Quản trị viên | UC-XL-04 | Gỡ bài học hoặc bộ thẻ, gắn dấu "Bị quản trị viên gỡ" |
 | Chờ quản trị viên | Từ chối | Quản trị viên | UC-XL-03 | Báo cáo không đúng |
 | Mọi trạng thái đang mở | Từ chối | Quản trị viên | UC-XL-03 (2a) | Từ chối hàng loạt báo cáo rác của một học viên (BR-XL-14) |
 | Mọi trạng thái đang mở | Đã xử lý | Hệ thống | UC-XL-06 | Câu hoặc thẻ bị xóa riêng, hoặc bài học, bộ thẻ bị xóa vĩnh viễn (BR-XL-08) |
@@ -65,7 +65,7 @@ Lý do từ chối, ghi chú xử lý, lý do gỡ và lý do từ chối yêu c
 | Bước | Người thực hiện | UC | Ghi chú |
 |---|---|---|---|
 | 1. Xem báo cáo Phản cảm | Quản trị viên | UC-XL-01 | Thấy tên học viên, giáo viên chủ; giáo viên chủ không thấy báo cáo này |
-| 2a. Vi phạm thật: gỡ nội dung và đóng báo cáo | Quản trị viên | UC-XL-04 | Bài học hoặc bộ thẻ về Nháp, mang dấu "Bị gỡ do báo cáo"; mọi báo cáo Phản cảm đang mở của bài học hoặc bộ thẻ được đóng cùng và câu, thẻ của chúng được chụp lại; giáo viên thấy lý do gỡ |
+| 2a. Vi phạm thật: gỡ nội dung và đóng báo cáo | Quản trị viên | UC-XL-04 | Bài học hoặc bộ thẻ về Nháp, mang dấu "Bị quản trị viên gỡ"; mọi báo cáo Phản cảm đang mở của bài học hoặc bộ thẻ được đóng cùng và câu, thẻ của chúng được chụp lại; giáo viên thấy lý do gỡ |
 | 2b. Không vi phạm: từ chối | Quản trị viên | UC-XL-03 | Kết thúc |
 | 3. Sửa và gửi yêu cầu xuất bản lại | Giáo viên chủ | UC-BH-06, UC-BT-05 | Chỉ gửi được khi mọi câu, thẻ bị báo đã khác bản chụp hoặc đã bị xóa |
 | 4. Duyệt hoặc từ chối yêu cầu | Quản trị viên | UC-XL-05 | Xem so sánh lúc gỡ và hiện tại; duyệt thì xuất bản và bỏ dấu, từ chối thì giáo viên sửa tiếp |
@@ -87,7 +87,9 @@ Nếu giáo viên tự gỡ xuất bản hoặc xóa bài học, bộ thẻ trư
 | Lạm dụng | Cách chặn | Quy tắc |
 |---|---|---|
 | Giáo viên tự phán xử nội dung phản cảm của mình | Báo cáo Phản cảm không qua giáo viên | BR-XL-01 |
-| Giáo viên gỡ hoặc xóa trước để né, rồi xuất bản lại | Dấu "Bị gỡ do báo cáo" vẫn được gắn; xuất bản lại phải qua quản trị viên duyệt | BR-XL-13 |
+| Giáo viên gỡ hoặc xóa trước để né, rồi xuất bản lại | Dấu "Bị quản trị viên gỡ" vẫn được gắn; xuất bản lại phải qua quản trị viên duyệt | BR-XL-13 |
+| Quản trị viên gỡ tay nhưng giáo viên tự xuất bản lại ngay | Gỡ tay của quản trị viên cũng gắn dấu "Bị quản trị viên gỡ"; xuất bản lại phải qua quản trị viên duyệt | BR-XL-13, BR-BH-04, BR-BT-08 |
+| Giáo viên xóa rồi khôi phục để xóa dấu | Dấu giữ nguyên sau khôi phục; yêu cầu đang chờ tự hủy khi xóa, phải gửi lại | BR-XL-13, BR-BH-06, BR-BT-10 |
 | Giáo viên sửa cho có (sửa trường khác, sửa rồi sửa lại) | So với bản chụp của đúng trường tương ứng | BR-XL-05 |
 | Giáo viên bỏ mặc báo cáo | Nhắc sau 7 ngày, quản trị viên giám sát, gỡ được sau 30 ngày | BR-XL-11 |
 | Học viên gửi lặp một báo cáo | Không nhận báo cáo trùng khi báo cáo cũ chưa xong | BR-BC-08 |

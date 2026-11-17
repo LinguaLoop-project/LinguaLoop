@@ -240,6 +240,95 @@ class ReportModerationApiIntegrationTest {
                 .andExpect(jsonPath("$.data.changes[0].deleted").value(true));
     }
 
+    // ---------------------------------------------------------------- quản trị viên gỡ tay (UC-BT-06, BR-XL-13)
+
+    private static final String ADMIN_DECKS = "/api/v1/admin/vocab/decks";
+    private static final String TEACHER_DECKS = "/api/v1/teacher/vocab/decks";
+
+    private ResultActions adminUnpublish(String reason) throws Exception {
+        return asAdmin(json(post(ADMIN_DECKS + "/" + deck + "/unpublish"), "{\"reason\":\"" + reason + "\"}"));
+    }
+
+    private ResultActions requestRepublish(String note) throws Exception {
+        return asTeacher(json(post(TEACHER_REQUESTS),
+                "{\"targetType\":\"deck\",\"targetId\":\"" + deck + "\",\"note\":\"" + note + "\"}"));
+    }
+
+    @Test
+    void manualUnpublish_closesOffensiveReportsAndKeepsErrorReports_AC_BT_79() throws Exception {
+        UUID offensive = data.cardReport(student, card, "offensive", "waiting_admin", now);
+        UUID retain = data.cardIn(group, "retain");
+        UUID meaning = data.cardReport(student, retain, "meaning", "waiting_teacher", now);
+
+        // Hộp gỡ tay nêu số báo cáo Phản cảm sẽ được đóng cùng (UC-BT-06 Bước 2); báo cáo lỗi nội dung không tính.
+        asAdmin(get(ADMIN + "/offensive-count").param("targetType", "deck").param("targetId", deck.toString()))
+                .andExpect(jsonPath("$.data.count").value(1));
+        adminUnpublish("Chứa nội dung quảng cáo").andExpect(status().isNoContent());
+
+        assertThat(data.deckStatus(deck)).isEqualTo("draft");
+        assertThat(data.takedownSource("deck_id", deck)).isEqualTo("manual");
+        assertThat(data.status(offensive)).isEqualTo("resolved");
+        assertThat(data.note(offensive)).isEqualTo("Chứa nội dung quảng cáo");
+        assertThat(data.status(meaning)).isEqualTo("waiting_teacher");
+        assertThat(data.takedownItems("deck_id", deck)).isEqualTo(1);
+        assertThat(data.notifications(teacher)).anyMatch(m -> m.contains("đã bị quản trị viên gỡ"));
+        // Thẻ trong bản chụp chưa sửa thì chưa gửi được yêu cầu.
+        requestRepublish().andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.code").value("REPUBLISH_NOT_FIXED"));
+    }
+
+    @Test
+    void manualUnpublish_emptySnapshot_requiresNoteThenAdminSeesSourceAndNote_AC_BT_33_AC_BT_80_AC_XL_62()
+            throws Exception {
+        adminUnpublish("Chứa nội dung quảng cáo").andExpect(status().isNoContent());
+
+        assertThat(data.takedownItems("deck_id", deck)).isZero();
+        asTeacher(post(TEACHER_DECKS + "/" + deck + "/publish")).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("REPORT_REVIEW_REQUIRED"));
+        asTeacher(get(TEACHER_REQUESTS + "/status").param("targetType", "deck").param("targetId", deck.toString()))
+                .andExpect(jsonPath("$.data.source").value("manual"))
+                .andExpect(jsonPath("$.data.noteRequired").value(true))
+                .andExpect(jsonPath("$.data.items", hasSize(0)));
+        requestRepublish().andExpect(status().isBadRequest());
+        requestRepublish("Đã bỏ link quảng cáo ở câu ví dụ của 3 thẻ").andExpect(status().isCreated());
+
+        UUID request = data.pendingRequest("deck_id", deck);
+        asAdmin(get(REQUESTS + "/" + request)).andExpect(jsonPath("$.data.item.source").value("manual"))
+                .andExpect(jsonPath("$.data.item.note").value("Đã bỏ link quảng cáo ở câu ví dụ của 3 thẻ"))
+                .andExpect(jsonPath("$.data.changes", hasSize(0)));
+        asAdmin(post(REQUESTS + "/" + request + "/approve")).andExpect(status().isNoContent());
+        assertThat(data.deckStatus(deck)).isEqualTo("published");
+        assertThat(data.activeTakedowns("deck_id", deck)).isZero();
+    }
+
+    @Test
+    void deleteDeck_cancelsPendingRequest_AC_BT_77() throws Exception {
+        adminUnpublish("Chứa nội dung quảng cáo").andExpect(status().isNoContent());
+        requestRepublish("Đã sửa").andExpect(status().isCreated());
+        UUID request = data.pendingRequest("deck_id", deck);
+
+        asTeacher(delete(TEACHER_DECKS + "/" + deck)).andExpect(status().isNoContent());
+
+        assertThat(data.requestStatus(request)).isEqualTo("cancelled");
+        assertThat(data.activeTakedowns("deck_id", deck)).isEqualTo(1);
+        asAdmin(get(REQUESTS + "/" + request)).andExpect(jsonPath("$.data.status").value("cancelled"));
+        asAdmin(post(REQUESTS + "/" + request + "/approve")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void restoreDeck_keepsTakedownMark_AC_BT_78() throws Exception {
+        adminUnpublish("Chứa nội dung quảng cáo").andExpect(status().isNoContent());
+        asTeacher(delete(TEACHER_DECKS + "/" + deck)).andExpect(status().isNoContent());
+
+        asTeacher(post(TEACHER_DECKS + "/" + deck + "/restore")).andExpect(status().isNoContent());
+
+        assertThat(data.deckStatus(deck)).isEqualTo("draft");
+        assertThat(data.activeTakedowns("deck_id", deck)).isEqualTo(1);
+        asTeacher(post(TEACHER_DECKS + "/" + deck + "/publish")).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("REPORT_REVIEW_REQUIRED"));
+        requestRepublish("Đã sửa").andExpect(status().isCreated());
+    }
+
     @Test
     void republish_rejectKeepsDraftAndAllowsResend_AC_XL_50() throws Exception {
         UUID report = data.cardReport(student, card, "offensive", "waiting_admin", now);

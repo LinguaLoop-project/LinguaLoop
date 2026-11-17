@@ -2,7 +2,6 @@ package com.lingualoop.backend.report.service;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -50,6 +49,7 @@ class ReportModerationServiceImpl implements ReportModerationService {
 
     private final ReportRepository reports;
     private final ModerationRepository repository;
+    private final TakedownMarker marker;
     private final LessonModerationService lessons;
     private final DeckModerationService decks;
     private final NotificationService notifications;
@@ -76,30 +76,18 @@ class ReportModerationServiceImpl implements ReportModerationService {
         ReportTargetType type = ReportTargetType.fromValue(item.targetType()).orElseThrow();
         UUID container = item.containerId();
 
-        List<UUID> closed = new ArrayList<>(reports.closeGroup(item.id(), status, ReportStatus.RESOLVED, adminId,
-                text, now));
+        List<UUID> closed = reports.closeGroup(item.id(), status, ReportStatus.RESOLVED, adminId, text, now);
         if (closed.isEmpty()) {
             throw new BusinessException(ErrorCode.REPORT_ALREADY_HANDLED);
         }
-        closed.addAll(repository.closeOpenOffensive(type, container, adminId, text, now));
-        repository.markTakenDown(type, container, text, repository.snapshotOfReports(type, closed), adminId, now);
+        // Đưa về Nháp theo nhánh quản trị viên của UC-BH-07, UC-BT-06; nội dung đã Nháp hoặc đã xóa thì chỉ gắn dấu (2a).
         if (type == ReportTargetType.SENTENCE) {
             lessons.unpublishForReport(container, text);
         } else {
             decks.unpublishForReport(container, text);
         }
-
-        if (item.ownerId() != null) {
-            notifications.send(item.ownerId(), "%s \"%s\" đã bị gỡ do báo cáo: %s. Hãy sửa nội dung rồi gửi yêu cầu "
-                    .formatted(kindLabel(type), item.containerName(), text) + "duyệt xuất bản lại.");
-        }
-        String actorName = nameOf(adminId);
-        for (UUID id : closed) {
-            audit.record(new AuditEntryRequest(adminId, actorName, Role.ADMIN, AuditAction.RESOLVE,
-                    AuditEntityType.REPORT, id, null, Map.of("status", Map.of("new", "resolved")), text));
-        }
-        audit.record(new AuditEntryRequest(adminId, actorName, Role.ADMIN, AuditAction.UNPUBLISH, entityOf(type),
-                container, item.containerName(), Map.of("takenDown", Map.of("new", true)), text));
+        marker.mark(adminId, type, container, item.containerName(), item.ownerId(), text,
+                ModerationRepository.SOURCE_REPORT, closed, now);
     }
 
     /** Dòng Chờ quản trị viên, hoặc dòng lỗi nội dung đã chờ quá 30 ngày (BR-XL-02, BR-XL-11). */
@@ -114,18 +102,19 @@ class ReportModerationServiceImpl implements ReportModerationService {
     @Transactional(readOnly = true)
     public RepublishView.Status status(UUID teacherId, String targetType, UUID targetId) {
         ReportTargetType type = typeOf(targetType);
-        ownedContainer(teacherId, type, targetId);
+        // Cả nội dung đã xóa: hộp khôi phục nhắc dấu vẫn còn (UC-BH-09, UC-BT-08 Bước 4).
+        ownedContainer(teacherId, type, targetId, true);
         return repository.findActiveTakedown(type, targetId)
                 .map(t -> new RepublishView.Status(true, t.reason(), t.pending(), t.lastRejectReason(),
-                        repository.takedownItems(t.id(), type)))
+                        repository.takedownItems(t.id(), type), t.source(), t.snapshotEmpty()))
                 .orElse(RepublishView.Status.none());
     }
 
     @Override
     @Transactional
-    public void requestRepublish(UUID teacherId, String targetType, UUID targetId) {
+    public void requestRepublish(UUID teacherId, String targetType, UUID targetId, String note) {
         ReportTargetType type = typeOf(targetType);
-        ownedContainer(teacherId, type, targetId);
+        ownedContainer(teacherId, type, targetId, false);
         TakedownRow takedown = repository.findActiveTakedown(type, targetId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REPORT_TAKEDOWN_NOT_FOUND));
         if (takedown.pending()) {
@@ -136,22 +125,30 @@ class ReportModerationServiceImpl implements ReportModerationService {
             throw new BusinessException(ErrorCode.REPUBLISH_NOT_FIXED,
                     Map.of("unchanged", unchanged.size(), "items", unchanged));
         }
+        // Bản chụp rỗng (gỡ tay không kèm báo cáo): gửi được ngay nhưng phải nêu đã sửa gì (BR-XL-13).
+        String text = takedown.snapshotEmpty() ? ReportTexts.required("note", note) : ReportTexts.optional("note", note);
         try {
-            repository.insertRequest(takedown.id(), teacherId, clock.instant());
+            repository.insertRequest(takedown.id(), teacherId, text, clock.instant());
         } catch (DataIntegrityViolationException ex) {
             // Hai lần gửi đồng thời: chỉ mục uq_republish_pending chặn lần sau (BR-XL-13).
             throw new BusinessException(ErrorCode.REPUBLISH_PENDING);
         }
     }
 
-    private ContainerRow ownedContainer(UUID teacherId, ReportTargetType type, UUID targetId) {
+    private ContainerRow ownedContainer(UUID teacherId, ReportTargetType type, UUID targetId, boolean allowDeleted) {
         ContainerRow container = repository.findContainer(type, targetId)
-                .filter(c -> !c.deleted())
+                .filter(c -> allowDeleted || !c.deleted())
                 .orElseThrow(() -> new BusinessException(ErrorCode.REPORT_TAKEDOWN_NOT_FOUND));
         if (!teacherId.equals(container.ownerId())) {
             throw new ForbiddenException();
         }
         return container;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countOpenOffensive(String targetType, UUID targetId) {
+        return repository.countOpenOffensive(typeOf(targetType), targetId);
     }
 
     // ---------------------------------------------------------------- duyệt (UC-XL-05)
@@ -227,7 +224,8 @@ class ReportModerationServiceImpl implements ReportModerationService {
 
     private static RepublishView.Item itemOf(RequestRow row) {
         return new RepublishView.Item(row.id(), row.type() == ReportTargetType.SENTENCE ? LESSON : DECK,
-                row.containerId(), row.containerName(), row.ownerName(), row.takedownReason(), row.requestedAt());
+                row.containerId(), row.containerName(), row.ownerName(), row.takedownReason(), row.requestedAt(),
+                row.source(), row.note());
     }
 
     private static ReportTargetType typeOf(String targetType) {
@@ -241,11 +239,11 @@ class ReportModerationServiceImpl implements ReportModerationService {
     }
 
     private static String kindLabel(ReportTargetType type) {
-        return type == ReportTargetType.SENTENCE ? "Bài học" : "Bộ thẻ";
+        return TakedownMarker.kindLabel(type);
     }
 
     private static AuditEntityType entityOf(ReportTargetType type) {
-        return type == ReportTargetType.SENTENCE ? AuditEntityType.LESSON : AuditEntityType.DECK;
+        return TakedownMarker.entityOf(type);
     }
 
     private String nameOf(UUID userId) {

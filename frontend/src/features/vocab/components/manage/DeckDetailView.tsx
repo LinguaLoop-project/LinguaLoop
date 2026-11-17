@@ -30,7 +30,7 @@ import { MetaChip, StatusBadge } from "./DeckBits";
 export interface DeckDetailViewProps {
   role: ManageRole;
   deckId: string;
-  /** Ẩn dòng lý do gỡ xuất bản khi trang đã hiện khung "Bị gỡ do báo cáo" cùng lý do đó. */
+  /** Ẩn dòng lý do gỡ xuất bản khi trang đã hiện khung "Bị quản trị viên gỡ" cùng lý do đó. */
   hideUnpublishReason?: boolean;
   /** Nút quay lại đầu trang trỏ về nơi đã mở bộ (ví dụ yêu cầu duyệt xuất bản lại) thay cho danh sách bộ thẻ. */
   back?: { path: string; label: string };

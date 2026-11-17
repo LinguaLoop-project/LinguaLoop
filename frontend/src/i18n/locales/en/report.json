@@ -168,8 +168,8 @@
   },
   "takedown": {
     "title": {
-      "lesson": "Lesson taken down after a report",
-      "deck": "Deck taken down after a report"
+      "lesson": "Lesson taken down by an admin",
+      "deck": "Deck taken down by an admin"
     },
     "reason": "Reason: {{reason}}",
     "lastRejected": "Previous request was rejected: {{reason}}",
@@ -185,6 +185,11 @@
     "unfixed": "Not fixed",
     "readyHint": "All reported items are fixed. Send a request for an admin to approve republishing.",
     "stillUnfixed": "Some reported items are still not fixed",
+    "manualHint": "An admin took this content down. Fix it according to the reason, then send a request with a note describing what you changed.",
+    "note": "Note for the admin",
+    "noteOptional": "Note for the admin (optional)",
+    "noteRequired": "A note is required",
+    "noteTooLong": "The note can be at most 500 characters",
     "confirmTitle": "Send a republish request?",
     "confirm": "Send request",
     "confirmBody": {
@@ -203,8 +208,14 @@
     "status": {
       "pending": "Pending",
       "approved": "Approved",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
     },
+    "source": {
+      "report": "From a report",
+      "manual": "Manual takedown"
+    },
+    "note": "Teacher's note: {{note}}",
     "takedownReason": "Takedown reason: {{reason}}",
     "requestedAt": "Requested {{at}}",
     "changes": "Reported content ({{count}})",
