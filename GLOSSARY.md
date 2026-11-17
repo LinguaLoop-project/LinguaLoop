@@ -97,3 +97,7 @@ _Tránh_: thời lượng học, hạn mức ngày (dùng cho credit AI)
 **Phiên ôn tập hằng ngày**:
 Một lần học viên ôn thẻ đến hạn rồi ôn câu, theo định mức của Mục tiêu ngày. Không được lưu ở máy chủ: thoát giữa chừng thì kết quả đã chấm vẫn giữ, lần mở sau lập lại danh sách theo dữ liệu hiện tại.
 _Tránh_: bài ôn, phiên học (là bản ghi gom nhật ký của Học từ mới)
+
+**Hồ sơ học tập**:
+Phần thiết lập học viên điền ở lần đầu đăng nhập: tên hiển thị, Mục tiêu ngày, ngôn ngữ giao diện, múi giờ và việc đồng ý điều khoản. Chưa điền xong thì học viên chưa dùng được các trang khác. Múi giờ quyết định ranh giới của "hôm nay".
+_Tránh_: onboarding, thông tin tài khoản (gồm cả email và mật khẩu)

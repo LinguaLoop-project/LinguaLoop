@@ -831,6 +831,18 @@
 - **Commit:** 5c056a0, 3129c8e, c8200f8
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-073
+
+- **Ngày:** 2026-11-17
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Lập kế hoạch rồi triển khai UC-TK-08 (thiết lập hồ sơ học tập) và UC-HT-05 (Ôn tập hôm nay, kèm phiên Ôn câu của UC-HT-04 và trang Hôm nay) theo đặc tả module, phiên ôn chuyển liền mạch từ thẻ sang câu
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../user/service/UserAccountServiceImpl.java:saveLearningProfile`, `user/controller/UserController.java:saveLearningProfile`; `review/DailyReviewServiceImpl.java:plan`, `:sentencePlan`, `review/DailyQuota.java:of`; `practice/repository/SentenceReviewRepository.java:findReviewableToday`, `:markReviewed`, `practice/service/SentenceReviewServiceImpl.java:markReviewed`; `vocab/service/VocabReviewServiceImpl.java:queue`, `:dueSummary`; `frontend/src/features/user/components/LearningProfileForm.tsx`, `user/pages/OnboardingPage.tsx`, `auth/navigation.ts:onboardingRedirectFor`; `features/review/` (toàn thư mục: `flow.ts`, `pages/DailyReviewPage.tsx`, `pages/SentenceReviewPage.tsx`, `pages/TodayPage.tsx`, `components/SentenceReviewFlow.tsx`, `DictationReviewStep.tsx`, `ShadowingReviewStep.tsx`, `DailyCards.tsx`, `ReviewSummary.tsx`); `vocab/components/review/ReviewSession.tsx` (chế độ nhúng); test `UserAccountServiceTest`, `UserControllerIntegrationTest`, `DailyReviewApiIntegrationTest`, `VocabReviewApiIntegrationTest`, `navigation.test.ts`, `flow.test.ts`, `i18n.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên giao đề, trả lời từng vòng câu hỏi thiết kế và quyết định: chia hai PR (TK-08 cùng HT-05 là một, HT-08 là một), chỉ chặn học viên chưa thiết lập hồ sơ ở frontend, trang Hôm nay chỉ hiện khối có dữ liệu thật, không lưu phiên ôn ở máy chủ, làm màn ôn câu riêng thay vì dùng lại hai trang luyện, bỏ mockup và sẽ nhận xét giao diện sau, yêu cầu chuyển liền mạch từ thẻ sang câu, duyệt kế hoạch. AI đổi một chi tiết so với kế hoạch đã duyệt: đánh dấu "đã ôn hôm nay" bằng endpoint riêng `POST /review/{mode}/sentences/{id}/reviewed` (chỉ nhận khi vừa có lượt thật trong 1 giờ) thay vì tham số `source=review` trên hai API nộp lượt, để không sửa luồng chấm Azure; và dùng lại `usePlayer` thay vì `loadVideoById`. Sinh viên chưa xem giao diện và chưa góp ý; chưa tự chạy Shadowing với Azure thật (môi trường thử không có khoá Azure, chỉ thấy nhánh lỗi chấm).
+- **Commit:** 4bf8ba7, b711e70, 00bb921, a14c21b, 1227489, 37e36a1
+- **Lỗi liên quan:** AI-ERR-LAM-007
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
@@ -923,6 +935,21 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit gây ra lỗi (đưa đầu ra AI vào code):** f4f6f37
 - **Commit sửa (bắt buộc, khác commit trên):** e9d2697
 - **Kiểm chứng sau sửa:** Test `flagsMayBeOmitted_asTheClientDoesForQuizAndFlashcard` qua; chạy lại luồng học trên trình duyệt không còn lỗi 400 và nhật ký ghi đủ 12 dòng.
+- **Trạng thái (`Error Status`):** FIXED
+
+### AI-ERR-LAM-007
+
+- **Liên kết bản ghi AI:** AI-LAM-073
+- **Loại lỗi (`Error Type`):** DATA_ERROR
+- **Ngày phát hiện:** 2026-11-17
+- **Đầu ra sai/thiếu sót và bối cảnh:** Trong `review.json` AI đặt hai khoá cùng tên `steps` ở cấp gốc: một chuỗi nhãn cho thanh tiến độ và một đối tượng chứa `cards`, `sentences`. JSON cho phép khoá trùng và bản sau đè bản trước, nên `t("steps")` trả về đối tượng, giao diện hiện nguyên câu "key 'steps (vi)' returned an object instead of string" ở nhãn trợ năng của thanh tiến độ.
+- **Vị trí (`file:hàm`):** `frontend/src/i18n/locales/vi/review.json`, `en/review.json` (khoá `steps`); `frontend/src/features/review/components/ReviewShell.tsx`
+- **Nguyên nhân phân tích:** AI viết hai nhóm chuỗi ở hai thời điểm và không kiểm tra khoá trùng; `tsc`, ESLint và 253 test hiện có đều không đọc các khoá này nên không báo gì.
+- **Cách phát hiện / bằng chứng:** Chạy luồng Ôn tập hôm nay trên trình duyệt thật rồi đọc ảnh chụp cây trợ năng: nhãn danh sách bước là câu báo lỗi của i18next.
+- **Cách sửa:** Đổi chuỗi nhãn thành `stepsLabel`; thêm `features/review/i18n.test.ts` kiểm tra hai ngôn ngữ cùng bộ khoá và mọi khoá tĩnh `t("...")` trong feature đều trỏ tới một chuỗi.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** 1227489
+- **Commit sửa (bắt buộc, khác commit trên):** 37e36a1
+- **Kiểm chứng sau sửa:** Test mới qua (12 test của feature, 255 test frontend); chạy lại trên trình duyệt thì nhãn hiện đúng "Các phần của phiên ôn".
 - **Trạng thái (`Error Status`):** FIXED
 
 ## 3. Bằng chứng bổ sung (nếu cần)
