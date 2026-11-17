@@ -1,17 +1,20 @@
 package com.lingualoop.backend.lesson.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
+import com.lingualoop.backend.lesson.entity.Lesson;
+import com.lingualoop.backend.lesson.entity.Sentence;
+import com.lingualoop.backend.lesson.enums.LessonStatus;
+import com.lingualoop.backend.lesson.repository.LessonRepository;
+import com.lingualoop.backend.lesson.repository.SentenceRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,58 +22,68 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 class LessonModerationServiceImpl implements LessonModerationService {
 
-    private final JdbcClient jdbc;
+    private final LessonRepository lessons;
+    private final SentenceRepository sentences;
 
     @Override
     @Transactional
     public void unpublishForReport(UUID lessonId, String reason) {
-        jdbc.sql("""
-                UPDATE lessons SET status = 'draft', unpublish_reason = :reason
-                WHERE id = :id AND kind = 'library' AND status = 'published' AND deleted_at IS NULL""")
-                .param("id", lessonId).param("reason", reason)
-                .update();
+        lessons.findLibraryForUpdate(lessonId)
+                .filter(lesson -> lesson.getStatus() == LessonStatus.PUBLISHED)
+                .ifPresent(lesson -> {
+                    lesson.setStatus(LessonStatus.DRAFT);
+                    lesson.setUnpublishReason(reason);
+                });
     }
 
     @Override
     @Transactional
     public void publishApproved(UUID lessonId) {
-        // Khóa dòng bài để giáo viên không sửa câu giữa lúc kiểm điều kiện và lúc xuất bản.
-        jdbc.sql("SELECT id FROM lessons WHERE id = :id AND kind = 'library' AND deleted_at IS NULL FOR UPDATE")
-                .param("id", lessonId).query(UUID.class).optional()
+        Lesson lesson = lessons.findLibraryForUpdate(lessonId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.LESSON_NOT_FOUND));
         // Thứ tự câu theo mốc bắt đầu, như SentenceView.sortOrder (BR-BH-11).
-        List<Integer> missing = jdbc.sql("""
-                SELECT n FROM (
-                    SELECT row_number() OVER (ORDER BY start_ms) AS n, text_vi
-                    FROM sentences WHERE lesson_id = :id AND deleted_at IS NULL) t
-                WHERE text_vi IS NULL OR btrim(text_vi) = ''
-                ORDER BY n""")
-                .param("id", lessonId).query(Integer.class).list();
-        long sentences = jdbc.sql("SELECT count(*) FROM sentences WHERE lesson_id = :id AND deleted_at IS NULL")
-                .param("id", lessonId).query(Long.class).single();
-        if (sentences == 0 || !missing.isEmpty()) {
-            throw new BusinessException(ErrorCode.LESSON_NOT_PUBLISHABLE,
-                    Map.of("noSentences", sentences == 0, "missingTranslation", missing));
+        List<Sentence> active = sentences.findByLessonIdAndDeletedAtIsNullOrderByStartMsAsc(lessonId);
+        List<Integer> missing = new ArrayList<>();
+        for (int i = 0; i < active.size(); i++) {
+            String textVi = active.get(i).getTextVi();
+            if (textVi == null || textVi.isBlank()) {
+                missing.add(i + 1);
+            }
         }
-        jdbc.sql("UPDATE lessons SET status = 'published', unpublish_reason = NULL WHERE id = :id")
-                .param("id", lessonId).update();
+        if (active.isEmpty() || !missing.isEmpty()) {
+            throw new BusinessException(ErrorCode.LESSON_NOT_PUBLISHABLE,
+                    Map.of("noSentences", active.isEmpty(), "missingTranslation", missing));
+        }
+        lesson.setStatus(LessonStatus.PUBLISHED);
+        lesson.setUnpublishReason(null);
     }
-
-    /** Trường của câu nhận bản sửa đề xuất (BR-BC-11); tên cột ghép thẳng vào câu lệnh nên chỉ lấy từ danh sách này. */
-    private static final Set<String> FIXABLE = Set.of("text_en", "ipa_us", "ipa_uk", "text_vi");
 
     @Override
     @Transactional
     public String applyReportFix(UUID sentenceId, String column, String value) {
-        if (!FIXABLE.contains(column)) {
-            throw new IllegalArgumentException("Không phải trường sửa được của câu: " + column);
+        Sentence sentence = sentences.findActiveForUpdate(sentenceId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.REPORT_TARGET_NOT_FOUND));
+        String fixed = value.strip();
+        String old;
+        switch (column) {
+            case "text_en" -> {
+                old = sentence.getTextEn();
+                sentence.setTextEn(fixed);
+            }
+            case "ipa_us" -> {
+                old = sentence.getIpaUs();
+                sentence.setIpaUs(fixed);
+            }
+            case "ipa_uk" -> {
+                old = sentence.getIpaUk();
+                sentence.setIpaUk(fixed);
+            }
+            case "text_vi" -> {
+                old = sentence.getTextVi();
+                sentence.setTextVi(fixed);
+            }
+            default -> throw new IllegalArgumentException("Không phải trường sửa được của câu: " + column);
         }
-        String old = jdbc.sql("SELECT " + column + " FROM sentences WHERE id = :id AND deleted_at IS NULL FOR UPDATE")
-                .param("id", sentenceId).query((rs, n) -> Optional.ofNullable(rs.getString(1))).optional()
-                .orElseThrow(() -> new BusinessException(ErrorCode.REPORT_TARGET_NOT_FOUND))
-                .orElse(null);
-        jdbc.sql("UPDATE sentences SET " + column + " = :value, updated_at = now() WHERE id = :id")
-                .param("value", value.strip()).param("id", sentenceId).update();
         return old;
     }
 }

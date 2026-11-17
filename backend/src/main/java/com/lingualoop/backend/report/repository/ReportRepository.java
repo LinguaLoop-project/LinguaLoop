@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -14,7 +13,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -89,6 +87,12 @@ public class ReportRepository {
             (COALESCE(cr.sentence_id, cr.card_id), cr.reason, cr.status) =
             (SELECT COALESCE(x.sentence_id, x.card_id), x.reason, x.status FROM content_reports x WHERE x.id = :id)""";
 
+    private static final String INSERT_COLUMNS = ", reason, suggested_fix, fix_field, description, status, "
+            + "content_snapshot, created_at, status_changed_at) ";
+    private static final String INSERT_VALUES = ", :reason, :fix, :fixField, :description, :status, ";
+
+    // Mọi câu lệnh là hằng chọn theo loại nội dung, giá trị lọc truyền bằng tham số (Sonar java:S2077).
+
     private final JdbcClient jdbc;
 
     // ---------------------------------------------------------------- gửi báo cáo (UC-BC-01)
@@ -107,9 +111,12 @@ public class ReportRepository {
 
     /** Học viên đã có báo cáo cùng lý do, chưa đóng, về đúng nội dung này (BR-BC-08). */
     public boolean existsOpen(UUID reporterId, ReportTargetType type, UUID targetId, String reason) {
-        return jdbc.sql("SELECT EXISTS (SELECT 1 FROM content_reports WHERE reporter_id = :reporter AND "
-                + targetColumn(type) + " = :target AND reason = :reason "
-                + "AND status IN ('waiting_teacher','waiting_admin'))")
+        String sql = type == ReportTargetType.SENTENCE
+                ? "SELECT EXISTS (SELECT 1 FROM content_reports WHERE reporter_id = :reporter AND sentence_id = :target "
+                        + "AND reason = :reason AND status IN ('waiting_teacher','waiting_admin'))"
+                : "SELECT EXISTS (SELECT 1 FROM content_reports WHERE reporter_id = :reporter AND card_id = :target "
+                        + "AND reason = :reason AND status IN ('waiting_teacher','waiting_admin'))";
+        return jdbc.sql(sql)
                 .param("reporter", reporterId).param("target", targetId).param("reason", reason)
                 .query(Boolean.class).single();
     }
@@ -119,13 +126,12 @@ public class ReportRepository {
      */
     public Optional<UUID> insert(UUID reporterId, ReportTargetType type, UUID targetId, String reason,
             ReportStatus status, String suggestedFix, String fixField, String description, Instant at) {
-        boolean sentence = type == ReportTargetType.SENTENCE;
-        String sql = "INSERT INTO content_reports (reporter_id, " + targetColumn(type)
-                + ", reason, suggested_fix, fix_field, description, status, content_snapshot, created_at, status_changed_at) "
-                + "SELECT :reporter, " + (sentence ? "s.id" : "c.id")
-                + ", :reason, :fix, :fixField, :description, :status, " + (sentence ? SENTENCE_FIELDS : CARD_FIELDS)
-                + ", :at, :at " + (sentence ? SENTENCE_FROM + VISIBLE_SENTENCE : CARD_FROM + VISIBLE_CARD)
-                + " RETURNING id";
+        String sql = type == ReportTargetType.SENTENCE
+                ? "INSERT INTO content_reports (reporter_id, sentence_id" + INSERT_COLUMNS + "SELECT :reporter, s.id"
+                        + INSERT_VALUES + SENTENCE_FIELDS + ", :at, :at " + SENTENCE_FROM + VISIBLE_SENTENCE
+                        + " RETURNING id"
+                : "INSERT INTO content_reports (reporter_id, card_id" + INSERT_COLUMNS + "SELECT :reporter, c.id"
+                        + INSERT_VALUES + CARD_FIELDS + ", :at, :at " + CARD_FROM + VISIBLE_CARD + " RETURNING id";
         return jdbc.sql(sql)
                 .param("reporter", reporterId).param("target", targetId).param("reason", reason)
                 .param("fix", suggestedFix, Types.VARCHAR).param("fixField", fixField, Types.VARCHAR)
@@ -154,11 +160,13 @@ public class ReportRepository {
 
     public List<ReportView.Item> findGroups(Scope scope, ReportListQuery query, Window window, int limit,
             long offset) {
-        Filter filter = Filter.of(scope, query, window);
-        String order = query.oldestFirst() ? " ORDER BY min(cr.created_at) ASC, 1" : " ORDER BY max(cr.created_at) DESC, 1";
-        return jdbc.sql(ITEM_SELECT + BASE_FROM + filter.where() + GROUP_BY + filter.having() + order
-                + " LIMIT :limit OFFSET :offset")
-                .params(filter.params()).param("limit", limit).param("offset", offset)
+        String sql = query.oldestFirst()
+                ? ITEM_SELECT + BASE_FROM + FILTER_WHERE + GROUP_BY + FILTER_HAVING
+                        + " ORDER BY min(cr.created_at) ASC, 1 LIMIT :limit OFFSET :offset"
+                : ITEM_SELECT + BASE_FROM + FILTER_WHERE + GROUP_BY + FILTER_HAVING
+                        + " ORDER BY max(cr.created_at) DESC, 1 LIMIT :limit OFFSET :offset";
+        return jdbc.sql(sql)
+                .params(filterParams(scope, query, window)).param("limit", limit).param("offset", offset)
                 .query(ReportRepository::item).list();
     }
 
@@ -170,10 +178,8 @@ public class ReportRepository {
     }
 
     public long countGroups(Scope scope, ReportListQuery query, Window window) {
-        Filter filter = Filter.of(scope, query, window);
-        return jdbc.sql("SELECT count(*) FROM (SELECT 1 " + BASE_FROM + filter.where() + GROUP_BY + filter.having()
-                + ") t")
-                .params(filter.params())
+        return jdbc.sql("SELECT count(*) FROM (SELECT 1 " + BASE_FROM + FILTER_WHERE + GROUP_BY + FILTER_HAVING + ") t")
+                .params(filterParams(scope, query, window))
                 .query(Long.class).single();
     }
 
@@ -250,15 +256,16 @@ public class ReportRepository {
      * có bản chụp được coi là đã sửa. {@code columns} chỉ lấy từ {@code ReportReason}, không từ dữ liệu người dùng.
      */
     public boolean hasChanged(UUID reportId, ReportTargetType type, List<String> columns) {
-        String alias = type == ReportTargetType.SENTENCE ? "s" : "c";
-        String changed = columns.stream()
-                .map(col -> "(" + alias + "." + col + ")::text IS DISTINCT FROM cr.content_snapshot->>'" + col + "'")
-                .collect(Collectors.joining(" OR "));
-        String join = type == ReportTargetType.SENTENCE ? "JOIN sentences s ON s.id = cr.sentence_id"
-                : "JOIN vocab_cards c ON c.id = cr.card_id";
-        return jdbc.sql("SELECT cr.content_snapshot IS NULL OR " + changed + " FROM content_reports cr " + join
-                + " WHERE cr.id = :id")
-                .param("id", reportId)
+        // Tên cột là tham số (mảng), so trên cùng bản dựng jsonb với bản chụp nên không ghép tên cột vào câu lệnh.
+        String sql = type == ReportTargetType.SENTENCE
+                ? "SELECT cr.content_snapshot IS NULL OR EXISTS (SELECT 1 FROM unnest(ARRAY[:cols]::text[]) AS f(col) "
+                        + "WHERE (" + SENTENCE_FIELDS + " ->> f.col) IS DISTINCT FROM (cr.content_snapshot ->> f.col)) "
+                        + "FROM content_reports cr JOIN sentences s ON s.id = cr.sentence_id WHERE cr.id = :id"
+                : "SELECT cr.content_snapshot IS NULL OR EXISTS (SELECT 1 FROM unnest(ARRAY[:cols]::text[]) AS f(col) "
+                        + "WHERE (" + CARD_FIELDS + " ->> f.col) IS DISTINCT FROM (cr.content_snapshot ->> f.col)) "
+                        + "FROM content_reports cr JOIN vocab_cards c ON c.id = cr.card_id WHERE cr.id = :id";
+        return jdbc.sql(sql)
+                .param("id", reportId).param("cols", columns)
                 .query(Boolean.class).optional().orElse(false);
     }
 
@@ -296,10 +303,6 @@ public class ReportRepository {
 
     // ---------------------------------------------------------------- hỗ trợ
 
-    private static String targetColumn(ReportTargetType type) {
-        return type == ReportTargetType.SENTENCE ? "sentence_id" : "card_id";
-    }
-
     private static Map<String, String> toMap(List<Map.Entry<String, Optional<String>>> entries) {
         Map<String, String> map = new LinkedHashMap<>();
         entries.forEach(e -> map.put(e.getKey(), e.getValue().orElse(null)));
@@ -320,68 +323,55 @@ public class ReportRepository {
                 rs.getString("owner_name"), rs.getBoolean("no_handler"), rs.getBoolean("container_deleted"));
     }
 
-    /** Điều kiện WHERE (từng báo cáo) và HAVING (cả dòng) của danh sách, cùng tham số. */
-    private record Filter(String where, String having, Map<String, Object> params) {
+    /**
+     * Điều kiện lọc danh sách (UC-XL-01): mỗi bộ lọc bị bỏ qua khi tham số của nó là {@code null} hoặc {@code false},
+     * nên câu lệnh luôn là hằng.
+     */
+    private static final String FILTER_WHERE = """
+             WHERE (CAST(:teacher AS uuid) IS NULL OR (COALESCE(l.owner_id, d.owner_id) = :teacher
+                       AND cr.reason <> 'offensive'
+                       AND COALESCE(l.deleted_at, d.deleted_at) IS NULL
+                       AND COALESCE(s.deleted_at, c.deleted_at) IS NULL))
+               AND (CAST(:status AS text) IS NULL OR cr.status = :status)
+               AND (CAST(:targetType AS text) IS NULL
+                    OR (:targetType = 'sentence' AND cr.sentence_id IS NOT NULL)
+                    OR (:targetType = 'card' AND cr.card_id IS NOT NULL))
+               AND (CAST(:reason AS text) IS NULL OR cr.reason = :reason)
+               AND (CAST(:pattern AS text) IS NULL OR lower(COALESCE(l.title, d.name)) LIKE :pattern ESCAPE '\\')
+               AND (CAST(:owner AS uuid) IS NULL OR COALESCE(l.owner_id, d.owner_id) = :owner)
+               AND (CAST(:reporter AS uuid) IS NULL OR cr.reporter_id = :reporter)
+               AND (NOT :noHandler OR (cr.status = 'waiting_teacher' AND (o.id IS NULL OR o.locked_at IS NOT NULL)))
+               AND (NOT :frequentRejected OR (cr.status IN ('waiting_teacher','waiting_admin') AND cr.reporter_id IN (
+                        SELECT reporter_id FROM content_reports
+                        WHERE status = 'rejected' AND handled_at >= :rejectedSince
+                        GROUP BY reporter_id HAVING count(*) >= :rejectedThreshold)))
+            """;
+    private static final String FILTER_HAVING =
+            " HAVING (NOT :overdue OR (cr.status = 'waiting_teacher' AND min(cr.created_at) < :overdueBefore))";
 
-        static Filter of(Scope scope, ReportListQuery query, Window window) {
-            List<String> conds = new ArrayList<>();
-            Map<String, Object> params = new HashMap<>();
-            params.put("overdueBefore", Timestamp.from(window.overdueBefore()));
-            if (scope.teacherId() != null) {
-                conds.add("COALESCE(l.owner_id, d.owner_id) = :teacher");
-                conds.add("cr.reason <> 'offensive'");
-                // Báo cáo của bài học, bộ thẻ, câu hay thẻ đã xóa được ẩn khỏi hàng đợi của giáo viên (BR-XL-08).
-                conds.add("COALESCE(l.deleted_at, d.deleted_at) IS NULL");
-                conds.add("COALESCE(s.deleted_at, c.deleted_at) IS NULL");
-                params.put("teacher", scope.teacherId());
-            }
-            if (query.status() != null) {
-                conds.add("cr.status = :status");
-                params.put("status", query.status().value());
-            }
-            if (query.targetType() != null) {
-                conds.add(query.targetType() == ReportTargetType.SENTENCE ? "cr.sentence_id IS NOT NULL"
-                        : "cr.card_id IS NOT NULL");
-            }
-            if (query.reason() != null) {
-                conds.add("cr.reason = :reason");
-                params.put("reason", query.reason().value());
-            }
-            if (query.q() != null && !query.q().isBlank()) {
-                conds.add("lower(COALESCE(l.title, d.name)) LIKE :pattern ESCAPE '\\'");
-                params.put("pattern", containsPattern(query.q()));
-            }
-            if (query.ownerId() != null) {
-                conds.add("COALESCE(l.owner_id, d.owner_id) = :owner");
-                params.put("owner", query.ownerId());
-            }
-            if (query.reporterId() != null) {
-                conds.add("cr.reporter_id = :reporter");
-                params.put("reporter", query.reporterId());
-            }
-            if (query.noHandler()) {
-                conds.add("cr.status = 'waiting_teacher' AND (o.id IS NULL OR o.locked_at IS NOT NULL)");
-            }
-            if (query.frequentRejected()) {
-                conds.add("""
-                        cr.status IN ('waiting_teacher','waiting_admin') AND cr.reporter_id IN (
-                            SELECT reporter_id FROM content_reports
-                            WHERE status = 'rejected' AND handled_at >= :rejectedSince
-                            GROUP BY reporter_id HAVING count(*) >= :rejectedThreshold)""");
-                params.put("rejectedSince", Timestamp.from(window.rejectedSince()));
-                params.put("rejectedThreshold", window.rejectedThreshold());
-            }
-            String where = conds.isEmpty() ? "" : " WHERE " + String.join(" AND ", conds);
-            String having = query.overdue()
-                    ? " HAVING cr.status = 'waiting_teacher' AND min(cr.created_at) < :overdueBefore"
-                    : "";
-            return new Filter(where, having, params);
-        }
+    /** Tham số của {@link #FILTER_WHERE} và {@link #FILTER_HAVING}; giáo viên chỉ thấy báo cáo của mình (BR-XL-03, BR-XL-08). */
+    private static Map<String, Object> filterParams(Scope scope, ReportListQuery query, Window window) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("overdueBefore", Timestamp.from(window.overdueBefore()));
+        params.put("teacher", scope.teacherId());
+        params.put("status", query.status() == null ? null : query.status().value());
+        params.put("targetType", query.targetType() == null ? null
+                : query.targetType() == ReportTargetType.SENTENCE ? "sentence" : "card");
+        params.put("reason", query.reason() == null ? null : query.reason().value());
+        params.put("pattern", query.q() == null || query.q().isBlank() ? null : containsPattern(query.q()));
+        params.put("owner", query.ownerId());
+        params.put("reporter", query.reporterId());
+        params.put("noHandler", query.noHandler());
+        params.put("frequentRejected", query.frequentRejected());
+        params.put("rejectedSince", Timestamp.from(window.rejectedSince()));
+        params.put("rejectedThreshold", window.rejectedThreshold());
+        params.put("overdue", query.overdue());
+        return params;
+    }
 
-        /** Mẫu LIKE "chứa chuỗi", chữ thường, đã thoát {@code %}, {@code _} và {@code \}. */
-        private static String containsPattern(String q) {
-            String escaped = q.trim().toLowerCase(Locale.ROOT).replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
-            return "%" + escaped + "%";
-        }
+    /** Mẫu LIKE "chứa chuỗi", chữ thường, đã thoát {@code %}, {@code _} và {@code \}. */
+    private static String containsPattern(String q) {
+        String escaped = q.trim().toLowerCase(Locale.ROOT).replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+        return "%" + escaped + "%";
     }
 }
