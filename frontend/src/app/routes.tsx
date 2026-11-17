@@ -24,6 +24,9 @@ const GoogleCallback = lazy(() => import("@/features/auth/pages/GoogleCallback")
 
 const Settings = lazy(() => import("@/features/user/pages/Settings"));
 const OnboardingPage = lazy(() => import("@/features/user/pages/OnboardingPage"));
+const TodayPage = lazy(() => import("@/features/review/pages/TodayPage"));
+const DailyReviewPage = lazy(() => import("@/features/review/pages/DailyReviewPage"));
+const SentenceReviewPage = lazy(() => import("@/features/review/pages/SentenceReviewPage"));
 
 const LessonLibraryPage = lazy(() =>
   import("@/features/lesson/pages/LessonLibraryPage").then((m) => ({ default: m.LessonLibraryPage })),
@@ -120,7 +123,15 @@ const getRoutesConfig = (): RouteObject[] => {
       children: [
         {
           index: true,
-          element: <PlaceholderPage pageKey="student.today" />,
+          element: <TodayPage />,
+        },
+        {
+          path: "review/daily",
+          element: <DailyReviewPage />,
+        },
+        {
+          path: "review/sentences",
+          element: <SentenceReviewPage />,
         },
         {
           path: "lessons",

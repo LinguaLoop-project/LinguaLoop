@@ -46,6 +46,11 @@ function loadYouTubeApi(): Promise<YouTubeNamespace> {
   return youTubeApi;
 }
 
+/** Nạp sẵn script YouTube ở nền (vd lúc làm thẻ) để câu đầu của phần ôn câu mở nhanh hơn; lỗi thì bỏ qua. */
+export function preloadYouTubeApi(): void {
+  void loadYouTubeApi().catch(() => undefined);
+}
+
 export type PlayerStatus = "loading" | "ready" | "failed" | "blocked" | "nosource";
 
 export interface UsePlayerOptions {

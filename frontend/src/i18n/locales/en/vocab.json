@@ -2,6 +2,7 @@
   "overline": "Vocabulary",
   "title": "Vocabulary",
   "subtitle": "Learn decks part by part and review cards just before you forget them.",
+  "reviewToday": "Today's review",
   "loading": "Loading",
   "overview": {
     "label": "Vocabulary overview",
@@ -241,6 +242,7 @@
     "redone_one": "{{count}} card had to be reviewed again this round",
     "redone_other": "{{count}} cards had to be reviewed again this round",
     "continue": "Keep reviewing",
+    "exit": "Exit",
     "continueHint_one": "{{count}} card still due",
     "continueHint_other": "{{count}} cards still due",
     "backToDecks": "Back to decks",

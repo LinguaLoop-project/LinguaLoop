@@ -1,0 +1,102 @@
+{
+  "loading": "Getting your review ready…",
+  "backToToday": "Back to Today",
+  "exit": "Exit",
+  "steps": "Parts of the review",
+  "next": "Next sentence",
+  "retry": "Try again",
+  "skip": "Skip this sentence",
+  "skipped": "Sentence skipped. It does not count as reviewed.",
+  "mode": {
+    "dictation": "Dictation",
+    "shadowing": "Shadowing"
+  },
+  "today": {
+    "overline": "Today",
+    "greeting": "Hi {{name}}, what shall we review today?",
+    "greetingAnon": "What shall we review today?",
+    "reviewTitle": "Today's review",
+    "reviewDesc": "Today's session has {{cards}} vocabulary cards, then {{sentences}} saved sentences, based on your daily goal.",
+    "doneTitle": "You're done for today",
+    "doneDesc": "No cards or sentences left to review.",
+    "cardsDue": "cards due",
+    "sentencesPending": "sentences to review",
+    "goal": "daily goal",
+    "minutes": "{{count}} min",
+    "start": "Start today's review"
+  },
+  "daily": {
+    "title": "Today's review",
+    "titleMore": "Keep reviewing"
+  },
+  "sentences": {
+    "title": "Review sentences",
+    "emptyTitle": "No sentences to review today",
+    "allDoneTitle": "You've reviewed every sentence for today",
+    "emptyDesc": "Sentences you save to Sentences to review show up here. Sentences already reviewed today are not picked again.",
+    "backToList": "Back to Saved words & sentences"
+  },
+  "steps": {
+    "cards": "Vocabulary cards",
+    "sentences": "Saved sentences",
+    "sentencesAt": "Sentence {{current}}/{{total}}"
+  },
+  "bridge": {
+    "title": "Cards done!",
+    "desc_one": "On to {{count}} saved sentence…",
+    "desc_other": "On to {{count}} saved sentences…"
+  },
+  "dictation": {
+    "hint": "Listen, then type the whole sentence. This is a redo, so it does not count toward your weak-spot stats.",
+    "listen": "Listen",
+    "listenAgain": "Listen again",
+    "empty": "Type what you heard before checking."
+  },
+  "shadowing": {
+    "hint": "Listen to the model, then read along. Pronunciation is scored like a normal Shadowing attempt.",
+    "listen": "Listen to model",
+    "record": "Read along",
+    "stop": "Stop and score",
+    "scoring": "Scoring…"
+  },
+  "errors": {
+    "network": "No connection. Check your network and try again.",
+    "generic": "Something went wrong, please try again.",
+    "submit": "We couldn't submit this attempt, please try again.",
+    "mic": "Can't use the microphone. Allow microphone access in your browser and try again.",
+    "tooShort": "That recording is too short, please read the whole sentence.",
+    "noSpeech": "We didn't hear any speech. Speak up and try again.",
+    "scoringBusy": "Pronunciation scoring is busy, please try again in a few minutes."
+  },
+  "summary": {
+    "doneTitle": "Review complete!",
+    "doneSubtitle": "All your results are saved.",
+    "exitedTitle": "What you did is saved",
+    "exitedSubtitle": "Next time the list is built from the latest data, and anything you already reviewed is not repeated.",
+    "cards": "Vocabulary cards",
+    "cardsScore": "Remembered {{right}}/{{total}} cards the first time",
+    "cardsNone": "No cards reviewed.",
+    "cardsRedone_one": "{{count}} card had to be reviewed again this round",
+    "cardsRedone_other": "{{count}} cards had to be reviewed again this round",
+    "sentences": "Saved sentences",
+    "sentencesScore_one": "Reviewed {{count}} sentence, average score {{average}}",
+    "sentencesScore_other": "Reviewed {{count}} sentences, average score {{average}}",
+    "sentencesNone": "No sentences reviewed.",
+    "sentencesSkipped_one": "{{count}} sentence skipped, not counted as reviewed",
+    "sentencesSkipped_other": "{{count}} sentences skipped, not counted as reviewed",
+    "skipped": "Skipped",
+    "moreCards_one": "{{count}} card still due",
+    "moreCards_other": "{{count}} cards still due",
+    "continueCards": "Keep reviewing",
+    "moreSentences": "Review more",
+    "backToToday": "Back to Today"
+  },
+  "empty": {
+    "title": "You're done for today",
+    "desc": "No cards or sentences left to review.",
+    "nextDue": "Your next card is due {{time}}.",
+    "nextNone": "No cards are scheduled yet.",
+    "learnNew": "Learn new words",
+    "practiceLessons": "Practice lessons"
+  }
+}

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
+import { buttonClasses } from "@/components/common/buttonStyles";
 import SegmentedControl from "@/components/common/SegmentedControl";
 import Icon from "@/components/common/Icon";
 import { toast } from "@/stores/toastStore";
@@ -98,6 +99,10 @@ export default function ReviewTab() {
           <>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-text-muted">{t("review.count", { count: items.length })}</p>
+              <Link to="/student/review/sentences" className={buttonClasses({ variant: "primary", size: "sm" })}>
+                <Icon name="play" className="h-4 w-4" />
+                {t("review.startReview")}
+              </Link>
               <SegmentedControl
                 ariaLabel={t("review.filter.label")}
                 value={filter}

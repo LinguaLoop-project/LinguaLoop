@@ -54,10 +54,10 @@ export const usePart = (slug: string | undefined, part: number) =>
  * Lượt ôn kế tiếp. `run` tăng mỗi khi học viên chọn "Ôn tiếp" để tải lại hàng đợi; luôn tải mới vì lịch ôn đổi sau mỗi
  * câu trả lời. 404 (bộ không có) không thử lại.
  */
-export const useReviewQueue = (deck: string | undefined, run: number) =>
+export const useReviewQueue = (deck: string | undefined, run: number, limit?: number) =>
   useQuery({
-    queryKey: vocabKeys.review(deck ?? "", run),
-    queryFn: () => vocabApi.getReview(deck),
+    queryKey: [...vocabKeys.review(deck ?? "", run), limit ?? 0],
+    queryFn: () => vocabApi.getReview(deck, limit),
     networkMode: NETWORK_MODE,
     gcTime: 0,
     retry: (count, error) => !isStatus(error, 404) && count < 2,
