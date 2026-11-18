@@ -32,7 +32,7 @@ Tổng hợp: 101 AC, 64 đã có test, 1 một phần, 33 thiếu, 3 không áp
 | AC-BH-23 | Mất kết nối hoặc YouTube không phản hồi | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_youTubeDown_createsNothing_AC_BH_23 | Đã có |
 | AC-BH-83 | Không lấy được lời thoại | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_transcriptServiceFails_createsNothingAndChargesNothing_AC_BH_83; TranscriptApiLessonImportIntegrationTest.create_transcriptApiOutOfCredits_failsWithRetryAndCreatesNothing_AC_BH_83 | Đã có |
 | AC-BH-84 | (Bỏ) Lỗi AI khi gợi ý bản dịch lúc tạo bài | UC-BH-03 | A | Tạo bài không còn gọi AI dịch; TranscriptApiLessonImportIntegrationTest kiểm Gemini không được gọi | Không áp dụng |
-| AC-BH-85 | Hết credit giữa chừng khi tạo bài | UC-BH-03 | A, B | Tạo bài không gọi AI dịch nên không trừ credit | Không áp dụng |
+| AC-BH-85 | (Bỏ) Hết credit giữa chừng khi tạo bài | UC-BH-03 | A, B | Tạo bài không gọi AI dịch nên không trừ credit | Không áp dụng |
 | AC-BH-92 | Tiêu đề lấy từ tên video bị trùng | UC-BH-03 |  |  | Thiếu |
 | AC-BH-93 | Video đã có bài của chính giáo viên | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_videoAlreadyUsedByOwnLesson_pointsToThatLesson_AC_BH_93; TeacherLessonImportApiIntegrationTest.preview_invalidLinkTooLongOrTakenVideo_reportsSameErrorsAsCreate_AC_BH_16_19_93 | Đã có |
 | AC-BH-94 | Video đã có bài của giáo viên khác | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_videoAlreadyUsedByAnotherTeacher_hidesThatLesson_AC_BH_94 | Đã có |
@@ -48,7 +48,7 @@ Tổng hợp: 101 AC, 64 đã có test, 1 một phần, 33 thiếu, 3 không áp
 | AC-BH-32 | Hủy chỉnh sửa | UC-BH-04 |  |  | Thiếu |
 | AC-BH-33 | Mất kết nối khi lưu | UC-BH-04 |  |  | Thiếu |
 | AC-BH-34 | Sửa câu tiếng Anh và bản dịch | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_savesTranslationAndIpaWithAudit_AC_BH_34_35_36; sentenceDraft.test.ts "chỉ gửi câu đã đổi và câu đã chọn xóa" | Đã có |
-| AC-BH-35 | Sửa IPA | UC-BH-05 | D | Chưa có: test hiện tại chỉ kiểm lưu IPA gửi lên, chưa kiểm tạo lại IPA khi câu tiếng Anh đổi | Thiếu |
+| AC-BH-35 | IPA được tạo lại khi sửa câu tiếng Anh | UC-BH-05 | D | Chưa có: test hiện tại chỉ kiểm lưu IPA gửi lên, chưa kiểm tạo lại IPA khi câu tiếng Anh đổi | Thiếu |
 | AC-BH-36 | Sửa mốc thời gian | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_savesTranslationAndIpaWithAudit_AC_BH_34_35_36; sentenceDraft.test.ts "định dạng và đọc lại mốc thời gian" | Đã có |
 | AC-BH-37 | Mốc thời gian không hợp lệ | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_invalidTimesOrText_rejectsAll_AC_BH_37_38; sentenceDraft.test.ts "báo mốc chồng lấn câu kề bên", "báo đoạn ngắn hơn 0,5 giây…" | Đã có |
 | AC-BH-38 | Câu tiếng Anh để trống hoặc quá dài | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_invalidTimesOrText_rejectsAll_AC_BH_37_38; sentenceDraft.test.ts "câu tiếng Anh trống hoặc bản dịch 501 ký tự" | Đã có |
@@ -106,4 +106,4 @@ Tổng hợp: 101 AC, 64 đã có test, 1 một phần, 33 thiếu, 3 không áp
 | AC-BH-74 | Lỗi hệ thống không trừ credit | UC-BH-10 | A | LessonManageApiIntegrationTest.suggest_aiFailure_keepsCellsEmpty_AC_BH_74 | Đã có |
 | AC-BH-75 | Gợi ý chưa lưu thì không đổi nội dung bài | UC-BH-10 | A | LessonManageApiIntegrationTest.suggest_translationAndIpa_savesNothing_AC_BH_69_75 | Đã có |
 | AC-BH-91 | Mất kết nối khi tạo gợi ý | UC-BH-10 |  |  | Thiếu |
-| AC-BH-97 | Tạo lại IPA khi hết credit | UC-BH-10 | A | UC-BH-10 chỉ gợi ý bản dịch; IPA tạo tự động không tốn credit | Không áp dụng |
+| AC-BH-97 | (Bỏ) Tạo lại IPA khi hết credit | UC-BH-10 | A | UC-BH-10 chỉ gợi ý bản dịch; IPA tạo tự động không tốn credit | Không áp dụng |
