@@ -9,7 +9,9 @@ public enum AuditAction {
     UPDATE,
     DELETE,
     PUBLISH,
-    UNPUBLISH;
+    UNPUBLISH,
+    RESOLVE,
+    REJECT;
 
     /** Giá trị lưu trong DB. */
     public String value() {

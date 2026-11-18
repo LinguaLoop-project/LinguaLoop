@@ -86,7 +86,7 @@
         "dashboard": "Tổng quan",
         "lessons": "Bài học",
         "decks": "Bộ từ vựng",
-        "reports": "Báo cáo"
+        "reports": "Báo cáo nội dung"
       }
     },
     "topbar": {
@@ -102,7 +102,7 @@
         "lessons": "Bài học",
         "compose": "Soạn bài học mới",
         "decks": "Bộ từ vựng",
-        "reports": "Báo cáo",
+        "reports": "Báo cáo nội dung",
         "settings": "Cài đặt",
         "lessonDetail": "Chi tiết bài học",
         "deckDetail": "Chi tiết bộ từ",
@@ -122,12 +122,13 @@
       "items": {
         "dashboard": "Tổng quan",
         "users": "Người dùng",
-        "reports": "Báo lỗi nội dung",
-        "decks": "Duyệt bộ từ công khai",
+        "reports": "Báo cáo nội dung",
+        "decks": "Bộ thẻ từ vựng",
         "audit": "Nhật ký nội dung",
         "limits": "Gói & Hạn mức",
         "subs": "Đăng ký Pro",
-        "errors": "Danh mục lỗi"
+        "errors": "Danh mục lỗi",
+        "republish": "Duyệt xuất bản lại"
       }
     },
     "topbar": {
@@ -141,8 +142,8 @@
       "titles": {
         "overview": "Tổng quan",
         "users": "Quản lý người dùng",
-        "reports": "Hàng đợi báo lỗi",
-        "decks": "Duyệt bộ từ",
+        "reports": "Báo cáo nội dung",
+        "decks": "Bộ thẻ từ vựng",
         "audit": "Nhật ký nội dung",
         "limits": "Gói & Hạn mức",
         "subs": "Đăng ký Pro",
@@ -156,7 +157,8 @@
         "analytics": "Phân tích & Thống kê",
         "userDetail": "Chi tiết người dùng",
         "reportDetail": "Chi tiết báo cáo lỗi",
-        "deckDetail": "Chi tiết duyệt bộ từ"
+        "deckDetail": "Chi tiết duyệt bộ từ",
+        "republish": "Duyệt xuất bản lại"
       }
     }
   },
@@ -213,5 +215,15 @@
   "dev": {
     "title": "Công cụ thử: chuyển Free/Pro, đặt lại lượt hôm nay",
     "resetUsage": "Đặt lại lượt hôm nay"
+  },
+  "notifications": {
+    "title": "Thông báo",
+    "markAll": "Đánh dấu tất cả đã đọc",
+    "empty": "Chưa có thông báo nào",
+    "loading": "Đang tải…",
+    "error": "Không tải được thông báo.",
+    "retry": "Thử lại",
+    "unread": "Chưa đọc",
+    "ariaUnread": "Thông báo, {{count}} chưa đọc"
   }
 }

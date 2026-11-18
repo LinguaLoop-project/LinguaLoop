@@ -7,8 +7,8 @@ import { DEFAULT_LANGUAGE, isLanguage, setLanguage, type Language } from "@/i18n
 export interface LanguageSwitcherProps {
   /** Chiều cao nút, mặc định `h-9` như Header trang chủ. */
   heightClass?: string;
-  /** "chip": viên thuốc có icon quả địa cầu, dùng ở chân trang (mockup v2). */
-  variant?: "default" | "chip";
+  /** "chip": viên thuốc có icon quả địa cầu, dùng ở chân trang (mockup v2). "bare": không viền, nằm trong cụm nút. */
+  variant?: "default" | "chip" | "bare";
 }
 
 const LANGUAGES: Language[] = ["vi", "en"];
@@ -38,6 +38,7 @@ function Flag({ language }: { language: Language }) {
 /** Menu chọn ngôn ngữ (cờ + tên) dùng chung cho Header trang chủ, các topbar và trang đăng nhập. */
 export default function LanguageSwitcher({ heightClass = "h-9", variant = "default" }: LanguageSwitcherProps) {
   const chip = variant === "chip";
+  const bare = variant === "bare";
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -69,7 +70,9 @@ export default function LanguageSwitcher({ heightClass = "h-9", variant = "defau
         className={`inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap text-sm text-[var(--text)] transition-all ${
           chip
             ? "h-8 rounded-full border border-border-strong bg-surface px-3 hover:border-primary hover:bg-primary-soft"
-            : `rounded-lg border border-[var(--border)] px-3 font-medium hover:bg-[var(--surface-hover)] ${heightClass}`
+            : bare
+              ? "h-8 rounded-full px-2.5 font-medium hover:bg-[var(--surface-hover)]"
+              : `rounded-lg border border-[var(--border)] px-3 font-medium hover:bg-[var(--surface-hover)] ${heightClass}`
         }`}
         aria-haspopup="listbox"
         aria-expanded={open}

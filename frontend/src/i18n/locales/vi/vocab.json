@@ -320,10 +320,14 @@
       "unpublishBody": "Học viên sẽ không thấy bộ \"{{name}}\" nữa, nhưng tiến độ học đã có được giữ lại.",
       "reason": "Lý do gỡ xuất bản (gửi cho giáo viên chủ bộ)",
       "reasonRequired": "Vui lòng nhập lý do gỡ xuất bản",
+      "adminUnpublishNote": "Bộ sẽ mang dấu \"Bị quản trị viên gỡ\": muốn xuất bản lại, giáo viên phải gửi yêu cầu để quản trị viên duyệt. Báo cáo Phản cảm đang mở về thẻ của bộ được đóng cùng.",
       "reasonTooLong": "Lý do tối đa 500 ký tự",
       "deleteBody": "Xóa bộ \"{{name}}\" ({{status}}, {{cards}} thẻ)?",
       "deletePublishedNote": "Bộ đang xuất bản: học viên sẽ không thấy bộ này nữa.",
       "retentionNote": "Bộ được giữ 30 ngày, bạn có thể khôi phục trong thời gian này.",
+      "offensiveCount": "{{count}} báo cáo Phản cảm đang mở về thẻ của bộ sẽ được đóng cùng.",
+      "pendingRequestNote": "Yêu cầu xuất bản lại đang chờ quản trị viên duyệt sẽ bị hủy; khôi phục xong bạn cần gửi lại.",
+      "takenDownRestoreNote": "Bộ đang mang dấu \"Bị quản trị viên gỡ\": muốn xuất bản lại phải gửi quản trị viên duyệt.",
       "restoreBody": "Bộ \"{{name}}\" sẽ trở lại ở trạng thái Nháp; muốn học viên thấy lại thì cần xuất bản.",
       "newName": "Tên mới cho bộ thẻ",
       "restoreNameTaken": "Bạn đã có bộ thẻ cùng tên, hãy nhập tên mới"
@@ -343,7 +347,8 @@
       "alreadyRestored": "Bộ thẻ đã được khôi phục",
       "restoreExpired": "Bộ thẻ đã bị xóa quá 30 ngày, không thể khôi phục",
       "notFound": "Không tìm thấy bộ thẻ",
-      "forbidden": "Bạn không có quyền thực hiện thao tác này trên bộ thẻ"
+      "forbidden": "Bạn không có quyền thực hiện thao tác này trên bộ thẻ",
+      "reviewRequired": "Bộ thẻ bị quản trị viên gỡ. Hãy mở trang bộ thẻ và gửi yêu cầu duyệt xuất bản lại."
     },
     "groupCount_one": "{{count}} nhóm",
     "groupCount_other": "{{count}} nhóm",

@@ -48,6 +48,13 @@ const TeacherDeckDetailPage = lazy(() => import("@/features/vocab/pages/teacher/
 const AdminDeckListPage = lazy(() => import("@/features/vocab/pages/admin/AdminDeckListPage"));
 const AdminDeckDetailPage = lazy(() => import("@/features/vocab/pages/admin/AdminDeckDetailPage"));
 
+const TeacherReportListPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportListPage"));
+const TeacherReportDetailPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportDetailPage"));
+const AdminReportListPage = lazy(() => import("@/features/report/pages/admin/AdminReportListPage"));
+const AdminReportDetailPage = lazy(() => import("@/features/report/pages/admin/AdminReportDetailPage"));
+const AdminRepublishListPage = lazy(() => import("@/features/report/pages/admin/AdminRepublishListPage"));
+const AdminRepublishDetailPage = lazy(() => import("@/features/report/pages/admin/AdminRepublishDetailPage"));
+
 const ShadowingPage = lazy(() => import("@/features/shadowing/pages/ShadowingPage"));
 
 const getRoutesConfig = (): RouteObject[] => {
@@ -218,7 +225,8 @@ const getRoutesConfig = (): RouteObject[] => {
     {
       path: "teacher",
       element: (
-        <AuthGuard allowedRoles={["teacher", "admin"]}>
+        // Chỉ giáo viên: API /teacher/* chỉ nhận vai trò TEACHER; quản trị viên có trang riêng ở /admin.
+        <AuthGuard allowedRoles={["teacher"]}>
           <TeacherLayout />
         </AuthGuard>
       ),
@@ -253,11 +261,11 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "reports",
-          element: <PlaceholderPage pageKey="teacher.reports" />,
+          element: <TeacherReportListPage />,
         },
         {
           path: "reports/:id",
-          element: <PlaceholderPage pageKey="teacher.reportDetail" />,
+          element: <TeacherReportDetailPage />,
         },
         {
           path: "settings",
@@ -291,11 +299,19 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "reports",
-          element: <PlaceholderPage pageKey="admin.reports" />,
+          element: <AdminReportListPage />,
         },
         {
           path: "reports/:id",
-          element: <PlaceholderPage pageKey="admin.reportDetail" />,
+          element: <AdminReportDetailPage />,
+        },
+        {
+          path: "republish",
+          element: <AdminRepublishListPage />,
+        },
+        {
+          path: "republish/:id",
+          element: <AdminRepublishDetailPage />,
         },
         {
           path: "decks",

@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -74,8 +76,12 @@ class DevToolsEnabledIntegrationTest {
         putPlan(userId, "pro").andExpect(status().isOk());
         putPlan(userId, "pro").andExpect(status().isOk());
 
+        // So theo giờ của ứng dụng (JVM), không theo now() của Postgres: đồng hồ container có thể lệch vài mili giây
+        // so với mốc starts_at do ứng dụng ghi, làm đơn vừa tạo bị coi là chưa bắt đầu.
+        Timestamp appNow = Timestamp.from(Instant.now());
         Integer active = jdbc.sql("SELECT count(*) FROM pro_orders WHERE user_id = :u AND status = 'paid' "
-                + "AND starts_at <= now() AND ends_at > now()").param("u", userId).query(Integer.class).single();
+                + "AND starts_at <= :now AND ends_at > :now").param("u", userId).param("now", appNow)
+                .query(Integer.class).single();
         assertThat(active).isEqualTo(1);
         assertThat(subscriptionQueryService.isPro(userId)).isTrue();
     }

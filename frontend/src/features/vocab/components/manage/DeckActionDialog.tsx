@@ -6,6 +6,7 @@ import { FormAlert } from "@/components/common/FormAlert";
 import Icon from "@/components/common/Icon";
 import Skeleton from "@/components/common/Skeleton";
 import TextField from "@/components/common/TextField";
+import { useHasPendingRepublish, useIsTakenDown, useOpenOffensiveCount } from "@/features/report";
 import { toast } from "@/stores/toastStore";
 import { validateDeckName } from "../../createDeckForm";
 import {
@@ -58,6 +59,14 @@ export default function DeckActionDialog({ role, action, deck, onClose, onDone, 
   const unpublish = useUnpublishDeck(role);
   const remove = useDeleteDeck();
   const restore = useRestoreDeck();
+  // Dấu "Bị quản trị viên gỡ" của bộ: xóa thì hủy yêu cầu đang chờ, khôi phục thì vẫn phải gửi duyệt (BR-XL-13).
+  const markTarget = role === "teacher" && (action === "delete" || action === "restore") ? deck.id : undefined;
+  const takenDown = useIsTakenDown("deck", markTarget);
+  const pendingRequest = useHasPendingRepublish("deck", markTarget);
+  const offensiveCount = useOpenOffensiveCount(
+    "deck",
+    role === "admin" && action === "unpublish" ? deck.id : undefined,
+  );
   // Bước 2 của UC-BT-05: kiểm điều kiện xuất bản trước khi hỏi xác nhận.
   const detail = useDeckDetail("teacher", action === "publish" ? deck.id : undefined);
   const [reason, setReason] = useState("");
@@ -193,6 +202,12 @@ export default function DeckActionDialog({ role, action, deck, onClose, onDone, 
             {fieldError && <span className="text-danger">{reasonErrors[fieldError] ?? reasonErrors.NotBlank}</span>}
           </label>
         )}
+        {action === "unpublish" && role === "admin" && (
+          <div className="flex flex-col gap-1 text-sm text-warning">
+            <p>{t("manage.dialog.adminUnpublishNote")}</p>
+            {offensiveCount > 0 && <p>{t("manage.dialog.offensiveCount", { count: offensiveCount })}</p>}
+          </div>
+        )}
 
         {action === "delete" && (
           <div className="flex flex-col gap-2 text-sm text-text">
@@ -205,11 +220,15 @@ export default function DeckActionDialog({ role, action, deck, onClose, onDone, 
             </p>
             {deck.status === "published" && <p className="text-warning">{t("manage.dialog.deletePublishedNote")}</p>}
             <p className="text-text-muted">{t("manage.dialog.retentionNote")}</p>
+            {pendingRequest && <p className="text-warning">{t("manage.dialog.pendingRequestNote")}</p>}
           </div>
         )}
 
         {action === "restore" && (
-          <p className="text-sm text-text">{t("manage.dialog.restoreBody", { name: deck.name })}</p>
+          <div className="flex flex-col gap-2 text-sm text-text">
+            <p>{t("manage.dialog.restoreBody", { name: deck.name })}</p>
+            {takenDown && <p className="text-warning">{t("manage.dialog.takenDownRestoreNote")}</p>}
+          </div>
         )}
         {action === "restore" && newName !== null && (
           <TextField

@@ -1,0 +1,152 @@
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import Icon from "@/components/common/Icon";
+import { relativeTime, useMarkAllNotificationsRead, useMarkNotificationRead, useNotifications } from "../notifications";
+import type { NotificationItem } from "../notifications";
+
+export interface NotificationBellProps {
+  /** Lớp cho nút chuông, để khớp cụm nút trên thanh trên. */
+  buttonClassName?: string;
+}
+
+/**
+ * Chuông thông báo trên thanh trên cho mọi vai trò: chấm đỏ đếm số chưa đọc, bấm mở danh sách 20 thông báo mới nhất.
+ * Bấm một thông báo thì đánh dấu đã đọc; có nút đánh dấu tất cả đã đọc.
+ */
+export default function NotificationBell({ buttonClassName = "" }: Readonly<NotificationBellProps>) {
+  const { t } = useTranslation("layout");
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const query = useNotifications();
+  const markAll = useMarkAllNotificationsRead();
+  const unread = query.data?.unreadCount ?? 0;
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: MouseEvent | TouchEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-label={unread > 0 ? t("notifications.ariaUnread", { count: unread }) : t("notifications.title")}
+        title={t("notifications.title")}
+        className={`relative ${buttonClassName}`}
+      >
+        <Icon name="bell" />
+        {unread > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-danger px-1 text-[10px] font-bold leading-none text-white ring-2 ring-surface">
+            {unread > 99 ? "99+" : unread}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div
+          role="dialog"
+          aria-label={t("notifications.title")}
+          className="absolute right-0 top-[48px] z-[70] w-[min(360px,calc(100vw-24px))] animate-[menu-in_200ms_var(--ease-out)] overflow-hidden rounded-lg border border-border-strong bg-surface shadow-[0_24px_48px_-16px_rgba(0,0,0,.55),0_0_0_1px_var(--border)]"
+        >
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+            <span className="font-semibold text-text">{t("notifications.title")}</span>
+            {unread > 0 && (
+              <button
+                type="button"
+                onClick={() => markAll.mutate()}
+                disabled={markAll.isPending}
+                className="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-primary hover:underline disabled:opacity-60"
+              >
+                <Icon name="check-check" className="size-3.5" />
+                {t("notifications.markAll")}
+              </button>
+            )}
+          </div>
+          <PanelBody
+            isLoading={query.isLoading}
+            isError={query.isError}
+            items={query.data?.items ?? []}
+            onRetry={() => void query.refetch()}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PanelBody({
+  isLoading,
+  isError,
+  items,
+  onRetry,
+}: Readonly<{ isLoading: boolean; isError: boolean; items: NotificationItem[]; onRetry: () => void }>) {
+  const { t, i18n } = useTranslation("layout");
+  const markRead = useMarkNotificationRead();
+
+  if (isLoading) {
+    return <p className="px-4 py-6 text-center text-sm text-text-muted">{t("notifications.loading")}</p>;
+  }
+  if (isError) {
+    return (
+      <p className="px-4 py-6 text-center text-sm text-text-muted">
+        {t("notifications.error")}{" "}
+        <button type="button" className="cursor-pointer font-semibold text-primary hover:underline" onClick={onRetry}>
+          {t("notifications.retry")}
+        </button>
+      </p>
+    );
+  }
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-2 px-4 py-8 text-center text-sm text-text-muted">
+        <Icon name="bell" className="size-6 text-text-subtle" />
+        {t("notifications.empty")}
+      </div>
+    );
+  }
+  return (
+    <ul className="max-h-[360px] overflow-y-auto py-1">
+      {items.map((item) => (
+        <li key={item.id}>
+          <button
+            type="button"
+            onClick={() => {
+              if (!item.read) markRead.mutate(item.id);
+            }}
+            className={`flex w-full cursor-pointer items-start gap-3 px-4 py-2.5 text-left transition-colors hover:bg-surface-hover ${
+              item.read ? "" : "bg-primary-soft"
+            }`}
+          >
+            <span
+              aria-hidden="true"
+              className={`mt-1.5 size-2 shrink-0 rounded-full ${item.read ? "bg-transparent" : "bg-primary"}`}
+            />
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className={`text-sm leading-snug ${item.read ? "text-text-muted" : "font-medium text-text"}`}>
+                {item.message}
+              </span>
+              <span className="text-xs text-text-subtle">{relativeTime(item.createdAt, i18n.language)}</span>
+            </span>
+            {!item.read && <span className="sr-only">{t("notifications.unread")}</span>}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
