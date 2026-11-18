@@ -867,6 +867,18 @@
 - **Commit:** 6ee48e6
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-076
+
+- **Ngày:** 2026-11-18
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5, Opus 5.5 cho phần lên kế hoạch)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Lập kế hoạch rồi triển khai UC-HT-08 "Bộ của tôi" (thêm, đổi tên, xóa bộ từ vựng cá nhân) theo đặc tả module HT, làm ở nhánh riêng tách từ nhánh onboarding và ôn tập hằng ngày
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../vocab/controller/MyDeckController.java`, `vocab/service/MyDeckServiceImpl.java:create`, `:rename`, `:delete`, `:validName`, `vocab/repository/MyDeckRepository.java:findAll`, `:existsName`, `:softDelete`; `frontend/src/features/vocab/myDecks.ts:myDeckFailure`, `myDecksApi.ts`, `myDecksHooks.ts`, `components/mine/MyDecksPanel.tsx`, `MyDeckDialog.tsx`, `MyDeckDeleteDialog.tsx`, `MyDeckCard.tsx`, `pages/VocabPage.tsx` (tab thứ ba); test `MyDeckApiIntegrationTest`, `myDecks.test.ts`, `myDecksI18n.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** AI đọc đặc tả và phát hiện spec chỉ quản lý tên bộ, không có use case nào thêm thẻ vào bộ cá nhân nên bộ mới tạo là bộ trống; sinh viên đồng ý làm đúng phạm vi UC-HT-08 và ghi rõ giới hạn đó trong tài liệu. Sinh viên duyệt các quyết định: tab thứ ba "Bộ của tôi" ở trang Từ vựng, xóa mềm giữ thẻ và tiến độ, tên 1 đến 100 ký tự không phân biệt hoa thường, không giới hạn số bộ, cho cả gói Free và Pro, chưa làm trang chi tiết bộ; sinh viên yêu cầu tách nhánh từ nhánh onboarding và ôn tập hằng ngày thay vì từ main (AI đề xuất main). AI tự chọn dùng lại `ConflictException` (409) cho tên trùng theo cách bộ của giáo viên đã làm và bắt thêm vi phạm chỉ mục duy nhất khi hai yêu cầu chạy cùng lúc. Chạy thật trên trình duyệt: trạng thái trống, tên trống, tên trùng khác hoa thường, tạo, đổi tên, xóa; thẻ của bộ đã xóa rời hàng đợi ôn. Chưa có test giao diện cho hộp thoại và tab nên các AC-HT-55 đến 57 ở mức "một phần".
+- **Commit:** 593071c
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
