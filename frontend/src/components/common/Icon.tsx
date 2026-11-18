@@ -127,6 +127,14 @@ import {
   Wrench,
   X,
   Zap,
+  Crosshair,
+  Minus,
+  SkipBack,
+  SkipForward,
+  Repeat1,
+  ListVideo,
+  Scissors,
+  Merge,
 } from "lucide-react";
 
 /** Chỉ các icon liệt kê ở đây được đóng gói; thêm icon mới thì import ở trên và thêm vào bảng. */
@@ -257,6 +265,14 @@ const ICONS: Record<string, LucideIcon> = {
   "wand-sparkles": WandSparkles,
   "x": X,
   "zap": Zap,
+  "crosshair": Crosshair,
+  "minus": Minus,
+  "skip-back": SkipBack,
+  "skip-forward": SkipForward,
+  "repeat-1": Repeat1,
+  "list-video": ListVideo,
+  "scissors": Scissors,
+  "merge": Merge,
 };
 
 

@@ -26,9 +26,10 @@ RUN cp target/*.jar /build/app.jar
 # "libstdc++.so.6: No such file or directory" khi chấm Shadowing).
 FROM eclipse-temurin:21-jre-jammy AS runtime
 
-# curl cho HEALTHCHECK; libstdc++6, libssl3, ca-certificates cho Speech SDK.
+# curl cho HEALTHCHECK; libstdc++6, libssl3, ca-certificates cho Speech SDK;
+# espeak-ng tạo IPA Mỹ khi giáo viên tạo bài từ YouTube.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends curl libstdc++6 libssl3 ca-certificates \
+ && apt-get install -y --no-install-recommends curl libstdc++6 libssl3 ca-certificates espeak-ng \
  && rm -rf /var/lib/apt/lists/*
 
 # Chạy bằng user thường, không phải root.

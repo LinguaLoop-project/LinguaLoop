@@ -70,4 +70,8 @@ public class Lesson extends BaseEntity {
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
+    /** Lần xuất bản đầu tiên; không xóa khi gỡ xuất bản. Còn trống thì giáo viên tách, gộp câu được (BR-BH-13). */
+    @Column(name = "first_published_at")
+    private Instant firstPublishedAt;
 }

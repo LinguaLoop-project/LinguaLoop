@@ -11,7 +11,8 @@ public enum AuditAction {
     PUBLISH,
     UNPUBLISH,
     RESOLVE,
-    REJECT;
+    REJECT,
+    RESTORE;
 
     /** Giá trị lưu trong DB. */
     public String value() {

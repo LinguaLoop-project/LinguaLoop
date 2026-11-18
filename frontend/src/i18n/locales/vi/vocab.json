@@ -240,6 +240,7 @@
   },
   "manage": {
     "title": "Bộ thẻ từ vựng",
+    "adminTitle": "Bộ thẻ đã xuất bản",
     "create": "Tạo bộ thẻ mới",
     "searchPlaceholder": "Tìm theo tên bộ",
     "category": "Danh mục",

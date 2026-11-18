@@ -47,6 +47,10 @@ const TeacherDeckCreatePage = lazy(() => import("@/features/vocab/pages/teacher/
 const TeacherDeckDetailPage = lazy(() => import("@/features/vocab/pages/teacher/TeacherDeckDetailPage"));
 const AdminDeckListPage = lazy(() => import("@/features/vocab/pages/admin/AdminDeckListPage"));
 const AdminDeckDetailPage = lazy(() => import("@/features/vocab/pages/admin/AdminDeckDetailPage"));
+const TeacherLessonListPage = lazy(() => import("@/features/lesson/pages/teacher/TeacherLessonListPage"));
+const TeacherLessonDetailPage = lazy(() => import("@/features/lesson/pages/teacher/TeacherLessonDetailPage"));
+const AdminLessonListPage = lazy(() => import("@/features/lesson/pages/admin/AdminLessonListPage"));
+const AdminLessonDetailPage = lazy(() => import("@/features/lesson/pages/admin/AdminLessonDetailPage"));
 
 const TeacherReportListPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportListPage"));
 const TeacherReportDetailPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportDetailPage"));
@@ -237,15 +241,25 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "lessons",
-          element: <PlaceholderPage pageKey="teacher.lessons" />,
+          element: <TeacherLessonListPage />,
+        },
+        {
+          // tạo bài nằm ngay trên trang danh sách
+          path: "lessons/new",
+          element: <Navigate to="/teacher/lessons" replace />,
         },
         {
           path: "lessons/:id",
-          element: <PlaceholderPage pageKey="teacher.lessonDetail" />,
+          element: <TeacherLessonDetailPage />,
+        },
+        {
+          path: "lessons/:id/sentences",
+          // sửa câu nằm ngay trên trang bài học
+          element: <Navigate to=".." relative="path" replace />,
         },
         {
           path: "compose",
-          element: <PlaceholderPage pageKey="teacher.compose" />,
+          element: <Navigate to="/teacher/lessons" replace />,
         },
         {
           path: "decks",
@@ -312,6 +326,14 @@ const getRoutesConfig = (): RouteObject[] => {
         {
           path: "republish/:id",
           element: <AdminRepublishDetailPage />,
+        },
+        {
+          path: "lessons",
+          element: <AdminLessonListPage />,
+        },
+        {
+          path: "lessons/:id",
+          element: <AdminLessonDetailPage />,
         },
         {
           path: "decks",

@@ -11,6 +11,7 @@ import viPractice from "./locales/vi/practice.json";
 import viDictionary from "./locales/vi/dictionary.json";
 import viVocab from "./locales/vi/vocab.json";
 import viReport from "./locales/vi/report.json";
+import viLessonManage from "./locales/vi/lessonManage.json";
 import enCommon from "./locales/en/common.json";
 import enAuth from "./locales/en/auth.json";
 import enLayout from "./locales/en/layout.json";
@@ -23,6 +24,7 @@ import enVocab from "./locales/en/vocab.json";
 import viReview from "./locales/vi/review.json";
 import enReview from "./locales/en/review.json";
 import enReport from "./locales/en/report.json";
+import enLessonManage from "./locales/en/lessonManage.json";
 
 export const SUPPORTED_LANGUAGES = ["vi", "en"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
@@ -57,14 +59,14 @@ export function setLanguage(language: Language): Promise<unknown> {
 
 void i18n.use(initReactI18next).init({
   resources: {
-    vi: { common: viCommon, auth: viAuth, layout: viLayout, pages: viPages, dictation: viDictation, mywords: viMywords, practice: viPractice, dictionary: viDictionary, vocab: viVocab, review: viReview, report: viReport },
-    en: { common: enCommon, auth: enAuth, layout: enLayout, pages: enPages, dictation: enDictation, mywords: enMywords, practice: enPractice, dictionary: enDictionary, vocab: enVocab, review: enReview, report: enReport },
+    vi: { common: viCommon, auth: viAuth, layout: viLayout, pages: viPages, dictation: viDictation, mywords: viMywords, practice: viPractice, dictionary: viDictionary, vocab: viVocab, review: viReview, report: viReport, lessonManage: viLessonManage },
+    en: { common: enCommon, auth: enAuth, layout: enLayout, pages: enPages, dictation: enDictation, mywords: enMywords, practice: enPractice, dictionary: enDictionary, vocab: enVocab, review: enReview, report: enReport, lessonManage: enLessonManage },
   },
   lng: readStoredLanguage(),
   fallbackLng: DEFAULT_LANGUAGE,
   supportedLngs: SUPPORTED_LANGUAGES,
   defaultNS: "common",
-  ns: ["common", "auth", "layout", "pages", "dictation", "mywords", "dictionary", "practice", "vocab", "review"],
+  ns: ["common", "auth", "layout", "pages", "dictation", "mywords", "dictionary", "practice", "vocab", "review", "lessonManage"],
   interpolation: { escapeValue: false }, // React đã escape
   returnNull: false,
 });

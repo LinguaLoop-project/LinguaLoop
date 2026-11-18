@@ -254,6 +254,7 @@
   },
   "manage": {
     "title": "Vocabulary decks",
+    "adminTitle": "Published decks",
     "create": "Create new deck",
     "searchPlaceholder": "Search by deck name",
     "category": "Category",
