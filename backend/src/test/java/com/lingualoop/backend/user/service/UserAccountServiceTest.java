@@ -151,7 +151,7 @@ class UserAccountServiceTest {
     }
 
     @Test
-    void saveLearningProfile_termsNotAcceptedYet_rejectsAndStoresNothing() {
+    void saveLearningProfile_termsNotAcceptedYet_rejectsAndStoresNothing_AC_TK_50() {
         UserAccountView google = newGoogleStudent();
 
         assertThatThrownBy(() -> service.saveLearningProfile(google.id(), "Linh", 15, "vi", "Asia/Ho_Chi_Minh", false))
@@ -188,7 +188,7 @@ class UserAccountServiceTest {
     }
 
     @Test
-    void saveLearningProfile_invalidFields_reportTheRightField() {
+    void saveLearningProfile_invalidFields_reportTheRightField_AC_TK_49() {
         UserAccountView local = service.createLocal("lp-" + UUID.randomUUID() + "@x.com", "Lan", "hash");
         UUID id = local.id();
 
@@ -206,7 +206,7 @@ class UserAccountServiceTest {
     }
 
     @Test
-    void saveLearningProfile_nameWith50Chars_isAccepted() {
+    void saveLearningProfile_nameWith50Chars_isAccepted_AC_TK_49() {
         UserAccountView local = service.createLocal("lp-" + UUID.randomUUID() + "@x.com", "Lan", "hash");
 
         UserAccountView saved = service.saveLearningProfile(local.id(), "N".repeat(50), 15, "vi", "Asia/Ho_Chi_Minh", true);

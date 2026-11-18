@@ -81,7 +81,7 @@ class UserControllerIntegrationTest {
     }
 
     @Test
-    void saveLearningProfile_valid_marksOnboardedAndReturnsProfile() throws Exception {
+    void saveLearningProfile_valid_marksOnboardedAndReturnsProfile_AC_TK_47() throws Exception {
         UserAccountView account = userAccountService.createFromGoogle(
                 "sub-" + UUID.randomUUID(), "lp-" + UUID.randomUUID() + "@x.com", "Linh", null);
 
@@ -101,7 +101,7 @@ class UserControllerIntegrationTest {
     }
 
     @Test
-    void saveLearningProfile_blankName_returns400WithFieldError() throws Exception {
+    void saveLearningProfile_blankName_returns400WithFieldError_AC_TK_49() throws Exception {
         UserAccountView account = userAccountService.createLocal(
                 "lp-" + UUID.randomUUID() + "@x.com", "Minh", "bcrypt-hash");
 
@@ -117,7 +117,7 @@ class UserControllerIntegrationTest {
     }
 
     @Test
-    void saveLearningProfile_invalidMinutes_returns400() throws Exception {
+    void saveLearningProfile_invalidMinutes_returns400_AC_TK_49() throws Exception {
         UserAccountView account = userAccountService.createLocal(
                 "lp-" + UUID.randomUUID() + "@x.com", "Minh", "bcrypt-hash");
 
@@ -132,7 +132,7 @@ class UserControllerIntegrationTest {
     }
 
     @Test
-    void saveLearningProfile_googleUserWithoutTerms_returns400() throws Exception {
+    void saveLearningProfile_googleUserWithoutTerms_returns400_AC_TK_50() throws Exception {
         UserAccountView account = userAccountService.createFromGoogle(
                 "sub-" + UUID.randomUUID(), "lp-" + UUID.randomUUID() + "@x.com", "Linh", null);
 

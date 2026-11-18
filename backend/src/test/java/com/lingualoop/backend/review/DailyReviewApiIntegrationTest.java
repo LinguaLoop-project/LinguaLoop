@@ -143,7 +143,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void plan_picksLowestScoreFirst_thenTheEarlierAddedSentence_BR_HT_20() throws Exception {
+    void plan_picksLowestScoreFirst_thenTheEarlierAddedSentence_BR_HT_20_AC_HT_24() throws Exception {
         UUID user = student(15);
         UUID lesson = lesson(false, "published", false);
         UUID low = sentenceIn(lesson, 0);
@@ -161,7 +161,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void plan_aModeWithFewerSentences_isNotToppedUpFromTheOther_BR_HT_20() throws Exception {
+    void plan_aModeWithFewerSentences_isNotToppedUpFromTheOther_BR_HT_20_AC_HT_25() throws Exception {
         UUID user = student(20);
         UUID lesson = lesson(false, "published", false);
         list(user, sentenceIn(lesson, 0), "dictation", "10", "1 hour");
@@ -176,7 +176,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void plan_leavesOutDraftDeletedAndProSentences_butProLearnersKeepThem_BR_HT_20() throws Exception {
+    void plan_leavesOutDraftDeletedAndProSentences_butProLearnersKeepThem_BR_HT_20_AC_HT_26() throws Exception {
         UUID free = student(15);
         UUID pro = users.newProUser();
         UUID ok = sentenceIn(lesson(false, "published", false), 0);
@@ -240,7 +240,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void plan_cardsReviewedTodayAreDeductedFromTheDailyQuota_BR_HT_24() throws Exception {
+    void plan_cardsReviewedTodayAreDeductedFromTheDailyQuota_BR_HT_24_AC_HT_59() throws Exception {
         UUID user = student(15);
         List<UUID> cards = dueCards(user, 35);
         answered(user, cards.subList(0, 12), "review", "10 minutes");
@@ -253,7 +253,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void plan_quotaReachedWithMoreCardsDue_showsDoneAndSuggestionsButKeepsAMoreRound_BR_HT_24() throws Exception {
+    void plan_quotaReachedWithMoreCardsDue_showsDoneAndSuggestionsButKeepsAMoreRound_AC_HT_58_AC_HT_60() throws Exception {
         UUID user = student(15);
         List<UUID> cards = dueCards(user, 25);
         answered(user, cards.subList(0, 20), "review", "10 minutes");
@@ -280,7 +280,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void plan_onlyReviewAnswersCount_notLearningAndNotYesterday_andACardCountsOnce() throws Exception {
+    void plan_onlyReviewAnswersCount_notLearningAndNotYesterday_andACardCountsOnce_AC_HT_59() throws Exception {
         UUID user = student(15);
         List<UUID> cards = dueCards(user, 30);
         answered(user, cards.subList(0, 5), "learn", "10 minutes");
@@ -293,7 +293,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void plan_sentencesReviewedTodayAreDeductedPerMode_BR_HT_24() throws Exception {
+    void plan_sentencesReviewedTodayAreDeductedPerMode_BR_HT_24_AC_HT_59() throws Exception {
         UUID user = student(15);
         UUID lesson = lesson(false, "published", false);
         List<UUID> dictation = new ArrayList<>();
@@ -325,7 +325,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void plan_everythingWithinTheQuotaDone_isAllDoneEvenWithBacklogLeft_BR_HT_24() throws Exception {
+    void plan_everythingWithinTheQuotaDone_isAllDoneEvenWithBacklogLeft_AC_HT_58() throws Exception {
         UUID user = student(10);
         List<UUID> cards = dueCards(user, 30);
         answered(user, cards.subList(0, 15), "review", "10 minutes");
@@ -549,7 +549,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void markReviewed_withoutARecentAttempt_isRefusedAndNothingIsMarked_BR_HT_21() throws Exception {
+    void markReviewed_withoutARecentAttempt_isRefusedAndNothingIsMarked_BR_HT_21_AC_HT_33() throws Exception {
         UUID user = student(15);
         UUID sentence = sentenceIn(lesson(false, "published", false), 0);
         list(user, sentence, "dictation", "10", "2 hours");     // lượt của list() đã cũ hơn 1 giờ
@@ -592,7 +592,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void skip_postponesTheSentenceToTomorrow_withoutCountingItAsReviewed_BR_HT_21() throws Exception {
+    void skip_postponesTheSentenceToTomorrow_withoutCountingItAsReviewed_AC_HT_32_AC_HT_61() throws Exception {
         UUID user = student(15);
         UUID lesson = lesson(false, "published", false);
         UUID lowest = sentenceIn(lesson, 0);
@@ -618,7 +618,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void skip_cameBackTheNextDay_BR_HT_21() throws Exception {
+    void skip_cameBackTheNextDay_AC_HT_61() throws Exception {
         UUID user = student(15);
         UUID sentence = sentenceIn(lesson(false, "published", false), 0);
         list(user, sentence, "dictation", "10", "2 hours");
@@ -633,7 +633,7 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void skip_theOnlyRemainingSentence_letsTheDayFinish_BR_HT_21() throws Exception {
+    void skip_theOnlyRemainingSentence_letsTheDayFinish_AC_HT_61() throws Exception {
         UUID user = student(10);
         UUID sentence = sentenceIn(lesson(false, "published", false), 0);
         list(user, sentence, "shadowing", "10", "2 hours");

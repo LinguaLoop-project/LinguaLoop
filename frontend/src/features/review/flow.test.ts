@@ -8,7 +8,7 @@ const plan = (cardsInPlan: number, sentences: number, cardsMore = cardsInPlan) =
   sentences: new Array<unknown>(sentences).fill(0),
 });
 
-describe("startPhase (UC-HT-05)", () => {
+describe("startPhase (UC-HT-05, AC-HT-37, AC-HT-40, AC-HT-60)", () => {
   it("starts with cards when there are cards due", () => {
     expect(startPhase(plan(20, 4), false)).toBe("cards");
   });
@@ -33,7 +33,7 @@ describe("startPhase (UC-HT-05)", () => {
   });
 });
 
-describe("cardCount", () => {
+describe("cardCount (AC-HT-37, AC-HT-60)", () => {
   it("uses the remaining quota normally and the cards still due in a more round", () => {
     expect(cardCount(plan(8, 0, 20), false)).toBe(8);
     expect(cardCount(plan(8, 0, 20), true)).toBe(20);
