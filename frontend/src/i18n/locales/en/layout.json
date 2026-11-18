@@ -86,7 +86,7 @@
         "dashboard": "Overview",
         "lessons": "Lessons",
         "decks": "Vocabulary decks",
-        "reports": "Reports"
+        "reports": "Content reports"
       }
     },
     "topbar": {
@@ -102,7 +102,7 @@
         "lessons": "Lessons",
         "compose": "Create new lesson",
         "decks": "Vocabulary decks",
-        "reports": "Reports",
+        "reports": "Content reports",
         "settings": "Settings",
         "lessonDetail": "Lesson details",
         "deckDetail": "Deck details",
@@ -122,12 +122,13 @@
       "items": {
         "dashboard": "Overview",
         "users": "Users",
-        "reports": "Content error reports",
-        "decks": "Public deck review",
+        "reports": "Content reports",
+        "decks": "Vocabulary decks",
         "audit": "Content log",
         "limits": "Plans & Quotas",
         "subs": "Pro subscriptions",
-        "errors": "Error categories"
+        "errors": "Error categories",
+        "republish": "Republish requests"
       }
     },
     "topbar": {
@@ -141,8 +142,8 @@
       "titles": {
         "overview": "Overview",
         "users": "User management",
-        "reports": "Error report queue",
-        "decks": "Deck review",
+        "reports": "Content reports",
+        "decks": "Vocabulary decks",
         "audit": "Content log",
         "limits": "Plans & Quotas",
         "subs": "Pro subscriptions",
@@ -156,7 +157,8 @@
         "analytics": "Analytics & Statistics",
         "userDetail": "User details",
         "reportDetail": "Error report details",
-        "deckDetail": "Deck review details"
+        "deckDetail": "Deck review details",
+        "republish": "Republish requests"
       }
     }
   },
@@ -213,5 +215,15 @@
   "dev": {
     "title": "Dev tools: switch Free/Pro, reset today's usage",
     "resetUsage": "Reset today's usage"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAll": "Mark all as read",
+    "empty": "No notifications yet",
+    "loading": "Loading…",
+    "error": "Couldn't load notifications.",
+    "retry": "Retry",
+    "unread": "Unread",
+    "ariaUnread": "Notifications, {{count}} unread"
   }
 }

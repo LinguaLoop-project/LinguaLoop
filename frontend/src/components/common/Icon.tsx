@@ -1,6 +1,18 @@
 import type { ReactNode } from "react";
 import {
   type LucideIcon,
+  Bell,
+  CheckCheck,
+  Hourglass,
+  Shield,
+  CircleX,
+  Shapes,
+  Tag,
+  ArrowUpDown,
+  ClockAlert,
+  UserX,
+  ShieldAlert,
+  Pencil,
   Menu,
   Moon,
   Music2,
@@ -119,6 +131,18 @@ import {
 
 /** Chỉ các icon liệt kê ở đây được đóng gói; thêm icon mới thì import ở trên và thêm vào bảng. */
 const ICONS: Record<string, LucideIcon> = {
+  "bell": Bell,
+  "check-check": CheckCheck,
+  "hourglass": Hourglass,
+  "shield": Shield,
+  "circle-x": CircleX,
+  "shapes": Shapes,
+  "tag": Tag,
+  "arrow-up-down": ArrowUpDown,
+  "clock-alert": ClockAlert,
+  "user-x": UserX,
+  "shield-alert": ShieldAlert,
+  "pencil": Pencil,
   "menu": Menu,
   "moon": Moon,
   "music-2": Music2,

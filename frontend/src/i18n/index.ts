@@ -10,6 +10,7 @@ import viMywords from "./locales/vi/mywords.json";
 import viPractice from "./locales/vi/practice.json";
 import viDictionary from "./locales/vi/dictionary.json";
 import viVocab from "./locales/vi/vocab.json";
+import viReport from "./locales/vi/report.json";
 import enCommon from "./locales/en/common.json";
 import enAuth from "./locales/en/auth.json";
 import enLayout from "./locales/en/layout.json";
@@ -19,6 +20,7 @@ import enMywords from "./locales/en/mywords.json";
 import enPractice from "./locales/en/practice.json";
 import enDictionary from "./locales/en/dictionary.json";
 import enVocab from "./locales/en/vocab.json";
+import enReport from "./locales/en/report.json";
 
 export const SUPPORTED_LANGUAGES = ["vi", "en"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
@@ -53,8 +55,8 @@ export function setLanguage(language: Language): Promise<unknown> {
 
 void i18n.use(initReactI18next).init({
   resources: {
-    vi: { common: viCommon, auth: viAuth, layout: viLayout, pages: viPages, dictation: viDictation, mywords: viMywords, practice: viPractice, dictionary: viDictionary, vocab: viVocab },
-    en: { common: enCommon, auth: enAuth, layout: enLayout, pages: enPages, dictation: enDictation, mywords: enMywords, practice: enPractice, dictionary: enDictionary, vocab: enVocab },
+    vi: { common: viCommon, auth: viAuth, layout: viLayout, pages: viPages, dictation: viDictation, mywords: viMywords, practice: viPractice, dictionary: viDictionary, vocab: viVocab, report: viReport },
+    en: { common: enCommon, auth: enAuth, layout: enLayout, pages: enPages, dictation: enDictation, mywords: enMywords, practice: enPractice, dictionary: enDictionary, vocab: enVocab, report: enReport },
   },
   lng: readStoredLanguage(),
   fallbackLng: DEFAULT_LANGUAGE,

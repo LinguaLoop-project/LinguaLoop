@@ -9,11 +9,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.lingualoop.backend.lesson.entity.Lesson;
+
+import jakarta.persistence.LockModeType;
 
 @Repository
 public interface LessonRepository extends JpaRepository<Lesson, UUID>, JpaSpecificationExecutor<Lesson> {
@@ -140,4 +143,12 @@ public interface LessonRepository extends JpaRepository<Lesson, UUID>, JpaSpecif
             GROUP BY s.lesson_id
             ORDER BY max(a.created_at) DESC""")
     List<UUID> findRecentLessonIds(@Param("userId") UUID userId, Pageable pageable);
+
+    /**
+     * Bài thư viện chưa xóa, khóa dòng tới hết transaction để giáo viên không sửa câu giữa lúc kiểm điều kiện và lúc
+     * đổi trạng thái theo quyết định xử lý báo cáo (UC-XL-04, UC-XL-05).
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT l FROM Lesson l WHERE l.id = :id AND l.kind = 'library' AND l.deletedAt IS NULL")
+    Optional<Lesson> findLibraryForUpdate(@Param("id") UUID id);
 }

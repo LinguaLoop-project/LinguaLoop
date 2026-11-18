@@ -332,10 +332,15 @@
       "unpublishBody": "Students will no longer see \"{{name}}\", but their progress is kept.",
       "reason": "Reason (sent to the deck owner)",
       "reasonRequired": "Please enter a reason",
+      "adminUnpublishNote": "The deck will be marked \"Taken down by an admin\": the teacher must send a request for admin approval before republishing. Open offensive reports about its cards are closed too.",
       "reasonTooLong": "Reason can be at most 500 characters",
       "deleteBody": "Delete \"{{name}}\" ({{status}}, {{cards}} cards)?",
       "deletePublishedNote": "This deck is published: students will no longer see it.",
       "retentionNote": "The deck is kept for 30 days and can be restored during that time.",
+      "offensiveCount_one": "{{count}} open offensive report about this deck's cards will be closed too.",
+      "offensiveCount_other": "{{count}} open offensive reports about this deck's cards will be closed too.",
+      "pendingRequestNote": "The republish request waiting for admin approval will be cancelled; send it again after restoring.",
+      "takenDownRestoreNote": "The deck is marked \"Taken down by an admin\": republishing needs admin approval.",
       "restoreBody": "\"{{name}}\" will come back as a Draft; publish it again for students to see it.",
       "newName": "New deck name",
       "restoreNameTaken": "You already have a deck with this name, please enter a new name"
@@ -355,7 +360,8 @@
       "alreadyRestored": "This deck has already been restored",
       "restoreExpired": "This deck was deleted more than 30 days ago and can't be restored",
       "notFound": "Deck not found",
-      "forbidden": "You don't have permission to do this on the deck"
+      "forbidden": "You don't have permission to do this on the deck",
+      "reviewRequired": "This deck was taken down by an admin. Open the deck and send a republish request."
     },
     "groupCount_one": "{{count}} group",
     "groupCount_other": "{{count}} groups",

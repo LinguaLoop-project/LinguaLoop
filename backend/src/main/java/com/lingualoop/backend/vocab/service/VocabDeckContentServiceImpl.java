@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
+import com.lingualoop.backend.common.exception.FieldValidationException;
 import com.lingualoop.backend.common.exception.ForbiddenException;
 import com.lingualoop.backend.vocab.dto.CardImagesView;
 import com.lingualoop.backend.vocab.dto.CardImportView;
@@ -40,6 +41,8 @@ import com.lingualoop.backend.vocab.service.CardSheetReader.SheetRow;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import com.lingualoop.backend.report.service.ReportCleanupService;
+
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -68,6 +71,7 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     private final CardImages images;
     private final CardAudioUrls audio;
     private final Clock clock;
+    private final ReportCleanupService reportCleanup;
 
     // ------------------------------------------------------------------ nhóm thẻ (UC-NT-01, 02, 03)
 
@@ -112,6 +116,8 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
         Instant now = now();
         repository.softDeleteGroup(groupId, now);
         repository.touchDeck(deckId, now);
+        // Báo cáo về các thẻ của nhóm được tự đóng (UC-XL-06 nhánh 1a).
+        reportCleanup.closeForDeletedGroup(groupId);
     }
 
     // ------------------------------------------------------------------ thẻ (UC-NT-04, 05, 06)
@@ -157,6 +163,32 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
 
     @Override
     @Transactional
+    public String applyReportFix(UUID teacherId, UUID cardId, String column, String value) {
+        VocabDeckContentRepository.CardLocation at = repository.findCardLocation(cardId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_CARD_NOT_FOUND));
+        DeckManageView.Card c = repository.findCard(at.deckId(), at.groupId(), cardId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_CARD_NOT_FOUND));
+        CardRequest current = new CardRequest(c.word(), c.meaningVi(), c.ipaUk(), c.ipaUs(), c.pos(),
+                c.definitionEn(), c.definitionVi(), c.exampleEn(), c.exampleVi());
+        CardFix fix = CardFix.of(column, current, value);
+        for (ConstraintViolation<CardRequest> v : validator.validate(fix.request())) {
+            if (v.getPropertyPath().toString().equals(fix.property())) {
+                throw new FieldValidationException(fix.property(),
+                        v.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName());
+            }
+        }
+        updateCard(teacherId, at.deckId(), at.groupId(), cardId, fix.request());
+        return fix.oldValue();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<String> cardImageUrl(UUID cardId) {
+        return repository.findCardImageKey(cardId).map(images::url);
+    }
+
+    @Override
+    @Transactional
     public void deleteCard(UUID teacherId, UUID deckId, UUID groupId, UUID cardId) {
         DeckStateRow deck = lockTeacherDeck(teacherId, deckId);
         card(deckId, groupId, cardId);
@@ -166,6 +198,7 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
         Instant now = now();
         repository.softDeleteCard(cardId, now);
         repository.touchDeck(deckId, now);
+        reportCleanup.closeForDeletedCard(cardId);
     }
 
     /**

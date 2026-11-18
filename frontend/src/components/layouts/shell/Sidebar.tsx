@@ -5,6 +5,7 @@ import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
 import { useReviewEntries } from "@/features/practice";
+import { type ReportBadgeKind, useReportBadge } from "@/features/report";
 import { useAiEnergy } from "@/hooks/useAiEnergy";
 import type { NavItem, NavTone, ShellConfig } from "./shellConfig";
 
@@ -36,6 +37,14 @@ const TONE: Record<NavTone, { icon: string; on: string; tag: string }> = {
 const ON_BAR =
   "text-text font-semibold before:content-[''] before:absolute before:-left-3.5 before:top-2.5 before:bottom-2.5 before:w-1 before:rounded-r-[4px]";
 
+/** Mục menu có số đếm từ feature báo cáo; null với các mục khác. */
+function reportBadgeKind(item: NavItem, config: ShellConfig): ReportBadgeKind | null {
+  if (item.id === "republish" && config.homePath.startsWith("/admin")) return "republish";
+  if (item.id !== "reports") return null;
+  if (config.homePath.startsWith("/admin")) return "admin";
+  return config.homePath.startsWith("/teacher") ? "teacher" : null;
+}
+
 function Item({ item, config, collapsed, onNavigate }: { item: NavItem; config: ShellConfig; collapsed: boolean; onNavigate: () => void }) {
   const { t } = useTranslation("layout");
   const label = t(item.labelKey);
@@ -44,7 +53,10 @@ function Item({ item, config, collapsed, onNavigate }: { item: NavItem; config: 
   // "Từ & câu đã lưu": số câu đang chờ ôn của học viên (cả hai chế độ), lấy từ cùng truy vấn với trang đó nên luôn khớp.
   const isMyWords = item.id === "mywords" && config.homePath.startsWith("/student");
   const reviewCount = useReviewEntries(undefined, undefined, isMyWords).data?.length;
-  const badge = isMyWords ? (reviewCount != null && reviewCount > 99 ? "99+" : reviewCount) : item.badge;
+  // "Báo cáo nội dung": số báo cáo đang chờ chính vai trò xử lý; "Duyệt xuất bản lại": số yêu cầu đang chờ duyệt.
+  const reportCount = useReportBadge(reportBadgeKind(item, config));
+  const count = isMyWords ? reviewCount : reportCount;
+  const badge = count == null ? item.badge : count > 99 ? "99+" : count;
   const hasBadge = badge != null && badge !== 0;
 
   return (

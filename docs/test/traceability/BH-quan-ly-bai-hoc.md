@@ -1,8 +1,8 @@
 # Truy vết AC → test: BH-quan-ly-bai-hoc
 
-> Nguồn AC: `docs/srs/BH-quan-ly-bai-hoc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. Quay lại [mục lục](../TRACEABILITY-AC-TEST.md).
+> Nguồn AC: `docs/srs/BH-quan-ly-bai-hoc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 75 AC, 0 đã có test, 0 một phần, 75 thiếu.
+Tổng hợp: 81 AC, 0 đã có test, 0 một phần, 81 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -55,6 +55,9 @@ Tổng hợp: 75 AC, 0 đã có test, 0 một phần, 75 thiếu.
 | AC-BH-47 | Bài của giáo viên khác hoặc đã xuất bản | UC-BH-06 |  |  | Thiếu |
 | AC-BH-48 | Hủy xuất bản | UC-BH-06 |  |  | Thiếu |
 | AC-BH-49 | Mất kết nối khi xuất bản | UC-BH-06 |  |  | Thiếu |
+| AC-BH-76 | Gửi duyệt xuất bản lại bài bị quản trị viên gỡ | UC-BH-06 |  |  | Thiếu |
+| AC-BH-77 | Đã có yêu cầu đang chờ duyệt | UC-BH-06 |  |  | Thiếu |
+| AC-BH-81 | Gửi duyệt bài bị gỡ tay kèm ghi chú | UC-BH-06 | D, A |  | Thiếu |
 | AC-BH-50 | Giáo viên gỡ bài của mình | UC-BH-07 |  |  | Thiếu |
 | AC-BH-51 | Quản trị viên gỡ bài kèm lý do | UC-BH-07 |  |  | Thiếu |
 | AC-BH-52 | Gỡ bài của người khác | UC-BH-07 |  |  | Thiếu |
@@ -62,18 +65,21 @@ Tổng hợp: 75 AC, 0 đã có test, 0 một phần, 75 thiếu.
 | AC-BH-54 | Quản trị viên chưa nhập lý do | UC-BH-07 |  |  | Thiếu |
 | AC-BH-55 | Hủy gỡ xuất bản | UC-BH-07 |  |  | Thiếu |
 | AC-BH-56 | Mất kết nối khi gỡ | UC-BH-07 |  |  | Thiếu |
+| AC-BH-80 | Quản trị viên gỡ tay đóng báo cáo Phản cảm của bài | UC-BH-07 | D |  | Thiếu |
 | AC-BH-57 | Xóa bài Nháp | UC-BH-08 |  |  | Thiếu |
 | AC-BH-58 | Xóa bài đã xuất bản | UC-BH-08 |  |  | Thiếu |
 | AC-BH-59 | Xóa bài có báo cáo đang mở | UC-BH-08 |  |  | Thiếu |
 | AC-BH-60 | Xóa bài của giáo viên khác | UC-BH-08 |  |  | Thiếu |
 | AC-BH-61 | Hủy xóa | UC-BH-08 |  |  | Thiếu |
 | AC-BH-62 | Mất kết nối khi xóa | UC-BH-08 |  |  | Thiếu |
+| AC-BH-78 | Xóa bài đang chờ duyệt xuất bản lại | UC-BH-08 |  |  | Thiếu |
 | AC-BH-63 | Khôi phục thành công | UC-BH-09 |  |  | Thiếu |
 | AC-BH-64 | Tiêu đề bị trùng khi khôi phục | UC-BH-09 |  |  | Thiếu |
 | AC-BH-65 | Bài quá hạn khôi phục | UC-BH-09 |  |  | Thiếu |
 | AC-BH-66 | Bài đã được khôi phục ở cửa sổ khác | UC-BH-09 |  |  | Thiếu |
 | AC-BH-67 | Hủy khôi phục | UC-BH-09 |  |  | Thiếu |
 | AC-BH-68 | Mất kết nối khi khôi phục | UC-BH-09 |  |  | Thiếu |
+| AC-BH-79 | Khôi phục bài bị quản trị viên gỡ vẫn giữ dấu | UC-BH-09 |  |  | Thiếu |
 | AC-BH-69 | Tạo lại gợi ý cho một câu | UC-BH-10 |  |  | Thiếu |
 | AC-BH-70 | Điền cho toàn bài, chỉ ô còn trống | UC-BH-10 |  |  | Thiếu |
 | AC-BH-71 | Ghi đè cần xác nhận | UC-BH-10 |  |  | Thiếu |

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ReportButton } from "@/features/report";
 import { answerCard, firstOpenRound, isRoundDone, nextCard, roundScore, roundsOf, startRound } from "../../learn";
 import type { AnswerDraft, LearnCard, LearnMode } from "../../types";
 import ChoiceView from "./ChoiceView";
@@ -94,6 +95,24 @@ export default function LearnSession({ mode, cards, partNumber, nextPartHref, de
       {mode === "guess" && <GuessView key={key} {...viewProps} />}
       {mode === "flashcard" && <FlashView key={key} {...viewProps} />}
       {(mode === "quiz" || mode === "reverse_quiz") && <ChoiceView key={key} mode={mode} {...viewProps} />}
+      {/* Báo cáo lỗi của thẻ đang học (UC-BC-01); giá trị hiện tại để chặn bản sửa giống hệt (BR-BC-06). */}
+      <div className="mt-3 flex justify-end">
+        <ReportButton
+          targetType="card"
+          targetId={card.id}
+          label={card.word}
+          current={{
+            word: card.word,
+            ipa_us: card.ipaUs,
+            ipa_uk: card.ipaUk,
+            meaning_vi: card.meaningVi,
+            definition_en: card.definitionEn,
+            definition_vi: card.definitionVi,
+            example_en: card.exampleEn,
+            example_vi: card.exampleVi,
+          }}
+        />
+      </div>
     </div>
   );
 }

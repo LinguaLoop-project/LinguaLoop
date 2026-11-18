@@ -1,8 +1,8 @@
 # Truy vết AC → test: QT-quan-tri-tai-khoan
 
-> Nguồn AC: `docs/srs/QT-quan-tri-tai-khoan/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng`. Quay lại [mục lục](../TRACEABILITY-AC-TEST.md).
+> Nguồn AC: `docs/srs/QT-quan-tri-tai-khoan/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 45 AC, 0 đã có test, 0 một phần, 45 thiếu.
+Tổng hợp: 46 AC, 0 đã có test, 0 một phần, 46 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -43,6 +43,7 @@ Tổng hợp: 45 AC, 0 đã có test, 0 một phần, 45 thiếu.
 | AC-QT-35 | Trùng tên với nội dung của giáo viên nhận | UC-QT-06 |  |  | Thiếu |
 | AC-QT-36 | Nội dung đã thay đổi chủ | UC-QT-06 |  |  | Thiếu |
 | AC-QT-37 | Mất kết nối khi lưu | UC-QT-06 |  |  | Thiếu |
+| AC-QT-46 | Giao nội dung từ chi tiết báo cáo | UC-QT-06 |  |  | Thiếu |
 | AC-QT-38 | Giao toàn bộ nội dung thành công | UC-QT-07 |  |  | Thiếu |
 | AC-QT-39 | Giao nội dung của giáo viên đang hoạt động rồi đổi vai trò | UC-QT-07 |  |  | Thiếu |
 | AC-QT-40 | Giáo viên không còn nội dung | UC-QT-07 |  |  | Thiếu |

@@ -39,6 +39,9 @@ public enum ErrorCode {
     AUTH_CURRENT_PASSWORD_WRONG(HttpStatus.BAD_REQUEST, "Mật khẩu hiện tại chưa đúng"),
 
     LESSON_PRO_REQUIRED(HttpStatus.FORBIDDEN, "Bạn cần gói Pro để xem nội dung này"),
+    LESSON_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy bài học này"),
+    LESSON_NOT_PUBLISHABLE(HttpStatus.UNPROCESSABLE_CONTENT,
+            "Bài học cần ít nhất một câu và mọi câu đều có bản dịch tiếng Việt"),
 
     DICTIONARY_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy từ này trong từ điển"),
 
@@ -65,6 +68,21 @@ public enum ErrorCode {
     VOCAB_IMPORT_TOO_MANY_ROWS(HttpStatus.UNPROCESSABLE_CONTENT, "Tệp có quá 500 dòng dữ liệu, hãy chia nhỏ tệp"),
     VOCAB_IMPORT_ROWS_INVALID(HttpStatus.UNPROCESSABLE_CONTENT,
             "Một số dòng trong tệp chưa hợp lệ, chưa thẻ nào được thêm"),
+
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy báo cáo này"),
+    REPORT_TARGET_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy nội dung"),
+    REPORT_DUPLICATE(HttpStatus.CONFLICT, "Báo cáo trước đó của bạn về nội dung này đang được xem xét"),
+    REPORT_ALREADY_HANDLED(HttpStatus.CONFLICT, "Báo cáo đã được xử lý"),
+    REPORT_NOT_FIXED(HttpStatus.UNPROCESSABLE_CONTENT,
+            "Nội dung chưa được sửa kể từ khi nhận báo cáo; hãy sửa đúng trường hoặc từ chối báo cáo"),
+    REPORT_REVIEW_REQUIRED(HttpStatus.CONFLICT,
+            "Nội dung bị gỡ do báo cáo, cần gửi yêu cầu duyệt xuất bản lại"),
+    REPORT_FIX_UNAVAILABLE(HttpStatus.UNPROCESSABLE_CONTENT, "Báo cáo này không kèm bản sửa đề xuất"),
+    REPORT_TAKEDOWN_NOT_FOUND(HttpStatus.NOT_FOUND, "Nội dung này không bị gỡ do báo cáo"),
+    REPUBLISH_NOT_FIXED(HttpStatus.UNPROCESSABLE_CONTENT,
+            "Còn câu hoặc thẻ bị báo chưa được sửa kể từ khi bị gỡ"),
+    REPUBLISH_PENDING(HttpStatus.CONFLICT, "Đã có yêu cầu xuất bản lại đang chờ duyệt"),
+    REPUBLISH_NOT_FOUND(HttpStatus.NOT_FOUND, "Yêu cầu không còn hiệu lực"),
 
     DICTATION_EASY_UNAVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Câu này chưa có ô nào để điền, hãy chọn mức khác"),
     PRACTICE_SENTENCE_NOT_PRACTICED(HttpStatus.UNPROCESSABLE_ENTITY, "Bạn cần làm câu này ít nhất một lần trước"),

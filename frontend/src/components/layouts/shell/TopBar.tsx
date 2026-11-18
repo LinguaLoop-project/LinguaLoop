@@ -8,8 +8,14 @@ import DevPlanSwitch from "@/features/subscription/components/DevPlanSwitch";
 import { DEV_TOOLS_ENABLED } from "@/features/subscription/devTools";
 import { DictionarySearchButton } from "@/features/dictionary";
 import { useTheme } from "@/hooks/useTheme";
+import { NotificationBell } from "@/features/user";
 import AccountMenu from "./AccountMenu";
 import type { ShellConfig } from "./shellConfig";
+
+/** Nút tròn 32px trong cụm điều khiển bên phải thanh trên. */
+const GROUP_BUTTON =
+  "grid h-8 w-8 cursor-pointer place-items-center rounded-full text-text-muted transition-colors hover:bg-surface-hover hover:text-text [&>svg]:h-[18px] [&>svg]:w-[18px]";
+const DIVIDER = "mx-0.5 h-5 w-px bg-border";
 
 const PILL =
   "inline-flex h-9 select-none items-center gap-1.5 rounded-full border border-border bg-surface px-3 text-sm font-semibold text-text [&>svg]:h-[18px] [&>svg]:w-[18px]";
@@ -120,13 +126,25 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
       )}
 
       {learner && <DictionarySearchButton />}
-      <span className="max-sm:hidden">
-        <LanguageSwitcher />
-      </span>
-      <Button variant="ghost" iconOnly onClick={toggleTheme} aria-label={t("theme.toggle")} title={isDark ? t("theme.toLight") : t("theme.toDark")}>
-        <Icon name={isDark ? "sun" : "moon"} />
-      </Button>
-      <AccountMenu config={config} />
+      {/* Ngôn ngữ, giao diện, thông báo và tài khoản gom trong một khối thay cho các nút rời. */}
+      <div className="flex items-center gap-0.5 rounded-full border border-border bg-surface p-1 shadow-xs">
+        <span className="flex items-center max-sm:hidden">
+          <LanguageSwitcher variant="bare" />
+          <span aria-hidden="true" className={DIVIDER} />
+        </span>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          aria-label={t("theme.toggle")}
+          title={isDark ? t("theme.toLight") : t("theme.toDark")}
+          className={GROUP_BUTTON}
+        >
+          <Icon name={isDark ? "sun" : "moon"} />
+        </button>
+        <NotificationBell buttonClassName={GROUP_BUTTON} />
+        <span aria-hidden="true" className={DIVIDER} />
+        <AccountMenu config={config} compact />
+      </div>
     </header>
   );
 }

@@ -196,6 +196,21 @@ public class VocabDeckContentRepository {
                 .param("now", Timestamp.from(now)).param("card", cardId).update();
     }
 
+    /** Bộ và nhóm của một thẻ chưa xóa. */
+    public record CardLocation(UUID deckId, UUID groupId) {
+    }
+
+    public Optional<CardLocation> findCardLocation(UUID cardId) {
+        return jdbc.sql("SELECT deck_id, group_id FROM vocab_cards WHERE id = :card AND deleted_at IS NULL")
+                .param("card", cardId).query(CardLocation.class).optional();
+    }
+
+    /** S3 key ảnh của thẻ chưa xóa; rỗng nếu thẻ không có ảnh hoặc đã xóa. */
+    public Optional<String> findCardImageKey(UUID cardId) {
+        return jdbc.sql("SELECT image_url FROM vocab_cards WHERE id = :card AND deleted_at IS NULL AND image_url IS NOT NULL")
+                .param("card", cardId).query(String.class).optional();
+    }
+
     /** Làm mới thời điểm cập nhật của bộ khi nhóm thẻ hoặc thẻ đổi (BR-NT-06, BR-BT-12). */
     public void touchDeck(UUID deckId, Instant now) {
         jdbc.sql("UPDATE vocab_decks SET updated_at = :now WHERE id = :deck")

@@ -22,7 +22,8 @@ const ITEM =
   "flex w-full min-h-10 cursor-pointer items-center gap-2.5 rounded-sm border-0 bg-transparent px-3 text-left text-[15px] transition-colors duration-150 hover:bg-surface-hover";
 
 /** Menu tài khoản dùng chung; mục riêng của từng vai trò lấy từ `config.menu`. */
-export default function AccountMenu({ config }: { config: ShellConfig }) {
+/** `compact`: nút 32px để nằm trong cụm nút của thanh trên. */
+export default function AccountMenu({ config, compact = false }: { config: ShellConfig; compact?: boolean }) {
   const { t } = useTranslation("layout");
   const navigate = useNavigate();
   const { user, handleLogout } = useAuth();
@@ -54,7 +55,9 @@ export default function AccountMenu({ config }: { config: ShellConfig }) {
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="grid h-10 w-10 cursor-pointer select-none place-items-center rounded-full border border-border-strong bg-primary-soft text-sm font-bold text-primary-text"
+        className={`grid cursor-pointer select-none place-items-center rounded-full bg-primary-soft font-bold text-primary-text transition-shadow hover:shadow-[0_0_0_2px_var(--primary-soft)] ${
+          compact ? "h-8 w-8 text-xs" : "h-10 w-10 border border-border-strong text-sm"
+        }`}
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
