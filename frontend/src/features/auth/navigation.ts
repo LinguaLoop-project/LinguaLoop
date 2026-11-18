@@ -12,6 +12,15 @@ export function homePathFor(user: Pick<MeResponse, "role" | "onboarded">): strin
   }
 }
 
+/**
+ * Trả về "/onboarding" khi học viên chưa thiết lập hồ sơ học tập mà đang ở trang khác (BR-TK-12); ngược lại trả `null`.
+ * Giáo viên và quản trị viên không bị ép thiết lập.
+ */
+export function onboardingRedirectFor(user: Pick<MeResponse, "role" | "onboarded">, pathname: string): "/onboarding" | null {
+  if (user.role !== "student" || user.onboarded) return null;
+  return pathname === "/onboarding" ? null : "/onboarding";
+}
+
 /** Vị trí AuthGuard lưu lại khi đẩy người chưa đăng nhập về /auth/login (`location.state.from`). */
 export type FromLocation = { pathname?: string; search?: string; hash?: string };
 

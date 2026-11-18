@@ -1,0 +1,122 @@
+{
+  "loading": "Đang chuẩn bị phiên ôn…",
+  "backToToday": "Về trang Hôm nay",
+  "exit": "Thoát",
+  "stepsLabel": "Các phần của phiên ôn",
+  "next": "Câu tiếp theo",
+  "retry": "Thử lại",
+  "skip": "Bỏ qua câu này",
+  "skipped": "Đã bỏ qua câu này, câu chưa được tính là đã ôn.",
+  "mode": {
+    "dictation": "Nghe chép",
+    "shadowing": "Shadowing"
+  },
+  "today": {
+    "overline": "Hôm nay",
+    "greeting": "Chào {{name}}, hôm nay ôn gì nhé?",
+    "greetingAnon": "Hôm nay ôn gì nhé?",
+    "reviewTitle": "Ôn tập hôm nay",
+    "reviewDesc": "Phiên hôm nay gồm {{cards}} thẻ từ vựng rồi {{sentences}} câu đã lưu, theo mục tiêu mỗi ngày của bạn.",
+    "doneTitle": "Hôm nay bạn đã ôn xong",
+    "doneDesc": "Không còn thẻ hay câu nào cần ôn.",
+    "doneQuota": "Bạn đã ôn đủ định mức hôm nay. Còn {{cards}} thẻ và {{sentences}} câu đến hạn, có thể để ngày mai.",
+    "cardsDone": "thẻ đã ôn",
+    "sentencesDone": "câu đã ôn",
+    "more_other": "Ôn thêm {{count}} thẻ",
+    "cardsDue": "thẻ đến hạn",
+    "sentencesPending": "câu cần ôn",
+    "goal": "mục tiêu mỗi ngày",
+    "minutes": "{{count}} phút",
+    "start": "Ôn tập hôm nay"
+  },
+  "daily": {
+    "title": "Ôn tập hôm nay",
+    "titleMore": "Ôn thêm"
+  },
+  "sentences": {
+    "title": "Ôn câu",
+    "emptyTitle": "Chưa có câu nào cần ôn hôm nay",
+    "allDoneTitle": "Bạn đã ôn hết các câu hôm nay",
+    "emptyDesc": "Câu bạn lưu vào danh sách Câu cần ôn sẽ xuất hiện ở đây. Câu đã ôn hôm nay không được chọn lại.",
+    "backToList": "Về Từ & câu đã lưu"
+  },
+  "steps": {
+    "cards": "Thẻ từ vựng",
+    "sentences": "Câu đã lưu",
+    "sentencesAt": "Câu {{current}}/{{total}}"
+  },
+  "bridge": {
+    "title": "Xong phần thẻ!",
+    "desc_other": "Sang ôn {{count}} câu đã lưu…"
+  },
+  "dictation": {
+    "hint": "Nghe rồi gõ lại cả câu. Đây là lượt làm lại nên không tính vào thống kê điểm yếu.",
+    "listen": "Nghe câu",
+    "listenAgain": "Nghe lại",
+    "empty": "Hãy gõ câu bạn nghe được rồi mới kiểm tra."
+  },
+  "shadowing": {
+    "hint": "Nghe mẫu rồi đọc theo, hệ thống chấm phát âm như một lượt Shadowing thường.",
+    "listen": "Nghe mẫu",
+    "record": "Đọc theo",
+    "stop": "Dừng và chấm",
+    "scoring": "Đang chấm…"
+  },
+  "errors": {
+    "network": "Mất kết nối mạng. Kiểm tra mạng rồi thử lại.",
+    "generic": "Có lỗi xảy ra, bạn thử lại nhé.",
+    "submit": "Chưa nộp được lượt này, bạn thử lại nhé.",
+    "mic": "Chưa dùng được micro. Hãy cho phép trình duyệt truy cập micro rồi thử lại.",
+    "tooShort": "Bản ghi quá ngắn, bạn đọc lại cả câu nhé.",
+    "noSpeech": "Chưa nghe thấy giọng nói trong bản ghi, bạn đọc to hơn rồi thử lại nhé.",
+    "scoringBusy": "Hệ thống chấm phát âm đang bận, bạn thử lại sau ít phút."
+  },
+  "summary": {
+    "doneTitle": "Xong phiên ôn!",
+    "doneSubtitle": "Mọi kết quả đã được lưu.",
+    "exitedTitle": "Đã lưu phần bạn vừa làm",
+    "exitedSubtitle": "Lần sau lập lại danh sách theo dữ liệu mới nhất, những gì đã ôn sẽ không bị tính lại.",
+    "cards": "Thẻ từ vựng",
+    "cardsScore": "Nhớ ngay lần đầu {{right}}/{{total}} thẻ",
+    "cardsNone": "Chưa ôn thẻ nào.",
+    "cardsRedone_other": "{{count}} thẻ phải ôn lại trong lượt",
+    "sentences": "Câu đã lưu",
+    "sentencesScore_other": "Đã ôn {{count}} câu, điểm trung bình {{average}}",
+    "sentencesNone": "Chưa ôn câu nào.",
+    "sentencesSkipped_other": "{{count}} câu bỏ qua, chưa tính là đã ôn",
+    "skipped": "Bỏ qua",
+    "moreCards_other": "Còn {{count}} thẻ đến hạn",
+    "quotaDone": "Bạn đã ôn đủ định mức hôm nay.",
+    "continueCards": "Ôn thêm",
+    "moreSentences": "Ôn thêm",
+    "backToToday": "Về trang Hôm nay"
+  },
+  "empty": {
+    "title": "Hôm nay bạn đã ôn xong",
+    "desc": "Không còn thẻ hay câu nào cần ôn.",
+    "descQuota_other": "Bạn đã ôn đủ định mức hôm nay. Còn {{count}} thẻ đến hạn, có thể ôn thêm hoặc để ngày mai.",
+    "nextDue": "Thẻ kế tiếp đến hạn lúc {{time}}.",
+    "nextNone": "Chưa có thẻ nào được hẹn ôn.",
+    "learnNew": "Học từ mới",
+    "practiceLessons": "Luyện bài học"
+  },
+  "suggest": {
+    "title": "Gợi ý cho mục tiêu {{minutes}} phút hôm nay",
+    "newWords": {
+      "title_other": "Học {{count}} từ mới",
+      "continuing": "Tiếp tục bộ {{deck}} · Phần {{number}}: {{part}}",
+      "starting": "Bắt đầu với bộ {{deck}} · Phần {{number}}: {{part}}",
+      "action": "Học ngay"
+    },
+    "lesson": {
+      "title": "Nghe chép: {{title}}",
+      "meta_other": "Mức {{level}} · {{count}} câu · bài bạn chưa luyện nghe chép",
+      "action": "Luyện ngay"
+    },
+    "shadowing": {
+      "title": "Shadowing: {{title}}",
+      "meta_other": "Mức {{level}} · {{count}} câu · bài bạn chưa đọc theo",
+      "action": "Đọc theo ngay"
+    }
+  }
+}

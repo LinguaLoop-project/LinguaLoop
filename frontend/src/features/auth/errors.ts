@@ -75,7 +75,17 @@ export function errorMessage(error: ApiError): string {
 }
 
 // Tên field của request → khoá nhãn trong auth:fieldLabels
-const FIELD_LABEL_KEYS = new Set(["email", "password", "displayName", "acceptTerms", "currentPassword", "newPassword"]);
+const FIELD_LABEL_KEYS = new Set([
+  "email",
+  "password",
+  "displayName",
+  "acceptTerms",
+  "currentPassword",
+  "newPassword",
+  "dailyMinutes",
+  "uiLanguage",
+  "timezone",
+]);
 
 /** Câu lỗi cho một field, dịch theo tên constraint của Bean Validation (`NotBlank`, `Size`, ...). */
 export function fieldErrorMessage(fe: FieldError): string {
@@ -91,6 +101,8 @@ export function fieldErrorMessage(fe: FieldError): string {
       return i18n.t("auth:fieldErrors.maxBytes", { label, max: fe.params.value });
     case "AssertTrue":
       return i18n.t("auth:fieldErrors.acceptTerms");
+    case "Allowed":
+      return i18n.t("auth:fieldErrors.invalid", { label });
     case "Size":
       if (typeof min === "number" && typeof max === "number") {
         return min <= 1

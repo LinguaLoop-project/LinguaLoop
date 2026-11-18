@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TK-tai-khoan-xac-thuc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 58 AC, 41 đã có test, 5 một phần, 11 thiếu, 1 thủ công.
+Tổng hợp: 58 AC, 42 đã có test, 7 một phần, 8 thiếu, 1 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -51,13 +51,13 @@ Tổng hợp: 58 AC, 41 đã có test, 5 một phần, 11 thiếu, 1 thủ công
 | AC-TK-43 | Đăng nhập bằng email sau khi tạo mật khẩu | UC-TK-07 | D | PasswordIntegrationTest.changePassword_afterCreatingOne_googleUserCanLoginWithEmailAndPassword_AC43 | Đã có |
 | AC-TK-44 | Mật khẩu hiện tại sai | UC-TK-07 | A | PasswordIntegrationTest.changePassword_wrongCurrentPassword_reportsRemainingAttempts_AC44; PasswordIntegrationTest.changePassword_fifthWrongCurrentPassword_locksAccount_AC44 | Đã có |
 | AC-TK-45 | Mật khẩu mới không đạt yêu cầu | UC-TK-07 | A, B | PasswordIntegrationTest.changePassword_newPasswordTooShort_isValidationError_AC45; PasswordIntegrationTest.changePassword_newPasswordOver72Bytes_isValidationError_AC45; PasswordIntegrationTest.changePassword_missingNewPassword_isValidationError_AC45 | Đã có |
-| AC-TK-46 | Học viên mới bị dẫn vào thiết lập hồ sơ | UC-TK-08 | D | LoginIntegrationTest.login_studentWithoutOnboarding_responseSaysNotOnboarded_AC11 | Một phần (chỉ cờ trong API đăng nhập; chưa có màn hình) |
-| AC-TK-47 | Hoàn tất thiết lập thành công | UC-TK-08 | D |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
-| AC-TK-48 | Tên hiển thị điền sẵn từ Google | UC-TK-08 | D |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
-| AC-TK-49 | Thông tin không hợp lệ | UC-TK-08 | A |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
-| AC-TK-50 | Chưa đồng ý điều khoản | UC-TK-08 | A |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
-| AC-TK-51 | Không lưu được hồ sơ | UC-TK-08 | A |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
-| AC-TK-52 | Mở lại sau khi đã hoàn tất | UC-TK-08 | D |  | Thiếu (UC-TK-08 chưa cài đặt: frontend chỉ có OnboardingPlaceholder) |
+| AC-TK-46 | Học viên mới bị dẫn vào thiết lập hồ sơ | UC-TK-08 | D | LoginIntegrationTest.login_studentWithoutOnboarding_responseSaysNotOnboarded_AC11; `frontend/src/features/auth/navigation.test.ts` | Đã có |
+| AC-TK-47 | Hoàn tất thiết lập thành công | UC-TK-08 | D | UserControllerIntegrationTest.saveLearningProfile_valid_marksOnboardedAndReturnsProfile_AC_TK_47 | Một phần (chỉ backend; chưa test màn thiết lập và việc chuyển sang trang Hôm nay ở giao diện) |
+| AC-TK-48 | Tên hiển thị điền sẵn từ Google | UC-TK-08 | D |  | Thiếu (đã cài đặt ở frontend, chưa có test giao diện cho tên điền sẵn từ Google) |
+| AC-TK-49 | Thông tin không hợp lệ | UC-TK-08 | A, B | UserControllerIntegrationTest.saveLearningProfile_blankName_returns400WithFieldError_AC_TK_49; UserControllerIntegrationTest.saveLearningProfile_invalidMinutes_returns400_AC_TK_49; UserAccountServiceTest.saveLearningProfile_nameWith50Chars_isAccepted_AC_TK_49; UserAccountServiceTest.saveLearningProfile_invalidFields_reportTheRightField_AC_TK_49 | Một phần (chỉ backend; chưa test lỗi hiện dưới đúng mục ở giao diện) |
+| AC-TK-50 | Chưa đồng ý điều khoản | UC-TK-08 | A | UserControllerIntegrationTest.saveLearningProfile_googleUserWithoutTerms_returns400_AC_TK_50; UserAccountServiceTest.saveLearningProfile_termsNotAcceptedYet_rejectsAndStoresNothing_AC_TK_50 | Một phần (chỉ backend; chưa test lời nhắc đồng ý điều khoản ở giao diện) |
+| AC-TK-51 | Không lưu được hồ sơ | UC-TK-08 | A |  | Thiếu (đã cài đặt ở frontend, chưa có test giao diện cho lỗi lưu hồ sơ) |
+| AC-TK-52 | Mở lại sau khi đã hoàn tất | UC-TK-08 | D |  | Thiếu (đã cài đặt ở frontend, chưa có test mở lại màn thiết lập sau khi hoàn tất) |
 | AC-TK-53 | Xem và đọc một thông báo | UC-TK-09 | D, A | NotificationApiIntegrationTest.latest_newestFirstWithUnreadCount_onlyOwn_AC_TK_53; NotificationApiIntegrationTest.markRead_oneThenAll_andNotOthers_AC_TK_53_AC_TK_55; `frontend/src/features/user/notifications.test.ts` (chưa test chuông, số chưa đọc và dấu chưa đọc ở giao diện) | Một phần |
 | AC-TK-54 | Số chưa đọc tự cập nhật | UC-TK-09 | D |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
 | AC-TK-55 | Đánh dấu tất cả đã đọc | UC-TK-09 | D | NotificationApiIntegrationTest.markRead_oneThenAll_andNotOthers_AC_TK_53_AC_TK_55 (chưa test chuông '99+' và nút Đánh dấu tất cả đã đọc ở giao diện) | Một phần |

@@ -19,7 +19,10 @@ public record UserAccountView(
         boolean emailVerified,
         boolean locked,
         boolean onboarded,
-        boolean googleLinked) {
+        boolean googleLinked,
+        int dailyMinutes,
+        String timezone,
+        boolean termsAccepted) {
 
     public boolean hasPassword() {
         return passwordHash != null;

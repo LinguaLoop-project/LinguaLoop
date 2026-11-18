@@ -31,6 +31,13 @@ public interface UserAccountService {
 
     void updatePasswordHash(UUID userId, String passwordHash);
 
+    /**
+     * Lưu hồ sơ học tập của học viên (UC-TK-08 và tab Học tập trong Cài đặt). Lần đầu thành công thì đánh dấu đã
+     * thiết lập hồ sơ. {@code acceptTerms} bắt buộc khi học viên chưa từng đồng ý điều khoản (BR-TK-14).
+     */
+    UserAccountView saveLearningProfile(UUID userId, String displayName, int dailyMinutes, String uiLanguage,
+            String timezone, boolean acceptTerms);
+
     /** Hồ sơ trả cho client từ bản chụp tài khoản. */
     MeResponse toMe(UserAccountView account);
 }

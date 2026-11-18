@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { isAxiosError } from "axios";
 import Button from "@/components/common/Button";
@@ -10,6 +10,7 @@ import Icon from "@/components/common/Icon";
 import SearchInput from "@/components/common/SearchInput";
 import SegmentedControl from "@/components/common/SegmentedControl";
 import Skeleton from "@/components/common/Skeleton";
+import { buttonClasses } from "@/components/common/buttonStyles";
 import DeckCard, { DeckCardSkeleton } from "../components/DeckCard";
 import ReviewPanel from "../components/review/ReviewPanel";
 import StatCard from "../components/StatCard";
@@ -240,6 +241,10 @@ export default function VocabPage() {
         </div>
         <h1 className="text-[30px]">{t("title")}</h1>
         <p className="mt-1 text-text-muted">{t("subtitle")}</p>
+        <Link to="/student/review/daily" className={`mt-3 ${buttonClasses({ variant: "primary" })}`}>
+          <Icon name="play" className="h-4 w-4" />
+          {t("reviewToday")}
+        </Link>
       </header>
       <div className="mb-6">
         <SegmentedControl

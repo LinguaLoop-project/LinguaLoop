@@ -12,5 +12,9 @@ public record MeResponse(
         boolean emailVerified,
         boolean onboarded,
         boolean hasPassword,
-        boolean googleLinked) {
+        boolean googleLinked,
+        int dailyMinutes,
+        String uiLanguage,
+        String timezone,
+        boolean termsAccepted) {
 }

@@ -4,7 +4,7 @@ import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import { hintMask, isGuessCorrect, isHintExhausted, letterCount, maskExample } from "../../learn";
-import { Feedback, ListenButton, RoundProgress, type CardViewProps } from "./shared";
+import { CardImage, Feedback, ListenButton, RoundProgress, type CardViewProps } from "./shared";
 import { speak, useCardClock, useKeys } from "./learnHooks";
 
 interface Outcome {
@@ -13,8 +13,9 @@ interface Outcome {
 }
 
 /**
- * Cách học Đoán (BR-HT-17, BR-HT-18): xem loại từ, nghĩa tiếng Việt và câu ví dụ đã che từ, gõ từ tiếng Anh. Từ cần đoán
- * không xuất hiện ở đâu trên màn hình cho tới khi có kết quả: không hiện ảnh, phiên âm hay giải thích của thẻ.
+ * Cách học Đoán (BR-HT-17, BR-HT-18): xem loại từ, nghĩa tiếng Việt, ảnh minh họa (nếu thẻ có) và câu ví dụ đã che từ, gõ
+ * từ tiếng Anh. Từ cần đoán không xuất hiện ở đâu trên màn hình cho tới khi có kết quả: không hiện phiên âm hay giải
+ * thích của thẻ. Ảnh là gợi ý hình ảnh nên không được chứa chữ của từ, việc đó thuộc về người nhập thẻ.
  */
 export default function GuessView({ card, done, total, onAnswer, onNext }: CardViewProps) {
   const { t } = useTranslation("vocab");
@@ -68,9 +69,13 @@ export default function GuessView({ card, done, total, onAnswer, onNext }: CardV
       <RoundProgress done={done} total={total} label={t("learn.progress", { current: done + 1, total })} />
       <div className="rounded-lg border border-border bg-surface p-6 shadow-[var(--shadow-card)]">
         <div className="text-xs font-bold uppercase tracking-wider text-text-muted">{t("learn.guess.prompt")}</div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          {card.pos && <Badge variant="default">{card.pos}</Badge>}
-          <h2 className="text-2xl font-bold">{card.meaningVi}</h2>
+        <div className="mt-6 flex flex-col items-center gap-2 justify-center ">
+          <CardImage url={card.imageUrl}/>
+          <div className="mt-2 flex gap-3 items-center">
+            {card.pos && <Badge variant="default">{card.pos}</Badge>}
+            <ListenButton card={card} label={t("learn.listenAria", { word: card.word }    )} />
+          </div>
+          <h2 className="text-3xl font-bold">{card.meaningVi}</h2>
         </div>
         {masked && (
           <div className="mt-4 rounded-md bg-surface-hover p-3.5">

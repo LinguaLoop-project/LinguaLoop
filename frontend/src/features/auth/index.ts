@@ -7,7 +7,8 @@ export { default as GoogleSignInButton } from "./components/GoogleSignInButton";
 
 // Store & Types
 export { useAuthStore } from "./stores/authStore";
-export type { MeResponse, AuthResponse, ApiError, ApiErrorBody, FieldError, Role } from "./types";
+export type { MeResponse, AuthResponse, ApiError, ApiErrorBody, ApiResponse, DailyMinutes, FieldError, Role } from "./types";
+export { DAILY_MINUTES } from "./types";
 export type {
   User,
   AuthResponseData,
@@ -20,7 +21,7 @@ export { getPwScore, isPwValid } from "./passwordStrength";
 export { isGoogleConfigured } from "./googleConfig";
 
 // Navigation
-export { homePathFor, resolvePostLoginPath } from "./navigation";
+export { homePathFor, onboardingRedirectFor, resolvePostLoginPath } from "./navigation";
 export type { FromLocation } from "./navigation";
 
 // Errors

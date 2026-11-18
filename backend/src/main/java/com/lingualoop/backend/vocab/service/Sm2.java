@@ -16,6 +16,10 @@ final class Sm2 {
     static final int MASTERED_DAYS = 21;
     static final Duration FORGOT_DELAY = Duration.ofMinutes(10);
     static final int[] QUALITIES = {1, 3, 4, 5};
+    /** Mức Dễ: ở hai lần nhớ đầu tiên được hẹn xa hơn Khó và Được để nút này có ý nghĩa ngay từ đầu (BR-HT-11). */
+    static final int EASY_QUALITY = 5;
+    static final int EASY_FIRST_DAYS = 4;
+    static final int EASY_SECOND_DAYS = 10;
 
     private Sm2() {
     }
@@ -39,7 +43,12 @@ final class Sm2 {
             return new Result(new State(0, 0, easiness), CardStatus.LEARNING, FORGOT_DELAY);
         }
         int repetitions = previous.repetitions() + 1;
-        int interval = repetitions == 1 ? 1 : repetitions == 2 ? 6 : (int) Math.round(previous.intervalDays() * easiness);
+        boolean easy = quality == EASY_QUALITY;
+        int interval = switch (repetitions) {
+            case 1 -> easy ? EASY_FIRST_DAYS : 1;
+            case 2 -> easy ? EASY_SECOND_DAYS : 6;
+            default -> (int) Math.round(previous.intervalDays() * easiness);
+        };
         return new Result(new State(repetitions, interval, easiness), statusOf(repetitions, interval), Duration.ofDays(interval));
     }
 

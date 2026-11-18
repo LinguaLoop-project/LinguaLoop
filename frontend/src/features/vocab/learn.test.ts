@@ -31,6 +31,7 @@ const card = (id: string, over: Partial<LearnCard> = {}): LearnCard => ({
   ipaUs: null,
   audioUk: null,
   audioUs: null,
+  imageUrl: null,
   status: "new",
   previews: [],
   contextEn: null,

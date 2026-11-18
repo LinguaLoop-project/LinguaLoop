@@ -122,6 +122,35 @@ class VocabReviewApiIntegrationTest {
     }
 
     @Test
+    void queue_cardsCarryTheirIllustration_orNullWhenTheyHaveNone() throws Exception {
+        List<UUID> cards = vocab.fill(vocab.deck(base, false), 1, 2, base);
+        UUID user = users.newUser();
+        due(user, cards.get(0), 2, 6, "-2 minutes");
+        due(user, cards.get(1), 2, 6, "-1 minutes");
+        jdbc.update("UPDATE vocab_cards SET image_url = ? WHERE id = ?", "https://cdn.example.com/tortoise.png", cards.get(0));
+
+        as(user, get(REVIEW)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.cards[0].imageUrl").value("https://cdn.example.com/tortoise.png"))
+                .andExpect(jsonPath("$.data.cards[1].imageUrl").doesNotExist());
+    }
+
+    @Test
+    void queue_limitTakesFewerCards_butNeverMoreThanFifty_BR_HT_24() throws Exception {
+        List<UUID> cards = vocab.fill(vocab.deck(base, false), 7, 10, base);
+        UUID user = users.newUser();
+        for (int i = 0; i < 70; i++) {
+            due(user, cards.get(i), 2, 6, "-" + (100 - i) + " minutes");
+        }
+
+        as(user, get(REVIEW).param("limit", "20")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.cards.length()").value(20))
+                .andExpect(jsonPath("$.data.dueTotal").value(70))
+                .andExpect(jsonPath("$.data.cards[0].id").value(cards.get(0).toString()));
+        as(user, get(REVIEW).param("limit", "999")).andExpect(jsonPath("$.data.cards.length()").value(50));
+        as(user, get(REVIEW).param("limit", "0")).andExpect(jsonPath("$.data.cards.length()").value(1));
+    }
+
+    @Test
     void queue_aForgottenCardWaitsTenMinutes_andAMasteredCardComesBackWhenDue_AC_HT_19_AC_HT_20() throws Exception {
         List<UUID> cards = vocab.fill(vocab.deck(base, false), 1, 2, base);
         UUID user = users.newUser();

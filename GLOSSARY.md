@@ -83,3 +83,25 @@ _Tránh_: tiến độ thẻ, độ nhớ (dùng cho vòng phần trăm trên gi
 **Ôn thẻ**:
 Ôn các thẻ từ vựng đến hạn theo lịch lặp lại ngắt quãng. Chỉ dùng cho bộ từ, không dùng cho câu.
 _Tránh_: ôn câu, ôn lại
+
+**Ôn câu**:
+Luyện lại các câu trong danh sách Câu cần ôn, mỗi lần một số câu ít ở từng chế độ. Khác với ôn thẻ, không theo lịch lặp lại ngắt quãng; câu nào chưa ôn và chưa bị bỏ qua hôm nay thì được chọn. Câu bị bỏ qua được hoãn sang ngày mai.
+_Tránh_: ôn thẻ, ôn lại
+
+### Học hằng ngày
+
+**Mục tiêu ngày**:
+Số phút học mỗi ngày mà học viên chọn (10, 15, 20 hoặc 30). Quyết định Định mức ôn ngày.
+_Tránh_: thời lượng học, hạn mức ngày (dùng cho credit AI)
+
+**Định mức ôn ngày**:
+Số thẻ và số câu mỗi chế độ tối đa học viên cần ôn trong một ngày, theo múi giờ của họ. Ôn đủ định mức, hoặc hết việc đến hạn, thì coi như đã ôn xong hôm nay; ôn thêm là tùy chọn. Chỉ tính thẻ ôn, không tính thẻ học từ mới.
+_Tránh_: hạn mức ngày (dùng cho credit AI), chỉ tiêu
+
+**Phiên ôn tập hằng ngày**:
+Một lần học viên ôn thẻ đến hạn rồi ôn câu, lấy phần còn lại của Định mức ôn ngày. Không được lưu ở máy chủ: thoát giữa chừng thì kết quả đã chấm vẫn giữ và được trừ vào định mức.
+_Tránh_: bài ôn, phiên học (là bản ghi gom nhật ký của Học từ mới)
+
+**Hồ sơ học tập**:
+Phần thiết lập học viên điền ở lần đầu đăng nhập: tên hiển thị, Mục tiêu ngày, ngôn ngữ giao diện, múi giờ và việc đồng ý điều khoản. Chưa điền xong thì học viên chưa dùng được các trang khác. Múi giờ quyết định ranh giới của "hôm nay".
+_Tránh_: onboarding, thông tin tài khoản (gồm cả email và mật khẩu)

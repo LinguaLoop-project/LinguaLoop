@@ -13,7 +13,17 @@ export type MeResponse = {
   onboarded: boolean;
   hasPassword: boolean;
   googleLinked: boolean;
+  /** Mục tiêu học mỗi ngày (10, 15, 20 hoặc 30 phút). */
+  dailyMinutes: DailyMinutes;
+  uiLanguage: "vi" | "en";
+  /** Múi giờ IANA; "hôm nay" của học viên tính theo múi giờ này. */
+  timezone: string;
+  /** Đã đồng ý điều khoản; chưa thì biểu mẫu hồ sơ học tập phải có ô đồng ý (BR-TK-14). */
+  termsAccepted: boolean;
 };
+
+export const DAILY_MINUTES = [10, 15, 20, 30] as const;
+export type DailyMinutes = (typeof DAILY_MINUTES)[number];
 
 /** Access token chỉ giữ trong bộ nhớ; refresh token nằm trong cookie httpOnly. */
 export type AuthResponse = {

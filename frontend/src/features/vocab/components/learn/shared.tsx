@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
@@ -29,11 +29,45 @@ export interface CardViewProps {
   onNext: () => void;
 }
 
+/**
+ * Nút nghe phát âm của thẻ. Chặn sự kiện nổi lên để đặt được bên trong vùng bấm của thẻ (mặt trước Flashcard) mà không
+ * làm thẻ lật theo.
+ */
 export function ListenButton({ card, label, className = "" }: { card: LearnCard; label: string; className?: string }) {
   return (
-    <Button variant="ghost" size="sm" iconOnly aria-label={label} className={className} onClick={() => speak(card)}>
+    <Button
+      variant="ghost"
+      size="sm"
+      iconOnly
+      aria-label={label}
+      className={className}
+      onClick={(event) => {
+        event.stopPropagation();
+        speak(card);
+      }}
+    >
       <Icon name="volume-2" />
     </Button>
+  );
+}
+
+/**
+ * Ảnh minh họa của thẻ; không có ảnh hoặc ảnh lỗi tải (hỏng link, mất mạng) thì không vẽ gì, thẻ vẫn học được bằng chữ.
+ * Không dùng `loading="lazy"`: ảnh nằm ngay trong khung nhìn nên lazy chỉ làm chậm thêm, và ảnh đã được nạp sẵn ở nền
+ * (xem `useImagePreload`). Dùng `key` theo thẻ để trạng thái lỗi không dính sang thẻ kế tiếp.
+ */
+export function CardImage({ url, className = "" }: { url: string | null; className?: string }) {
+  const [failed, setFailed] = useState(false);
+  if (!url || failed) return null;
+  return (
+    <img
+      src={url}
+      alt=""
+      decoding="async"
+      draggable={false}
+      onError={() => setFailed(true)}
+      className={`max-h-44 w-auto max-w-full rounded-md border border-border object-contain ${className}`}
+    />
   );
 }
 

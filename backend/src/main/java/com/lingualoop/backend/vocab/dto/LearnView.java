@@ -17,7 +17,8 @@ public final class LearnView {
     }
 
     /**
-     * Một thẻ của phần hoặc của hàng đợi ôn. {@code audioUs} và {@code audioUk} là URL phát được. {@code previews} chỉ để
+     * Một thẻ của phần hoặc của hàng đợi ôn. {@code audioUs} và {@code audioUk} là URL phát được; {@code imageUrl} là URL
+     * ảnh minh họa của thẻ, trống nếu thẻ không có ảnh. {@code previews} chỉ để
      * hiện khoảng ôn trên bốn nút của Flashcard; lịch ôn do server tính (BR-HT-10, BR-HT-11). {@code contextEn},
      * {@code contextVi} và {@code lesson} có khi thẻ là từ lưu từ bài học (BR-HT-03); {@code lesson} trống nếu bài đó không
      * còn xem được.
@@ -35,6 +36,7 @@ public final class LearnView {
             String ipaUs,
             String audioUk,
             String audioUs,
+            String imageUrl,
             CardStatus status,
             List<Preview> previews,
             String contextEn,

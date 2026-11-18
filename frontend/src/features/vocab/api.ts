@@ -76,9 +76,9 @@ export const vocabApi = {
   },
 
   /** Lượt ôn kế tiếp: tối đa 50 thẻ đến hạn; truyền `deck` để chỉ ôn một bộ (404 nếu bộ không có). */
-  getReview: async (deck?: string): Promise<ReviewQueue> => {
+  getReview: async (deck?: string, limit?: number): Promise<ReviewQueue> => {
     const response = await axiosClient.get<ApiResponse<ReviewQueue>>("/vocab/review", {
-      params: deck ? { deck } : undefined,
+      params: deck || limit ? { ...(deck ? { deck } : {}), ...(limit ? { limit } : {}) } : undefined,
       timeout: REQUEST_TIMEOUT_MS,
     });
     return response.data.data;

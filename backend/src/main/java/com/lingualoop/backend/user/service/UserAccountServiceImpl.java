@@ -1,14 +1,21 @@
 package com.lingualoop.backend.user.service;
 
 import java.time.Clock;
+import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lingualoop.backend.common.exception.BusinessException;
+import com.lingualoop.backend.common.exception.ErrorCode;
+import com.lingualoop.backend.common.exception.FieldValidationException;
 import com.lingualoop.backend.common.exception.NotFoundException;
+import com.lingualoop.backend.security.Role;
 import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.dto.response.MeResponse;
 import com.lingualoop.backend.user.entity.User;
@@ -22,6 +29,9 @@ import lombok.RequiredArgsConstructor;
 class UserAccountServiceImpl implements UserAccountService {
 
     private static final int DISPLAY_NAME_MAX = 50;
+    /** BR-TK-13: thời lượng học mỗi ngày chọn một trong các mức này. */
+    private static final Set<Integer> DAILY_MINUTES = Set.of(10, 15, 20, 30);
+    private static final Set<String> UI_LANGUAGES = Set.of("vi", "en");
 
     private final UserRepository userRepository;
     private final Clock clock;
@@ -93,6 +103,50 @@ class UserAccountServiceImpl implements UserAccountService {
         return base.codePointCount(0, base.length()) <= DISPLAY_NAME_MAX
                 ? base
                 : base.substring(0, base.offsetByCodePoints(0, DISPLAY_NAME_MAX));
+    }
+
+    @Override
+    @Transactional
+    public UserAccountView saveLearningProfile(UUID userId, String displayName, int dailyMinutes, String uiLanguage,
+            String timezone, boolean acceptTerms) {
+        User user = load(userId);
+        if (user.getRole() != Role.STUDENT) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+        String name = displayName == null ? "" : displayName.strip();
+        if (name.isEmpty()) {
+            throw new FieldValidationException("displayName", "NotBlank");
+        }
+        if (name.codePointCount(0, name.length()) > DISPLAY_NAME_MAX) {
+            throw new FieldValidationException("displayName", "Size");
+        }
+        if (!DAILY_MINUTES.contains(dailyMinutes)) {
+            throw new FieldValidationException("dailyMinutes", "Allowed");
+        }
+        if (!UI_LANGUAGES.contains(uiLanguage)) {
+            throw new FieldValidationException("uiLanguage", "Allowed");
+        }
+        if (!isValidZone(timezone)) {
+            throw new FieldValidationException("timezone", "Allowed");
+        }
+        // BR-TK-14: chưa từng đồng ý thì phải đồng ý ở bước này, nếu không thì không lưu gì cả.
+        if (user.getTermsAcceptedAt() == null && !acceptTerms) {
+            throw new FieldValidationException("acceptTerms", "AssertTrue");
+        }
+        user.saveLearningProfile(name, (short) dailyMinutes, uiLanguage, timezone, acceptTerms, Instant.now(clock));
+        return userMapper.toUserAccountView(user);
+    }
+
+    private static boolean isValidZone(String timezone) {
+        if (timezone == null || timezone.isBlank()) {
+            return false;
+        }
+        try {
+            ZoneId.of(timezone);
+            return true;
+        } catch (DateTimeException e) {
+            return false;
+        }
     }
 
     @Override

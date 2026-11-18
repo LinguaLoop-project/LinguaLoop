@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import LearningProfileForm from "../components/LearningProfileForm";
 import SecuritySection from "../components/SecuritySection";
 import Icon from "@/components/common/Icon";
 import { useAuth } from "@/features/auth";
@@ -15,7 +16,7 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-/** Khung trang Cài đặt theo mockup; hiện chỉ tab "Bảo mật & đăng nhập" có nội dung, các tab khác để dành. */
+/** Khung trang Cài đặt theo mockup; hiện có tab "Học tập" và "Bảo mật & đăng nhập", các tab khác để dành. */
 export default function Settings() {
   const { t } = useTranslation("auth");
   const [tab, setTab] = useState<TabId>("security");
@@ -66,6 +67,8 @@ export default function Settings() {
         <div className="min-w-0">
           {tab === "security" ? (
             <SecuritySection />
+          ) : tab === "learning" ? (
+            <LearningProfileForm mode="settings" />
           ) : (
             <div className="rounded-lg border border-border bg-surface p-5 text-sm text-text-muted shadow-[var(--shadow-card)]">{t("settings.comingSoon")}</div>
           )}

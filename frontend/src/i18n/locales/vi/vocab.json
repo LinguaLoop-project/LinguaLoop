@@ -2,6 +2,7 @@
   "overline": "Từ vựng",
   "title": "Từ vựng",
   "subtitle": "Học bộ từ theo từng phần, ôn thẻ đúng lúc sắp quên.",
+  "reviewToday": "Ôn tập hôm nay",
   "loading": "Đang tải",
   "overview": {
     "label": "Tổng quan từ vựng",
@@ -228,6 +229,7 @@
     "score": "Nhớ ngay lần đầu {{right}}/{{total}} thẻ",
     "redone_other": "{{count}} thẻ phải ôn lại trong lượt",
     "continue": "Ôn tiếp",
+    "exit": "Thoát",
     "continueHint_other": "Còn {{count}} thẻ đến hạn",
     "backToDecks": "Về bộ từ",
     "context": "Câu trong bài học",

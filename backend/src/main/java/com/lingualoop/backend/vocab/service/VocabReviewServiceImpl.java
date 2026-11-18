@@ -1,5 +1,6 @@
 package com.lingualoop.backend.vocab.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,10 +32,23 @@ class VocabReviewServiceImpl implements VocabReviewService {
     private final CardViews cardViews;
 
     @Override
-    public ReviewView.Queue queue(UUID userId, UUID deckId) {
+    public ReviewView.DueSummary dueSummary(UUID userId) {
+        boolean userPro = subscriptions.isPro(userId);
+        return new ReviewView.DueSummary(review.countDue(userId, null, userPro), review.findNextDueAt(userId, null, userPro));
+    }
+
+    @Override
+    public int countReviewedSince(UUID userId, Instant since) {
+        return review.countReviewedSince(userId, since);
+    }
+
+    @Override
+    public ReviewView.Queue queue(UUID userId, UUID deckId, Integer limit) {
         boolean userPro = subscriptions.isPro(userId);
         DeckRow deck = deckId == null ? null : deckOrThrow(userId, deckId, userPro);
-        List<LearnView.Card> cards = review.findDue(userId, deckId, userPro).stream().map(this::toCard).toList();
+        int size = limit == null ? VocabReviewRepository.QUEUE_SIZE
+                : Math.max(1, Math.min(limit, VocabReviewRepository.QUEUE_SIZE));
+        List<LearnView.Card> cards = review.findDue(userId, deckId, userPro, size).stream().map(this::toCard).toList();
         int dueTotal = review.countDue(userId, deckId, userPro);
         return new ReviewView.Queue(
                 deck == null ? null : new LearnView.DeckRef(deck.getId(), deck.getName(), deck.getPro()),

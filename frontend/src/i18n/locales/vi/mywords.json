@@ -13,6 +13,7 @@
     "notes": "Ghi chú"
   },
   "review": {
+    "startReview": "Ôn câu",
     "tip": "Khi bạn được dưới {{low}} điểm, hệ thống sẽ hỏi có lưu câu vào đây không. Luyện lại đạt từ {{high}} điểm, hệ thống sẽ hỏi có bỏ khỏi danh sách không. Nghe chép và Shadowing có danh sách riêng cho cùng một câu.",
     "count_other": "{{count}} câu đang chờ · ưu tiên câu điểm thấp",
     "lastScore": "Lần cuối {{score}} điểm",

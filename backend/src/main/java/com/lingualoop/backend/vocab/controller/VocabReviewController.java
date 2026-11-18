@@ -24,10 +24,14 @@ public class VocabReviewController {
 
     private final VocabReviewService reviewService;
 
-    /** Lượt ôn tiếp theo: tối đa 50 thẻ đến hạn; truyền {@code deck} để chỉ ôn một bộ. */
+    /**
+     * Lượt ôn tiếp theo: tối đa 50 thẻ đến hạn; truyền {@code deck} để chỉ ôn một bộ, {@code limit} để lấy ít hơn 50
+     * thẻ (phiên Ôn tập hằng ngày).
+     */
     @GetMapping
-    public ApiResponse<ReviewView.Queue> queue(@CurrentUserId UUID userId, @RequestParam(required = false) UUID deck) {
-        return ApiResponse.ok(reviewService.queue(userId, deck));
+    public ApiResponse<ReviewView.Queue> queue(@CurrentUserId UUID userId, @RequestParam(required = false) UUID deck,
+            @RequestParam(required = false) Integer limit) {
+        return ApiResponse.ok(reviewService.queue(userId, deck, limit));
     }
 
     /** Mở phiên ôn mới (đóng phiên còn mở); truyền {@code deck} khi ôn riêng một bộ. */

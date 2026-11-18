@@ -13,14 +13,38 @@ import com.lingualoop.backend.vocab.enums.CardStatus;
 class Sm2Test {
 
     @Test
-    void firstRepetition_isOneDay_forAnyPassingGrade_BR_HT_11() {
-        for (int quality : new int[] {3, 4, 5}) {
+    void firstRepetition_isOneDay_forHardAndGood_BR_HT_11() {
+        for (int quality : new int[] {3, 4}) {
             Sm2.Result result = Sm2.grade(Sm2.State.FRESH, quality);
             assertThat(result.state().repetitions()).isEqualTo(1);
             assertThat(result.state().intervalDays()).isEqualTo(1);
             assertThat(result.delay()).isEqualTo(Duration.ofDays(1));
             assertThat(result.status()).isEqualTo(CardStatus.LEARNING);
         }
+    }
+
+    @Test
+    void easy_isScheduledFurtherOutFromTheVeryFirstRepetitions_BR_HT_11() {
+        Sm2.Result first = Sm2.grade(Sm2.State.FRESH, 5);
+        assertThat(first.state().repetitions()).isEqualTo(1);
+        assertThat(first.state().intervalDays()).isEqualTo(4);
+        assertThat(first.delay()).isEqualTo(Duration.ofDays(4));
+        assertThat(first.status()).isEqualTo(CardStatus.LEARNING);
+
+        Sm2.Result second = Sm2.grade(first.state(), 5);
+        assertThat(second.state().intervalDays()).isEqualTo(10);
+        assertThat(second.status()).isEqualTo(CardStatus.REVIEWING);
+
+        // từ lần nhớ thứ ba cả hai đường cùng nhân với hệ số dễ
+        Sm2.Result third = Sm2.grade(second.state(), 4);
+        assertThat(third.state().intervalDays()).isEqualTo((int) Math.round(10 * third.state().easiness()));
+    }
+
+    @Test
+    void easyThenGood_stillGetsTheNormalSecondInterval_BR_HT_11() {
+        Sm2.State afterEasy = Sm2.grade(Sm2.State.FRESH, 5).state();
+        assertThat(Sm2.grade(afterEasy, 4).state().intervalDays()).isEqualTo(6);
+        assertThat(Sm2.grade(afterEasy, 3).state().intervalDays()).isEqualTo(6);
     }
 
     @Test

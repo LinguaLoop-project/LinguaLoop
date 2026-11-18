@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
@@ -8,22 +8,41 @@ import { buttonClasses } from "@/components/common/buttonStyles";
 import { answerCard, isRoundDone, nextCard, roundScore, startRound } from "../../learn";
 import type { AnswerDraft, ReviewQueue } from "../../types";
 import FlashView from "../learn/FlashView";
+import { useImagePreload } from "../learn/learnHooks";
 import UnsentNotice from "../learn/UnsentNotice";
+
+export type RoundSummary = ReturnType<typeof roundScore>;
 
 interface ReviewSessionProps {
   queue: ReviewQueue;
   onAnswer: (answer: AnswerDraft) => void;
   /** Mở lượt ôn tiếp theo cho các thẻ đến hạn còn lại. */
   onContinue: () => void;
+  /**
+   * Chạy như một chặng của phiên Ôn tập hằng ngày (UC-HT-05): không hiện màn kết thúc riêng, hết lượt thì gọi
+   * `onComplete` để khung ngoài chuyển thẳng sang chặng kế; `onExit` là nút "Thoát" giữa chừng (kết quả đã chấm vẫn giữ).
+   */
+  embedded?: { onComplete: (score: RoundSummary) => void; onExit: (score: RoundSummary) => void };
 }
 
 /**
  * Một lượt ôn (UC-HT-03): hàng đợi chung với Flashcard. Chấm Quên thì thẻ xuống cuối lượt và hiện lại ngay trong lượt
  * (BR-HT-14). Hết lượt thì hiện số thẻ nhớ ngay lần đầu, số thẻ phải ôn lại và "Ôn tiếp" nếu vẫn còn thẻ đến hạn.
  */
-export default function ReviewSession({ queue, onAnswer, onContinue }: ReviewSessionProps) {
+export default function ReviewSession({ queue, onAnswer, onContinue, embedded }: ReviewSessionProps) {
   const { t } = useTranslation("vocab");
   const [state, setState] = useState(() => startRound(queue.cards));
+  const completed = useRef(false);
+  const done = isRoundDone(state);
+  const onComplete = embedded?.onComplete;
+  // Nạp sẵn ảnh của thẻ hiện tại và vài thẻ kế tiếp để lúc lật thẻ ảnh đã có.
+  useImagePreload(state.queue);
+
+  useEffect(() => {
+    if (!done || !onComplete || completed.current) return;
+    completed.current = true;
+    onComplete(roundScore(state));
+  }, [done, onComplete, state]);
 
   const handleAnswer = (answer: AnswerDraft) => {
     onAnswer(answer);
@@ -33,7 +52,9 @@ export default function ReviewSession({ queue, onAnswer, onContinue }: ReviewSes
 
   const heading = queue.deck ? t("review.deckTitle", { name: queue.deck.name }) : t("review.title");
 
-  if (isRoundDone(state)) {
+  if (done && embedded) return null;
+
+  if (done) {
     const score = roundScore(state);
     const more = Math.max(0, queue.dueTotal - queue.cards.length);
     return (
@@ -62,13 +83,22 @@ export default function ReviewSession({ queue, onAnswer, onContinue }: ReviewSes
   const card = state.queue[0];
   return (
     <div>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm text-text-muted">
-        <b className="text-text">{heading}</b>
-        <span>
-          {t("review.queueInfo", { count: queue.cards.length })}
-          {queue.dueTotal > queue.cards.length && ` · ${t("review.more", { count: queue.dueTotal - queue.cards.length })}`}
-        </span>
-      </div>
+      {!embedded && (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm text-text-muted">
+          <b className="text-text">{heading}</b>
+          <span>
+            {t("review.queueInfo", { count: queue.cards.length })}
+            {queue.dueTotal > queue.cards.length && ` · ${t("review.more", { count: queue.dueTotal - queue.cards.length })}`}
+          </span>
+        </div>
+      )}
+      {embedded && (
+        <div className="mb-3 flex justify-end">
+          <Button variant="ghost" size="sm" leftIcon={<Icon name="log-out" />} onClick={() => embedded.onExit(roundScore(state))}>
+            {t("review.exit")}
+          </Button>
+        </div>
+      )}
       <FlashView
         key={`${card.id}-${state.turn}`}
         card={card}

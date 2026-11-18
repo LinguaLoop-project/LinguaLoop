@@ -45,4 +45,7 @@ public class SentenceReview {
 
     @Column(name = "last_reviewed_at")
     private Instant lastReviewedAt;
+
+    @Column(name = "last_skipped_at")
+    private Instant lastSkippedAt;
 }

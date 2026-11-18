@@ -13,6 +13,7 @@
     "notes": "Notes"
   },
   "review": {
+    "startReview": "Review sentences",
     "tip": "A sentence joins this list when you score under {{low}}. Practice it again and score {{high}} or more to take it off. Dictation and Shadowing keep separate lists for the same sentence.",
     "count_one": "{{count}} sentence waiting · lowest scores first",
     "count_other": "{{count}} sentences waiting · lowest scores first",

@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 class CardViews {
 
     private final CardAudioUrls audio;
+    /** Ảnh thẻ lưu S3 key như ảnh bộ: ghép với gốc URL của kho tệp, dữ liệu cũ đã là URL thì giữ nguyên. */
+    private final DeckImageUrls imageUrls;
 
     /** Thẻ của bộ thư viện: không có câu gốc của bài học. */
     LearnView.Card of(CardRow row) {
@@ -33,6 +35,7 @@ class CardViews {
                 .toList();
         return new LearnView.Card(row.id(), row.word(), row.pos(), row.meaningVi(), row.definitionEn(),
                 row.definitionVi(), row.exampleEn(), row.exampleVi(), row.ipaUk(), row.ipaUs(),
-                audio.resolve(row.audioUk()), audio.resolve(row.audioUs()), status, previews, contextEn, contextVi, lesson);
+                audio.resolve(row.audioUk()), audio.resolve(row.audioUs()), imageUrls.resolve(row.imageKey()), status, previews,
+                contextEn, contextVi, lesson);
     }
 }

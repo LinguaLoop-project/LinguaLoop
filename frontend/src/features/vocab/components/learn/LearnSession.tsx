@@ -6,6 +6,7 @@ import type { AnswerDraft, LearnCard, LearnMode } from "../../types";
 import ChoiceView from "./ChoiceView";
 import FlashView from "./FlashView";
 import GuessView from "./GuessView";
+import { useImagePreload } from "./learnHooks";
 import RoundDone from "./RoundDone";
 import WordsList from "./WordsList";
 
@@ -34,6 +35,8 @@ export default function LearnSession({ mode, cards, partNumber, nextPartHref, de
   const [lastMode, setLastMode] = useState(mode);
   const [showWords, setShowWords] = useState(false);
   const current = rounds[round] ?? [];
+  // Nạp sẵn ảnh của thẻ hiện tại và vài thẻ kế tiếp để lúc lật thẻ ảnh đã có.
+  useImagePreload(state.queue);
 
   // Đổi cách học khi thẻ hiện tại đã trả lời và đang chờ "Tiếp" thì cách học mới bắt đầu từ thẻ kế tiếp; thẻ chưa trả lời
   // giữ nguyên và chuyển sang cách học mới ngay (UC-HT-02, luồng 3a).

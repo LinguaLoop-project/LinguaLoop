@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/HT-hoc-the-on-tap/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 57 AC, 0 đã có test, 0 một phần, 57 thiếu.
+Tổng hợp: 61 AC, 10 đã có test, 5 một phần, 46 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -29,24 +29,28 @@ Tổng hợp: 57 AC, 0 đã có test, 0 một phần, 57 thiếu.
 | AC-HT-21 | Thông báo khi không có thẻ đến hạn | UC-HT-03 |  |  | Thiếu |
 | AC-HT-22 | Không ghi trùng nhật ký khi gửi lại lúc mất mạng | UC-HT-03 |  |  | Thiếu |
 | AC-HT-23 | Đồng bộ số lượng thẻ đến hạn với trang Hôm nay | UC-HT-03 |  |  | Thiếu |
-| AC-HT-24 | Chọn câu theo điểm thấp nhất rồi theo ngày thêm sớm nhất | UC-HT-04 |  |  | Thiếu |
-| AC-HT-25 | Không lấy câu của chế độ khác để bù khi thiếu câu | UC-HT-04 |  |  | Thiếu |
-| AC-HT-26 | Loại bỏ câu thuộc bài đã gỡ xuất bản hoặc bài Pro với gói Free | UC-HT-04 |  |  | Thiếu |
+| AC-HT-24 | Chọn câu theo điểm thấp nhất rồi theo ngày thêm sớm nhất | UC-HT-04 | D, B | DailyReviewApiIntegrationTest.plan_picksLowestScoreFirst_thenTheEarlierAddedSentence_BR_HT_20_AC_HT_24 | Đã có |
+| AC-HT-25 | Không lấy câu của chế độ khác để bù khi thiếu câu | UC-HT-04 | D, B | DailyReviewApiIntegrationTest.plan_aModeWithFewerSentences_isNotToppedUpFromTheOther_BR_HT_20_AC_HT_25 | Đã có |
+| AC-HT-26 | Loại bỏ câu thuộc bài đã gỡ xuất bản hoặc bài Pro với gói Free | UC-HT-04 | D, A | DailyReviewApiIntegrationTest.plan_leavesOutDraftDeletedAndProSentences_butProLearnersKeepThem_BR_HT_20_AC_HT_26 | Đã có |
 | AC-HT-27 | Hiển thị hộp hỏi bỏ khỏi danh sách khi đạt từ 80 điểm | UC-HT-04 |  |  | Thiếu |
 | AC-HT-28 | Không hỏi bỏ câu khi đạt dưới 80 điểm | UC-HT-04 |  |  | Thiếu |
 | AC-HT-29 | Không tự động gỡ câu nếu tác nhân chọn Giữ lại | UC-HT-04 |  |  | Thiếu |
 | AC-HT-30 | Chủ động bỏ câu khỏi danh sách ở bất kỳ mức điểm nào | UC-HT-04 |  |  | Thiếu |
 | AC-HT-31 | Lượt ôn câu Nghe chép được tính là lượt làm lại | UC-HT-04 |  |  | Thiếu |
-| AC-HT-32 | Bỏ qua câu không đánh dấu đã ôn hôm nay | UC-HT-04 |  |  | Thiếu |
-| AC-HT-33 | Lỗi chấm phát âm Shadowing không đánh dấu đã ôn hôm nay | UC-HT-04 |  |  | Thiếu |
-| AC-HT-34 | Thông báo khi không còn câu cần ôn trong ngày | UC-HT-04 |  |  | Thiếu |
+| AC-HT-32 | Bỏ qua câu không đánh dấu đã ôn hôm nay | UC-HT-04 | D | DailyReviewApiIntegrationTest.skip_postponesTheSentenceToTomorrow_withoutCountingItAsReviewed_AC_HT_32_AC_HT_61 | Một phần (chỉ backend; chưa test nút Bỏ qua câu này ở giao diện) |
+| AC-HT-33 | Lỗi chấm phát âm Shadowing không đánh dấu đã ôn hôm nay | UC-HT-04 | A | DailyReviewApiIntegrationTest.markReviewed_withoutARecentAttempt_isRefusedAndNothingIsMarked_BR_HT_21_AC_HT_33 | Một phần (chỉ kiểm tra không có lượt thật thì không đánh dấu; chưa test nhánh lỗi chấm của Azure ở giao diện) |
+| AC-HT-34 | Thông báo khi không còn câu cần ôn trong ngày | UC-HT-04 | D | DailyReviewApiIntegrationTest.plan_nothingToReview_returnsEmptyPlanAndNextDueTime_AC_HT_40; `frontend/src/features/review/flow.test.ts` | Một phần (chưa test thông báo "không còn câu nào cần ôn" ở trang Ôn câu riêng) |
 | AC-HT-35 | Giữ kết quả khi dừng giữa chừng hoặc mất kết nối | UC-HT-04 |  |  | Thiếu |
-| AC-HT-36 | Cấu trúc, thứ tự và định mức của phiên Ôn tập kiến thức theo thời lượng mục tiêu ngày | UC-HT-05 |  |  | Thiếu |
-| AC-HT-37 | Chọn Ôn tiếp ở cuối phiên chỉ lấy thêm thẻ từ vựng | UC-HT-05 |  |  | Thiếu |
-| AC-HT-38 | Không chọn lại câu đã ôn khi mở phiên lần hai trong ngày | UC-HT-05 |  |  | Thiếu |
-| AC-HT-39 | Bảo toàn tiến độ khi thoát phiên giữa chừng | UC-HT-05 |  |  | Thiếu |
-| AC-HT-40 | Xử lý khi thiếu phần thẻ, thiếu phần câu hoặc trống cả hai | UC-HT-05 |  |  | Thiếu |
+| AC-HT-36 | Cấu trúc, thứ tự và định mức của phiên Ôn tập kiến thức theo thời lượng mục tiêu ngày | UC-HT-05 | D, B | DailyReviewApiIntegrationTest.plan_quotaFollowsTheDailyGoal_AC_HT_36; DailyReviewApiIntegrationTest.plan_defaultGoalWith35Cards_takesTwentyCardsAndTwoPlusTwoSentences_AC_HT_36; `frontend/src/features/review/flow.test.ts` | Đã có |
+| AC-HT-37 | Chọn Ôn thêm ở cuối phiên chỉ lấy thêm thẻ từ vựng | UC-HT-05 | D | DailyReviewApiIntegrationTest.plan_quotaReachedWithMoreCardsDue_showsDoneAndSuggestionsButKeepsAMoreRound_AC_HT_58_AC_HT_60; `frontend/src/features/review/flow.test.ts` | Đã có |
+| AC-HT-38 | Không chọn lại câu đã ôn khi mở phiên lần hai trong ngày | UC-HT-05 | D | DailyReviewApiIntegrationTest.markReviewed_afterARealAttempt_removesTheSentenceFromTheNextPlan_AC_HT_38; DailyReviewApiIntegrationTest.plan_hidesSentencesReviewedTodayInTheLearnersTimezone_BR_HT_21 | Đã có |
+| AC-HT-39 | Bảo toàn tiến độ khi thoát phiên giữa chừng | UC-HT-05 | D | DailyReviewApiIntegrationTest.plan_cardsReviewedTodayAreDeductedFromTheDailyQuota_BR_HT_24_AC_HT_59; DailyReviewApiIntegrationTest.plan_sentencesReviewedTodayAreDeductedPerMode_BR_HT_24_AC_HT_59 | Một phần (chỉ kiểm tra dữ liệu và kế hoạch phiên sau; chưa test nút Thoát ở giao diện) |
+| AC-HT-40 | Xử lý khi thiếu phần thẻ, thiếu phần câu hoặc trống cả hai | UC-HT-05 | D, B | DailyReviewApiIntegrationTest.plan_nothingToReview_returnsEmptyPlanAndNextDueTime_AC_HT_40; `frontend/src/features/review/flow.test.ts` | Đã có |
 | AC-HT-41 | Thông báo lỗi khi không tải được phiên ôn tập | UC-HT-05 |  |  | Thiếu |
+| AC-HT-58 | Ôn đủ Định mức ôn ngày thì trang Hôm nay báo đã ôn xong dù còn việc tồn | UC-HT-05 | D | DailyReviewApiIntegrationTest.plan_everythingWithinTheQuotaDone_isAllDoneEvenWithBacklogLeft_AC_HT_58; DailyReviewApiIntegrationTest.plan_quotaReachedWithMoreCardsDue_showsDoneAndSuggestionsButKeepsAMoreRound_AC_HT_58_AC_HT_60 | Một phần (backend có test; trang Hôm nay mới kiểm tay trên trình duyệt, chưa có test giao diện) |
+| AC-HT-59 | Phiên mới chỉ lấy phần định mức còn lại của ngày | UC-HT-05 | D, B | DailyReviewApiIntegrationTest.plan_cardsReviewedTodayAreDeductedFromTheDailyQuota_BR_HT_24_AC_HT_59; DailyReviewApiIntegrationTest.plan_onlyReviewAnswersCount_notLearningAndNotYesterday_andACardCountsOnce_AC_HT_59; DailyReviewApiIntegrationTest.plan_sentencesReviewedTodayAreDeductedPerMode_BR_HT_24_AC_HT_59 | Đã có |
+| AC-HT-60 | Ôn thêm không tính định mức và không lấy câu | UC-HT-05 | D | DailyReviewApiIntegrationTest.plan_quotaReachedWithMoreCardsDue_showsDoneAndSuggestionsButKeepsAMoreRound_AC_HT_58_AC_HT_60; `frontend/src/features/review/flow.test.ts` | Đã có |
+| AC-HT-61 | Câu bỏ qua không quay lại trong ngày và được chọn lại vào ngày mai | UC-HT-05 | D, B | DailyReviewApiIntegrationTest.skip_postponesTheSentenceToTomorrow_withoutCountingItAsReviewed_AC_HT_32_AC_HT_61; DailyReviewApiIntegrationTest.skip_cameBackTheNextDay_AC_HT_61; DailyReviewApiIntegrationTest.skip_theOnlyRemainingSentence_letsTheDayFinish_AC_HT_61 | Đã có |
 | AC-HT-42 | Lưu một nghĩa mới từ từ điển | UC-HT-06 |  |  | Thiếu |
 | AC-HT-43 | Lưu trùng một nghĩa đang lưu không báo lỗi | UC-HT-06 |  |  | Thiếu |
 | AC-HT-44 | Lưu nhiều nghĩa khác nhau của cùng một từ | UC-HT-06 |  |  | Thiếu |

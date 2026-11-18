@@ -1,10 +1,13 @@
 package com.lingualoop.backend.practice.service;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import com.lingualoop.backend.lesson.enums.PracticeMode;
+import com.lingualoop.backend.practice.dto.ReviewPlanSentence;
 import com.lingualoop.backend.practice.dto.ReviewSentenceView;
 import com.lingualoop.backend.practice.enums.ReviewReason;
 
@@ -28,4 +31,28 @@ public interface SentenceReviewService {
      * mọi bài.
      */
     List<ReviewSentenceView> list(UUID userId, PracticeMode mode, UUID lessonId);
+
+    /**
+     * Câu có thể ôn hôm nay của cả hai chế độ, thứ tự ưu tiên theo BR-HT-20, chưa cắt theo định mức. {@code dayStart} là
+     * đầu ngày của học viên (theo múi giờ của họ): câu đã ôn từ mốc này trở đi bị loại (BR-HT-21).
+     */
+    List<ReviewPlanSentence> findReviewableToday(UUID userId, boolean userPro, Instant dayStart);
+
+    /**
+     * Hoãn câu sang ngày mai khi học viên bỏ qua trong phiên ôn (BR-HT-21): câu không được chọn lại hôm nay và không được
+     * tính là đã ôn; câu vẫn ở trong danh sách. Câu không ở trong danh sách thì lỗi không tìm thấy.
+     */
+    void skip(UUID userId, UUID sentenceId, PracticeMode mode);
+
+    /**
+     * Số câu đã ôn từ {@code since} (đầu ngày của học viên) theo chế độ, để trừ vào Định mức ôn ngày. Chế độ chưa ôn câu
+     * nào không có trong kết quả.
+     */
+    Map<PracticeMode, Integer> countReviewedSince(UUID userId, Instant since);
+
+    /**
+     * Đánh dấu câu "đã ôn hôm nay" sau một lượt trong phiên ôn câu (BR-HT-21). Câu phải đang trong danh sách và học viên
+     * phải vừa có lượt thật ở chế độ đó; gọi lại nhiều lần không đổi gì thêm.
+     */
+    void markReviewed(UUID userId, UUID sentenceId, PracticeMode mode);
 }

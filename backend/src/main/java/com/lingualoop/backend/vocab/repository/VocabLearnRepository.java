@@ -24,7 +24,7 @@ public class VocabLearnRepository {
     /** Các cột của thẻ mà {@link #card(ResultSet)} đọc; cần bí danh {@code c} (thẻ) và {@code p} (tiến độ). */
     static final String CARD_COLUMNS = """
             c.id, c.word, c.pos, c.meaning_vi, c.definition_en, c.definition_vi, c.example_en, c.example_vi,
-            c.ipa_uk, c.ipa_us, c.audio_uk_url, c.audio_us_url,
+            c.ipa_uk, c.ipa_us, c.audio_uk_url, c.audio_us_url, c.image_url,
             """ + CardSql.STATUS + """
              AS status, COALESCE(p.repetitions, 0) AS repetitions, COALESCE(p.interval_days, 0) AS interval_days,
             COALESCE(p.ease_factor, 2.5) AS easiness
@@ -48,14 +48,14 @@ public class VocabLearnRepository {
 
     public record CardRow(UUID id, String word, String pos, String meaningVi, String definitionEn,
             String definitionVi, String exampleEn, String exampleVi, String ipaUk, String ipaUs, String audioUk,
-            String audioUs, String status, int repetitions, int intervalDays, double easiness) {
+            String audioUs, String imageKey, String status, int repetitions, int intervalDays, double easiness) {
     }
 
     static CardRow card(ResultSet rs) throws SQLException {
         return new CardRow(rs.getObject("id", UUID.class), rs.getString("word"), rs.getString("pos"),
                 rs.getString("meaning_vi"), rs.getString("definition_en"), rs.getString("definition_vi"),
                 rs.getString("example_en"), rs.getString("example_vi"), rs.getString("ipa_uk"), rs.getString("ipa_us"),
-                rs.getString("audio_uk_url"), rs.getString("audio_us_url"), rs.getString("status"),
+                rs.getString("audio_uk_url"), rs.getString("audio_us_url"), rs.getString("image_url"), rs.getString("status"),
                 rs.getInt("repetitions"), rs.getInt("interval_days"), rs.getDouble("easiness"));
     }
 

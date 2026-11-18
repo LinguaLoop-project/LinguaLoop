@@ -46,8 +46,8 @@ public class VocabReviewRepository {
     public record DueCard(CardRow card, String contextEn, String contextVi, UUID lessonId, String lessonTitle) {
     }
 
-    /** Tối đa {@link #QUEUE_SIZE} thẻ đến hạn, thẻ đến hạn sớm nhất trước; thẻ Mới của từ đã lưu xếp theo lúc lưu. */
-    public List<DueCard> findDue(UUID userId, UUID deckId, boolean userPro) {
+    /** Tối đa {@code limit} thẻ đến hạn, thẻ đến hạn sớm nhất trước; thẻ Mới của từ đã lưu xếp theo lúc lưu. */
+    public List<DueCard> findDue(UUID userId, UUID deckId, boolean userPro, int limit) {
         return jdbc.sql("SELECT " + VocabLearnRepository.CARD_COLUMNS + """
                 , se.text_en AS context_en, se.text_vi AS context_vi, l.id AS lesson_id, l.title AS lesson_title
                 """ + JOINS + """
@@ -58,7 +58,7 @@ public class VocabReviewRepository {
                 ORDER BY COALESCE(p.due_at, c.created_at), c.id
                 LIMIT :limit
                 """)
-                .param("user", userId).param("deck", deckId).param("userPro", userPro).param("limit", QUEUE_SIZE)
+                .param("user", userId).param("deck", deckId).param("userPro", userPro).param("limit", limit)
                 .query((rs, n) -> new DueCard(VocabLearnRepository.card(rs), rs.getString("context_en"),
                         rs.getString("context_vi"), rs.getObject("lesson_id", UUID.class),
                         rs.getString("lesson_title")))
@@ -69,6 +69,20 @@ public class VocabReviewRepository {
     public int countDue(UUID userId, UUID deckId, boolean userPro) {
         return jdbc.sql("SELECT count(*) " + JOINS + VISIBLE + " AND " + CardSql.IS_DUE)
                 .param("user", userId).param("deck", deckId).param("userPro", userPro)
+                .query(Integer.class).single();
+    }
+
+    /**
+     * Số thẻ khác nhau đã chấm trong lượt ôn từ {@code since} (đầu ngày của học viên), để trừ vào Định mức ôn ngày. Một
+     * thẻ chấm nhiều lần (làm lại sau khi Quên) chỉ đếm một lần; lượt học từ mới không được tính.
+     */
+    public int countReviewedSince(UUID userId, Instant since) {
+        return jdbc.sql("""
+                SELECT count(DISTINCT l.card_id)
+                FROM vocab_review_logs l
+                JOIN vocab_sessions s ON s.id = l.session_id AND s.kind = 'review'
+                WHERE l.user_id = :user AND l.created_at >= :since""")
+                .param("user", userId).param("since", Timestamp.from(since))
                 .query(Integer.class).single();
     }
 

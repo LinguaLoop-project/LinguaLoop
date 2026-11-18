@@ -133,6 +133,56 @@ public interface LessonRepository extends JpaRepository<Lesson, UUID>, JpaSpecif
                   AND EXISTS (SELECT 1 FROM sentences s2 WHERE s2.lesson_id = s0.lesson_id AND s2.deleted_at IS NULL))""")
     List<UUID> findCompletedLessonIds(@Param("userId") UUID userId);
 
+    /** Một bài gợi ý cho người học: id, tên, mức CEFR và số câu. */
+    interface SuggestedLesson {
+        UUID getId();
+
+        String getTitle();
+
+        String getCefrLevel();
+
+        long getSentenceCount();
+    }
+
+    /**
+     * Bài chưa từng luyện nghe chép để gợi ý, mức CEFR thấp trước rồi bài nhiều lượt xem trước. Bỏ bài Pro khi người học
+     * dùng gói Free và bài chưa có câu nào.
+     */
+    @Query(nativeQuery = true, value = """
+            SELECT l.id AS id, l.title AS title, l.cefr_level AS cefrLevel, count(s.id) AS sentenceCount
+            FROM lessons l
+            JOIN sentences s ON s.lesson_id = l.id AND s.deleted_at IS NULL
+            WHERE l.kind = 'library' AND l.status = 'published' AND l.deleted_at IS NULL
+              AND (NOT l.is_pro OR :userPro)
+              AND NOT EXISTS (
+                  SELECT 1 FROM sentence_attempts a JOIN sentences s2 ON s2.id = a.sentence_id
+                  WHERE a.user_id = :userId AND s2.lesson_id = l.id AND a.mode = 'dictation')
+            GROUP BY l.id
+            ORDER BY l.cefr_level, l.view_count DESC, l.created_at, l.id
+            LIMIT 1""")
+    List<SuggestedLesson> findUnpracticedDictationLesson(@Param("userId") UUID userId, @Param("userPro") boolean userPro);
+
+    /**
+     * Bài chưa từng luyện Shadowing để gợi ý. Bài người học đã luyện nghe chép đứng trước (nghe rồi mới nói), sau đó tới
+     * mức CEFR thấp rồi bài nhiều lượt xem. Bỏ bài Pro khi người học dùng gói Free và bài chưa có câu nào.
+     */
+    @Query(nativeQuery = true, value = """
+            SELECT l.id AS id, l.title AS title, l.cefr_level AS cefrLevel, count(s.id) AS sentenceCount
+            FROM lessons l
+            JOIN sentences s ON s.lesson_id = l.id AND s.deleted_at IS NULL
+            WHERE l.kind = 'library' AND l.status = 'published' AND l.deleted_at IS NULL
+              AND (NOT l.is_pro OR :userPro)
+              AND NOT EXISTS (
+                  SELECT 1 FROM sentence_attempts a JOIN sentences s2 ON s2.id = a.sentence_id
+                  WHERE a.user_id = :userId AND s2.lesson_id = l.id AND a.mode = 'shadowing')
+            GROUP BY l.id
+            ORDER BY EXISTS (
+                         SELECT 1 FROM sentence_attempts a JOIN sentences s3 ON s3.id = a.sentence_id
+                         WHERE a.user_id = :userId AND s3.lesson_id = l.id AND a.mode = 'dictation') DESC,
+                     l.cefr_level, l.view_count DESC, l.created_at, l.id
+            LIMIT 1""")
+    List<SuggestedLesson> findUnpracticedShadowingLesson(@Param("userId") UUID userId, @Param("userPro") boolean userPro);
+
     /** Bài người học làm gần nhất, mới trước (kể cả bài đã hoàn thành). */
     @Query(nativeQuery = true, value = """
             SELECT s.lesson_id
