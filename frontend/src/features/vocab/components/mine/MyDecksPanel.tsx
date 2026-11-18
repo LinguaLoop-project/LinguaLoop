@@ -74,7 +74,6 @@ export default function MyDecksPanel() {
             />
           ))}
         </div>
-        <p className="mt-5 text-[13px] text-text-muted">{t("mine.cardsNote")}</p>
       </>
     );
   };

@@ -75,10 +75,24 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
 
     // ------------------------------------------------------------------ nhóm thẻ (UC-NT-01, 02, 03)
 
+    /**
+     * Ai đang thao tác trên nội dung bộ. Giáo viên sửa bộ thư viện của mình (người khác bị từ chối 403, có luật xuất bản
+     * BR-NT-05); học viên sửa bộ cá nhân của mình (bộ của người khác là không tìm thấy, BR-HT-06), không có luật xuất bản
+     * và không đính kèm ảnh (BR-HT-26).
+     */
+    enum Actor {
+        TEACHER, LEARNER
+    }
+
     @Override
     @Transactional
     public DeckManageView.Group addGroup(UUID teacherId, UUID deckId, GroupRequest request) {
-        DeckStateRow deck = lockTeacherDeck(teacherId, deckId);
+        return addGroup(Actor.TEACHER, teacherId, deckId, request);
+    }
+
+    @Transactional
+    public DeckManageView.Group addGroup(Actor actor, UUID userId, UUID deckId, GroupRequest request) {
+        DeckStateRow deck = lockDeck(actor, userId, deckId);
         if (isPublished(deck)) {
             throw mustStayPublishable(REASON_EMPTY_GROUP);
         }
@@ -94,7 +108,13 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     @Override
     @Transactional
     public DeckManageView.Group renameGroup(UUID teacherId, UUID deckId, UUID groupId, GroupRequest request) {
-        lockTeacherDeck(teacherId, deckId);
+        return renameGroup(Actor.TEACHER, teacherId, deckId, groupId, request);
+    }
+
+    @Transactional
+    public DeckManageView.Group renameGroup(Actor actor, UUID userId, UUID deckId, UUID groupId,
+            GroupRequest request) {
+        lockDeck(actor, userId, deckId);
         DeckManageView.Group group = group(deckId, groupId);
         if (repository.existsGroupName(deckId, request.name(), groupId)) {
             throw new BusinessException(ErrorCode.VOCAB_GROUP_NAME_TAKEN);
@@ -108,7 +128,12 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     @Override
     @Transactional
     public void deleteGroup(UUID teacherId, UUID deckId, UUID groupId) {
-        DeckStateRow deck = lockTeacherDeck(teacherId, deckId);
+        deleteGroup(Actor.TEACHER, teacherId, deckId, groupId);
+    }
+
+    @Transactional
+    public void deleteGroup(Actor actor, UUID userId, UUID deckId, UUID groupId) {
+        DeckStateRow deck = lockDeck(actor, userId, deckId);
         group(deckId, groupId);
         if (isPublished(deck) && decks.countGroups(deckId) <= 1) {
             throw mustStayPublishable(REASON_LAST_GROUP);
@@ -125,12 +150,18 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     @Override
     @Transactional
     public DeckManageView.Card addCard(UUID teacherId, UUID deckId, UUID groupId, CardRequest request) {
-        images.discardOnRollback(teacherId, request.imageKey());
-        lockTeacherDeck(teacherId, deckId);
+        return addCard(Actor.TEACHER, teacherId, deckId, groupId, request);
+    }
+
+    @Transactional
+    public DeckManageView.Card addCard(Actor actor, UUID userId, UUID deckId, UUID groupId, CardRequest request) {
+        rejectImage(actor, request);
+        images.discardOnRollback(userId, request.imageKey());
+        lockDeck(actor, userId, deckId);
         group(deckId, groupId);
         requireWordFree(deckId, request.word(), null);
         if (request.imageKey() != null) {
-            images.verify(teacherId, request.imageKey());
+            images.verify(userId, request.imageKey());
         }
         Instant now = now();
         UUID id = repository.insertCard(deckId, groupId, request, audioOf(request), request.imageKey(), now);
@@ -142,13 +173,20 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     @Transactional
     public DeckManageView.Card updateCard(UUID teacherId, UUID deckId, UUID groupId, UUID cardId,
             CardRequest request) {
-        images.discardOnRollback(teacherId, request.imageKey());
-        lockTeacherDeck(teacherId, deckId);
+        return updateCard(Actor.TEACHER, teacherId, deckId, groupId, cardId, request);
+    }
+
+    @Transactional
+    public DeckManageView.Card updateCard(Actor actor, UUID userId, UUID deckId, UUID groupId, UUID cardId,
+            CardRequest request) {
+        rejectImage(actor, request);
+        images.discardOnRollback(userId, request.imageKey());
+        lockDeck(actor, userId, deckId);
         String oldImage = repository.findCard(deckId, groupId, cardId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_CARD_NOT_FOUND)).imageUrl();
         requireWordFree(deckId, request.word(), cardId);
         if (request.imageKey() != null) {
-            images.verify(teacherId, request.imageKey());
+            images.verify(userId, request.imageKey());
         }
         String image = request.imageKey() != null ? request.imageKey()
                 : (Boolean.TRUE.equals(request.removeImage()) ? null : oldImage);
@@ -156,7 +194,7 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
         repository.updateCard(cardId, request, audioOf(request), image, now);
         repository.touchDeck(deckId, now);
         if (oldImage != null && !oldImage.equals(image)) {
-            images.discardAfterCommit(teacherId, oldImage);
+            images.discardAfterCommit(userId, oldImage);
         }
         return card(deckId, groupId, cardId);
     }
@@ -190,7 +228,12 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     @Override
     @Transactional
     public void deleteCard(UUID teacherId, UUID deckId, UUID groupId, UUID cardId) {
-        DeckStateRow deck = lockTeacherDeck(teacherId, deckId);
+        deleteCard(Actor.TEACHER, teacherId, deckId, groupId, cardId);
+    }
+
+    @Transactional
+    public void deleteCard(Actor actor, UUID userId, UUID deckId, UUID groupId, UUID cardId) {
+        DeckStateRow deck = lockDeck(actor, userId, deckId);
         card(deckId, groupId, cardId);
         if (isPublished(deck) && group(deckId, groupId).cardCount() <= 1) {
             throw mustStayPublishable(REASON_LAST_CARD);
@@ -232,7 +275,7 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     public CardImagesView.Result attachImages(UUID teacherId, UUID deckId, UUID groupId,
             AttachCardImagesRequest request) {
         request.items().forEach(item -> images.discardOnRollback(teacherId, item.imageKey()));
-        lockTeacherDeck(teacherId, deckId);
+        lockDeck(Actor.TEACHER, teacherId, deckId);
         group(deckId, groupId);
         Map<String, CardImageRow> byWord = new HashMap<>();
         for (CardImageRow row : repository.findGroupCardImages(groupId)) {
@@ -299,7 +342,13 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     @Transactional(readOnly = true)
     public CardImportView.Preview previewImport(UUID teacherId, UUID deckId, UUID groupId, String filename,
             byte[] content) {
-        teacherDeck(decks.findState(deckId), teacherId);
+        return previewImport(Actor.TEACHER, teacherId, deckId, groupId, filename, content);
+    }
+
+    @Transactional(readOnly = true)
+    public CardImportView.Preview previewImport(Actor actor, UUID userId, UUID deckId, UUID groupId, String filename,
+            byte[] content) {
+        openDeck(actor, userId, decks.findState(deckId));
         group(deckId, groupId);
         return new CardImportView.Preview(parseCards(deckId, filename, content).size());
     }
@@ -308,7 +357,13 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     @Transactional
     public CardImportView.Result importCards(UUID teacherId, UUID deckId, UUID groupId, String filename,
             byte[] content) {
-        lockTeacherDeck(teacherId, deckId);
+        return importCards(Actor.TEACHER, teacherId, deckId, groupId, filename, content);
+    }
+
+    @Transactional
+    public CardImportView.Result importCards(Actor actor, UUID userId, UUID deckId, UUID groupId, String filename,
+            byte[] content) {
+        lockDeck(actor, userId, deckId);
         group(deckId, groupId);
         List<CardRequest> cards = parseCards(deckId, filename, content);
         Instant start = now();
@@ -383,8 +438,26 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
 
     // ------------------------------------------------------------------ quyền và tra cứu (BR-NT-01)
 
-    private DeckStateRow lockTeacherDeck(UUID teacherId, UUID deckId) {
-        return teacherDeck(decks.lockState(deckId), teacherId);
+    private DeckStateRow lockDeck(Actor actor, UUID userId, UUID deckId) {
+        return openDeck(actor, userId, decks.lockState(deckId));
+    }
+
+    private static DeckStateRow openDeck(Actor actor, UUID userId, Optional<DeckStateRow> found) {
+        return actor == Actor.TEACHER ? teacherDeck(found, userId) : learnerDeck(found, userId);
+    }
+
+    /** Bộ cá nhân chưa xóa của chính học viên; bộ của người khác, bộ thư viện hoặc đã xóa = không tìm thấy (BR-HT-06). */
+    static DeckStateRow learnerDeck(Optional<DeckStateRow> found, UUID learnerId) {
+        return found.filter(d -> VocabDeck.KIND_PERSONAL.equals(d.getKind()) && d.getDeletedAt() == null
+                && learnerId.equals(d.getOwnerId()))
+                .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));
+    }
+
+    /** Thẻ của bộ cá nhân không có ảnh minh họa (BR-HT-26): yêu cầu kèm ảnh bị từ chối ở trường {@code image}. */
+    private static void rejectImage(Actor actor, CardRequest request) {
+        if (actor == Actor.LEARNER && (request.imageKey() != null || Boolean.TRUE.equals(request.removeImage()))) {
+            throw new FieldValidationException("image", "NotAllowed");
+        }
     }
 
     /** Bộ thư viện chưa xóa của chính giáo viên; bộ khác loại, không tồn tại hoặc đã xóa = không tìm thấy. */

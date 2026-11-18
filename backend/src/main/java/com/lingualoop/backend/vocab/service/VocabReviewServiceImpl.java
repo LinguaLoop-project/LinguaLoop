@@ -51,7 +51,8 @@ class VocabReviewServiceImpl implements VocabReviewService {
         List<LearnView.Card> cards = review.findDue(userId, deckId, userPro, size).stream().map(this::toCard).toList();
         int dueTotal = review.countDue(userId, deckId, userPro);
         return new ReviewView.Queue(
-                deck == null ? null : new LearnView.DeckRef(deck.getId(), deck.getName(), deck.getPro()),
+                deck == null ? null : new LearnView.DeckRef(deck.getId(), deck.getName(), deck.getPro(),
+                        "personal".equals(deck.getKind())),
                 cards, dueTotal, review.findNextDueAt(userId, deckId, userPro));
     }
 

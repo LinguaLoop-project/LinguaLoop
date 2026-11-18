@@ -214,6 +214,7 @@ export default function PartPage() {
               partNumber={detail.index + 1}
               nextPartHref={nextPartHref}
               deckHref={deckUrl(detail.deck.id)}
+              canReport={!detail.deck.personal}
               onAnswer={submit}
             />
           )}

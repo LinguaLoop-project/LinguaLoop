@@ -61,7 +61,7 @@ Một tập thẻ chia thành các bài theo thứ tự, do hệ thống cung c�
 _Tránh_: deck, bộ từ vựng
 
 **Bộ của tôi**:
-Các bộ từ cá nhân do chính học viên tạo, chỉ mình học viên thấy; khác với bộ hệ thống và bộ "Từ đã lưu" (bộ riêng, mỗi học viên một bộ, không đổi tên hay xóa được). Học viên thêm, đổi tên và xóa bộ; tên dài 1 đến 100 ký tự và không trùng tên bộ cá nhân khác của mình, không phân biệt hoa thường. Xóa bộ là xóa tạm: thẻ của bộ không còn vào hàng đợi ôn và tên được dùng lại. Bộ mới tạo là bộ trống; việc thêm thẻ vào bộ chưa có trong đặc tả.
+Các bộ từ cá nhân do chính học viên tạo, chỉ mình học viên thấy; khác với bộ hệ thống và bộ "Từ đã lưu" (bộ riêng, mỗi học viên một bộ, không đổi tên hay xóa được). Học viên thêm, đổi tên và xóa bộ; tên dài 1 đến 100 ký tự và không trùng tên bộ cá nhân khác của mình, không phân biệt hoa thường. Xóa bộ là xóa tạm: thẻ của bộ không còn vào hàng đợi ôn và tên được dùng lại. Học viên tự quản lý nhóm thẻ (phần) và thẻ trong bộ (nhập tay, điền từ từ điển hoặc nhập Excel/CSV) nhưng không đính kèm ảnh; bộ được học và ôn như bộ hệ thống, không có khóa Pro và không có bước xuất bản.
 _Tránh_: bộ cá nhân (dùng trong tài liệu kỹ thuật cho cùng khái niệm), bộ riêng, từ của tôi
 
 **Phần**:

@@ -11,9 +11,6 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ConflictException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.FieldValidationException;
-import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.dto.UserAccountView;
-import com.lingualoop.backend.user.service.UserAccountService;
 import com.lingualoop.backend.vocab.dto.MyDeckView;
 import com.lingualoop.backend.vocab.repository.MyDeckRepository;
 
@@ -28,19 +25,19 @@ class MyDeckServiceImpl implements MyDeckService {
     private static final String UNIQUE_NAME_INDEX = "uq_vocab_decks_name";
 
     private final MyDeckRepository repository;
-    private final UserAccountService users;
+    private final StudentGuard guard;
 
     @Override
     @Transactional(readOnly = true)
     public List<MyDeckView> list(UUID userId) {
-        requireStudent(userId);
+        guard.require(userId);
         return repository.findAll(userId);
     }
 
     @Override
     @Transactional
     public MyDeckView create(UUID userId, String rawName) {
-        requireStudent(userId);
+        guard.require(userId);
         String name = validName(rawName);
         if (repository.existsName(userId, name, null)) {
             throw new ConflictException(DUPLICATE_NAME);
@@ -57,7 +54,7 @@ class MyDeckServiceImpl implements MyDeckService {
     @Override
     @Transactional
     public MyDeckView rename(UUID userId, UUID deckId, String rawName) {
-        requireStudent(userId);
+        guard.require(userId);
         String name = validName(rawName);
         // Bộ phải có trước khi xét tên để bộ của người khác luôn báo không tìm thấy (BR-HT-06).
         found(userId, deckId);
@@ -77,7 +74,7 @@ class MyDeckServiceImpl implements MyDeckService {
     @Override
     @Transactional
     public void delete(UUID userId, UUID deckId) {
-        requireStudent(userId);
+        guard.require(userId);
         if (repository.softDelete(userId, deckId) == 0) {
             throw new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND);
         }
@@ -86,14 +83,6 @@ class MyDeckServiceImpl implements MyDeckService {
     private MyDeckView found(UUID userId, UUID deckId) {
         return repository.findOne(userId, deckId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));
-    }
-
-    /** Bộ cá nhân chỉ dành cho học viên; giáo viên và admin soạn bộ ở phần quản lý riêng. */
-    private void requireStudent(UUID userId) {
-        UserAccountView user = users.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
-        if (user.role() != Role.STUDENT) {
-            throw new BusinessException(ErrorCode.FORBIDDEN);
-        }
     }
 
     /** Tên sau khi cắt khoảng trắng hai đầu: bắt buộc, tối đa 100 ký tự (BR-HT-25). */

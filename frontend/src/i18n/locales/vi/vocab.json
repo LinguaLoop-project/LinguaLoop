@@ -87,6 +87,7 @@
       "pro": "Pro",
       "locked": "Phần này chỉ có ở gói Pro",
       "partDone": "Đã xong",
+      "empty": "Chưa có thẻ",
       "range": "Đang hiện phần {{from}}–{{to}} / {{total}}",
       "showAll": "Xem tất cả phần",
       "showLess": "Thu gọn"
@@ -216,7 +217,12 @@
     "title": "Bộ của tôi",
     "subtitle": "Các bộ từ vựng cá nhân do bạn tạo, chỉ mình bạn thấy.",
     "add": "Thêm bộ",
-    "cardsNote": "Bộ cá nhân hiện chưa thêm được thẻ. Tính năng thêm thẻ vào bộ sẽ có ở bản sau.",
+    "detail": {
+      "hint": "Thêm nhóm và thẻ cho bộ của bạn. Chỉ mình bạn thấy bộ này.",
+      "back": "Về Bộ của tôi",
+      "learn": "Học bộ này",
+      "learnNone": "Thêm thẻ để bắt đầu học"
+    },
     "empty": {
       "title": "Bạn chưa có bộ nào",
       "desc": "Tạo một bộ từ vựng của riêng bạn, ví dụ \"Từ vựng công sở\" hay \"TOEIC cần nhớ\"."
@@ -225,6 +231,7 @@
       "cards_other": "{{count}} thẻ",
       "due_other": "{{count}} thẻ đến hạn ôn",
       "noDue": "Chưa có thẻ đến hạn",
+      "open": "Mở bộ",
       "rename": "Sửa tên",
       "delete": "Xóa"
     },

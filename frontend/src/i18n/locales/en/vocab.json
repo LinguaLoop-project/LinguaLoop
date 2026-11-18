@@ -91,6 +91,7 @@
       "pro": "Pro",
       "locked": "This part is Pro only",
       "partDone": "Done",
+      "empty": "No cards yet",
       "range": "Showing parts {{from}}–{{to}} of {{total}}",
       "showAll": "Show all parts",
       "showLess": "Show fewer"
@@ -227,7 +228,12 @@
     "title": "My decks",
     "subtitle": "Vocabulary decks you created. Only you can see them.",
     "add": "Add deck",
-    "cardsNote": "You can't add cards to a personal deck yet. Adding cards will come in a later update.",
+    "detail": {
+      "hint": "Add groups and cards to your deck. Only you can see it.",
+      "back": "Back to My decks",
+      "learn": "Study this deck",
+      "learnNone": "Add cards to start studying"
+    },
     "empty": {
       "title": "You have no decks yet",
       "desc": "Create a vocabulary deck of your own, such as \"Office words\" or \"TOEIC to remember\"."
@@ -238,6 +244,7 @@
       "due_one": "{{count}} card due",
       "due_other": "{{count}} cards due",
       "noDue": "No cards due",
+      "open": "Open deck",
       "rename": "Rename",
       "delete": "Delete"
     },

@@ -120,6 +120,8 @@ function PartRow({ slug, part, next }: { slug: string; part: DeckPart; next: num
         <Button variant="ghost" size="sm" aria-label={`${name}: ${t("detail.parts.locked")}`} leftIcon={<Icon name="crown" />} onClick={() => openUpgrade(true, "pro")}>
           {t("detail.parts.pro")}
         </Button>
+      ) : part.cardCount === 0 ? (
+        <span className="text-[13px] text-text-muted">{t("detail.parts.empty")}</span>
       ) : (
         <Link to={href} className={buttonClasses({ variant: state === "current" ? "primary" : "ghost", size: "sm" })}>
           {state === "done" ? t("detail.parts.review") : state === "current" ? t("detail.parts.learn") : t("detail.parts.open")}

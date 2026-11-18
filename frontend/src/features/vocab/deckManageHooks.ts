@@ -4,6 +4,7 @@ import type {
   CategoryOption,
   CreateDeckInput,
   DeckListFilter,
+  ContentRole,
   ManageRole,
   UpdateDeckInput,
 } from "./deckManageTypes";
@@ -15,8 +16,8 @@ export const deckManageKeys = {
   teacher: (filter: DeckListFilter, page: number) => [...deckManageKeys.all, "teacher", filter, page] as const,
   admin: (filter: DeckListFilter, page: number) => [...deckManageKeys.all, "admin", filter, page] as const,
   categories: (role: ManageRole) => [...deckManageKeys.all, "categories", role] as const,
-  detail: (role: ManageRole, deckId: string) => [...deckManageKeys.all, "detail", role, deckId] as const,
-  cards: (role: ManageRole, deckId: string, groupId: string, q: string, page: number) =>
+  detail: (role: ContentRole, deckId: string) => [...deckManageKeys.all, "detail", role, deckId] as const,
+  cards: (role: ContentRole, deckId: string, groupId: string, q: string, page: number) =>
     [...deckManageKeys.all, "cards", role, deckId, groupId, q, page] as const,
 };
 
@@ -52,7 +53,7 @@ export function useDeckCategories(role: ManageRole) {
 }
 
 /** Thông tin chung và nhóm thẻ của một bộ (UC-BT-04); lỗi 403/404 hiện ngay, không thử lại. */
-export function useDeckDetail(role: ManageRole, deckId: string | undefined) {
+export function useDeckDetail(role: ContentRole, deckId: string | undefined) {
   return useQuery({
     queryKey: deckManageKeys.detail(role, deckId ?? ""),
     queryFn: () => deckManageApi.fetchDeckDetail(role, deckId ?? ""),
@@ -62,7 +63,7 @@ export function useDeckDetail(role: ManageRole, deckId: string | undefined) {
 }
 
 /** Thẻ của một nhóm, 20 thẻ mỗi trang (BR-BT-15). */
-export function useGroupCards(role: ManageRole, deckId: string, groupId: string | null, q: string, page: number) {
+export function useGroupCards(role: ContentRole, deckId: string, groupId: string | null, q: string, page: number) {
   return useQuery({
     queryKey: deckManageKeys.cards(role, deckId, groupId ?? "", q.trim(), page),
     queryFn: () => deckManageApi.fetchGroupCards(role, deckId, groupId ?? "", q, page),

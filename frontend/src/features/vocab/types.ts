@@ -152,6 +152,8 @@ export interface LearnDeckRef {
   id: string;
   name: string;
   pro: boolean;
+  /** Bộ cá nhân của học viên (UC-HT-09): không có giáo viên nhận báo cáo, nên không hiện nút báo lỗi thẻ. */
+  personal: boolean;
 }
 
 /** Một phần kèm toàn bộ thẻ; màn học tự chia thành các lượt 10 thẻ (`LearnView.PartDetail`). */

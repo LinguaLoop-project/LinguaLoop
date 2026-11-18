@@ -22,7 +22,7 @@ function lookup(tree: unknown, path: string): unknown {
 }
 
 // Mã nguồn của "Bộ của tôi", đọc dạng chữ để dò các lời gọi t("khoá tĩnh")
-const sources = import.meta.glob(["./components/mine/*.tsx"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const sources = import.meta.glob(["./components/mine/*.tsx", "./components/manage/DeckDetailView.tsx"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 
 describe("chuỗi giao diện của Bộ của tôi (UC-HT-08)", () => {
   it("tiếng Việt và tiếng Anh có cùng bộ khoá", () => {

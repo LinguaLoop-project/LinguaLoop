@@ -143,6 +143,21 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
 
     @Override
     @Transactional(readOnly = true)
+    public DeckManageView.Detail getForLearner(UUID learnerId, UUID deckId) {
+        VocabDeckContentServiceImpl.learnerDeck(repository.findState(deckId), learnerId);
+        return detailOf(deckId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<DeckManageView.Card> listCardsForLearner(UUID learnerId, UUID deckId, UUID groupId, String q,
+            int page) {
+        VocabDeckContentServiceImpl.learnerDeck(repository.findState(deckId), learnerId);
+        return cardsOf(deckId, groupId, q, page);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public DeckManageView.Detail getForAdmin(UUID deckId) {
         adminViewableDeck(deckId);
         return detailOf(deckId);

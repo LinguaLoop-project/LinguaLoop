@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import EmptyState from "@/components/common/EmptyState";
 import ErrorState from "@/components/common/ErrorState";
+import { buttonClasses } from "@/components/common/buttonStyles";
 import { FormAlert } from "@/components/common/FormAlert";
 import Icon from "@/components/common/Icon";
 import SearchInput from "@/components/common/SearchInput";
@@ -13,8 +14,8 @@ import { toast } from "@/stores/toastStore";
 import type { ContentFailure } from "../../deckContentForm";
 import type { LifecycleAction } from "../../deckLifecycle";
 import { useDeckDetail, useGroupCards } from "../../deckManageHooks";
-import { ADMIN_DECKS_PATH, TEACHER_DECKS_PATH } from "../../deckManagePaths";
-import type { DeckApiError, DeckCard, DeckGroup, ManageRole } from "../../deckManageTypes";
+import { ADMIN_DECKS_PATH, MY_DECKS_PATH, TEACHER_DECKS_PATH } from "../../deckManagePaths";
+import type { ContentRole, DeckApiError, DeckCard, DeckGroup } from "../../deckManageTypes";
 import CardDialog from "./CardDialog";
 import CardRow from "./CardRow";
 import CardImagesDialog from "./CardImagesDialog";
@@ -28,7 +29,8 @@ import DeckMoreMenu from "./DeckMoreMenu";
 import { MetaChip, StatusBadge } from "./DeckBits";
 
 export interface DeckDetailViewProps {
-  role: ManageRole;
+  /** `learner` là bộ cá nhân của học viên (UC-HT-09): sửa được nhóm và thẻ, không có xuất bản và không có ảnh. */
+  role: ContentRole;
   deckId: string;
   /** Ẩn dòng lý do gỡ xuất bản khi trang đã hiện khung "Bị quản trị viên gỡ" cùng lý do đó. */
   hideUnpublishReason?: boolean;
@@ -43,12 +45,13 @@ function formatDate(iso: string, language: string): string {
 /**
  * Trang của một bộ thẻ: xem chi tiết (UC-BT-04) và, với giáo viên, sửa thông tin ngay tại chỗ (UC-BT-03). Gồm thông tin
  * chung, nhóm thẻ, thẻ của nhóm đang chọn (20 thẻ mỗi trang, tìm theo từ vựng). Giáo viên xuất bản, gỡ, xóa ngay trên
- * trang; quản trị viên chỉ xem và gỡ xuất bản. Xem không ghi tiến độ học (BR-BT-11).
+ * trang; quản trị viên chỉ xem và gỡ xuất bản. Học viên dùng cùng trang cho bộ cá nhân của mình (UC-HT-09): sửa nhóm và
+ * thẻ như giáo viên nhưng không có xuất bản và ảnh. Xem không ghi tiến độ học (BR-BT-11).
  */
 export default function DeckDetailView({ role, deckId, hideUnpublishReason = false, back }: DeckDetailViewProps) {
   const { t, i18n } = useTranslation("vocab");
   const navigate = useNavigate();
-  const listPath = role === "teacher" ? TEACHER_DECKS_PATH : ADMIN_DECKS_PATH;
+  const listPath = role === "learner" ? MY_DECKS_PATH : role === "teacher" ? TEACHER_DECKS_PATH : ADMIN_DECKS_PATH;
   const detail = useDeckDetail(role, deckId);
   const [groupId, setGroupId] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -125,9 +128,13 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
   }
 
   const isTeacher = role === "teacher";
-  const published = deck.status === "published";
-  // Giáo viên thấy nhóm thẻ cả khi nhóm chưa có thẻ để thêm thẻ vào; quản trị viên chỉ xem bộ đã có thẻ.
-  const showGroups = isTeacher ? deck.groups.length > 0 : deck.groups.length > 0 && deck.cardCount > 0;
+  const isLearner = role === "learner";
+  // Người sửa được nhóm và thẻ: giáo viên (bộ thư viện của mình) và học viên (bộ cá nhân của mình).
+  const canEdit = isTeacher || isLearner;
+  // Bộ cá nhân không có trạng thái xuất bản nên không áp luật BR-NT-05.
+  const published = !isLearner && deck.status === "published";
+  // Người sửa thấy nhóm thẻ cả khi nhóm chưa có thẻ để thêm thẻ vào; quản trị viên chỉ xem bộ đã có thẻ.
+  const showGroups = canEdit ? deck.groups.length > 0 : deck.groups.length > 0 && deck.cardCount > 0;
   const group = deck.groups.find((g) => g.id === activeGroup) ?? null;
   const posLabel = (pos: string | null) => (pos ? t(`content.pos.${pos}`, { defaultValue: pos }) : null);
 
@@ -159,6 +166,11 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
       <header className="flex flex-wrap items-start gap-4 rounded-xl border border-border bg-surface p-5">
         {role === "teacher" ? (
           <DeckInfoEditor key={deck.updatedAt} deck={deck} onGone={goneToList} />
+        ) : isLearner ? (
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
+            <h1 className="break-words text-2xl font-bold text-text">{deck.name}</h1>
+            <p className="text-sm text-text-muted">{t("mine.detail.hint")}</p>
+          </div>
         ) : (
           <div className="flex min-w-0 flex-1 flex-wrap items-start gap-4">
             <div className="grid h-28 w-36 place-items-center overflow-hidden rounded-xl border border-border bg-[linear-gradient(135deg,var(--fn-vocab-soft),var(--primary-soft))]">
@@ -178,6 +190,8 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
           </div>
         )}
         <div className="flex flex-col items-end gap-2">
+          {!isLearner && (
+          <>
           <div className="flex items-center gap-2">
             {deck.pro && (
               <Badge variant="pro">
@@ -203,10 +217,25 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
             )}
             {role === "teacher" && <DeckMoreMenu onDelete={() => setAction("delete")} />}
           </div>
+          </>
+          )}
+          {isLearner && (
+            <Link
+              to={`/student/vocab/${deckId}`}
+              aria-disabled={deck.cardCount === 0}
+              className={buttonClasses({ variant: "primary", className: deck.cardCount === 0 ? "pointer-events-none opacity-50" : "" })}
+              title={deck.cardCount === 0 ? t("mine.detail.learnNone") : undefined}
+            >
+              <Icon name="play" />
+              {t("mine.detail.learn")}
+            </Link>
+          )}
           <div className="flex flex-wrap justify-end gap-1.5 text-xs text-text-muted">
             <MetaChip icon="layers">{t("manage.groupCount", { count: deck.groups.length })}</MetaChip>
             <MetaChip icon="sticky-note">{t("manage.cardCount", { count: deck.cardCount })}</MetaChip>
-            <MetaChip icon="clock">{t("manage.updatedOn", { date: formatDate(deck.updatedAt, i18n.language) })}</MetaChip>
+            {!isLearner && (
+              <MetaChip icon="clock">{t("manage.updatedOn", { date: formatDate(deck.updatedAt, i18n.language) })}</MetaChip>
+            )}
           </div>
         </div>
       </header>
@@ -217,7 +246,7 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
 
       {isTeacher && published && <FormAlert variant="info">{t("content.publishedHint")}</FormAlert>}
 
-      {!showGroups && isTeacher && (
+      {!showGroups && canEdit && (
         <EmptyState
           icon="layers"
           title={t("content.emptyDeck")}
@@ -226,17 +255,17 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
           onAction={openAddGroup}
         />
       )}
-      {!showGroups && !isTeacher && <EmptyState title={t("manage.detail.noCards")} />}
+      {!showGroups && !canEdit && <EmptyState title={t("manage.detail.noCards")} />}
       {showGroups && (
         <div className="grid items-start gap-4 md:grid-cols-[280px_1fr]">
           <GroupList
             groups={deck.groups}
             activeId={activeGroup}
             onSelect={selectGroup}
-            onAdd={isTeacher ? openAddGroup : undefined}
+            onAdd={canEdit ? openAddGroup : undefined}
           />
           <div className="flex min-w-0 flex-col gap-3 rounded-xl border border-border bg-surface p-4">
-            {isTeacher && group && (
+            {canEdit && group && (
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
                   <h2 className="truncate text-lg font-semibold text-text">{group.name}</h2>
@@ -254,16 +283,18 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
                   >
                     {t("content.importCards")}
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    leftIcon={<Icon name="image-plus" />}
-                    disabled={group.cardCount === 0}
-                    title={group.cardCount === 0 ? t("content.images.needCards") : undefined}
-                    onClick={() => setImagesOpen(true)}
-                  >
-                    {t("content.attachImages")}
-                  </Button>
+                  {isTeacher && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      leftIcon={<Icon name="image-plus" />}
+                      disabled={group.cardCount === 0}
+                      title={group.cardCount === 0 ? t("content.images.needCards") : undefined}
+                      onClick={() => setImagesOpen(true)}
+                    >
+                      {t("content.attachImages")}
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     variant="ghost"
@@ -300,7 +331,7 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
             )}
             {cards.isLoading && <Skeleton className="h-40 w-full" />}
             {cards.isError && <ErrorState kind="server" onRetry={() => void cards.refetch()} />}
-            {cards.data && cards.data.items.length === 0 && isTeacher && !q && (
+            {cards.data && cards.data.items.length === 0 && canEdit && !q && (
               <EmptyState
                 icon="sticky-note"
                 title={t("content.emptyGroup")}
@@ -309,7 +340,7 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
                 onAction={() => setCardDialog({ card: null })}
               />
             )}
-            {cards.data && cards.data.items.length === 0 && (!isTeacher || q) && (
+            {cards.data && cards.data.items.length === 0 && (!canEdit || q) && (
               <EmptyState
                 title={t("manage.detail.noCardMatch")}
                 actionText={q ? t("manage.detail.clearSearch") : undefined}
@@ -323,8 +354,9 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
                     key={card.id}
                     card={card}
                     posLabel={posLabel(card.pos)}
+                    hideImage={isLearner}
                     actions={
-                      isTeacher && group
+                      canEdit && group
                         ? {
                             editLabel: t("content.editCard"),
                             deleteLabel: t("content.deleteCard"),
@@ -371,6 +403,7 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
       {groupDialog && (
         <GroupDialog
           deckId={deckId}
+          role={role}
           group={groupDialog === "new" ? null : groupDialog}
           onClose={() => setGroupDialog(null)}
           onFailure={onContentFailure}
@@ -382,6 +415,7 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
       {cardDialog && group && (
         <CardDialog
           deckId={deckId}
+          role={role}
           groupId={group.id}
           groupName={group.name}
           card={cardDialog.card}
@@ -400,6 +434,7 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
       {importOpen && group && (
         <CardImportDialog
           deckId={deckId}
+          role={role}
           group={group}
           onClose={() => setImportOpen(false)}
           onFailure={onContentFailure}
@@ -408,6 +443,7 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
       {deleteTarget && (
         <ContentDeleteDialog
           deckId={deckId}
+          role={role}
           target={deleteTarget}
           onClose={() => setDeleteTarget(null)}
           onFailure={onContentFailure}
@@ -417,7 +453,7 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
         />
       )}
 
-      {action && (
+      {action && role !== "learner" && (
         <DeckActionDialog
           role={role}
           action={action}

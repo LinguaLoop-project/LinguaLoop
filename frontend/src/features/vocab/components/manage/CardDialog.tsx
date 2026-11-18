@@ -29,10 +29,12 @@ import {
 import { useSaveCard } from "../../deckContentHooks";
 import { validateDeckImage } from "../../createDeckForm";
 import { CARD_POS } from "../../deckContentTypes";
-import type { DeckApiError, DeckCard } from "../../deckManageTypes";
+import type { ContentRole, DeckApiError, DeckCard } from "../../deckManageTypes";
 
 export interface CardDialogProps {
   deckId: string;
+  /** Mặc định giáo viên; `learner` là bộ cá nhân của học viên (UC-HT-09), thẻ không có ảnh (BR-HT-26). */
+  role?: ContentRole;
   groupId: string;
   groupName: string;
   /** `null` = thêm thẻ (UC-NT-04); có thẻ = sửa thẻ (UC-NT-05). */
@@ -86,9 +88,18 @@ function choicesOf(words: WordView[]): DictionaryChoice[] {
  * nội dung, chọn một nghĩa phải xác nhận trước vì sẽ thay toàn bộ thông tin (luồng 6c). Lỗi hiện cạnh từng ô và giữ
  * nguyên các ô khác (luồng 8a, 8b); mất kết nối giữ nguyên biểu mẫu để lưu lại (luồng 9a).
  */
-export default function CardDialog({ deckId, groupId, groupName, card, onClose, onFailure }: Readonly<CardDialogProps>) {
+export default function CardDialog({
+  deckId,
+  role = "teacher",
+  groupId,
+  groupName,
+  card,
+  onClose,
+  onFailure,
+}: Readonly<CardDialogProps>) {
   const { t } = useTranslation("vocab");
-  const save = useSaveCard(deckId, groupId);
+  const save = useSaveCard(deckId, groupId, role);
+  const withImage = role !== "learner";
   const [values, setValues] = useState<CardFormValues>(card ? cardValuesOf(card) : EMPTY_CARD);
   const [errors, setErrors] = useState<CardErrors>({});
   const [takenAt, setTakenAt] = useState<{ word: string; groupName: string } | null>(null);
@@ -172,7 +183,7 @@ export default function CardDialog({ deckId, groupId, groupName, card, onClose, 
     }
     const input = toCardInput(values);
     save.mutate(
-      { cardId: card?.id ?? null, card: input, image, removeImage },
+      { cardId: card?.id ?? null, card: input, image: withImage ? image : null, removeImage: withImage && removeImage },
       {
         onSuccess: (saved) => {
           toast(t(card ? "content.feedback.cardUpdated" : "content.feedback.cardAdded", { word: saved.word }), {
@@ -289,6 +300,7 @@ export default function CardDialog({ deckId, groupId, groupName, card, onClose, 
 
           {failed && <FormAlert variant="danger">{t("content.feedback.saveFailed")}</FormAlert>}
 
+          {withImage && (
           <div className="flex items-center gap-4">
             <div className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-lg border border-dashed border-border-strong bg-bg-elevated text-3xl text-text-subtle">
               {shownImage ? <img src={shownImage} alt="" className="h-full w-full object-cover" /> : <Icon name="image-plus" />}
@@ -322,6 +334,7 @@ export default function CardDialog({ deckId, groupId, groupName, card, onClose, 
               />
             </div>
           </div>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2">
             {field("word", { autoFocus: Boolean(card) })}
