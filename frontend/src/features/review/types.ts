@@ -45,18 +45,26 @@ export interface TodaySuggestions {
 /** Kế hoạch Ôn tập hằng ngày (`DailyPlanView`). Thẻ lấy riêng từ `GET /vocab/review?limit=`. */
 export interface DailyPlan {
   dailyMinutes: number;
-  /** Số thẻ tối đa của phiên theo mục tiêu ngày. */
+  /** Số thẻ tối đa của cả ngày theo mục tiêu ngày (Định mức ôn ngày, BR-HT-24). */
   cardQuota: number;
   /** Tổng số thẻ đến hạn. */
   cardsDue: number;
-  /** Số thẻ thực sự có trong phiên: `min(cardQuota, cardsDue)`. */
+  /** Số thẻ của phiên: phần định mức còn lại sau những thẻ đã ôn hôm nay, không quá số thẻ đến hạn (0 khi đã đủ). */
   cardsInPlan: number;
+  /** Số thẻ đã ôn hôm nay trên mục tiêu của ngày (`cardsTarget`); không vượt mục tiêu. */
+  cardsDoneToday: number;
+  cardsTarget: number;
+  /** Số thẻ của một lượt "Ôn thêm" (không tính định mức): `min(cardQuota, cardsDue)`. */
+  cardsMore: number;
   nextCardDueAt: string | null;
   sentenceQuotaPerMode: number;
   /** Tổng số câu chưa ôn hôm nay (chưa cắt theo định mức). */
   sentencesPending: number;
+  /** Số câu đã ôn hôm nay trên mục tiêu của ngày, cộng cả hai chế độ. */
+  sentencesDoneToday: number;
+  sentencesTarget: number;
   sentences: PlanSentence[];
-  /** Chỉ có khi không còn thẻ lẫn câu nào để ôn: việc gợi ý thay cho phiên ôn. */
+  /** Chỉ có khi phiên trống (đã đủ định mức hoặc hết việc đến hạn): việc gợi ý thay cho phiên ôn. */
   suggestions: TodaySuggestions | null;
 }
 

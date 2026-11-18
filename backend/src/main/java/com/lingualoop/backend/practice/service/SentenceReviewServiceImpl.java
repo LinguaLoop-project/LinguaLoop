@@ -3,8 +3,10 @@ package com.lingualoop.backend.practice.service;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -61,6 +63,16 @@ class SentenceReviewServiceImpl implements SentenceReviewService {
                         e.getLessonTitle(), e.getYoutubeId(), e.getStartMs(), e.getEndMs(), e.getText(), e.getTextVi(),
                         e.getLastScore()))
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<PracticeMode, Integer> countReviewedSince(UUID userId, Instant since) {
+        Map<PracticeMode, Integer> counts = new EnumMap<>(PracticeMode.class);
+        for (SentenceReviewRepository.ModeCount row : reviews.countReviewedSince(userId, since)) {
+            counts.put(PracticeMode.valueOf(row.getMode()), (int) row.getTotal());
+        }
+        return counts;
     }
 
     @Override

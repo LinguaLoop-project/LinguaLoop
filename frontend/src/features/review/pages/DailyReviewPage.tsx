@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { isAxiosError } from "axios";
 import ErrorState from "@/components/common/ErrorState";
@@ -15,7 +15,7 @@ import ReviewShell, { type ShellStep } from "../components/ReviewShell";
 import ReviewSummary from "../components/ReviewSummary";
 import SuggestionCards from "../components/SuggestionCards";
 import SentenceReviewFlow from "../components/SentenceReviewFlow";
-import { hasSuggestions, phaseAfterCards, startPhase, stepStates, type DailyPhase } from "../flow";
+import { cardCount, hasSuggestions, phaseAfterCards, startPhase, stepStates, type DailyPhase } from "../flow";
 import { useDailyPlan, useRemainingPlan } from "../hooks";
 import type { DailyPlan, SentenceOutcome } from "../types";
 
@@ -30,7 +30,15 @@ function NothingToReview({ plan }: { plan: DailyPlan }) {
       })
     : t("empty.nextNone");
   return (
-    <EmptyState title={t("empty.title")} description={`${t("empty.desc")} ${next}`}>
+    <EmptyState title={t("empty.title")} description={`${plan.cardsMore > 0 ? t("empty.descQuota", { count: plan.cardsMore }) : t("empty.desc")} ${next}`}>
+      {plan.cardsMore > 0 && (
+        <div className="mt-4">
+          <Link to="/student/review/daily?more=1" className={buttonClasses({ variant: "ghost" })}>
+            <Icon name="layers" className="h-4 w-4" />
+            {t("today.more", { count: plan.cardsMore })}
+          </Link>
+        </div>
+      )}
       {hasSuggestions(plan.suggestions) ? (
         <div className="mt-4 w-full max-w-xl text-left">
           <SuggestionCards suggestions={plan.suggestions} dailyMinutes={plan.dailyMinutes} />
@@ -53,7 +61,7 @@ function NothingToReview({ plan }: { plan: DailyPlan }) {
 interface SessionProps {
   plan: DailyPlan;
   run: number;
-  /** Lượt "Ôn tiếp": chỉ thẻ, không lấy thêm câu (BR-HT-24). */
+  /** Lượt "Ôn thêm": chỉ thẻ còn đến hạn, không tính định mức và không lấy thêm câu (BR-HT-24). */
   extra: boolean;
   onContinue: () => void;
 }
@@ -62,7 +70,8 @@ interface SessionProps {
 function DailySession({ plan, run, extra, onContinue }: SessionProps) {
   const { t } = useTranslation("review");
   const sentences = extra ? [] : plan.sentences;
-  const hasCards = plan.cardsInPlan > 0;
+  const cardsInSession = cardCount(plan, extra);
+  const hasCards = cardsInSession > 0;
   const initial = startPhase(plan, extra);
 
   const [phase, setPhase] = useState<DailyPhase>(initial === "empty" ? "summary" : initial);
@@ -105,6 +114,7 @@ function DailySession({ plan, run, extra, onContinue }: SessionProps) {
         sentences={outcomes}
         exited={exited}
         moreCards={remaining.data?.cardsDue ?? 0}
+        quotaDone={remaining.data ? remaining.data.cardsInPlan === 0 && remaining.data.sentences.length === 0 : false}
         onContinueCards={onContinue}
       />
     );
@@ -135,7 +145,7 @@ function DailySession({ plan, run, extra, onContinue }: SessionProps) {
           : undefined
       }
     >
-      {phase === "cards" && <DailyCards limit={plan.cardQuota} run={run} onComplete={completeCards} onExit={exitCards} />}
+      {phase === "cards" && <DailyCards limit={cardsInSession} run={run} onComplete={completeCards} onExit={exitCards} />}
       {phase === "bridge" && (
         <div role="status" className="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface px-6 py-14 text-center shadow-[var(--shadow-card)]">
           <Mascot mood="celebrate" size={96} alt="" />
@@ -162,6 +172,9 @@ function DailySession({ plan, run, extra, onContinue }: SessionProps) {
 export default function DailyReviewPage() {
   const { t } = useTranslation("review");
   const [run, setRun] = useState(0);
+  // "Ôn thêm" từ trang Hôm nay mở thẳng lượt chỉ có thẻ còn đến hạn (?more=1).
+  const [params] = useSearchParams();
+  const startsExtra = params.get("more") === "1";
   const query = useDailyPlan(run);
 
   if (query.isPending) {
@@ -183,7 +196,7 @@ export default function DailyReviewPage() {
   }
 
   const plan = query.data;
-  const extra = run > 0;
+  const extra = run > 0 || startsExtra;
   if (startPhase(plan, extra) === "empty") return <NothingToReview plan={plan} />;
 
   return <DailySession key={run} plan={plan} run={run} extra={extra} onContinue={() => setRun((value) => value + 1)} />;

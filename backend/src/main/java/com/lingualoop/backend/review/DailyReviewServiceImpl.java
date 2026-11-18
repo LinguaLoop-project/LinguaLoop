@@ -5,7 +5,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.ToIntFunction;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,8 @@ class DailyReviewServiceImpl implements DailyReviewService {
     /** Số câu tối đa mỗi chế độ cho phiên Ôn câu riêng. */
     private static final int MAX_PER_MODE = 10;
 
+    private static final List<PracticeMode> SENTENCE_MODES = List.of(PracticeMode.dictation, PracticeMode.shadowing);
+
     private final UserAccountService users;
     private final SubscriptionQueryService subscriptions;
     private final VocabReviewService vocabReview;
@@ -45,17 +49,36 @@ class DailyReviewServiceImpl implements DailyReviewService {
     public DailyPlanView plan(UUID userId) {
         UserAccountView user = users.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
         DailyQuota quota = DailyQuota.of(user.dailyMinutes());
+        Instant dayStart = dayStart(user);
 
         ReviewView.DueSummary due = vocabReview.dueSummary(userId);
-        List<ReviewPlanSentence> reviewable = reviewableToday(userId, user);
+        List<ReviewPlanSentence> reviewable = reviewableToday(userId, dayStart);
+        int cardsDone = vocabReview.countReviewedSince(userId, dayStart);
+        Map<PracticeMode, Integer> sentencesDone = sentenceReview.countReviewedSince(userId, dayStart);
 
-        List<ReviewPlanSentence> chosen = choose(reviewable, quota.sentencesPerMode());
-        int cardsInPlan = Math.min(quota.cards(), due.dueTotal());
-        // Không còn gì để ôn thì đề xuất việc khác thay vì để học viên đứng trước một màn trống.
+        // Định mức tính cho cả ngày (BR-HT-24): phiên chỉ lấy phần còn lại sau những gì đã ôn hôm nay.
+        int cardsInPlan = Math.min(Math.max(0, quota.cards() - cardsDone), due.dueTotal());
+        List<ReviewPlanSentence> chosen = choose(reviewable, mode ->
+                Math.max(0, quota.sentencesPerMode() - sentencesDone.getOrDefault(mode, 0)));
+
+        // Mục tiêu của ngày: định mức, hoặc ít hơn nếu hôm nay không có đủ việc; tiến độ không vượt mục tiêu.
+        int cardsTarget = Math.min(quota.cards(), cardsDone + due.dueTotal());
+        int sentencesTarget = 0;
+        int sentencesDoneCapped = 0;
+        for (PracticeMode mode : SENTENCE_MODES) {
+            int done = sentencesDone.getOrDefault(mode, 0);
+            long pending = reviewable.stream().filter(s -> s.mode() == mode).count();
+            int target = (int) Math.min(quota.sentencesPerMode(), done + pending);
+            sentencesTarget += target;
+            sentencesDoneCapped += Math.min(done, target);
+        }
+
+        // Đã đủ định mức hoặc hết việc thì đề xuất việc khác thay vì để học viên đứng trước một màn trống.
         TodaySuggestions suggestions = cardsInPlan == 0 && chosen.isEmpty() ? suggestionsFor(userId) : null;
 
-        return new DailyPlanView(user.dailyMinutes(), quota.cards(), due.dueTotal(), cardsInPlan, due.nextDueAt(),
-                quota.sentencesPerMode(), reviewable.size(), chosen, suggestions);
+        return new DailyPlanView(user.dailyMinutes(), quota.cards(), due.dueTotal(), cardsInPlan,
+                Math.min(cardsDone, cardsTarget), cardsTarget, Math.min(quota.cards(), due.dueTotal()), due.nextDueAt(),
+                quota.sentencesPerMode(), reviewable.size(), sentencesDoneCapped, sentencesTarget, chosen, suggestions);
     }
 
     private TodaySuggestions suggestionsFor(UUID userId) {
@@ -69,21 +92,25 @@ class DailyReviewServiceImpl implements DailyReviewService {
     @Override
     public List<ReviewPlanSentence> sentencePlan(UUID userId, int perMode) {
         UserAccountView user = users.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
-        return choose(reviewableToday(userId, user), Math.max(1, Math.min(perMode, MAX_PER_MODE)));
+        int limit = Math.max(1, Math.min(perMode, MAX_PER_MODE));
+        return choose(reviewableToday(userId, dayStart(user)), mode -> limit);
     }
 
-    private List<ReviewPlanSentence> reviewableToday(UUID userId, UserAccountView user) {
-        // "Hôm nay" tính theo múi giờ của học viên (BR-HT-21).
+    /** "Hôm nay" tính theo múi giờ của học viên (BR-HT-21). */
+    private Instant dayStart(UserAccountView user) {
         ZoneId zone = ZoneId.of(user.timezone());
-        Instant dayStart = clock.instant().atZone(zone).toLocalDate().atStartOfDay(zone).toInstant();
+        return clock.instant().atZone(zone).toLocalDate().atStartOfDay(zone).toInstant();
+    }
+
+    private List<ReviewPlanSentence> reviewableToday(UUID userId, Instant dayStart) {
         return sentenceReview.findReviewableToday(userId, subscriptions.isPro(userId), dayStart);
     }
 
-    /** Mỗi chế độ lấy tối đa {@code perMode} câu, Nghe chép trước rồi tới Shadowing; chế độ thiếu câu thì không lấy bù (BR-HT-20). */
-    private static List<ReviewPlanSentence> choose(List<ReviewPlanSentence> reviewable, int perMode) {
+    /** Mỗi chế độ lấy tối đa {@code limitOf(mode)} câu, Nghe chép trước rồi tới Shadowing; chế độ thiếu câu thì không lấy bù (BR-HT-20). */
+    private static List<ReviewPlanSentence> choose(List<ReviewPlanSentence> reviewable, ToIntFunction<PracticeMode> limitOf) {
         List<ReviewPlanSentence> chosen = new ArrayList<>();
-        for (PracticeMode mode : List.of(PracticeMode.dictation, PracticeMode.shadowing)) {
-            reviewable.stream().filter(s -> s.mode() == mode).limit(perMode).forEach(chosen::add);
+        for (PracticeMode mode : SENTENCE_MODES) {
+            reviewable.stream().filter(s -> s.mode() == mode).limit(limitOf.applyAsInt(mode)).forEach(chosen::add);
         }
         return chosen;
     }

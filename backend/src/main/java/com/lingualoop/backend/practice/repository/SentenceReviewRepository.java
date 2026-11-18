@@ -126,6 +126,23 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
     int markReviewed(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode,
             @Param("now") Instant now, @Param("since") Instant since);
 
+    /**
+     * Số câu đã ôn từ {@code since} (đầu ngày của học viên) theo từng chế độ, để trừ vào Định mức ôn ngày. Chỉ đếm câu
+     * còn trong danh sách Câu cần ôn: câu đã gỡ ("Đã ổn") không còn dấu "đã ôn" nên không được đếm.
+     */
+    @Query(value = """
+            SELECT r.mode AS mode, count(*) AS total
+            FROM user_sentence_review r
+            WHERE r.user_id = :userId AND r.last_reviewed_at >= :since
+            GROUP BY r.mode""", nativeQuery = true)
+    List<ModeCount> countReviewedSince(@Param("userId") UUID userId, @Param("since") Instant since);
+
+    interface ModeCount {
+        String getMode();
+
+        long getTotal();
+    }
+
     interface PlanEntry {
         UUID getSentenceId();
 

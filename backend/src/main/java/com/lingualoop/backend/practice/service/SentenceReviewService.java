@@ -2,6 +2,7 @@ package com.lingualoop.backend.practice.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -36,6 +37,12 @@ public interface SentenceReviewService {
      * đầu ngày của học viên (theo múi giờ của họ): câu đã ôn từ mốc này trở đi bị loại (BR-HT-21).
      */
     List<ReviewPlanSentence> findReviewableToday(UUID userId, boolean userPro, Instant dayStart);
+
+    /**
+     * Số câu đã ôn từ {@code since} (đầu ngày của học viên) theo chế độ, để trừ vào Định mức ôn ngày. Chế độ chưa ôn câu
+     * nào không có trong kết quả.
+     */
+    Map<PracticeMode, Integer> countReviewedSince(UUID userId, Instant since);
 
     /**
      * Đánh dấu câu "đã ôn hôm nay" sau một lượt trong phiên ôn câu (BR-HT-21). Câu phải đang trong danh sách và học viên

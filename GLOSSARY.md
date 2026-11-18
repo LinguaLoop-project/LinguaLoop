@@ -91,11 +91,15 @@ _Tránh_: ôn thẻ, ôn lại
 ### Học hằng ngày
 
 **Mục tiêu ngày**:
-Số phút học mỗi ngày mà học viên chọn (10, 15, 20 hoặc 30). Quyết định số thẻ và số câu tối đa của Phiên ôn tập hằng ngày.
+Số phút học mỗi ngày mà học viên chọn (10, 15, 20 hoặc 30). Quyết định Định mức ôn ngày.
 _Tránh_: thời lượng học, hạn mức ngày (dùng cho credit AI)
 
+**Định mức ôn ngày**:
+Số thẻ và số câu mỗi chế độ tối đa học viên cần ôn trong một ngày, theo múi giờ của họ. Ôn đủ định mức, hoặc hết việc đến hạn, thì coi như đã ôn xong hôm nay; ôn thêm là tùy chọn. Chỉ tính thẻ ôn, không tính thẻ học từ mới.
+_Tránh_: hạn mức ngày (dùng cho credit AI), chỉ tiêu
+
 **Phiên ôn tập hằng ngày**:
-Một lần học viên ôn thẻ đến hạn rồi ôn câu, theo định mức của Mục tiêu ngày. Không được lưu ở máy chủ: thoát giữa chừng thì kết quả đã chấm vẫn giữ, lần mở sau lập lại danh sách theo dữ liệu hiện tại.
+Một lần học viên ôn thẻ đến hạn rồi ôn câu, lấy phần còn lại của Định mức ôn ngày. Không được lưu ở máy chủ: thoát giữa chừng thì kết quả đã chấm vẫn giữ và được trừ vào định mức.
 _Tránh_: bài ôn, phiên học (là bản ghi gom nhật ký của Học từ mới)
 
 **Hồ sơ học tập**:

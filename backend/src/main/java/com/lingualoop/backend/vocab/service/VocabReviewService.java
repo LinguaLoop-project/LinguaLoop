@@ -1,5 +1,6 @@
 package com.lingualoop.backend.vocab.service;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import com.lingualoop.backend.vocab.dto.LearnView;
@@ -24,6 +25,12 @@ public interface VocabReviewService {
 
     /** Tổng số thẻ đến hạn của mọi bộ và thời điểm thẻ kế tiếp đến hạn, không lấy nội dung thẻ. */
     ReviewView.DueSummary dueSummary(UUID userId);
+
+    /**
+     * Số thẻ khác nhau đã chấm trong lượt ôn từ {@code since}, để trừ vào Định mức ôn ngày (BR-HT-24). Lượt học từ mới
+     * không được tính.
+     */
+    int countReviewedSince(UUID userId, Instant since);
 
     /** Mở phiên ôn mới và đóng phiên còn mở trước đó (BR-HT-15). */
     LearnView.SessionRef openSession(UUID userId, UUID deckId);

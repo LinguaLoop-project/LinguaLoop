@@ -16,15 +16,25 @@ export interface ReviewSummaryProps {
   sentences: readonly SentenceOutcome[];
   /** Học viên thoát giữa chừng: tiêu đề báo phần đã làm, kết quả vẫn được giữ (3a). */
   exited: boolean;
-  /** Số thẻ còn đến hạn sau phiên; lớn hơn 0 thì có "Ôn tiếp" (chỉ ở phiên hằng ngày). */
+  /** Số thẻ còn đến hạn sau phiên; lớn hơn 0 thì có "Ôn thêm" (chỉ ở phiên hằng ngày). */
   moreCards?: number;
+  /** Đã ôn đủ Định mức ôn ngày: ghi rõ rằng phần còn lại là tùy chọn (chỉ ở phiên hằng ngày). */
+  quotaDone?: boolean;
   onContinueCards?: () => void;
   /** Có thì hiện "Ôn thêm" lấy nhóm câu kế tiếp (chỉ ở Ôn câu riêng). */
   onMoreSentences?: () => void;
 }
 
 /** Tổng kết chung của một phiên ôn: kết quả ôn thẻ, kết quả ôn câu và đường đi tiếp. */
-export default function ReviewSummary({ cards, sentences, exited, moreCards = 0, onContinueCards, onMoreSentences }: ReviewSummaryProps) {
+export default function ReviewSummary({
+  cards,
+  sentences,
+  exited,
+  moreCards = 0,
+  quotaDone = false,
+  onContinueCards,
+  onMoreSentences,
+}: ReviewSummaryProps) {
   const { t } = useTranslation("review");
   useScrollTopOn("summary");
   const stats = summarizeSentences(sentences);
@@ -75,6 +85,7 @@ export default function ReviewSummary({ cards, sentences, exited, moreCards = 0,
         )}
       </div>
 
+      {quotaDone && <p className="mt-4 text-sm font-semibold text-success">{t("summary.quotaDone")}</p>}
       {moreCards > 0 && <p className="mt-4 text-sm text-text-muted">{t("summary.moreCards", { count: moreCards })}</p>}
 
       <div className="mt-6 flex flex-wrap justify-center gap-2">

@@ -19,6 +19,10 @@
     "reviewDesc": "Phiên hôm nay gồm {{cards}} thẻ từ vựng rồi {{sentences}} câu đã lưu, theo mục tiêu mỗi ngày của bạn.",
     "doneTitle": "Hôm nay bạn đã ôn xong",
     "doneDesc": "Không còn thẻ hay câu nào cần ôn.",
+    "doneQuota": "Bạn đã ôn đủ định mức hôm nay. Còn {{cards}} thẻ và {{sentences}} câu đến hạn, có thể để ngày mai.",
+    "cardsDone": "thẻ đã ôn",
+    "sentencesDone": "câu đã ôn",
+    "more_other": "Ôn thêm {{count}} thẻ",
     "cardsDue": "thẻ đến hạn",
     "sentencesPending": "câu cần ôn",
     "goal": "mục tiêu mỗi ngày",
@@ -27,7 +31,7 @@
   },
   "daily": {
     "title": "Ôn tập hôm nay",
-    "titleMore": "Ôn tiếp"
+    "titleMore": "Ôn thêm"
   },
   "sentences": {
     "title": "Ôn câu",
@@ -82,13 +86,15 @@
     "sentencesSkipped_other": "{{count}} câu bỏ qua, chưa tính là đã ôn",
     "skipped": "Bỏ qua",
     "moreCards_other": "Còn {{count}} thẻ đến hạn",
-    "continueCards": "Ôn tiếp",
+    "quotaDone": "Bạn đã ôn đủ định mức hôm nay.",
+    "continueCards": "Ôn thêm",
     "moreSentences": "Ôn thêm",
     "backToToday": "Về trang Hôm nay"
   },
   "empty": {
     "title": "Hôm nay bạn đã ôn xong",
     "desc": "Không còn thẻ hay câu nào cần ôn.",
+    "descQuota_other": "Bạn đã ôn đủ định mức hôm nay. Còn {{count}} thẻ đến hạn, có thể ôn thêm hoặc để ngày mai.",
     "nextDue": "Thẻ kế tiếp đến hạn lúc {{time}}.",
     "nextNone": "Chưa có thẻ nào được hẹn ôn.",
     "learnNew": "Học từ mới",

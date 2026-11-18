@@ -72,6 +72,20 @@ public class VocabReviewRepository {
                 .query(Integer.class).single();
     }
 
+    /**
+     * Số thẻ khác nhau đã chấm trong lượt ôn từ {@code since} (đầu ngày của học viên), để trừ vào Định mức ôn ngày. Một
+     * thẻ chấm nhiều lần (làm lại sau khi Quên) chỉ đếm một lần; lượt học từ mới không được tính.
+     */
+    public int countReviewedSince(UUID userId, Instant since) {
+        return jdbc.sql("""
+                SELECT count(DISTINCT l.card_id)
+                FROM vocab_review_logs l
+                JOIN vocab_sessions s ON s.id = l.session_id AND s.kind = 'review'
+                WHERE l.user_id = :user AND l.created_at >= :since""")
+                .param("user", userId).param("since", Timestamp.from(since))
+                .query(Integer.class).single();
+    }
+
     /** Thời điểm sớm nhất mà một thẻ chưa đến hạn sẽ đến hạn; trống nếu không có thẻ nào được hẹn. */
     public Instant findNextDueAt(UUID userId, UUID deckId, boolean userPro) {
         Timestamp next = jdbc.sql("SELECT min(p.due_at) " + JOINS + VISIBLE + " AND p.due_at > now()")

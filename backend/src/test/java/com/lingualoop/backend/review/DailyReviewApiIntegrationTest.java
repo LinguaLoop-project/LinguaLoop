@@ -215,6 +215,141 @@ class DailyReviewApiIntegrationTest {
                 .andExpect(jsonPath("$.data.sentences[0].sentenceId").value(reviewedYesterday.toString()));
     }
 
+    // ── Định mức ôn tính cho cả ngày (BR-HT-24) ──
+
+    /**
+     * Học viên chấm {@code cards} trong một phiên {@code kind} ({@code review} hoặc {@code learn}) cách đây {@code ago};
+     * thẻ chuyển sang hẹn ngày mai nên không còn đến hạn, như khi chấm thật.
+     */
+    private void answered(UUID user, List<UUID> cards, String kind, String ago) {
+        UUID session = jdbc.queryForObject("INSERT INTO vocab_sessions (user_id, kind) VALUES (?, ?) RETURNING id",
+                UUID.class, user, kind);
+        for (UUID card : cards) {
+            jdbc.update("INSERT INTO vocab_review_logs (user_id, card_id, session_id, mode, is_correct, quality, "
+                    + "client_request_id, created_at) VALUES (?, ?, ?, 'flashcard', true, 4, ?, now() - ?::interval)",
+                    user, card, session, UUID.randomUUID(), ago);
+            jdbc.update("UPDATE user_card_progress SET due_at = now() + interval '1 day' WHERE user_id = ? AND card_id = ?",
+                    user, card);
+        }
+    }
+
+    /** Đánh dấu câu đã ôn {@code ago} trước. */
+    private void reviewedSentence(UUID user, UUID sentence, String ago) {
+        jdbc.update("UPDATE user_sentence_review SET last_reviewed_at = now() - ?::interval "
+                + "WHERE user_id = ? AND sentence_id = ?", ago, user, sentence);
+    }
+
+    @Test
+    void plan_cardsReviewedTodayAreDeductedFromTheDailyQuota_BR_HT_24() throws Exception {
+        UUID user = student(15);
+        List<UUID> cards = dueCards(user, 35);
+        answered(user, cards.subList(0, 12), "review", "10 minutes");
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsDue").value(23))
+                .andExpect(jsonPath("$.data.cardsInPlan").value(8))
+                .andExpect(jsonPath("$.data.cardsDoneToday").value(12))
+                .andExpect(jsonPath("$.data.cardsTarget").value(20))
+                .andExpect(jsonPath("$.data.suggestions").doesNotExist());
+    }
+
+    @Test
+    void plan_quotaReachedWithMoreCardsDue_showsDoneAndSuggestionsButKeepsAMoreRound_BR_HT_24() throws Exception {
+        UUID user = student(15);
+        List<UUID> cards = dueCards(user, 25);
+        answered(user, cards.subList(0, 20), "review", "10 minutes");
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsDue").value(5))
+                .andExpect(jsonPath("$.data.cardsInPlan").value(0))
+                .andExpect(jsonPath("$.data.cardsDoneToday").value(20))
+                .andExpect(jsonPath("$.data.cardsTarget").value(20))
+                // "Ôn thêm" vẫn mở được cho 5 thẻ còn đến hạn, không tính định mức
+                .andExpect(jsonPath("$.data.cardsMore").value(5))
+                .andExpect(jsonPath("$.data.sentences.length()").value(0))
+                .andExpect(jsonPath("$.data.suggestions").exists());
+    }
+
+    @Test
+    void plan_cardTargetIsLowerWhenFewerCardsAreDueThanTheQuota() throws Exception {
+        UUID user = student(15);
+        List<UUID> cards = dueCards(user, 5);
+        answered(user, cards.subList(0, 3), "review", "10 minutes");
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsInPlan").value(2))
+                .andExpect(jsonPath("$.data.cardsDoneToday").value(3))
+                .andExpect(jsonPath("$.data.cardsTarget").value(5));
+    }
+
+    @Test
+    void plan_onlyReviewAnswersCount_notLearningAndNotYesterday_andACardCountsOnce() throws Exception {
+        UUID user = student(15);
+        List<UUID> cards = dueCards(user, 30);
+        answered(user, cards.subList(0, 5), "learn", "10 minutes");
+        answered(user, cards.subList(5, 10), "review", "30 hours");
+        // thẻ làm lại sau khi Quên: hai lượt chấm của cùng một thẻ chỉ tính một thẻ
+        answered(user, cards.subList(10, 12), "review", "20 minutes");
+        answered(user, cards.subList(10, 12), "review", "10 minutes");
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsDoneToday").value(2));
+    }
+
+    @Test
+    void plan_sentencesReviewedTodayAreDeductedPerMode_BR_HT_24() throws Exception {
+        UUID user = student(15);
+        UUID lesson = lesson(false, "published", false);
+        List<UUID> dictation = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            UUID sentence = sentenceIn(lesson, i);
+            list(user, sentence, "dictation", "10", "1 hour");
+            dictation.add(sentence);
+        }
+        for (int i = 0; i < 2; i++) {
+            list(user, sentenceIn(lesson, 10 + i), "shadowing", "10", "1 hour");
+        }
+        reviewedSentence(user, dictation.get(0), "5 minutes");
+
+        // Nghe chép còn 1 trong định mức 2, Shadowing còn đủ 2; mục tiêu 2 + 2, đã xong 1
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.sentences.length()").value(3))
+                .andExpect(jsonPath("$.data.sentences[0].mode").value("dictation"))
+                .andExpect(jsonPath("$.data.sentences[1].mode").value("shadowing"))
+                .andExpect(jsonPath("$.data.sentencesDoneToday").value(1))
+                .andExpect(jsonPath("$.data.sentencesTarget").value(4))
+                .andExpect(jsonPath("$.data.sentencesPending").value(5));
+
+        reviewedSentence(user, dictation.get(1), "4 minutes");
+
+        // Nghe chép đã đủ 2 câu dù còn 2 câu nữa trong danh sách: không lấy thêm, không lấy bù từ Shadowing
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.sentences.length()").value(2))
+                .andExpect(jsonPath("$.data.sentences[0].mode").value("shadowing"))
+                .andExpect(jsonPath("$.data.sentencesDoneToday").value(2))
+                .andExpect(jsonPath("$.data.sentencesTarget").value(4));
+    }
+
+    @Test
+    void plan_everythingWithinTheQuotaDone_isAllDoneEvenWithBacklogLeft_BR_HT_24() throws Exception {
+        UUID user = student(10);
+        List<UUID> cards = dueCards(user, 30);
+        answered(user, cards.subList(0, 15), "review", "10 minutes");
+        UUID lesson = lesson(false, "published", false);
+        UUID dictation = sentenceIn(lesson, 0);
+        UUID shadowing = sentenceIn(lesson, 1);
+        list(user, dictation, "dictation", "10", "1 hour");
+        list(user, shadowing, "shadowing", "10", "1 hour");
+        list(user, sentenceIn(lesson, 2), "dictation", "20", "1 hour");
+        reviewedSentence(user, dictation, "5 minutes");
+        reviewedSentence(user, shadowing, "4 minutes");
+
+        // mục tiêu 10 phút: 15 thẻ và 1 + 1 câu, đều đã xong dù còn 15 thẻ và 1 câu tồn
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsInPlan").value(0))
+                .andExpect(jsonPath("$.data.sentences.length()").value(0))
+                .andExpect(jsonPath("$.data.cardsDoneToday").value(15))
+                .andExpect(jsonPath("$.data.cardsTarget").value(15))
+                .andExpect(jsonPath("$.data.sentencesDoneToday").value(2))
+                .andExpect(jsonPath("$.data.sentencesTarget").value(2))
+                .andExpect(jsonPath("$.data.cardsDue").value(15))
+                .andExpect(jsonPath("$.data.sentencesPending").value(1))
+                .andExpect(jsonPath("$.data.suggestions").exists());
+    }
+
     // ── Gợi ý việc hôm nay khi không còn gì để ôn ──
 
     @Test

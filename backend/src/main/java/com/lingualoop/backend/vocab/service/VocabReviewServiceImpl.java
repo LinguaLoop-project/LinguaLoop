@@ -1,5 +1,6 @@
 package com.lingualoop.backend.vocab.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +35,11 @@ class VocabReviewServiceImpl implements VocabReviewService {
     public ReviewView.DueSummary dueSummary(UUID userId) {
         boolean userPro = subscriptions.isPro(userId);
         return new ReviewView.DueSummary(review.countDue(userId, null, userPro), review.findNextDueAt(userId, null, userPro));
+    }
+
+    @Override
+    public int countReviewedSince(UUID userId, Instant since) {
+        return review.countReviewedSince(userId, since);
     }
 
     @Override

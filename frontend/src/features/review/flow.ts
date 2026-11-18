@@ -5,10 +5,18 @@ export type DailyPhase = "cards" | "bridge" | "sentences" | "summary";
 
 export interface PlanLike {
   cardsInPlan: number;
+  /** Số thẻ của một lượt "Ôn thêm" (không tính định mức). */
+  cardsMore: number;
   sentences: readonly unknown[];
 }
 
-/** Số câu của phiên: "Ôn tiếp" chỉ lấy thêm thẻ và không lấy thêm câu (BR-HT-24, AC-HT-37). */
+/**
+ * Số thẻ của lượt: phần định mức ngày còn lại; ở lượt "Ôn thêm" thì lấy theo số thẻ còn đến hạn, không tính định mức vì
+ * học viên đã chọn ôn vượt mức (BR-HT-24).
+ */
+export const cardCount = (plan: PlanLike, extraRound: boolean) => (extraRound ? plan.cardsMore : plan.cardsInPlan);
+
+/** Số câu của phiên: "Ôn thêm" chỉ lấy thêm thẻ và không lấy thêm câu (BR-HT-24, AC-HT-37). */
 const sentenceCount = (plan: PlanLike, extraRound: boolean) => (extraRound ? 0 : plan.sentences.length);
 
 /**
@@ -16,7 +24,7 @@ const sentenceCount = (plan: PlanLike, extraRound: boolean) => (extraRound ? 0 :
  * thì báo đã ôn xong (luồng 2c).
  */
 export function startPhase(plan: PlanLike, extraRound: boolean): DailyPhase | "empty" {
-  if (plan.cardsInPlan > 0) return "cards";
+  if (cardCount(plan, extraRound) > 0) return "cards";
   return sentenceCount(plan, extraRound) > 0 ? "sentences" : "empty";
 }
 

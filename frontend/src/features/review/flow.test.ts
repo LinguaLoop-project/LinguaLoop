@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { hasSuggestions, phaseAfterCards, startPhase, stepStates, summarizeSentences } from "./flow";
+import { cardCount, hasSuggestions, phaseAfterCards, startPhase, stepStates, summarizeSentences } from "./flow";
 
-const plan = (cardsInPlan: number, sentences: number) => ({ cardsInPlan, sentences: new Array<unknown>(sentences).fill(0) });
+/** `cardsMore` là số thẻ của lượt "Ôn thêm"; mặc định bằng số thẻ của phiên. */
+const plan = (cardsInPlan: number, sentences: number, cardsMore = cardsInPlan) => ({
+  cardsInPlan,
+  cardsMore,
+  sentences: new Array<unknown>(sentences).fill(0),
+});
 
 describe("startPhase (UC-HT-05)", () => {
   it("starts with cards when there are cards due", () => {
@@ -16,9 +21,22 @@ describe("startPhase (UC-HT-05)", () => {
     expect(startPhase(plan(0, 0), false)).toBe("empty");
   });
 
-  it("ignores sentences in a keep-reviewing round (AC-HT-37)", () => {
+  it("ignores sentences in a more round (AC-HT-37)", () => {
     expect(startPhase(plan(0, 4), true)).toBe("empty");
     expect(startPhase(plan(15, 4), true)).toBe("cards");
+  });
+
+  it("opens a more round on the cards still due once the daily quota is met (BR-HT-24)", () => {
+    // đã đủ định mức: phiên thường trống, nhưng "Ôn thêm" vẫn có 5 thẻ còn đến hạn
+    expect(startPhase(plan(0, 0, 5), false)).toBe("empty");
+    expect(startPhase(plan(0, 0, 5), true)).toBe("cards");
+  });
+});
+
+describe("cardCount", () => {
+  it("uses the remaining quota normally and the cards still due in a more round", () => {
+    expect(cardCount(plan(8, 0, 20), false)).toBe(8);
+    expect(cardCount(plan(8, 0, 20), true)).toBe(20);
   });
 });
 
