@@ -130,7 +130,7 @@
 | Mục | Nội dung |
 |---|---|
 | Tác nhân | Học viên |
-| Mô tả | Cho phép tác nhân tự thêm, sửa và xóa các bộ từ vựng cá nhân của riêng mình ("Bộ của tôi") để học và ôn tập chung trong hàng đợi ôn. |
+| Mô tả | Cho phép tác nhân tự thêm, sửa và xóa các bộ từ vựng cá nhân của riêng mình ("Bộ của tôi") để học và ôn tập chung trong hàng đợi ôn. Use case này chỉ quản lý bộ (tên bộ); việc thêm thẻ vào bộ cá nhân nằm ngoài phạm vi và cần một use case riêng, nên bộ mới tạo là bộ trống. Chỉ học viên dùng được; giáo viên và quản trị viên soạn bộ ở phần quản lý riêng. |
 | Điều kiện tiên quyết | Tác nhân đã đăng nhập (UC-TK-02). |
 | Điều kiện sau | Bộ từ vựng cá nhân của tác nhân được lưu mới, cập nhật hoặc xóa bỏ theo BR-HT-25. |
 | Luồng chính | 1. Tác nhân chọn mục "Bộ của tôi" tại trang Từ vựng.<br>2. Hệ thống hiển thị danh sách các bộ từ vựng cá nhân do chính tác nhân tạo theo BR-HT-06.<br>3. Tác nhân chọn thêm bộ từ mới, nhập tên bộ từ và gửi thông tin.<br>4. Hệ thống kiểm tra tên bộ từ hợp lệ theo BR-HT-25, lưu bộ từ mới và cập nhật danh sách hiển thị. |

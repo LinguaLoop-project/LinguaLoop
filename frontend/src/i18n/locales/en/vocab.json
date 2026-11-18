@@ -220,7 +220,55 @@
   "tabs": {
     "label": "Vocabulary mode",
     "decks": "Decks",
-    "review": "Review"
+    "review": "Review",
+    "mine": "My decks"
+  },
+  "mine": {
+    "title": "My decks",
+    "subtitle": "Vocabulary decks you created. Only you can see them.",
+    "add": "Add deck",
+    "cardsNote": "You can't add cards to a personal deck yet. Adding cards will come in a later update.",
+    "empty": {
+      "title": "You have no decks yet",
+      "desc": "Create a vocabulary deck of your own, such as \"Office words\" or \"TOEIC to remember\"."
+    },
+    "card": {
+      "cards_one": "{{count}} card",
+      "cards_other": "{{count}} cards",
+      "due_one": "{{count}} card due",
+      "due_other": "{{count}} cards due",
+      "noDue": "No cards due",
+      "rename": "Rename",
+      "delete": "Delete"
+    },
+    "dialog": {
+      "addTitle": "Add a vocabulary deck",
+      "renameTitle": "Rename deck",
+      "name": "Deck name",
+      "namePlaceholder": "For example: Office words",
+      "save": "Save",
+      "cancel": "Cancel",
+      "errors": {
+        "NotBlank": "Enter a deck name",
+        "Size": "Deck names are 100 characters at most",
+        "Duplicate": "You already have a deck with this name, pick another"
+      }
+    },
+    "delete": {
+      "title": "Delete deck",
+      "text": "Delete the deck \"{{name}}\"?",
+      "note_one": "The deck has {{count}} card. Its card will no longer show up when you review.",
+      "note_other": "The deck has {{count}} cards. Its cards will no longer show up when you review.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "feedback": {
+      "created": "Added the deck \"{{name}}\"",
+      "renamed": "Renamed to \"{{name}}\"",
+      "deleted": "Deleted the deck \"{{name}}\"",
+      "saveFailed": "Couldn't save, please try again.",
+      "deleteFailed": "Couldn't delete, please try again."
+    }
   },
   "review": {
     "title": "Review due cards",

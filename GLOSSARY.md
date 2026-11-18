@@ -60,6 +60,10 @@ _Tránh_: flashcard, từ vựng, card
 Một tập thẻ chia thành các bài theo thứ tự, do hệ thống cung cấp (vd "3000 Oxford Vocabulary A1") hoặc của riêng một học viên. Bộ hệ thống là dữ liệu riêng, không phải bản sao của từ điển.
 _Tránh_: deck, bộ từ vựng
 
+**Bộ của tôi**:
+Các bộ từ cá nhân do chính học viên tạo, chỉ mình học viên thấy; khác với bộ hệ thống và bộ "Từ đã lưu" (bộ riêng, mỗi học viên một bộ, không đổi tên hay xóa được). Học viên thêm, đổi tên và xóa bộ; tên dài 1 đến 100 ký tự và không trùng tên bộ cá nhân khác của mình, không phân biệt hoa thường. Xóa bộ là xóa tạm: thẻ của bộ không còn vào hàng đợi ôn và tên được dùng lại. Bộ mới tạo là bộ trống; việc thêm thẻ vào bộ chưa có trong đặc tả.
+_Tránh_: bộ cá nhân (dùng trong tài liệu kỹ thuật cho cùng khái niệm), bộ riêng, từ của tôi
+
 **Phần**:
 Một nhóm thẻ cùng chủ đề trong một bộ từ, là đơn vị học viên chọn để học từ mới (vd "Family", 49 thẻ). Số thẻ mỗi phần khác nhau. Giáo viên quản lý gọi là nhóm thẻ (module NT); mỗi nhóm có ít nhất 1 thẻ (BR-BT-05).
 _Tránh_: bài, unit, group (vì "bài" là bài học dùng để nghe chép và shadowing)

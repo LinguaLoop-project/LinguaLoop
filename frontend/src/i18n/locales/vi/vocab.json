@@ -209,7 +209,52 @@
   "tabs": {
     "label": "Chế độ từ vựng",
     "decks": "Bộ từ",
-    "review": "Ôn thẻ"
+    "review": "Ôn thẻ",
+    "mine": "Bộ của tôi"
+  },
+  "mine": {
+    "title": "Bộ của tôi",
+    "subtitle": "Các bộ từ vựng cá nhân do bạn tạo, chỉ mình bạn thấy.",
+    "add": "Thêm bộ",
+    "cardsNote": "Bộ cá nhân hiện chưa thêm được thẻ. Tính năng thêm thẻ vào bộ sẽ có ở bản sau.",
+    "empty": {
+      "title": "Bạn chưa có bộ nào",
+      "desc": "Tạo một bộ từ vựng của riêng bạn, ví dụ \"Từ vựng công sở\" hay \"TOEIC cần nhớ\"."
+    },
+    "card": {
+      "cards_other": "{{count}} thẻ",
+      "due_other": "{{count}} thẻ đến hạn ôn",
+      "noDue": "Chưa có thẻ đến hạn",
+      "rename": "Sửa tên",
+      "delete": "Xóa"
+    },
+    "dialog": {
+      "addTitle": "Thêm bộ từ vựng",
+      "renameTitle": "Sửa tên bộ",
+      "name": "Tên bộ",
+      "namePlaceholder": "Ví dụ: Từ vựng công sở",
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "errors": {
+        "NotBlank": "Hãy nhập tên bộ",
+        "Size": "Tên bộ tối đa 100 ký tự",
+        "Duplicate": "Bạn đã có bộ cùng tên, hãy nhập tên khác"
+      }
+    },
+    "delete": {
+      "title": "Xóa bộ",
+      "text": "Xóa bộ \"{{name}}\"?",
+      "note_other": "Bộ có {{count}} thẻ. Các thẻ của bộ sẽ không còn xuất hiện khi ôn tập.",
+      "confirm": "Xóa",
+      "cancel": "Hủy"
+    },
+    "feedback": {
+      "created": "Đã thêm bộ \"{{name}}\"",
+      "renamed": "Đã đổi tên thành \"{{name}}\"",
+      "deleted": "Đã xóa bộ \"{{name}}\"",
+      "saveFailed": "Chưa lưu được, bạn thử lại nhé.",
+      "deleteFailed": "Chưa xóa được, bạn thử lại nhé."
+    }
   },
   "review": {
     "title": "Ôn thẻ đến hạn",

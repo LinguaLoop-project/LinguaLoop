@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/HT-hoc-the-on-tap/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 61 AC, 10 đã có test, 5 một phần, 46 thiếu.
+Tổng hợp: 61 AC, 10 đã có test, 8 một phần, 43 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -64,6 +64,6 @@ Tổng hợp: 61 AC, 10 đã có test, 5 một phần, 46 thiếu.
 | AC-HT-52 | Bỏ lưu nhiều từ cùng lúc | UC-HT-07 |  |  | Thiếu |
 | AC-HT-53 | Hiển thị hướng dẫn khi chưa lưu từ nào | UC-HT-07 |  |  | Thiếu |
 | AC-HT-54 | Thông báo lỗi khi không tải được danh sách | UC-HT-07 |  |  | Thiếu |
-| AC-HT-55 | Thêm bộ từ vựng cá nhân thành công | UC-HT-08 |  |  | Thiếu |
-| AC-HT-56 | Sửa và xóa bộ từ vựng cá nhân | UC-HT-08 |  |  | Thiếu |
-| AC-HT-57 | Từ chối khi tên bộ từ trống, quá dài hoặc bị trùng | UC-HT-08 |  |  | Thiếu |
+| AC-HT-55 | Thêm bộ từ vựng cá nhân thành công | UC-HT-08 | D, B | MyDeckApiIntegrationTest.create_validName_returnsTheDeckAndListsItForTheOwner_AC_HT_55; MyDeckApiIntegrationTest.create_trimsTheName_andAcceptsExactly100Characters_AC_HT_55; `frontend/src/features/vocab/myDecks.test.ts` | Một phần (backend và logic kiểm tên có test; hộp thoại và tab chạy thử trên trình duyệt, chưa có test giao diện) |
+| AC-HT-56 | Sửa và xóa bộ từ vựng cá nhân | UC-HT-08 | D | MyDeckApiIntegrationTest.rename_updatesTheNameInTheList_AC_HT_56; MyDeckApiIntegrationTest.delete_removesTheDeck_itsCardsLeaveTheReviewQueue_andTheNameCanBeReused_AC_HT_56 | Một phần (backend có test, gồm thẻ rời hàng đợi ôn; chưa có test giao diện) |
+| AC-HT-57 | Từ chối khi tên bộ từ trống, quá dài hoặc bị trùng | UC-HT-08 | A, B | MyDeckApiIntegrationTest.create_blankOrTooLongName_returns400WithNameError_AC_HT_57; MyDeckApiIntegrationTest.create_duplicateNameOfTheSameLearner_returns409_butAnotherLearnerMayUseIt_AC_HT_57; MyDeckApiIntegrationTest.rename_invalidOrDuplicateName_isRejectedAndKeepsTheOldName_AC_HT_57; `frontend/src/features/vocab/myDecks.test.ts` | Một phần (backend và logic kiểm tên có test; lỗi hiện dưới ô nhập mới kiểm trên trình duyệt) |
