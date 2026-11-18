@@ -243,7 +243,7 @@ class DailyReviewApiIntegrationTest {
     void plan_cardsReviewedTodayAreDeductedFromTheDailyQuota_BR_HT_24_AC_HT_59() throws Exception {
         UUID user = student(15);
         List<UUID> cards = dueCards(user, 35);
-        answered(user, cards.subList(0, 12), "review", "10 minutes");
+        answered(user, cards.subList(0, 12), "review", "1 second");
 
         as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsDue").value(23))
                 .andExpect(jsonPath("$.data.cardsInPlan").value(8))
@@ -256,7 +256,7 @@ class DailyReviewApiIntegrationTest {
     void plan_quotaReachedWithMoreCardsDue_showsDoneAndSuggestionsButKeepsAMoreRound_AC_HT_58_AC_HT_60() throws Exception {
         UUID user = student(15);
         List<UUID> cards = dueCards(user, 25);
-        answered(user, cards.subList(0, 20), "review", "10 minutes");
+        answered(user, cards.subList(0, 20), "review", "1 second");
 
         as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsDue").value(5))
                 .andExpect(jsonPath("$.data.cardsInPlan").value(0))
@@ -272,7 +272,7 @@ class DailyReviewApiIntegrationTest {
     void plan_cardTargetIsLowerWhenFewerCardsAreDueThanTheQuota() throws Exception {
         UUID user = student(15);
         List<UUID> cards = dueCards(user, 5);
-        answered(user, cards.subList(0, 3), "review", "10 minutes");
+        answered(user, cards.subList(0, 3), "review", "1 second");
 
         as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsInPlan").value(2))
                 .andExpect(jsonPath("$.data.cardsDoneToday").value(3))
@@ -283,11 +283,11 @@ class DailyReviewApiIntegrationTest {
     void plan_onlyReviewAnswersCount_notLearningAndNotYesterday_andACardCountsOnce_AC_HT_59() throws Exception {
         UUID user = student(15);
         List<UUID> cards = dueCards(user, 30);
-        answered(user, cards.subList(0, 5), "learn", "10 minutes");
+        answered(user, cards.subList(0, 5), "learn", "1 second");
         answered(user, cards.subList(5, 10), "review", "30 hours");
         // thẻ làm lại sau khi Quên: hai lượt chấm của cùng một thẻ chỉ tính một thẻ
-        answered(user, cards.subList(10, 12), "review", "20 minutes");
-        answered(user, cards.subList(10, 12), "review", "10 minutes");
+        answered(user, cards.subList(10, 12), "review", "2 seconds");
+        answered(user, cards.subList(10, 12), "review", "1 second");
 
         as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsDoneToday").value(2));
     }
@@ -305,7 +305,7 @@ class DailyReviewApiIntegrationTest {
         for (int i = 0; i < 2; i++) {
             list(user, sentenceIn(lesson, 10 + i), "shadowing", "10", "1 hour");
         }
-        reviewedSentence(user, dictation.get(0), "5 minutes");
+        reviewedSentence(user, dictation.get(0), "2 seconds");
 
         // Nghe chép còn 1 trong định mức 2, Shadowing còn đủ 2; mục tiêu 2 + 2, đã xong 1
         as(user, get(PLAN)).andExpect(jsonPath("$.data.sentences.length()").value(3))
@@ -315,7 +315,7 @@ class DailyReviewApiIntegrationTest {
                 .andExpect(jsonPath("$.data.sentencesTarget").value(4))
                 .andExpect(jsonPath("$.data.sentencesPending").value(5));
 
-        reviewedSentence(user, dictation.get(1), "4 minutes");
+        reviewedSentence(user, dictation.get(1), "1 second");
 
         // Nghe chép đã đủ 2 câu dù còn 2 câu nữa trong danh sách: không lấy thêm, không lấy bù từ Shadowing
         as(user, get(PLAN)).andExpect(jsonPath("$.data.sentences.length()").value(2))
@@ -328,15 +328,15 @@ class DailyReviewApiIntegrationTest {
     void plan_everythingWithinTheQuotaDone_isAllDoneEvenWithBacklogLeft_AC_HT_58() throws Exception {
         UUID user = student(10);
         List<UUID> cards = dueCards(user, 30);
-        answered(user, cards.subList(0, 15), "review", "10 minutes");
+        answered(user, cards.subList(0, 15), "review", "1 second");
         UUID lesson = lesson(false, "published", false);
         UUID dictation = sentenceIn(lesson, 0);
         UUID shadowing = sentenceIn(lesson, 1);
         list(user, dictation, "dictation", "10", "1 hour");
         list(user, shadowing, "shadowing", "10", "1 hour");
         list(user, sentenceIn(lesson, 2), "dictation", "20", "1 hour");
-        reviewedSentence(user, dictation, "5 minutes");
-        reviewedSentence(user, shadowing, "4 minutes");
+        reviewedSentence(user, dictation, "2 seconds");
+        reviewedSentence(user, shadowing, "1 second");
 
         // mục tiêu 10 phút: 15 thẻ và 1 + 1 câu, đều đã xong dù còn 15 thẻ và 1 câu tồn
         as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsInPlan").value(0))
