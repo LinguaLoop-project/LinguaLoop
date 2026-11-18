@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import MediaBar from "@/features/dictation/components/MediaBar";
 import { usePlayer } from "@/features/dictation/usePlayer";
+import { useSkipSentence } from "../hooks";
 import type { PlanSentence, SentenceOutcome } from "../types";
 import DictationReviewStep from "./DictationReviewStep";
 import ShadowingReviewStep from "./ShadowingReviewStep";
@@ -27,7 +28,13 @@ export default function SentenceReviewFlow({ sentences, index, onFinished }: Sen
   const [hideVideo, setHideVideo] = useState(false);
   const player = usePlayer({ videoId: sentence.youtubeId, mediaUrl: null, containerRef: videoRef, rate: 1 });
 
-  const finish = (outcome: StepOutcome) => onFinished({ sentenceId: sentence.sentenceId, mode: sentence.mode, ...outcome });
+  const skip = useSkipSentence();
+
+  const finish = (outcome: StepOutcome) => {
+    // Câu bỏ qua được hoãn sang ngày mai để không quay lại đầu danh sách ở phiên sau (BR-HT-21).
+    if (outcome.skipped) skip.mutate({ mode: sentence.mode, sentenceId: sentence.sentenceId });
+    onFinished({ sentenceId: sentence.sentenceId, mode: sentence.mode, ...outcome });
+  };
 
   return (
     <div className="flex flex-col gap-4">

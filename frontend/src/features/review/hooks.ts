@@ -63,6 +63,18 @@ export const useSentencePlan = (perMode: number, run: number) =>
     refetchOnReconnect: false,
   });
 
+/** Hoãn câu sang ngày mai khi học viên bỏ qua; làm mới các danh sách và kế hoạch khi xong (BR-HT-21). */
+export const useSkipSentence = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    networkMode: NETWORK_MODE,
+    mutationFn: ({ mode, sentenceId }: { mode: PracticeMode; sentenceId: string }) => reviewApi.skipSentence(mode, sentenceId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["practice"] });
+    },
+  });
+};
+
 /** Đánh dấu câu đã ôn; làm mới các danh sách Câu cần ôn và kế hoạch khi xong. */
 export const useMarkReviewed = () => {
   const queryClient = useQueryClient();

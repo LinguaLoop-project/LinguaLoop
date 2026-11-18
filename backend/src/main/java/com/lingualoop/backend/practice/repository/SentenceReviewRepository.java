@@ -83,7 +83,7 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
             @Param("lessonId") UUID lessonId);
 
     /**
-     * Câu có thể ôn hôm nay của cả hai chế độ (BR-HT-20): loại câu đã ôn từ {@code dayStart}, câu của bài chưa xuất bản
+     * Câu có thể ôn hôm nay của cả hai chế độ (BR-HT-20): loại câu đã ôn hoặc đã bỏ qua từ {@code dayStart}, câu của bài chưa xuất bản
      * hoặc đã xoá, và câu của bài Pro khi học viên dùng gói Free. Điểm lượt gần nhất thấp trước, bằng điểm thì câu thêm
      * vào danh sách sớm hơn trước.
      */
@@ -100,6 +100,7 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
                 ORDER BY created_at DESC, id DESC LIMIT 1) a ON true
             WHERE r.user_id = :userId
               AND (r.last_reviewed_at IS NULL OR r.last_reviewed_at < :dayStart)
+              AND (r.last_skipped_at IS NULL OR r.last_skipped_at < :dayStart)
               AND (NOT l.is_pro OR :userPro)
             ORDER BY a.total_score ASC NULLS LAST, r.created_at ASC, r.sentence_id""", nativeQuery = true)
     List<PlanEntry> findReviewableToday(@Param("userId") UUID userId, @Param("userPro") boolean userPro,
@@ -125,6 +126,17 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
                             AND NOT a.gave_up AND a.created_at >= :since)""", nativeQuery = true)
     int markReviewed(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode,
             @Param("now") Instant now, @Param("since") Instant since);
+
+    /**
+     * Hoãn câu sang ngày mai: ghi lần bỏ qua gần nhất ({@code last_skipped_at = now}). Không đổi gì khác nên câu không
+     * được tính là đã ôn. Trả về 0 khi câu không ở trong danh sách.
+     */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = """
+            UPDATE user_sentence_review SET last_skipped_at = :now
+            WHERE user_id = :userId AND sentence_id = :sentenceId AND mode = :mode""", nativeQuery = true)
+    int skip(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode,
+            @Param("now") Instant now);
 
     /**
      * Số câu đã ôn từ {@code since} (đầu ngày của học viên) theo từng chế độ, để trừ vào Định mức ôn ngày. Chỉ đếm câu

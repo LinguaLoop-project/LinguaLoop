@@ -64,6 +64,17 @@ public class SentenceReviewController {
         return ApiResponse.ok(null);
     }
 
+    /**
+     * Hoãn câu sang ngày mai khi học viên bỏ qua trong phiên ôn (BR-HT-21): câu ở lại danh sách nhưng không được chọn lại
+     * hôm nay và không tính là đã ôn. Gọi lại không đổi gì thêm.
+     */
+    @PostMapping("/{mode}/sentences/{sentenceId}/skipped")
+    public ApiResponse<Void> skip(@CurrentUserId UUID userId, @PathVariable PracticeMode mode,
+            @PathVariable UUID sentenceId) {
+        reviewService.skip(userId, sentenceId, mode);
+        return ApiResponse.ok(null);
+    }
+
     /** "Đã ổn" hoặc bỏ ghim: gỡ câu khỏi danh sách. */
     @DeleteMapping("/{mode}/sentences/{sentenceId}")
     public ApiResponse<Void> resolve(@CurrentUserId UUID userId, @PathVariable PracticeMode mode,

@@ -584,4 +584,81 @@ class DailyReviewApiIntegrationTest {
     void markReviewed_withoutToken_returns401() throws Exception {
         mockMvc.perform(post(reviewed(UUID.randomUUID(), "dictation"))).andExpect(status().isUnauthorized());
     }
+
+    // ── Bỏ qua câu: hoãn sang ngày mai (BR-HT-21) ──
+
+    private String skipped(UUID sentence, String mode) {
+        return "/api/v1/review/" + mode + "/sentences/" + sentence + "/skipped";
+    }
+
+    @Test
+    void skip_postponesTheSentenceToTomorrow_withoutCountingItAsReviewed_BR_HT_21() throws Exception {
+        UUID user = student(15);
+        UUID lesson = lesson(false, "published", false);
+        UUID lowest = sentenceIn(lesson, 0);
+        UUID other = sentenceIn(lesson, 1);
+        list(user, lowest, "dictation", "10", "2 hours");
+        list(user, other, "dictation", "30", "2 hours");
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.sentences[0].sentenceId").value(lowest.toString()));
+        as(user, post(skipped(lowest, "dictation"))).andExpect(status().isOk());
+        as(user, post(skipped(lowest, "dictation"))).andExpect(status().isOk());   // gọi lại không đổi gì
+
+        // câu bỏ qua không quay lại đầu danh sách; không tính là đã ôn nên tiến độ vẫn 0 và mục tiêu thu lại còn 1
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.sentences.length()").value(1))
+                .andExpect(jsonPath("$.data.sentences[0].sentenceId").value(other.toString()))
+                .andExpect(jsonPath("$.data.sentencesPending").value(1))
+                .andExpect(jsonPath("$.data.sentencesDoneToday").value(0))
+                .andExpect(jsonPath("$.data.sentencesTarget").value(1));
+        as(user, get("/api/v1/review/sentence-plan")).andExpect(jsonPath("$.data.length()").value(1));
+        // câu vẫn nằm trong danh sách Câu cần ôn
+        Long inList = jdbc.queryForObject("SELECT count(*) FROM user_sentence_review "
+                + "WHERE user_id = ? AND sentence_id = ? AND last_reviewed_at IS NULL", Long.class, user, lowest);
+        org.assertj.core.api.Assertions.assertThat(inList).isEqualTo(1);
+    }
+
+    @Test
+    void skip_cameBackTheNextDay_BR_HT_21() throws Exception {
+        UUID user = student(15);
+        UUID sentence = sentenceIn(lesson(false, "published", false), 0);
+        list(user, sentence, "dictation", "10", "2 hours");
+        as(user, post(skipped(sentence, "dictation"))).andExpect(status().isOk());
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.sentencesPending").value(0));
+
+        // sang ngày hôm sau: lần bỏ qua đã cũ hơn đầu ngày nên câu được chọn lại
+        jdbc.update("UPDATE user_sentence_review SET last_skipped_at = now() - interval '2 days' "
+                + "WHERE user_id = ? AND sentence_id = ?", user, sentence);
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.sentencesPending").value(1))
+                .andExpect(jsonPath("$.data.sentences[0].sentenceId").value(sentence.toString()));
+    }
+
+    @Test
+    void skip_theOnlyRemainingSentence_letsTheDayFinish_BR_HT_21() throws Exception {
+        UUID user = student(10);
+        UUID sentence = sentenceIn(lesson(false, "published", false), 0);
+        list(user, sentence, "shadowing", "10", "2 hours");
+
+        as(user, post(skipped(sentence, "shadowing"))).andExpect(status().isOk());
+
+        // không còn việc nào trong định mức: phiên trống thay vì đưa lại đúng câu vừa bỏ qua
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsInPlan").value(0))
+                .andExpect(jsonPath("$.data.sentences.length()").value(0))
+                .andExpect(jsonPath("$.data.sentencesTarget").value(0))
+                .andExpect(jsonPath("$.data.suggestions").exists());
+    }
+
+    @Test
+    void skip_sentenceNotInTheList_orOfAnotherUser_returns404() throws Exception {
+        UUID user = student(15);
+        UUID sentence = sentenceIn(lesson(false, "published", false), 0);
+        list(user, sentence, "dictation", "10", "2 hours");
+
+        as(user, post(skipped(sentence, "shadowing"))).andExpect(status().isNotFound());
+        as(users.newUser(), post(skipped(sentence, "dictation"))).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void skip_withoutToken_returns401() throws Exception {
+        mockMvc.perform(post(skipped(UUID.randomUUID(), "dictation"))).andExpect(status().isUnauthorized());
+    }
 }

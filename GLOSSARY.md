@@ -85,7 +85,7 @@ _Tránh_: tiến độ thẻ, độ nhớ (dùng cho vòng phần trăm trên gi
 _Tránh_: ôn câu, ôn lại
 
 **Ôn câu**:
-Luyện lại các câu trong danh sách Câu cần ôn, mỗi lần một số câu ít ở từng chế độ. Khác với ôn thẻ, không theo lịch lặp lại ngắt quãng; câu nào chưa ôn hôm nay thì được chọn.
+Luyện lại các câu trong danh sách Câu cần ôn, mỗi lần một số câu ít ở từng chế độ. Khác với ôn thẻ, không theo lịch lặp lại ngắt quãng; câu nào chưa ôn và chưa bị bỏ qua hôm nay thì được chọn. Câu bị bỏ qua được hoãn sang ngày mai.
 _Tránh_: ôn thẻ, ôn lại
 
 ### Học hằng ngày

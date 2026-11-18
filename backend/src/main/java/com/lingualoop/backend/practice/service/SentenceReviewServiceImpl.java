@@ -66,6 +66,14 @@ class SentenceReviewServiceImpl implements SentenceReviewService {
     }
 
     @Override
+    @Transactional
+    public void skip(UUID userId, UUID sentenceId, PracticeMode mode) {
+        if (reviews.skip(userId, sentenceId, mode.name(), Instant.now(clock)) == 0) {
+            throw new BusinessException(ErrorCode.NOT_FOUND);
+        }
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Map<PracticeMode, Integer> countReviewedSince(UUID userId, Instant since) {
         Map<PracticeMode, Integer> counts = new EnumMap<>(PracticeMode.class);

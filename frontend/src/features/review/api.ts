@@ -21,6 +21,11 @@ export const reviewApi = {
     return response.data.data;
   },
 
+  /** Hoãn câu sang ngày mai khi học viên bỏ qua: không chọn lại hôm nay và không tính là đã ôn (BR-HT-21). */
+  skipSentence: async (mode: PracticeMode, sentenceId: string): Promise<void> => {
+    await axiosClient.post(`/review/${mode}/sentences/${sentenceId}/skipped`, undefined, { timeout: REQUEST_TIMEOUT_MS });
+  },
+
   /** Đánh dấu câu "đã ôn hôm nay" sau một lượt đã lưu và chấm xong (BR-HT-21). */
   markReviewed: async (mode: PracticeMode, sentenceId: string): Promise<void> => {
     await axiosClient.post(`/review/${mode}/sentences/${sentenceId}/reviewed`, undefined, { timeout: REQUEST_TIMEOUT_MS });

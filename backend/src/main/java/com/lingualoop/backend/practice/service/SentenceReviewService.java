@@ -39,6 +39,12 @@ public interface SentenceReviewService {
     List<ReviewPlanSentence> findReviewableToday(UUID userId, boolean userPro, Instant dayStart);
 
     /**
+     * Hoãn câu sang ngày mai khi học viên bỏ qua trong phiên ôn (BR-HT-21): câu không được chọn lại hôm nay và không được
+     * tính là đã ôn; câu vẫn ở trong danh sách. Câu không ở trong danh sách thì lỗi không tìm thấy.
+     */
+    void skip(UUID userId, UUID sentenceId, PracticeMode mode);
+
+    /**
      * Số câu đã ôn từ {@code since} (đầu ngày của học viên) theo chế độ, để trừ vào Định mức ôn ngày. Chế độ chưa ôn câu
      * nào không có trong kết quả.
      */
