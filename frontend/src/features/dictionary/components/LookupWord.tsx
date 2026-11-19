@@ -7,8 +7,8 @@ import { isWordNotFound, useWordLookup } from "../hooks";
 import { normalizeWord } from "../utils";
 import WordCard from "./WordCard";
 
-const POPOVER_WIDTH = 360;
-const POPOVER_MAX_HEIGHT = 340;
+const POPOVER_WIDTH = 384;
+const POPOVER_MAX_HEIGHT = 420;
 const GAP = 8;
 
 function WordPopoverBody({ word }: { word: string }) {
@@ -54,14 +54,26 @@ function WordPopover({ word, anchor, anchorElement, onClose }: WordPopoverProps)
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Node;
-      if (popoverRef.current?.contains(target) || anchorElement?.contains(target)) return;
+      if (
+        popoverRef.current?.contains(target) ||
+        anchorElement?.contains(target) ||
+        (target instanceof Element && target.closest("[data-word-popover-keep]"))
+      ) {
+        return;
+      }
       onClose();
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape" && !event.defaultPrevented) onClose();
     };
     const onScroll = (event: Event) => {
-      if (popoverRef.current?.contains(event.target as Node)) return;
+      const target = event.target as Node | null;
+      if (
+        popoverRef.current?.contains(target) ||
+        (target instanceof Element && target.closest("[data-word-popover-keep]"))
+      ) {
+        return;
+      }
       onClose();
     };
     document.addEventListener("pointerdown", onPointerDown);
