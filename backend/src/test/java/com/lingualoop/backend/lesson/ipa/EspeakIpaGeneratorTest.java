@@ -164,4 +164,16 @@ class EspeakIpaGeneratorTest {
 
         assertThat(ipa).containsExactly("p k pt");
     }
+
+    @Test
+    void stripEdgePunctuation_keepsInnerPunctuationAndHandlesLongRuns() {
+        assertThat(EspeakIpaGenerator.stripEdgePunctuation("(world)!")).isEqualTo("world");
+        assertThat(EspeakIpaGenerator.stripEdgePunctuation("\"There's,")).isEqualTo("There's");
+        assertThat(EspeakIpaGenerator.stripEdgePunctuation("well-known.")).isEqualTo("well-known");
+        assertThat(EspeakIpaGenerator.stripEdgePunctuation("...")).isEmpty();
+        assertThat(EspeakIpaGenerator.stripEdgePunctuation("𝐀b😀")).isEqualTo("𝐀b");
+        // Chuỗi dấu câu dài không ở cuối: regex cũ dò ngược theo bình phương độ dài.
+        String longRun = "a" + "!".repeat(50_000) + "b";
+        assertThat(EspeakIpaGenerator.stripEdgePunctuation(longRun)).isEqualTo(longRun);
+    }
 }

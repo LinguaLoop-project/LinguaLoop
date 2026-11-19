@@ -74,7 +74,8 @@ public final class IpaNormalizer {
     private static String common(String espeakWord) {
         String s = espeakWord == null ? "" : espeakWord;
         // Dấu nối của espeak (--ipa=1 dùng "_", --ipa=2 dùng dấu nối ghép) và khoảng trắng giữa các phần của một token
-        s = s.replaceAll("[\\s_‿͜͡‖|]+", "");
+        // Dấu nối ghép (U+035C, U+0361) là dấu kết hợp nên viết bằng mã, tránh dính vào ký tự đứng trước (Sonar java:S5868).
+        s = s.replaceAll("[\\s_\\u203F\\u035C\\u0361\\u2016|]+", "");
         s = s.replace("ᵻ", "ɪ")
                 .replace("ɾ", "t")
                 .replace("ʔ", "t")

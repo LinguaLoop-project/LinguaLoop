@@ -43,8 +43,6 @@ class EspeakIpaGenerator implements IpaGenerator {
     static final String VOICE_US = "en-us";
     static final String VOICE_UK = "en-gb";
 
-    private static final String EDGE_PUNCTUATION = "^[^\\p{L}\\p{N}]+|[^\\p{L}\\p{N}]+$";
-
     private final BiFunction<String, List<String>, List<String>> espeak;
 
     @Autowired
@@ -104,13 +102,29 @@ class EspeakIpaGenerator implements IpaGenerator {
         }
         List<String> tokens = new ArrayList<>();
         for (String raw : sentence.trim().split("\\s+")) {
-            String token = raw.replace('’', '\'').replaceAll(EDGE_PUNCTUATION, "");
+            String token = stripEdgePunctuation(raw.replace('’', '\''));
             if (token.isEmpty()) {
                 return null;
             }
             tokens.add(token);
         }
         return tokens;
+    }
+
+    /**
+     * Bỏ các ký tự không phải chữ hoặc số ở hai đầu token ("(world)!" thành "world"). Duyệt code point thay vì regex
+     * {@code [^\p{L}\p{N}]+$} để thời gian tuyến tính theo độ dài token (Sonar java:S8786).
+     */
+    static String stripEdgePunctuation(String token) {
+        int start = 0;
+        int end = token.length();
+        while (start < end && !Character.isLetterOrDigit(token.codePointAt(start))) {
+            start += Character.charCount(token.codePointAt(start));
+        }
+        while (end > start && !Character.isLetterOrDigit(token.codePointBefore(end))) {
+            end -= Character.charCount(token.codePointBefore(end));
+        }
+        return token.substring(start, end);
     }
 
     /** @return IPA đã chuẩn hoá của từng token theo {@code voice}; null nếu không chạy được espeak */

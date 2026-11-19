@@ -15,6 +15,15 @@ import com.lingualoop.backend.shadowing.azure.ExpectedPhonemes;
 class IpaNormalizerTest {
 
     @Test
+    void joiners_and_tie_bars_are_removed() {
+        String plain = IpaNormalizer.normalize("tʃˈɜːtʃ");
+
+        assertThat(IpaNormalizer.normalize("t͡ʃˈɜːt͜ʃ")).isEqualTo(plain);
+        assertThat(IpaNormalizer.normalize("t_ʃˈɜː‿tʃ")).isEqualTo(plain);
+        assertThat(IpaNormalizer.normalize("tʃ ˈɜː‖tʃ|")).isEqualTo(plain);
+    }
+
+    @Test
     void flap_becomes_t() {
         assertThat(IpaNormalizer.normalize("bˈɛɾɚ")).isEqualTo("ˈbɛtɚ");
     }
