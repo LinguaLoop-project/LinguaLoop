@@ -2,6 +2,7 @@ package com.lingualoop.backend.practice.repository;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +43,13 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
             nativeQuery = true)
     List<UUID> findPendingSentenceIds(@Param("userId") UUID userId, @Param("lessonId") UUID lessonId,
             @Param("mode") String mode);
+
+    @Query(value = """
+            SELECT r.sentence_id FROM user_sentence_review r JOIN sentences s ON s.id = r.sentence_id
+            WHERE r.user_id = :userId AND s.lesson_id IN (:lessonIds) AND r.mode = :mode""",
+            nativeQuery = true)
+    List<UUID> findPendingSentenceIdsIn(@Param("userId") UUID userId,
+            @Param("lessonIds") Collection<UUID> lessonIds, @Param("mode") String mode);
 
     /** Câu đã có ít nhất một lượt ở chế độ này: điều kiện để ghim câu vào danh sách của chế độ đó. */
     @Query(value = """
