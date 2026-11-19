@@ -7,6 +7,9 @@ export interface YouTubePlayer {
   getCurrentTime(): number;
   getDuration(): number;
   getPlayerState(): number;
+  mute(): void;
+  unMute(): void;
+  isMuted(): boolean;
   destroy(): void;
 }
 
@@ -16,7 +19,11 @@ export interface YouTubeNamespace {
     options: {
       videoId: string;
       playerVars: Record<string, string | number>;
-      events: { onReady: () => void; onError: () => void };
+      events: {
+        onReady: () => void;
+        onError: () => void;
+        onStateChange?: (event: { data: number }) => void;
+      };
     },
   ) => YouTubePlayer;
 }
@@ -27,3 +34,42 @@ declare global {
     onYouTubeIframeAPIReady?: () => void;
   }
 }
+
+/** Trạng thái trình phát YouTube. */
+export const YT_STATE = { ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3 } as const;
+
+/** Chờ tối đa bấy nhiêu mili giây để script IFrame API tải xong. */
+const API_TIMEOUT_MS = 9000;
+
+let youTubeApi: Promise<YouTubeNamespace> | null = null;
+
+/** Nạp script IFrame API một lần cho cả ứng dụng. */
+export function loadYouTubeApi(): Promise<YouTubeNamespace> {
+  if (window.YT?.Player) return Promise.resolve(window.YT);
+  if (!youTubeApi) {
+    youTubeApi = new Promise<YouTubeNamespace>((resolve, reject) => {
+      const fail = () => {
+        youTubeApi = null;
+        reject(new Error("YouTube IFrame API failed to load"));
+      };
+      const previous = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        previous?.();
+        if (window.YT?.Player) resolve(window.YT);
+        else fail();
+      };
+      const script = document.createElement("script");
+      script.src = "https://www.youtube.com/iframe_api";
+      script.async = true;
+      script.onerror = fail;
+      document.head.appendChild(script);
+      window.setTimeout(() => {
+        if (!window.YT?.Player) fail();
+      }, API_TIMEOUT_MS);
+    });
+  }
+  return youTubeApi;
+}
+
+/** Ảnh đại diện của video YouTube. */
+export const youTubeThumbnail = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;

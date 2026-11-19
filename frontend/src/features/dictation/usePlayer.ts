@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
-import type { YouTubeNamespace, YouTubePlayer } from "@/lib/youtube";
+import { loadYouTubeApi, type YouTubePlayer } from "@/lib/youtube";
 
 const YT_STATE_PLAYING = 1;
 const YT_STATE_BUFFERING = 3;
 const TICK_MS = 90;
-/** Chờ tối đa bấy nhiêu mili giây để API/video sẵn sàng; quá hạn coi là không tải được. */
+/** Chờ tối đa bấy nhiêu mili giây để video sẵn sàng; quá hạn coi là không tải được. */
 const LOAD_TIMEOUT_MS = 9000;
 /** Bấm phát mà sau bấy nhiêu mili giây vẫn chưa phát thì coi là bị trình duyệt chặn tiếng. */
 const START_TIMEOUT_MS = 2000;
@@ -15,36 +15,6 @@ const END_MARGIN_MS = 50;
 const WATCH_MS = 300;
 /** Vị trí nhảy quá ngần này giữa hai lần đọc coi là người học đang phát hoặc tua. */
 const SEEK_THRESHOLD_MS = 250;
-
-let youTubeApi: Promise<YouTubeNamespace> | null = null;
-
-/** Nạp script IFrame API một lần cho cả ứng dụng. */
-function loadYouTubeApi(): Promise<YouTubeNamespace> {
-  if (window.YT?.Player) return Promise.resolve(window.YT);
-  if (!youTubeApi) {
-    youTubeApi = new Promise<YouTubeNamespace>((resolve, reject) => {
-      const fail = () => {
-        youTubeApi = null;
-        reject(new Error("YouTube IFrame API failed to load"));
-      };
-      const previous = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => {
-        previous?.();
-        if (window.YT?.Player) resolve(window.YT);
-        else fail();
-      };
-      const script = document.createElement("script");
-      script.src = "https://www.youtube.com/iframe_api";
-      script.async = true;
-      script.onerror = fail;
-      document.head.appendChild(script);
-      window.setTimeout(() => {
-        if (!window.YT?.Player) fail();
-      }, LOAD_TIMEOUT_MS);
-    });
-  }
-  return youTubeApi;
-}
 
 /** Nạp sẵn script YouTube ở nền (vd lúc làm thẻ) để câu đầu của phần ôn câu mở nhanh hơn; lỗi thì bỏ qua. */
 export function preloadYouTubeApi(): void {

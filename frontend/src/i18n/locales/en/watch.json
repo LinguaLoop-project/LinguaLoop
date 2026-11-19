@@ -1,0 +1,51 @@
+{
+  "title": "Passive learning",
+  "back": "Back",
+  "feedAria": "Passive learning video feed",
+  "slide": "video",
+  "loading": "Loading videos",
+  "play": "Play video",
+  "pause": "Pause video",
+  "mute": "Mute",
+  "unmute": "Unmute",
+  "retry": "Try again",
+  "savedToast": "Sentence saved to Review sentences",
+  "actions": {
+    "like": "Like",
+    "unlike": "Unlike",
+    "save": "Save sentence",
+    "saved": "Sentence saved",
+    "practice": "Practice this lesson",
+    "report": "Report"
+  },
+  "settings": {
+    "title": "Caption settings",
+    "speed": "Playback speed",
+    "captions": "Show captions",
+    "translation": "Show translation",
+    "ipa": "Show phonetics",
+    "size": "Text size",
+    "sizes": { "sm": "Small", "md": "Medium", "lg": "Large" }
+  },
+  "empty": {
+    "title": "No videos to watch yet",
+    "desc": "There are no short lessons for you right now. Come back later or open the lesson library.",
+    "cta": "Open the lesson library"
+  },
+  "upsell": {
+    "title": "More Pro videos are waiting",
+    "desc": "Upgrade to Pro to watch every video and practise every lesson.",
+    "cta": "Try Pro",
+    "next": "Scroll down to keep watching"
+  },
+  "errors": {
+    "feed": "Could not load the video feed. Check your connection and try again.",
+    "video": "This video can't be played. You can try again or scroll to another video.",
+    "like": "Could not update your like. Please try again.",
+    "save": "Could not save the sentence. Please try again."
+  },
+  "entry": {
+    "cta": "Watch as short videos",
+    "hint": "Passive learning: watch videos with subtitles that follow the speech"
+  }
+}
