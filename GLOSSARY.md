@@ -64,6 +64,10 @@ _Tránh_: deck, bộ từ vựng
 Các bộ từ cá nhân do chính học viên tạo, chỉ mình học viên thấy; khác với bộ hệ thống và bộ "Từ đã lưu" (bộ riêng, mỗi học viên một bộ, không đổi tên hay xóa được). Học viên thêm, đổi tên và xóa bộ; tên dài 1 đến 100 ký tự và không trùng tên bộ cá nhân khác của mình, không phân biệt hoa thường. Xóa bộ là xóa tạm: thẻ của bộ không còn vào hàng đợi ôn và tên được dùng lại. Học viên tự quản lý nhóm thẻ (phần) và thẻ trong bộ (nhập tay, điền từ từ điển hoặc nhập Excel/CSV) nhưng không đính kèm ảnh; bộ được học và ôn như bộ hệ thống, không có khóa Pro và không có bước xuất bản.
 _Tránh_: bộ cá nhân (dùng trong tài liệu kỹ thuật cho cùng khái niệm), bộ riêng, từ của tôi
 
+**Thêm vào bộ**:
+Thêm một thẻ vào Bộ của tôi từ một nghĩa trong hộp tra từ điển hoặc từ câu của bài học, bằng nút đặt cạnh nút "Lưu". Khác với "Lưu" (thẻ vào bộ "Từ đã lưu" để ôn ngay): học viên chọn bộ và nhóm, thẻ vào cuối nhóm đó và được học như thẻ của bộ rồi mới vào hàng đợi ôn. Một từ chỉ có một thẻ trong cùng một bộ.
+_Tránh_: lưu vào bộ, thêm thẻ nhanh (tên tính năng, không phải thuật ngữ)
+
 **Phần**:
 Một nhóm thẻ cùng chủ đề trong một bộ từ, là đơn vị học viên chọn để học từ mới (vd "Family", 49 thẻ). Số thẻ mỗi phần khác nhau. Giáo viên quản lý gọi là nhóm thẻ (module NT); mỗi nhóm có ít nhất 1 thẻ (BR-BT-05).
 _Tránh_: bài, unit, group (vì "bài" là bài học dùng để nghe chép và shadowing)

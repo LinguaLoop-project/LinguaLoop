@@ -22,7 +22,7 @@ function lookup(tree: unknown, path: string): unknown {
 }
 
 // Mã nguồn của "Bộ của tôi", đọc dạng chữ để dò các lời gọi t("khoá tĩnh")
-const sources = import.meta.glob(["./components/mine/*.tsx", "./components/manage/DeckDetailView.tsx"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const sources = import.meta.glob(["./components/mine/*.tsx", "./components/quickAdd/*.tsx", "./components/manage/DeckDetailView.tsx"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 
 describe("chuỗi giao diện của Bộ của tôi (UC-HT-08)", () => {
   it("tiếng Việt và tiếng Anh có cùng bộ khoá", () => {
@@ -42,5 +42,21 @@ describe("chuỗi giao diện của Bộ của tôi (UC-HT-08)", () => {
   it("các lỗi tên dùng đúng mã server trả (NotBlank, Size) cùng mã Duplicate cho tên trùng", () => {
     expect(Object.keys(vi.mine.dialog.errors).sort()).toEqual(["Duplicate", "NotBlank", "Size"]);
     expect(Object.keys(en.mine.dialog.errors).sort()).toEqual(["Duplicate", "NotBlank", "Size"]);
+  });
+});
+
+describe("chuỗi giao diện của thêm thẻ nhanh (UC-HT-10)", () => {
+  it("tiếng Việt và tiếng Anh có cùng bộ khoá", () => {
+    expect([...new Set(leafPaths(en.quickAdd))].sort()).toEqual([...new Set(leafPaths(vi.quickAdd))].sort());
+  });
+
+  it("mọi khoá quickAdd.* được dùng trong code đều trỏ tới một chuỗi, ở cả hai ngôn ngữ", () => {
+    const used = new Set<string>();
+    for (const code of Object.values(sources)) {
+      for (const match of code.matchAll(/\bt\(\s*"(quickAdd\.[\w.]+)"/g)) used.add(match[1]);
+    }
+    expect(used.size).toBeGreaterThan(10);
+    const bad = [...used].filter((key) => typeof lookup(vi, key) !== "string" || typeof lookup(en, key) !== "string");
+    expect(bad).toEqual([]);
   });
 });

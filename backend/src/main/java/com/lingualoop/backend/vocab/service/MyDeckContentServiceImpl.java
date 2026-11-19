@@ -87,6 +87,13 @@ class MyDeckContentServiceImpl implements MyDeckContentService {
     }
 
     @Override
+    public DeckManageView.Card addFromDictionary(UUID learnerId, UUID deckId, UUID groupId, String headword,
+            int meaningNo, UUID sentenceId) {
+        guard.require(learnerId);
+        return core.addFromDictionary(Actor.LEARNER, learnerId, deckId, groupId, headword, meaningNo, sentenceId);
+    }
+
+    @Override
     public byte[] importTemplate(TemplateFormat format) {
         return core.importTemplate(format);
     }

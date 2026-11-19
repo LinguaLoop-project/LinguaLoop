@@ -42,5 +42,13 @@ public interface MyDeckContentService {
     /** Thêm mọi thẻ trong tệp vào cuối nhóm; có dòng lỗi thì không thêm thẻ nào. */
     CardImportView.Result importCards(UUID learnerId, UUID deckId, UUID groupId, String filename, byte[] content);
 
+    /**
+     * Thêm thẻ vào cuối nhóm từ một nghĩa của mục từ gốc trong từ điển (UC-HT-10, BR-HT-28). {@code sentenceId} có khi từ được
+     * bấm trong một câu của bài học. Nghĩa không có ném {@code VOCAB_MEANING_NOT_FOUND}; từ đã có trong bộ ném
+     * {@code VOCAB_CARD_WORD_TAKEN} kèm tên nhóm đang chứa.
+     */
+    DeckManageView.Card addFromDictionary(UUID learnerId, UUID deckId, UUID groupId, String headword, int meaningNo,
+            UUID sentenceId);
+
     byte[] importTemplate(TemplateFormat format);
 }

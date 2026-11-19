@@ -31,6 +31,7 @@ import com.lingualoop.backend.common.response.PageResponse;
 import com.lingualoop.backend.security.CurrentUserId;
 import com.lingualoop.backend.vocab.dto.CardImportView;
 import com.lingualoop.backend.vocab.dto.DeckManageView;
+import com.lingualoop.backend.vocab.dto.request.AddFromDictionaryRequest;
 import com.lingualoop.backend.vocab.dto.request.CardRequest;
 import com.lingualoop.backend.vocab.dto.request.GroupRequest;
 import com.lingualoop.backend.vocab.service.MyDeckContentService;
@@ -94,6 +95,15 @@ public class MyDeckContentController {
     public ApiResponse<DeckManageView.Card> addCard(@CurrentUserId UUID userId, @PathVariable UUID deckId,
             @PathVariable UUID groupId, @Valid @RequestBody CardRequest request) {
         return ApiResponse.ok(contentService.addCard(userId, deckId, groupId, request));
+    }
+
+    /** Thêm thẻ vào nhóm từ một nghĩa trong từ điển hoặc từ một câu của bài học (UC-HT-10). */
+    @PostMapping(CARDS + "/from-dictionary")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<DeckManageView.Card> addFromDictionary(@CurrentUserId UUID userId, @PathVariable UUID deckId,
+            @PathVariable UUID groupId, @Valid @RequestBody AddFromDictionaryRequest request) {
+        return ApiResponse.ok(contentService.addFromDictionary(userId, deckId, groupId, request.headword(),
+                request.meaningNo(), request.sentenceId()));
     }
 
     @PutMapping(CARDS + "/{cardId}")

@@ -224,6 +224,31 @@
     "review": "Review",
     "mine": "My decks"
   },
+  "quickAdd": {
+    "toggle": "Add to deck",
+    "toggleAria": "Add this meaning of {{word}} to My decks",
+    "formAria": "Add {{word}} to a deck",
+    "deck": "Deck",
+    "newDeck": "New deck…",
+    "deckName": "New deck name",
+    "group": "Group",
+    "newGroup": "New group…",
+    "groupName": "Group name",
+    "defaultGroup": "New words",
+    "submit": "Add",
+    "cancel": "Cancel",
+    "added": "Added “{{word}}” to deck {{deck}} · group {{group}}",
+    "viewDeck": "View deck",
+    "errors": {
+      "taken": "This deck already has a card “{{word}}” in group {{group}}. Pick another deck or edit that card.",
+      "meaningGone": "This meaning is no longer in the dictionary.",
+      "forbidden": "You can't study the lesson this sentence belongs to.",
+      "gone": "The deck or group no longer exists, the list was reloaded.",
+      "retry": "Couldn't add it, please try again.",
+      "offline": "You're offline. Try again when you're back online.",
+      "loadFailed": "Couldn't load your decks, please try again."
+    }
+  },
   "mine": {
     "title": "My decks",
     "subtitle": "Vocabulary decks you created. Only you can see them.",

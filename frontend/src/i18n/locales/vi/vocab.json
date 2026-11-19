@@ -213,6 +213,31 @@
     "review": "Ôn thẻ",
     "mine": "Bộ của tôi"
   },
+  "quickAdd": {
+    "toggle": "Thêm vào bộ",
+    "toggleAria": "Thêm nghĩa này của từ {{word}} vào Bộ của tôi",
+    "formAria": "Thêm từ {{word}} vào bộ",
+    "deck": "Bộ",
+    "newDeck": "Tạo bộ mới…",
+    "deckName": "Tên bộ mới",
+    "group": "Nhóm",
+    "newGroup": "Nhóm mới…",
+    "groupName": "Tên nhóm",
+    "defaultGroup": "Từ mới",
+    "submit": "Thêm",
+    "cancel": "Hủy",
+    "added": "Đã thêm “{{word}}” vào bộ {{deck}} · nhóm {{group}}",
+    "viewDeck": "Xem bộ",
+    "errors": {
+      "taken": "Bộ này đã có thẻ “{{word}}” ở nhóm {{group}}. Chọn bộ khác hoặc sửa thẻ đó.",
+      "meaningGone": "Nghĩa này không còn trong từ điển.",
+      "forbidden": "Bạn không có quyền học bài học của câu này.",
+      "gone": "Bộ hoặc nhóm đã không còn, danh sách đã được tải lại.",
+      "retry": "Chưa thêm được, bạn thử lại nhé.",
+      "offline": "Bạn đang mất mạng. Thử lại khi có mạng.",
+      "loadFailed": "Chưa tải được danh sách bộ, bạn thử lại nhé."
+    }
+  },
   "mine": {
     "title": "Bộ của tôi",
     "subtitle": "Các bộ từ vựng cá nhân do bạn tạo, chỉ mình bạn thấy.",

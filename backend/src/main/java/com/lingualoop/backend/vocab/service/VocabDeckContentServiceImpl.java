@@ -30,7 +30,11 @@ import com.lingualoop.backend.vocab.dto.request.AttachCardImagesRequest;
 import com.lingualoop.backend.vocab.dto.request.CardRequest;
 import com.lingualoop.backend.vocab.dto.request.GroupRequest;
 import com.lingualoop.backend.vocab.entity.VocabDeck;
+import com.lingualoop.backend.common.exception.NotFoundException;
+import com.lingualoop.backend.dictionary.dto.MeaningSnapshot;
 import com.lingualoop.backend.dictionary.service.DictionaryQueryService;
+import com.lingualoop.backend.lesson.dto.SentenceView;
+import com.lingualoop.backend.lesson.service.SentenceQueryService;
 import com.lingualoop.backend.vocab.repository.VocabDeckContentRepository;
 import com.lingualoop.backend.vocab.repository.VocabDeckContentRepository.CardAudio;
 import com.lingualoop.backend.vocab.repository.VocabDeckContentRepository.CardImageRow;
@@ -68,6 +72,7 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     private final CardImportTemplate template;
     private final Validator validator;
     private final DictionaryQueryService dictionary;
+    private final SentenceQueryService sentences;
     private final CardImages images;
     private final CardAudioUrls audio;
     private final Clock clock;
@@ -165,6 +170,34 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
         }
         Instant now = now();
         UUID id = repository.insertCard(deckId, groupId, request, audioOf(request), request.imageKey(), now);
+        repository.touchDeck(deckId, now);
+        return card(deckId, groupId, id);
+    }
+
+    /**
+     * Thêm thẻ vào cuối nhóm từ một nghĩa trong từ điển (UC-HT-10, BR-HT-28): nội dung chép từ từ điển, âm thanh tự lấy
+     * theo từ vựng và loại từ như khi nhập tay, không có ảnh. Có {@code sentenceId} thì phải có quyền học bài của câu đó
+     * và thẻ nhớ câu gốc. Từ đã có trong bộ ném {@code VOCAB_CARD_WORD_TAKEN} (BR-HT-26).
+     */
+    @Transactional
+    public DeckManageView.Card addFromDictionary(Actor actor, UUID userId, UUID deckId, UUID groupId, String headword,
+            int meaningNo, UUID sentenceId) {
+        lockDeck(actor, userId, deckId);
+        group(deckId, groupId);
+        MeaningSnapshot meaning = dictionary.findMeaning(headword, meaningNo)
+                .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_MEANING_NOT_FOUND));
+        if (sentenceId != null) {
+            SentenceView sentence = sentences.findSentence(sentenceId)
+                    .orElseThrow(() -> new NotFoundException("Sentence not found"));
+            sentences.assertCanPractice(userId, sentence.lessonId());
+        }
+        CardRequest request = DictionaryCardContent.toCard(meaning);
+        requireWordFree(deckId, request.word(), null);
+        Instant now = now();
+        UUID id = repository.insertCard(deckId, groupId, request, audioOf(request), null, now);
+        if (sentenceId != null) {
+            repository.setCardSourceSentence(id, sentenceId);
+        }
         repository.touchDeck(deckId, now);
         return card(deckId, groupId, id);
     }

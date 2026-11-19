@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { myDecksApi } from "./myDecksApi";
+import { runQuickAdd, type QuickAddPlan } from "./quickAdd";
 
 const NETWORK_MODE = "always" as const;
 
@@ -28,3 +29,6 @@ export const useRenameMyDeck = () =>
   useMyDeckMutation(({ id, name }: { id: string; name: string }) => myDecksApi.rename(id, name));
 
 export const useDeleteMyDeck = () => useMyDeckMutation((id: string) => myDecksApi.remove(id));
+
+/** Thêm thẻ nhanh từ một nghĩa trong từ điển, tạo bộ hoặc nhóm nếu cần (UC-HT-10). */
+export const useQuickAdd = () => useMyDeckMutation((plan: QuickAddPlan) => runQuickAdd(plan));
