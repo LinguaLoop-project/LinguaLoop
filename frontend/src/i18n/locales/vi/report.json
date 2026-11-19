@@ -100,9 +100,6 @@
     "showAll": "Xem tất cả báo cáo",
     "noResult": "Không tìm thấy báo cáo phù hợp",
     "clearFilters": "Xóa bộ lọc",
-    "prev": "Trang trước",
-    "next": "Trang sau",
-    "pageOf": "Trang {{page}} / {{total}}",
     "ownerFilter": "Giáo viên chủ",
     "ownerAll": "Mọi giáo viên"
   },

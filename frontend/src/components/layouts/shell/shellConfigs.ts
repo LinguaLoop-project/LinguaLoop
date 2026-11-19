@@ -30,15 +30,17 @@ const teacherGroups: NavGroup[] = [
     items: [{ id: "dashboard", icon: "layout-grid", labelKey: k("teacher", "sidebar.items", "dashboard"), to: "/teacher" }],
   },
   {
+    titleKey: "teacher.sidebar.groups.queue",
+    items: [
+      { id: "reports", icon: "flag", labelKey: k("teacher", "sidebar.items", "reports"), to: "/teacher/reports", badgeType: "bad" },
+    ],
+  },
+  {
     titleKey: "teacher.sidebar.groups.content",
     items: [
       { id: "lessons", icon: "film", labelKey: k("teacher", "sidebar.items", "lessons"), to: "/teacher/lessons" },
       { id: "decks", icon: "layers", labelKey: k("teacher", "sidebar.items", "decks"), to: "/teacher/decks" },
     ],
-  },
-  {
-    titleKey: "teacher.sidebar.groups.tracking",
-    items: [{ id: "reports", icon: "flag", labelKey: k("teacher", "sidebar.items", "reports"), to: "/teacher/reports" }],
   },
 ];
 
@@ -47,26 +49,35 @@ const adminGroups: NavGroup[] = [
     items: [{ id: "dashboard", icon: "layout-grid", labelKey: k("admin", "sidebar.items", "dashboard"), to: "/admin" }],
   },
   {
-    titleKey: "admin.sidebar.groups.system",
-    items: [{ id: "users", icon: "users", labelKey: k("admin", "sidebar.items", "users"), to: "/admin/users" }],
+    titleKey: "admin.sidebar.groups.accounts",
+    items: [
+      { id: "users", icon: "users", labelKey: k("admin", "sidebar.items", "users"), to: "/admin/users" },
+      { id: "subs", icon: "credit-card", labelKey: k("admin", "sidebar.items", "subs"), to: "/admin/subs" },
+    ],
   },
   {
-    titleKey: "admin.sidebar.groups.moderation",
+    titleKey: "admin.sidebar.groups.queue",
     items: [
       { id: "reports", icon: "flag", labelKey: k("admin", "sidebar.items", "reports"), to: "/admin/reports", badgeType: "bad" },
-      { id: "lessons", icon: "film", labelKey: k("admin", "sidebar.items", "lessons"), to: "/admin/lessons" },
       { id: "republish", icon: "send", labelKey: k("admin", "sidebar.items", "republish"), to: "/admin/republish", badgeType: "warn" },
+    ],
+  },
+  {
+    titleKey: "admin.sidebar.groups.content",
+    items: [
+      { id: "lessons", icon: "film", labelKey: k("admin", "sidebar.items", "lessons"), to: "/admin/lessons" },
       { id: "decks", icon: "layers", labelKey: k("admin", "sidebar.items", "decks"), to: "/admin/decks" },
-      { id: "audit", icon: "history", labelKey: k("admin", "sidebar.items", "audit"), to: "/admin/audit" },
     ],
   },
   {
     titleKey: "admin.sidebar.groups.config",
     items: [
       { id: "limits", icon: "sliders-horizontal", labelKey: k("admin", "sidebar.items", "limits"), to: "/admin/limits" },
-      { id: "subs", icon: "credit-card", labelKey: k("admin", "sidebar.items", "subs"), to: "/admin/subs" },
       { id: "errors", icon: "circle-alert", labelKey: k("admin", "sidebar.items", "errors"), to: "/admin/errors" },
     ],
+  },
+  {
+    items: [{ id: "audit", icon: "history", labelKey: k("admin", "sidebar.items", "audit"), to: "/admin/audit" }],
   },
 ];
 

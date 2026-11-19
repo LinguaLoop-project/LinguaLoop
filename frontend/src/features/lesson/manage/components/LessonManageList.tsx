@@ -4,6 +4,7 @@ import Button from "@/components/common/Button";
 import EmptyState from "@/components/common/EmptyState";
 import ErrorState from "@/components/common/ErrorState";
 import Icon from "@/components/common/Icon";
+import Pagination from "@/components/common/Pagination";
 import SearchInput from "@/components/common/SearchInput";
 import Skeleton from "@/components/common/Skeleton";
 import { formatDate } from "../time";
@@ -241,35 +242,7 @@ export default function LessonManageList(props: Readonly<LessonManageListProps>)
 
       {body}
 
-      {data && data.totalPages > 1 && (
-        <nav className="flex items-center justify-center gap-3" aria-label={t("list.pagination")}>
-          <Button
-            size="sm"
-            variant="secondary"
-            iconOnly
-            aria-label={t("list.prev")}
-            title={t("list.prev")}
-            disabled={page === 0}
-            onClick={() => onPageChange(page - 1)}
-          >
-            <Icon name="chevron-left" />
-          </Button>
-          <span className="text-sm text-text-muted">
-            {page + 1} / {data.totalPages}
-          </span>
-          <Button
-            size="sm"
-            variant="secondary"
-            iconOnly
-            aria-label={t("list.next")}
-            title={t("list.next")}
-            disabled={page + 1 >= data.totalPages}
-            onClick={() => onPageChange(page + 1)}
-          >
-            <Icon name="chevron-right" />
-          </Button>
-        </nav>
-      )}
+      {data && <Pagination page={page} totalPages={data.totalPages} onChange={onPageChange} />}
     </section>
   );
 }

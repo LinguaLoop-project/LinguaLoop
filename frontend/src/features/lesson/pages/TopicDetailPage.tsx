@@ -11,7 +11,7 @@ import Skeleton from "@/components/common/Skeleton";
 import { useLessonSearch, useTopicDetail } from "../hooks/useLessons";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { LessonGrid, LessonGridSkeleton } from "../components/LessonGrid";
-import Pagination from "../components/Pagination";
+import Pagination from "@/components/common/Pagination";
 import QueryError from "../components/QueryError";
 import type { LessonState } from "../types";
 import { cefrLevelParam, localizedName } from "../utils";

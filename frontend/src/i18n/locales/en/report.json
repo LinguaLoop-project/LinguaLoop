@@ -100,9 +100,6 @@
     "showAll": "Show all reports",
     "noResult": "No matching reports",
     "clearFilters": "Clear filters",
-    "prev": "Previous page",
-    "next": "Next page",
-    "pageOf": "Page {{page}} / {{total}}",
     "ownerFilter": "Owner",
     "ownerAll": "All teachers"
   },

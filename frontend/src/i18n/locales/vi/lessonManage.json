@@ -32,10 +32,7 @@
     "sentenceCount_other": "{{count}} câu",
     "deletedOn": "Xóa ngày {{date}}",
     "updatedOn": "Cập nhật {{date}}",
-    "unpublishedByAdmin": "Quản trị viên đã gỡ xuất bản: {{reason}}",
-    "pagination": "Phân trang",
-    "prev": "Trang trước",
-    "next": "Trang sau"
+    "unpublishedByAdmin": "Quản trị viên đã gỡ xuất bản: {{reason}}"
   },
   "action": {
     "publish": "Xuất bản",

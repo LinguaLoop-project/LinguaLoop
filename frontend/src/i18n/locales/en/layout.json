@@ -79,13 +79,13 @@
       "aria": "Teacher navigation",
       "homeLabel": "LinguaLoop Teacher",
       "groups": {
-        "content": "CONTENT",
-        "tracking": "TRACKING"
+        "queue": "NEEDS ACTION",
+        "content": "CONTENT"
       },
       "items": {
         "dashboard": "Overview",
         "lessons": "Lessons",
-        "decks": "Vocabulary decks",
+        "decks": "Decks",
         "reports": "Content reports"
       }
     },
@@ -101,7 +101,7 @@
         "overview": "Overview",
         "lessons": "Lessons",
         "compose": "Create new lesson",
-        "decks": "Vocabulary decks",
+        "decks": "Decks",
         "reports": "Content reports",
         "settings": "Settings",
         "lessonDetail": "Lesson details",
@@ -115,8 +115,9 @@
       "aria": "Admin navigation",
       "homeLabel": "LinguaLoop Admin",
       "groups": {
-        "system": "SYSTEM",
-        "moderation": "MODERATION",
+        "accounts": "ACCOUNTS",
+        "queue": "NEEDS ACTION",
+        "content": "CONTENT",
         "config": "CONFIGURATION"
       },
       "items": {
@@ -124,8 +125,8 @@
         "users": "Users",
         "reports": "Content reports",
         "lessons": "Published lessons",
-        "decks": "Vocabulary decks",
-        "audit": "Content log",
+        "decks": "Published decks",
+        "audit": "Activity log",
         "limits": "Plans & Quotas",
         "subs": "Pro subscriptions",
         "errors": "Error categories",
@@ -145,8 +146,8 @@
         "users": "User management",
         "reports": "Content reports",
         "lessons": "Published lessons",
-        "decks": "Vocabulary decks",
-        "audit": "Content log",
+        "decks": "Published decks",
+        "audit": "Activity log",
         "limits": "Plans & Quotas",
         "subs": "Pro subscriptions",
         "errors": "Error categories",

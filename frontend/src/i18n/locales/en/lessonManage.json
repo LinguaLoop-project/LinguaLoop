@@ -32,10 +32,7 @@
     "sentenceCount_other": "{{count}} sentences",
     "deletedOn": "Deleted {{date}}",
     "updatedOn": "Updated {{date}}",
-    "unpublishedByAdmin": "Unpublished by an admin: {{reason}}",
-    "pagination": "Pagination",
-    "prev": "Previous page",
-    "next": "Next page"
+    "unpublishedByAdmin": "Unpublished by an admin: {{reason}}"
   },
   "action": {
     "publish": "Publish",
