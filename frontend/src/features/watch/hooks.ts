@@ -1,4 +1,6 @@
 import { useMutation, useQueryClient, useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
+import { savedKeys } from "@/features/lesson/hooks/useSavedLessons";
+import { savedLessonsApi } from "@/features/lesson/savedLessons";
 import { watchApi } from "./api";
 import type { WatchFeedPage, WatchItem } from "./types";
 
@@ -81,6 +83,29 @@ export function useToggleSaved(seed: string, start: string | undefined) {
     },
     onSettled: () => {
       void client.invalidateQueries({ queryKey: ["review"] });
+    },
+  });
+}
+
+/** Lưu hoặc bỏ lưu video (bài học) vào Bài đã lưu (UC-TC-05): đổi ngay trên giao diện, lỗi thì trả lại như cũ. */
+export function useToggleVideoSaved(seed: string, start: string | undefined) {
+  const client = useQueryClient();
+  const key = watchKeys.feed(seed, start);
+  return useMutation({
+    mutationFn: ({ lessonId, saved }: { lessonId: string; saved: boolean }) =>
+      savedLessonsApi.setSaved(lessonId, saved),
+    onMutate: async ({ lessonId, saved }) => {
+      await client.cancelQueries({ queryKey: key });
+      const previous = client.getQueryData<FeedData>(key);
+      client.setQueryData<FeedData>(key, (data) => patchItem(data, lessonId, (item) => ({ ...item, saved })));
+      return { previous };
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.previous) client.setQueryData(key, context.previous);
+    },
+    onSettled: (_data, _error, { lessonId }) => {
+      void client.invalidateQueries({ queryKey: savedKeys.all });
+      void client.invalidateQueries({ queryKey: ["lessons", "detail", lessonId], exact: true });
     },
   });
 }

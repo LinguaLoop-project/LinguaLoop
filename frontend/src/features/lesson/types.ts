@@ -87,6 +87,8 @@ export interface LessonDetail {
   progress: ModeProgress;
   topic: TopicResponse | null;
   relatedLessons: LessonSummary[];
+  /** Học viên đã lưu bài vào Bài đã lưu (UC-TC-05). */
+  saved: boolean;
 }
 
 /** Giá trị `state` của GET /lessons. */

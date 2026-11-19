@@ -32,6 +32,10 @@ _Tránh_: loại từ (dùng cho từ loại trong từ điển như danh từ, 
 Lướt xem các video ngắn (bài học dài tối đa 3 phút) toàn màn hình, mỗi lần một video, kèm lời thoại chạy theo giọng nói. Học viên bấm từ để tra, lưu câu vào Câu cần ôn (chế độ Shadowing), thích video, hoặc chuyển sang luyện bài đó. Không chấm điểm và không nộp bài; không tính vào Định mức ôn ngày.
 _Tránh_: xem video, xem phim
 
+**Bài đã lưu**:
+Danh sách riêng của học viên gồm các bài học đã chọn "Lưu bài" (ở trang chi tiết bài) hoặc "Lưu video" (ở Học thụ động) để luyện sau. Khác với Câu cần ôn (lưu một câu để ôn) và Từ đã lưu (lưu một nghĩa của từ). Bài đã gỡ khỏi thư viện vẫn nằm trong danh sách cho đến khi học viên bỏ lưu.
+_Tránh_: yêu thích (là lượt thích video), bài của tôi
+
 ### Phát âm
 
 **Giọng chấm**:

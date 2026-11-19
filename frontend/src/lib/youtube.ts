@@ -12,6 +12,8 @@ export interface YouTubePlayer {
   isMuted(): boolean;
   /** Gỡ một mô-đun của trình phát (vd "captions" để tắt phụ đề có sẵn của YouTube). */
   unloadModule?(name: string): void;
+  /** Đổi tùy chọn của một mô-đun (vd `setOption("captions", "track", {})` để bỏ phụ đề có sẵn). */
+  setOption?(module: string, option: string, value: unknown): void;
   destroy(): void;
 }
 

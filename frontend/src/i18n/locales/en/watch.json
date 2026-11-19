@@ -19,7 +19,11 @@
     "report": "Report",
     "saveShort": "Save",
     "savedShort": "Saved",
-    "practiceShort": "Practice"
+    "practiceShort": "Practice",
+    "saveVideo": "Save video",
+    "savedVideo": "Video saved",
+    "saveLine": "Save sentence",
+    "savedLine": "Sentence saved"
   },
   "settings": {
     "title": "Caption settings",
@@ -28,7 +32,11 @@
     "translation": "Show translation",
     "ipa": "Show phonetics",
     "size": "Text size",
-    "sizes": { "sm": "Small", "md": "Medium", "lg": "Large" }
+    "sizes": {
+      "sm": "Small",
+      "md": "Medium",
+      "lg": "Large"
+    }
   },
   "empty": {
     "title": "No videos to watch yet",
@@ -42,13 +50,13 @@
     "next": "Scroll down to keep watching"
   },
   "errors": {
-    "feed": "Could not load the video feed. Check your connection and try again.",
-    "video": "This video can't be played. You can try again or scroll to another video.",
-    "like": "Could not update your like. Please try again.",
-    "save": "Could not save the sentence. Please try again."
+    "saveVideo": "Could not save the video. Please try again.",
+    "pro": "This video is for Pro"
   },
   "entry": {
     "cta": "Watch as short videos",
     "hint": "Passive learning: watch videos with subtitles that follow the speech"
-  }
+  },
+  "savedVideoToast": "Video saved for later",
+  "viewSaved": "View saved lessons"
 }

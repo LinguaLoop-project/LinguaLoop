@@ -20,7 +20,10 @@ export interface FeedVideoProps {
   muted: boolean;
   onAutoplayBlocked: () => void;
   onToggleLike: (item: WatchItem) => void;
+  /** Lưu hoặc bỏ lưu câu đang hiện (BR-TC-17). */
   onToggleSave: (item: WatchItem, line: WatchLine) => void;
+  /** Lưu hoặc bỏ lưu cả video vào Bài đã lưu (BR-TC-19). */
+  onToggleSaveVideo: (item: WatchItem) => void;
 }
 
 /**
@@ -35,6 +38,7 @@ export default function FeedVideo({
   onAutoplayBlocked,
   onToggleLike,
   onToggleSave,
+  onToggleSaveVideo,
 }: Readonly<FeedVideoProps>) {
   const { t } = useTranslation("watch");
   const navigate = useNavigate();
@@ -82,7 +86,8 @@ export default function FeedVideo({
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center">
       <div className="relative aspect-video w-full max-w-[calc(100dvh*16/9)] overflow-hidden bg-black">
-        <div ref={containerRef} className="absolute inset-0 [&_iframe]:h-full [&_iframe]:w-full" />
+        <div ref={containerRef} className="absolute -inset-x-[7%] -inset-y-[9%] [&_iframe]:h-full [&_iframe]:w-full" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-10 h-20 bg-gradient-to-b from-black/70 to-transparent" />
         {showPoster && (
           <img
             src={youTubeThumbnail(item.youtubeId)}
@@ -123,7 +128,13 @@ export default function FeedVideo({
 
       {prefs.captions && line && active && (
         <div className="w-full px-4 pt-4 pr-20 md:absolute md:inset-x-0 md:bottom-[13%] md:px-24 md:pt-0">
-          <CaptionBox line={line} currentMs={player.currentMs} prefs={prefs} onLookupChange={setLookupOpen} />
+          <CaptionBox
+            line={line}
+            currentMs={player.currentMs}
+            prefs={prefs}
+            onLookupChange={setLookupOpen}
+            onToggleSave={() => onToggleSave(item, line)}
+          />
         </div>
       )}
 
@@ -137,13 +148,12 @@ export default function FeedVideo({
           onClick={() => onToggleLike(item)}
         />
         <RailButton
-          icon={line?.saved ? "bookmark-check" : "bookmark-plus"}
-          label={line?.saved ? t("actions.saved") : t("actions.save")}
-          caption={line?.saved ? t("actions.savedShort") : t("actions.saveShort")}
-          active={line?.saved ?? false}
+          icon="bookmark"
+          label={item.saved ? t("actions.savedVideo") : t("actions.saveVideo")}
+          caption={item.saved ? t("actions.savedShort") : t("actions.saveShort")}
+          active={item.saved}
           activeClassName="text-[#fcd34d]"
-          disabled={!line}
-          onClick={() => line && onToggleSave(item, line)}
+          onClick={() => onToggleSaveVideo(item)}
         />
         <RailButton
           icon="mic"

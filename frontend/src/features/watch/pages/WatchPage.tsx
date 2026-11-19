@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { isAxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
+import ToastHost from "@/components/common/ToastHost";
 import { toast } from "@/stores/toastStore";
 import FeedVideo from "../components/FeedVideo";
 import SettingsMenu from "../components/SettingsMenu";
 import UpsellSlide from "../components/UpsellSlide";
 import { buildEntries, newSeed } from "../feed";
-import { useToggleLike, useToggleSaved, useWatchFeed } from "../hooks";
+import { useToggleLike, useToggleSaved, useToggleVideoSaved, useWatchFeed } from "../hooks";
 import { loadPrefs, savePrefs, type WatchPrefs } from "../prefs";
 import type { WatchItem, WatchLine } from "../types";
 
@@ -29,6 +31,7 @@ export default function WatchPage() {
   const feed = useWatchFeed(seed, start);
   const like = useToggleLike(seed, start);
   const save = useToggleSaved(seed, start);
+  const saveVideo = useToggleVideoSaved(seed, start);
   const [prefs, setPrefs] = useState<WatchPrefs>(loadPrefs);
   const [muted, setMuted] = useState(false);
   const [mutedByBrowser, setMutedByBrowser] = useState(false);
@@ -112,12 +115,35 @@ export default function WatchPage() {
       },
     );
 
+  const toggleSaveVideo = (item: WatchItem) =>
+    saveVideo.mutate(
+      { lessonId: item.lessonId, saved: !item.saved },
+      {
+        onSuccess: (_data, vars) => {
+          if (vars.saved) {
+            toast(t("savedVideoToast"), {
+              icon: "bookmark-check",
+              action: { label: t("viewSaved"), onClick: () => navigate("/student/saved-lessons") },
+            });
+          }
+        },
+        onError: (error) => {
+          if (isAxiosError(error) && error.response?.data?.code === "LESSON_PRO_REQUIRED") {
+            toast(t("errors.pro"), { icon: "crown", action: { label: t("upsell.cta"), onClick: () => navigate("/pricing") } });
+          } else {
+            toast(t("errors.saveVideo"), { icon: "circle-alert" });
+          }
+        },
+      },
+    );
+
   const goBack = () => {
     if (location.key !== "default") navigate(-1);
     else navigate("/student");
   };
 
   return (
+    <>
     <div className="fixed inset-0 bg-black text-white">
       <header className="pointer-events-none absolute inset-x-0 top-0 z-50 flex items-start justify-between bg-gradient-to-b from-black/70 to-transparent px-3 pb-8 pt-3 md:px-5">
         <div className="pointer-events-auto flex items-center gap-2">
@@ -208,6 +234,7 @@ export default function WatchPage() {
                   onAutoplayBlocked={onAutoplayBlocked}
                   onToggleLike={toggleLike}
                   onToggleSave={toggleSave}
+                  onToggleSaveVideo={toggleSaveVideo}
                 />
               ) : (
                 <UpsellSlide />
@@ -222,5 +249,7 @@ export default function WatchPage() {
         </div>
       )}
     </div>
+    <ToastHost />
+    </>
   );
 }

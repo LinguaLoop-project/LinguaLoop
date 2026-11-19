@@ -21,6 +21,8 @@ export interface WatchItem {
   pro: boolean;
   likeCount: number;
   liked: boolean;
+  /** Học viên đã lưu video (bài học) vào Bài đã lưu (UC-TC-05). */
+  saved: boolean;
   sentences: WatchLine[];
 }
 

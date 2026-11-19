@@ -17,9 +17,13 @@
     "saved": "Đã lưu câu",
     "practice": "Luyện bài này",
     "report": "Báo cáo",
-    "saveShort": "Lưu câu",
+    "saveShort": "Lưu",
     "savedShort": "Đã lưu",
-    "practiceShort": "Luyện"
+    "practiceShort": "Luyện",
+    "saveVideo": "Lưu video",
+    "savedVideo": "Đã lưu video",
+    "saveLine": "Lưu câu",
+    "savedLine": "Đã lưu câu"
   },
   "settings": {
     "title": "Cài đặt phụ đề",
@@ -28,7 +32,11 @@
     "translation": "Hiện bản dịch",
     "ipa": "Hiện phiên âm",
     "size": "Cỡ chữ",
-    "sizes": { "sm": "Nhỏ", "md": "Vừa", "lg": "Lớn" }
+    "sizes": {
+      "sm": "Nhỏ",
+      "md": "Vừa",
+      "lg": "Lớn"
+    }
   },
   "empty": {
     "title": "Chưa có video để xem",
@@ -42,13 +50,13 @@
     "next": "Cuộn xuống để xem tiếp"
   },
   "errors": {
-    "feed": "Không tải được luồng video. Kiểm tra kết nối mạng rồi thử lại.",
-    "video": "Video này không phát được. Bạn có thể thử lại hoặc cuộn sang video khác.",
-    "like": "Không thể cập nhật lượt thích. Hãy thử lại.",
-    "save": "Không thể lưu câu. Hãy thử lại."
+    "saveVideo": "Không thể lưu video. Hãy thử lại.",
+    "pro": "Video này dành cho gói Pro"
   },
   "entry": {
     "cta": "Xem dạng video ngắn",
     "hint": "Học thụ động: xem video kèm lời thoại chạy theo giọng nói"
-  }
+  },
+  "savedVideoToast": "Đã lưu video để luyện sau",
+  "viewSaved": "Xem bài đã lưu"
 }

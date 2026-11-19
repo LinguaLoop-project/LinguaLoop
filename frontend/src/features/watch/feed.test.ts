@@ -24,6 +24,7 @@ const video = (id: string): WatchItem => ({
   pro: false,
   likeCount: 0,
   liked: false,
+  saved: false,
   sentences: [],
 });
 
