@@ -130,7 +130,8 @@
         "limits": "Gói & Hạn mức",
         "subs": "Đăng ký Pro",
         "errors": "Danh mục lỗi",
-        "republish": "Duyệt xuất bản lại"
+        "republish": "Duyệt xuất bản lại",
+        "transfers": "Giao lại nội dung"
       }
     },
     "topbar": {
@@ -162,7 +163,8 @@
         "reportDetail": "Chi tiết báo cáo lỗi",
         "lessonDetail": "Chi tiết bài học",
         "deckDetail": "Chi tiết bộ thẻ",
-        "republish": "Duyệt xuất bản lại"
+        "republish": "Duyệt xuất bản lại",
+        "transfers": "Giao lại nội dung"
       }
     }
   },

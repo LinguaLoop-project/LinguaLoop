@@ -26,4 +26,10 @@ public interface AiWalletRepository extends JpaRepository<AiWallet, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT w FROM AiWallet w WHERE w.userId = :userId")
     Optional<AiWallet> findForUpdate(@Param("userId") UUID userId);
+
+    /** Hủy số dư và mốc đặt lại khi đổi vai trò (BR-QT-04); lần đọc ví sau tự nạp lại theo vai trò mới. */
+    @Modifying(flushAutomatically = true)
+    @Query(value = "UPDATE ai_wallets SET balance = 0, resets_at = NULL, updated_at = :now WHERE user_id = :userId",
+            nativeQuery = true)
+    int resetBalance(@Param("userId") UUID userId, @Param("now") Instant now);
 }

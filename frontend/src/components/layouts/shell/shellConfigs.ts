@@ -52,6 +52,7 @@ const adminGroups: NavGroup[] = [
     titleKey: "admin.sidebar.groups.accounts",
     items: [
       { id: "users", icon: "users", labelKey: k("admin", "sidebar.items", "users"), to: "/admin/users" },
+      { id: "transfers", icon: "arrow-left-right", labelKey: k("admin", "sidebar.items", "transfers"), to: "/admin/transfers" },
       { id: "subs", icon: "credit-card", labelKey: k("admin", "sidebar.items", "subs"), to: "/admin/subs" },
     ],
   },

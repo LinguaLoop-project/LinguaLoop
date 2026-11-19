@@ -130,7 +130,8 @@
         "limits": "Plans & Quotas",
         "subs": "Pro subscriptions",
         "errors": "Error categories",
-        "republish": "Republish requests"
+        "republish": "Republish requests",
+        "transfers": "Reassign content"
       }
     },
     "topbar": {
@@ -162,7 +163,8 @@
         "reportDetail": "Error report details",
         "lessonDetail": "Lesson details",
         "deckDetail": "Deck details",
-        "republish": "Republish requests"
+        "republish": "Republish requests",
+        "transfers": "Reassign content"
       }
     }
   },
