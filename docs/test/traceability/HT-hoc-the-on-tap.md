@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/HT-hoc-the-on-tap/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 68 AC, 11 đã có test, 14 một phần, 43 thiếu.
+Tổng hợp: 69 AC, 11 đã có test, 15 một phần, 43 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -74,3 +74,4 @@ Tổng hợp: 68 AC, 11 đã có test, 14 một phần, 43 thiếu.
 | AC-HT-66 | Nhập thẻ từ tệp, một dòng sai thì không thẻ nào được thêm | UC-HT-09 | D, A | MyDeckContentApiIntegrationTest.importCards_validFileAddsAllInOrder_invalidFileAddsNone_AC_HT_66 | Một phần (chỉ backend) |
 | AC-HT-67 | Chỉ chủ bộ được xem và sửa nội dung bộ cá nhân, không có ảnh | UC-HT-09 | A | MyDeckContentApiIntegrationTest.otherLearnerGets404_teacherGets403_andImagesAreRefused_AC_HT_67; `frontend/src/features/vocab/deckManagePaths.test.ts` | Đã có |
 | AC-HT-68 | Nhóm chưa có thẻ không mở học được | UC-HT-09 | B | MyDeckContentApiIntegrationTest.emptyGroup_isAPartWithNoCards_andDoesNotBreakTheDeck_AC_HT_68 | Một phần (backend có test; nút "Chưa có thẻ" ở trang bộ mới kiểm tay) |
+| AC-HT-69 | Điền sẵn thẻ từ từ điển và âm thanh tự lấy từ từ điển | UC-HT-09 | D, A | MyDeckContentApiIntegrationTest.cardsOfWordsInTheDictionaryGetItsAudio_byHandAndByImport_AC_HT_69 | Một phần (backend: âm thanh tự lấy từ từ điển khi nhập tay, đổi loại từ và nhập tệp; ô tra từ điển điền sẵn biểu mẫu mới kiểm tay trên trình duyệt) |

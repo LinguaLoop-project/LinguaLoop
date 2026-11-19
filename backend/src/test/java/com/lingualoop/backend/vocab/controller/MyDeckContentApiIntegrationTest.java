@@ -317,6 +317,54 @@ class MyDeckContentApiIntegrationTest {
         as(user, get(DECKS + "/" + deck)).andExpect(jsonPath("$.data.groups.length()").value(2));
     }
 
+    // ── AC-HT-69: âm thanh tự lấy từ từ điển ──
+
+    /** Một mục từ điển tên duy nhất, có âm thanh mặc định và âm thanh riêng cho động từ. */
+    private String dictionaryWord() {
+        String headword = "mine" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+        jdbc.update("""
+                INSERT INTO dictionary_words (id, headword, audio_uk, audio_us, pos_pronunciations, meanings)
+                VALUES (?, ?, 'audio/n-uk.mp3', 'audio/n-us.mp3',
+                        CAST('{"verb":{"ipa_uk":null,"ipa_us":null,"audio_uk":"audio/v-uk.mp3","audio_us":"audio/v-us.mp3"}}' AS jsonb),
+                        CAST('[{"no":1,"pos":"noun","meaning_vi":"hồ sơ"},{"no":2,"pos":"verb","meaning_vi":"ghi lại"}]' AS jsonb))""",
+                UUID.randomUUID(), headword);
+        return headword;
+    }
+
+    private java.util.List<String> audioOf(UUID group, String word) {
+        return jdbc.queryForObject("""
+                SELECT audio_uk_url, audio_us_url FROM vocab_cards
+                WHERE group_id = ? AND word = ? AND deleted_at IS NULL""",
+                (rs, i) -> java.util.Arrays.asList(rs.getString(1), rs.getString(2)), group, word);
+    }
+
+    @Test
+    void cardsOfWordsInTheDictionaryGetItsAudio_byHandAndByImport_AC_HT_69() throws Exception {
+        UUID user = users.newUser();
+        UUID deck = deck(user, "Bộ H");
+        UUID group = group(user, deck, "Văn phòng");
+        String word = dictionaryWord();
+
+        // âm thanh theo từ vựng và loại từ, tự lấy mỗi lần lưu; người dùng không tải âm thanh lên
+        as(user, json(post(cards(deck, group)), "{\"word\":\"" + word + "\",\"meaningVi\":\"hồ sơ\",\"pos\":\"noun\"}"))
+                .andExpect(status().isCreated());
+        assertThat(audioOf(group, word)).containsExactly("audio/n-uk.mp3", "audio/n-us.mp3");
+
+        UUID cardId = UUID.fromString(jdbc.queryForObject(
+                "SELECT id::text FROM vocab_cards WHERE group_id = ? AND word = ?", String.class, group, word));
+        as(user, json(put(cards(deck, group) + "/" + cardId),
+                "{\"word\":\"" + word + "\",\"meaningVi\":\"ghi lại\",\"pos\":\"verb\"}")).andExpect(status().isOk());
+        assertThat(audioOf(group, word)).containsExactly("audio/v-uk.mp3", "audio/v-us.mp3");
+
+        // từ không có trong từ điển thì không có âm thanh; nhập từ tệp cũng tự lấy âm thanh
+        as(user, json(post(cards(deck, group)), cardJson("zzqxnotaword", "không có"))).andExpect(status().isCreated());
+        assertThat(audioOf(group, "zzqxnotaword")).containsExactly(null, null);
+        String imported = dictionaryWord();
+        as(user, multipart(cards(deck, group) + "/import").file(csv(HEADER + "\n" + imported + ",hồ sơ")))
+                .andExpect(status().isCreated());
+        assertThat(audioOf(group, imported)).containsExactly("audio/n-uk.mp3", "audio/n-us.mp3");
+    }
+
     @Test
     void personalDeckOfAnotherLearner_isNotVisibleInLearnEndpoints_BR_HT_27() throws Exception {
         UUID owner = users.newUser();
