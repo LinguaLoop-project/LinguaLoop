@@ -13,6 +13,7 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.lesson.dto.WatchView;
 import com.lingualoop.backend.lesson.enums.PracticeMode;
+import com.lingualoop.backend.lesson.repository.LessonSaveRepository;
 import com.lingualoop.backend.lesson.repository.WatchRepository;
 import com.lingualoop.backend.lesson.repository.WatchRepository.LessonRow;
 import com.lingualoop.backend.lesson.repository.WatchRepository.LineRow;
@@ -30,6 +31,7 @@ class WatchServiceImpl implements WatchService {
     private final WatchRepository repository;
     private final SubscriptionQueryService subscriptions;
     private final SentenceReviewService reviews;
+    private final LessonSaveRepository lessonSaves;
 
     @Override
     @Transactional(readOnly = true)
@@ -48,10 +50,11 @@ class WatchServiceImpl implements WatchService {
         Map<UUID, List<LineRow>> lines = repository.findLines(lessonIds).stream()
                 .collect(Collectors.groupingBy(LineRow::lessonId));
         Set<UUID> saved = reviews.findPendingSentenceIds(userId, lessonIds, PracticeMode.shadowing);
+        Set<UUID> savedLessons = lessonSaves.findSavedAmong(userId, lessonIds);
 
         List<WatchView.Item> items = pageRows.stream()
                 .map(row -> new WatchView.Item(row.id(), row.title(), row.youtubeId(), row.durationSec(),
-                        row.cefrLevel(), row.topicName(), row.pro(), row.likeCount(), row.liked(),
+                        row.cefrLevel(), row.topicName(), row.pro(), row.likeCount(), row.liked(), savedLessons.contains(row.id()),
                         lines.getOrDefault(row.id(), List.of()).stream()
                                 .map(line -> new WatchView.Line(line.id(), line.textEn(), line.textVi(),
                                         line.ipaUs(), line.ipaUk(), line.startMs(), line.endMs(), saved.contains(line.id())))

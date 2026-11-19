@@ -18,7 +18,7 @@ public final class WatchView {
 
     /** Một video: một bài học thư viện đã xuất bản kèm lời thoại. */
     public record Item(UUID lessonId, String title, String youtubeId, int durationSec, String cefrLevel,
-            String topicName, boolean pro, long likeCount, boolean liked, List<Line> sentences) {
+            String topicName, boolean pro, long likeCount, boolean liked, boolean saved, List<Line> sentences) {
     }
 
     /** Một câu lời thoại; {@code saved} là câu đang ở danh sách Câu cần ôn chế độ Shadowing. */
