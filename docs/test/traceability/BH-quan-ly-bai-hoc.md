@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/BH-quan-ly-bai-hoc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 101 AC, 64 đã có test, 1 một phần, 33 thiếu, 3 không áp dụng.
+Tổng hợp: 101 AC, 67 đã có test, 2 một phần, 29 thiếu, 3 không áp dụng.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -16,7 +16,7 @@ Tổng hợp: 101 AC, 64 đã có test, 1 một phần, 33 thiếu, 3 không áp
 | AC-BH-07 | Giáo viên xem chi tiết bài Nháp của mình | UC-BH-02 | A | LessonManageApiIntegrationTest.teacherDetail_ownDraftWithOrderedSentences_AC_BH_07 | Đã có |
 | AC-BH-08 | Quản trị viên xem chi tiết bài đã xuất bản | UC-BH-02 | A | LessonManageApiIntegrationTest.detail_permissions_AC_BH_08_09_10_11 | Đã có |
 | AC-BH-09 | Bài của giáo viên khác | UC-BH-02 | A | LessonManageApiIntegrationTest.detail_permissions_AC_BH_08_09_10_11 | Đã có |
-| AC-BH-10 | Quản trị viên không xem được bản Nháp | UC-BH-02 | A | LessonManageApiIntegrationTest.detail_permissions_AC_BH_08_09_10_11 | Đã có |
+| AC-BH-10 | Quản trị viên không xem được bản Nháp | UC-BH-02 | A | LessonManageApiIntegrationTest.detail_permissions_AC_BH_08_09_10_11; ReportModerationApiIntegrationTest.adminLessonDetail_takenDownDraftIsViewable_plainDraftIsNot_AC_BH_10 | Đã có |
 | AC-BH-11 | Bài đã bị xóa | UC-BH-02 | A | LessonManageApiIntegrationTest.detail_permissions_AC_BH_08_09_10_11 | Đã có |
 | AC-BH-12 | Video không phát được | UC-BH-02 |  |  | Thiếu |
 | AC-BH-13 | Xem chi tiết không ghi nhận tiến độ | UC-BH-02 |  |  | Thiếu |
@@ -71,17 +71,17 @@ Tổng hợp: 101 AC, 64 đã có test, 1 một phần, 33 thiếu, 3 không áp
 | AC-BH-48 | Hủy xuất bản | UC-BH-06 |  |  | Thiếu |
 | AC-BH-49 | Mất kết nối khi xuất bản | UC-BH-06 |  |  | Thiếu |
 | AC-BH-89 | Bài đã được xuất bản ở cửa sổ khác | UC-BH-06 | A | LessonManageApiIntegrationTest.publish_otherTeacherOrAlreadyPublished_AC_BH_47_89 | Đã có |
-| AC-BH-76 | Gửi duyệt xuất bản lại bài bị quản trị viên gỡ | UC-BH-06 |  |  | Thiếu |
+| AC-BH-76 | Gửi duyệt xuất bản lại bài bị quản trị viên gỡ | UC-BH-06 | A | ReportModerationApiIntegrationTest.publish_lessonTakenDownByReport_requiresReview_AC_BH_76 | Một phần |
 | AC-BH-77 | Đã có yêu cầu đang chờ duyệt | UC-BH-06 |  |  | Thiếu |
 | AC-BH-81 | Gửi duyệt bài bị gỡ tay kèm ghi chú | UC-BH-06 | D, A |  | Thiếu |
 | AC-BH-50 | Giáo viên gỡ bài của mình | UC-BH-07 | A | LessonManageApiIntegrationTest.teacherUnpublish_backToDraftWithoutReason_AC_BH_50 | Đã có |
-| AC-BH-51 | Quản trị viên gỡ bài kèm lý do | UC-BH-07 | A | LessonManageApiIntegrationTest.adminUnpublish_reasonShownToTeacher_AC_BH_51 | Đã có |
+| AC-BH-51 | Quản trị viên gỡ bài kèm lý do | UC-BH-07 | A | LessonManageApiIntegrationTest.adminUnpublish_reasonShownToTeacher_AC_BH_51; ReportModerationApiIntegrationTest.adminUnpublishLesson_marksNotifiesAndClosesOffensive_AC_BH_51_AC_BH_80 | Đã có |
 | AC-BH-52 | Gỡ bài của người khác | UC-BH-07 | A | LessonManageApiIntegrationTest.unpublish_otherTeacherDraftOrBadReason_AC_BH_52_53_54 | Đã có |
 | AC-BH-53 | Bài không ở trạng thái Đã xuất bản | UC-BH-07 | A | LessonManageApiIntegrationTest.unpublish_otherTeacherDraftOrBadReason_AC_BH_52_53_54 | Đã có |
 | AC-BH-54 | Lý do gỡ không hợp lệ | UC-BH-07 | A | LessonManageApiIntegrationTest.unpublish_otherTeacherDraftOrBadReason_AC_BH_52_53_54 | Đã có |
 | AC-BH-55 | Hủy gỡ xuất bản | UC-BH-07 |  |  | Thiếu |
 | AC-BH-56 | Mất kết nối khi gỡ | UC-BH-07 |  |  | Thiếu |
-| AC-BH-80 | Quản trị viên gỡ tay đóng báo cáo Phản cảm của bài | UC-BH-07 | D |  | Thiếu |
+| AC-BH-80 | Quản trị viên gỡ tay đóng báo cáo Phản cảm của bài | UC-BH-07 | D | ReportModerationApiIntegrationTest.adminUnpublishLesson_marksNotifiesAndClosesOffensive_AC_BH_51_AC_BH_80 | Đã có |
 | AC-BH-57 | Xóa bài Nháp | UC-BH-08 | A | LessonManageApiIntegrationTest.delete_movesToDeletedFilterAndAudits_AC_BH_57_58 | Đã có |
 | AC-BH-58 | Xóa bài đã xuất bản | UC-BH-08 | A | LessonManageApiIntegrationTest.delete_movesToDeletedFilterAndAudits_AC_BH_57_58 | Đã có |
 | AC-BH-59 | Xóa bài có báo cáo đang mở | UC-BH-08 |  |  | Thiếu |
@@ -89,7 +89,7 @@ Tổng hợp: 101 AC, 64 đã có test, 1 một phần, 33 thiếu, 3 không áp
 | AC-BH-61 | Hủy xóa | UC-BH-08 |  |  | Thiếu |
 | AC-BH-62 | Mất kết nối khi xóa | UC-BH-08 |  |  | Thiếu |
 | AC-BH-90 | Bài đã bị xóa ở cửa sổ khác | UC-BH-08 | A | LessonManageApiIntegrationTest.delete_alreadyDeleted_keepsDeletedAt_AC_BH_90 | Đã có |
-| AC-BH-78 | Xóa bài đang chờ duyệt xuất bản lại | UC-BH-08 |  |  | Thiếu |
+| AC-BH-78 | Xóa bài đang chờ duyệt xuất bản lại | UC-BH-08 | D | ReportModerationApiIntegrationTest.deleteLesson_cancelsPendingRequest_AC_BH_78 | Đã có |
 | AC-BH-63 | Khôi phục thành công | UC-BH-09 | A | LessonManageApiIntegrationTest.restore_publishedLessonComesBackAsDraftWithSentences_AC_BH_63 | Đã có |
 | AC-BH-64 | Tiêu đề bị trùng khi khôi phục | UC-BH-09 | A | LessonManageApiIntegrationTest.restore_titleTaken_needsNewTitle_AC_BH_64 | Đã có |
 | AC-BH-65 | Bài quá hạn khôi phục | UC-BH-09 | A | LessonManageApiIntegrationTest.restore_expiredOrNotDeleted_AC_BH_65_66 | Đã có |
@@ -97,7 +97,7 @@ Tổng hợp: 101 AC, 64 đã có test, 1 một phần, 33 thiếu, 3 không áp
 | AC-BH-67 | Hủy khôi phục | UC-BH-09 |  |  | Thiếu |
 | AC-BH-68 | Mất kết nối khi khôi phục | UC-BH-09 |  |  | Thiếu |
 | AC-BH-96 | Khôi phục bài có video đã được dùng | UC-BH-09 | A | LessonManageApiIntegrationTest.restore_videoUsedByAnotherLesson_AC_BH_96 | Đã có |
-| AC-BH-79 | Khôi phục bài bị quản trị viên gỡ vẫn giữ dấu | UC-BH-09 |  |  | Thiếu |
+| AC-BH-79 | Khôi phục bài bị quản trị viên gỡ vẫn giữ dấu | UC-BH-09 | D | ReportModerationApiIntegrationTest.restoreLesson_keepsTakedownMark_AC_BH_79 | Đã có |
 | AC-BH-69 | Tạo lại gợi ý cho một câu | UC-BH-10 | A | LessonManageApiIntegrationTest.suggest_translationAndIpa_savesNothing_AC_BH_69_75; sentenceDraft.test.ts "ghi đè lấy mọi câu trong phạm vi; phạm vi câu đang chọn" | Đã có |
 | AC-BH-70 | Điền cho toàn bài, chỉ ô còn trống | UC-BH-10 | D | sentenceDraft.test.ts "chỉ điền ô còn trống: chỉ lấy câu chưa có bản dịch, thiếu IPA không tính"; chưa test phần điền gợi ý vào ô | Một phần |
 | AC-BH-71 | Ghi đè cần xác nhận | UC-BH-10 |  |  | Thiếu |

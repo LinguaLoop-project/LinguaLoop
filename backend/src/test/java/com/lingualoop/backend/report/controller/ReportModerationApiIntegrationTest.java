@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -365,6 +366,112 @@ class ReportModerationApiIntegrationTest {
                 .andExpect(jsonPath("$.code").value("LESSON_NOT_PUBLISHABLE"))
                 .andExpect(jsonPath("$.details.missingTranslation[0]").value(1));
         assertThat(data.lessonStatus(lesson)).isEqualTo("draft");
+    }
+
+    // ---------------------------------------------------------------- bài học bị gỡ (UC-BH-06 đến 09, BR-XL-13)
+
+    private static final String ADMIN_LESSONS = "/api/v1/admin/lessons";
+    private static final String TEACHER_LESSONS = "/api/v1/teacher/lessons";
+
+    /** Bài Đã xuất bản, đủ bản dịch: chỉ dấu "Bị quản trị viên gỡ" mới chặn được việc xuất bản lại. */
+    private UUID publishableLesson() {
+        UUID lesson = data.lesson(teacher, "Airport " + UUID.randomUUID(), true);
+        data.sentence(lesson, "Gate.", "Cổng", 3);
+        return lesson;
+    }
+
+    private ResultActions adminUnpublishLesson(UUID lesson, String reason) throws Exception {
+        return asAdmin(json(post(ADMIN_LESSONS + "/" + lesson + "/unpublish"), "{\"reason\":\"" + reason + "\"}"));
+    }
+
+    private ResultActions publishLesson(UUID lesson) throws Exception {
+        return asTeacher(post(TEACHER_LESSONS + "/" + lesson + "/publish"));
+    }
+
+    private ResultActions requestLessonRepublish(UUID lesson, String note) throws Exception {
+        return asTeacher(json(post(TEACHER_REQUESTS),
+                "{\"targetType\":\"lesson\",\"targetId\":\"" + lesson + "\",\"note\":\"" + note + "\"}"));
+    }
+
+    @Test
+    @DisplayName("BUG-001 #64 · AC-BH-76: bài bị gỡ từ báo cáo Phản cảm không được xuất bản trực tiếp")
+    void publish_lessonTakenDownByReport_requiresReview_AC_BH_76() throws Exception {
+        UUID lesson = publishableLesson();
+        UUID sentence = data.sentence(lesson, "Rude.", "Thô", 8);
+        UUID report = data.sentenceReport(student, sentence, "offensive", "waiting_admin", now);
+        takedown(report, "Phản cảm").andExpect(status().isNoContent());
+
+        publishLesson(lesson).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("REPORT_REVIEW_REQUIRED"));
+
+        assertThat(data.lessonStatus(lesson)).isEqualTo("draft");
+    }
+
+    @Test
+    @DisplayName("BUG-001 #64 · AC-BH-51, AC-BH-80: gỡ tay gắn dấu, báo giáo viên, đóng báo cáo Phản cảm")
+    void adminUnpublishLesson_marksNotifiesAndClosesOffensive_AC_BH_51_AC_BH_80() throws Exception {
+        UUID lesson = publishableLesson();
+        UUID s3 = data.sentence(lesson, "S3", "s3", 8);
+        UUID s5 = data.sentence(lesson, "S5", "s5", 13);
+        UUID offensive = data.sentenceReport(student, s3, "offensive", "waiting_admin", now);
+        UUID ipa = data.sentenceReport(student, s5, "ipa", "waiting_teacher", now);
+
+        asAdmin(get(ADMIN + "/offensive-count").param("targetType", "lesson").param("targetId", lesson.toString()))
+                .andExpect(jsonPath("$.data.count").value(1));
+        adminUnpublishLesson(lesson, "Video vi phạm bản quyền").andExpect(status().isNoContent());
+
+        assertThat(data.lessonStatus(lesson)).isEqualTo("draft");
+        assertThat(data.activeTakedowns("lesson_id", lesson)).isEqualTo(1);
+        assertThat(data.takedownSource("lesson_id", lesson)).isEqualTo("manual");
+        assertThat(data.status(offensive)).isEqualTo("resolved");
+        assertThat(data.note(offensive)).isEqualTo("Video vi phạm bản quyền");
+        assertThat(data.status(ipa)).isEqualTo("waiting_teacher");
+        assertThat(data.notifications(teacher)).anyMatch(m -> m.contains("Video vi phạm bản quyền"));
+        publishLesson(lesson).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("REPORT_REVIEW_REQUIRED"));
+        assertThat(data.lessonStatus(lesson)).isEqualTo("draft");
+    }
+
+    @Test
+    @DisplayName("BUG-001 #64 · AC-BH-78: xóa bài hủy yêu cầu xuất bản lại đang chờ, dấu giữ nguyên")
+    void deleteLesson_cancelsPendingRequest_AC_BH_78() throws Exception {
+        UUID lesson = publishableLesson();
+        adminUnpublishLesson(lesson, "Tiêu đề chứa quảng cáo").andExpect(status().isNoContent());
+        requestLessonRepublish(lesson, "Đã bỏ quảng cáo ở tiêu đề").andExpect(status().isCreated());
+        UUID request = data.pendingRequest("lesson_id", lesson);
+
+        asTeacher(delete(TEACHER_LESSONS + "/" + lesson)).andExpect(status().isNoContent());
+
+        assertThat(data.requestStatus(request)).isEqualTo("cancelled");
+        assertThat(data.activeTakedowns("lesson_id", lesson)).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("BUG-001 #64 · AC-BH-79: khôi phục bài bị gỡ vẫn giữ dấu và phải gửi duyệt")
+    void restoreLesson_keepsTakedownMark_AC_BH_79() throws Exception {
+        UUID lesson = publishableLesson();
+        adminUnpublishLesson(lesson, "Tiêu đề chứa quảng cáo").andExpect(status().isNoContent());
+        asTeacher(delete(TEACHER_LESSONS + "/" + lesson)).andExpect(status().isNoContent());
+
+        asTeacher(post(TEACHER_LESSONS + "/" + lesson + "/restore")).andExpect(status().isNoContent());
+
+        assertThat(data.lessonStatus(lesson)).isEqualTo("draft");
+        assertThat(data.activeTakedowns("lesson_id", lesson)).isEqualTo(1);
+        publishLesson(lesson).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("REPORT_REVIEW_REQUIRED"));
+        requestLessonRepublish(lesson, "Đã sửa").andExpect(status().isCreated());
+    }
+
+    @Test
+    @DisplayName("BUG-001 #64 · BR-BH-02: quản trị viên xem được bài Nháp đang bị gỡ, không xem được Nháp thường")
+    void adminLessonDetail_takenDownDraftIsViewable_plainDraftIsNot_AC_BH_10() throws Exception {
+        UUID lesson = publishableLesson();
+        UUID plainDraft = data.lesson(teacher, "Nháp " + UUID.randomUUID(), false);
+        adminUnpublishLesson(lesson, "Tiêu đề chứa quảng cáo").andExpect(status().isNoContent());
+
+        asAdmin(get(ADMIN_LESSONS + "/" + lesson)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value("draft"));
+        asAdmin(get(ADMIN_LESSONS + "/" + plainDraft)).andExpect(status().isForbidden());
     }
 
     @Test

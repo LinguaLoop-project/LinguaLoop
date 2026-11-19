@@ -26,7 +26,7 @@ Hai tỉ lệ ở cột cuối đo hai việc khác nhau:
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | [AI-thuc-hanh-voi-ai](traceability/AI-thuc-hanh-voi-ai.md) | 30 | 0 | 0 | 30 | 0 | 0 | 0% | — |
 | [BC-bao-cao-noi-dung](traceability/BC-bao-cao-noi-dung.md) | 8 | 3 | 3 | 2 | 0 | 0 | 38% | 100% |
-| [BH-quan-ly-bai-hoc](traceability/BH-quan-ly-bai-hoc.md) | 101 | 64 | 1 | 33 | 0 | 3 | 63% | 100% |
+| [BH-quan-ly-bai-hoc](traceability/BH-quan-ly-bai-hoc.md) | 101 | 67 | 2 | 29 | 0 | 3 | 66% | 100% |
 | [BT-quan-ly-bo-the](traceability/BT-quan-ly-bo-the.md) | 80 | 54 | 19 | 7 | 0 | 0 | 68% | 100% |
 | [CD-quan-ly-chu-de-danh-muc](traceability/CD-quan-ly-chu-de-danh-muc.md) | 28 | 0 | 0 | 28 | 0 | 0 | 0% | — |
 | [DI-dictation-cau-da-luu](traceability/DI-dictation-cau-da-luu.md) | 45 | 0 | 0 | 45 | 0 | 0 | 0% | — |
@@ -42,4 +42,4 @@ Hai tỉ lệ ở cột cuối đo hai việc khác nhau:
 | [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 58 | 42 | 7 | 8 | 1 | 0 | 72% | 98% |
 | [TN-xem-thong-ke-noi-dung](traceability/TN-xem-thong-ke-noi-dung.md) | 23 | 0 | 0 | 23 | 0 | 0 | 0% | — |
 | [XL-xu-ly-bao-cao](traceability/XL-xu-ly-bao-cao.md) | 62 | 14 | 27 | 21 | 0 | 0 | 23% | 100% |
-| **Tổng** | **786** | **239** | **70** | **473** | **1** | **3** | **30%** | **99.7%** |
+| **Tổng** | **786** | **242** | **71** | **469** | **1** | **3** | **31%** | **99.7%** |

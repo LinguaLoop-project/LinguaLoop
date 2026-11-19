@@ -66,7 +66,10 @@
     "notPublishable": "Bài chưa đủ điều kiện xuất bản",
     "noSentences": "Bài cần có ít nhất 1 câu.",
     "missingTranslation": "Các câu còn thiếu bản dịch: {{list}}",
-    "newTitle": "Tiêu đề mới"
+    "newTitle": "Tiêu đề mới",
+    "offensiveCount": "{{count}} báo cáo Phản cảm đang mở về câu của bài sẽ được đóng cùng.",
+    "pendingRequestNote": "Yêu cầu xuất bản lại đang chờ quản trị viên duyệt sẽ bị hủy; khôi phục xong bạn cần gửi lại.",
+    "takenDownRestoreNote": "Bài đang mang dấu \"Bị quản trị viên gỡ\": muốn xuất bản lại phải gửi quản trị viên duyệt."
   },
   "form": {
     "link": "Link YouTube",
@@ -188,7 +191,8 @@
     "LESSON_TITLE_TAKEN": "Tiêu đề đã tồn tại",
     "LESSON_MUST_KEEP_SENTENCE": "Bài Đã xuất bản phải còn ít nhất 1 câu. Hãy gỡ xuất bản trước nếu muốn xóa hết câu.",
     "YOUTUBE_LINK_INVALID": "Link không phải video YouTube hợp lệ",
-    "LESSON_STRUCTURE_LOCKED": "Bài đã từng xuất bản nên không tách câu được nữa."
+    "LESSON_STRUCTURE_LOCKED": "Bài đã từng xuất bản nên không tách câu được nữa.",
+    "REPORT_REVIEW_REQUIRED": "Bài bị quản trị viên gỡ. Hãy mở trang bài học và gửi yêu cầu duyệt xuất bản lại."
   },
   "workspace": {
     "sentences_one": "Câu ({{count}})",

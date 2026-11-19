@@ -6,6 +6,7 @@ import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import { FormAlert } from "@/components/common/FormAlert";
 import Icon from "@/components/common/Icon";
+import { TakedownNotice, useIsTakenDown } from "@/features/report";
 import { toast } from "@/stores/toastStore";
 import { lessonActions, type LessonAction } from "../actions";
 import { errorMessage } from "../errors";
@@ -59,6 +60,8 @@ export default function LessonWorkspace({ role, lesson }: Readonly<{ role: Manag
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const editable = role === "teacher";
+  // Khung "Bị quản trị viên gỡ" đã nêu lý do gỡ, nên không lặp lại dòng "Quản trị viên đã gỡ xuất bản".
+  const takenDown = useIsTakenDown("lesson", editable ? lesson.id : undefined);
   const listPath = role === "teacher" ? TEACHER_LESSONS_PATH : ADMIN_LESSONS_PATH;
 
   const [rows, setRows] = useState<DraftRow[]>(() => toDraft(lesson.sentences));
@@ -344,7 +347,10 @@ export default function LessonWorkspace({ role, lesson }: Readonly<{ role: Manag
             })}
           </div>
         </div>
-        {editable && lesson.unpublishReason && lesson.status === "draft" && (
+        {/* Bài bị quản trị viên gỡ: lý do, câu bị báo đã sửa chưa và nút gửi yêu cầu duyệt xuất bản lại (UC-BH-06 2b, 2c).
+            Mốc cập nhật đổi sau mỗi lần lưu câu nên khung tự tải lại trạng thái "Đã sửa". */}
+        {editable && <TakedownNotice targetType="lesson" targetId={lesson.id} contentVersion={lesson.updatedAt} />}
+        {editable && !takenDown && lesson.unpublishReason && lesson.status === "draft" && (
           <FormAlert variant="warning">{t("list.unpublishedByAdmin", { reason: lesson.unpublishReason })}</FormAlert>
         )}
         {editable && lesson.status === "published" && (

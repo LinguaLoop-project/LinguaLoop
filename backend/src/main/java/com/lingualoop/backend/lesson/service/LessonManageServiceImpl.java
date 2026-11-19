@@ -45,6 +45,8 @@ import com.lingualoop.backend.lesson.repository.LessonManageRepository.LessonMan
 import com.lingualoop.backend.lesson.repository.LessonRepository;
 import com.lingualoop.backend.lesson.repository.SentenceRepository;
 import com.lingualoop.backend.lesson.repository.TopicRepository;
+import com.lingualoop.backend.report.service.TakedownCommandService;
+import com.lingualoop.backend.report.service.TakedownQueryService;
 import com.lingualoop.backend.security.Role;
 import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
@@ -77,6 +79,8 @@ class LessonManageServiceImpl implements LessonManageService {
     private final AuditService auditService;
     private final UserAccountService users;
     private final IpaGenerator ipaGenerator;
+    private final TakedownQueryService takedowns;
+    private final TakedownCommandService takedownCommands;
     private final Clock clock;
 
     // ------------------------------------------------------------------ danh sách (UC-BH-01)
@@ -131,7 +135,8 @@ class LessonManageServiceImpl implements LessonManageService {
         if (lesson.getDeletedAt() != null) {
             throw new BusinessException(ErrorCode.LESSON_NOT_FOUND);
         }
-        if (lesson.getStatus() != LessonStatus.PUBLISHED) {
+        // Ngoại lệ của BR-BH-02: bài Nháp đang mang dấu "Bị quản trị viên gỡ" xem được để duyệt xuất bản lại (UC-XL-05).
+        if (lesson.getStatus() != LessonStatus.PUBLISHED && !takedowns.isLessonTakenDown(lessonId)) {
             throw new ForbiddenException("Quản trị viên chỉ xem được bài học Đã xuất bản");
         }
         return detailOf(lessonId);
@@ -399,6 +404,10 @@ class LessonManageServiceImpl implements LessonManageService {
         if (lesson.getStatus() == LessonStatus.PUBLISHED) {
             throw new BusinessException(ErrorCode.LESSON_ALREADY_PUBLISHED);
         }
+        // Bài mang dấu "Bị quản trị viên gỡ" chỉ xuất bản lại khi quản trị viên duyệt (UC-BH-06 nhánh 2b, BR-XL-13).
+        if (takedowns.isLessonTakenDown(lessonId)) {
+            throw new BusinessException(ErrorCode.REPORT_REVIEW_REQUIRED);
+        }
         List<Sentence> rows = sentences.findByLessonIdAndDeletedAtIsNullOrderByStartMsAsc(lessonId);
         List<Integer> missing = new ArrayList<>();
         for (int i = 0; i < rows.size(); i++) {
@@ -452,8 +461,9 @@ class LessonManageServiceImpl implements LessonManageService {
         lesson.setStatus(LessonStatus.DRAFT);
         lesson.setUnpublishReason(reason);
         flushLesson(lesson);
-        audit(adminId, Role.ADMIN, AuditAction.UNPUBLISH, AuditEntityType.LESSON, lessonId, lesson.getTitle(), null,
-                reason);
+        // Gỡ của quản trị viên luôn gắn dấu: đóng báo cáo Phản cảm đang mở, báo giáo viên chủ, ghi nhật ký; xuất bản lại
+        // phải qua duyệt (UC-BH-07 luồng 2a, BR-BH-04, BR-XL-13).
+        takedownCommands.markLessonByAdmin(adminId, lessonId, lesson.getTitle(), lesson.getOwnerId(), reason);
     }
 
     // ------------------------------------------------------------------ xóa, khôi phục (UC-BH-08, 09)
@@ -467,6 +477,8 @@ class LessonManageServiceImpl implements LessonManageService {
         }
         lesson.setDeletedAt(clock.instant());
         flushLesson(lesson);
+        // Yêu cầu xuất bản lại đang chờ (nếu có) tự hủy; dấu giữ nguyên (UC-BH-08, BR-BH-06, BR-XL-13).
+        takedownCommands.cancelPendingForDeletedLesson(lessonId);
         audit(teacherId, Role.TEACHER, AuditAction.DELETE, AuditEntityType.LESSON, lessonId, lesson.getTitle(), null,
                 null);
     }

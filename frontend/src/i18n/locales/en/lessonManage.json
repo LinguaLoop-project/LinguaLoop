@@ -66,7 +66,11 @@
     "notPublishable": "This lesson cannot be published yet",
     "noSentences": "The lesson needs at least 1 sentence.",
     "missingTranslation": "Sentences missing a translation: {{list}}",
-    "newTitle": "New title"
+    "newTitle": "New title",
+    "offensiveCount_one": "{{count}} open offensive report about this lesson's sentences will be closed too.",
+    "offensiveCount_other": "{{count}} open offensive reports about this lesson's sentences will be closed too.",
+    "pendingRequestNote": "The republish request waiting for admin approval will be cancelled; send it again after restoring.",
+    "takenDownRestoreNote": "The lesson is marked \"Taken down by an admin\": republishing needs admin approval."
   },
   "form": {
     "link": "YouTube link",
@@ -188,7 +192,8 @@
     "LESSON_TITLE_TAKEN": "This title already exists",
     "LESSON_MUST_KEEP_SENTENCE": "A published lesson must keep at least 1 sentence. Unpublish it first to remove all sentences.",
     "YOUTUBE_LINK_INVALID": "This is not a valid YouTube video link",
-    "LESSON_STRUCTURE_LOCKED": "This lesson has been published before, so sentences can no longer be split."
+    "LESSON_STRUCTURE_LOCKED": "This lesson has been published before, so sentences can no longer be split.",
+    "REPORT_REVIEW_REQUIRED": "This lesson was taken down by an admin. Open the lesson and send a republish request."
   },
   "workspace": {
     "sentences_one": "Sentences ({{count}})",

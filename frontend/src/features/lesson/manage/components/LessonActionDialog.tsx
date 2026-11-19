@@ -5,6 +5,7 @@ import Dialog from "@/components/common/Dialog";
 import { FormAlert } from "@/components/common/FormAlert";
 import Icon from "@/components/common/Icon";
 import TextField from "@/components/common/TextField";
+import { useHasPendingRepublish, useIsTakenDown, useOpenOffensiveCount } from "@/features/report";
 import { toast } from "@/stores/toastStore";
 import type { LessonAction } from "../actions";
 import { errorMessage, isStaleError } from "../errors";
@@ -56,6 +57,15 @@ export default function LessonActionDialog({
   const unpublish = useUnpublishLesson(role);
   const remove = useDeleteLesson();
   const restore = useRestoreLesson();
+  // Dấu "Bị quản trị viên gỡ" của bài: xóa thì hủy yêu cầu đang chờ, khôi phục thì vẫn phải gửi duyệt (BR-XL-13).
+  const markTarget = role === "teacher" && (action === "delete" || action === "restore") ? lesson.id : undefined;
+  const takenDown = useIsTakenDown("lesson", markTarget);
+  const pendingRequest = useHasPendingRepublish("lesson", markTarget);
+  // Gỡ tay đóng cùng các báo cáo Phản cảm đang mở về câu của bài (AC-BH-80).
+  const offensiveCount = useOpenOffensiveCount(
+    "lesson",
+    role === "admin" && action === "unpublish" ? lesson.id : undefined,
+  );
   const [reason, setReason] = useState("");
   const [reasonError, setReasonError] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState<string | null>(null);
@@ -158,6 +168,11 @@ export default function LessonActionDialog({
             {action === "delete" && lesson.status === "published" && (
               <p className="text-warning">{t("action.deletePublishedNote")}</p>
             )}
+            {action === "unpublish" && offensiveCount > 0 && (
+              <p>{t("action.offensiveCount", { count: offensiveCount })}</p>
+            )}
+            {action === "delete" && pendingRequest && <p className="text-warning">{t("action.pendingRequestNote")}</p>}
+            {action === "restore" && takenDown && <p className="text-warning">{t("action.takenDownRestoreNote")}</p>}
           </div>
         )}
 
