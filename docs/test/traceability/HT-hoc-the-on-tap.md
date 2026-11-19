@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/HT-hoc-the-on-tap/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 61 AC, 10 đã có test, 5 một phần, 46 thiếu.
+Tổng hợp: 75 AC, 12 đã có test, 20 một phần, 43 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -64,6 +64,20 @@ Tổng hợp: 61 AC, 10 đã có test, 5 một phần, 46 thiếu.
 | AC-HT-52 | Bỏ lưu nhiều từ cùng lúc | UC-HT-07 |  |  | Thiếu |
 | AC-HT-53 | Hiển thị hướng dẫn khi chưa lưu từ nào | UC-HT-07 |  |  | Thiếu |
 | AC-HT-54 | Thông báo lỗi khi không tải được danh sách | UC-HT-07 |  |  | Thiếu |
-| AC-HT-55 | Thêm bộ từ vựng cá nhân thành công | UC-HT-08 |  |  | Thiếu |
-| AC-HT-56 | Sửa và xóa bộ từ vựng cá nhân | UC-HT-08 |  |  | Thiếu |
-| AC-HT-57 | Từ chối khi tên bộ từ trống, quá dài hoặc bị trùng | UC-HT-08 |  |  | Thiếu |
+| AC-HT-55 | Thêm bộ từ vựng cá nhân thành công | UC-HT-08 | D, B | MyDeckApiIntegrationTest.create_validName_returnsTheDeckAndListsItForTheOwner_AC_HT_55; MyDeckApiIntegrationTest.create_trimsTheName_andAcceptsExactly100Characters_AC_HT_55; `frontend/src/features/vocab/myDecks.test.ts` | Một phần (backend và logic kiểm tên có test; hộp thoại và tab chạy thử trên trình duyệt, chưa có test giao diện) |
+| AC-HT-56 | Sửa và xóa bộ từ vựng cá nhân | UC-HT-08 | D | MyDeckApiIntegrationTest.rename_updatesTheNameInTheList_AC_HT_56; MyDeckApiIntegrationTest.delete_removesTheDeck_itsCardsLeaveTheReviewQueue_andTheNameCanBeReused_AC_HT_56 | Một phần (backend có test, gồm thẻ rời hàng đợi ôn; chưa có test giao diện) |
+| AC-HT-57 | Từ chối khi tên bộ từ trống, quá dài hoặc bị trùng | UC-HT-08 | A, B | MyDeckApiIntegrationTest.create_blankOrTooLongName_returns400WithNameError_AC_HT_57; MyDeckApiIntegrationTest.create_duplicateNameOfTheSameLearner_returns409_butAnotherLearnerMayUseIt_AC_HT_57; MyDeckApiIntegrationTest.rename_invalidOrDuplicateName_isRejectedAndKeepsTheOldName_AC_HT_57; `frontend/src/features/vocab/myDecks.test.ts` | Một phần (backend và logic kiểm tên có test; lỗi hiện dưới ô nhập mới kiểm trên trình duyệt) |
+| AC-HT-62 | Thêm nhóm và thẻ rồi học được ngay | UC-HT-09 | D | MyDeckContentApiIntegrationTest.addGroupAndCard_thenTheDeckIsLearnableAndReviewable_AC_HT_62 | Một phần (backend có test, gồm học và ôn bộ cá nhân; giao diện mới kiểm tay trên trình duyệt) |
+| AC-HT-63 | Sửa thẻ và đổi tên nhóm giữ nguyên vị trí và tiến độ | UC-HT-09 | D | MyDeckContentApiIntegrationTest.updateCardAndRenameGroup_keepPositionAndProgress_AC_HT_63 | Một phần (chỉ backend) |
+| AC-HT-64 | Xóa thẻ hoặc nhóm thì thẻ rời hàng đợi ôn | UC-HT-09 | D | MyDeckContentApiIntegrationTest.deleteCardAndGroup_leaveTheReviewQueue_andTheDeckRemains_AC_HT_64 | Một phần (chỉ backend; hộp xác nhận xóa mới kiểm tay) |
+| AC-HT-65 | Từ trùng, tên nhóm trùng hoặc không hợp lệ bị từ chối | UC-HT-09 | A, B | MyDeckContentApiIntegrationTest.duplicateWordOrGroupNameAndInvalidFields_areRejected_AC_HT_65 | Một phần (chỉ backend; lỗi hiện tại đúng ô dùng lại logic của giáo viên, chưa có test riêng) |
+| AC-HT-66 | Nhập thẻ từ tệp, một dòng sai thì không thẻ nào được thêm | UC-HT-09 | D, A | MyDeckContentApiIntegrationTest.importCards_validFileAddsAllInOrder_invalidFileAddsNone_AC_HT_66 | Một phần (chỉ backend) |
+| AC-HT-67 | Chỉ chủ bộ được xem và sửa nội dung bộ cá nhân, không có ảnh | UC-HT-09 | A | MyDeckContentApiIntegrationTest.otherLearnerGets404_teacherGets403_andImagesAreRefused_AC_HT_67; `frontend/src/features/vocab/deckManagePaths.test.ts` | Đã có |
+| AC-HT-68 | Nhóm chưa có thẻ không mở học được | UC-HT-09 | B | MyDeckContentApiIntegrationTest.emptyGroup_isAPartWithNoCards_andDoesNotBreakTheDeck_AC_HT_68 | Một phần (backend có test; nút "Chưa có thẻ" ở trang bộ mới kiểm tay) |
+| AC-HT-69 | Điền sẵn thẻ từ từ điển và âm thanh tự lấy từ từ điển | UC-HT-09 | D, A | MyDeckContentApiIntegrationTest.cardsOfWordsInTheDictionaryGetItsAudio_byHandAndByImport_AC_HT_69 | Một phần (backend: âm thanh tự lấy từ từ điển khi nhập tay, đổi loại từ và nhập tệp; ô tra từ điển điền sẵn biểu mẫu mới kiểm tay trên trình duyệt) |
+| AC-HT-70 | Thêm thẻ từ ô tra từ điển vào một nhóm của bộ cá nhân | UC-HT-10 | D | MyDeckQuickAddApiIntegrationTest.fromTheDictionary_addsACardWithTheMeaningContentAtTheEndOfTheGroup_AC_HT_70 | Một phần (backend có test; nút và khung chọn bộ mới kiểm tay trên trình duyệt) |
+| AC-HT-71 | Thêm từ câu bài học thì thẻ nhớ câu gốc | UC-HT-10 | D | MyDeckQuickAddApiIntegrationTest.fromALessonSentence_keepsTheSentenceTranslationAndLesson_AC_HT_71 | Một phần (backend có test; luồng từ câu bài học mới kiểm tay trên trình duyệt) |
+| AC-HT-72 | Tạo bộ và nhóm ngay trong khung | UC-HT-10 | D, B | MyDeckQuickAddApiIntegrationTest.intoADeckAndGroupJustCreated_theFirstCardGoesToTheDefaultGroup_AC_HT_72; `frontend/src/features/vocab/quickAdd.test.ts` | Một phần (chuỗi tạo bộ, nhóm rồi thêm thẻ và hoàn tác có test logic; giao diện mới kiểm tay) |
+| AC-HT-73 | Từ đã có trong bộ bị từ chối | UC-HT-10 | A | MyDeckQuickAddApiIntegrationTest.aWordAlreadyInTheDeck_isRefusedAndTheGroupHoldingItIsNamed_AC_HT_73; `frontend/src/features/vocab/quickAdd.test.ts` | Một phần (backend và ánh xạ lỗi có test; lời nhắn trong khung mới kiểm tay) |
+| AC-HT-74 | Từ chối khi nghĩa, bộ hay bài học không dùng được | UC-HT-10 | A | MyDeckQuickAddApiIntegrationTest.missingMeaningForeignDeckOrForbiddenLesson_areRefused_AC_HT_74; MyDeckQuickAddApiIntegrationTest.teachersAreRefusedAndAnonymousIs401_AC_HT_74; `frontend/src/features/vocab/quickAdd.test.ts` | Đã có |
+| AC-HT-75 | Nút Thêm vào bộ chỉ dành cho học viên và cùng điều kiện với nút Lưu | UC-HT-10 | A | MyDeckQuickAddApiIntegrationTest.teachersAreRefusedAndAnonymousIs401_AC_HT_74 | Một phần (API từ chối giáo viên; việc ẩn nút với giáo viên và ở dạng chia chưa có test giao diện, chưa kiểm tay) |

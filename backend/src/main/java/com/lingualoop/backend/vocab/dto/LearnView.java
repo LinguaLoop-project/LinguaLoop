@@ -48,8 +48,11 @@ public final class LearnView {
     public record LessonRef(UUID id, String title) {
     }
 
-    /** Bộ chứa phần, để hiện tiêu đề và nút quay lại. */
-    public record DeckRef(UUID id, String name, boolean pro) {
+    /**
+     * Bộ chứa phần, để hiện tiêu đề và nút quay lại. {@code personal} là bộ cá nhân của học viên (UC-HT-09): không có giáo
+     * viên nhận báo cáo nên giao diện không hiện nút báo lỗi thẻ.
+     */
+    public record DeckRef(UUID id, String name, boolean pro, boolean personal) {
     }
 
     /**

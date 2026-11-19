@@ -42,6 +42,7 @@ const MyWordsPage = lazy(() => import("@/features/practice/pages/MyWordsPage"));
 const VocabPage = lazy(() => import("@/features/vocab/pages/VocabPage"));
 const DeckPage = lazy(() => import("@/features/vocab/pages/DeckPage"));
 const PartPage = lazy(() => import("@/features/vocab/pages/PartPage"));
+const MyDeckDetailPage = lazy(() => import("@/features/vocab/pages/MyDeckDetailPage"));
 const TeacherDeckListPage = lazy(() => import("@/features/vocab/pages/teacher/TeacherDeckListPage"));
 const TeacherDeckCreatePage = lazy(() => import("@/features/vocab/pages/teacher/TeacherDeckCreatePage"));
 const TeacherDeckDetailPage = lazy(() => import("@/features/vocab/pages/teacher/TeacherDeckDetailPage"));
@@ -167,6 +168,10 @@ const getRoutesConfig = (): RouteObject[] => {
         {
           path: "vocab",
           element: <VocabPage />,
+        },
+        {
+          path: "vocab/mine/:deckId",
+          element: <MyDeckDetailPage />,
         },
         {
           path: "vocab/:deckId",

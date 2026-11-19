@@ -1,6 +1,7 @@
 import { isAxiosError } from "axios";
 import { axiosClient } from "@/api/axiosClient";
 import { uploadFile } from "@/api/fileUpload";
+import { contentApiBase } from "./deckManagePaths";
 import type { ApiResponse } from "./types";
 import type {
   AdminDeckItem,
@@ -11,6 +12,7 @@ import type {
   DeckDetail,
   DeckFieldError,
   DeckListFilter,
+  ContentRole,
   ManageRole,
   Page,
   TeacherDeckItem,
@@ -126,9 +128,9 @@ export const deckManageApi = {
     }),
 
   /** Thông tin chung và nhóm thẻ của một bộ (`GET /{role}/vocab/decks/{id}`, UC-BT-04). */
-  fetchDeckDetail: (role: ManageRole, deckId: string): Promise<DeckDetail> =>
+  fetchDeckDetail: (role: ContentRole, deckId: string): Promise<DeckDetail> =>
     wrap(async () => {
-      const response = await axiosClient.get<ApiResponse<DeckDetail>>(`/${role}/vocab/decks/${deckId}`, {
+      const response = await axiosClient.get<ApiResponse<DeckDetail>>(`${contentApiBase(role)}/${deckId}`, {
         timeout: REQUEST_TIMEOUT_MS,
       });
       return response.data.data;
@@ -136,7 +138,7 @@ export const deckManageApi = {
 
   /** Thẻ của một nhóm, 20 thẻ mỗi trang; `q` tìm theo từ vựng (BR-BT-15). */
   fetchGroupCards: (
-    role: ManageRole,
+    role: ContentRole,
     deckId: string,
     groupId: string,
     q: string,
@@ -146,7 +148,7 @@ export const deckManageApi = {
       const params: Params = { page };
       if (q.trim()) params.q = q.trim();
       const response = await axiosClient.get<ApiResponse<Page<DeckCard>>>(
-        `/${role}/vocab/decks/${deckId}/groups/${groupId}/cards`,
+        `${contentApiBase(role)}/${deckId}/groups/${groupId}/cards`,
         { params, timeout: REQUEST_TIMEOUT_MS },
       );
       return response.data.data;

@@ -91,6 +91,7 @@
       "pro": "Pro",
       "locked": "This part is Pro only",
       "partDone": "Done",
+      "empty": "No cards yet",
       "range": "Showing parts {{from}}–{{to}} of {{total}}",
       "showAll": "Show all parts",
       "showLess": "Show fewer"
@@ -220,7 +221,86 @@
   "tabs": {
     "label": "Vocabulary mode",
     "decks": "Decks",
-    "review": "Review"
+    "review": "Review",
+    "mine": "My decks"
+  },
+  "quickAdd": {
+    "toggle": "Add to deck",
+    "toggleAria": "Add this meaning of {{word}} to My decks",
+    "formAria": "Add {{word}} to a deck",
+    "deck": "Deck",
+    "newDeck": "New deck…",
+    "deckName": "New deck name",
+    "group": "Group",
+    "newGroup": "New group…",
+    "groupName": "Group name",
+    "defaultGroup": "New words",
+    "submit": "Add",
+    "cancel": "Cancel",
+    "added": "Added “{{word}}” to deck {{deck}} · group {{group}}",
+    "viewDeck": "View deck",
+    "errors": {
+      "taken": "This deck already has a card “{{word}}” in group {{group}}. Pick another deck or edit that card.",
+      "meaningGone": "This meaning is no longer in the dictionary.",
+      "forbidden": "You can't study the lesson this sentence belongs to.",
+      "gone": "The deck or group no longer exists, the list was reloaded.",
+      "retry": "Couldn't add it, please try again.",
+      "offline": "You're offline. Try again when you're back online.",
+      "loadFailed": "Couldn't load your decks, please try again."
+    }
+  },
+  "mine": {
+    "title": "My decks",
+    "subtitle": "Vocabulary decks you created. Only you can see them.",
+    "add": "Add deck",
+    "detail": {
+      "hint": "Add groups and cards to your deck. Only you can see it.",
+      "back": "Back to My decks",
+      "learn": "Study this deck",
+      "learnNone": "Add cards to start studying"
+    },
+    "empty": {
+      "title": "You have no decks yet",
+      "desc": "Create a vocabulary deck of your own, such as \"Office words\" or \"TOEIC to remember\"."
+    },
+    "card": {
+      "cards_one": "{{count}} card",
+      "cards_other": "{{count}} cards",
+      "due_one": "{{count}} card due",
+      "due_other": "{{count}} cards due",
+      "noDue": "No cards due",
+      "open": "Open deck",
+      "rename": "Rename",
+      "delete": "Delete"
+    },
+    "dialog": {
+      "addTitle": "Add a vocabulary deck",
+      "renameTitle": "Rename deck",
+      "name": "Deck name",
+      "namePlaceholder": "For example: Office words",
+      "save": "Save",
+      "cancel": "Cancel",
+      "errors": {
+        "NotBlank": "Enter a deck name",
+        "Size": "Deck names are 100 characters at most",
+        "Duplicate": "You already have a deck with this name, pick another"
+      }
+    },
+    "delete": {
+      "title": "Delete deck",
+      "text": "Delete the deck \"{{name}}\"?",
+      "note_one": "The deck has {{count}} card. Its card will no longer show up when you review.",
+      "note_other": "The deck has {{count}} cards. Its cards will no longer show up when you review.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "feedback": {
+      "created": "Added the deck \"{{name}}\"",
+      "renamed": "Renamed to \"{{name}}\"",
+      "deleted": "Deleted the deck \"{{name}}\"",
+      "saveFailed": "Couldn't save, please try again.",
+      "deleteFailed": "Couldn't delete, please try again."
+    }
   },
   "review": {
     "title": "Review due cards",

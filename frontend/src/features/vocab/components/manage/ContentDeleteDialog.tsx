@@ -6,13 +6,15 @@ import { FormAlert } from "@/components/common/FormAlert";
 import { toast } from "@/stores/toastStore";
 import { contentFailure, type ContentFailure } from "../../deckContentForm";
 import { useDeleteCard, useDeleteGroup } from "../../deckContentHooks";
-import type { DeckApiError, DeckCard, DeckGroup } from "../../deckManageTypes";
+import type { ContentRole, DeckApiError, DeckCard, DeckGroup } from "../../deckManageTypes";
 
 /** Đối tượng cần xóa: một nhóm (UC-NT-03) hoặc một thẻ của nhóm (UC-NT-06). */
 export type DeleteTarget = { kind: "group"; group: DeckGroup } | { kind: "card"; group: DeckGroup; card: DeckCard };
 
 export interface ContentDeleteDialogProps {
   deckId: string;
+  /** Mặc định giáo viên; `learner` là bộ cá nhân của học viên (UC-HT-09). */
+  role?: ContentRole;
   target: DeleteTarget;
   onClose: () => void;
   onFailure: (failure: ContentFailure) => void;
@@ -25,10 +27,17 @@ const TITLE_ID = "content-delete-title";
  * Hộp xác nhận xóa nhóm thẻ (nêu số thẻ bị xóa theo) hoặc xóa thẻ (nêu từ vựng), BR-NT-04. "Hủy" giữ nguyên (luồng
  * 5a, 6a); mất kết nối giữ hộp để thử lại (luồng 6a, 7a).
  */
-export default function ContentDeleteDialog({ deckId, target, onClose, onFailure, onDeleted }: Readonly<ContentDeleteDialogProps>) {
+export default function ContentDeleteDialog({
+  deckId,
+  role = "teacher",
+  target,
+  onClose,
+  onFailure,
+  onDeleted,
+}: Readonly<ContentDeleteDialogProps>) {
   const { t } = useTranslation("vocab");
-  const deleteGroup = useDeleteGroup(deckId);
-  const deleteCard = useDeleteCard(deckId, target.group.id);
+  const deleteGroup = useDeleteGroup(deckId, role);
+  const deleteCard = useDeleteCard(deckId, target.group.id, role);
   const [failed, setFailed] = useState(false);
   const pending = deleteGroup.isPending || deleteCard.isPending;
 

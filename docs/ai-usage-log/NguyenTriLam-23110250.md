@@ -865,6 +865,42 @@
 - **Vị trí code do AI sinh (`file:hàm`):** `backend/.../review/DailyReviewServiceImpl.java:plan`, `review/DailyPlanView.java`; `vocab/repository/VocabReviewRepository.java:countReviewedSince`; `practice/repository/SentenceReviewRepository.java:countReviewedSince`; `frontend/src/features/review/flow.ts:cardCount`, `pages/TodayPage.tsx:QuotaStat`, `pages/DailyReviewPage.tsx`, `components/ReviewSummary.tsx`; test `DailyReviewApiIntegrationTest`, `flow.test.ts`
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** AI chẩn đoán nguyên nhân: định mức mới chỉ giới hạn độ dài một phiên nên thẻ và câu tồn vẫn đưa phần ôn trở lại. Sinh viên duyệt các quyết định: định mức tính cho cả ngày, chỉ đếm thẻ trong lượt ôn (mỗi thẻ một lần, không tính học từ mới), phiên mở lại chỉ lấy phần còn lại, trang Hôm nay hiện tiến độ và nút "Ôn thêm", thuật ngữ "Định mức ôn ngày"; sinh viên tự yêu cầu viết lại phần mô tả UC-HT-05 ngắn hơn. Đã sửa BR-HT-24, UC-HT-05, AC-HT-37, AC-HT-39, thêm AC-HT-58 đến AC-HT-60 và mục từ trong GLOSSARY. Chạy thật trên trình duyệt với dữ liệu giả lập bằng SQL (chưa chấm tay một phiên ôn đầy đủ); thử lần đầu thấy nút "Ôn thêm" không hiện khi không có gợi ý nào và đã sửa. Câu đã gỡ khỏi danh sách sau khi ôn không được đếm vào tiến độ.
 - **Commit:** 6ee48e6
+- **Lỗi liên quan:** AI-ERR-LAM-008
+
+### AI-LAM-076
+
+- **Ngày:** 2026-11-18
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5, Opus 5.5 cho phần lên kế hoạch)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Lập kế hoạch rồi triển khai UC-HT-08 "Bộ của tôi" (thêm, đổi tên, xóa bộ từ vựng cá nhân) theo đặc tả module HT, làm ở nhánh riêng tách từ nhánh onboarding và ôn tập hằng ngày
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../vocab/controller/MyDeckController.java`, `vocab/service/MyDeckServiceImpl.java:create`, `:rename`, `:delete`, `:validName`, `vocab/repository/MyDeckRepository.java:findAll`, `:existsName`, `:softDelete`; `frontend/src/features/vocab/myDecks.ts:myDeckFailure`, `myDecksApi.ts`, `myDecksHooks.ts`, `components/mine/MyDecksPanel.tsx`, `MyDeckDialog.tsx`, `MyDeckDeleteDialog.tsx`, `MyDeckCard.tsx`, `pages/VocabPage.tsx` (tab thứ ba); test `MyDeckApiIntegrationTest`, `myDecks.test.ts`, `myDecksI18n.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** AI đọc đặc tả và phát hiện spec chỉ quản lý tên bộ, không có use case nào thêm thẻ vào bộ cá nhân nên bộ mới tạo là bộ trống; sinh viên đồng ý làm đúng phạm vi UC-HT-08 và ghi rõ giới hạn đó trong tài liệu. Sinh viên duyệt các quyết định: tab thứ ba "Bộ của tôi" ở trang Từ vựng, xóa mềm giữ thẻ và tiến độ, tên 1 đến 100 ký tự không phân biệt hoa thường, không giới hạn số bộ, cho cả gói Free và Pro, chưa làm trang chi tiết bộ; sinh viên yêu cầu tách nhánh từ nhánh onboarding và ôn tập hằng ngày thay vì từ main (AI đề xuất main). AI tự chọn dùng lại `ConflictException` (409) cho tên trùng theo cách bộ của giáo viên đã làm và bắt thêm vi phạm chỉ mục duy nhất khi hai yêu cầu chạy cùng lúc. Chạy thật trên trình duyệt: trạng thái trống, tên trống, tên trùng khác hoa thường, tạo, đổi tên, xóa; thẻ của bộ đã xóa rời hàng đợi ôn. Chưa có test giao diện cho hộp thoại và tab nên các AC-HT-55 đến 57 ở mức "một phần".
+- **Commit:** 593071c
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-077
+
+- **Ngày:** 2026-11-19
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5, Opus 5.5 cho phần lên kế hoạch)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Bộ cá nhân tạo ra đang trống và không có CRUD thẻ; dựa trên tính năng quản lý nhóm thẻ và thẻ đã có của giáo viên để cài đặt cho học viên (UC-HT-09), kèm học bộ cá nhân
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../vocab/service/VocabDeckContentServiceImpl.java:Actor`, `:addGroup`, `:addCard`, `:learnerDeck`, `:rejectImage` (bản có `Actor`); `vocab/service/MyDeckContentServiceImpl.java`, `StudentGuard.java`; `vocab/controller/MyDeckContentController.java`; `vocab/repository/VocabDeckRepository.java:findDecks`; `vocab/service/VocabDeckManageServiceImpl.java:getForLearner`, `:listCardsForLearner`; `frontend/src/features/vocab/components/manage/DeckDetailView.tsx` (vai trò `learner`), `CardDialog.tsx`, `GroupDialog.tsx`, `deckContentApi.ts`, `deckContentHooks.ts`, `pages/MyDeckDetailPage.tsx`, `components/learn/LearnSession.tsx:canReport`; test `MyDeckContentApiIntegrationTest`, `deckManagePaths.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** AI phân tích phần dùng lại được và phải sửa; sinh viên chọn phạm vi (thẻ nhập tay cộng nhập Excel/CSV, không có ảnh, mở học bộ cá nhân, chưa làm tra từ điển riêng), chọn học viên **tự quản lý nhóm** như giáo viên (AI đề xuất nhóm ngầm) và duyệt kế hoạch. Sinh viên đồng ý để ô tra từ điển của hộp thẻ giáo viên đi kèm. AI tự chọn tách bước kiểm tra chủ bộ thành `Actor` trong lõi chung thay vì sao chép service, và dùng lại trang chi tiết bộ của giáo viên bằng vai trò `learner`. Đã viết UC-HT-09, BR-HT-26, BR-HT-27, AC-HT-62 đến 68. Chạy thật trên trình duyệt: tạo nhóm, thêm thẻ, nhập CSV (cả tệp trùng từ và tệp hợp lệ), mở trang học và vào phiên học. Phát hiện khi chạy: nút "Report" hiện trên thẻ bộ cá nhân dù báo cáo chỉ nhận bộ thư viện, đã ẩn bằng cờ `personal`. Chưa có test giao diện nên phần lớn AC ở mức "một phần".
+- **Commit:** 8d601c3, 06d2c48 (AC-HT-69: sinh viên hỏi lại về điền sẵn từ từ điển; AI kiểm tra trên trình duyệt thật thấy tính năng đã có nhờ dùng lại hộp thẻ của giáo viên, chỉ bổ sung đặc tả và test)
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-078
+
+- **Ngày:** 2026-11-19
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5, Opus 5.5 cho phần lên kế hoạch)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Thiết kế thêm thẻ nhanh vào Bộ của tôi từ từ điển hoặc từ bài học, nút "Thêm vào bộ" đặt ở vị trí tương tự nút "Lưu" (UC-HT-10)
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../vocab/service/DictionaryCardContent.java`, `VocabDeckContentServiceImpl.java:addFromDictionary`, `MyDeckContentServiceImpl.java:addFromDictionary`, `vocab/controller/MyDeckContentController.java:addFromDictionary`, `vocab/repository/VocabDeckContentRepository.java:setCardSourceSentence`, `SavedWordWriter.java` (dùng chung bộ chuyển đổi); `frontend/src/features/vocab/quickAdd.ts:runQuickAdd`, `quickAddFailure`, `components/quickAdd/QuickAddPanel.tsx`, `QuickAddToggle.tsx`, `features/dictionary/components/MeaningActions.tsx`, `WordCard.tsx`; test `MyDeckQuickAddApiIntegrationTest`, `quickAdd.test.ts`, `myDecksI18n.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên giao đề thiết kế và yêu cầu vị trí nút giống nút "Lưu". AI khảo sát mã nguồn (nút "Lưu" chỉ nằm ở một chỗ trong `WordCard`, dùng chung cho ô tra từ điển và chữ bấm trong câu bài học) và đưa ra 8 điểm thiết kế kèm đề xuất; sinh viên đồng ý cả 8 và duyệt kế hoạch: khung chọn bộ và nhóm mở ngay dưới dòng nghĩa thay vì hộp thoại lồng, nhớ bộ và nhóm gần nhất, tạo bộ hoặc nhóm "Từ mới" ngay trong khung, chặn từ trùng trong bộ, thẻ nhớ câu gốc khi thêm từ câu bài học, endpoint riêng để máy chủ chép nội dung từ từ điển, chỉ học viên thấy nút. AI tự chọn gỡ bộ hoặc nhóm vừa tạo trong lần thêm nếu thêm thẻ thất bại để không để lại bộ trống, và dùng lại `audioOf` để âm thanh giống khi nhập tay. Chạy thật trên trình duyệt với từ điển đầy đủ: thêm từ ô tra từ điển khi chưa có bộ nào, từ trùng, ghi nhớ lựa chọn, thêm từ câu bài học (thẻ lưu đúng câu gốc), thông báo kèm liên kết "Xem bộ". Chưa thử nút với tài khoản giáo viên và ở dạng chia nên AC-HT-75 ở mức "một phần".
+- **Commit:** f2640c8
 - **Lỗi liên quan:** NONE
 
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
@@ -974,6 +1010,21 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit gây ra lỗi (đưa đầu ra AI vào code):** f46bc8e
 - **Commit sửa (bắt buộc, khác commit trên):** 7330233
 - **Kiểm chứng sau sửa:** Test mới qua (12 test của feature, 255 test frontend); chạy lại trên trình duyệt thì nhãn hiện đúng "Các phần của phiên ôn".
+- **Trạng thái (`Error Status`):** FIXED
+
+### AI-ERR-LAM-008
+
+- **Liên kết bản ghi AI:** AI-LAM-075
+- **Loại lỗi (`Error Type`):** EDGE_CASE_MISSED
+- **Ngày phát hiện:** 2026-11-19
+- **Đầu ra sai/thiếu sót và bối cảnh:** Các test của Định mức ôn ngày trong `DailyReviewApiIntegrationTest` dùng mốc "5 phút", "10 phút" trước đây cho lượt ôn thẻ và lần ôn câu, rồi kỳ vọng chúng thuộc "hôm nay" của học viên. Múi giờ mặc định của học viên là `Asia/Ho_Chi_Minh`, nên chạy trong những phút ngay sau 0 giờ thì các mốc đó rơi vào ngày hôm trước và 6 test thất bại. Lỗi cũng xảy ra trên CI chạy theo UTC từ khoảng 17:00 đến 17:20.
+- **Vị trí (`file:hàm`):** `backend/src/test/java/com/lingualoop/backend/review/DailyReviewApiIntegrationTest.java` (`answered`, `reviewedSentence` và các test dùng chúng)
+- **Nguyên nhân phân tích:** AI viết test phụ thuộc giờ trong ngày và không xét ranh giới ngày theo múi giờ của học viên; các lần chạy trước đó đều rơi ngoài cửa sổ này nên test qua.
+- **Cách phát hiện / bằng chứng:** Chạy toàn bộ test backend lúc 00:04 giờ Việt Nam: 6 test thất bại với `cardsDoneToday` bằng 0 thay vì số thẻ đã ôn.
+- **Cách sửa:** Đổi các mốc thành 1 đến 2 giây trước để luôn nằm trong ngày hiện tại, giữ riêng ca "30 giờ trước" cho ngày hôm qua.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** 6ee48e6
+- **Commit sửa (bắt buộc, khác commit trên):** 96c384a
+- **Kiểm chứng sau sửa:** Chạy lại `DailyReviewApiIntegrationTest` đúng lúc 00:04: 33/33 qua, rồi toàn bộ 1304 test backend qua.
 - **Trạng thái (`Error Status`):** FIXED
 
 ## 3. Bằng chứng bổ sung (nếu cần)

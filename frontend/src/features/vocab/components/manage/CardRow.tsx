@@ -17,6 +17,8 @@ export interface CardRowProps {
   card: DeckCard;
   posLabel: string | null;
   actions?: CardRowActions;
+  /** Bộ cá nhân của học viên không có ảnh minh họa (BR-HT-26): ẩn khung ảnh. */
+  hideImage?: boolean;
 }
 
 /** Câu ví dụ với từ vựng được tô đậm để giáo viên thấy từ được dùng ở đâu. */
@@ -75,13 +77,14 @@ function LangTag({ children }: Readonly<{ children: string }>) {
  * Một thẻ trong danh sách thẻ của nhóm: ảnh, từ vựng, loại từ, phát âm UK/US (bấm để nghe), rồi từng trường có nhãn
  * (nghĩa, định nghĩa, ví dụ). Trường trống không hiện. Nút sửa/xóa luôn hiện cho giáo viên.
  */
-export default function CardRow({ card, posLabel, actions }: Readonly<CardRowProps>) {
+export default function CardRow({ card, posLabel, actions, hideImage = false }: Readonly<CardRowProps>) {
   const { t } = useTranslation("vocab");
   const hasDefinition = Boolean(card.definitionEn ?? card.definitionVi);
   const hasExample = Boolean(card.exampleEn ?? card.exampleVi);
 
   return (
     <li className="flex gap-4 p-4">
+      {!hideImage && (
       <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-lg border border-border bg-[linear-gradient(135deg,var(--fn-vocab-soft),transparent)]">
         {card.imageUrl ? (
           <img src={card.imageUrl} alt={card.word} loading="lazy" className="h-full w-full object-cover" />
@@ -91,6 +94,7 @@ export default function CardRow({ card, posLabel, actions }: Readonly<CardRowPro
           </span>
         )}
       </div>
+      )}
 
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">
         <div className="flex items-start gap-2">

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { MeaningGroup, Pronunciation, WordView } from "../types";
 import PronunciationButtons from "./PronunciationButtons";
-import SaveWordButton from "./SaveWordButton";
+import MeaningActions from "./MeaningActions";
 
 interface GroupListProps {
   /** Mục từ mà các nghĩa này thuộc về; nút Lưu lưu nghĩa theo mục từ này. */
@@ -54,9 +54,9 @@ function GroupList({ headword, saveable, groups, onActivePronunciationChange }: 
         <ol className="flex flex-col divide-y divide-border">
           {active.meanings.map((meaning) => (
             <li key={meaning.no} className="flex flex-col gap-1 py-2 first:pt-0 last:pb-0">
-              <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-wrap items-start justify-between gap-2">
                 <p className="font-semibold leading-snug text-text">{meaning.translationVi}</p>
-                {saveable && <SaveWordButton headword={headword} meaningNo={meaning.no} />}
+                {saveable && <MeaningActions headword={headword} meaningNo={meaning.no} />}
               </div>
               {meaning.exampleEn && (
                 <p className="border-l-2 border-border-strong pl-2.5 text-[13px] leading-normal">

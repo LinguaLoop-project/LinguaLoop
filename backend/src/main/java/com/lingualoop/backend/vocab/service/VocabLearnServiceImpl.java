@@ -40,7 +40,8 @@ class VocabLearnServiceImpl implements VocabLearnService {
         GroupRow group = openPart(deck, parts, index);
         DeckView.Part current = parts.get(index);
         List<LearnView.Card> cards = learn.findCards(userId, group.id()).stream().map(cardViews::of).toList();
-        return new LearnView.PartDetail(new LearnView.DeckRef(deck.getId(), deck.getName(), deck.getPro()),
+        return new LearnView.PartDetail(new LearnView.DeckRef(deck.getId(), deck.getName(), deck.getPro(),
+                "personal".equals(deck.getKind())),
                 index, current.name(), parts, cards);
     }
 
