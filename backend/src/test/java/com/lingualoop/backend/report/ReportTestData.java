@@ -40,14 +40,18 @@ public class ReportTestData {
         jdbc.update("UPDATE users SET locked_at = now(), locked_reason = 'test' WHERE id = ?", userId);
     }
 
-    /** Bài học thư viện; {@code published} = Đã xuất bản. */
+    /**
+     * Bài học thư viện; {@code published} = Đã xuất bản. Mỗi bài một video riêng vì một video chỉ dùng cho một bài
+     * thư viện chưa xóa (BR-BH-18, chỉ mục {@code uq_lessons_library_video}).
+     */
     public UUID lesson(UUID owner, String title, boolean published) {
         UUID topic = jdbc.queryForObject("INSERT INTO topics (name) VALUES (?) RETURNING id", UUID.class,
                 "rp-" + UUID.randomUUID());
+        String video = UUID.randomUUID().toString().replace("-", "").substring(0, 11);
         return jdbc.queryForObject("""
                 INSERT INTO lessons (owner_id, kind, topic_id, title, youtube_id, duration_sec, cefr_level, status)
-                VALUES (?, 'library', ?, ?, 'yt', 600, 'B1', ?) RETURNING id""", UUID.class,
-                owner, topic, title, published ? "published" : "draft");
+                VALUES (?, 'library', ?, ?, ?, 600, 'B1', ?) RETURNING id""", UUID.class,
+                owner, topic, title, video, published ? "published" : "draft");
     }
 
     /** Câu bắt đầu ở giây {@code second} của bài, dài 2 giây. */
