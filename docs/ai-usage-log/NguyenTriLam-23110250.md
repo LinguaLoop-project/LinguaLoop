@@ -903,6 +903,18 @@
 - **Commit:** f2640c8
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-079
+
+- **Ngày:** 2026-11-19
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5, Opus 5.5 cho phần lên kế hoạch)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Lên kế hoạch và triển khai tính năng Học thụ động (UC-TC-04) theo giao diện tham khảo từ trang Shorts của một ứng dụng học tiếng Anh khác
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../lesson/controller/WatchController.java`, `service/WatchServiceImpl.java:feed`, `repository/WatchRepository.java:findFeed`, `practice/service/SentenceReviewServiceImpl.java:pinWithoutAttempt`; `frontend/src/features/watch/` (`feed.ts:activeLineIndex`, `estimateWordEnds`, `buildEntries`, `prefs.ts:parsePrefs`, `useFeedPlayer.ts`, `pages/WatchPage.tsx`, `components/FeedVideo.tsx`, `CaptionBox.tsx`, `SettingsMenu.tsx`), `lib/youtube.ts:loadYouTubeApi`; test `WatchApiIntegrationTest`, `feed.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên giao đề, cung cấp trang tham khảo và duyệt kế hoạch gồm 12 điểm thiết kế (bài dài tối đa 3 phút, luồng xáo trộn theo phiên và ưu tiên bài chưa luyện, ẩn video Pro với gói Free kèm thẻ mời nâng cấp, trang toàn màn hình, tô sáng từ ước lượng, cài đặt phụ đề nhớ lại ở lần mở sau). AI xem trang tham khảo bằng trình duyệt rồi chỉnh kế hoạch theo bố cục đó, và phát hiện bảng `lesson_likes` đã có sẵn trong schema gốc nên migration chỉ thêm chỉ mục. Chạy thật trên trình duyệt với 1.068 bài mẫu: video phát đúng câu và từ đang nói, thích, lưu câu (có dòng `manual` ở Shadowing), bấm từ làm video dừng, đóng hộp thì phát tiếp, cài đặt, hộp báo cáo, thẻ mời Pro sau 10 video, bản điện thoại, hai điểm vào. Chưa kiểm chứng: lỗi nguồn phát YouTube (AC-TC-33) và cuộn bằng cảm ứng thật.
+- **Commit:** 56e8896, 67a86e9, b5a1f8d
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
