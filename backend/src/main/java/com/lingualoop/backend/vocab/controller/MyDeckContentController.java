@@ -1,13 +1,7 @@
 package com.lingualoop.backend.vocab.controller;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
 import java.util.UUID;
 
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +18,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.lingualoop.backend.common.exception.BusinessException;
-import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.response.ApiResponse;
 import com.lingualoop.backend.common.response.PageResponse;
 import com.lingualoop.backend.security.CurrentUserId;
@@ -35,7 +27,6 @@ import com.lingualoop.backend.vocab.dto.request.AddFromDictionaryRequest;
 import com.lingualoop.backend.vocab.dto.request.CardRequest;
 import com.lingualoop.backend.vocab.dto.request.GroupRequest;
 import com.lingualoop.backend.vocab.service.MyDeckContentService;
-import com.lingualoop.backend.vocab.service.VocabDeckContentService.TemplateFormat;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +43,6 @@ public class MyDeckContentController {
     private static final String DECK = "/{deckId}";
     private static final String GROUP = DECK + "/groups/{groupId}";
     private static final String CARDS = GROUP + "/cards";
-    private static final String XLSX_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     private final MyDeckContentService contentService;
 
@@ -124,7 +114,7 @@ public class MyDeckContentController {
     public ApiResponse<CardImportView.Preview> previewImport(@CurrentUserId UUID userId, @PathVariable UUID deckId,
             @PathVariable UUID groupId, @RequestPart("file") MultipartFile file) {
         return ApiResponse.ok(contentService.previewImport(userId, deckId, groupId, file.getOriginalFilename(),
-                bytesOf(file)));
+                CardImportFiles.bytesOf(file)));
     }
 
     /** Nhập mọi thẻ trong tệp vào cuối nhóm; có dòng lỗi thì không thêm thẻ nào. */
@@ -133,32 +123,12 @@ public class MyDeckContentController {
     public ApiResponse<CardImportView.Result> importCards(@CurrentUserId UUID userId, @PathVariable UUID deckId,
             @PathVariable UUID groupId, @RequestPart("file") MultipartFile file) {
         return ApiResponse.ok(contentService.importCards(userId, deckId, groupId, file.getOriginalFilename(),
-                bytesOf(file)));
+                CardImportFiles.bytesOf(file)));
     }
 
     /** Tệp mẫu nhập thẻ; {@code format}: {@code xlsx} (mặc định) hoặc {@code csv}. */
     @GetMapping("/card-import-template")
     public ResponseEntity<byte[]> importTemplate(@RequestParam(defaultValue = "xlsx") String format) {
-        TemplateFormat parsed = switch (format.toLowerCase(Locale.ROOT)) {
-            case "xlsx" -> TemplateFormat.XLSX;
-            case "csv" -> TemplateFormat.CSV;
-            default -> throw new BusinessException(ErrorCode.BAD_REQUEST, "format phải là xlsx hoặc csv");
-        };
-        String filename = "mau-nhap-the." + format.toLowerCase(Locale.ROOT);
-        MediaType type = parsed == TemplateFormat.CSV ? new MediaType("text", "csv", StandardCharsets.UTF_8)
-                : MediaType.parseMediaType(XLSX_TYPE);
-        return ResponseEntity.ok()
-                .contentType(type)
-                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filename).build()
-                        .toString())
-                .body(contentService.importTemplate(parsed));
-    }
-
-    private static byte[] bytesOf(MultipartFile file) {
-        try {
-            return file.getBytes();
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
+        return CardImportFiles.template(format, contentService::importTemplate);
     }
 }
