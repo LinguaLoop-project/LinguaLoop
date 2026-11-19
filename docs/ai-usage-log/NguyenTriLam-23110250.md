@@ -915,6 +915,18 @@
 - **Commit:** 56e8896, 67a86e9, b5a1f8d
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-080
+
+- **Ngày:** 2026-11-19
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5, Opus 5.5 cho phần lên kế hoạch; dùng bộ skill frontend-design cho trang Bài đã lưu)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Thêm tính năng lưu video trong Học thụ động kèm trang xem các bài đã lưu để luyện sau, và nút lưu bài ở trang chi tiết bài học (UC-TC-05)
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../lesson/service/LessonSaveServiceImpl.java:list`, `LessonProgress.java` (tách khỏi `LessonQueryServiceImpl`), `repository/LessonSaveRepository.java`, `controller/SavedLessonController.java`; `frontend/src/features/lesson/savedLessons.ts`, `savedUtils.ts:nextMode`, `components/saved/SavedLessonRow.tsx`, `SaveLessonButton.tsx`, `pages/SavedLessonsPage.tsx`; `features/watch/components/FeedVideo.tsx`, `CaptionBox.tsx`, `hooks.ts:useToggleVideoSaved`; test `SavedLessonApiIntegrationTest`, `savedLessons.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên đề xuất thay Lưu câu bằng Lưu video; AI đề xuất giữ cả hai (Lưu câu chuyển vào khung phụ đề, Lưu video vào cột nút). Sinh viên yêu cầu thêm nút ở trang chi tiết bài, đổi sang trang Bài đã lưu riêng thay vì thêm tab và chỉ định dùng bộ skill thiết kế. AI thiết kế danh sách một cột (ảnh bìa có hai dải tiến độ như thanh tua video, nút luyện gợi ý theo chế độ làm ít hơn), dùng lại bảng và quy ước hiện có, tách `LessonProgress` để dùng chung với thư viện bài và giữ bài đã gỡ trong danh sách. Chạy thật trên trình duyệt: danh sách, tìm, lọc, bỏ lưu và hoàn tác, bài Pro, trang chi tiết, Học thụ động, bản điện thoại và nền tối. Phát hiện khi thử và sửa: thông báo không hiện ở trang Học thụ động vì nằm ngoài khung chung (cả thông báo Lưu câu của lần trước), phụ đề YouTube đè lên phụ đề của LinguaLoop.
+- **Commit:** ec89768, 2fe10ca
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
