@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 public class VocabDeck extends BaseEntity {
 
     public static final String KIND_LIBRARY = "library";
+    public static final String KIND_PERSONAL = "personal";
     public static final String STATUS_DRAFT = "draft";
     public static final String STATUS_PUBLISHED = "published";
 

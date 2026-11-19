@@ -7,10 +7,12 @@ import TextField from "@/components/common/TextField";
 import { toast } from "@/stores/toastStore";
 import { contentFailure, validateGroupName, type ContentFailure } from "../../deckContentForm";
 import { useAddGroup, useRenameGroup } from "../../deckContentHooks";
-import type { DeckApiError, DeckGroup } from "../../deckManageTypes";
+import type { ContentRole, DeckApiError, DeckGroup } from "../../deckManageTypes";
 
 export interface GroupDialogProps {
   deckId: string;
+  /** Mặc định giáo viên; `learner` là bộ cá nhân của học viên (UC-HT-09). */
+  role?: ContentRole;
   /** `null` = thêm nhóm mới (UC-NT-01); có nhóm = đổi tên (UC-NT-02). */
   group: DeckGroup | null;
   onClose: () => void;
@@ -25,10 +27,17 @@ const TITLE_ID = "group-dialog-title";
  * Biểu mẫu nhóm thẻ: chỉ có tên (BR-NT-02). Lỗi tên hiện cạnh ô và giữ hộp mở để sửa (luồng 7a, 7b); mất kết nối giữ
  * nguyên tên đã nhập để lưu lại (luồng 8a); "Hủy" đóng hộp, không lưu gì (luồng 6a).
  */
-export default function GroupDialog({ deckId, group, onClose, onFailure, onSaved }: Readonly<GroupDialogProps>) {
+export default function GroupDialog({
+  deckId,
+  role = "teacher",
+  group,
+  onClose,
+  onFailure,
+  onSaved,
+}: Readonly<GroupDialogProps>) {
   const { t } = useTranslation("vocab");
-  const add = useAddGroup(deckId);
-  const rename = useRenameGroup(deckId);
+  const add = useAddGroup(deckId, role);
+  const rename = useRenameGroup(deckId, role);
   const [name, setName] = useState(group?.name ?? "");
   const [error, setError] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);

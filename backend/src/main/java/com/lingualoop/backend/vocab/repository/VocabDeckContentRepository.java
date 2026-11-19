@@ -138,6 +138,12 @@ public class VocabDeckContentRepository {
                 .query(UUID.class).single();
     }
 
+    /** Ghi câu bài học mà thẻ được thêm từ đó (UC-HT-10, BR-HT-28), để hiện câu gốc ở mặt sau thẻ. */
+    public void setCardSourceSentence(UUID cardId, UUID sentenceId) {
+        jdbc.sql("UPDATE vocab_cards SET source_sentence_id = :sentence WHERE id = :card")
+                .param("sentence", sentenceId).param("card", cardId).update();
+    }
+
     private static String textOf(UUID id) {
         return id == null ? null : id.toString();
     }

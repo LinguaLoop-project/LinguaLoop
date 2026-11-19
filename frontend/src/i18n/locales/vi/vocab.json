@@ -87,6 +87,7 @@
       "pro": "Pro",
       "locked": "Phần này chỉ có ở gói Pro",
       "partDone": "Đã xong",
+      "empty": "Chưa có thẻ",
       "range": "Đang hiện phần {{from}}–{{to}} / {{total}}",
       "showAll": "Xem tất cả phần",
       "showLess": "Thu gọn"
@@ -209,7 +210,83 @@
   "tabs": {
     "label": "Chế độ từ vựng",
     "decks": "Bộ từ",
-    "review": "Ôn thẻ"
+    "review": "Ôn thẻ",
+    "mine": "Bộ của tôi"
+  },
+  "quickAdd": {
+    "toggle": "Thêm vào bộ",
+    "toggleAria": "Thêm nghĩa này của từ {{word}} vào Bộ của tôi",
+    "formAria": "Thêm từ {{word}} vào bộ",
+    "deck": "Bộ",
+    "newDeck": "Tạo bộ mới…",
+    "deckName": "Tên bộ mới",
+    "group": "Nhóm",
+    "newGroup": "Nhóm mới…",
+    "groupName": "Tên nhóm",
+    "defaultGroup": "Từ mới",
+    "submit": "Thêm",
+    "cancel": "Hủy",
+    "added": "Đã thêm “{{word}}” vào bộ {{deck}} · nhóm {{group}}",
+    "viewDeck": "Xem bộ",
+    "errors": {
+      "taken": "Bộ này đã có thẻ “{{word}}” ở nhóm {{group}}. Chọn bộ khác hoặc sửa thẻ đó.",
+      "meaningGone": "Nghĩa này không còn trong từ điển.",
+      "forbidden": "Bạn không có quyền học bài học của câu này.",
+      "gone": "Bộ hoặc nhóm đã không còn, danh sách đã được tải lại.",
+      "retry": "Chưa thêm được, bạn thử lại nhé.",
+      "offline": "Bạn đang mất mạng. Thử lại khi có mạng.",
+      "loadFailed": "Chưa tải được danh sách bộ, bạn thử lại nhé."
+    }
+  },
+  "mine": {
+    "title": "Bộ của tôi",
+    "subtitle": "Các bộ từ vựng cá nhân do bạn tạo, chỉ mình bạn thấy.",
+    "add": "Thêm bộ",
+    "detail": {
+      "hint": "Thêm nhóm và thẻ cho bộ của bạn. Chỉ mình bạn thấy bộ này.",
+      "back": "Về Bộ của tôi",
+      "learn": "Học bộ này",
+      "learnNone": "Thêm thẻ để bắt đầu học"
+    },
+    "empty": {
+      "title": "Bạn chưa có bộ nào",
+      "desc": "Tạo một bộ từ vựng của riêng bạn, ví dụ \"Từ vựng công sở\" hay \"TOEIC cần nhớ\"."
+    },
+    "card": {
+      "cards_other": "{{count}} thẻ",
+      "due_other": "{{count}} thẻ đến hạn ôn",
+      "noDue": "Chưa có thẻ đến hạn",
+      "open": "Mở bộ",
+      "rename": "Sửa tên",
+      "delete": "Xóa"
+    },
+    "dialog": {
+      "addTitle": "Thêm bộ từ vựng",
+      "renameTitle": "Sửa tên bộ",
+      "name": "Tên bộ",
+      "namePlaceholder": "Ví dụ: Từ vựng công sở",
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "errors": {
+        "NotBlank": "Hãy nhập tên bộ",
+        "Size": "Tên bộ tối đa 100 ký tự",
+        "Duplicate": "Bạn đã có bộ cùng tên, hãy nhập tên khác"
+      }
+    },
+    "delete": {
+      "title": "Xóa bộ",
+      "text": "Xóa bộ \"{{name}}\"?",
+      "note_other": "Bộ có {{count}} thẻ. Các thẻ của bộ sẽ không còn xuất hiện khi ôn tập.",
+      "confirm": "Xóa",
+      "cancel": "Hủy"
+    },
+    "feedback": {
+      "created": "Đã thêm bộ \"{{name}}\"",
+      "renamed": "Đã đổi tên thành \"{{name}}\"",
+      "deleted": "Đã xóa bộ \"{{name}}\"",
+      "saveFailed": "Chưa lưu được, bạn thử lại nhé.",
+      "deleteFailed": "Chưa xóa được, bạn thử lại nhé."
+    }
   },
   "review": {
     "title": "Ôn thẻ đến hạn",

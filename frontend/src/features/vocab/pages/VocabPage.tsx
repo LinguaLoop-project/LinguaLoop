@@ -12,6 +12,7 @@ import SegmentedControl from "@/components/common/SegmentedControl";
 import Skeleton from "@/components/common/Skeleton";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import DeckCard, { DeckCardSkeleton } from "../components/DeckCard";
+import MyDecksPanel from "../components/mine/MyDecksPanel";
 import ReviewPanel from "../components/review/ReviewPanel";
 import StatCard from "../components/StatCard";
 import { useDecks } from "../hooks";
@@ -126,7 +127,8 @@ export default function VocabPage() {
   const { t } = useTranslation("vocab");
   const query = useDecks();
   const [params, setParams] = useSearchParams();
-  const tab = params.get("tab") === "review" ? "review" : "decks";
+  const tabParam = params.get("tab");
+  const tab = tabParam === "review" || tabParam === "mine" ? tabParam : "decks";
   const reviewDeck = params.get("deck") ?? undefined;
   const [filter, setFilter] = useState<DeckFilter>(EMPTY_DECK_FILTER);
 
@@ -250,7 +252,7 @@ export default function VocabPage() {
         <SegmentedControl
           ariaLabel={t("tabs.label")}
           value={tab}
-          onChange={(value) => setParams(value === "review" ? { tab: "review" } : {})}
+          onChange={(value) => setParams(value === "decks" ? {} : { tab: value })}
           options={[
             { value: "decks", label: t("tabs.decks"), icon: <Icon name="layers" className="h-4 w-4" /> },
             {
@@ -258,10 +260,13 @@ export default function VocabPage() {
               label: due > 0 ? `${t("tabs.review")} · ${due}` : t("tabs.review"),
               icon: <Icon name="refresh-cw" className="h-4 w-4" />,
             },
+            { value: "mine", label: t("tabs.mine"), icon: <Icon name="folders" className="h-4 w-4" /> },
           ]}
         />
       </div>
-      {tab === "review" ? <ReviewPanel key={reviewDeck ?? ""} deck={reviewDeck} /> : body()}
+      {tab === "review" && <ReviewPanel key={reviewDeck ?? ""} deck={reviewDeck} />}
+      {tab === "mine" && <MyDecksPanel />}
+      {tab === "decks" && body()}
     </section>
   );
 }

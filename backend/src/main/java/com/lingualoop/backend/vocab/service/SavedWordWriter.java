@@ -1,6 +1,5 @@
 package com.lingualoop.backend.vocab.service;
 
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -29,11 +28,6 @@ class SavedWordWriter {
     private final DictionaryQueryService dictionary;
     private final SentenceQueryService sentences;
 
-    /** Loại từ thẻ nhận (CHECK của {@code vocab_cards.pos}); loại khác trong từ điển thì để trống. */
-    private static final Set<String> CARD_POS = Set.of("noun", "verb", "adjective", "adverb", "preposition", "pronoun",
-            "conjunction", "determiner", "interjection", "phrasal verb", "idiom", "phrase", "collocation", "modal verb");
-    private static final int MAX_TEXT = 500;
-
     /** Trả id thẻ: thẻ đang hiện nếu nghĩa đã được lưu, không thì thẻ mới hoặc thẻ khôi phục. */
     @Transactional
     UUID saveOnce(UUID userId, String headword, int meaningNo, UUID sentenceId) {
@@ -50,7 +44,7 @@ class SavedWordWriter {
             sentences.assertCanPractice(userId, sentence.lessonId());
         }
         UUID groupId = repository.findFirstGroupId(deckId).orElseGet(() -> repository.insertGroup(deckId));
-        String pos = meaning.pos() != null && CARD_POS.contains(meaning.pos()) ? meaning.pos() : null;
+        String pos = DictionaryCardContent.pos(meaning.pos());
         return repository.upsertCard(deckId, groupId, new SavedWordRepository.CardContent(meaning.wordId(), meaningNo,
                 meaning.headword(), pos, clip(meaning.meaningVi() == null ? "" : meaning.meaningVi()),
                 clip(meaning.definitionEn()), clip(meaning.definitionVi()), clip(meaning.exampleEn()),
@@ -58,8 +52,7 @@ class SavedWordWriter {
                 sentenceId));
     }
 
-    /** Cột văn bản của thẻ tối đa 500 ký tự; từ điển hiếm khi dài hơn nên cắt bớt thay vì báo lỗi. */
     private static String clip(String text) {
-        return text == null || text.length() <= MAX_TEXT ? text : text.substring(0, MAX_TEXT);
+        return DictionaryCardContent.clip(text);
     }
 }

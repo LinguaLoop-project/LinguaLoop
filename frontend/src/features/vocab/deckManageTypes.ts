@@ -2,6 +2,9 @@
 
 export type ManageRole = "teacher" | "admin";
 
+/** Ai xem hoặc sửa nội dung một bộ: giáo viên và quản trị viên (bộ thư viện), hoặc học viên (bộ cá nhân, UC-HT-09). */
+export type ContentRole = ManageRole | "learner";
+
 /** Một lựa chọn trong ô chọn: danh mục (`GET /{role}/vocab/categories`) hoặc chủ bộ. */
 export interface CategoryOption {
   id: string;

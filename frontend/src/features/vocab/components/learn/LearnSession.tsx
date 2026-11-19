@@ -18,6 +18,8 @@ export interface LearnSessionProps {
   partNumber: number;
   nextPartHref: string | null;
   deckHref: string;
+  /** Hiện nút báo lỗi thẻ; tắt với bộ cá nhân vì không có giáo viên xử lý báo cáo (UC-HT-09). */
+  canReport?: boolean;
   onAnswer: (answer: AnswerDraft) => void;
 }
 
@@ -27,7 +29,15 @@ export interface LearnSessionProps {
  * chọn "Không biết" hoặc Quên thì thẻ xuống cuối lượt để làm lại (BR-HT-14). Hết lượt thì hiện kết quả, rồi học lại, xem
  * từ, sang lượt sau hoặc sang phần tiếp theo.
  */
-export default function LearnSession({ mode, cards, partNumber, nextPartHref, deckHref, onAnswer }: LearnSessionProps) {
+export default function LearnSession({
+  mode,
+  cards,
+  partNumber,
+  nextPartHref,
+  deckHref,
+  canReport = true,
+  onAnswer,
+}: LearnSessionProps) {
   const { t } = useTranslation("vocab");
   const rounds = roundsOf(cards);
   const [round, setRound] = useState(() => firstOpenRound(cards));
@@ -99,6 +109,7 @@ export default function LearnSession({ mode, cards, partNumber, nextPartHref, de
       {mode === "flashcard" && <FlashView key={key} {...viewProps} />}
       {(mode === "quiz" || mode === "reverse_quiz") && <ChoiceView key={key} mode={mode} {...viewProps} />}
       {/* Báo cáo lỗi của thẻ đang học (UC-BC-01); giá trị hiện tại để chặn bản sửa giống hệt (BR-BC-06). */}
+      {canReport && (
       <div className="mt-3 flex justify-end">
         <ReportButton
           targetType="card"
@@ -116,6 +127,7 @@ export default function LearnSession({ mode, cards, partNumber, nextPartHref, de
           }}
         />
       </div>
+      )}
     </div>
   );
 }

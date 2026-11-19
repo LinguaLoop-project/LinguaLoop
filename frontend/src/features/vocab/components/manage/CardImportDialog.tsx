@@ -9,10 +9,12 @@ import { deckContentApi } from "../../deckContentApi";
 import { importFailure, validateImportFile, type ContentFailure, type ImportFailure } from "../../deckContentForm";
 import { useImportCards, usePreviewImport } from "../../deckContentHooks";
 import type { ImportRowError, TemplateFormat } from "../../deckContentTypes";
-import type { DeckApiError, DeckGroup } from "../../deckManageTypes";
+import type { ContentRole, DeckApiError, DeckGroup } from "../../deckManageTypes";
 
 export interface CardImportDialogProps {
   deckId: string;
+  /** Mặc định giáo viên; `learner` là bộ cá nhân của học viên (UC-HT-09). */
+  role?: ContentRole;
   group: DeckGroup;
   onClose: () => void;
   onFailure: (failure: ContentFailure) => void;
@@ -40,11 +42,17 @@ const CARD_FIELDS = new Set([
  * không thẻ nào được thêm và hiện lý do (luồng 7a, 7b, 7c); "Hủy" đóng hộp (luồng 8a); mất kết nối giữ tệp để nhập lại
  * (luồng 9a). Có liên kết tải tệp mẫu Excel và CSV (luồng 5a).
  */
-export default function CardImportDialog({ deckId, group, onClose, onFailure }: Readonly<CardImportDialogProps>) {
+export default function CardImportDialog({
+  deckId,
+  role = "teacher",
+  group,
+  onClose,
+  onFailure,
+}: Readonly<CardImportDialogProps>) {
   const { t } = useTranslation("vocab");
   const input = useRef<HTMLInputElement>(null);
-  const preview = usePreviewImport(deckId, group.id);
-  const importCards = useImportCards(deckId, group.id);
+  const preview = usePreviewImport(deckId, group.id, role);
+  const importCards = useImportCards(deckId, group.id, role);
   const [file, setFile] = useState<File | null>(null);
   const [count, setCount] = useState<number | null>(null);
   const [problem, setProblem] = useState<ImportFailure | null>(null);
@@ -93,7 +101,7 @@ export default function CardImportDialog({ deckId, group, onClose, onFailure }: 
   };
 
   const download = (format: TemplateFormat) => {
-    deckContentApi.downloadTemplate(format).catch(() => toast(t("content.import.templateFailed"), { icon: "circle-alert" }));
+    deckContentApi.downloadTemplate(format, role).catch(() => toast(t("content.import.templateFailed"), { icon: "circle-alert" }));
   };
 
   const rowMessage = (error: ImportRowError) => {

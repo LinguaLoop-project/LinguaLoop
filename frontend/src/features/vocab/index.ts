@@ -2,6 +2,8 @@
 
 export { vocabApi } from "./api";
 export { default as StatCard } from "./components/StatCard";
+export { default as QuickAddPanel } from "./components/quickAdd/QuickAddPanel";
+export { default as QuickAddToggle } from "./components/quickAdd/QuickAddToggle";
 export { useDeck, useDecks, useSaveWord, useSavedWords, useUnsaveWord, vocabKeys } from "./hooks";
 export type {
   CardStatus,

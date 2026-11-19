@@ -1,7 +1,8 @@
 import { axiosClient } from "@/api/axiosClient";
 import { uploadFile } from "@/api/fileUpload";
 import { toDeckApiError } from "./deckManageApi";
-import type { DeckCard, DeckGroup } from "./deckManageTypes";
+import { contentApiBase } from "./deckManagePaths";
+import type { ContentRole, DeckCard, DeckGroup } from "./deckManageTypes";
 import type {
   AttachImageItem,
   AttachImagesResult,
@@ -24,8 +25,9 @@ async function wrap<T>(call: () => Promise<T>): Promise<T> {
   }
 }
 
-const groupsPath = (deckId: string) => `/teacher/vocab/decks/${deckId}/groups`;
-const cardsPath = (deckId: string, groupId: string) => `${groupsPath(deckId)}/${groupId}/cards`;
+const groupsPath = (deckId: string, role: ContentRole) => `${contentApiBase(role)}/${deckId}/groups`;
+const cardsPath = (deckId: string, groupId: string, role: ContentRole) =>
+  `${groupsPath(deckId, role)}/${groupId}/cards`;
 
 function fileForm(file: File): FormData {
   const form = new FormData();
@@ -33,40 +35,49 @@ function fileForm(file: File): FormData {
   return form;
 }
 
-/** API nhóm thẻ và thẻ của giáo viên (UC-NT-01 đến 07); lỗi ném ra luôn là `DeckApiError`. */
+/**
+ * API nhóm thẻ và thẻ (UC-NT-01 đến 07 của giáo viên, UC-HT-09 của học viên); `role` mặc định là giáo viên, `learner` trỏ
+ * tới bộ cá nhân và không có ảnh. Lỗi ném ra luôn là `DeckApiError`.
+ */
 export const deckContentApi = {
-  addGroup: (deckId: string, name: string): Promise<DeckGroup> =>
+  addGroup: (deckId: string, name: string, role: ContentRole = "teacher"): Promise<DeckGroup> =>
     wrap(async () => {
-      const response = await axiosClient.post<ApiResponse<DeckGroup>>(groupsPath(deckId), { name: name.trim() }, {
+      const response = await axiosClient.post<ApiResponse<DeckGroup>>(groupsPath(deckId, role), { name: name.trim() }, {
         timeout: REQUEST_TIMEOUT_MS,
       });
       return response.data.data;
     }),
 
-  renameGroup: (deckId: string, groupId: string, name: string): Promise<DeckGroup> =>
+  renameGroup: (deckId: string, groupId: string, name: string, role: ContentRole = "teacher"): Promise<DeckGroup> =>
     wrap(async () => {
       const response = await axiosClient.put<ApiResponse<DeckGroup>>(
-        `${groupsPath(deckId)}/${groupId}`,
+        `${groupsPath(deckId, role)}/${groupId}`,
         { name: name.trim() },
         { timeout: REQUEST_TIMEOUT_MS },
       );
       return response.data.data;
     }),
 
-  deleteGroup: (deckId: string, groupId: string): Promise<void> =>
+  deleteGroup: (deckId: string, groupId: string, role: ContentRole = "teacher"): Promise<void> =>
     wrap(async () => {
-      await axiosClient.delete(`${groupsPath(deckId)}/${groupId}`, { timeout: REQUEST_TIMEOUT_MS });
+      await axiosClient.delete(`${groupsPath(deckId, role)}/${groupId}`, { timeout: REQUEST_TIMEOUT_MS });
     }),
 
   /**
    * Thêm thẻ (UC-NT-04). Có ảnh thì tải thẳng lên S3 trước (mục đích `CARD_IMAGE`) rồi gửi `imageKey`; mỗi lần gửi tải
    * ảnh mới vì server bỏ ảnh của lần lưu thất bại.
    */
-  addCard: (deckId: string, groupId: string, card: CardInput, image: File | null): Promise<DeckCard> =>
+  addCard: (
+    deckId: string,
+    groupId: string,
+    card: CardInput,
+    image: File | null,
+    role: ContentRole = "teacher",
+  ): Promise<DeckCard> =>
     wrap(async () => {
       const imageKey = image ? await uploadFile("CARD_IMAGE", image) : null;
       const response = await axiosClient.post<ApiResponse<DeckCard>>(
-        cardsPath(deckId, groupId),
+        cardsPath(deckId, groupId, role),
         { ...card, imageKey },
         { timeout: REQUEST_TIMEOUT_MS },
       );
@@ -81,11 +92,12 @@ export const deckContentApi = {
     card: CardInput,
     image: File | null,
     removeImage: boolean,
+    role: ContentRole = "teacher",
   ): Promise<DeckCard> =>
     wrap(async () => {
       const imageKey = image ? await uploadFile("CARD_IMAGE", image) : null;
       const response = await axiosClient.put<ApiResponse<DeckCard>>(
-        `${cardsPath(deckId, groupId)}/${cardId}`,
+        `${cardsPath(deckId, groupId, role)}/${cardId}`,
         { ...card, imageKey, removeImage: imageKey ? false : removeImage },
         { timeout: REQUEST_TIMEOUT_MS },
       );
@@ -99,23 +111,23 @@ export const deckContentApi = {
   attachImages: (deckId: string, groupId: string, items: AttachImageItem[]): Promise<AttachImagesResult> =>
     wrap(async () => {
       const response = await axiosClient.post<ApiResponse<AttachImagesResult>>(
-        `${cardsPath(deckId, groupId)}/images`,
+        `${cardsPath(deckId, groupId, "teacher")}/images`,
         { items },
         { timeout: IMPORT_TIMEOUT_MS },
       );
       return response.data.data;
     }),
 
-  deleteCard: (deckId: string, groupId: string, cardId: string): Promise<void> =>
+  deleteCard: (deckId: string, groupId: string, cardId: string, role: ContentRole = "teacher"): Promise<void> =>
     wrap(async () => {
-      await axiosClient.delete(`${cardsPath(deckId, groupId)}/${cardId}`, { timeout: REQUEST_TIMEOUT_MS });
+      await axiosClient.delete(`${cardsPath(deckId, groupId, role)}/${cardId}`, { timeout: REQUEST_TIMEOUT_MS });
     }),
 
   /** Kiểm tệp và trả số thẻ sẽ thêm, chưa ghi gì (UC-NT-07 bước 7). */
-  previewImport: (deckId: string, groupId: string, file: File): Promise<ImportPreview> =>
+  previewImport: (deckId: string, groupId: string, file: File, role: ContentRole = "teacher"): Promise<ImportPreview> =>
     wrap(async () => {
       const response = await axiosClient.post<ApiResponse<ImportPreview>>(
-        `${cardsPath(deckId, groupId)}/import/preview`,
+        `${cardsPath(deckId, groupId, role)}/import/preview`,
         fileForm(file),
         { timeout: IMPORT_TIMEOUT_MS },
       );
@@ -123,10 +135,10 @@ export const deckContentApi = {
     }),
 
   /** Thêm mọi thẻ trong tệp vào cuối nhóm; có dòng lỗi thì không thêm thẻ nào (UC-NT-07 bước 9). */
-  importCards: (deckId: string, groupId: string, file: File): Promise<ImportResult> =>
+  importCards: (deckId: string, groupId: string, file: File, role: ContentRole = "teacher"): Promise<ImportResult> =>
     wrap(async () => {
       const response = await axiosClient.post<ApiResponse<ImportResult>>(
-        `${cardsPath(deckId, groupId)}/import`,
+        `${cardsPath(deckId, groupId, role)}/import`,
         fileForm(file),
         { timeout: IMPORT_TIMEOUT_MS },
       );
@@ -134,9 +146,9 @@ export const deckContentApi = {
     }),
 
   /** Tải tệp mẫu (AC-NT-49). Cần phiên đăng nhập nên tải qua axios rồi lưu, không dùng liên kết thường. */
-  downloadTemplate: (format: TemplateFormat): Promise<void> =>
+  downloadTemplate: (format: TemplateFormat, role: ContentRole = "teacher"): Promise<void> =>
     wrap(async () => {
-      const response = await axiosClient.get<Blob>("/teacher/vocab/decks/card-import-template", {
+      const response = await axiosClient.get<Blob>(`${contentApiBase(role)}/card-import-template`, {
         params: { format },
         responseType: "blob",
         timeout: REQUEST_TIMEOUT_MS,

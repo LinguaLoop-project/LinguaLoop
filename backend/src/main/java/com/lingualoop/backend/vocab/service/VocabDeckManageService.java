@@ -50,6 +50,13 @@ public interface VocabDeckManageService {
     PageResponse<DeckManageView.Card> listCardsForTeacher(UUID teacherId, UUID deckId, UUID groupId, String q,
             int page);
 
+    /** Thông tin chung và nhóm thẻ của bộ cá nhân chưa xóa của học viên; bộ khác là {@code VOCAB_DECK_NOT_FOUND} (UC-HT-09). */
+    DeckManageView.Detail getForLearner(UUID learnerId, UUID deckId);
+
+    /** Thẻ của một nhóm trong bộ cá nhân, 20 thẻ mỗi trang, tìm theo từ vựng; quyền như {@link #getForLearner}. */
+    PageResponse<DeckManageView.Card> listCardsForLearner(UUID learnerId, UUID deckId, UUID groupId, String q,
+            int page);
+
     /** Như {@link #listCardsForTeacher} cho quản trị viên; quyền như {@link #getForAdmin}. */
     PageResponse<DeckManageView.Card> listCardsForAdmin(UUID deckId, UUID groupId, String q, int page);
 

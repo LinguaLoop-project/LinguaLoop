@@ -19,11 +19,12 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
 
     /**
      * Bộ thư viện đã xuất bản (bộ hệ thống và bộ của giáo viên) kèm số thẻ, số phần và số thẻ của {@code userId} ở từng
-     * trạng thái. Truyền {@code deckId} để lấy một bộ. Thẻ đến hạn là thẻ đã học có lịch ôn không muộn hơn bây giờ, kể
+     * trạng thái. Truyền {@code deckId} để lấy một bộ: khi đó còn lấy được bộ cá nhân của chính {@code userId} (UC-HT-09,
+     * BR-HT-27), kể cả bộ chưa có nhóm hay thẻ nào; danh sách không truyền {@code deckId} chỉ có bộ thư viện, và bộ thư viện chưa có thẻ nào bị bỏ. Thẻ đến hạn là thẻ đã học có lịch ôn không muộn hơn bây giờ, kể
      * cả thẻ Đã thuộc, trừ thẻ của bộ Pro khi {@code userPro} sai vì học viên chưa có quyền học bộ đó (BR-HT-13, BR-HT-07).
      */
     @Query(value = """
-            SELECT d.id AS id, d.name AS name, d.is_pro AS pro, d.image_url AS thumbnailUrl,
+            SELECT d.id AS id, d.name AS name, d.kind AS kind, d.is_pro AS pro, d.image_url AS thumbnailUrl,
                    cat.id AS categoryId, cat.name AS categoryName,
                    count(c.id) AS cardCount, count(DISTINCT g.id) AS groupCount,
                    count(c.id) FILTER (WHERE p.interval_days >= 21) AS mastered,
@@ -31,13 +32,17 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
                    count(c.id) FILTER (WHERE p.interval_days < 21 AND p.repetitions < 2) AS learning,
                    count(c.id) FILTER (WHERE p.due_at <= now() AND NOT (d.is_pro AND NOT :userPro)) AS due
             FROM vocab_decks d
-            JOIN vocab_groups g ON g.deck_id = d.id AND g.deleted_at IS NULL
-            JOIN vocab_cards c ON c.group_id = g.id AND c.deleted_at IS NULL
+            LEFT JOIN vocab_groups g ON g.deck_id = d.id AND g.deleted_at IS NULL
+            LEFT JOIN vocab_cards c ON c.group_id = g.id AND c.deleted_at IS NULL
             LEFT JOIN deck_categories cat ON cat.id = d.category_id
             LEFT JOIN user_card_progress p ON p.card_id = c.id AND p.user_id = :userId
-            WHERE d.kind = 'library' AND d.status = 'published' AND d.deleted_at IS NULL
-              AND (CAST(:deckId AS uuid) IS NULL OR d.id = CAST(:deckId AS uuid))
+            WHERE d.deleted_at IS NULL
+              AND ((CAST(:deckId AS uuid) IS NULL AND d.kind = 'library' AND d.status = 'published')
+                   OR (d.id = CAST(:deckId AS uuid)
+                       AND ((d.kind = 'library' AND d.status = 'published')
+                            OR (d.kind = 'personal' AND d.owner_id = :userId))))
             GROUP BY d.id, cat.id
+            HAVING d.kind = 'personal' OR count(c.id) > 0
             ORDER BY cat.name NULLS LAST, d.name""", nativeQuery = true)
     List<DeckRow> findDecks(@Param("userId") UUID userId, @Param("deckId") UUID deckId,
             @Param("userPro") boolean userPro);
@@ -92,6 +97,9 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
         UUID getId();
 
         String getName();
+
+        /** {@code library} hoặc {@code personal} (bộ cá nhân của chính học viên). */
+        String getKind();
 
         boolean getPro();
 
