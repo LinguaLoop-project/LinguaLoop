@@ -139,6 +139,7 @@ export default function FeedVideo({
         <RailButton
           icon={line?.saved ? "bookmark-check" : "bookmark-plus"}
           label={line?.saved ? t("actions.saved") : t("actions.save")}
+          caption={line?.saved ? t("actions.savedShort") : t("actions.saveShort")}
           active={line?.saved ?? false}
           activeClassName="text-[#fcd34d]"
           disabled={!line}
@@ -147,6 +148,7 @@ export default function FeedVideo({
         <RailButton
           icon="mic"
           label={t("actions.practice")}
+          caption={t("actions.practiceShort")}
           onClick={() => {
             pause();
             navigate(`/student/shadowing/${item.lessonId}`);

@@ -22,7 +22,8 @@ public final class WatchView {
     }
 
     /** Một câu lời thoại; {@code saved} là câu đang ở danh sách Câu cần ôn chế độ Shadowing. */
-    public record Line(UUID id, String textEn, String textVi, String ipaUs, int startMs, int endMs, boolean saved) {
+    public record Line(UUID id, String textEn, String textVi, String ipaUs, String ipaUk, int startMs, int endMs,
+            boolean saved) {
     }
 
     /** Trạng thái thích sau khi thích hoặc bỏ thích. */

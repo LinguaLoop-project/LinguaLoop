@@ -26,7 +26,7 @@ public class WatchRepository {
     }
 
     /** Một câu lời thoại của một bài. */
-    public record LineRow(UUID id, UUID lessonId, String textEn, String textVi, String ipaUs, int startMs,
+    public record LineRow(UUID id, UUID lessonId, String textEn, String textVi, String ipaUs, String ipaUk, int startMs,
             int endMs) {
     }
 
@@ -80,13 +80,13 @@ public class WatchRepository {
             return List.of();
         }
         return jdbc.sql("""
-                SELECT id, lesson_id, text_en, text_vi, ipa_us, start_ms, end_ms FROM sentences
+                SELECT id, lesson_id, text_en, text_vi, ipa_us, ipa_uk, start_ms, end_ms FROM sentences
                 WHERE lesson_id IN (:lessons) AND deleted_at IS NULL
                 ORDER BY lesson_id, start_ms, id""")
                 .param("lessons", lessonIds)
                 .query((rs, n) -> new LineRow(rs.getObject("id", UUID.class), rs.getObject("lesson_id", UUID.class),
                         rs.getString("text_en"), rs.getString("text_vi"), rs.getString("ipa_us"),
-                        rs.getInt("start_ms"), rs.getInt("end_ms")))
+                        rs.getString("ipa_uk"), rs.getInt("start_ms"), rs.getInt("end_ms")))
                 .list();
     }
 

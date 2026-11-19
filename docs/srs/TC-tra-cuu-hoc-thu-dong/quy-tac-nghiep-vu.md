@@ -6,7 +6,7 @@
 |---|---|---|
 | BR-TC-01 | Mọi chức năng xem thư viện, chủ đề, chi tiết bài học, học thụ động và tra từ điển đều yêu cầu học viên đã đăng nhập. Quyền xem lời thoại, xem video Pro và luyện tập đối với bài học gắn nhãn Pro theo BR-PR-13. | UC-TC-01, UC-TC-02 (4a, 4b), UC-TC-04, AC-TC-08, AC-TC-10, AC-TC-14, AC-TC-15, AC-TC-18, AC-TC-32 |
 | BR-TC-02 | Tiến độ bài học, điểm cao nhất từng câu, danh sách bài đang học, trạng thái thích video và trạng thái lưu nghĩa từ điển hiển thị cho học viên nào thì chỉ tính trên dữ liệu của chính học viên đó, hoàn toàn tách biệt với học viên khác. | UC-TC-01, UC-TC-02, UC-TC-03, UC-TC-04, AC-TC-04, AC-TC-21 |
-| BR-TC-13 | Nguồn video trong mục Học thụ động chỉ bao gồm các bài học video ngắn đã xuất bản do hệ thống cung cấp; học viên không có quyền tự đăng tải video lên mục Học thụ động. | UC-TC-04, AC-TC-25, AC-TC-32 |
+| BR-TC-13 | Nguồn video trong mục Học thụ động chỉ bao gồm các bài học video ngắn đã xuất bản do hệ thống cung cấp; học viên không có quyền tự đăng tải video lên mục Học thụ động. Chỉ bài dài tối đa 3 phút vào luồng; luồng xáo trộn trong một phiên xem, bài học viên chưa luyện câu nào đứng trước, và bài mở từ trang chi tiết bài học đứng đầu luồng. Mỗi lần tải 10 video. | UC-TC-04, AC-TC-25, AC-TC-32 |
 
 ## Trạng thái
 

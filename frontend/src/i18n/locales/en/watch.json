@@ -16,7 +16,10 @@
     "save": "Save sentence",
     "saved": "Sentence saved",
     "practice": "Practice this lesson",
-    "report": "Report"
+    "report": "Report",
+    "saveShort": "Save",
+    "savedShort": "Saved",
+    "practiceShort": "Practice"
   },
   "settings": {
     "title": "Caption settings",

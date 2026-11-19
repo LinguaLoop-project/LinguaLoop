@@ -54,7 +54,7 @@ class WatchServiceImpl implements WatchService {
                         row.cefrLevel(), row.topicName(), row.pro(), row.likeCount(), row.liked(),
                         lines.getOrDefault(row.id(), List.of()).stream()
                                 .map(line -> new WatchView.Line(line.id(), line.textEn(), line.textVi(),
-                                        line.ipaUs(), line.startMs(), line.endMs(), saved.contains(line.id())))
+                                        line.ipaUs(), line.ipaUk(), line.startMs(), line.endMs(), saved.contains(line.id())))
                                 .toList()))
                 .toList();
         boolean proHidden = !pro && repository.existsProInFeed(MAX_DURATION_SEC);

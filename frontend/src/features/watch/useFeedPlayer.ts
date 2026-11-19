@@ -94,6 +94,12 @@ export function useFeedPlayer({
               if (cancelled) return;
               playerRef.current = player;
               player.setPlaybackRate(settingsRef.current.rate);
+              // Phụ đề có sẵn của YouTube sẽ đè lên phụ đề của LinguaLoop (có từ bấm tra được): tắt nó.
+              try {
+                player.unloadModule?.("captions");
+              } catch {
+                // trình phát không hỗ trợ: bỏ qua
+              }
               if (settingsRef.current.muted) player.mute();
               else player.unMute();
               player.playVideo();

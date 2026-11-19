@@ -16,7 +16,10 @@
     "save": "Lưu câu",
     "saved": "Đã lưu câu",
     "practice": "Luyện bài này",
-    "report": "Báo cáo"
+    "report": "Báo cáo",
+    "saveShort": "Lưu câu",
+    "savedShort": "Đã lưu",
+    "practiceShort": "Luyện"
   },
   "settings": {
     "title": "Cài đặt phụ đề",

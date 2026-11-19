@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TC-tra-cuu-hoc-thu-dong/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 33 AC, 0 đã có test, 0 một phần, 33 thiếu.
+Tổng hợp: 33 AC, 3 đã có test, 2 một phần, 24 thiếu, 4 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -30,12 +30,12 @@ Tổng hợp: 33 AC, 0 đã có test, 0 một phần, 33 thiếu.
 | AC-TC-22 | Mở Lưu từ ngay từ hộp tra từ điển | UC-TC-03 |  |  | Thiếu |
 | AC-TC-23 | Thông báo khi từ không tồn tại trong từ điển | UC-TC-03 |  |  | Thiếu |
 | AC-TC-24 | Thông báo lỗi khi mất kết nối lúc tra từ | UC-TC-03 |  |  | Thiếu |
-| AC-TC-25 | Cuộn liên tục giữa các video hệ thống và đồng bộ lời thoại | UC-TC-04 |  |  | Thiếu |
-| AC-TC-26 | Chỉnh tốc độ phát và bật/tắt phụ đề giữ nguyên khi lướt video | UC-TC-04 |  |  | Thiếu |
-| AC-TC-27 | Thích và bỏ thích video | UC-TC-04 |  |  | Thiếu |
-| AC-TC-28 | Bấm vào từ trong lời thoại tạm dừng video và mở hộp Tra từ điển | UC-TC-04 |  |  | Thiếu |
-| AC-TC-29 | Lưu câu từ video vào danh sách Câu cần ôn | UC-TC-04 |  |  | Thiếu |
-| AC-TC-30 | Chuyển từ video đang xem sang Thực hành shadowing của bài học | UC-TC-04 |  |  | Thiếu |
-| AC-TC-31 | Mở Báo cáo nội dung đối với câu có vấn đề | UC-TC-04 |  |  | Thiếu |
-| AC-TC-32 | Phân quyền video thuộc bài học Pro đối với Học viên thường | UC-TC-04 |  |  | Thiếu |
-| AC-TC-33 | Xử lý khi video lỗi nguồn phát hoặc mất kết nối mạng | UC-TC-04 |  |  | Thiếu |
+| AC-TC-25 | Cuộn liên tục giữa các video hệ thống và đồng bộ lời thoại | UC-TC-04 | D, B | WatchApiIntegrationTest.feed_listsOnlyPublishedShortLibraryLessonsWithLinesInTimeOrder_AC_TC_25; WatchApiIntegrationTest.feed_keepsTheSameOrderForASeed_putsTheStartLessonFirst_andUnpracticedLessonsBeforePracticed_AC_TC_25; `frontend/src/features/watch/feed.test.ts` | Một phần (backend và logic chọn câu có test; cuộn và chỉ phát một video mới kiểm tay trên trình duyệt) |
+| AC-TC-26 | Chỉnh tốc độ phát và bật/tắt phụ đề giữ nguyên khi lướt video | UC-TC-04 | D | `frontend/src/features/watch/feed.test.ts` | Một phần (đọc và giữ lựa chọn có test logic; giữ qua các video mới kiểm tay trên trình duyệt) |
+| AC-TC-27 | Thích và bỏ thích video | UC-TC-04 | D, A | WatchApiIntegrationTest.like_thenLikeAgain_thenUnlikeTwice_countsOnlyOneLike_AC_TC_27; WatchApiIntegrationTest.like_aDraftOrMissingLesson_isNotFound_AC_TC_27 | Đã có |
+| AC-TC-28 | Bấm vào từ trong lời thoại tạm dừng video và mở hộp Tra từ điển | UC-TC-04 | D |  | Thủ công (kiểm tay trên trình duyệt: bấm từ thì video dừng và mở hộp tra từ, đóng thì phát tiếp) |
+| AC-TC-29 | Lưu câu từ video vào danh sách Câu cần ôn | UC-TC-04 | D, A | WatchApiIntegrationTest.saveSentence_withoutAnyAttempt_addsItToShadowingReview_andSavingAgainUnsavesIt_AC_TC_29; WatchApiIntegrationTest.saveSentence_ofADraftLessonOrADeletedSentence_isNotFound_AC_TC_29 | Đã có |
+| AC-TC-30 | Chuyển từ video đang xem sang Thực hành shadowing của bài học | UC-TC-04 | D |  | Thủ công (kiểm tay: nút Luyện bài này mở /student/shadowing/<bài>) |
+| AC-TC-31 | Mở Báo cáo nội dung đối với câu có vấn đề | UC-TC-04 | D |  | Thủ công (kiểm tay: nút Báo cáo mở hộp báo cáo gắn câu đang phát, video tạm dừng) |
+| AC-TC-32 | Phân quyền video thuộc bài học Pro đối với Học viên thường | UC-TC-04 | A | WatchApiIntegrationTest.freeLearners_doNotGetProVideos_andAreToldSomeAreHidden_proLearnersGetThem_AC_TC_32; WatchApiIntegrationTest.anonymousIs401_andTeachersAre403_AC_TC_32; `frontend/src/features/watch/feed.test.ts` | Đã có |
+| AC-TC-33 | Xử lý khi video lỗi nguồn phát hoặc mất kết nối mạng | UC-TC-04 | A |  | Thủ công (kiểm tay: lỗi nguồn phát hiện thông báo và nút Thử lại; chưa giả lập được lỗi YouTube) |

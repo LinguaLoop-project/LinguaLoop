@@ -10,6 +10,8 @@ export interface YouTubePlayer {
   mute(): void;
   unMute(): void;
   isMuted(): boolean;
+  /** Gỡ một mô-đun của trình phát (vd "captions" để tắt phụ đề có sẵn của YouTube). */
+  unloadModule?(name: string): void;
   destroy(): void;
 }
 

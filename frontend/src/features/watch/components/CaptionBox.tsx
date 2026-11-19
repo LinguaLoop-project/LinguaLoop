@@ -5,9 +5,9 @@ import type { CaptionSize, WatchPrefs } from "../prefs";
 import type { WatchLine } from "../types";
 
 const SIZE_CLASS: Record<CaptionSize, { en: string; sub: string }> = {
-  sm: { en: "text-base md:text-lg", sub: "text-xs md:text-sm" },
-  md: { en: "text-lg md:text-[22px]", sub: "text-sm md:text-base" },
-  lg: { en: "text-[22px] md:text-[28px]", sub: "text-base md:text-lg" },
+  sm: { en: "text-sm md:text-lg", sub: "text-xs md:text-sm" },
+  md: { en: "text-base md:text-[22px]", sub: "text-xs md:text-base" },
+  lg: { en: "text-lg md:text-[28px]", sub: "text-sm md:text-lg" },
 };
 
 export interface CaptionBoxProps {
@@ -35,7 +35,7 @@ export default function CaptionBox({ line, currentMs, prefs, onLookupChange }: R
 
   return (
     <div
-      className="mx-auto w-fit max-w-full rounded-xl bg-black/70 px-4 py-2.5 text-center shadow-[0_8px_24px_-8px_rgba(0,0,0,0.7)] backdrop-blur-sm md:px-6 md:py-3"
+      className="mx-auto max-h-[36dvh] w-fit max-w-full overflow-y-auto rounded-xl bg-black/70 px-4 py-2.5 text-center shadow-[0_8px_24px_-8px_rgba(0,0,0,0.7)] backdrop-blur-sm md:px-6 md:py-3"
     >
       <WordSourceProvider sentenceId={line.id}>
         <p lang="en" className={`font-semibold leading-relaxed text-white ${size.en}`}>
