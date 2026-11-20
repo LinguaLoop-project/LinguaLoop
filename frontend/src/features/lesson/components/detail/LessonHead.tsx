@@ -9,6 +9,7 @@ import { formatCount, formatDuration } from "@/lib/format";
 import type { LessonDetail } from "../../types";
 import { resolveMedia } from "../../utils";
 import LessonThumb from "../LessonThumb";
+import SaveLessonButton from "../saved/SaveLessonButton";
 
 /** Lời Loopi theo tiến độ bài (lessons.html): xong cả hai → ăn mừng, đang học dở → khích lệ, chưa học → chào. */
 function sayFor(lesson: LessonDetail, t: (key: string, fallback: string) => string): [MascotMood, string] {
@@ -102,6 +103,9 @@ export default function LessonHead({ lesson }: { lesson: LessonDetail }) {
           </span>
         </div>
         <h1 className="mt-2 font-display text-4xl font-bold leading-[1.15] tracking-[-0.02em]">{lesson.title}</h1>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <SaveLessonButton lessonId={lesson.id} saved={lesson.saved} locked={lesson.locked} />
+        </div>
         <LoopiSay mood={mood} text={say} className="mt-4" />
       </div>
     </section>

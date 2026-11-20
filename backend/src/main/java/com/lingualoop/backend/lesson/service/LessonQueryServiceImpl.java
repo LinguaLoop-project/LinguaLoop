@@ -46,6 +46,7 @@ import com.lingualoop.backend.lesson.mapper.LessonMapper;
 import com.lingualoop.backend.lesson.mapper.SentenceMapper;
 import com.lingualoop.backend.lesson.mapper.TopicMapper;
 import com.lingualoop.backend.lesson.repository.LessonRepository;
+import com.lingualoop.backend.lesson.repository.LessonSaveRepository;
 import com.lingualoop.backend.lesson.repository.LessonSpecification;
 import com.lingualoop.backend.lesson.repository.SentenceRepository;
 import com.lingualoop.backend.lesson.repository.TopicRepository;
@@ -65,8 +66,6 @@ class LessonQueryServiceImpl implements LessonQueryService {
     private static final int POPULAR_PER_TOPIC = 6;
     private static final int RELATED_LIMIT = 3;
 
-    private static final ModeProgressResponse NO_PROGRESS = new ModeProgressResponse(0, 0);
-
     private final TopicRepository topicRepository;
     private final LessonRepository lessonRepository;
     private final SentenceRepository sentenceRepository;
@@ -75,6 +74,8 @@ class LessonQueryServiceImpl implements LessonQueryService {
     private final SentenceMapper sentenceMapper;
     private final SubscriptionQueryService subscriptionQueryService;
     private final PracticeProgressQueryService practiceProgress;
+    private final LessonProgress lessonProgress;
+    private final LessonSaveRepository lessonSaves;
 
     @Override
     public List<TopicResponse> getTopics(UUID userId) {
@@ -141,7 +142,7 @@ class LessonQueryServiceImpl implements LessonQueryService {
     public LessonDetailResponse getLessonDetail(UUID lessonId, UUID userId) {
         Lesson lesson = findVisibleLesson(lessonId);
         LessonDetailResponse detail = lessonMapper.toDetail(lesson);
-        long sentenceCount = sentenceCounts(List.of(lesson.getId())).getOrDefault(lesson.getId(), 0L);
+        long sentenceCount = lessonProgress.sentenceCounts(List.of(lesson.getId())).getOrDefault(lesson.getId(), 0L);
         // Bài thư viện luôn có chủ đề (CHECK chk_lesson_topic)
         List<LessonSummaryResponse> related = toSummaries(lessonRepository.findRelatedLessons(
                 lesson.getTopic().getId(), lesson.getId(), PageRequest.of(0, RELATED_LIMIT)), userId);
@@ -150,9 +151,10 @@ class LessonQueryServiceImpl implements LessonQueryService {
         return new LessonDetailResponse(
                 detail.id(), detail.title(), detail.cefrLevel(), detail.youtubeId(), detail.durationSec(),
                 detail.viewCount(), detail.thumbnailUrl(), detail.pro(), locked, sentenceCount,
-                progressOf(userId, Map.of(lesson.getId(), sentenceCount)).getOrDefault(lesson.getId(), NO_PROGRESS),
+                lessonProgress.of(userId, Map.of(lesson.getId(), sentenceCount)).getOrDefault(lesson.getId(), LessonProgress.NONE),
                 topicMapper.toResponse(lesson.getTopic()),
-                related);
+                related,
+                lessonSaves.isSaved(userId, lesson.getId()));
     }
 
     @Override
@@ -226,45 +228,16 @@ class LessonQueryServiceImpl implements LessonQueryService {
         if (lessons.isEmpty()) {
             return List.of();
         }
-        Map<UUID, Long> counts = sentenceCounts(lessons.stream().map(Lesson::getId).toList());
+        Map<UUID, Long> counts = lessonProgress.sentenceCounts(lessons.stream().map(Lesson::getId).toList());
         boolean hasProLesson = lessons.stream().anyMatch(Lesson::isPro);
         boolean userIsPro = hasProLesson && subscriptionQueryService.isPro(userId);
-        Map<UUID, ModeProgressResponse> progress = progressOf(userId, counts);
+        Map<UUID, ModeProgressResponse> progress = lessonProgress.of(userId, counts);
         return lessons.stream().map(lesson -> {
             LessonSummaryResponse s = lessonMapper.toSummary(lesson);
             return new LessonSummaryResponse(s.id(), s.title(), s.cefrLevel(), s.youtubeId(), s.durationSec(),
                     s.viewCount(), s.thumbnailUrl(), s.pro(), lesson.isPro() && !userIsPro,
-                    counts.getOrDefault(lesson.getId(), 0L), progress.getOrDefault(lesson.getId(), NO_PROGRESS));
+                    counts.getOrDefault(lesson.getId(), 0L), progress.getOrDefault(lesson.getId(), LessonProgress.NONE));
         }).toList();
-    }
-
-    /**
-     * Tiến độ theo bài: phần trăm = số câu đã có lượt / tổng số câu của bài, theo từng chế độ. Một truy vấn theo lô
-     * cho mọi bài trong danh sách; bài chưa có hoạt động nhận 0%.
-     */
-    private Map<UUID, ModeProgressResponse> progressOf(UUID userId, Map<UUID, Long> sentenceCounts) {
-        if (userId == null || sentenceCounts.isEmpty()) {
-            return Map.of();
-        }
-        Set<UUID> lessonIds = sentenceCounts.keySet();
-        Map<UUID, Map<String, Long>> attempted = new HashMap<>();
-        for (LessonRepository.AttemptedCount c : lessonRepository.countAttemptedSentences(userId, lessonIds)) {
-            attempted.computeIfAbsent(c.getLessonId(), k -> new HashMap<>()).put(c.getMode(), c.getAttempted());
-        }
-
-        Map<UUID, ModeProgressResponse> result = new HashMap<>();
-        for (UUID lessonId : lessonIds) {
-            long total = sentenceCounts.getOrDefault(lessonId, 0L);
-            Map<String, Long> byMode = attempted.getOrDefault(lessonId, Map.of());
-            result.put(lessonId, new ModeProgressResponse(
-                    percent(byMode.getOrDefault("dictation", 0L), total),
-                    percent(byMode.getOrDefault("shadowing", 0L), total)));
-        }
-        return result;
-    }
-
-    private static int percent(long attempted, long total) {
-        return total <= 0 ? 0 : (int) Math.min(100, Math.round(attempted * 100.0 / total));
     }
 
     private static SentenceResponse withBestScore(SentenceResponse s, Map<PracticeMode, BigDecimal> best) {
@@ -275,11 +248,5 @@ class LessonQueryServiceImpl implements LessonQueryService {
 
     private static Integer rounded(BigDecimal score) {
         return score == null ? null : score.setScale(0, RoundingMode.HALF_UP).intValue();
-    }
-
-    private Map<UUID, Long> sentenceCounts(Collection<UUID> lessonIds) {
-        return lessonRepository.findSentenceCounts(lessonIds).stream()
-                .collect(Collectors.toMap(LessonRepository.SentenceCount::getLessonId,
-                        LessonRepository.SentenceCount::getSentenceCount));
     }
 }

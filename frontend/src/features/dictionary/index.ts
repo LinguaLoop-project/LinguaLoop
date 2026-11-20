@@ -6,4 +6,4 @@ export { default as WordCard } from "./components/WordCard";
 export { default as WordSourceProvider } from "./components/WordSourceProvider";
 export { isWordNotFound, useDictionarySearch, useWordLookup } from "./hooks";
 export type { Accent, Meaning, MeaningGroup, Pronunciation, WordView } from "./types";
-export { audioOf, displayGroups, mainPronunciation, normalizeWord, playPronunciation } from "./utils";
+export { audioOf, displayGroups, mainPronunciation, normalizeWord, playPronunciation, splitWords } from "./utils";

@@ -3,6 +3,7 @@ package com.lingualoop.backend.practice.service;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +46,12 @@ class SentenceReviewServiceImpl implements SentenceReviewService {
 
     @Override
     @Transactional
+    public void pinWithoutAttempt(UUID userId, UUID sentenceId, PracticeMode mode) {
+        reviews.add(userId, sentenceId, mode.name(), ReviewReason.manual.name());
+    }
+
+    @Override
+    @Transactional
     public void resolve(UUID userId, UUID sentenceId, PracticeMode mode) {
         reviews.resolve(userId, sentenceId, mode.name());
     }
@@ -53,6 +60,15 @@ class SentenceReviewServiceImpl implements SentenceReviewService {
     @Transactional(readOnly = true)
     public Set<UUID> findPendingSentenceIds(UUID userId, UUID lessonId, PracticeMode mode) {
         return new HashSet<>(reviews.findPendingSentenceIds(userId, lessonId, mode.name()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<UUID> findPendingSentenceIds(UUID userId, Collection<UUID> lessonIds, PracticeMode mode) {
+        if (lessonIds.isEmpty()) {
+            return Set.of();
+        }
+        return new HashSet<>(reviews.findPendingSentenceIdsIn(userId, lessonIds, mode.name()));
     }
 
     @Override

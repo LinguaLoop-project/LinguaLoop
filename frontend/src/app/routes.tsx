@@ -63,6 +63,8 @@ const AdminReportDetailPage = lazy(() => import("@/features/report/pages/admin/A
 const AdminRepublishListPage = lazy(() => import("@/features/report/pages/admin/AdminRepublishListPage"));
 const AdminRepublishDetailPage = lazy(() => import("@/features/report/pages/admin/AdminRepublishDetailPage"));
 
+const SavedLessonsPage = lazy(() => import("@/features/lesson/pages/SavedLessonsPage"));
+const WatchPage = lazy(() => import("@/features/watch/pages/WatchPage"));
 const ShadowingPage = lazy(() => import("@/features/shadowing/pages/ShadowingPage"));
 
 const getRoutesConfig = (): RouteObject[] => {
@@ -157,6 +159,10 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <LessonDetailPage />,
         },
         {
+          path: "saved-lessons",
+          element: <SavedLessonsPage />,
+        },
+        {
           path: "dictation",
           element: <LessonLibraryPage mode="dictation" />,
         },
@@ -229,6 +235,18 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <PlaceholderPage pageKey="student.stats" />,
         },
       ],
+    },
+  ];
+
+  // Học thụ động: toàn màn hình, nằm ngoài khung StudentLayout nhưng vẫn chỉ cho học viên.
+  const watchRoutes: RouteObject[] = [
+    {
+      path: "watch",
+      element: (
+        <AuthGuard allowedRoles={["student"]}>
+          <WatchPage />
+        </AuthGuard>
+      ),
     },
   ];
 
@@ -408,6 +426,7 @@ const getRoutesConfig = (): RouteObject[] => {
   return [
     ...publicRoutes,
     ...studentRoutes,
+    ...watchRoutes,
     ...teacherRoutes,
     ...adminRoutes,
     ...catchAll,

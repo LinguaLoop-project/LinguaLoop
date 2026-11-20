@@ -1,0 +1,51 @@
+{
+  "title": "Bài đã lưu",
+  "subtitle": "Những bài bạn muốn luyện sau. Bấm vào bài để xem chi tiết hoặc luyện ngay.",
+  "count": "{{count}} bài",
+  "search": "Tìm trong bài đã lưu",
+  "stateLabel": "Lọc theo tiến độ",
+  "states": { "all": "Tất cả", "todo": "Chưa học", "doing": "Đang học", "done": "Đã xong" },
+  "sortLabel": "Sắp xếp",
+  "sorts": { "saved_desc": "Mới lưu", "saved_asc": "Lưu lâu nhất" },
+  "row": {
+    "aria": "Bài {{title}}",
+    "savedAgo": "Đã lưu {{when}}",
+    "sentences": "{{count}} câu",
+    "dictation": "Nghe chép {{percent}}%",
+    "shadowing": "Shadowing {{percent}}%",
+    "practice": { "dictation": "Luyện nghe chép", "shadowing": "Luyện shadowing" },
+    "alsoPractice": { "dictation": "Nghe chép", "shadowing": "Shadowing" },
+    "watch": "Xem video",
+    "unsave": "Bỏ lưu",
+    "unavailable": "Bài này đã bị gỡ khỏi thư viện. Bạn có thể bỏ lưu.",
+    "proRequired": "Bài Pro, cần gói Pro để mở lại.",
+    "tryPro": "Dùng thử Pro",
+    "duration": "Thời lượng {{time}}"
+  },
+  "toast": {
+    "unsaved": "Đã bỏ lưu bài",
+    "undo": "Hoàn tác",
+    "restored": "Đã lưu lại bài",
+    "failed": "Không thể cập nhật bài đã lưu. Hãy thử lại."
+  },
+  "empty": {
+    "title": "Chưa có bài nào được lưu",
+    "desc": "Bấm dấu trang ở trang bài học hoặc trong video Học thụ động để lưu bài, rồi quay lại luyện sau.",
+    "library": "Mở thư viện bài học",
+    "watch": "Xem video ngắn"
+  },
+  "noMatch": { "title": "Không có bài nào khớp", "desc": "Thử từ khóa khác hoặc bỏ bộ lọc tiến độ.", "clear": "Xóa bộ lọc" },
+  "error": "Không tải được danh sách bài đã lưu. Kiểm tra kết nối mạng rồi thử lại.",
+  "retry": "Thử lại",
+  "page": "Phân trang bài đã lưu",
+  "button": {
+    "save": "Lưu bài",
+    "saved": "Đã lưu bài",
+    "saveAria": "Lưu bài này để luyện sau",
+    "unsaveAria": "Bỏ lưu bài này",
+    "needPro": "Bài này dành cho gói Pro",
+    "tryPro": "Dùng thử Pro",
+    "view": "Xem bài đã lưu",
+    "savedToast": "Đã lưu bài để luyện sau"
+  }
+}

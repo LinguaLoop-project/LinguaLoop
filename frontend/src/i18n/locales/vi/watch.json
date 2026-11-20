@@ -1,0 +1,62 @@
+{
+  "title": "Học thụ động",
+  "back": "Quay lại",
+  "feedAria": "Luồng video học thụ động",
+  "slide": "video",
+  "loading": "Đang tải video",
+  "play": "Phát video",
+  "pause": "Tạm dừng video",
+  "mute": "Tắt tiếng",
+  "unmute": "Bật tiếng",
+  "retry": "Thử lại",
+  "savedToast": "Đã lưu câu vào Câu cần ôn",
+  "actions": {
+    "like": "Thích",
+    "unlike": "Bỏ thích",
+    "save": "Lưu câu",
+    "saved": "Đã lưu câu",
+    "practice": "Luyện bài này",
+    "report": "Báo cáo",
+    "saveShort": "Lưu",
+    "savedShort": "Đã lưu",
+    "practiceShort": "Luyện",
+    "saveVideo": "Lưu video",
+    "savedVideo": "Đã lưu video",
+    "saveLine": "Lưu câu",
+    "savedLine": "Đã lưu câu"
+  },
+  "settings": {
+    "title": "Cài đặt phụ đề",
+    "speed": "Tốc độ phát",
+    "captions": "Hiện phụ đề",
+    "translation": "Hiện bản dịch",
+    "ipa": "Hiện phiên âm",
+    "size": "Cỡ chữ",
+    "sizes": {
+      "sm": "Nhỏ",
+      "md": "Vừa",
+      "lg": "Lớn"
+    }
+  },
+  "empty": {
+    "title": "Chưa có video để xem",
+    "desc": "Hiện chưa có bài học ngắn nào dành cho bạn. Hãy quay lại sau hoặc mở thư viện bài học.",
+    "cta": "Mở thư viện bài học"
+  },
+  "upsell": {
+    "title": "Còn nhiều video Pro đang chờ",
+    "desc": "Nâng cấp lên Pro để xem toàn bộ video và luyện mọi bài học.",
+    "cta": "Dùng thử Pro",
+    "next": "Cuộn xuống để xem tiếp"
+  },
+  "errors": {
+    "saveVideo": "Không thể lưu video. Hãy thử lại.",
+    "pro": "Video này dành cho gói Pro"
+  },
+  "entry": {
+    "cta": "Xem dạng video ngắn",
+    "hint": "Học thụ động: xem video kèm lời thoại chạy theo giọng nói"
+  },
+  "savedVideoToast": "Đã lưu video để luyện sau",
+  "viewSaved": "Xem bài đã lưu"
+}

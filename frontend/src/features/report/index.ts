@@ -4,6 +4,8 @@
  */
 export { default as ReportButton } from "./components/ReportButton";
 export type { ReportButtonProps } from "./components/ReportButton";
+export { default as ReportDialog } from "./components/ReportDialog";
+export type { ReportDialogProps } from "./components/ReportDialog";
 export type { ReportTargetType } from "./types";
 /** Số trên mục "Báo cáo nội dung" và "Duyệt xuất bản lại" của thanh bên. */
 export { useHasPendingRepublish, useIsTakenDown, useOpenOffensiveCount, useReportBadge } from "./hooks";

@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
+import Icon from "@/components/common/Icon";
 import Skeleton from "@/components/common/Skeleton";
 import { useLessonDetail, useLessonSentences } from "../hooks/useLessons";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -132,6 +133,17 @@ export const LessonDetailPage = () => {
             <PracticeModeCard mode="dictation" slug={lesson.id} sentenceCount={lesson.sentenceCount} percent={d} recommended={rec === "dictation"} locked={lesson.locked} />
             <PracticeModeCard mode="shadowing" slug={lesson.id} sentenceCount={lesson.sentenceCount} percent={s} recommended={rec === "shadowing"} locked={lesson.locked} />
           </div>
+
+          {!lesson.locked && (
+            <Link
+              to={`/watch?start=${lesson.id}`}
+              title={t("watch:entry.hint")}
+              className="inline-flex w-fit items-center gap-2 rounded-md border border-border bg-surface px-3.5 py-2 text-sm font-semibold text-text-muted transition-colors hover:border-border-strong hover:text-text"
+            >
+              <Icon name="monitor-play" className="size-4" />
+              {t("watch:entry.cta")}
+            </Link>
+          )}
 
           <TranscriptList
             sentences={sentencesQuery.data ?? []}
