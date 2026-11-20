@@ -30,7 +30,7 @@ export default function AdminDeckListPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-5 p-6">
-      <h1 className="text-2xl font-bold text-text">{t("manage.title")}</h1>
+      <h1 className="text-2xl font-bold text-text">{t("manage.adminTitle")}</h1>
       <ManageDeckList
         role="admin"
         filter={filter}

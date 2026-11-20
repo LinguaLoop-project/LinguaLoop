@@ -648,14 +648,6 @@
       "title": "Error report details",
       "description": "See the report evidence, the reporter and decide how to handle the violation."
     },
-    "decks": {
-      "title": "Public deck review",
-      "description": "Approve community-shared vocabulary decks before they go public."
-    },
-    "deckDetail": {
-      "title": "Deck moderation",
-      "description": "Review the words in a user-contributed deck before approving it for display."
-    },
     "audit": {
       "title": "Content log",
       "description": "Trace the full edit and publishing history of teachers content."

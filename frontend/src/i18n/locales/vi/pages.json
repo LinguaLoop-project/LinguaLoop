@@ -650,14 +650,6 @@
       "title": "Chi tiết báo cáo lỗi",
       "description": "Xem bằng chứng báo cáo, người gửi và quyết định xử lý vi phạm nội dung."
     },
-    "decks": {
-      "title": "Duyệt bộ từ công khai",
-      "description": "Phê duyệt các bộ từ vựng do cộng đồng chia sẻ trước khi hiển thị công khai."
-    },
-    "deckDetail": {
-      "title": "Kiểm duyệt bộ từ",
-      "description": "Xem danh sách từ ngữ trong bộ thẻ do người dùng đóng góp để duyệt hiển thị."
-    },
     "audit": {
       "title": "Nhật ký nội dung",
       "description": "Truy vết toàn bộ lịch sử chỉnh sửa, xuất bản nội dung của các giáo viên."

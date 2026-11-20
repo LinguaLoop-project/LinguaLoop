@@ -56,6 +56,7 @@ const adminGroups: NavGroup[] = [
     titleKey: "admin.sidebar.groups.moderation",
     items: [
       { id: "reports", icon: "flag", labelKey: k("admin", "sidebar.items", "reports"), to: "/admin/reports", badgeType: "bad" },
+      { id: "lessons", icon: "film", labelKey: k("admin", "sidebar.items", "lessons"), to: "/admin/lessons" },
       { id: "republish", icon: "send", labelKey: k("admin", "sidebar.items", "republish"), to: "/admin/republish", badgeType: "warn" },
       { id: "decks", icon: "layers", labelKey: k("admin", "sidebar.items", "decks"), to: "/admin/decks" },
       { id: "audit", icon: "history", labelKey: k("admin", "sidebar.items", "audit"), to: "/admin/audit" },

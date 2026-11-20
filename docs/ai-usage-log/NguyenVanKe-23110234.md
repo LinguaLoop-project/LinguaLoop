@@ -531,6 +531,17 @@
 - **Commit:** d7d6101, f444d1a
 - **Lỗi liên quan:** NONE
 
+### AI-KE-047
+
+- **Ngày:** 2026-11-18
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** LESSON
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Quản lý bài học của giáo viên và quản trị viên theo UC-BH-01, 02, 04 đến 10: danh sách, chi tiết, sửa thông tin và câu, xuất bản, gỡ, xóa, khôi phục
+- **Vị trí code do AI sinh (`file:hàm`):** `lesson/service/LessonManageServiceImpl.java:listForTeacher`, `:listForAdmin`, `:getForTeacher`, `:getForAdmin`, `:updateInfo`, `:updateSentences`, `:fillMissingIpa`, `:validateSentences`, `:publish`, `:unpublishByTeacher`, `:unpublishByAdmin`, `:delete`, `:restore`; `lesson/controller/TeacherLessonController.java`; `lesson/controller/AdminLessonController.java`; `lesson/repository/LessonManageRepository.java`; `LessonManageApiIntegrationTest.java`
+- **Commit:** dcb98f8
+- **Lỗi liên quan:** AI-ERR-KE-004
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
@@ -578,6 +589,21 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit gây ra lỗi (đưa đầu ra AI vào code):** 62758de
 - **Commit sửa (bắt buộc, khác commit trên):** 08814d9, f05f474 (08814d9 gồm `ModerationRepository` và `ReportMaintenanceService` vì hai file này lẫn với phần gỡ tay; f05f474 gồm `LessonRepository`, `SentenceRepository`, `LessonModerationServiceImpl`, `ReportRepository`)
 - **Kiểm chứng sau sửa:** `./mvnw verify` trên f05f474: 1226 test, 0 lỗi, 3 bỏ qua, BUILD SUCCESS.
+- **Trạng thái (`Error Status`):** VERIFIED
+
+### AI-ERR-KE-004
+
+- **Liên kết bản ghi AI:** AI-KE-047
+- **Loại lỗi (`Error Type`):** LOGIC_ERROR
+- **Ngày phát hiện:** 2026-11-18
+- **Đầu ra sai/thiếu sót và bối cảnh:** AI viết các thao tác xuất bản, gỡ, xóa và xem bài học mà không nối với dấu "Bị quản trị viên gỡ" (BR-XL-13), dù `TakedownQueryService` và `TakedownCommandService` đã có sẵn và bộ thẻ đã dùng. Hậu quả: (1) `publish` không kiểm dấu nên giáo viên xuất bản lại thẳng được bài bị quản trị viên gỡ, bỏ qua bước duyệt; (2) `unpublishByAdmin` chỉ đổi về Nháp và lưu lý do, không gắn dấu, không đóng báo cáo Phản cảm, không báo giáo viên; (3) `delete` không hủy yêu cầu xuất bản lại đang chờ; (4) `getForAdmin` không cho quản trị viên xem bài Nháp đang chờ duyệt. Vi phạm AC-BH-51, 76, 77, 78, 79, 80 và BR-BH-02, 04, 06. Test `adminUnpublish_reasonShownToTeacher_AC_BH_51` do AI viết chỉ kiểm lý do gỡ nên lỗi lọt qua.
+- **Vị trí (`file:hàm`):** `lesson/service/LessonManageServiceImpl.java:publish`, `:unpublishByAdmin`, `:delete`, `:getForAdmin`
+- **Nguyên nhân phân tích:** Thiếu ngữ cảnh repo: AI sinh service theo các UC của BH mà không đối chiếu quy tắc chéo module BR-XL-13 và contract `Takedown*Service` có từ 62758de, cũng không so với `VocabDeckManageServiceImpl` đã nối sẵn. AI viết test theo hành vi vừa sinh thay vì đủ các mệnh đề trong AC-BH-51, và để AC-BH-76 đến 80 ở trạng thái "Thiếu" trong bảng truy vết mà không coi đó là chức năng còn thiếu.
+- **Cách phát hiện / bằng chứng:** Rà soát trước khi mở PR cho thấy `isLessonTakenDown`, `markLessonByAdmin`, `cancelPendingForDeletedLesson` không được gọi ngoài feature `report`. Ghi BUG-001 (#64). Năm test hồi quy fail trước khi sửa, ví dụ `publish_lessonTakenDownByReport_requiresReview_AC_BH_76`: `Status expected:<409> but was:<204>`.
+- **Cách sửa:** `publish` trả `REPORT_REVIEW_REQUIRED` khi bài mang dấu; `unpublishByAdmin` gọi `markLessonByAdmin`; `delete` gọi `cancelPendingForDeletedLesson`; `getForAdmin` cho xem bài Nháp đang mang dấu. Trang bài học của giáo viên hiện khung "Bị quản trị viên gỡ" kèm nút gửi yêu cầu duyệt (`LessonWorkspace.tsx`); hộp xác nhận nêu số báo cáo Phản cảm sẽ đóng và yêu cầu đang chờ (`LessonActionDialog.tsx`).
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** dcb98f8
+- **Commit sửa (bắt buộc, khác commit trên):** 061b15f
+- **Kiểm chứng sau sửa:** `ReportModerationApiIntegrationTest.publish_lessonTakenDownByReport_requiresReview_AC_BH_76`, `:adminUnpublishLesson_marksNotifiesAndClosesOffensive_AC_BH_51_AC_BH_80`, `:deleteLesson_cancelsPendingRequest_AC_BH_78`, `:restoreLesson_keepsTakedownMark_AC_BH_79`, `:adminLessonDetail_takenDownDraftIsViewable_plainDraftIsNot_AC_BH_10` pass; `./mvnw verify`: 1427 test, 0 lỗi, BUILD SUCCESS.
 - **Trạng thái (`Error Status`):** VERIFIED
 
 ## 3. Bằng chứng bổ sung (nếu cần)

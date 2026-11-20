@@ -125,6 +125,7 @@
         "dashboard": "Tổng quan",
         "users": "Người dùng",
         "reports": "Báo cáo nội dung",
+        "lessons": "Bài học đã xuất bản",
         "decks": "Bộ thẻ từ vựng",
         "audit": "Nhật ký nội dung",
         "limits": "Gói & Hạn mức",
@@ -145,6 +146,7 @@
         "overview": "Tổng quan",
         "users": "Quản lý người dùng",
         "reports": "Báo cáo nội dung",
+        "lessons": "Bài học đã xuất bản",
         "decks": "Bộ thẻ từ vựng",
         "audit": "Nhật ký nội dung",
         "limits": "Gói & Hạn mức",
@@ -159,7 +161,8 @@
         "analytics": "Phân tích & Thống kê",
         "userDetail": "Chi tiết người dùng",
         "reportDetail": "Chi tiết báo cáo lỗi",
-        "deckDetail": "Chi tiết duyệt bộ từ",
+        "lessonDetail": "Chi tiết bài học",
+        "deckDetail": "Chi tiết bộ thẻ",
         "republish": "Duyệt xuất bản lại"
       }
     }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Nạp bài học mẫu (25 chủ đề, 1.068 bài YouTube, ~29.700 câu) vào Postgres. Cần V1+V2 đã chạy (giáo viên hệ thống là chủ bài).
+# Nạp bài học mẫu (25 chủ đề, 1.042 bài YouTube, ~29.400 câu) vào Postgres. Cần V1+V2 đã chạy (giáo viên hệ thống là chủ bài).
 # Mặc định nạp vào container "postgres" của compose.yaml; đặt DATABASE_URL để nạp DB khác.
 # Chạy lại an toàn: các câu lệnh dùng ON CONFLICT (id) DO NOTHING.
 set -euo pipefail

@@ -125,6 +125,7 @@
         "dashboard": "Overview",
         "users": "Users",
         "reports": "Content reports",
+        "lessons": "Published lessons",
         "decks": "Vocabulary decks",
         "audit": "Content log",
         "limits": "Plans & Quotas",
@@ -145,6 +146,7 @@
         "overview": "Overview",
         "users": "User management",
         "reports": "Content reports",
+        "lessons": "Published lessons",
         "decks": "Vocabulary decks",
         "audit": "Content log",
         "limits": "Plans & Quotas",
@@ -159,7 +161,8 @@
         "analytics": "Analytics & Statistics",
         "userDetail": "User details",
         "reportDetail": "Error report details",
-        "deckDetail": "Deck review details",
+        "lessonDetail": "Lesson details",
+        "deckDetail": "Deck details",
         "republish": "Republish requests"
       }
     }

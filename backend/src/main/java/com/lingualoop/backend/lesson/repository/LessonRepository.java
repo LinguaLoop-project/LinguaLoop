@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -52,6 +53,36 @@ public interface LessonRepository extends JpaRepository<Lesson, UUID>, JpaSpecif
               AND l.status = com.lingualoop.backend.lesson.enums.LessonStatus.PUBLISHED
               AND l.deletedAt IS NULL""")
     Optional<Lesson> findVisibleById(@Param("id") UUID id);
+
+    /** Giáo viên đã có bài khác (chưa xóa) cùng tiêu đề, không phân biệt chữ hoa, chữ thường (BR-BH-08). */
+    @Query("""
+            SELECT COUNT(l) > 0 FROM Lesson l
+            WHERE l.ownerId = :ownerId AND lower(l.title) = lower(:title) AND l.deletedAt IS NULL""")
+    boolean existsActiveTitle(@Param("ownerId") UUID ownerId, @Param("title") String title);
+
+    /** Như {@link #existsActiveTitle} nhưng bỏ qua chính bài {@code lessonId} (sửa hoặc khôi phục bài). */
+    @Query("""
+            SELECT COUNT(l) > 0 FROM Lesson l
+            WHERE l.ownerId = :ownerId AND lower(l.title) = lower(:title) AND l.deletedAt IS NULL
+              AND l.id <> :lessonId""")
+    boolean existsOtherActiveTitle(@Param("ownerId") UUID ownerId, @Param("title") String title,
+            @Param("lessonId") UUID lessonId);
+
+    /** Bài thư viện chưa xóa đang giữ video (BR-BH-18); cùng điều kiện với chỉ mục {@code uq_lessons_library_video}. */
+    @Query("""
+            SELECT l FROM Lesson l
+            WHERE l.youtubeId = :youtubeId AND l.kind = 'library' AND l.deletedAt IS NULL""")
+    Optional<Lesson> findActiveByVideo(@Param("youtubeId") String youtubeId);
+
+    /** Làm mới ngày cập nhật của bài sau khi sửa câu (trigger {@code set_updated_at} đặt giá trị). */
+    @Modifying
+    @Query(value = "UPDATE lessons SET updated_at = now() WHERE id = :id", nativeQuery = true)
+    int touch(@Param("id") UUID id);
+
+    /** Khóa dòng bài tới hết transaction, để hai thao tác đổi trạng thái không chen nhau. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT l FROM Lesson l WHERE l.id = :id")
+    Optional<Lesson> lockById(@Param("id") UUID id);
 
     @Query("""
             SELECT COUNT(l) FROM Lesson l
