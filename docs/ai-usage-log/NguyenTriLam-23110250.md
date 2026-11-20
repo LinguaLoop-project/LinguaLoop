@@ -912,8 +912,8 @@
 - **Prompt chính / yêu cầu:** Lên kế hoạch qua vòng hỏi đáp thiết kế rồi triển khai Thực hành với AI theo bài (UC-AI-01). Bản đầu là chat theo lượt; sinh viên yêu cầu làm lại giống Trò chuyện với AI theo câu: gia sư nói chuyện trực tiếp qua Gemini Live, hỏi tối đa 5 câu trong 15 phút về nội dung bài, gợi ý miễn phí, nhận xét tổng quát, chat chữ chỉ để dự phòng
 - **Vị trí code do AI sinh (`file:hàm`):** `backend/.../aichat/` (`LessonChatServiceImpl`, `LessonChatRepository`, `LessonChatLive`, `LessonChatPrompts`, `GeminiLessonChatAi`, `LessonChatController`); `tutor/LiveTokenIssuer.java:LiveSpec`; migration `V20261120_1000`; `frontend/src/features/aichat/` (`controller.ts`, `rules.ts`, `LiveChatPanel`, `TextChatPanel`, `AiChatPage`, `ChatThread`, `SummaryCard`, `HistoryDialog`); bản dịch `aichat.json`; `LessonChatStyle`, migration `V20261120_1200` (kiểu trò chuyện) và tool `play_clip`; test `LessonChatLiveApiIntegrationTest`, `LessonChatApiIntegrationTest`, `GeminiLessonChatAiTest`, `controller.test.ts`, `rules.test.ts`
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên duyệt 11 quyết định thiết kế đầu, sau đó chỉ ra bản chat theo lượt chưa đúng ý và duyệt 9 quyết định cho bản live (Gemini Live với micro mở liên tục, trừ credit cố định khi gia sư nói câu đầu, ba tool ghi từng lượt, gợi ý miễn phí, không tiếp tục lại phiên, chat chữ dự phòng). Sinh viên chọn ba hướng làm cuộc trò chuyện tự nhiên hơn (gia sư nói lại câu tự nhiên rồi hỏi tiếp, kiểu Phỏng vấn và Kể lại, phát lại đoạn video) và duyệt thêm nút "Nghe lại đoạn này" cho người học tự bấm khi bí, tra từ điển khi bấm vào chữ trong câu hỏi, và bố cục một cột (video lớn, khung chat, khung gia sư dính đáy). AI chạy thử trên trình duyệt với Gemini Live thật qua micro giả và ghi nhận kết quả, kể cả hai lỗi chạy đua tìm thấy khi thử.
-- **Commit:** 85c3e3a, a7ab2e8, 0b8f569, 3625c8b, ebcd7be, bb0ceb4, 2cc6ae7, 0b4a4d2
-- **Lỗi liên quan:** AI-ERR-LAM-009, AI-ERR-LAM-010
+- **Commit:** 85c3e3a, a7ab2e8, 0b8f569, 3625c8b, ebcd7be, bb0ceb4, 2cc6ae7, 0b4a4d2, 32a912b
+- **Lỗi liên quan:** AI-ERR-LAM-009, AI-ERR-LAM-010, AI-ERR-LAM-011
 
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
@@ -1067,6 +1067,21 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit gây ra lỗi (đưa đầu ra AI vào code):** 3625c8b
 - **Commit sửa (bắt buộc, khác commit trên):** bb0ceb4
 - **Kiểm chứng sau sửa:** `controller.test.ts` (41 test của aichat qua); chạy lại kiểu Kể lại trên trình duyệt: gia sư mời kể, phản ứng "Oh, I see" và hỏi tiếp.
+- **Trạng thái (`Error Status`):** VERIFIED
+
+### AI-ERR-LAM-011
+
+- **Liên kết bản ghi AI:** AI-LAM-081
+- **Loại lỗi (`Error Type`):** LOGIC_ERROR
+- **Ngày phát hiện:** 2026-11-21
+- **Đầu ra sai/thiếu sót và bối cảnh:** Gia sư giọng nói thỉnh thoảng nói lặp lại cả lượt: phụ đề hiện cùng một đoạn hai lần và âm thanh phát hai lần. Cùng hiện tượng ở gia sư theo câu của Shadowing.
+- **Vị trí (`file:hàm`):** `backend/.../aichat/LessonChatPrompts.java:live` (thứ tự gọi tool), `frontend/src/features/aichat/controller.ts` (lời nhắc khi gia sư quên gọi tool), `frontend/src/features/tutor/controller.ts` (`NUDGE_TEXT`)
+- **Nguyên nhân phân tích:** Lời nhắc bảo gia sư nói rồi mới gọi `next_question`. Gemini Live luôn sinh một lượt nói mới sau khi nhận kết quả tool, nên gia sư nói xong, gọi tool, rồi nói lại cả lời. Ở gia sư theo câu, lời nhắc "bạn chưa gọi tool" cũng làm gia sư nói lại lời trước khi gọi tool.
+- **Cách phát hiện / bằng chứng:** Ghi lại các thông điệp WebSocket giữa trình duyệt và Gemini: lượt lặp có dạng `IN, TOOL give_feedback, OUT (nói), TOOL next_question, OUT (nói lại y nguyên)`.
+- **Cách sửa:** `give_feedback` mang luôn câu hỏi tiếp theo và gọi một lần trước khi nói, kết quả tool bảo "nói MỘT lần duy nhất"; `next_question` chỉ còn dùng cho câu mở đầu; các lời nhắc quên gọi tool đổi thành "chỉ gọi tool, không nói lại". Gia sư theo câu chỉ sửa lời nhắc quên gọi tool, chưa chạy lại với Azure.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** ebcd7be
+- **Commit sửa (bắt buộc, khác commit trên):** 32a912b
+- **Kiểm chứng sau sửa:** 5 test mới ở `controller.test.ts` và kiểm schema tool ở `LessonChatLiveApiIntegrationTest`; chạy lại trên trình duyệt với Gemini Live thật qua 3 lượt: mỗi lượt đúng `TOOL give_feedback, OUT một lần, TURNCOMPLETE`, không còn lặp.
 - **Trạng thái (`Error Status`):** VERIFIED
 
 ## 3. Bằng chứng bổ sung (nếu cần)
