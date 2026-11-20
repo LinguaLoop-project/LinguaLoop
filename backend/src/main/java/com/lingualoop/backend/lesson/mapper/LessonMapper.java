@@ -24,6 +24,7 @@ public interface LessonMapper {
     @Mapping(target = "progress", ignore = true)
     @Mapping(target = "relatedLessons", ignore = true)
     @Mapping(target = "topic", ignore = true)
+    @Mapping(target = "saved", ignore = true)
     LessonDetailResponse toDetail(Lesson lesson);
 
     /** Dạng gọn cho feature dictation/shadowing (SentenceQueryService). */

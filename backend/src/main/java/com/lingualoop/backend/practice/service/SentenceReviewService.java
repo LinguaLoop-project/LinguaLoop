@@ -1,6 +1,7 @@
 package com.lingualoop.backend.practice.service;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,11 +21,20 @@ public interface SentenceReviewService {
      */
     void pin(UUID userId, UUID sentenceId, PracticeMode mode, ReviewReason reason);
 
+    /**
+     * Lưu câu từ Học thụ động (BR-TC-17): thêm vào danh sách với lý do {@code manual} mà không cần lượt nào trước, vì
+     * lời thoại đã hiện công khai. Bên gọi tự kiểm câu còn hiển thị và quyền Pro. Câu đã ở trong danh sách giữ nguyên.
+     */
+    void pinWithoutAttempt(UUID userId, UUID sentenceId, PracticeMode mode);
+
     /** Gỡ câu khỏi danh sách ("Đã ổn" hoặc bỏ ghim); câu không ở trong danh sách thì không làm gì. */
     void resolve(UUID userId, UUID sentenceId, PracticeMode mode);
 
     /** Id các câu đang cần ôn của chế độ trong một bài. */
     Set<UUID> findPendingSentenceIds(UUID userId, UUID lessonId, PracticeMode mode);
+
+    /** Id các câu đang cần ôn của chế độ trong các bài. */
+    Set<UUID> findPendingSentenceIds(UUID userId, Collection<UUID> lessonIds, PracticeMode mode);
 
     /**
      * Câu đang cần ôn, điểm lượt gần nhất thấp trước. {@code mode} null là cả hai chế độ; {@code lessonId} null là

@@ -1,0 +1,51 @@
+{
+  "title": "Saved lessons",
+  "subtitle": "Lessons you want to practise later. Open one for details or jump straight into practice.",
+  "count": "{{count}} lessons",
+  "search": "Search saved lessons",
+  "stateLabel": "Filter by progress",
+  "states": { "all": "All", "todo": "Not started", "doing": "In progress", "done": "Done" },
+  "sortLabel": "Sort",
+  "sorts": { "saved_desc": "Newest", "saved_asc": "Oldest" },
+  "row": {
+    "aria": "Lesson {{title}}",
+    "savedAgo": "Saved {{when}}",
+    "sentences": "{{count}} sentences",
+    "dictation": "Dictation {{percent}}%",
+    "shadowing": "Shadowing {{percent}}%",
+    "practice": { "dictation": "Practise dictation", "shadowing": "Practise shadowing" },
+    "alsoPractice": { "dictation": "Dictation", "shadowing": "Shadowing" },
+    "watch": "Watch video",
+    "unsave": "Unsave",
+    "unavailable": "This lesson was removed from the library. You can unsave it.",
+    "proRequired": "Pro lesson. You need Pro to open it again.",
+    "tryPro": "Try Pro",
+    "duration": "Length {{time}}"
+  },
+  "toast": {
+    "unsaved": "Lesson unsaved",
+    "undo": "Undo",
+    "restored": "Lesson saved again",
+    "failed": "Could not update your saved lessons. Please try again."
+  },
+  "empty": {
+    "title": "No saved lessons yet",
+    "desc": "Tap the bookmark on a lesson page or in a Passive learning video to save it and come back to practise later.",
+    "library": "Open the lesson library",
+    "watch": "Watch short videos"
+  },
+  "noMatch": { "title": "No lessons match", "desc": "Try another keyword or remove the progress filter.", "clear": "Clear filters" },
+  "error": "Could not load your saved lessons. Check your connection and try again.",
+  "retry": "Try again",
+  "page": "Saved lessons pagination",
+  "button": {
+    "save": "Save lesson",
+    "saved": "Lesson saved",
+    "saveAria": "Save this lesson to practise later",
+    "unsaveAria": "Unsave this lesson",
+    "needPro": "This lesson is for Pro",
+    "tryPro": "Try Pro",
+    "view": "View saved lessons",
+    "savedToast": "Lesson saved for later"
+  }
+}

@@ -5,7 +5,7 @@ import { loadYouTubeApi, type YouTubePlayer } from "@/lib/youtube";
 const YT_STATE_PLAYING = 1;
 const YT_STATE_BUFFERING = 3;
 const TICK_MS = 90;
-/** Chờ tối đa bấy nhiêu mili giây để API/video sẵn sàng; quá hạn coi là không tải được. */
+/** Chờ tối đa bấy nhiêu mili giây để video sẵn sàng; quá hạn coi là không tải được. */
 const LOAD_TIMEOUT_MS = 9000;
 /** Bấm phát mà sau bấy nhiêu mili giây vẫn chưa phát thì coi là bị trình duyệt chặn tiếng. */
 const START_TIMEOUT_MS = 2000;

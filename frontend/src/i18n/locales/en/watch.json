@@ -1,0 +1,62 @@
+{
+  "title": "Passive learning",
+  "back": "Back",
+  "feedAria": "Passive learning video feed",
+  "slide": "video",
+  "loading": "Loading videos",
+  "play": "Play video",
+  "pause": "Pause video",
+  "mute": "Mute",
+  "unmute": "Unmute",
+  "retry": "Try again",
+  "savedToast": "Sentence saved to Review sentences",
+  "actions": {
+    "like": "Like",
+    "unlike": "Unlike",
+    "save": "Save sentence",
+    "saved": "Sentence saved",
+    "practice": "Practice this lesson",
+    "report": "Report",
+    "saveShort": "Save",
+    "savedShort": "Saved",
+    "practiceShort": "Practice",
+    "saveVideo": "Save video",
+    "savedVideo": "Video saved",
+    "saveLine": "Save sentence",
+    "savedLine": "Sentence saved"
+  },
+  "settings": {
+    "title": "Caption settings",
+    "speed": "Playback speed",
+    "captions": "Show captions",
+    "translation": "Show translation",
+    "ipa": "Show phonetics",
+    "size": "Text size",
+    "sizes": {
+      "sm": "Small",
+      "md": "Medium",
+      "lg": "Large"
+    }
+  },
+  "empty": {
+    "title": "No videos to watch yet",
+    "desc": "There are no short lessons for you right now. Come back later or open the lesson library.",
+    "cta": "Open the lesson library"
+  },
+  "upsell": {
+    "title": "More Pro videos are waiting",
+    "desc": "Upgrade to Pro to watch every video and practise every lesson.",
+    "cta": "Try Pro",
+    "next": "Scroll down to keep watching"
+  },
+  "errors": {
+    "saveVideo": "Could not save the video. Please try again.",
+    "pro": "This video is for Pro"
+  },
+  "entry": {
+    "cta": "Watch as short videos",
+    "hint": "Passive learning: watch videos with subtitles that follow the speech"
+  },
+  "savedVideoToast": "Video saved for later",
+  "viewSaved": "View saved lessons"
+}

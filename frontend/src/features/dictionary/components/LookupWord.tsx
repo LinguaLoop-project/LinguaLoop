@@ -114,12 +114,18 @@ export interface LookupWordProps {
   className?: string;
   /** Nội dung hiển thị; mặc định là chính `word`. */
   children?: ReactNode;
+  /** Báo khi hộp tra từ mở hoặc đóng (vd tạm dừng video trong Học thụ động, BR-TC-14). */
+  onOpenChange?: (open: boolean) => void;
 }
 
 /** Một chữ bấm được: mở hộp tra từ ngay cạnh chữ. Chữ không có chữ cái hoặc số nào thì hiện như text thường. */
-export default function LookupWord({ word, className = "", children }: LookupWordProps) {
+export default function LookupWord({ word, className = "", children, onOpenChange }: LookupWordProps) {
   const { t } = useTranslation("dictionary");
-  const [open, setOpen] = useState<{ rect: DOMRect; element: HTMLElement } | null>(null);
+  const [open, setOpenState] = useState<{ rect: DOMRect; element: HTMLElement } | null>(null);
+  const setOpen = (next: { rect: DOMRect; element: HTMLElement } | null) => {
+    setOpenState(next);
+    if ((next !== null) !== (open !== null)) onOpenChange?.(next !== null);
+  };
   const normalized = normalizeWord(word);
   const content = children ?? word;
 
