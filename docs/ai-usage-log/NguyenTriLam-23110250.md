@@ -915,6 +915,18 @@
 - **Commit:** 85c3e3a, a7ab2e8, 0b8f569, 3625c8b, ebcd7be, bb0ceb4, 2cc6ae7, 0b4a4d2, 32a912b
 - **Lỗi liên quan:** AI-ERR-LAM-009, AI-ERR-LAM-010, AI-ERR-LAM-011
 
+### AI-LAM-082
+
+- **Ngày:** 2026-11-21
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Cải thiện Nhận xét AI cho lượt đọc Shadowing (UC-AI-03) từ 4 câu văn xuôi thành nhận xét có cấu trúc: tổng quan có so sánh với lượt trước, điểm mạnh, tối đa 3 lỗi ưu tiên gom theo âm kèm mẹo khẩu hình, từ bị bỏ sót và một bước tiếp theo bấm được
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../ai/StructuredFeedback.java:normalize`, `FeedbackPromptBuilder.java` (bản v2), `FeedbackRequest.java`, `GeminiFeedbackGenerator.java:callGemini`, `shadowing/service/FeedbackRequestLoader.java:previousOf, tipsFor`; `frontend/src/features/shadowing/feedback.ts:parseFeedback`, `components/AiFeedbackCard.tsx:StructuredBody`; bản dịch `pages.json`; test `StructuredFeedbackTest`, `FeedbackPromptBuilderTest`, `AiFeedbackIntegrationTest`, `feedback.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên đưa ví dụ nhận xét mong muốn (tổng quan, điểm mạnh, cần cải thiện từng từ, bước tiếp theo), duyệt hướng ngắn gọn và chính xác hơn và yêu cầu làm trên nhánh `feat/ai-lesson-chat`. AI chỉ ra các điểm không nên chép theo ví dụ (quá dài, mẹo khẩu hình có thể sai, bắt sửa từ chức năng) và chọn: mẹo do hệ thống lấy từ kho thay vì AI viết, lọc từ và âm AI nêu ngoài dữ liệu, lưu JSON vào cột văn bản sẵn có nên không cần migration và nhận xét cũ vẫn hiện nguyên văn. AI chạy thử Gemini thật với một câu nhiều lỗi và xem nhận xét trên trình duyệt.
+- **Commit:** 57ba584
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).

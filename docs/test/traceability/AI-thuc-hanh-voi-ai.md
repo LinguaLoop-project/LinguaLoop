@@ -29,7 +29,7 @@ Tổng hợp: 30 AC, 11 đã có test, 0 một phần, 19 thiếu.
 | AC-AI-20 | Tự động đóng phiên khi quá trần 10 phút và bảo toàn lý do kết thúc | UC-AI-02 |  |  | Thiếu |
 | AC-AI-21 | Từ chối tạo phiên khi không đủ credit hoặc thao tác trên lượt của người khác | UC-AI-02 |  |  | Thiếu |
 | AC-AI-22 | Ghi nhận sự kiện bật tắt Chế độ gia sư | UC-AI-02 |  |  | Thiếu |
-| AC-AI-23 | Tạo nhận xét AI lần đầu xuất chữ chạy dần và trừ credit | UC-AI-03 |  |  | Thiếu |
+| AC-AI-23 | Tạo nhận xét AI có cấu trúc lần đầu và trừ credit | UC-AI-03 |  |  | Thiếu |
 | AC-AI-24 | Xem lại nhận xét AI đã lưu hoặc gửi trùng đồng thời chỉ tính một lần credit | UC-AI-03 |  |  | Thiếu |
 | AC-AI-25 | Làm mới thẻ nhận xét AI khi đọc lượt mới | UC-AI-03 |  |  | Thiếu |
 | AC-AI-26 | Chặn nhận xét AI khi không đủ credit hoặc lượt đọc của người khác | UC-AI-03 |  |  | Thiếu |
