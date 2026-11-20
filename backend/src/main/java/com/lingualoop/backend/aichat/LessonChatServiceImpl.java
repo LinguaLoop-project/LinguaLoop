@@ -15,6 +15,8 @@ import com.lingualoop.backend.aichat.LessonChatAi.Reply;
 import com.lingualoop.backend.aichat.LessonChatRepository.ConversationRow;
 import com.lingualoop.backend.aichat.LessonChatRepository.LessonRow;
 import com.lingualoop.backend.aichat.LessonChatRepository.MessageRow;
+import com.lingualoop.backend.aichat.LessonChatRepository.SentenceRow;
+import com.lingualoop.backend.aichat.LessonChatView.Clip;
 import com.lingualoop.backend.aichat.LessonChatView.Credit;
 import com.lingualoop.backend.aichat.LessonChatView.HistoryItem;
 import com.lingualoop.backend.aichat.LessonChatView.Hint;
@@ -76,14 +78,16 @@ class LessonChatServiceImpl implements LessonChatService {
     // ── Chế độ giọng nói ───────────────────────────────────────────────────────────
 
     @Override
-    public LiveStart startLive(UUID userId, UUID lessonId) {
+    public LiveStart startLive(UUID userId, UUID lessonId, String styleName) {
         LessonRow lesson = requireLesson(userId, lessonId);
+        LessonChatStyle style = LessonChatStyle.parse(styleName);
         credits.requireCanStart(userId, FEATURE);
 
-        UUID conversationId = repository.startFresh(userId, lessonId, "live");
+        UUID conversationId = repository.startFresh(userId, lessonId, "live", style.dbValue());
+        List<SentenceRow> sentences = repository.sentences(lessonId);
         LiveToken token;
         try {
-            token = tokenIssuer.issueWith(LessonChatLive.spec(context(lesson), MAX_QUESTIONS));
+            token = tokenIssuer.issueWith(LessonChatLive.spec(numbered(lesson, sentences), style, MAX_QUESTIONS));
         } catch (RuntimeException e) {
             log.warn("Không cấp được token Gemini Live cho phiên theo bài: {}", e.toString());
             repository.failUnlessCharged(conversationId);
@@ -93,7 +97,7 @@ class LessonChatServiceImpl implements LessonChatService {
         return new LiveStart(conversationId, token.token(), token.model(), token.expiresAt(),
                 new Limits(MAX_QUESTIONS, (int) MAX_DURATION.toSeconds(), WRAP_UP_AT_SECONDS, START_TIMEOUT_SECONDS,
                         IDLE_ASK_SECONDS, IDLE_END_SECONDS),
-                creditProperties.lessonChatCost(), credits.balanceOf(userId));
+                creditProperties.lessonChatCost(), credits.balanceOf(userId), style.dbValue(), clips(sentences));
     }
 
     @Override
@@ -170,7 +174,7 @@ class LessonChatServiceImpl implements LessonChatService {
         credits.requireCanStart(userId, FEATURE);
         LessonChatAi.Lesson context = context(lesson);
 
-        UUID conversationId = repository.startFresh(userId, lessonId, "text");
+        UUID conversationId = repository.startFresh(userId, lessonId, "text", LessonChatStyle.QA.dbValue());
         Generated<String> opening;
         try {
             opening = ai.open(context);
@@ -401,7 +405,7 @@ class LessonChatServiceImpl implements LessonChatService {
         int answered = answered(messages);
         Instant expiresAt = conversation.startedAt().plus(MAX_DURATION);
         boolean awaitingSummary = "active".equals(conversation.status()) && answered >= MAX_QUESTIONS;
-        return new Session(conversation.id(), conversation.mode(), conversation.status(), conversation.startedAt(),
+        return new Session(conversation.id(), conversation.mode(), conversation.style(), conversation.status(), conversation.startedAt(),
                 conversation.endedAt(), expiresAt, answered, MAX_QUESTIONS, awaitingSummary, conversation.summary(),
                 messages.stream()
                         .map(m -> new Message(m.id(), m.tutor() ? "tutor" : "student", m.content(), m.feedback(),
@@ -415,6 +419,21 @@ class LessonChatServiceImpl implements LessonChatService {
 
     private static List<Line> lines(List<MessageRow> messages) {
         return messages.stream().map(m -> new Line(m.tutor(), m.content())).toList();
+    }
+
+    /** Lời thoại đánh số từ 1 để gia sư gọi {@code play_clip} đúng câu; cùng thứ tự với {@link #clips}. */
+    private static LessonChatAi.Lesson numbered(LessonRow lesson, List<SentenceRow> sentences) {
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < sentences.size(); i++) {
+            out.append('[').append(i + 1).append("] ").append(sentences.get(i).text()).append('\n');
+        }
+        return new LessonChatAi.Lesson(lesson.title(), lesson.cefrLevel(), out.toString().stripTrailing());
+    }
+
+    private static List<Clip> clips(List<SentenceRow> sentences) {
+        return java.util.stream.IntStream.range(0, sentences.size())
+                .mapToObj(i -> new Clip(i + 1, sentences.get(i).startMs(), sentences.get(i).endMs()))
+                .toList();
     }
 
     private LessonChatAi.Lesson context(LessonRow lesson) {

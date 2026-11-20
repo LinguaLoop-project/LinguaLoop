@@ -116,9 +116,25 @@
     "closing": "Closing the conversation…",
     "fallbackTitle": "Could not start the conversation",
     "fallbackGeneric": "Could not connect to the voice tutor. You were not charged.",
-    "useText": "Use text chat"
+    "useText": "Use text chat",
+    "playingClip": "Replaying a part of the video"
   },
   "text": {
     "badge": "Text chat"
+  },
+  "styles": {
+    "legend": "Choose a conversation style",
+    "qa": {
+      "title": "Q&A",
+      "desc": "The tutor asks about details in the video, then digs deeper into what you say."
+    },
+    "interview": {
+      "title": "Interview",
+      "desc": "You play a person from the video and the tutor interviews you as a reporter."
+    },
+    "retell": {
+      "title": "Retell",
+      "desc": "The tutor pretends not to have seen the video; you retell it and the tutor asks about what is missing."
+    }
   }
 }

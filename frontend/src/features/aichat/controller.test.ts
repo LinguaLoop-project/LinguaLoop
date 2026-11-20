@@ -49,13 +49,17 @@ vi.mock("@/features/tutor/audio", () => ({
 
 const limits = { maxQuestions: 5, maxSeconds: 900, wrapUpAtSeconds: 840, startTimeoutSeconds: 15, idleAskSeconds: 60, idleEndSeconds: 90 };
 const balance = { kind: "free", balance: 15 } as unknown as LiveStart["balance"];
-const live: LiveStart = { id: "s1", token: "tok", model: "live-model", tokenExpiresAt: "2026-11-20T10:00:00Z", limits, cost: 5, balance };
+const clips = [
+  { n: 1, startMs: 0, endMs: 4000 },
+  { n: 2, startMs: 4000, endMs: 8000 },
+];
+const live: LiveStart = { id: "s1", token: "tok", model: "live-model", tokenExpiresAt: "2026-11-20T10:00:00Z", limits, cost: 5, balance, style: "qa", clips };
 
 const msg = (id: number, role: ChatMessage["role"], over: Partial<ChatMessage> = {}): ChatMessage => ({
   id, role, text: role === "tutor" ? `Question ${id}?` : `Answer ${id}`, feedback: null, better: null, hint: null, voice: role === "student", at: "t", ...over,
 });
 const session = (messages: ChatMessage[], over: Partial<ChatSession> = {}): ChatSession => ({
-  id: "s1", mode: "live", status: "active", startedAt: "t", endedAt: null, expiresAt: "t", answered: messages.filter((m) => m.role === "student").length,
+  id: "s1", mode: "live", style: "qa", status: "active", startedAt: "t", endedAt: null, expiresAt: "t", answered: messages.filter((m) => m.role === "student").length,
   maxQuestions: 5, awaitingSummary: false, summary: null, messages, ...over,
 });
 const turn = (s: ChatSession): ChatTurn => ({ session: s, credit: { charged: 0, balance }, expired: false });
@@ -80,7 +84,7 @@ const toolCall = (name: string, args: Record<string, unknown>) =>
 const flush = () => vi.advanceTimersByTimeAsync(0);
 
 async function openLive(): Promise<LiveChatController> {
-  const controller = new LiveChatController({ lessonId: "l1", api: api as unknown as LiveChatParams["api"], onCredit });
+  const controller = new LiveChatController({ lessonId: "l1", style: "qa", api: api as unknown as LiveChatParams["api"], onCredit });
   await controller.start();
   expect(controller.getState().phase).toBe("live");
   return controller;
@@ -102,7 +106,7 @@ describe("bắt đầu", () => {
   it("xin token, nối Gemini, mời gia sư bắt đầu và chưa báo started cho tới khi gia sư nói", async () => {
     await openLive();
 
-    expect(api.startLive).toHaveBeenCalledWith("l1");
+    expect(api.startLive).toHaveBeenCalledWith("l1", "qa");
     expect(h.live.sendRealtimeInput).toHaveBeenCalledWith({ text: expect.stringContaining("Người học đã vào phiên") });
     expect(api.liveStarted).not.toHaveBeenCalled();
 
@@ -117,7 +121,7 @@ describe("bắt đầu", () => {
 
   it("không có micro: vào dự phòng với mã MIC_UNAVAILABLE và không tạo phiên", async () => {
     h.micFails = true;
-    const controller = new LiveChatController({ lessonId: "l1", api: api as unknown as LiveChatParams["api"] });
+    const controller = new LiveChatController({ lessonId: "l1", style: "qa", api: api as unknown as LiveChatParams["api"] });
 
     await controller.start();
 
@@ -128,7 +132,7 @@ describe("bắt đầu", () => {
 
   it("server từ chối mở phiên (hết credit): dự phòng kèm mã lỗi", async () => {
     api.startLive.mockRejectedValue(apiError("QUOTA_EXCEEDED"));
-    const controller = new LiveChatController({ lessonId: "l1", api: api as unknown as LiveChatParams["api"] });
+    const controller = new LiveChatController({ lessonId: "l1", style: "qa", api: api as unknown as LiveChatParams["api"] });
 
     await controller.start();
 
@@ -368,6 +372,68 @@ describe("gia sư quên gọi tool", () => {
     await vi.advanceTimersByTimeAsync(8_000);
 
     expect(h.live.sendRealtimeInput.mock.calls.filter(([arg]) => arg.text?.includes("next_question"))).toHaveLength(0);
+  });
+});
+
+describe("kiểu trò chuyện và phát lại video", () => {
+  it("gửi kiểu đã chọn khi mở phiên", async () => {
+    const controller = new LiveChatController({ lessonId: "l1", style: "interview", api: api as unknown as LiveChatParams["api"] });
+    await controller.start();
+
+    expect(api.startLive).toHaveBeenCalledWith("l1", "interview");
+  });
+
+  it("play_clip phát đúng đoạn, khóa micro rồi mới trả kết quả cho gia sư", async () => {
+    const play = vi.fn().mockResolvedValue(true);
+    const controller = await openLive();
+    controller.setPlayClip(play);
+    tutorSpeaks();
+    await flush();
+    h.live.sendRealtimeInput.mockClear();
+
+    toolCall("play_clip", { sentence: 2 });
+    await flush();
+
+    expect(play).toHaveBeenCalledWith(4000, 8000);
+    expect(h.live.sendToolResponse.mock.calls.at(-1)![0].functionResponses[0].response.ok).toBe(true);
+    expect(controller.getState().playingClip).toBe(false);
+    h.onChunk!(new Int16Array(10)); // đuôi âm thanh của video chưa được gửi cho gia sư
+    expect(h.live.sendRealtimeInput).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(2_000);
+    h.onChunk!(new Int16Array(10));
+    expect(h.live.sendRealtimeInput).toHaveBeenCalledTimes(1);
+  });
+
+  it("câu không có hoặc video không phát được: báo lỗi để gia sư hỏi tiếp bình thường", async () => {
+    const controller = await openLive();
+    controller.setPlayClip(vi.fn().mockResolvedValue(false));
+    tutorSpeaks();
+    await flush();
+
+    toolCall("play_clip", { sentence: 99 });
+    await flush();
+    expect(h.live.sendToolResponse.mock.calls.at(-1)![0].functionResponses[0].response.error).toBeTruthy();
+
+    toolCall("play_clip", { sentence: 1 });
+    await flush();
+    expect(h.live.sendToolResponse.mock.calls.at(-1)![0].functionResponses[0].response.error).toBeTruthy();
+  });
+
+  it("chỉ cho phát lại tối đa 3 lần mỗi cuộc trò chuyện", async () => {
+    const play = vi.fn().mockResolvedValue(true);
+    const controller = await openLive();
+    controller.setPlayClip(play);
+    tutorSpeaks();
+    await flush();
+
+    for (let i = 0; i < 4; i++) {
+      toolCall("play_clip", { sentence: 1 });
+      await flush();
+      await vi.advanceTimersByTimeAsync(2_000);
+    }
+
+    expect(play).toHaveBeenCalledTimes(3);
+    expect(h.live.sendToolResponse.mock.calls.at(-1)![0].functionResponses[0].response.error).toBeTruthy();
   });
 });
 

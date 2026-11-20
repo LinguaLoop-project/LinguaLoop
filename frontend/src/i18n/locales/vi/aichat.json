@@ -116,9 +116,25 @@
     "closing": "Đang đóng cuộc trò chuyện…",
     "fallbackTitle": "Chưa bắt đầu được cuộc nói chuyện",
     "fallbackGeneric": "Không kết nối được với gia sư giọng nói. Chưa tốn credit.",
-    "useText": "Dùng chat chữ"
+    "useText": "Dùng chat chữ",
+    "playingClip": "Đang phát lại đoạn video"
   },
   "text": {
     "badge": "Chat chữ"
+  },
+  "styles": {
+    "legend": "Chọn kiểu trò chuyện",
+    "qa": {
+      "title": "Hỏi đáp",
+      "desc": "Gia sư hỏi về chi tiết trong video rồi hỏi sâu theo điều bạn nói."
+    },
+    "interview": {
+      "title": "Phỏng vấn",
+      "desc": "Bạn đóng vai nhân vật trong video, gia sư là phóng viên phỏng vấn bạn."
+    },
+    "retell": {
+      "title": "Kể lại",
+      "desc": "Gia sư giả vờ chưa xem video, bạn kể lại, gia sư hỏi những chỗ còn thiếu."
+    }
   }
 }

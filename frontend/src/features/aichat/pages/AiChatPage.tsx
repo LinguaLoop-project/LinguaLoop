@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Button from "@/components/common/Button";
@@ -7,6 +7,7 @@ import Skeleton from "@/components/common/Skeleton";
 import { toApiError } from "@/features/auth";
 import Breadcrumbs from "@/features/lesson/components/Breadcrumbs";
 import { useLessonDetail } from "@/features/lesson/hooks/useLessons";
+import { useSegmentPlayer } from "@/features/lesson/manage/useSegmentPlayer";
 import { useCreditBalance } from "@/features/subscription/hooks/useCredit";
 import ChatThread from "../components/ChatThread";
 import HistoryDialog from "../components/HistoryDialog";
@@ -14,8 +15,11 @@ import LiveChatPanel from "../components/LiveChatPanel";
 import SummaryCard from "../components/SummaryCard";
 import TextChatPanel from "../components/TextChatPanel";
 import { useChatDetail } from "../hooks/useAiChat";
+import type { ChatStyle } from "../types";
 
 type Mode = "intro" | "live" | "text";
+
+const STYLES: ChatStyle[] = ["qa", "interview", "retell"];
 
 /**
  * Thực hành với AI theo bài (UC-AI-01). Giới thiệu rồi nói chuyện trực tiếp với gia sư (Gemini Live); chat chữ là dự phòng
@@ -34,6 +38,18 @@ export default function AiChatPage() {
   const [reviewId, setReviewId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const review = useChatDetail(lessonId, reviewId);
+  const [style, setStyle] = useState<ChatStyle>("qa");
+
+  // Khung video bên cạnh do trình phát YouTube điều khiển được, để gia sư mời nghe lại một đoạn (play_clip)
+  const videoBox = useRef<HTMLDivElement>(null);
+  const clipPlayer = useSegmentPlayer(lesson.data?.youtubeId ?? null, videoBox);
+  const playClip = async (startMs: number, endMs: number): Promise<boolean> => {
+    if (clipPlayer.status !== "ready") return false;
+    clipPlayer.play("clip", startMs, endMs);
+    await new Promise((resolve) => window.setTimeout(resolve, endMs - startMs + 600));
+    clipPlayer.stop();
+    return true;
+  };
 
   const errorText = (code: string) => t(`errors.${code}`, { defaultValue: t("errors.generic") });
   const lessonPath = `/student/lessons/${lessonId}`;
@@ -161,6 +177,30 @@ export default function AiChatPage() {
                   </li>
                 ))}
               </ul>
+              <fieldset className="mt-5">
+                <legend className="text-sm font-semibold">{t("styles.legend")}</legend>
+                <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-3">
+                  {STYLES.map((option) => (
+                    <label
+                      key={option}
+                      className={`flex cursor-pointer flex-col gap-1 rounded-lg border p-3 text-left transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary ${
+                        style === option ? "border-primary bg-primary-soft" : "border-border bg-bg-elevated hover:border-border-strong"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="ai-chat-style"
+                        value={option}
+                        checked={style === option}
+                        onChange={() => setStyle(option)}
+                        className="sr-only"
+                      />
+                      <span className="text-sm font-semibold">{t(`styles.${option}.title`)}</span>
+                      <span className="text-[13px] leading-snug text-text-muted">{t(`styles.${option}.desc`)}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
               <div className="mt-5 flex flex-wrap items-center gap-3">
                 <Button size="lg" onClick={() => setMode("live")} leftIcon={<Icon name="mic" />}>
                   {t("intro.start")}
@@ -178,6 +218,8 @@ export default function AiChatPage() {
               <LiveChatPanel
                 key={run}
                 lessonId={lessonId}
+                style={style}
+                playClip={playClip}
                 onUseText={() => {
                   setMode("text");
                   again();
@@ -197,15 +239,11 @@ export default function AiChatPage() {
 
         <aside className="flex min-w-0 flex-col gap-4">
           <div className="overflow-hidden rounded-lg border border-border bg-surface">
-            <div className="aspect-video bg-black">
-              <iframe
-                title={t("video.title")}
-                src={`https://www.youtube-nocookie.com/embed/${lesson.data.youtubeId}?rel=0&cc_load_policy=0&playsinline=1`}
-                allow="encrypted-media; picture-in-picture"
-                allowFullScreen
-                className="h-full w-full"
-              />
-            </div>
+            <div
+              ref={videoBox}
+              aria-label={t("video.title")}
+              className="aspect-video bg-black [&>div]:h-full [&>div]:w-full [&_iframe]:h-full [&_iframe]:w-full"
+            />
             <div className="p-4">
               <p className="text-sm font-semibold">{t("video.title")}</p>
               <p className="mt-1 text-[13px] text-text-muted">{t("video.hint")}</p>

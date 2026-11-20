@@ -5,7 +5,7 @@ import { MIC_RATE, MicCapture, int16Level } from "@/lib/pcmRecorder";
 import type { CreditBalance } from "@/features/subscription/types";
 import type { AiChatApi } from "./api";
 import { asText, tick } from "./rules";
-import type { ChatLimits, ChatMessage, ChatSession } from "./types";
+import type { ChatClip, ChatLimits, ChatMessage, ChatSession, ChatStyle } from "./types";
 
 export type Phase = "idle" | "connecting" | "live" | "ending" | "ended" | "fallback";
 
@@ -20,6 +20,8 @@ export type LiveChatState = {
   elapsedSeconds: number;
   muted: boolean;
   tutorSpeaking: boolean;
+  /** Đang phát lại một đoạn video theo lời gia sư: micro tạm khóa để không thu tiếng video. */
+  playingClip: boolean;
   /** Phụ đề trực tiếp của lượt đang nói, mỗi bên một dòng. */
   captions: { tutor: string; learner: string };
   hintLoading: boolean;
@@ -32,8 +34,12 @@ export type LiveChatState = {
   fallbackReason: string | null;
 };
 
+/** Phát đoạn video từ `startMs` đến `endMs`; trả về khi đã phát xong, false nếu không phát được. */
+export type PlayClip = (startMs: number, endMs: number) => Promise<boolean>;
+
 export type LiveChatParams = {
   lessonId: string;
+  style: ChatStyle;
   api: Pick<AiChatApi, "startLive" | "liveStarted" | "liveQuestion" | "liveFeedback" | "liveFinish" | "hint" | "detail">;
   /** Số dư mới sau khi trừ credit của phiên. */
   onCredit?: (balance: CreditBalance) => void;
@@ -52,6 +58,10 @@ const NUDGE_QUESTION_TEXT =
 const NUDGE_END_TEXT = "[Hệ thống] Đã đủ số câu hỏi. Hãy gọi end_session ngay (đừng nói tên tool ra lời).";
 const NUDGE_AFTER_MS = 7000;
 const MAX_NUDGES = 3;
+/** Số lần gia sư được mời học viên nghe lại một đoạn video trong một cuộc trò chuyện. */
+const MAX_CLIPS = 3;
+/** Sau khi đoạn video dừng, micro còn khóa thêm một chút để không thu đuôi âm thanh của video. */
+const CLIP_MIC_TAIL_MS = 1500;
 const DRAIN_MAX_MS = 5000;
 
 /** Mã lỗi của server trong lỗi axios; không phải lỗi HTTP thì coi là mất mạng. */
@@ -69,6 +79,7 @@ const INITIAL: LiveChatState = {
   elapsedSeconds: 0,
   muted: false,
   tutorSpeaking: false,
+  playingClip: false,
   captions: { tutor: "", learner: "" },
   hintLoading: false,
   finalSession: null,
@@ -93,6 +104,10 @@ export class LiveChatController {
   #player: PcmPlayer | null = null;
   #micLevel = 0;
 
+  #playClipFn: PlayClip | null = null;
+  #clips: ChatClip[] = [];
+  #clipsUsed = 0;
+  #micBlockedUntil = 0;
   #started = false;
   /** Lời báo `started` đang bay; các tool phải chờ nó xong vì server chỉ nhận câu hỏi sau khi đã trừ credit. */
   #startedCall: Promise<void> = Promise.resolve();
@@ -133,6 +148,11 @@ export class LiveChatController {
     tutor: this.#state.tutorSpeaking ? (this.#player?.level() ?? 0) : 0,
   });
 
+  /** Trang đặt hàm phát video bên cạnh; đổi được bất cứ lúc nào vì trình phát YouTube do trang quản lý. */
+  setPlayClip(playClip: PlayClip | null) {
+    this.#playClipFn = playClip;
+  }
+
   /** Bắt đầu phiên. Gọi từ click của người học để trình duyệt cho phép mic và loa. */
   async start() {
     if (this.#state.phase !== "idle" && this.#state.phase !== "fallback") return;
@@ -156,7 +176,7 @@ export class LiveChatController {
 
     let created: Awaited<ReturnType<LiveChatParams["api"]["startLive"]>>;
     try {
-      created = await this.#params.api.startLive(this.#params.lessonId);
+      created = await this.#params.api.startLive(this.#params.lessonId, this.#params.style);
     } catch (err) {
       this.#teardown();
       this.#set({ phase: "fallback", fallbackCode: errorCode(err), fallbackReason: errorMessage(err) });
@@ -168,6 +188,7 @@ export class LiveChatController {
     }
 
     this.#sessionId = created.id;
+    this.#clips = created.clips;
     this.#set({ limits: created.limits, cost: created.cost });
     this.#params.onCredit?.(created.balance);
     this.#startTimer = setTimeout(
@@ -385,8 +406,9 @@ export class LiveChatController {
             ok: true,
             answered: session.answered,
             instruction: full
-              ? "Đây là câu cuối. Nhận xét ngắn rồi chào kết và gọi end_session."
-              : "Nhận xét ngắn gọn bằng giọng, rồi gọi next_question và đọc to câu hỏi mới.",
+              ? "Đây là lượt cuối. Phản ứng ngắn, nói lại câu của người học cho đúng, rồi chào kết và gọi end_session."
+              : "Phản ứng ngắn, nói lại câu của người học cho đúng và tự nhiên (đừng giảng), rồi gọi next_question với " +
+                "đúng câu bạn sắp hỏi tiếp (bám vào điều họ vừa nói) và đọc nó.",
           });
         } catch (err) {
           const code = errorCode(err);
@@ -401,6 +423,10 @@ export class LiveChatController {
         }
         break;
       }
+      case "play_clip": {
+        await this.#playClip(id, call.name, Number(args.sentence));
+        break;
+      }
       case "end_session": {
         this.#respond(id, call.name, { ok: true });
         await this.#finish({ drain: true });
@@ -409,6 +435,40 @@ export class LiveChatController {
       default:
         this.#respond(id, call.name, { error: `Không có tool ${call.name}.` });
     }
+  }
+
+  /** Gia sư mời người học nghe lại một câu: phát đoạn video, khóa micro, trả kết quả khi đoạn phát xong. */
+  async #playClip(id: string | null, name: string, sentence: number) {
+    const clip = this.#clips.find((c) => c.n === sentence);
+    const playClip = this.#playClipFn;
+    if (!clip || !playClip) {
+      this.#respond(id, name, {
+        error: "Không phát được đoạn này.",
+        instruction: "Cứ hỏi tiếp bình thường, đừng gọi lại play_clip.",
+      });
+      return;
+    }
+    if (this.#clipsUsed >= MAX_CLIPS) {
+      this.#respond(id, name, { error: "Đã dùng hết lượt phát lại.", instruction: "Đừng gọi play_clip nữa, hỏi tiếp bình thường." });
+      return;
+    }
+    this.#clipsUsed++;
+    this.#learnerActivity();
+    this.#player?.flush();
+    this.#micBlockedUntil = performance.now() + (clip.endMs - clip.startMs) + CLIP_MIC_TAIL_MS;
+    this.#set({ playingClip: true });
+    const played = await playClip(clip.startMs, clip.endMs).catch(() => false);
+    this.#micBlockedUntil = performance.now() + CLIP_MIC_TAIL_MS;
+    this.#learnerActivity();
+    if (this.#finishing) return;
+    this.#set({ playingClip: false });
+    this.#respond(
+      id,
+      name,
+      played
+        ? { ok: true, instruction: "Đoạn video đã phát xong. Hỏi người học về điều họ vừa nghe." }
+        : { error: "Không phát được video.", instruction: "Cứ hỏi tiếp bình thường, đừng gọi lại play_clip." },
+    );
   }
 
   #applySession(session: ChatSession) {
@@ -430,7 +490,7 @@ export class LiveChatController {
 
   #onMicChunk(pcm: Int16Array) {
     this.#micLevel = int16Level(pcm);
-    if (this.#state.phase === "live" && this.#live && !this.#finishing && !this.#state.muted) {
+    if (this.#state.phase === "live" && this.#live && !this.#finishing && !this.#state.muted && performance.now() >= this.#micBlockedUntil) {
       try {
         this.#live.sendRealtimeInput({ audio: { data: int16ToBase64(pcm), mimeType: `audio/pcm;rate=${MIC_RATE}` } });
       } catch (err) {
@@ -596,6 +656,9 @@ export class LiveChatController {
     this.#sessionId = null;
     this.#started = false;
     this.#startedCall = Promise.resolve();
+    this.#clips = [];
+    this.#clipsUsed = 0;
+    this.#micBlockedUntil = 0;
     this.#finishing = false;
     this.#activeMs = 0;
     this.#idleMs = 0;

@@ -22,7 +22,7 @@ public interface LessonChatService {
      * @throws com.lingualoop.backend.common.exception.BusinessException {@code AI_CHAT_LIVE_UNAVAILABLE} khi không cấp
      *         được token
      */
-    LiveStart startLive(UUID userId, UUID lessonId);
+    LiveStart startLive(UUID userId, UUID lessonId, String style);
 
     /**
      * Gia sư đã nói câu đầu: trừ credit cố định một lần và bắt đầu tính 15 phút. Gọi lặp không trừ thêm. Ví không đủ

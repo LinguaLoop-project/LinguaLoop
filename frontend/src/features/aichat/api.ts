@@ -1,6 +1,6 @@
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/lesson/types";
-import type { ChatCredit, ChatHint, ChatHistoryItem, ChatSession, ChatTurn, LiveStart } from "./types";
+import type { ChatCredit, ChatHint, ChatHistoryItem, ChatSession, ChatStyle, ChatTurn, LiveStart } from "./types";
 
 const base = (lessonId: string) => `/lessons/${lessonId}/ai-chat`;
 const live = (lessonId: string, sessionId: string) => `${base(lessonId)}/live-sessions/${sessionId}`;
@@ -8,8 +8,8 @@ const live = (lessonId: string, sessionId: string) => `${base(lessonId)}/live-se
 export const aiChatApi = {
   // ── Chế độ giọng nói (Gemini Live) ──
   /** Mở phiên giọng nói; cũng là "Bắt đầu lại". Chưa trừ credit. */
-  startLive: async (lessonId: string): Promise<LiveStart> =>
-    (await axiosClient.post<ApiResponse<LiveStart>>(`${base(lessonId)}/live-sessions`)).data.data,
+  startLive: async (lessonId: string, style: ChatStyle): Promise<LiveStart> =>
+    (await axiosClient.post<ApiResponse<LiveStart>>(`${base(lessonId)}/live-sessions`, { style })).data.data,
 
   /** Gia sư đã nói câu đầu: trừ credit cố định một lần. */
   liveStarted: async (lessonId: string, sessionId: string): Promise<ChatCredit> =>

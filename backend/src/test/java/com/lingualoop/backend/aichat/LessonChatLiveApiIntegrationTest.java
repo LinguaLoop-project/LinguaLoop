@@ -93,13 +93,73 @@ class LessonChatLiveApiIntegrationTest {
 
         ArgumentCaptor<LiveSpec> spec = ArgumentCaptor.forClass(LiveSpec.class);
         verify(tokenIssuer).issueWith(spec.capture());
-        assertThat(spec.getValue().systemPrompt()).contains("I woke up early today", "Then I went to work", "Morning");
+        // lời thoại được đánh số để gia sư chọn đoạn phát lại
+        assertThat(spec.getValue().systemPrompt()).contains("[1] I woke up early today.", "[2] Then I went to work.", "Morning");
         assertThat(spec.getValue().tools()).extracting(tool -> tool.name().orElseThrow())
-                .containsExactly("next_question", "give_feedback", "end_session");
+                .containsExactly("next_question", "give_feedback", "play_clip", "end_session");
         assertThat(spec.getValue().lifetime()).isEqualTo(Duration.ofMinutes(17));
         assertThat(spec.getValue().compressContext()).isTrue();
         assertThat(balance(user)).isEqualTo(20);
         assertThat(used(user)).isZero();
+    }
+
+    @Test
+    void startLive_returnsTheClipsOfEachNumberedSentence_AC_AI_01() throws Exception {
+        UUID user = newUser();
+        UUID lesson = lesson(false);
+
+        startLive(user, lesson)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.clips.length()").value(2))
+                .andExpect(jsonPath("$.data.clips[0].n").value(1))
+                .andExpect(jsonPath("$.data.clips[0].startMs").value(0))
+                .andExpect(jsonPath("$.data.clips[0].endMs").value(900))
+                .andExpect(jsonPath("$.data.clips[1].n").value(2))
+                .andExpect(jsonPath("$.data.clips[1].startMs").value(1000));
+    }
+
+    @Test
+    void startLive_usesTheChosenStyleInThePromptAndStoresIt_AC_AI_01() throws Exception {
+        UUID user = newUser();
+        UUID lesson = lesson(false);
+
+        String body = startLiveWithStyle(user, lesson, "interview").andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.style").value("interview")).andReturn().getResponse().getContentAsString();
+        UUID session = UUID.fromString(com.jayway.jsonpath.JsonPath.read(body, "$.data.id"));
+
+        ArgumentCaptor<LiveSpec> spec = ArgumentCaptor.forClass(LiveSpec.class);
+        verify(tokenIssuer).issueWith(spec.capture());
+        assertThat(spec.getValue().systemPrompt()).contains("PHỎNG VẤN").doesNotContain("KỂ LẠI. ");
+        assertThat(jdbc.queryForObject("SELECT style FROM ai_conversations WHERE id = ?", String.class, session))
+                .isEqualTo("interview");
+        mockMvc.perform(get(BASE.formatted(lesson) + "/sessions/" + session).headers(auth(user)))
+                .andExpect(jsonPath("$.data.style").value("interview"));
+    }
+
+    @Test
+    void startLive_retellStylePromptAndDefaultStyle_AC_AI_01() throws Exception {
+        UUID user = newUser();
+        UUID lesson = lesson(false);
+
+        startLiveWithStyle(user, lesson, "retell").andExpect(jsonPath("$.data.style").value("retell"));
+        startLive(user, lesson).andExpect(jsonPath("$.data.style").value("qa")); // không chọn thì hỏi đáp
+
+        ArgumentCaptor<LiveSpec> spec = ArgumentCaptor.forClass(LiveSpec.class);
+        verify(tokenIssuer, org.mockito.Mockito.times(2)).issueWith(spec.capture());
+        assertThat(spec.getAllValues().get(0).systemPrompt()).contains("GIẢ VỜ CHƯA XEM");
+        assertThat(spec.getAllValues().get(1).systemPrompt()).contains("HỎI ĐÁP");
+    }
+
+    @Test
+    void startLive_rejectsAnUnknownStyleWithoutCreatingASession_AC_AI_10() throws Exception {
+        UUID user = newUser();
+        UUID lesson = lesson(false);
+
+        startLiveWithStyle(user, lesson, "debate").andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("AI_CHAT_ANSWER_INVALID"));
+
+        verify(tokenIssuer, never()).issueWith(any());
+        assertThat(count("ai_conversations WHERE user_id = ?", user)).isZero();
     }
 
     @Test
@@ -437,6 +497,11 @@ class LessonChatLiveApiIntegrationTest {
 
     private ResultActions startLive(UUID user, UUID lesson) throws Exception {
         return mockMvc.perform(post(BASE.formatted(lesson) + "/live-sessions").headers(auth(user)));
+    }
+
+    private ResultActions startLiveWithStyle(UUID user, UUID lesson, String style) throws Exception {
+        return mockMvc.perform(post(BASE.formatted(lesson) + "/live-sessions").headers(auth(user))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"style\": \"" + style + "\"}"));
     }
 
     private UUID startLiveSession(UUID user, UUID lesson) throws Exception {

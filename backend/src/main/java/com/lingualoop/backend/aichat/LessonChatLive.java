@@ -22,15 +22,15 @@ final class LessonChatLive {
     private LessonChatLive() {
     }
 
-    static LiveSpec spec(Lesson lesson, int maxQuestions) {
-        return new LiveSpec(LessonChatPrompts.live(lesson, maxQuestions), tools(), TOKEN_LIFETIME, true);
+    static LiveSpec spec(Lesson lesson, LessonChatStyle style, int maxQuestions) {
+        return new LiveSpec(LessonChatPrompts.live(lesson, style, maxQuestions), tools(), TOKEN_LIFETIME, true);
     }
 
     static List<FunctionDeclaration> tools() {
         return List.of(
                 declaration("next_question",
-                        "Ghi lại câu hỏi mới mà bạn sắp hỏi người học. Gọi trước khi đọc câu hỏi, mỗi câu hỏi một lần.",
-                        Map.of("question", string("Câu hỏi tiếng Anh sẽ hỏi", null)), "question"),
+                        "Ghi lại câu hỏi (hoặc lời mời người học nói) mà bạn sắp hỏi. Gọi trước khi đọc, mỗi câu một lần.",
+                        Map.of("question", string("Câu hỏi hoặc lời mời nói bằng tiếng Anh", null)), "question"),
                 declaration("give_feedback",
                         "Ghi lại câu trả lời của người học cho câu hỏi hiện tại cùng nhận xét. Gọi ngay sau khi họ "
                                 + "trả lời, trước khi bạn nói nhận xét.",
@@ -39,9 +39,17 @@ final class LessonChatLive {
                                 "feedback", string("Nhận xét tiếng Việt 2-3 câu so với lời thoại", null),
                                 "better", string("Một câu tiếng Anh tự nhiên hơn", null)),
                         "answer", "feedback", "better"),
+                declaration("play_clip",
+                        "Phát lại đoạn video của một câu trong lời thoại cho người học nghe. Chỉ trả về khi đoạn đã phát xong; "
+                                + "sau đó hãy hỏi về đoạn vừa nghe.",
+                        Map.of("sentence", integerParam("Số của câu trong lời thoại (số trong ngoặc vuông)")), "sentence"),
                 declaration("end_session",
                         "Kết thúc phiên khi đã đủ số câu hỏi hoặc người học muốn dừng.",
                         Map.of("reason", string("Lý do kết thúc", List.of("completed", "learner_exit"))), "reason"));
+    }
+
+    private static Schema integerParam(String description) {
+        return Schema.builder().type(Type.Known.INTEGER).description(description).build();
     }
 
     private static Schema string(String description, List<String> values) {

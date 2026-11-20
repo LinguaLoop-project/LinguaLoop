@@ -17,9 +17,20 @@ export type ChatStatus = "active" | "completed" | "error";
 /** `live`: nói chuyện qua Gemini Live; `text`: chat chữ dự phòng. */
 export type ChatMode = "live" | "text";
 
+/** Kiểu trò chuyện của phiên giọng nói: hỏi đáp, phỏng vấn (học viên đóng vai nhân vật) hoặc kể lại video. */
+export type ChatStyle = "qa" | "interview" | "retell";
+
+/** Đoạn video của câu số `n` (từ 1) để gia sư mời học viên nghe lại. */
+export interface ChatClip {
+  n: number;
+  startMs: number;
+  endMs: number;
+}
+
 export interface ChatSession {
   id: string;
   mode: ChatMode;
+  style: ChatStyle;
   status: ChatStatus;
   startedAt: string;
   endedAt: string | null;
@@ -78,4 +89,6 @@ export interface LiveStart {
   limits: ChatLimits;
   cost: number;
   balance: CreditBalance;
+  style: ChatStyle;
+  clips: ChatClip[];
 }

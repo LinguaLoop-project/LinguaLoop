@@ -30,8 +30,12 @@ class LessonChatRepository {
     record LessonRow(UUID id, String title, String cefrLevel, boolean pro) {
     }
 
-    record ConversationRow(UUID id, UUID lessonId, String mode, boolean charged, String status, String summary,
-            Instant startedAt, Instant endedAt) {
+    record ConversationRow(UUID id, UUID lessonId, String mode, String style, boolean charged, String status,
+            String summary, Instant startedAt, Instant endedAt) {
+    }
+
+    /** Một câu của bài: nội dung và mốc thời gian để phát lại đoạn video. */
+    record SentenceRow(String text, int startMs, int endMs) {
     }
 
     record MessageRow(long id, boolean tutor, String content, String feedback, String better, String hint,
@@ -42,7 +46,7 @@ class LessonChatRepository {
     }
 
     private static final String CONVERSATION = """
-            SELECT id, lesson_id, mode, charged, status, summary, started_at, ended_at FROM ai_conversations""";
+            SELECT id, lesson_id, mode, style, charged, status, summary, started_at, ended_at FROM ai_conversations""";
 
     private final JdbcClient jdbc;
 
@@ -57,11 +61,19 @@ class LessonChatRepository {
                 .optional();
     }
 
+    /** Các câu của bài theo thứ tự thời gian. */
+    List<SentenceRow> sentences(UUID lessonId) {
+        return jdbc.sql("""
+                SELECT text_en, start_ms, end_ms FROM sentences
+                WHERE lesson_id = :id AND deleted_at IS NULL ORDER BY start_ms""")
+                .param("id", lessonId)
+                .query((rs, n) -> new SentenceRow(rs.getString("text_en"), rs.getInt("start_ms"), rs.getInt("end_ms")))
+                .list();
+    }
+
     /** Lời thoại tiếng Anh của bài, mỗi câu một dòng theo thứ tự thời gian. */
     String transcript(UUID lessonId) {
-        return String.join("\n", jdbc.sql("""
-                SELECT text_en FROM sentences WHERE lesson_id = :id AND deleted_at IS NULL ORDER BY start_ms""")
-                .param("id", lessonId).query(String.class).list());
+        return String.join("\n", sentences(lessonId).stream().map(SentenceRow::text).toList());
     }
 
     Optional<ConversationRow> findOwned(UUID userId, UUID lessonId, UUID conversationId) {
@@ -103,7 +115,7 @@ class LessonChatRepository {
      * chạy song song.
      */
     @Transactional
-    UUID startFresh(UUID userId, UUID lessonId, String mode) {
+    UUID startFresh(UUID userId, UUID lessonId, String mode, String style) {
         jdbc.sql("""
                 UPDATE ai_conversations
                 SET status = CASE WHEN mode = 'live' AND NOT charged THEN 'error' ELSE 'completed' END, ended_at = now()
@@ -111,9 +123,10 @@ class LessonChatRepository {
                 .param("user", userId).param("lesson", lessonId).update();
         try {
             return jdbc.sql("""
-                    INSERT INTO ai_conversations (user_id, lesson_id, mode) VALUES (:user, :lesson, :mode)
-                    RETURNING id""")
-                    .param("user", userId).param("lesson", lessonId).param("mode", mode).query(UUID.class).single();
+                    INSERT INTO ai_conversations (user_id, lesson_id, mode, style)
+                    VALUES (:user, :lesson, :mode, :style) RETURNING id""")
+                    .param("user", userId).param("lesson", lessonId).param("mode", mode).param("style", style)
+                    .query(UUID.class).single();
         } catch (DuplicateKeyException duplicate) {
             throw new BusinessException(ErrorCode.AI_CHAT_TURN_CONFLICT);
         }
@@ -252,7 +265,7 @@ class LessonChatRepository {
 
     private ConversationRow conversation(ResultSet rs, int n) throws SQLException {
         return new ConversationRow(rs.getObject("id", UUID.class), rs.getObject("lesson_id", UUID.class),
-                rs.getString("mode"), rs.getBoolean("charged"), rs.getString("status"), rs.getString("summary"), instant(rs.getTimestamp("started_at")),
+                rs.getString("mode"), rs.getString("style"), rs.getBoolean("charged"), rs.getString("status"), rs.getString("summary"), instant(rs.getTimestamp("started_at")),
                 instant(rs.getTimestamp("ended_at")));
     }
 

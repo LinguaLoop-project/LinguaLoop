@@ -22,6 +22,7 @@ public final class LessonChatView {
 
     /**
      * @param mode            {@code live} (giọng nói, Gemini Live) hoặc {@code text} (chat chữ dự phòng)
+     * @param style           kiểu trò chuyện: {@code qa}, {@code interview} hoặc {@code retell}
      * @param status          {@code active}, {@code completed} hoặc {@code error}
      * @param expiresAt       mốc hết 15 phút (BR-AI-11)
      * @param answered        số câu đã trả lời
@@ -29,7 +30,7 @@ public final class LessonChatView {
      * @param awaitingSummary đã trả lời đủ câu cuối nhưng nhận xét tổng quát chưa tạo được: gọi kết thúc để tạo lại
      * @param summary         nhận xét tổng quát; null nếu phiên dừng giữa chừng hoặc lỗi
      */
-    public record Session(UUID id, String mode, String status, Instant startedAt, Instant endedAt, Instant expiresAt, int answered,
+    public record Session(UUID id, String mode, String style, String status, Instant startedAt, Instant endedAt, Instant expiresAt, int answered,
             int maxQuestions, boolean awaitingSummary, String summary, List<Message> messages) {
     }
 
@@ -46,14 +47,19 @@ public final class LessonChatView {
             int idleAskSeconds, int idleEndSeconds) {
     }
 
+    /** Đoạn video của câu số {@code n} (từ 1) để gia sư mời học viên nghe lại; không kèm nội dung câu vì lời thoại được ẩn. */
+    public record Clip(int n, int startMs, int endMs) {
+    }
+
     /**
      * Phiên giọng nói vừa tạo: token Gemini Live dùng một lần và giới hạn. Chưa trừ credit; credit được trừ khi gia sư
      * nói câu đầu ({@code started}).
      *
      * @param cost credit sẽ trừ khi phiên bắt đầu
+     * @param clips các câu của bài với mốc thời gian, theo số thứ tự gia sư dùng khi gọi {@code play_clip}
      */
     public record LiveStart(UUID id, String token, String model, Instant tokenExpiresAt, Limits limits, int cost,
-            CreditBalance balance) {
+            CreditBalance balance, String style, List<Clip> clips) {
     }
 
     public record Hint(String hint, boolean cached) {

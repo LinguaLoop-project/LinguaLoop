@@ -7,12 +7,16 @@ import Icon from "@/components/common/Icon";
 import TutorStage from "@/features/tutor/components/TutorStage";
 import { useAiEnergy } from "@/hooks/useAiEnergy";
 import { useLiveChat } from "../hooks/useLiveChat";
+import type { ChatStyle } from "../types";
 import { formatClock } from "../utils";
 import ChatThread from "./ChatThread";
 import SummaryCard from "./SummaryCard";
 
 export interface LiveChatPanelProps {
   lessonId: string;
+  style: ChatStyle;
+  /** Phát đoạn video bên cạnh theo lời gia sư; trả về khi phát xong, false nếu không phát được. */
+  playClip: (startMs: number, endMs: number) => Promise<boolean>;
   /** Không dùng được micro hoặc Gemini Live: chuyển sang chat chữ. */
   onUseText: () => void;
   /** "Trò chuyện lần mới": mount lại khung để tạo phiên mới. */
@@ -25,12 +29,12 @@ export interface LiveChatPanelProps {
  * tục, gia sư nói và có thể bị ngắt lời, phụ đề hiện từng lượt, mỗi câu trả lời có thẻ nhận xét. Hết câu hỏi hoặc 15 phút
  * thì gia sư chào kết và nhận xét tổng quát hiện ra.
  */
-export default function LiveChatPanel({ lessonId, onUseText, onAgain, onBack }: Readonly<LiveChatPanelProps>) {
+export default function LiveChatPanel({ lessonId, style, playClip, onUseText, onAgain, onBack }: Readonly<LiveChatPanelProps>) {
   const { t } = useTranslation("aichat");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isPro } = useAiEnergy();
-  const { state, controller } = useLiveChat(lessonId);
+  const { state, controller } = useLiveChat(lessonId, style, playClip);
   const { phase, limits } = state;
 
   // Vào phiên sau một nhịp để StrictMode (mount, gỡ, mount lại) không bắt đầu rồi thoát ngay
@@ -52,7 +56,9 @@ export default function LiveChatPanel({ lessonId, onUseText, onAgain, onBack }: 
   const asked = state.messages.filter((m) => m.role === "tutor").length;
   const last = state.messages.at(-1);
   const waitingAnswer = live && last?.role === "tutor";
-  const caption = state.tutorSpeaking
+  const caption = state.playingClip
+    ? t("live.playingClip")
+    : state.tutorSpeaking
     ? t("live.speaking")
     : state.muted
       ? t("live.muted")

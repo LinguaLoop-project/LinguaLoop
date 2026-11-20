@@ -35,6 +35,10 @@ public class LessonChatController {
 
     private final LessonChatService service;
 
+    /** {@code style} có thể thiếu: mặc định hỏi đáp. */
+    record StartRequest(String style) {
+    }
+
     record QuestionRequest(String question) {
     }
 
@@ -48,8 +52,9 @@ public class LessonChatController {
 
     /** Mở phiên giọng nói (cũng là "Bắt đầu lại": cuộc đang mở được đóng và giữ trong lịch sử); chưa trừ credit. */
     @PostMapping("/live-sessions")
-    public ApiResponse<LiveStart> startLive(@CurrentUserId UUID userId, @PathVariable UUID lessonId) {
-        return ApiResponse.ok(service.startLive(userId, lessonId));
+    public ApiResponse<LiveStart> startLive(@CurrentUserId UUID userId, @PathVariable UUID lessonId,
+            @RequestBody(required = false) StartRequest request) {
+        return ApiResponse.ok(service.startLive(userId, lessonId, request == null ? null : request.style()));
     }
 
     /** Gia sư đã nói câu đầu: trừ credit cố định một lần. */
