@@ -1,0 +1,113 @@
+{
+  "title": "Practice with AI",
+  "breadcrumbLessons": "Lessons",
+  "card": {
+    "title": "Practice with AI",
+    "desc": "Chat with a tutor about the lesson. Answer by voice or text and get feedback tied to the video after every answer.",
+    "meta": "Up to 5 questions · 15 minutes",
+    "start": "Start chatting",
+    "openWithPro": "Unlock with Pro"
+  },
+  "intro": {
+    "heading": "Chat with a tutor about this lesson",
+    "desc": "The tutor asks about the characters and events in the video. You answer in English, the tutor checks your answer against the transcript and asks the next question.",
+    "ruleQuestions": "Up to 5 questions per conversation",
+    "ruleTime": "Up to 15 minutes, then the tutor wraps up",
+    "ruleCredit": "Each tutor turn costs credits based on its real cost; hints and reviewing history are free",
+    "ruleWatch": "Watch the video once before you start",
+    "start": "Start",
+    "starting": "The tutor is preparing the first question…"
+  },
+  "resume": {
+    "heading": "You have an unfinished conversation",
+    "desc": "{{count}} answered, {{time}} left.",
+    "continue": "Continue",
+    "restart": "Start over",
+    "restartNote": "The old conversation stays in your history."
+  },
+  "bar": {
+    "question": "Question {{n}}/{{max}}",
+    "timeLeft": "{{time}} left",
+    "credit": "{{balance}} credits",
+    "history": "History",
+    "restart": "Start over",
+    "finish": "Finish",
+    "finishNeedAnswer": "Answer at least one question before finishing"
+  },
+  "thread": {
+    "tutor": "Tutor",
+    "you": "You",
+    "voice": "Voice",
+    "feedback": "Feedback",
+    "better": "A more natural way to say it",
+    "hint": "Hint",
+    "thinking": "The tutor is replying…",
+    "creditUsed": "−{{charged}} credits · {{balance}} left"
+  },
+  "answer": {
+    "placeholder": "Answer in English…",
+    "label": "Your answer",
+    "send": "Send",
+    "counter": "{{count}}/{{max}}",
+    "record": "Record",
+    "recording": "Recording {{time}}",
+    "stopAndSend": "Stop and send",
+    "cancelRecording": "Discard recording",
+    "hint": "Hint",
+    "hintLoading": "Finding a hint…",
+    "tooShort": "That recording was too short, speak a little longer.",
+    "micDenied": "Can't use the microphone. Allow microphone access or type your answer.",
+    "retry": "Send again"
+  },
+  "summary": {
+    "title": "Overall feedback",
+    "expired": "The 15 minutes are up, so the tutor wrapped up the conversation.",
+    "stopped": "This conversation stopped midway, so it has no overall feedback.",
+    "failed": "The overall feedback could not be created.",
+    "retry": "Try again",
+    "again": "Start a new conversation",
+    "backToLesson": "Back to lesson",
+    "answered": "{{count}}/{{max}} questions answered"
+  },
+  "history": {
+    "title": "Conversation history",
+    "empty": "You have no conversations for this lesson yet.",
+    "item": "{{when}} · {{count}} answers",
+    "status": {
+      "active": "Open",
+      "completed": "Summarised",
+      "stopped": "Stopped midway",
+      "error": "Failed to start"
+    },
+    "open": "Review",
+    "free": "Reviewing costs no credits.",
+    "close": "Close",
+    "reviewing": "You are reviewing an old conversation (read only, no credits used).",
+    "backToCurrent": "Back to the current conversation",
+    "loadFailed": "Couldn't load the history.",
+    "retry": "Retry"
+  },
+  "video": {
+    "title": "Rewatch the video",
+    "hint": "The transcript is hidden so you answer on your own."
+  },
+  "errors": {
+    "QUOTA_EXCEEDED": "You don't have enough credits to start. Free credits refresh tomorrow; Pro credits refresh in your next plan month.",
+    "LESSON_PRO_REQUIRED": "This lesson is for Pro.",
+    "LESSON_NOT_FOUND": "This lesson was not found.",
+    "AI_CHAT_NO_SPEECH": "No speech was heard in the recording. Record again; this answer was not counted.",
+    "AI_CHAT_ANSWER_INVALID": "An answer needs 1 to 1000 characters, or a recording of 0.5 to 30 seconds.",
+    "AI_FEEDBACK_BUSY": "The AI is busy, try again in a few minutes. No credits were used.",
+    "AI_FEEDBACK_UNAVAILABLE": "The tutor is temporarily unavailable. No credits were used, please try again later.",
+    "AI_CHAT_TURN_CONFLICT": "This question was just answered elsewhere. The conversation was reloaded.",
+    "AI_CHAT_NOT_ACTIVE": "This conversation has ended.",
+    "AI_CHAT_FINISH_TOO_EARLY": "Answer at least one question before finishing.",
+    "AI_CHAT_NOT_FOUND": "This conversation was not found.",
+    "NETWORK_ERROR": "Connection lost. Check your network and try again.",
+    "generic": "Something went wrong, please try again."
+  },
+  "upgrade": "Unlock with Pro",
+  "loading": "Loading…",
+  "loadFailed": "Couldn't load the conversation.",
+  "retry": "Retry"
+}

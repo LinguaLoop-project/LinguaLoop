@@ -1,0 +1,113 @@
+{
+  "title": "Thực hành với AI",
+  "breadcrumbLessons": "Bài học",
+  "card": {
+    "title": "Thực hành với AI",
+    "desc": "Trò chuyện với gia sư về nội dung bài. Trả lời bằng giọng nói hoặc gõ chữ, nhận xét sát với video sau từng câu.",
+    "meta": "Tối đa 5 câu hỏi · 15 phút",
+    "start": "Bắt đầu trò chuyện",
+    "openWithPro": "Mở với Pro"
+  },
+  "intro": {
+    "heading": "Trò chuyện với gia sư về bài học này",
+    "desc": "Gia sư đặt câu hỏi về nhân vật và diễn biến trong video. Bạn trả lời bằng tiếng Anh, gia sư nhận xét đối chiếu với lời thoại rồi hỏi tiếp.",
+    "ruleQuestions": "Tối đa 5 câu hỏi cho mỗi cuộc trò chuyện",
+    "ruleTime": "Tối đa 15 phút, hết giờ gia sư sẽ tổng kết",
+    "ruleCredit": "Mỗi lượt của gia sư trừ credit theo chi phí thực tế; xin gợi ý và xem lại lịch sử đều miễn phí",
+    "ruleWatch": "Nên xem video một lần trước khi bắt đầu",
+    "start": "Bắt đầu",
+    "starting": "Gia sư đang chuẩn bị câu hỏi…"
+  },
+  "resume": {
+    "heading": "Bạn có một cuộc trò chuyện đang dở",
+    "desc": "Đã trả lời {{count}} câu, còn {{time}}.",
+    "continue": "Tiếp tục",
+    "restart": "Bắt đầu lại",
+    "restartNote": "Cuộc trò chuyện cũ vẫn được giữ trong lịch sử."
+  },
+  "bar": {
+    "question": "Câu {{n}}/{{max}}",
+    "timeLeft": "Còn {{time}}",
+    "credit": "{{balance}} credit",
+    "history": "Lịch sử",
+    "restart": "Bắt đầu lại",
+    "finish": "Kết thúc",
+    "finishNeedAnswer": "Hãy trả lời ít nhất một câu trước khi kết thúc"
+  },
+  "thread": {
+    "tutor": "Gia sư",
+    "you": "Bạn",
+    "voice": "Giọng nói",
+    "feedback": "Nhận xét",
+    "better": "Cách nói tự nhiên hơn",
+    "hint": "Gợi ý",
+    "thinking": "Gia sư đang trả lời…",
+    "creditUsed": "−{{charged}} credit · còn {{balance}}"
+  },
+  "answer": {
+    "placeholder": "Trả lời bằng tiếng Anh…",
+    "label": "Câu trả lời của bạn",
+    "send": "Gửi",
+    "counter": "{{count}}/{{max}}",
+    "record": "Ghi âm",
+    "recording": "Đang ghi âm {{time}}",
+    "stopAndSend": "Dừng và gửi",
+    "cancelRecording": "Hủy bản ghi",
+    "hint": "Gợi ý",
+    "hintLoading": "Đang tìm gợi ý…",
+    "tooShort": "Bản ghi quá ngắn, hãy nói lâu hơn một chút.",
+    "micDenied": "Không dùng được micro. Hãy cấp quyền micro hoặc gõ chữ để trả lời.",
+    "retry": "Gửi lại"
+  },
+  "summary": {
+    "title": "Nhận xét tổng quát",
+    "expired": "Đã hết 15 phút nên gia sư tổng kết cuộc trò chuyện.",
+    "stopped": "Cuộc trò chuyện này dừng giữa chừng nên không có nhận xét tổng quát.",
+    "failed": "Chưa tạo được nhận xét tổng quát.",
+    "retry": "Thử lại",
+    "again": "Trò chuyện lần mới",
+    "backToLesson": "Về bài học",
+    "answered": "Đã trả lời {{count}}/{{max}} câu"
+  },
+  "history": {
+    "title": "Lịch sử hội thoại",
+    "empty": "Bạn chưa có cuộc trò chuyện nào trong bài này.",
+    "item": "{{when}} · {{count}} câu",
+    "status": {
+      "active": "Đang mở",
+      "completed": "Đã tổng kết",
+      "stopped": "Dừng giữa chừng",
+      "error": "Lỗi khởi tạo"
+    },
+    "open": "Xem lại",
+    "free": "Xem lại không tốn credit.",
+    "close": "Đóng",
+    "reviewing": "Bạn đang xem lại một cuộc trò chuyện cũ (chỉ đọc, không tốn credit).",
+    "backToCurrent": "Quay lại cuộc trò chuyện hiện tại",
+    "loadFailed": "Không tải được lịch sử.",
+    "retry": "Thử lại"
+  },
+  "video": {
+    "title": "Xem lại video",
+    "hint": "Lời thoại được ẩn để bạn tự trả lời."
+  },
+  "errors": {
+    "QUOTA_EXCEEDED": "Bạn không đủ credit để bắt đầu. Gói Free nhận credit mới vào ngày mai, gói Pro vào tháng mới của gói.",
+    "LESSON_PRO_REQUIRED": "Bài này dành cho gói Pro.",
+    "LESSON_NOT_FOUND": "Không tìm thấy bài học này.",
+    "AI_CHAT_NO_SPEECH": "Không nghe thấy giọng nói trong bản ghi. Hãy ghi âm lại, câu này chưa tính.",
+    "AI_CHAT_ANSWER_INVALID": "Câu trả lời cần từ 1 đến 1000 ký tự, hoặc bản ghi từ 0,5 đến 30 giây.",
+    "AI_FEEDBACK_BUSY": "AI đang bận, hãy thử lại sau ít phút. Chưa tốn credit.",
+    "AI_FEEDBACK_UNAVAILABLE": "Gia sư tạm thời không dùng được. Chưa tốn credit, bạn thử lại sau nhé.",
+    "AI_CHAT_TURN_CONFLICT": "Câu hỏi này vừa được trả lời ở nơi khác. Đã tải lại cuộc trò chuyện.",
+    "AI_CHAT_NOT_ACTIVE": "Cuộc trò chuyện này đã kết thúc.",
+    "AI_CHAT_FINISH_TOO_EARLY": "Hãy trả lời ít nhất một câu trước khi kết thúc.",
+    "AI_CHAT_NOT_FOUND": "Không tìm thấy cuộc trò chuyện này.",
+    "NETWORK_ERROR": "Mất kết nối. Hãy kiểm tra mạng rồi thử lại.",
+    "generic": "Có lỗi xảy ra, hãy thử lại."
+  },
+  "upgrade": "Mở với Pro",
+  "loading": "Đang tải…",
+  "loadFailed": "Không tải được cuộc trò chuyện.",
+  "retry": "Thử lại"
+}

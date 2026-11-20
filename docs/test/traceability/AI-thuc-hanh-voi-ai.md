@@ -2,21 +2,21 @@
 
 > Nguồn AC: `docs/srs/AI-thuc-hanh-voi-ai/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 30 AC, 0 đã có test, 0 một phần, 30 thiếu.
+Tổng hợp: 30 AC, 11 đã có test, 0 một phần, 19 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
-| AC-AI-01 | Khởi tạo cuộc trò chuyện theo nội dung bài học và trừ hạn mức AI chung | UC-AI-01 |  |  | Thiếu |
-| AC-AI-02 | Trả lời bằng giọng nói hoặc gõ chữ và nhận phản hồi đối chiếu với nhân vật trong bài | UC-AI-01 |  |  | Thiếu |
-| AC-AI-03 | Xin gợi ý trả lời cho câu hỏi hiện tại | UC-AI-01 |  |  | Thiếu |
-| AC-AI-04 | Bắt đầu lại cuộc trò chuyện | UC-AI-01 |  |  | Thiếu |
-| AC-AI-05 | Kết thúc cuộc trò chuyện và nhận xét tổng quát về bài nói | UC-AI-01 |  |  | Thiếu |
-| AC-AI-06 | Xem lại lịch sử hội thoại của riêng tác nhân không tốn credit | UC-AI-01 |  |  | Thiếu |
-| AC-AI-07 | Từ chối khi không đủ credit để bắt đầu | UC-AI-01 |  |  | Thiếu |
-| AC-AI-08 | Học viên gói Pro dùng AI theo credit của gói, không giới hạn số lượt | UC-AI-01 |  |  | Thiếu |
-| AC-AI-09 | Từ chối khi bài học thuộc gói Pro đối với gói Free | UC-AI-01 |  |  | Thiếu |
-| AC-AI-10 | Nhắc nhở khi câu trả lời trống hoặc bản ghi âm không hợp lệ | UC-AI-01 |  |  | Thiếu |
-| AC-AI-11 | Không trừ credit khi lỗi khởi tạo và cho phép thử lại khi lỗi giữa phiên | UC-AI-01 |  |  | Thiếu |
+| AC-AI-01 | Khởi tạo cuộc trò chuyện theo nội dung bài học và trừ hạn mức AI chung | UC-AI-01 | D, A | LessonChatApiIntegrationTest.start_asksFirstQuestionFromLessonAndChargesTheOpeningTurn_AC_AI_01; LessonChatApiIntegrationTest.lessonThatIsDraftOrDeleted_isNotFound_AC_AI_01 | Đã có |
+| AC-AI-02 | Trả lời bằng giọng nói hoặc gõ chữ và nhận phản hồi đối chiếu với nhân vật trong bài | UC-AI-01 | D, A | LessonChatApiIntegrationTest.answerByText_returnsFeedbackAndNextQuestionAndChargesTheTurn_AC_AI_02; LessonChatApiIntegrationTest.answerByVoice_isTranscribedAndStoredAsVoice_AC_AI_02; LessonChatApiIntegrationTest.staleSecondSubmit_isRejectedAndNotCharged_AC_AI_02; GeminiLessonChatAiTest.reply_readsFeedbackAndNextQuestionAndReportsTokens_AC_AI_02 | Đã có |
+| AC-AI-03 | Xin gợi ý trả lời cho câu hỏi hiện tại | UC-AI-01 | D | LessonChatApiIntegrationTest.hint_isFreeAndGeneratedOncePerQuestion_AC_AI_03 | Đã có |
+| AC-AI-04 | Bắt đầu lại cuộc trò chuyện | UC-AI-01 | D | LessonChatApiIntegrationTest.restart_closesTheOldSessionAndKeepsItInHistory_AC_AI_04 | Đã có |
+| AC-AI-05 | Kết thúc cuộc trò chuyện và nhận xét tổng quát về bài nói | UC-AI-01 | D, A, B | LessonChatApiIntegrationTest.finishAfterAnswering_createsSummaryAndClosesTheSession_AC_AI_05; LessonChatApiIntegrationTest.finishBeforeAnyAnswer_isRejected_AC_AI_05; LessonChatApiIntegrationTest.fifthAnswer_endsTheSessionWithSummaryAndNoSixthQuestion_AC_AI_05; LessonChatApiIntegrationTest.answerAfter15Minutes_isNotAcceptedAndTheSessionEndsWithSummary_AC_AI_05 | Đã có |
+| AC-AI-06 | Xem lại lịch sử hội thoại của riêng tác nhân không tốn credit | UC-AI-01 | D, A | LessonChatApiIntegrationTest.history_isFreeAndPrivateToTheOwner_AC_AI_06; LessonChatApiIntegrationTest.endpoints_areForStudentsOnly_AC_AI_06 | Đã có |
+| AC-AI-07 | Từ chối khi không đủ credit để bắt đầu | UC-AI-01 | A, B | LessonChatApiIntegrationTest.start_isRejectedWhenBalanceIsBelowTheMinimum_AC_AI_07; LessonChatApiIntegrationTest.start_isAllowedAtTheMinimumBalance_AC_AI_07 | Đã có |
+| AC-AI-08 | Học viên gói Pro dùng AI theo credit của gói, không giới hạn số lượt | UC-AI-01 | D | LessonChatApiIntegrationTest.proStudent_usesThePlanCreditsWithoutALimitOnSessions_AC_AI_08 | Đã có |
+| AC-AI-09 | Từ chối khi bài học thuộc gói Pro đối với gói Free | UC-AI-01 | A | LessonChatApiIntegrationTest.proLesson_isRejectedForFreeStudent_AC_AI_09 | Đã có |
+| AC-AI-10 | Nhắc nhở khi câu trả lời trống hoặc bản ghi âm không hợp lệ | UC-AI-01 | A, B | LessonChatApiIntegrationTest.emptyOrOversizedAnswer_isRejectedWithoutCountingTheTurn_AC_AI_10; LessonChatApiIntegrationTest.invalidRecording_isRejectedBeforeCallingTheAi_AC_AI_10; LessonChatApiIntegrationTest.recordingWithoutSpeech_doesNotCountTheTurnOrCharge_AC_AI_10 | Đã có |
+| AC-AI-11 | Không trừ credit khi lỗi khởi tạo và cho phép thử lại khi lỗi giữa phiên | UC-AI-01 | A, D | LessonChatApiIntegrationTest.openingFailure_closesTheSessionWithErrorAndDoesNotCharge_AC_AI_11; LessonChatApiIntegrationTest.midSessionFailure_keepsTheSessionAndAllowsRetryWithoutCharging_AC_AI_11; LessonChatApiIntegrationTest.summaryFailureAfterTheLastAnswer_keepsTheAnswerAndCanBeRetried_AC_AI_11 | Đã có |
 | AC-AI-12 | Tự động mời gia sư khi có từ dưới 60 điểm hoặc lỗi âm vị lặp lại và đảm bảo giãn cách 3 câu | UC-AI-02 |  |  | Thiếu |
 | AC-AI-13 | Tạo Phiên gia sư khi đủ credit tối thiểu (kể cả câu đã đọc tốt) | UC-AI-02 |  |  | Thiếu |
 | AC-AI-14 | Chỉ trừ credit khi phiên thực sự bắt đầu trong 15 giây | UC-AI-02 |  |  | Thiếu |
