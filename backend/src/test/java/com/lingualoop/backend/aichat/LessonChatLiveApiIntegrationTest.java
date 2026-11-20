@@ -95,6 +95,9 @@ class LessonChatLiveApiIntegrationTest {
         verify(tokenIssuer).issueWith(spec.capture());
         // lời thoại được đánh số để gia sư chọn đoạn phát lại
         assertThat(spec.getValue().systemPrompt()).contains("[1] I woke up early today.", "[2] Then I went to work.", "Morning");
+        // gia sư ghi câu liên quan của mỗi câu hỏi để nút "Nghe lại đoạn này" biết phát đoạn nào
+        assertThat(spec.getValue().systemPrompt()).contains("kèm sentence");
+        assertThat(spec.getValue().tools().get(0).parameters().orElseThrow().properties().orElseThrow()).containsKeys("question", "sentence");
         assertThat(spec.getValue().tools()).extracting(tool -> tool.name().orElseThrow())
                 .containsExactly("next_question", "give_feedback", "play_clip", "end_session");
         assertThat(spec.getValue().lifetime()).isEqualTo(Duration.ofMinutes(17));

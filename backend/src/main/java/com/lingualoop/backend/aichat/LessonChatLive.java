@@ -30,7 +30,11 @@ final class LessonChatLive {
         return List.of(
                 declaration("next_question",
                         "Ghi lại câu hỏi (hoặc lời mời người học nói) mà bạn sắp hỏi. Gọi trước khi đọc, mỗi câu một lần.",
-                        Map.of("question", string("Câu hỏi hoặc lời mời nói bằng tiếng Anh", null)), "question"),
+                        Map.of(
+                                "question", string("Câu hỏi hoặc lời mời nói bằng tiếng Anh", null),
+                                "sentence", integerParam("Số của câu trong lời thoại (số trong ngoặc vuông) mà câu hỏi "
+                                        + "liên quan nhất; bỏ trống nếu không gắn với câu cụ thể")),
+                        "question"),
                 declaration("give_feedback",
                         "Ghi lại câu trả lời của người học cho câu hỏi hiện tại cùng nhận xét. Gọi ngay sau khi họ "
                                 + "trả lời, trước khi bạn nói nhận xét.",

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LiveChatController, errorCode } from "./controller";
-import type { LiveChatParams } from "./controller";
+import type { LiveChatParams, PlayClip } from "./controller";
 import type { ChatMessage, ChatSession, ChatTurn, LiveStart } from "./types";
 
 // Gemini, micro và loa là thật khi chạy app; ở đây thay bằng bản giả để kiểm luồng của controller.
@@ -454,6 +454,103 @@ describe("kiểu trò chuyện và phát lại video", () => {
 
     expect(play).toHaveBeenCalledTimes(3);
     expect(h.live.sendToolResponse.mock.calls.at(-1)![0].functionResponses[0].response.error).toBeTruthy();
+  });
+});
+
+describe("người học bấm nghe lại video", () => {
+  const askWithSentence = async (play: PlayClip, sentence?: number) => {
+    api.liveQuestion.mockResolvedValue(session([msg(1, "tutor")]));
+    const controller = await openLive();
+    controller.setPlayClip(play);
+    tutorSpeaks();
+    toolCall("next_question", { question: "Q?", ...(sentence ? { sentence } : {}) });
+    await flush();
+    h.live.sendRealtimeInput.mockClear();
+    return controller;
+  };
+
+  it("câu hỏi gắn với một câu của bài: phát ngay đoạn đó rồi báo gia sư, mỗi câu hỏi một lần", async () => {
+    const play = vi.fn().mockResolvedValue(true);
+    const controller = await askWithSentence(play, 2);
+    expect(controller.getState().questionClipN).toBe(2);
+
+    await controller.replayClip();
+
+    expect(play).toHaveBeenCalledWith(4000, 8000);
+    expect(h.live.sendRealtimeInput).toHaveBeenCalledWith({ text: expect.stringContaining("câu 2") });
+    expect(controller.getState().replayUsed).toBe(true);
+    await controller.replayClip(); // lần hai cho cùng câu hỏi bị bỏ qua
+    expect(play).toHaveBeenCalledTimes(1);
+  });
+
+  it("câu hỏi mới mở lại lượt nghe lại và không tính vào 3 lần của gia sư", async () => {
+    const play = vi.fn().mockResolvedValue(true);
+    const controller = await askWithSentence(play, 1);
+    await controller.replayClip();
+    api.liveQuestion.mockResolvedValue(session([msg(1, "tutor"), msg(2, "student"), msg(3, "tutor")]));
+    toolCall("next_question", { question: "Q2?", sentence: 2 });
+    await flush();
+
+    expect(controller.getState().replayUsed).toBe(false);
+    expect(controller.getState().questionClipN).toBe(2);
+    for (let i = 0; i < 3; i++) {
+      toolCall("play_clip", { sentence: 1 });
+      await flush();
+      await vi.advanceTimersByTimeAsync(2_000);
+    }
+    expect(play).toHaveBeenCalledTimes(4); // một lần bấm tay và ba lần gia sư
+  });
+
+  it("câu hỏi không gắn câu nào: nhờ gia sư chọn đoạn thay vì tự phát", async () => {
+    const play = vi.fn().mockResolvedValue(true);
+    const controller = await askWithSentence(play);
+    expect(controller.getState().questionClipN).toBeNull();
+
+    await controller.replayClip();
+
+    expect(play).not.toHaveBeenCalled();
+    expect(h.live.sendRealtimeInput).toHaveBeenCalledWith({ text: expect.stringContaining("play_clip") });
+  });
+
+  it("số câu không có trong bài thì coi như không gắn câu nào", async () => {
+    const controller = await askWithSentence(vi.fn().mockResolvedValue(true), 99);
+    expect(controller.getState().questionClipN).toBeNull();
+  });
+
+  it("video không phát được: không báo gia sư và cho bấm lại", async () => {
+    const play = vi.fn().mockResolvedValue(false);
+    const controller = await askWithSentence(play, 1);
+
+    await controller.replayClip();
+
+    expect(controller.getState().replayUsed).toBe(false);
+    expect(h.live.sendRealtimeInput).not.toHaveBeenCalled();
+  });
+
+  it("chưa có câu hỏi chờ trả lời thì không phát", async () => {
+    const play = vi.fn().mockResolvedValue(true);
+    const controller = await openLive();
+    controller.setPlayClip(play);
+
+    await controller.replayClip();
+
+    expect(play).not.toHaveBeenCalled();
+  });
+
+  it("video bên cạnh đang phát (người học tự bấm): không gửi micro, và còn khóa thêm một đoạn đuôi", async () => {
+    const controller = await openLive();
+    h.live.sendRealtimeInput.mockClear();
+
+    controller.setExternalAudio(true);
+    h.onChunk!(new Int16Array(10));
+    expect(h.live.sendRealtimeInput).not.toHaveBeenCalled();
+
+    controller.setExternalAudio(false);
+    h.onChunk!(new Int16Array(10));
+    expect(h.live.sendRealtimeInput).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(2_000);
+    h.onChunk!(new Int16Array(10));
+    expect(h.live.sendRealtimeInput).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -9,7 +9,7 @@ import com.lingualoop.backend.aichat.LessonChatAi.Line;
 final class LessonChatPrompts {
 
     /** Đổi khi sửa lời nhắc đủ nhiều để kết quả cũ không còn so sánh được. */
-    static final String VERSION = "lesson-chat-v3";
+    static final String VERSION = "lesson-chat-v4";
 
     /** Lời thoại dài hơn mức này thì cắt: các bài rất dài vượt cửa sổ ngữ cảnh và đẩy chi phí lên vô ích. */
     static final int MAX_TRANSCRIPT_CHARS = 15_000;
@@ -56,11 +56,12 @@ final class LessonChatPrompts {
                 2. Rồi mới nói: phản ứng ngắn với điều họ vừa nói, NÓI LẠI câu của họ một cách tự nhiên và đúng (không bảo \
                 "bạn sai chỗ này", không giảng ngữ pháp), rồi hỏi tiếp một câu bám vào chính điều họ vừa nói nếu có thể.
                 3. Làm theo "instruction" trong kết quả của tool: nếu còn lượt thì gọi next_question với đúng câu bạn sắp hỏi, \
-                rồi mới đọc câu đó; nếu đã đủ %d lượt thì chào kết ngắn gọn rồi gọi end_session.
+                rồi mới đọc câu đó (kèm sentence = số câu trong lời thoại mà câu hỏi liên quan nhất, bỏ trống nếu không gắn với câu cụ thể; \
+                người học dùng số này để bấm nghe lại đoạn video); nếu đã đủ %d lượt thì chào kết ngắn gọn rồi gọi end_session.
                 4. Chỉ khi người học hiểu sai chi tiết trong video mới nói rõ chỗ đúng, thật ngắn, dựa trên lời thoại.
 
                 MỞ ĐẦU: khi nhận tin "[Hệ thống] Người học đã vào phiên": chào ngắn một câu, rồi theo KIỂU TRÒ CHUYỆN ở trên gọi \
-                next_question với câu hỏi hoặc lời mời nói đầu tiên và đọc nó.
+                next_question với câu hỏi hoặc lời mời nói đầu tiên (kèm sentence nếu có) và đọc nó.
 
                 NGÔN NGỮ: nói tiếng Anh đơn giản, đúng trình độ làm chủ yếu. Chỉ dùng tiếng Việt (1 câu) khi người học không \
                 hiểu, khi giải thích gợi ý, hoặc khi trình độ là A1-A2.

@@ -42,7 +42,8 @@ export default function AiChatPage() {
 
   // Khung video bên cạnh do trình phát YouTube điều khiển được, để gia sư mời nghe lại một đoạn (play_clip)
   const videoBox = useRef<HTMLDivElement>(null);
-  const clipPlayer = useSegmentPlayer(lesson.data?.youtubeId ?? null, videoBox);
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const clipPlayer = useSegmentPlayer(lesson.data?.youtubeId ?? null, videoBox, setVideoPlaying);
   const playClip = async (startMs: number, endMs: number): Promise<boolean> => {
     if (clipPlayer.status !== "ready") return false;
     clipPlayer.play("clip", startMs, endMs);
@@ -220,6 +221,7 @@ export default function AiChatPage() {
                 lessonId={lessonId}
                 style={style}
                 playClip={playClip}
+                videoPlaying={videoPlaying}
                 onUseText={() => {
                   setMode("text");
                   again();

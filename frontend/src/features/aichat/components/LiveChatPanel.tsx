@@ -17,6 +17,8 @@ export interface LiveChatPanelProps {
   style: ChatStyle;
   /** Phát đoạn video bên cạnh theo lời gia sư; trả về khi phát xong, false nếu không phát được. */
   playClip: (startMs: number, endMs: number) => Promise<boolean>;
+  /** Video bên cạnh đang phát (kể cả người học tự bấm): micro tạm khóa để không thu tiếng video. */
+  videoPlaying: boolean;
   /** Không dùng được micro hoặc Gemini Live: chuyển sang chat chữ. */
   onUseText: () => void;
   /** "Trò chuyện lần mới": mount lại khung để tạo phiên mới. */
@@ -29,7 +31,7 @@ export interface LiveChatPanelProps {
  * tục, gia sư nói và có thể bị ngắt lời, phụ đề hiện từng lượt, mỗi câu trả lời có thẻ nhận xét. Hết câu hỏi hoặc 15 phút
  * thì gia sư chào kết và nhận xét tổng quát hiện ra.
  */
-export default function LiveChatPanel({ lessonId, style, playClip, onUseText, onAgain, onBack }: Readonly<LiveChatPanelProps>) {
+export default function LiveChatPanel({ lessonId, style, playClip, videoPlaying, onUseText, onAgain, onBack }: Readonly<LiveChatPanelProps>) {
   const { t } = useTranslation("aichat");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -42,6 +44,10 @@ export default function LiveChatPanel({ lessonId, style, playClip, onUseText, on
     const timer = setTimeout(() => void controller.start(), 0);
     return () => clearTimeout(timer);
   }, [controller]);
+
+  useEffect(() => {
+    controller.setExternalAudio(videoPlaying);
+  }, [controller, videoPlaying]);
 
   // Phiên kết thúc: lịch sử có thêm một dòng
   const reported = useRef(false);
@@ -154,6 +160,16 @@ export default function LiveChatPanel({ lessonId, style, playClip, onUseText, on
                   leftIcon={<Icon name="lightbulb" />}
                 >
                   {t("answer.hint")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={!waitingAnswer || state.replayUsed || state.playingClip}
+                  title={t("live.replayHint")}
+                  onClick={() => void controller.replayClip()}
+                  leftIcon={<Icon name="rotate-ccw" />}
+                >
+                  {t("live.replay")}
                 </Button>
                 <Button variant="text" size="sm" onClick={() => controller.leave()} leftIcon={<Icon name="check-check" />}>
                   {state.answered >= 1 ? t("bar.finish") : t("live.leave")}

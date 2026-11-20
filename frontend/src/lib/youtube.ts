@@ -16,7 +16,7 @@ export interface YouTubeNamespace {
     options: {
       videoId: string;
       playerVars: Record<string, string | number>;
-      events: { onReady: () => void; onError: () => void };
+      events: { onReady: () => void; onError: () => void; onStateChange?: (event: { data: number }) => void };
     },
   ) => YouTubePlayer;
 }

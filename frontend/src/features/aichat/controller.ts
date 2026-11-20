@@ -22,6 +22,10 @@ export type LiveChatState = {
   tutorSpeaking: boolean;
   /** Đang phát lại một đoạn video theo lời gia sư: micro tạm khóa để không thu tiếng video. */
   playingClip: boolean;
+  /** Số câu trong lời thoại mà câu hỏi hiện tại liên quan nhất (gia sư báo qua next_question); null nếu không gắn câu nào. */
+  questionClipN: number | null;
+  /** Người học đã bấm nghe lại cho câu hỏi hiện tại: mỗi câu hỏi một lần. */
+  replayUsed: boolean;
   /** Phụ đề trực tiếp của lượt đang nói, mỗi bên một dòng. */
   captions: { tutor: string; learner: string };
   hintLoading: boolean;
@@ -55,6 +59,9 @@ const IDLE_ASK_TEXT =
 const NUDGE_QUESTION_TEXT =
   "[Hệ thống] Bạn vừa nói xong mà chưa gọi tool next_question. Hãy gọi next_question ngay với câu hỏi vừa nói (đừng " +
   "nói tên tool ra lời); nếu chưa hỏi gì thì hỏi câu mới rồi gọi tool.";
+const REPLAY_ASK_TEXT =
+  "[Hệ thống] Người học đang bí và bấm nút nghe lại video. Hãy chọn đoạn phù hợp nhất với câu hỏi hiện tại, nói ngắn " +
+  "\"Let's listen to that part again\" rồi gọi play_clip.";
 const NUDGE_END_TEXT = "[Hệ thống] Đã đủ số câu hỏi. Hãy gọi end_session ngay (đừng nói tên tool ra lời).";
 const NUDGE_AFTER_MS = 7000;
 const MAX_NUDGES = 3;
@@ -80,6 +87,8 @@ const INITIAL: LiveChatState = {
   muted: false,
   tutorSpeaking: false,
   playingClip: false,
+  questionClipN: null,
+  replayUsed: false,
   captions: { tutor: "", learner: "" },
   hintLoading: false,
   finalSession: null,
@@ -108,6 +117,8 @@ export class LiveChatController {
   #clips: ChatClip[] = [];
   #clipsUsed = 0;
   #micBlockedUntil = 0;
+  /** Video bên cạnh đang phát (người học tự bấm hoặc theo lời gia sư): không gửi micro để tiếng video không thành lời người học. */
+  #externalAudio = false;
   #started = false;
   /** Lời báo `started` đang bay; các tool phải chờ nó xong vì server chỉ nhận câu hỏi sau khi đã trừ credit. */
   #startedCall: Promise<void> = Promise.resolve();
@@ -378,6 +389,8 @@ export class LiveChatController {
           if (this.#finishing) return;
           this.#expect = null;
           this.#applySession(session);
+          const n = Number(args.sentence);
+          this.#set({ questionClipN: this.#clips.some((c) => c.n === n) ? n : null, replayUsed: false });
           this.#respond(id, call.name, { ok: true, question_number: session.messages.filter((m) => m.role === "tutor").length });
         } catch (err) {
           const code = errorCode(err);
@@ -463,15 +476,8 @@ export class LiveChatController {
       return;
     }
     this.#clipsUsed++;
-    this.#learnerActivity();
-    this.#player?.flush();
-    this.#micBlockedUntil = performance.now() + (clip.endMs - clip.startMs) + CLIP_MIC_TAIL_MS;
-    this.#set({ playingClip: true });
-    const played = await playClip(clip.startMs, clip.endMs).catch(() => false);
-    this.#micBlockedUntil = performance.now() + CLIP_MIC_TAIL_MS;
-    this.#learnerActivity();
+    const played = await this.#runClip(clip, playClip);
     if (this.#finishing) return;
-    this.#set({ playingClip: false });
     this.#respond(
       id,
       name,
@@ -479,6 +485,53 @@ export class LiveChatController {
         ? { ok: true, instruction: "Đoạn video đã phát xong. Hỏi người học về điều họ vừa nghe." }
         : { error: "Không phát được video.", instruction: "Cứ hỏi tiếp bình thường, đừng gọi lại play_clip." },
     );
+  }
+
+  /** Phát đoạn video, khóa micro trong lúc phát cộng một đoạn đuôi, rồi trả về có phát được không. */
+  async #runClip(clip: ChatClip, playClip: PlayClip): Promise<boolean> {
+    this.#learnerActivity();
+    this.#player?.flush();
+    this.#micBlockedUntil = performance.now() + (clip.endMs - clip.startMs) + CLIP_MIC_TAIL_MS;
+    this.#set({ playingClip: true });
+    const played = await playClip(clip.startMs, clip.endMs).catch(() => false);
+    this.#micBlockedUntil = performance.now() + CLIP_MIC_TAIL_MS;
+    this.#learnerActivity();
+    this.#set({ playingClip: false });
+    return played;
+  }
+
+  /**
+   * Người học bí và bấm "Nghe lại đoạn này" (miễn phí, một lần cho mỗi câu hỏi). Câu hỏi gắn với một câu của bài thì phát
+   * ngay đoạn đó; không thì nhờ gia sư chọn đoạn rồi gọi play_clip.
+   */
+  async replayClip() {
+    const { phase, replayUsed, playingClip, messages, questionClipN } = this.#state;
+    const playClip = this.#playClipFn;
+    if (phase !== "live" || replayUsed || playingClip || messages.at(-1)?.role !== "tutor" || !playClip) return;
+    this.#set({ replayUsed: true });
+    const clip = this.#clips.find((c) => c.n === questionClipN);
+    if (!clip) {
+      this.#learnerActivity();
+      this.#live?.sendRealtimeInput({ text: REPLAY_ASK_TEXT });
+      return;
+    }
+    const played = await this.#runClip(clip, playClip);
+    if (this.#finishing) return;
+    if (!played) {
+      this.#set({ replayUsed: false }); // video không phát được: cho thử lại
+      return;
+    }
+    this.#live?.sendRealtimeInput({
+      text:
+        `[Hệ thống] Người học vừa bấm nghe lại đoạn video của câu ${clip.n}. Hãy hỏi lại ngắn gọn câu hỏi hiện tại hoặc ` +
+        "gợi ý nhẹ, đừng gọi tool.",
+    });
+  }
+
+  /** Trang báo video bên cạnh đang phát hay dừng. Ngừng phát thì micro còn khóa thêm một đoạn đuôi. */
+  setExternalAudio(playing: boolean) {
+    this.#externalAudio = playing;
+    if (!playing) this.#micBlockedUntil = Math.max(this.#micBlockedUntil, performance.now() + CLIP_MIC_TAIL_MS);
   }
 
   #applySession(session: ChatSession) {
@@ -500,7 +553,7 @@ export class LiveChatController {
 
   #onMicChunk(pcm: Int16Array) {
     this.#micLevel = int16Level(pcm);
-    if (this.#state.phase === "live" && this.#live && !this.#finishing && !this.#state.muted && performance.now() >= this.#micBlockedUntil) {
+    if (this.#state.phase === "live" && this.#live && !this.#finishing && !this.#state.muted && !this.#externalAudio && performance.now() >= this.#micBlockedUntil) {
       try {
         this.#live.sendRealtimeInput({ audio: { data: int16ToBase64(pcm), mimeType: `audio/pcm;rate=${MIC_RATE}` } });
       } catch (err) {
@@ -669,6 +722,7 @@ export class LiveChatController {
     this.#clips = [];
     this.#clipsUsed = 0;
     this.#micBlockedUntil = 0;
+    this.#externalAudio = false;
     this.#finishing = false;
     this.#activeMs = 0;
     this.#idleMs = 0;

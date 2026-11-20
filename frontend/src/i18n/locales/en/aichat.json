@@ -117,7 +117,9 @@
     "fallbackTitle": "Could not start the conversation",
     "fallbackGeneric": "Could not connect to the voice tutor. You were not charged.",
     "useText": "Use text chat",
-    "playingClip": "Replaying a part of the video"
+    "playingClip": "Replaying a part of the video",
+    "replay": "Replay this part",
+    "replayHint": "Replay the part of the video this question is about (free, once per question)"
   },
   "text": {
     "badge": "Text chat"

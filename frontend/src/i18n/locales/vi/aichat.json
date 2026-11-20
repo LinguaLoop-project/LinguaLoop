@@ -117,7 +117,9 @@
     "fallbackTitle": "Chưa bắt đầu được cuộc nói chuyện",
     "fallbackGeneric": "Không kết nối được với gia sư giọng nói. Chưa tốn credit.",
     "useText": "Dùng chat chữ",
-    "playingClip": "Đang phát lại đoạn video"
+    "playingClip": "Đang phát lại đoạn video",
+    "replay": "Nghe lại đoạn này",
+    "replayHint": "Nghe lại đoạn video liên quan tới câu hỏi (miễn phí, một lần cho mỗi câu hỏi)"
   },
   "text": {
     "badge": "Chat chữ"
