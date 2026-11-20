@@ -94,6 +94,8 @@ export class LiveChatController {
   #micLevel = 0;
 
   #started = false;
+  /** Lời báo `started` đang bay; các tool phải chờ nó xong vì server chỉ nhận câu hỏi sau khi đã trừ credit. */
+  #startedCall: Promise<void> = Promise.resolve();
   #finishing = false;
   #startTimer: ReturnType<typeof setTimeout> | null = null;
   #ticker: ReturnType<typeof setInterval> | null = null;
@@ -300,7 +302,7 @@ export class LiveChatController {
     this.#ticker = setInterval(() => this.#onTick(), 250);
     const { lessonId, api } = this.#params;
     if (this.#sessionId) {
-      api
+      this.#startedCall = api
         .liveStarted(lessonId, this.#sessionId)
         .then((credit) => this.#params.onCredit?.(credit.balance))
         .catch((err) => this.#startRejected(err));
@@ -329,6 +331,9 @@ export class LiveChatController {
 
   async #handleToolCall(call: FunctionCall) {
     if (this.#finishing || !call.name) return;
+    // Gia sư thường gọi next_question ngay trong lượt nói đầu, cùng lúc với lời báo started: chờ credit được trừ xong
+    await this.#startedCall;
+    if (this.#finishing) return;
     const id = call.id ?? null;
     const args = (call.args ?? {}) as Record<string, unknown>;
     const sessionId = this.#sessionId;
@@ -590,6 +595,7 @@ export class LiveChatController {
   #resetRuntime() {
     this.#sessionId = null;
     this.#started = false;
+    this.#startedCall = Promise.resolve();
     this.#finishing = false;
     this.#activeMs = 0;
     this.#idleMs = 0;

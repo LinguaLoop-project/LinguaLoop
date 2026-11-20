@@ -169,6 +169,24 @@ describe("bắt đầu", () => {
   });
 });
 
+describe("tool đến cùng lúc với started", () => {
+  it("next_question chờ lời báo started xong rồi mới gửi lên server", async () => {
+    let release!: () => void;
+    api.liveStarted.mockReturnValue(new Promise((resolve) => (release = () => resolve({ charged: 5, balance }))));
+    api.liveQuestion.mockResolvedValue(session([msg(1, "tutor")]));
+    await openLive();
+
+    tutorSpeaks();
+    toolCall("next_question", { question: "Who is talking?" });
+    await flush();
+    expect(api.liveQuestion).not.toHaveBeenCalled(); // server chưa trừ credit nên sẽ từ chối
+
+    release();
+    await flush();
+    expect(api.liveQuestion).toHaveBeenCalledWith("l1", "s1", "Who is talking?");
+  });
+});
+
 describe("tool của gia sư", () => {
   it("next_question ghi câu hỏi lên server rồi trả số câu cho gia sư", async () => {
     api.liveQuestion.mockResolvedValue(session([msg(1, "tutor")]));
