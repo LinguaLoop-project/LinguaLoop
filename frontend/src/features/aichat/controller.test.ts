@@ -211,6 +211,88 @@ describe("lời gọi tool đến trước mọi âm thanh", () => {
   });
 });
 
+describe("một lượt gia sư chỉ nói một lần", () => {
+  const lastResponse = () => h.live.sendToolResponse.mock.calls.at(-1)![0].functionResponses[0].response;
+
+  it("give_feedback mang theo câu hỏi tiếp theo: ghi nhận xét rồi câu hỏi và bảo gia sư nói MỘT lần", async () => {
+    const order: string[] = [];
+    api.liveFeedback.mockImplementation(async () => {
+      order.push("feedback");
+      return session([msg(1, "tutor"), msg(2, "student")]);
+    });
+    api.liveQuestion.mockImplementation(async () => {
+      order.push("question");
+      return session([msg(1, "tutor"), msg(2, "student"), msg(3, "tutor")]);
+    });
+    const controller = await openLive();
+    tutorSpeaks();
+
+    toolCall("give_feedback", { answer: "a", feedback: "Tốt.", better: "", next_question: "And then?", sentence: 2 });
+    await flush();
+
+    expect(order).toEqual(["feedback", "question"]);
+    expect(api.liveQuestion).toHaveBeenCalledWith("l1", "s1", "And then?");
+    expect(controller.getState().questionClipN).toBe(2);
+    expect(controller.getState().messages).toHaveLength(3);
+    expect(lastResponse().instruction).toContain("MỘT LẦN DUY NHẤT");
+    // câu hỏi đã được ghi nên gia sư không bị nhắc gọi next_question
+    await vi.advanceTimersByTimeAsync(0);
+    tutorDone();
+    await vi.advanceTimersByTimeAsync(8_000);
+    expect(h.live.sendRealtimeInput.mock.calls.filter(([arg]) => arg.text?.includes("next_question"))).toHaveLength(0);
+  });
+
+  it("không có next_question trong give_feedback: quay về cách cũ, nhắc gọi next_question", async () => {
+    api.liveFeedback.mockResolvedValue(session([msg(1, "tutor"), msg(2, "student")]));
+    await openLive();
+    tutorSpeaks();
+
+    toolCall("give_feedback", { answer: "a", feedback: "Tốt.", better: "" });
+    await flush();
+
+    expect(api.liveQuestion).not.toHaveBeenCalled();
+    expect(lastResponse().instruction).toContain("gọi next_question");
+  });
+
+  it("server từ chối câu hỏi đi kèm: vẫn ghi nhận xét và quay về cách cũ", async () => {
+    api.liveFeedback.mockResolvedValue(session([msg(1, "tutor"), msg(2, "student")]));
+    api.liveQuestion.mockRejectedValue(apiError("AI_CHAT_TURN_CONFLICT"));
+    const controller = await openLive();
+    tutorSpeaks();
+
+    toolCall("give_feedback", { answer: "a", feedback: "Tốt.", better: "", next_question: "Q?" });
+    await flush();
+
+    expect(controller.getState().answered).toBe(1);
+    expect(lastResponse().instruction).toContain("gọi next_question");
+  });
+
+  it("lượt cuối bỏ qua câu hỏi đi kèm và bảo gia sư chào kết", async () => {
+    const full = Array.from({ length: 5 }, (_, i) => [msg(i * 2 + 1, "tutor"), msg(i * 2 + 2, "student")]).flat();
+    api.liveFeedback.mockResolvedValue(session(full));
+    await openLive();
+    tutorSpeaks();
+
+    toolCall("give_feedback", { answer: "a", feedback: "Tốt.", better: "", next_question: "Six?" });
+    await flush();
+
+    expect(api.liveQuestion).not.toHaveBeenCalled();
+    expect(lastResponse().instruction).toContain("end_session");
+  });
+
+  it("lời nhắc khi gia sư quên gọi tool chỉ bảo gọi tool, không bảo nói lại", async () => {
+    await openLive();
+    tutorSpeaks();
+    await flush();
+
+    tutorDone();
+    await vi.advanceTimersByTimeAsync(7_100);
+
+    const nudge = h.live.sendRealtimeInput.mock.calls.map(([arg]) => arg.text).find((text) => text?.includes("next_question"));
+    expect(nudge).toContain("KHÔNG nói lại");
+  });
+});
+
 describe("tool của gia sư", () => {
   it("next_question ghi câu hỏi lên server rồi trả số câu cho gia sư", async () => {
     api.liveQuestion.mockResolvedValue(session([msg(1, "tutor")]));
@@ -223,7 +305,13 @@ describe("tool của gia sư", () => {
     expect(api.liveQuestion).toHaveBeenCalledWith("l1", "s1", "Who is talking?");
     expect(controller.getState().messages).toHaveLength(1);
     expect(h.live.sendToolResponse).toHaveBeenCalledWith({
-      functionResponses: [{ id: "next_question-1", name: "next_question", response: { ok: true, question_number: 1 } }],
+      functionResponses: [
+        {
+          id: "next_question-1",
+          name: "next_question",
+          response: { ok: true, question_number: 1, instruction: expect.stringContaining("KHÔNG nói lại") },
+        },
+      ],
     });
   });
 

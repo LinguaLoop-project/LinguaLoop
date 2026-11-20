@@ -36,12 +36,15 @@ final class LessonChatLive {
                                         + "liên quan nhất; bỏ trống nếu không gắn với câu cụ thể")),
                         "question"),
                 declaration("give_feedback",
-                        "Ghi lại câu trả lời của người học cho câu hỏi hiện tại cùng nhận xét. Gọi ngay sau khi họ "
-                                + "trả lời, trước khi bạn nói nhận xét.",
+                        "Ghi lại câu trả lời của người học cho câu hỏi hiện tại cùng nhận xét và câu hỏi tiếp theo. Gọi MỘT "
+                                + "lần ngay sau khi họ trả lời, trước khi bạn nói.",
                         Map.of(
                                 "answer", string("Điều người học vừa nói, giữ nguyên lỗi", null),
                                 "feedback", string("Nhận xét tiếng Việt 2-3 câu so với lời thoại", null),
-                                "better", string("Một câu tiếng Anh tự nhiên hơn", null)),
+                                "better", string("Một câu tiếng Anh tự nhiên hơn", null),
+                                "next_question", string("Đúng câu hỏi tiếp theo bạn sắp hỏi, tiếng Anh; bỏ trống ở lượt cuối", null),
+                                "sentence", integerParam("Số của câu trong lời thoại mà câu hỏi tiếp theo liên quan nhất; "
+                                        + "bỏ trống nếu không gắn với câu cụ thể")),
                         "answer", "feedback", "better"),
                 declaration("play_clip",
                         "Phát lại đoạn video của một câu trong lời thoại cho người học nghe. Chỉ trả về khi đoạn đã phát xong; "

@@ -57,12 +57,13 @@ const IDLE_ASK_TEXT =
   "[Hệ thống] Người học im lặng đã lâu. Hãy hỏi ngắn gọn một câu xem họ còn muốn tiếp tục không; nếu họ vẫn im lặng " +
   "thì phiên sẽ kết thúc.";
 const NUDGE_QUESTION_TEXT =
-  "[Hệ thống] Bạn vừa nói xong mà chưa gọi tool next_question. Hãy gọi next_question ngay với câu hỏi vừa nói (đừng " +
-  "nói tên tool ra lời); nếu chưa hỏi gì thì hỏi câu mới rồi gọi tool.";
+  "[Hệ thống] Bạn chưa gọi tool next_question. Chỉ gọi tool ngay với câu hỏi bạn vừa hỏi; KHÔNG nói lại lời đã nói và " +
+  "đừng nói gì thêm. Nếu bạn chưa hỏi câu nào thì hỏi một câu mới rồi gọi tool.";
 const REPLAY_ASK_TEXT =
   "[Hệ thống] Người học đang bí và bấm nút nghe lại video. Hãy chọn đoạn phù hợp nhất với câu hỏi hiện tại, nói ngắn " +
   "\"Let's listen to that part again\" rồi gọi play_clip.";
-const NUDGE_END_TEXT = "[Hệ thống] Đã đủ số câu hỏi. Hãy gọi end_session ngay (đừng nói tên tool ra lời).";
+const NUDGE_END_TEXT =
+  "[Hệ thống] Đã đủ số câu hỏi. Chỉ gọi end_session ngay; KHÔNG nói lại lời đã nói và đừng nói gì thêm.";
 const NUDGE_AFTER_MS = 7000;
 const MAX_NUDGES = 3;
 /** Số lần gia sư được mời học viên nghe lại một đoạn video trong một cuộc trò chuyện. */
@@ -396,7 +397,12 @@ export class LiveChatController {
           this.#applySession(session);
           const n = Number(args.sentence);
           this.#set({ questionClipN: this.#clips.some((c) => c.n === n) ? n : null, replayUsed: false });
-          this.#respond(id, call.name, { ok: true, question_number: session.messages.filter((m) => m.role === "tutor").length });
+          this.#respond(id, call.name, {
+            ok: true,
+            question_number: session.messages.filter((m) => m.role === "tutor").length,
+            instruction:
+              "Đã ghi câu hỏi. Nếu bạn đã nói câu hỏi này rồi thì KHÔNG nói lại, chờ người học trả lời; nếu chưa thì đọc nó MỘT lần.",
+          });
         } catch (err) {
           const code = errorCode(err);
           if (code === "AI_CHAT_QUESTION_LIMIT") {
@@ -428,15 +434,20 @@ export class LiveChatController {
           });
           if (this.#finishing) return;
           const full = session.answered >= (this.#state.limits?.maxQuestions ?? session.maxQuestions);
-          this.#expect = full ? "end_session" : "next_question";
           this.#applySession(session);
+          const next = full ? false : await this.#recordNextQuestion(lessonId, sessionId, args);
+          if (this.#finishing) return;
+          this.#expect = full ? "end_session" : next ? null : "next_question";
           this.#respond(id, call.name, {
             ok: true,
             answered: session.answered,
             instruction: full
-              ? "Đây là lượt cuối. Phản ứng ngắn, nói lại câu của người học cho đúng, rồi chào kết và gọi end_session."
-              : "Phản ứng ngắn, nói lại câu của người học cho đúng và tự nhiên (đừng giảng), rồi gọi next_question với " +
-                "đúng câu bạn sắp hỏi tiếp (bám vào điều họ vừa nói) và đọc nó.",
+              ? "Đây là lượt cuối. Phản ứng ngắn, nói lại câu của người học cho đúng, chào kết MỘT lần rồi gọi end_session."
+              : next
+                ? "Đã ghi nhận xét và câu hỏi tiếp theo. Bây giờ nói MỘT LẦN DUY NHẤT: phản ứng ngắn, nói lại câu của người " +
+                  "học cho đúng và tự nhiên (đừng giảng), rồi hỏi đúng câu hỏi bạn vừa ghi. Nói xong thì dừng, không gọi thêm tool."
+                : "Đã ghi nhận xét. Bây giờ nói MỘT lần: phản ứng ngắn, nói lại câu của người học cho đúng, rồi gọi next_question " +
+                  "với đúng câu bạn sắp hỏi tiếp trước khi hỏi.",
           });
         } catch (err) {
           const code = errorCode(err);
@@ -462,6 +473,25 @@ export class LiveChatController {
       }
       default:
         this.#respond(id, call.name, { error: `Không có tool ${call.name}.` });
+    }
+  }
+
+  /**
+   * Gia sư gửi câu hỏi tiếp theo ngay trong give_feedback (một lời gọi trước khi nói, để không phải gọi next_question sau khi đã
+   * nói rồi lặp lại cả lời). Ghi được thì trả true; thiếu câu hỏi hoặc server từ chối thì trả false để quay về cách gọi cũ.
+   */
+  async #recordNextQuestion(lessonId: string, sessionId: string, args: Record<string, unknown>): Promise<boolean> {
+    const question = asText(args.next_question);
+    if (!question) return false;
+    try {
+      const session = await this.#params.api.liveQuestion(lessonId, sessionId, question);
+      this.#applySession(session);
+      const n = Number(args.sentence);
+      this.#set({ questionClipN: this.#clips.some((c) => c.n === n) ? n : null, replayUsed: false });
+      return true;
+    } catch (err) {
+      console.warn("next question in give_feedback failed", errorCode(err));
+      return false;
     }
   }
 

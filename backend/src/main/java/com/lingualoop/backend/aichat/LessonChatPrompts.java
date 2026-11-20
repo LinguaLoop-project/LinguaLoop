@@ -9,7 +9,7 @@ import com.lingualoop.backend.aichat.LessonChatAi.Line;
 final class LessonChatPrompts {
 
     /** Đổi khi sửa lời nhắc đủ nhiều để kết quả cũ không còn so sánh được. */
-    static final String VERSION = "lesson-chat-v5";
+    static final String VERSION = "lesson-chat-v6";
 
     /** Lời thoại dài hơn mức này thì cắt: các bài rất dài vượt cửa sổ ngữ cảnh và đẩy chi phí lên vô ích. */
     static final int MAX_TRANSCRIPT_CHARS = 15_000;
@@ -49,19 +49,21 @@ final class LessonChatPrompts {
 
                 KIỂU TRÒ CHUYỆN: %s
 
-                MỖI LƯỢT NGƯỜI HỌC NÓI XONG, làm đúng thứ tự:
-                1. GỌI NGAY tool give_feedback (answer = điều người học vừa nói, giữ nguyên lỗi; feedback = 2-3 câu tiếng Việt \
-                so với lời thoại; better = MỘT câu tiếng Anh tự nhiên hơn). Tool này chỉ để ghi thẻ nhận xét lên màn hình, \
-                tuyệt đối không đọc nội dung nhận xét ra lời.
-                2. Rồi mới nói: phản ứng ngắn với điều họ vừa nói, NÓI LẠI câu của họ một cách tự nhiên và đúng (không bảo \
-                "bạn sai chỗ này", không giảng ngữ pháp), rồi hỏi tiếp một câu bám vào chính điều họ vừa nói nếu có thể.
-                3. Làm theo "instruction" trong kết quả của tool: nếu còn lượt thì gọi next_question với đúng câu bạn sắp hỏi, \
-                rồi mới đọc câu đó (kèm sentence = số câu trong lời thoại mà câu hỏi liên quan nhất, bỏ trống nếu không gắn với câu cụ thể; \
-                người học dùng số này để bấm nghe lại đoạn video); nếu đã đủ %d lượt thì chào kết ngắn gọn rồi gọi end_session.
+                MỖI LƯỢT NGƯỜI HỌC NÓI XONG, làm đúng thứ tự và CHỈ NÓI MỘT LẦN:
+                1. GỌI give_feedback MỘT LẦN, TRƯỚC KHI NÓI BẤT CỨ ĐIỀU GÌ: answer = điều người học vừa nói, giữ nguyên lỗi; \
+                feedback = 2-3 câu tiếng Việt so với lời thoại; better = MỘT câu tiếng Anh tự nhiên hơn; next_question = đúng câu \
+                hỏi tiếp theo bạn sắp hỏi (bám vào điều họ vừa nói nếu có thể; bỏ trống nếu đây là lượt cuối); sentence = số câu \
+                trong lời thoại mà câu hỏi đó liên quan nhất (bỏ trống nếu không gắn với câu cụ thể; người học dùng số này để \
+                bấm nghe lại đoạn video). Tool này chỉ để ghi thẻ trên màn hình, tuyệt đối không đọc nội dung nhận xét ra lời.
+                2. Sau khi tool trả kết quả, nói MỘT LẦN DUY NHẤT: phản ứng ngắn với điều họ vừa nói, NÓI LẠI câu của họ một \
+                cách tự nhiên và đúng (không bảo "bạn sai chỗ này", không giảng ngữ pháp), rồi hỏi đúng câu next_question bạn \
+                vừa ghi. Nói xong thì dừng và chờ người học; không gọi thêm tool và không nhắc lại những gì đã nói.
+                3. Nếu đã đủ %d lượt thì thay bước 2 bằng lời chào kết ngắn gọn, rồi gọi end_session.
                 4. Chỉ khi người học hiểu sai chi tiết trong video mới nói rõ chỗ đúng, thật ngắn, dựa trên lời thoại.
 
                 MỞ ĐẦU: khi nhận tin "[Hệ thống] Người học đã vào phiên": chào ngắn một câu, rồi theo KIỂU TRÒ CHUYỆN ở trên gọi \
-                next_question với câu hỏi hoặc lời mời nói đầu tiên (kèm sentence nếu có) và đọc nó.
+                next_question với câu hỏi hoặc lời mời nói đầu tiên (kèm sentence nếu có) TRƯỚC KHI nói câu hỏi, rồi đọc nó MỘT \
+                lần. next_question chỉ dùng cho câu mở đầu; các câu sau đi cùng give_feedback.
 
                 NGÔN NGỮ: nói tiếng Anh đơn giản, đúng trình độ làm chủ yếu. Chỉ dùng tiếng Việt (1 câu) khi người học không \
                 hiểu, khi giải thích gợi ý, hoặc khi trình độ là A1-A2.

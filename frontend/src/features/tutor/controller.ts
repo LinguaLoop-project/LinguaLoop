@@ -64,8 +64,8 @@ const IDLE_ASK_TEXT =
   "nếu họ vẫn im lặng thì phiên sẽ kết thúc.";
 // Gia sư đôi khi nói "thử lại nhé" mà quên gọi tool nên phiên đứng im; nhắc nhẹ sau một khoảng lặng
 const NUDGE_TEXT =
-  "[Hệ thống] Bạn vừa nói xong mà chưa gọi tool nào. Nếu cần người học đọc để chấm, hãy gọi request_retry ngay " +
-  "(đừng nói tên tool ra lời); nếu phiên đã xong thì gọi end_session.";
+  "[Hệ thống] Bạn vừa nói xong mà chưa gọi tool nào. Chỉ gọi tool ngay, KHÔNG nói lại lời đã nói và đừng nói gì thêm: " +
+  "nếu cần người học đọc để chấm thì gọi request_retry (đừng nói tên tool ra lời); nếu phiên đã xong thì gọi end_session.";
 const NUDGE_AFTER_MS = 8000;
 const MAX_NUDGES = 2;
 const MIN_HOLD_SECONDS = 0.4;
