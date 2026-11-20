@@ -116,12 +116,12 @@ Vòng đời lỗi: `Mới → Đã xác nhận → Đang sửa → Đã sửa �
 | Docker không có ở máy chạy test | Test integration không chạy | Dùng CI làm nguồn kết quả chính |
 | Chú thích AC trong test dùng mã cũ | Truy vết sai | Đổi sang mã AC mới khi điền bảng truy vết |
 
-## 10. Số liệu hiện tại (đo ngày chạy `verify` gần nhất)
+## 10. Số liệu hiện tại (đo ngày chạy `verify` gần nhất: 18/11/2026)
 
 | Số liệu | Giá trị |
 |---|---|
-| Số test backend | 951 (1 lỗi do môi trường chạy cục bộ, 3 bỏ qua) |
-| Coverage dòng backend | 92,6% (đã loại `config`, `dto`, `entity`) |
-| Coverage nhánh backend | 84,4% |
-| Số AC trong SRS | 706 (18 module) |
-| Số AC đã truy vết tới test | 41 (module TK, 52 AC); các module khác chưa điền |
+| Số test backend | 1303 (3 bỏ qua; 2 test phụ thuộc thời gian lỗi khi chạy cả bộ trên máy cục bộ, chạy lại riêng thì pass) |
+| Coverage dòng backend | 92,2% (đã loại `config`, `dto`, `entity`; cổng 70%) |
+| Coverage nhánh backend | 82,4% |
+| Số AC trong SRS | 786 (18 module) |
+| Số AC đã truy vết tới test | 309 (239 đã có, 70 một phần); xem [bảng truy vết](TRACEABILITY-AC-TEST.md) |

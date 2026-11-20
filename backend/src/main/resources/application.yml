@@ -112,7 +112,7 @@ app:
     gemini:
       api-key: ${GEMINI_API_KEY:}
       # model văn bản cho Nhận xét AI; đổi bằng GEMINI_TEXT_MODEL khi Google ngừng model này
-      text-model: ${GEMINI_TEXT_MODEL:gemini-2.5-flash}
+      text-model: ${GEMINI_TEXT_MODEL:gemini-3.8-flash}
       # model dùng cho lần thử lại khi model chính quá tải (503/429); để trống thì thử lại bằng model chính
       fallback-model: ${GEMINI_FALLBACK_MODEL:}
       timeout: 20s
@@ -120,6 +120,26 @@ app:
       # model realtime của Phiên gia sư (bản preview, tên có thể đổi); giọng nói tuỳ chọn
       model: ${GEMINI_LIVE_MODEL:gemini-3.1-flash-live-preview}
       voice: ${GEMINI_VOICE:}
+  lesson-import:
+    # YouTube Data API v3 (Google Cloud Console > YouTube Data API v3 > Credentials): đọc thời lượng, trạng thái và tiêu
+    # đề video khi tạo bài từ link (UC-BH-03). Thiếu thì tạo bài báo "tạm thời không lấy được dữ liệu từ YouTube".
+    youtube-api-key: ${YOUTUBE_API_KEY:}
+    youtube-api-url: https://www.googleapis.com/youtube/v3
+    # lời thoại (Bước 7): phụ đề tiếng Anh của video qua TranscriptAPI (https://transcriptapi.com, ADR 0012), 1 credit
+    # TranscriptAPI mỗi lần tạo bài thành công. Thiếu khóa thì tạo bài báo "tạm thời không lấy được lời thoại".
+    transcript-api-key: ${TRANSCRIPT_API_KEY:}
+    transcript-api-url: https://transcriptapi.com/api/v2
+    espeak-path: ${ESPEAK_PATH:espeak-ng}
+    espeak-timeout: 30s
+    # BR-BH-17
+    max-duration: 15m
+    translate-batch-size: 20
+    # 20 câu thường xong trong ~10s. Hết giờ thì thử lại bằng model dự phòng, nên 2 lần chờ cộng các lô sau phải dưới
+    # SUGGEST_TIMEOUT_MS (3 phút) của frontend
+    translate-timeout: 30s
+    # Gemini gợi ý dịch (UC-BH-10): mức suy nghĩ nội bộ minimal|low|medium|high, rỗng = để model tự quyết. Phải là mức cả
+    # model chính lẫn model dự phòng hỗ trợ (gemini-3.8-flash không có minimal); low nhanh, rẻ
+    thinking-level: ${GEMINI_THINKING_LEVEL:low}
   shadowing:
     scoring:
       # circuit breaker quanh lời gọi Azure (BR-SHADOW-09): trong cửa sổ 10 lượt, đủ 5 lượt mà lỗi từ 50% thì mở mạch 30 giây

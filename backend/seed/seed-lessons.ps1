@@ -1,4 +1,4 @@
-﻿# Nạp bài học mẫu (25 chủ đề, 1.068 bài YouTube, ~29.700 câu) vào Postgres.
+﻿# Nạp bài học mẫu (25 chủ đề, 1.042 bài YouTube, ~29.400 câu) vào Postgres.
 # Mặc định nạp vào container "postgres" của compose.yaml; đặt $env:DATABASE_URL để nạp DB khác.
 # Chạy lại an toàn: các câu lệnh dùng ON CONFLICT (id) DO NOTHING.
 # Lưu UTF-8 có BOM: Windows PowerShell 5.1 đọc tệp .ps1 không BOM bằng bảng mã ANSI nên chữ có dấu bị vỡ.

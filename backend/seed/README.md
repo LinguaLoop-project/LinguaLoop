@@ -7,8 +7,8 @@ Flyway chỉ nạp dữ liệu tham chiếu nhỏ (V2: 44 âm vị, cấu hình 
 
 | File | Nội dung |
 |---|---|
-| `lessons-1-topics-and-lessons.sql.gz` | 25 chủ đề và 1.068 bài học (bước 1) |
-| `lessons-2-sentences.sql.gz` | khoảng 29.700 câu transcript kèm IPA Mỹ và Anh (bước 2, cần bước 1 xong trước vì câu trỏ tới bài) |
+| `lessons-1-topics-and-lessons.sql.gz` | 25 chủ đề và 1.042 bài học (bước 1) |
+| `lessons-2-sentences.sql.gz` | khoảng 29.400 câu transcript kèm IPA Mỹ và Anh (bước 2, cần bước 1 xong trước vì câu trỏ tới bài) |
 | `seed-lessons.sh` | script nạp cho Linux, macOS, Git Bash |
 | `seed-lessons.ps1` | script nạp cho Windows PowerShell |
 | `dictionary-words.sql.gz` | 157.644 từ điển (`dictionary_words`), chỉ cần V1; độc lập với bài học |

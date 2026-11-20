@@ -10,7 +10,7 @@ public record GeminiProperties(String apiKey, String textModel, String fallbackM
 
     public GeminiProperties {
         apiKey = apiKey == null ? "" : apiKey.trim();
-        textModel = textModel == null || textModel.isBlank() ? "gemini-2.5-flash" : textModel.trim();
+        textModel = textModel == null || textModel.isBlank() ? "gemini-3.8-flash" : textModel.trim();
         fallbackModel = fallbackModel == null ? "" : fallbackModel.trim();
         timeout = timeout == null ? Duration.ofSeconds(20) : timeout;
     }
