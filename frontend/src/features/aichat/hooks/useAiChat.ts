@@ -2,13 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CREDIT_QUERY_KEY } from "@/features/subscription/hooks/useCredit";
 import type { CreditBalance } from "@/features/subscription/types";
 import { aiChatApi } from "../api";
-import type { ChatAnswer, ChatTurn } from "../types";
+import type { ChatTurn } from "../types";
 
 const key = (lessonId: string, ...rest: string[]) => ["aichat", lessonId, ...rest] as const;
-
-/** Phiên đang mở của bài; không cache lâu vì đồng hồ 15 phút chạy ở server. */
-export const useActiveChat = (lessonId: string) =>
-  useQuery({ queryKey: key(lessonId, "active"), queryFn: () => aiChatApi.active(lessonId), staleTime: 0, gcTime: 0 });
 
 export const useChatHistory = (lessonId: string, enabled: boolean) =>
   useQuery({ queryKey: key(lessonId, "history"), queryFn: () => aiChatApi.history(lessonId), enabled });
@@ -21,8 +17,8 @@ export const useChatDetail = (lessonId: string, sessionId: string | null) =>
   });
 
 /**
- * Các thao tác của một cuộc trò chuyện. Mỗi lượt có gọi AI trả kèm số dư credit mới nên ghi thẳng vào ví thay vì gọi lại
- * /credits/balance; lỗi thì đọc lại số dư cho đúng (server có thể đã ghi nhận lượt thất bại).
+ * Các thao tác của cuộc chat chữ (dự phòng). Mỗi lượt có gọi AI trả kèm số dư credit mới nên ghi thẳng vào ví thay vì gọi
+ * lại /credits/balance; lỗi thì đọc lại số dư cho đúng (server có thể đã ghi nhận lượt thất bại).
  */
 export function useChatActions(lessonId: string) {
   const queryClient = useQueryClient();
@@ -34,8 +30,7 @@ export function useChatActions(lessonId: string) {
 
   const start = useMutation({ mutationFn: () => aiChatApi.start(lessonId), onSuccess: settle, onError: refreshCredit });
   const answer = useMutation({
-    mutationFn: ({ sessionId, answer }: { sessionId: string; answer: ChatAnswer }) =>
-      aiChatApi.answer(lessonId, sessionId, answer),
+    mutationFn: ({ sessionId, text }: { sessionId: string; text: string }) => aiChatApi.answer(lessonId, sessionId, text),
     onSuccess: settle,
     onError: refreshCredit,
   });

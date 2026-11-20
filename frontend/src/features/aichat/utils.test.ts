@@ -15,6 +15,7 @@ const message = (role: ChatMessage["role"], id: number): ChatMessage => ({
 
 const session = (over: Partial<ChatSession> = {}): ChatSession => ({
   id: "s",
+  mode: "text",
   status: "active",
   startedAt: "2026-11-20T00:00:00Z",
   endedAt: null,

@@ -14,8 +14,12 @@ export interface ChatMessage {
 
 export type ChatStatus = "active" | "completed" | "error";
 
+/** `live`: nói chuyện qua Gemini Live; `text`: chat chữ dự phòng. */
+export type ChatMode = "live" | "text";
+
 export interface ChatSession {
   id: string;
+  mode: ChatMode;
   status: ChatStatus;
   startedAt: string;
   endedAt: string | null;
@@ -55,5 +59,23 @@ export interface ChatHistoryItem {
   hasSummary: boolean;
 }
 
-/** Câu trả lời gửi lên: chữ hoặc bản ghi WAV, đúng một trong hai. */
-export type ChatAnswer = { text: string } | { audio: Blob };
+/** Giới hạn của phiên giọng nói; trình duyệt tự thực thi cùng server (BR-AI-11). */
+export interface ChatLimits {
+  maxQuestions: number;
+  maxSeconds: number;
+  wrapUpAtSeconds: number;
+  startTimeoutSeconds: number;
+  idleAskSeconds: number;
+  idleEndSeconds: number;
+}
+
+/** Phiên giọng nói vừa tạo: token Gemini Live dùng một lần. Chưa trừ credit, `cost` sẽ trừ khi gia sư nói câu đầu. */
+export interface LiveStart {
+  id: string;
+  token: string;
+  model: string;
+  tokenExpiresAt: string;
+  limits: ChatLimits;
+  cost: number;
+  balance: CreditBalance;
+}

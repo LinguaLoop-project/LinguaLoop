@@ -3,9 +3,6 @@ import type { ChatMessage, ChatSession } from "./types";
 /** Độ dài câu trả lời gõ chữ hợp lệ: 1 đến 1000 ký tự sau khi bỏ khoảng trắng hai đầu (BR-AI-06). */
 export const MAX_ANSWER_LENGTH = 1000;
 
-/** Ghi âm tối đa 30 giây (BR-AI-06). */
-export const MAX_RECORDING_SECONDS = 30;
-
 /** Số giây còn lại tới mốc hết giờ, không âm. */
 export function secondsLeft(expiresAt: string, now: number): number {
   return Math.max(0, Math.ceil((Date.parse(expiresAt) - now) / 1000));

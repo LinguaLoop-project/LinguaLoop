@@ -3,34 +3,28 @@
   "breadcrumbLessons": "Lessons",
   "card": {
     "title": "Practice with AI",
-    "desc": "Chat with a tutor about the lesson. Answer by voice or text and get feedback tied to the video after every answer.",
+    "desc": "Talk to a tutor about the lesson, like a call. The tutor asks, you answer out loud, and you get feedback tied to the video after every question.",
     "meta": "Up to 5 questions · 15 minutes",
-    "start": "Start chatting",
+    "start": "Start talking",
     "openWithPro": "Unlock with Pro"
   },
   "intro": {
     "heading": "Chat with a tutor about this lesson",
-    "desc": "The tutor asks about the characters and events in the video. You answer in English, the tutor checks your answer against the transcript and asks the next question.",
+    "desc": "The tutor talks to you live about the people and events in the video, like a call. Answer in English; the tutor checks your answer against the transcript and asks the next question. You can interrupt the tutor any time.",
     "ruleQuestions": "Up to 5 questions per conversation",
     "ruleTime": "Up to 15 minutes, then the tutor wraps up",
-    "ruleCredit": "Each tutor turn costs credits based on its real cost; hints and reviewing history are free",
+    "ruleCredit": "Each conversation costs a fixed amount, charged once when the tutor speaks the first question; hints and history are free",
     "ruleWatch": "Watch the video once before you start",
-    "start": "Start",
-    "starting": "The tutor is preparing the first question…"
-  },
-  "resume": {
-    "heading": "You have an unfinished conversation",
-    "desc": "{{count}} answered, {{time}} left.",
-    "continue": "Continue",
-    "restart": "Start over",
-    "restartNote": "The old conversation stays in your history."
+    "start": "Start talking",
+    "starting": "The tutor is preparing a question…",
+    "ruleMic": "Needs microphone access; leaving the page or pressing Finish ends the conversation (it cannot be resumed)",
+    "useText": "Use text chat"
   },
   "bar": {
     "question": "Question {{n}}/{{max}}",
     "timeLeft": "{{time}} left",
     "credit": "{{balance}} credits",
     "history": "History",
-    "restart": "Start over",
     "finish": "Finish",
     "finishNeedAnswer": "Answer at least one question before finishing"
   },
@@ -49,14 +43,7 @@
     "label": "Your answer",
     "send": "Send",
     "counter": "{{count}}/{{max}}",
-    "record": "Record",
-    "recording": "Recording {{time}}",
-    "stopAndSend": "Stop and send",
-    "cancelRecording": "Discard recording",
     "hint": "Hint",
-    "hintLoading": "Finding a hint…",
-    "tooShort": "That recording was too short, speak a little longer.",
-    "micDenied": "Can't use the microphone. Allow microphone access or type your answer.",
     "retry": "Send again"
   },
   "summary": {
@@ -95,8 +82,7 @@
     "QUOTA_EXCEEDED": "You don't have enough credits to start. Free credits refresh tomorrow; Pro credits refresh in your next plan month.",
     "LESSON_PRO_REQUIRED": "This lesson is for Pro.",
     "LESSON_NOT_FOUND": "This lesson was not found.",
-    "AI_CHAT_NO_SPEECH": "No speech was heard in the recording. Record again; this answer was not counted.",
-    "AI_CHAT_ANSWER_INVALID": "An answer needs 1 to 1000 characters, or a recording of 0.5 to 30 seconds.",
+    "AI_CHAT_ANSWER_INVALID": "Your answer must be 1 to 1000 characters.",
     "AI_FEEDBACK_BUSY": "The AI is busy, try again in a few minutes. No credits were used.",
     "AI_FEEDBACK_UNAVAILABLE": "The tutor is temporarily unavailable. No credits were used, please try again later.",
     "AI_CHAT_TURN_CONFLICT": "This question was just answered elsewhere. The conversation was reloaded.",
@@ -104,10 +90,35 @@
     "AI_CHAT_FINISH_TOO_EARLY": "Answer at least one question before finishing.",
     "AI_CHAT_NOT_FOUND": "This conversation was not found.",
     "NETWORK_ERROR": "Connection lost. Check your network and try again.",
-    "generic": "Something went wrong, please try again."
+    "generic": "Something went wrong, please try again.",
+    "AI_CHAT_LIVE_UNAVAILABLE": "The voice tutor is unavailable right now. You were not charged; try again or use text chat.",
+    "AI_CHAT_QUESTION_LIMIT": "This conversation already has all its questions.",
+    "MIC_UNAVAILABLE": "The microphone is not available. Allow it for this page or use text chat.",
+    "START_TIMEOUT": "The tutor did not answer in time. You were not charged; try again.",
+    "CONNECT_ERROR": "Could not connect to the voice tutor. You were not charged; try again or use text chat.",
+    "CONNECTION_CLOSED": "The connection to the tutor dropped. You were not charged; try again."
   },
   "upgrade": "Unlock with Pro",
   "loading": "Loading…",
   "loadFailed": "Couldn't load the conversation.",
-  "retry": "Retry"
+  "retry": "Retry",
+  "live": {
+    "connecting": "Connecting to the tutor…",
+    "micNote": "Allow the microphone when your browser asks. You are not charged until the tutor speaks the first question.",
+    "speaking": "The tutor is speaking",
+    "listening": "The tutor is listening",
+    "yourTurn": "Your turn to speak",
+    "muted": "Microphone is off",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "leave": "Leave",
+    "summarizing": "The tutor is writing the overall review…",
+    "closing": "Closing the conversation…",
+    "fallbackTitle": "Could not start the conversation",
+    "fallbackGeneric": "Could not connect to the voice tutor. You were not charged.",
+    "useText": "Use text chat"
+  },
+  "text": {
+    "badge": "Text chat"
+  }
 }
