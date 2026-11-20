@@ -554,6 +554,24 @@ describe("người học bấm nghe lại video", () => {
   });
 });
 
+describe("tra từ trong lúc trò chuyện", () => {
+  it("bấm trong khung chat đặt lại bộ đếm im lặng, gia sư chưa hỏi \"bạn còn đó không\"", async () => {
+    const controller = await openLive();
+    tutorSpeaks();
+    await flush();
+    h.live.sendRealtimeInput.mockClear();
+    const asks = () => h.live.sendRealtimeInput.mock.calls.filter(([arg]) => arg.text?.includes("im lặng")).length;
+
+    await vi.advanceTimersByTimeAsync(50_000);
+    controller.noteActivity(); // đang đọc nghĩa của một từ
+    await vi.advanceTimersByTimeAsync(50_000);
+    expect(asks()).toBe(0); // chưa đủ 60 giây kể từ lần bấm cuối
+
+    await vi.advanceTimersByTimeAsync(11_000);
+    expect(asks()).toBe(1);
+  });
+});
+
 describe("micro và gợi ý", () => {
   it("tắt micro thì không gửi âm thanh cho gia sư", async () => {
     const controller = await openLive();

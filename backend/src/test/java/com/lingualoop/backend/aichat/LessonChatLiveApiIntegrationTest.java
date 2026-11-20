@@ -210,6 +210,17 @@ class LessonChatLiveApiIntegrationTest {
     }
 
     @Test
+    void sentenceNumbersLeakedIntoAQuestion_areRemoved_AC_AI_02() throws Exception {
+        UUID user = newUser();
+        UUID lesson = lesson(false);
+        UUID session = runningSession(user, lesson);
+
+        question(user, lesson, session, "What do they do to the rice grains? [2]")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.messages[0].text").value("What do they do to the rice grains?"));
+    }
+
+    @Test
     void turnsOutOfOrder_areRejected_AC_AI_02() throws Exception {
         UUID user = newUser();
         UUID lesson = lesson(false);

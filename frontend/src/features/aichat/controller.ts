@@ -248,6 +248,11 @@ export class LiveChatController {
     this.leave();
   }
 
+  /** Người học đang làm gì đó trên màn hình (vd tra từ): gia sư chưa nên hỏi "bạn còn đó không". */
+  noteActivity() {
+    this.#learnerActivity();
+  }
+
   setMuted(muted: boolean) {
     this.#set({ muted });
     this.#learnerActivity();

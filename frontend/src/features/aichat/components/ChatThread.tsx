@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import Icon from "@/components/common/Icon";
+import { ClickableText } from "@/features/dictionary";
 import type { ChatMessage } from "../types";
 
 export interface ChatThreadProps {
@@ -21,7 +22,7 @@ function TutorBubble({ message }: Readonly<{ message: ChatMessage }>) {
       <div className="min-w-0 max-w-[min(100%,40rem)]">
         <p className="mb-1 text-xs font-semibold text-text-muted">{t("thread.tutor")}</p>
         <p className="rounded-lg rounded-tl-sm border border-border bg-surface px-4 py-3 text-[15px] leading-relaxed">
-          {message.text}
+          <ClickableText text={message.text} />
         </p>
         {message.hint && (
           <p className="mt-2 flex gap-2 rounded-md bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] px-3 py-2 text-[13px] leading-relaxed">
@@ -64,7 +65,9 @@ function StudentBubble({ message }: Readonly<{ message: ChatMessage }>) {
           {message.better && (
             <p className="mt-2 border-t border-border pt-2">
               <span className="block text-xs font-semibold uppercase tracking-wide text-text-muted">{t("thread.better")}</span>
-              <span className="font-medium">{message.better}</span>
+              <span className="font-medium">
+                <ClickableText text={message.better} />
+              </span>
             </p>
           )}
         </div>

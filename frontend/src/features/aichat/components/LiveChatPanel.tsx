@@ -59,6 +59,8 @@ export default function LiveChatPanel({ lessonId, style, playClip, videoPlaying,
 
   const live = phase === "live";
   const left = limits ? Math.max(0, limits.maxSeconds - state.elapsedSeconds) : 0;
+  // Số câu trong ngoặc vuông của lời thoại chỉ dành cho tool; nếu gia sư lỡ đọc ra thì không hiện trên phụ đề
+  const tutorCaption = state.captions.tutor.replace(/\s*\[\d{1,3}\]/g, "").trim();
   const asked = state.messages.filter((m) => m.role === "tutor").length;
   const last = state.messages.at(-1);
   const waitingAnswer = live && last?.role === "tutor";
@@ -129,11 +131,22 @@ export default function LiveChatPanel({ lessonId, style, playClip, videoPlaying,
 
       {(live || phase === "ending" || phase === "ended") && (
         <>
+          {state.messages.length > 0 && (
+            <div
+              className="rounded-xl border border-border bg-surface p-4 md:p-5"
+              onClick={() => controller.noteActivity()}
+            >
+              <ChatThread messages={state.messages} thinking={false} />
+            </div>
+          )}
+
           {live && (
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-border bg-surface px-4 pb-4 pt-2">
-              <TutorStage controller={controller} mood={state.tutorSpeaking ? "speaking" : "listening"} caption={caption} />
-              <div className="flex min-h-14 w-full max-w-xl flex-col gap-1 text-center" aria-live="polite">
-                {state.captions.tutor && <p className="text-[15px] leading-relaxed">{state.captions.tutor}</p>}
+            <div className="sticky bottom-3 z-10 grid grid-cols-1 items-center gap-x-4 gap-y-2 rounded-xl border border-border-strong bg-surface px-4 py-3 shadow-[var(--shadow-card)] md:grid-cols-[150px_minmax(0,1fr)_auto]">
+              <div className="justify-self-center">
+                <TutorStage controller={controller} mood={state.tutorSpeaking ? "speaking" : "listening"} caption={caption} />
+              </div>
+              <div className="flex min-h-14 min-w-0 flex-col gap-1 text-center md:text-left" aria-live="polite">
+                {tutorCaption && <p className="text-[15px] leading-relaxed">{tutorCaption}</p>}
                 {state.captions.learner && (
                   <p className="text-sm leading-relaxed text-text-muted">
                     <Icon name="mic" className="mr-1 inline size-3.5 align-[-2px]" />
@@ -141,7 +154,7 @@ export default function LiveChatPanel({ lessonId, style, playClip, videoPlaying,
                   </p>
                 )}
               </div>
-              <div className="flex flex-wrap items-center justify-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2 md:flex-col md:items-stretch">
                 <Button
                   variant={state.muted ? "primary" : "ghost"}
                   size="sm"
@@ -175,12 +188,6 @@ export default function LiveChatPanel({ lessonId, style, playClip, videoPlaying,
                   {state.answered >= 1 ? t("bar.finish") : t("live.leave")}
                 </Button>
               </div>
-            </div>
-          )}
-
-          {state.messages.length > 0 && (
-            <div className="rounded-xl border border-border bg-surface p-4 md:p-5">
-              <ChatThread messages={state.messages} thinking={false} />
             </div>
           )}
 

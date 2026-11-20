@@ -123,7 +123,8 @@ class LessonChatServiceImpl implements LessonChatService {
     @Override
     public Session liveQuestion(UUID userId, UUID lessonId, UUID conversationId, String question) {
         ConversationRow conversation = requireLiveRunning(userId, lessonId, conversationId);
-        String text = clean(question, MAX_QUESTION_LENGTH);
+        // Gia sư đôi khi chép luôn số câu "[2]" của lời thoại đánh số vào câu hỏi: bỏ đi để không hiện cho học viên
+        String text = clean(question == null ? null : question.replaceAll("\\s*\\[\\d{1,3}\\]", ""), MAX_QUESTION_LENGTH);
         if (text.isEmpty()) {
             throw new BusinessException(ErrorCode.AI_CHAT_ANSWER_INVALID, Map.of("reason", "empty"));
         }

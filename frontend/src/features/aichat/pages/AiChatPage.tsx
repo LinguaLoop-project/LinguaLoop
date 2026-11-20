@@ -105,7 +105,7 @@ export default function AiChatPage() {
   return (
     <section className="w-full">
       {crumbs}
-      <div className="grid grid-cols-1 items-start gap-6 min-[1100px]:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="mx-auto w-full max-w-4xl">
         <div className="flex min-w-0 flex-col gap-4">
           <header className="flex flex-wrap items-center gap-2">
             <h1 className="mr-auto flex items-center gap-2 font-display text-2xl font-bold">
@@ -122,6 +122,21 @@ export default function AiChatPage() {
               {t("bar.history")}
             </Button>
           </header>
+
+          {/* (1) Video lớn ở đầu cột; trình phát YouTube do trang điều khiển để gia sư và nút "Nghe lại" phát lại đoạn */}
+          <div className="overflow-hidden rounded-xl border border-border bg-surface">
+            <div
+              ref={videoBox}
+              aria-label={t("video.title")}
+              className="aspect-video w-full bg-black [&>div]:h-full [&>div]:w-full [&_iframe]:h-full [&_iframe]:w-full"
+            />
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3">
+              <Link to={lessonPath} className="text-sm font-semibold text-primary-text underline underline-offset-4">
+                {lesson.data.title}
+              </Link>
+              <span className="text-[13px] text-text-muted">{t("video.hint")}</span>
+            </div>
+          </div>
 
           {reviewId && (
             <>
@@ -238,23 +253,6 @@ export default function AiChatPage() {
             </div>
           )}
         </div>
-
-        <aside className="flex min-w-0 flex-col gap-4">
-          <div className="overflow-hidden rounded-lg border border-border bg-surface">
-            <div
-              ref={videoBox}
-              aria-label={t("video.title")}
-              className="aspect-video bg-black [&>div]:h-full [&>div]:w-full [&_iframe]:h-full [&_iframe]:w-full"
-            />
-            <div className="p-4">
-              <p className="text-sm font-semibold">{t("video.title")}</p>
-              <p className="mt-1 text-[13px] text-text-muted">{t("video.hint")}</p>
-              <Link to={lessonPath} className="mt-2 inline-block text-[13px] font-semibold text-primary-text underline underline-offset-4">
-                {lesson.data.title}
-              </Link>
-            </div>
-          </div>
-        </aside>
       </div>
 
       <HistoryDialog lessonId={lessonId} open={historyOpen} onClose={() => setHistoryOpen(false)} onOpenSession={openReview} />
