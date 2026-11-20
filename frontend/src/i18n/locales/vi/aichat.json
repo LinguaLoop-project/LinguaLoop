@@ -36,7 +36,8 @@
     "better": "Cách nói tự nhiên hơn",
     "hint": "Gợi ý",
     "thinking": "Gia sư đang trả lời…",
-    "creditUsed": "−{{charged}} credit · còn {{balance}}"
+    "creditUsed": "−{{charged}} credit · còn {{balance}}",
+    "label": "Cuộc trò chuyện"
   },
   "answer": {
     "placeholder": "Trả lời bằng tiếng Anh…",

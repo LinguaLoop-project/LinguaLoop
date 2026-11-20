@@ -36,7 +36,8 @@
     "better": "A more natural way to say it",
     "hint": "Hint",
     "thinking": "The tutor is replying…",
-    "creditUsed": "−{{charged}} credits · {{balance}} left"
+    "creditUsed": "−{{charged}} credits · {{balance}} left",
+    "label": "Conversation"
   },
   "answer": {
     "placeholder": "Answer in English…",

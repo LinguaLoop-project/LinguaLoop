@@ -79,28 +79,36 @@ function StudentBubble({ message }: Readonly<{ message: ChatMessage }>) {
 /** Dòng hội thoại giữa gia sư và học viên; tự cuộn xuống tin mới nhất khi đang trò chuyện. */
 export default function ChatThread({ messages, thinking, readOnly = false }: Readonly<ChatThreadProps>) {
   const { t } = useTranslation("aichat");
-  const endRef = useRef<HTMLLIElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
 
+  // Khung có chiều cao cố định và tự cuộn; chỉ cuộn bên trong khung, không kéo cả trang theo tin mới
   useEffect(() => {
-    if (!readOnly) endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    const box = boxRef.current;
+    if (!readOnly && box) box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
   }, [messages.length, thinking, readOnly]);
 
   return (
-    <ol className="flex flex-col gap-5" aria-live="polite">
-      {messages.map((message) =>
-        message.role === "tutor" ? (
-          <TutorBubble key={message.id} message={message} />
-        ) : (
-          <StudentBubble key={message.id} message={message} />
-        ),
-      )}
-      {thinking && (
-        <li className="flex items-center gap-2 pl-12 text-sm text-text-muted" role="status">
-          <Icon name="loader-circle" className="size-4 animate-spin" />
-          {t("thread.thinking")}
-        </li>
-      )}
-      <li ref={endRef} aria-hidden="true" className="h-px" />
-    </ol>
+    <div
+      ref={boxRef}
+      tabIndex={0}
+      aria-label={t("thread.label")}
+      className="h-[min(28rem,55vh)] overflow-y-auto overscroll-contain pr-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    >
+      <ol className="flex flex-col gap-5" aria-live="polite">
+        {messages.map((message) =>
+          message.role === "tutor" ? (
+            <TutorBubble key={message.id} message={message} />
+          ) : (
+            <StudentBubble key={message.id} message={message} />
+          ),
+        )}
+        {thinking && (
+          <li className="flex items-center gap-2 pl-12 text-sm text-text-muted" role="status">
+            <Icon name="loader-circle" className="size-4 animate-spin" />
+            {t("thread.thinking")}
+          </li>
+        )}
+      </ol>
+    </div>
   );
 }
