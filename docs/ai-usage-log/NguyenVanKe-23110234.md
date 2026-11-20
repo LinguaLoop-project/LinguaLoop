@@ -542,6 +542,28 @@
 - **Commit:** dcb98f8
 - **Lỗi liên quan:** AI-ERR-KE-004
 
+### AI-KE-048
+
+- **Ngày:** 2026-11-19
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** USER
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Backend quản trị tài khoản và giao lại nội dung theo UC-QT-01 đến UC-QT-07 (danh sách, chi tiết, khóa, mở khóa, đổi vai trò, nội dung cần giao, giao đã chọn, giao toàn bộ), kèm test API theo AC-QT; phạm vi phụ: AUTH (chặn token, thu hồi phiên), LESSON và vocab (đổi chủ), SUBSCRIPTION (credit khi đổi vai trò)
+- **Vị trí code do AI sinh (`file:hàm`):** `user/service/UserAdminServiceImpl.java:list`, `:detail`, `:lock`, `:unlock`, `:changeRole`, `:assertManageable`, `:toDetail`; `user/service/ContentTransferServiceImpl.java:listItems`, `:recipients`, `:summary`, `:transferSelected`, `:transferAll`, `:transfer`, `:lockRecipient`, `:nameConflicts`, `:stillNeedsTransfer`; `user/service/AdminAuditor.java:record`; `user/repository/AdminUserRepository.java:findUsers`, `:countUsers`, `:contentCounts`, `:recentActivities`, `:findTransferItems`, `:findRecipients`, `:containsPattern`; `user/controller/AdminUserController.java`; `user/controller/AdminContentTransferController.java`; `user/dto/request/LockUserRequest.java`, `ChangeRoleRequest.java`, `TransferSelectedRequest.java`, `TransferAllRequest.java`; `security/AccountStatusJwtConverter.java:convert`; `auth/service/AccountLockListener.java:onUserLocked`; `lesson/service/LessonOwnershipServiceImpl.java`; `lesson/repository/LessonOwnershipRepository.java`; `vocab/service/DeckOwnershipServiceImpl.java`; `vocab/repository/DeckOwnershipRepository.java`; `credit/service/CreditServiceImpl.java:resetForRoleChange`; `config/CaseInsensitiveEnumConverterFactory.java`; `AdminUserApiIntegrationTest.java`; `AdminContentTransferApiIntegrationTest.java`; `AdminUserTestData.java`
+- **Commit:** ef22ae9
+- **Lỗi liên quan:** NONE
+
+### AI-KE-049
+
+- **Ngày:** 2026-11-19
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Màn quản trị tài khoản và giao lại nội dung cho UC-QT-01 đến UC-QT-07: danh sách, chi tiết, các hộp khóa, mở khóa, đổi vai trò, giao nội dung; nút giao nội dung từ chi tiết báo cáo (AC-QT-46); i18n vi/en
+- **Vị trí code do AI sinh (`file:hàm`):** `src/features/user/pages/admin/AdminUserListPage.tsx:AdminUserListPage`; `src/features/user/pages/admin/AdminUserDetailPage.tsx:AdminUserDetailPage`; `src/features/user/pages/admin/AdminContentTransferPage.tsx:AdminContentTransferPage`; `src/features/user/components/admin/LockUserDialog.tsx:LockUserDialog`; `src/features/user/components/admin/UnlockUserDialog.tsx:UnlockUserDialog`; `src/features/user/components/admin/ChangeRoleDialog.tsx:ChangeRoleDialog`; `src/features/user/components/admin/TransferDialog.tsx:TransferDialog`; `src/features/user/adminUsers.ts:validateLockReason`, `:listState`, `:errorMessageKey`, `:parsePreselect`; `src/features/user/hooks.ts`; `src/features/user/api.ts:adminUserApi`; `src/features/user/adminUsers.test.ts`; `src/features/report/components/ReportDetailScreen.tsx:ReportDetailScreen`
+- **Commit:** ef22ae9
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
