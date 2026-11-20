@@ -191,6 +191,26 @@ describe("tool đến cùng lúc với started", () => {
   });
 });
 
+describe("lời gọi tool đến trước mọi âm thanh", () => {
+  it("lượt đầu bắt đầu bằng next_question: báo started trước rồi mới gửi câu hỏi", async () => {
+    const order: string[] = [];
+    api.liveStarted.mockImplementation(async () => {
+      order.push("started");
+      return { charged: 5, balance };
+    });
+    api.liveQuestion.mockImplementation(async () => {
+      order.push("question");
+      return session([msg(1, "tutor")]);
+    });
+    await openLive();
+
+    toolCall("next_question", { question: "Tell me about the video." }); // chưa có âm thanh nào của gia sư
+    await flush();
+
+    expect(order).toEqual(["started", "question"]);
+  });
+});
+
 describe("tool của gia sư", () => {
   it("next_question ghi câu hỏi lên server rồi trả số câu cho gia sư", async () => {
     api.liveQuestion.mockResolvedValue(session([msg(1, "tutor")]));

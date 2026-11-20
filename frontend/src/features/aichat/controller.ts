@@ -315,6 +315,14 @@ export class LiveChatController {
   #onTutorOutput() {
     this.#clearNudge();
     if (this.#wrapUpSent) this.#wrapUpReplySeen = true;
+    this.#markStarted();
+  }
+
+  /**
+   * Gia sư đã bắt đầu lượt đầu: bật đồng hồ và báo server trừ credit. Lượt đầu có thể bắt đầu bằng lời gọi tool thay vì
+   * âm thanh (gia sư gọi next_question trước khi nói), nên cả hai đường đều đi qua đây.
+   */
+  #markStarted() {
     if (this.#started) return;
     this.#started = true;
     if (this.#startTimer) clearTimeout(this.#startTimer);
@@ -352,7 +360,9 @@ export class LiveChatController {
 
   async #handleToolCall(call: FunctionCall) {
     if (this.#finishing || !call.name) return;
-    // Gia sư thường gọi next_question ngay trong lượt nói đầu, cùng lúc với lời báo started: chờ credit được trừ xong
+    // Gia sư có thể gọi next_question trước cả khi nói và luôn gọi trong lượt đầu, cùng lúc với lời báo started: bắt đầu
+    // phiên nếu chưa, rồi chờ credit được trừ xong vì server chỉ nhận câu hỏi sau đó
+    this.#markStarted();
     await this.#startedCall;
     if (this.#finishing) return;
     const id = call.id ?? null;
