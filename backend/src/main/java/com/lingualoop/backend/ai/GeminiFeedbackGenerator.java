@@ -23,7 +23,8 @@ import com.lingualoop.backend.config.GeminiProperties;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Viết nhận xét bằng Gemini bản văn bản. Chỉ gửi chữ và điểm của lượt đọc, không gửi âm thanh.
+ * Viết nhận xét bằng Gemini bản văn bản. Chỉ gửi chữ và điểm của lượt đọc, không gửi âm thanh. Gemini trả JSON có cấu trúc
+ * nên không phát dần từng đoạn chữ (nửa chừng chưa phải JSON hợp lệ): người học nhận cả nhận xét một lần.
  * <p>
  * Gemini hay trả 503/429 khi quá tải. SDK của Google mặc định tự thử lại ngầm trong giới hạn thời gian chờ nên người
  * học phải đợi cả chục giây rồi nhận lỗi I/O mờ nhạt; ở đây tắt việc đó và tự thử lại đúng một lần sau
@@ -33,8 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 class GeminiFeedbackGenerator implements AiFeedbackGenerator {
 
-    /** Nhận xét tối đa 4 câu; chừa dư cho model có bước suy nghĩ nội bộ. */
-    private static final int MAX_OUTPUT_TOKENS = 1024;
+    /** JSON tối đa 3 lỗi kèm tổng quan; chừa dư cho model có bước suy nghĩ nội bộ. */
+    private static final int MAX_OUTPUT_TOKENS = 2048;
 
     private static final long RETRY_DELAY_MS = 1_000;
 
@@ -108,13 +109,13 @@ class GeminiFeedbackGenerator implements AiFeedbackGenerator {
                 GenerateContentConfig.builder()
                         .systemInstruction(Content.fromParts(Part.fromText(FeedbackPromptBuilder.systemInstruction())))
                         .temperature(0.4f)
+                        .responseMimeType("application/json")
                         .maxOutputTokens(MAX_OUTPUT_TOKENS)
                         .build())) {
             for (GenerateContentResponse chunk : stream) {
                 String text = chunk.text();
                 if (text != null && !text.isEmpty()) {
                     all.append(text);
-                    onText.accept(text);
                 }
                 GenerateContentResponseUsageMetadata usage = chunk.usageMetadata().orElse(null);
                 if (usage != null) {
@@ -123,11 +124,12 @@ class GeminiFeedbackGenerator implements AiFeedbackGenerator {
                 }
             }
         }
-        String content = all.toString().strip();
-        if (content.isEmpty()) {
+        String raw = all.toString().strip();
+        if (raw.isEmpty()) {
             log.error("Gemini trả nhận xét rỗng (model {})", model);
             throw new BusinessException(ErrorCode.AI_FEEDBACK_UNAVAILABLE);
         }
+        String content = StructuredFeedback.normalize(raw, request);
         return new GeneratedFeedback(content, model, FeedbackPromptBuilder.VERSION, inputTokens, outputTokens);
     }
 
