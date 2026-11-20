@@ -410,9 +410,11 @@ class LessonChatLiveApiIntegrationTest {
     void liveEndpoints_areForStudentsOnly_AC_AI_06() throws Exception {
         UUID lesson = lesson(false);
         mockMvc.perform(post(BASE.formatted(lesson) + "/live-sessions")).andExpect(status().isUnauthorized());
+        UUID teacher = newUser();
+        // Token phải khớp vai trò thật trong DB (quản lý tài khoản kiểm tra mỗi yêu cầu), nên đặt người dùng này là giáo viên
+        jdbc.update("UPDATE users SET role = 'teacher' WHERE id = ?", teacher);
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(
-                jwtTokenService.issueAccessToken(newUser(), Role.TEACHER, UUID.randomUUID()).token());
+        headers.setBearerAuth(jwtTokenService.issueAccessToken(teacher, Role.TEACHER, UUID.randomUUID()).token());
         mockMvc.perform(post(BASE.formatted(lesson) + "/live-sessions").headers(headers))
                 .andExpect(status().isForbidden());
     }

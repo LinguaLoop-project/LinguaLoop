@@ -453,6 +453,8 @@ class LessonChatApiIntegrationTest {
         UUID lesson = lesson(false);
         mockMvc.perform(post(BASE.formatted(lesson) + "/sessions")).andExpect(status().isUnauthorized());
         UUID teacher = newUser();
+        // Token phải khớp vai trò thật trong DB (quản lý tài khoản kiểm tra mỗi yêu cầu), nên đặt người dùng này là giáo viên
+        jdbc.update("UPDATE users SET role = 'teacher' WHERE id = ?", teacher);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtTokenService.issueAccessToken(teacher, Role.TEACHER, UUID.randomUUID()).token());
         mockMvc.perform(post(BASE.formatted(lesson) + "/sessions").headers(headers)).andExpect(status().isForbidden());
