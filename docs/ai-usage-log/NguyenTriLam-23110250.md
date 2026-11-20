@@ -903,6 +903,18 @@
 - **Commit:** f2640c8
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-081
+
+- **Ngày:** 2026-11-20
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Lên kế hoạch qua vòng hỏi đáp thiết kế rồi triển khai Thực hành với AI theo bài (UC-AI-01): gia sư Gemini hỏi tối đa 5 câu trong 15 phút về nội dung bài, trả lời bằng chữ hoặc giọng nói, gợi ý miễn phí, nhận xét tổng quát, bắt đầu lại và lịch sử
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../aichat/` (`LessonChatServiceImpl`, `LessonChatRepository`, `GeminiLessonChatAi`, `LessonChatPrompts`, `LessonChatController`); `ai/GeminiJsonClient.java:AudioClip`; migration `V20261120_1000`; `frontend/src/features/aichat/` (`AiChatPage`, `AnswerBar`, `ChatThread`, `SummaryCard`, `HistoryDialog`, `AiPracticeCard`); bản dịch `aichat.json`; test `LessonChatApiIntegrationTest`, `GeminiLessonChatAiTest`, `utils.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên duyệt 11 quyết định thiết kế (một lần gọi trả JSON, gửi âm thanh thẳng cho Gemini để vừa chép vừa nhận xét, gợi ý miễn phí và lưu một lần mỗi câu, tiếp tục hoặc bắt đầu lại phiên dang dở, nhánh riêng từ main) và quyết định phạm vi. AI chạy thử trên trình duyệt với Gemini thật và ghi nhận kết quả.
+- **Commit:** 85c3e3a
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
