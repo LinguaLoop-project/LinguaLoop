@@ -12,6 +12,7 @@ import com.google.genai.Client;
 import com.google.genai.types.AudioTranscriptionConfig;
 import com.google.genai.types.AuthToken;
 import com.google.genai.types.Content;
+import com.google.genai.types.ContextWindowCompressionConfig;
 import com.google.genai.types.CreateAuthTokenConfig;
 import com.google.genai.types.FunctionDeclaration;
 import com.google.genai.types.HttpOptions;
@@ -21,6 +22,7 @@ import com.google.genai.types.Modality;
 import com.google.genai.types.Part;
 import com.google.genai.types.PrebuiltVoiceConfig;
 import com.google.genai.types.Schema;
+import com.google.genai.types.SlidingWindow;
 import com.google.genai.types.SpeechConfig;
 import com.google.genai.types.Tool;
 import com.google.genai.types.Type;
@@ -57,8 +59,13 @@ class GeminiLiveTokenIssuer implements LiveTokenIssuer {
 
     @Override
     public LiveToken issue(String systemPrompt) {
+        return issueWith(new LiveSpec(systemPrompt, tools(), TOKEN_LIFETIME, false));
+    }
+
+    @Override
+    public LiveToken issueWith(LiveSpec spec) {
         Instant now = clock.instant();
-        Instant expiresAt = now.plus(TOKEN_LIFETIME);
+        Instant expiresAt = now.plus(spec.lifetime());
 
         CreateAuthTokenConfig config = CreateAuthTokenConfig.builder()
                 .uses(1)
@@ -66,7 +73,7 @@ class GeminiLiveTokenIssuer implements LiveTokenIssuer {
                 .newSessionExpireTime(now.plus(NEW_SESSION_WINDOW))
                 .liveConnectConstraints(LiveConnectConstraints.builder()
                         .model(live.model())
-                        .config(liveConfig(systemPrompt)))
+                        .config(liveConfig(spec)))
                 .lockAdditionalFields(List.of())
                 .build();
 
@@ -76,13 +83,17 @@ class GeminiLiveTokenIssuer implements LiveTokenIssuer {
         return new LiveToken(name, live.model(), expiresAt);
     }
 
-    private LiveConnectConfig liveConfig(String systemPrompt) {
+    private LiveConnectConfig liveConfig(LiveSpec spec) {
         LiveConnectConfig.Builder builder = LiveConnectConfig.builder()
                 .responseModalities(Modality.Known.AUDIO)
-                .systemInstruction(Content.fromParts(Part.fromText(systemPrompt)))
-                .tools(Tool.builder().functionDeclarations(tools()).build())
+                .systemInstruction(Content.fromParts(Part.fromText(spec.systemPrompt())))
+                .tools(Tool.builder().functionDeclarations(spec.tools()).build())
                 .inputAudioTranscription(AudioTranscriptionConfig.builder().build())
                 .outputAudioTranscription(AudioTranscriptionConfig.builder().build());
+        if (spec.compressContext()) {
+            builder.contextWindowCompression(ContextWindowCompressionConfig.builder()
+                    .slidingWindow(SlidingWindow.builder()));
+        }
         if (!live.voice().isEmpty()) {
             builder.speechConfig(SpeechConfig.builder()
                     .voiceConfig(VoiceConfig.builder()

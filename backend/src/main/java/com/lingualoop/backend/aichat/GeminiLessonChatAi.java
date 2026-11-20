@@ -1,6 +1,5 @@
 package com.lingualoop.backend.aichat;
 
-import java.time.Duration;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lingualoop.backend.ai.GeminiJsonClient;
-import com.lingualoop.backend.ai.GeminiJsonClient.AudioClip;
 import com.lingualoop.backend.ai.GeminiJsonClient.Request;
 import com.lingualoop.backend.ai.GeminiJsonClient.Result;
 import com.lingualoop.backend.common.exception.BusinessException;
@@ -19,9 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Gia sư AI bằng Gemini: mỗi lượt một lần gọi trả JSON. Câu trả lời bằng giọng nói đi kèm bản ghi WAV để Gemini vừa chép
- * lời vừa nhận xét trong cùng lần gọi, không qua dịch vụ nhận diện giọng nói khác. Thử lại khi quá tải do
- * {@link GeminiJsonClient} lo.
+ * Gia sư AI chế độ chat chữ bằng Gemini: mỗi lượt một lần gọi trả JSON; thử lại khi quá tải do {@link GeminiJsonClient}
+ * lo. Cũng tạo gợi ý và nhận xét tổng quát cho chế độ giọng nói.
  */
 @Slf4j
 @Service
@@ -30,56 +27,40 @@ class GeminiLessonChatAi implements LessonChatAi {
 
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final String THINKING = "LOW";
-    /** Nghe một đoạn âm thanh lâu hơn một lượt chữ. */
-    private static final int AUDIO_TIMEOUT_FACTOR = 2;
 
     private final GeminiJsonClient gemini;
     private final GeminiProperties properties;
 
     @Override
     public Generated<String> open(Lesson lesson) {
-        Result result = call(lesson, LessonChatPrompts.open(), null, properties.timeout());
+        Result result = call(lesson, LessonChatPrompts.open());
         return generated(result, text(parse(result), "question"));
     }
 
     @Override
-    public Generated<Reply> reply(Lesson lesson, List<Line> history, Answer answer, boolean finalTurn) {
-        String prompt = LessonChatPrompts.reply(history, answer.voice(), answer.text(), finalTurn);
-        AudioClip audio = answer.voice() ? new AudioClip(answer.wav(), "audio/wav") : null;
-        Duration timeout = answer.voice() ? properties.timeout().multipliedBy(AUDIO_TIMEOUT_FACTOR) : properties.timeout();
-        Result result = call(lesson, prompt, audio, timeout);
+    public Generated<Reply> reply(Lesson lesson, List<Line> history, String answer, boolean finalTurn) {
+        Result result = call(lesson, LessonChatPrompts.reply(history, answer, finalTurn));
         JsonNode node = parse(result);
-        boolean heard = !node.has("heard") || node.path("heard").asBoolean(true);
-        String transcript = answer.voice() ? node.path("transcript").asText("").strip() : answer.text();
-        if (answer.voice() && transcript.isEmpty()) {
-            heard = false;
-        }
-        if (!heard) {
-            return generated(result, new Reply(false, "", "", "", ""));
-        }
         String feedback = text(node, "feedback");
         String next = finalTurn ? "" : text(node, "nextQuestion");
-        if (!finalTurn && next.isEmpty()) {
-            log.error("Gemini không trả câu hỏi kế tiếp");
-            throw new BusinessException(ErrorCode.AI_FEEDBACK_UNAVAILABLE);
-        }
-        return generated(result, new Reply(true, transcript, feedback, node.path("better").asText("").strip(), next));
+        return generated(result, new Reply(feedback, node.path("better").asText("").strip(), next));
     }
 
     @Override
     public Generated<String> hint(Lesson lesson, List<Line> history) {
-        Result result = call(lesson, LessonChatPrompts.hint(history), null, properties.timeout());
+        Result result = call(lesson, LessonChatPrompts.hint(history));
         return generated(result, text(parse(result), "hint"));
     }
 
     @Override
     public Generated<String> summarize(Lesson lesson, List<Line> history) {
-        Result result = call(lesson, LessonChatPrompts.summary(history), null, properties.timeout());
+        Result result = call(lesson, LessonChatPrompts.summary(history));
         return generated(result, text(parse(result), "summary"));
     }
 
-    private Result call(Lesson lesson, String prompt, AudioClip audio, Duration timeout) {
-        return gemini.generate(new Request(LessonChatPrompts.system(lesson), prompt, null, audio, timeout, THINKING, false));
+    private Result call(Lesson lesson, String prompt) {
+        return gemini.generate(
+                new Request(LessonChatPrompts.system(lesson), prompt, null, properties.timeout(), THINKING, false));
     }
 
     private static <T> Generated<T> generated(Result result, T value) {

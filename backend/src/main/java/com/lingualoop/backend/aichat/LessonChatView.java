@@ -21,6 +21,7 @@ public final class LessonChatView {
     }
 
     /**
+     * @param mode            {@code live} (giọng nói, Gemini Live) hoặc {@code text} (chat chữ dự phòng)
      * @param status          {@code active}, {@code completed} hoặc {@code error}
      * @param expiresAt       mốc hết 15 phút (BR-AI-11)
      * @param answered        số câu đã trả lời
@@ -28,7 +29,7 @@ public final class LessonChatView {
      * @param awaitingSummary đã trả lời đủ câu cuối nhưng nhận xét tổng quát chưa tạo được: gọi kết thúc để tạo lại
      * @param summary         nhận xét tổng quát; null nếu phiên dừng giữa chừng hoặc lỗi
      */
-    public record Session(UUID id, String status, Instant startedAt, Instant endedAt, Instant expiresAt, int answered,
+    public record Session(UUID id, String mode, String status, Instant startedAt, Instant endedAt, Instant expiresAt, int answered,
             int maxQuestions, boolean awaitingSummary, String summary, List<Message> messages) {
     }
 
@@ -38,6 +39,21 @@ public final class LessonChatView {
 
     /** Kết quả một yêu cầu có gọi AI. {@code expired}: phiên đã quá 15 phút nên câu trả lời không được nhận. */
     public record Turn(Session session, Credit credit, boolean expired) {
+    }
+
+    /** Giới hạn của phiên giọng nói để trình duyệt tự thực thi cùng server (BR-AI-11). */
+    public record Limits(int maxQuestions, int maxSeconds, int wrapUpAtSeconds, int startTimeoutSeconds,
+            int idleAskSeconds, int idleEndSeconds) {
+    }
+
+    /**
+     * Phiên giọng nói vừa tạo: token Gemini Live dùng một lần và giới hạn. Chưa trừ credit; credit được trừ khi gia sư
+     * nói câu đầu ({@code started}).
+     *
+     * @param cost credit sẽ trừ khi phiên bắt đầu
+     */
+    public record LiveStart(UUID id, String token, String model, Instant tokenExpiresAt, Limits limits, int cost,
+            CreditBalance balance) {
     }
 
     public record Hint(String hint, boolean cached) {

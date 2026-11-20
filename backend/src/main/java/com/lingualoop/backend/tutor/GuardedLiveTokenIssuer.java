@@ -40,6 +40,12 @@ class GuardedLiveTokenIssuer implements LiveTokenIssuer {
                 () -> new IllegalStateException("Mạch cấp token Gemini Live đang mở"));
     }
 
+    @Override
+    public LiveToken issueWith(LiveSpec spec) {
+        return guard.call(() -> delegate.issueWith(spec),
+                () -> new IllegalStateException("Mạch cấp token Gemini Live đang mở"));
+    }
+
     CircuitBreaker.State state() {
         return guard.state();
     }

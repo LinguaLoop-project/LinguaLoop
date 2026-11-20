@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,15 +25,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
 import com.lingualoop.backend.TestcontainersConfiguration;
-import com.lingualoop.backend.aichat.LessonChatAi.Answer;
 import com.lingualoop.backend.aichat.LessonChatAi.Generated;
 import com.lingualoop.backend.aichat.LessonChatAi.Reply;
 import com.lingualoop.backend.common.exception.BusinessException;
@@ -43,11 +40,11 @@ import com.lingualoop.backend.lesson.LessonFixtures;
 import com.lingualoop.backend.security.JwtTokenService;
 import com.lingualoop.backend.security.Role;
 import com.lingualoop.backend.support.TestData;
-import com.lingualoop.backend.support.WavFixtures;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 /**
- * Thực hành với AI theo bài (UC-AI-01): Gemini được thay bằng bản giả để kiểm luồng, quyền, giới hạn và việc trừ credit.
+ * Thực hành với AI theo bài (UC-AI-01), chế độ chat chữ dự phòng: Gemini được thay bằng bản giả để kiểm luồng, quyền,
+ * giới hạn và việc trừ credit theo lượt. Chế độ giọng nói nằm ở {@link LessonChatLiveApiIntegrationTest}.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -71,7 +68,7 @@ class LessonChatApiIntegrationTest {
         reset(ai);
         when(ai.open(any())).thenReturn(generated("Who is talking in the video?"));
         when(ai.reply(any(), any(), any(), anyBoolean()))
-                .thenReturn(generated(new Reply(true, "A man is talking.", "Đúng rồi, đó là một người đàn ông.",
+                .thenReturn(generated(new Reply("Đúng rồi, đó là một người đàn ông.",
                         "A man is speaking at the start.", "Where is he?")));
         when(ai.hint(any(), any())).thenReturn(generated("Gợi ý: dùng 'He is ...'"));
         when(ai.summarize(any(), any())).thenReturn(generated("Bạn hiểu bài khá tốt."));
@@ -121,25 +118,6 @@ class LessonChatApiIntegrationTest {
                 .andExpect(jsonPath("$.data.credit.charged").value(1))
                 .andExpect(jsonPath("$.data.credit.balance.balance").value(18));
         assertThat(used(user)).isEqualTo(2); // mở đầu + một lượt
-    }
-
-    @Test
-    void answerByVoice_isTranscribedAndStoredAsVoice_AC_AI_02() throws Exception {
-        UUID user = newUser();
-        UUID lesson = lesson(false);
-        UUID session = startSession(user, lesson);
-        when(ai.reply(any(), any(), any(), anyBoolean()))
-                .thenReturn(generated(new Reply(true, "He wakes up early.", "Chính xác.", "", "What does he do next?")));
-
-        answerVoice(user, lesson, session, WavFixtures.valid(2000))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.session.messages[1].text").value("He wakes up early."))
-                .andExpect(jsonPath("$.data.session.messages[1].voice").value(true))
-                .andExpect(jsonPath("$.data.session.messages[1].better").doesNotExist());
-
-        ArgumentCaptor<Answer> answer = ArgumentCaptor.forClass(Answer.class);
-        verify(ai).reply(any(), any(), answer.capture(), anyBoolean());
-        assertThat(answer.getValue().voice()).isTrue();
     }
 
     // ── AC-AI-03 ───────────────────────────────────────────────────────────────────
@@ -192,9 +170,6 @@ class LessonChatApiIntegrationTest {
         // hội thoại cũ còn nguyên
         mockMvc.perform(get(BASE.formatted(lesson) + "/sessions/" + first).headers(auth(user)))
                 .andExpect(jsonPath("$.data.messages.length()").value(3));
-        // đang có phiên mở: "tiếp tục" trả đúng phiên mới
-        mockMvc.perform(get(BASE.formatted(lesson) + "/active").headers(auth(user)))
-                .andExpect(jsonPath("$.data.id").value(second.toString()));
     }
 
     // ── AC-AI-05 ───────────────────────────────────────────────────────────────────
@@ -215,8 +190,6 @@ class LessonChatApiIntegrationTest {
         // đã đóng: không nhận thêm câu trả lời
         answerText(user, lesson, session, "More.").andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("AI_CHAT_NOT_ACTIVE"));
-        mockMvc.perform(get(BASE.formatted(lesson) + "/active").headers(auth(user)))
-                .andExpect(jsonPath("$.data").doesNotExist());
     }
 
     @Test
@@ -269,21 +242,6 @@ class LessonChatApiIntegrationTest {
                 .andExpect(jsonPath("$.data.session.summary").value("Bạn hiểu bài khá tốt."))
                 .andExpect(jsonPath("$.data.session.answered").value(1));
         verify(ai, times(1)).reply(any(), any(), any(), anyBoolean());
-    }
-
-    @Test
-    void sessionAbandonedPast15Minutes_isClosedWithoutSummaryWhenReopened_AC_AI_05() throws Exception {
-        UUID user = newUser();
-        UUID lesson = lesson(false);
-        UUID session = startSession(user, lesson);
-        backdate(session, 16 * 60);
-
-        mockMvc.perform(get(BASE.formatted(lesson) + "/active").headers(auth(user)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").doesNotExist());
-
-        assertThat(statusOf(session)).isEqualTo("completed");
-        verify(ai, never()).summarize(any(), any());
     }
 
     // ── AC-AI-06 ───────────────────────────────────────────────────────────────────
@@ -395,7 +353,7 @@ class LessonChatApiIntegrationTest {
                 .andExpect(jsonPath("$.code").value("AI_CHAT_ANSWER_INVALID"));
         answerText(user, lesson, session, "x".repeat(1001)).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("AI_CHAT_ANSWER_INVALID"));
-        answer(user, lesson, session, null, null).andExpect(status().isBadRequest());
+        answerText(user, lesson, session, null).andExpect(status().isBadRequest());
 
         verify(ai, never()).reply(any(), any(), any(), anyBoolean());
         assertThat(balance(user)).isEqualTo(before);
@@ -404,37 +362,6 @@ class LessonChatApiIntegrationTest {
         // đúng 1000 ký tự thì nhận
         answerText(user, lesson, session, "x".repeat(1000)).andExpect(status().isOk());
         answerText(user, lesson, session, "y").andExpect(status().isOk());
-    }
-
-    @Test
-    void invalidRecording_isRejectedBeforeCallingTheAi_AC_AI_10() throws Exception {
-        UUID user = newUser();
-        UUID lesson = lesson(false);
-        UUID session = startSession(user, lesson);
-
-        answerVoice(user, lesson, session, WavFixtures.valid(300)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("AI_CHAT_ANSWER_INVALID")); // ngắn hơn 0,5 giây
-        answerVoice(user, lesson, session, WavFixtures.valid(31_000)).andExpect(status().isBadRequest());
-        answerVoice(user, lesson, session, "not a wav".getBytes()).andExpect(status().isBadRequest());
-
-        verify(ai, never()).reply(any(), any(), any(), anyBoolean());
-        answerVoice(user, lesson, session, WavFixtures.valid(500)).andExpect(status().isOk()); // đúng 0,5 giây
-    }
-
-    @Test
-    void recordingWithoutSpeech_doesNotCountTheTurnOrCharge_AC_AI_10() throws Exception {
-        UUID user = newUser();
-        UUID lesson = lesson(false);
-        UUID session = startSession(user, lesson);
-        int before = balance(user);
-        when(ai.reply(any(), any(), any(), anyBoolean())).thenReturn(generated(new Reply(false, "", "", "", "")));
-
-        answerVoice(user, lesson, session, WavFixtures.valid(2000))
-                .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.code").value("AI_CHAT_NO_SPEECH"));
-
-        assertThat(balance(user)).isEqualTo(before);
-        assertThat(count("ai_conversation_messages WHERE conversation_id = ?", session)).isEqualTo(1);
     }
 
     // ── AC-AI-11 ───────────────────────────────────────────────────────────────────
@@ -454,9 +381,10 @@ class LessonChatApiIntegrationTest {
         // thử lại tạo phiên mới được
         doReturn(generated("Who is talking?")).when(ai).open(any());
         start(user, lesson).andExpect(status().isOk());
+        // phiên lỗi chưa có dòng hội thoại nào nên không hiện trong lịch sử
         mockMvc.perform(get(BASE.formatted(lesson) + "/sessions").headers(auth(user)))
-                .andExpect(jsonPath("$.data.length()").value(2))
-                .andExpect(jsonPath("$.data[1].status").value("error"));
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].status").value("active"));
     }
 
     @Test
@@ -467,7 +395,7 @@ class LessonChatApiIntegrationTest {
         int before = balance(user);
         when(ai.reply(any(), any(), any(), anyBoolean()))
                 .thenThrow(new BusinessException(ErrorCode.AI_FEEDBACK_BUSY))
-                .thenReturn(generated(new Reply(true, "A man.", "Tốt.", "", "Where?")));
+                .thenReturn(generated(new Reply("Tốt.", "", "Where?")));
 
         answerText(user, lesson, session, "A man.").andExpect(status().isServiceUnavailable());
 
@@ -510,7 +438,7 @@ class LessonChatApiIntegrationTest {
         when(ai.reply(any(), any(), any(), anyBoolean())).thenAnswer(invocation -> {
             jdbc.update("INSERT INTO ai_conversation_messages (conversation_id, role, content) VALUES (?, 'student', 'first')",
                     session);
-            return generated(new Reply(true, "second", "ok", "", "Next?"));
+            return generated(new Reply("ok", "", "Next?"));
         });
         int before = balance(user);
 
@@ -542,23 +470,9 @@ class LessonChatApiIntegrationTest {
     }
 
     private ResultActions answerText(UUID user, UUID lesson, UUID session, String text) throws Exception {
-        return answer(user, lesson, session, text, null);
-    }
-
-    private ResultActions answerVoice(UUID user, UUID lesson, UUID session, byte[] wav) throws Exception {
-        return answer(user, lesson, session, null, wav);
-    }
-
-    private ResultActions answer(UUID user, UUID lesson, UUID session, String text, byte[] wav) throws Exception {
-        MockMultipartHttpServletRequestBuilder request =
-                multipart(BASE.formatted(lesson) + "/sessions/" + session + "/answers");
-        if (text != null) {
-            request.param("text", text);
-        }
-        if (wav != null) {
-            request.file(new MockMultipartFile("audio", "answer.wav", "audio/wav", wav));
-        }
-        return mockMvc.perform(request.headers(auth(user)));
+        String body = text == null ? "{}" : "{\"text\": " + new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(text) + "}";
+        return mockMvc.perform(post(BASE.formatted(lesson) + "/sessions/" + session + "/answers")
+                .contentType(MediaType.APPLICATION_JSON).content(body).headers(auth(user)));
     }
 
     private ResultActions hint(UUID user, UUID lesson, UUID session) throws Exception {

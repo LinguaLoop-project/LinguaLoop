@@ -120,6 +120,8 @@ public enum ErrorCode {
     AI_CHAT_NO_SPEECH(HttpStatus.UNPROCESSABLE_CONTENT, "Không nghe thấy giọng nói trong bản ghi âm"),
     AI_CHAT_NOT_ACTIVE(HttpStatus.CONFLICT, "Cuộc trò chuyện này đã kết thúc"),
     AI_CHAT_TURN_CONFLICT(HttpStatus.CONFLICT, "Câu hỏi này vừa được trả lời ở nơi khác"),
+    AI_CHAT_LIVE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Gia sư giọng nói tạm thời không dùng được, hãy thử chế độ chat chữ"),
+    AI_CHAT_QUESTION_LIMIT(HttpStatus.CONFLICT, "Cuộc trò chuyện đã đủ số câu hỏi"),
     AI_CHAT_FINISH_TOO_EARLY(HttpStatus.CONFLICT, "Hãy trả lời ít nhất một câu trước khi kết thúc"),
     TUTOR_LIVE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Gia sư tạm thời không dùng được, hãy xem mẹo sửa bằng chữ"),
     TUTOR_SESSION_CONFLICT(HttpStatus.CONFLICT, "Phiên gia sư không ở trạng thái cho phép thao tác này"),

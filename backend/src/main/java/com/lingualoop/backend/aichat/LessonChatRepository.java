@@ -30,7 +30,8 @@ class LessonChatRepository {
     record LessonRow(UUID id, String title, String cefrLevel, boolean pro) {
     }
 
-    record ConversationRow(UUID id, UUID lessonId, String status, String summary, Instant startedAt, Instant endedAt) {
+    record ConversationRow(UUID id, UUID lessonId, String mode, boolean charged, String status, String summary,
+            Instant startedAt, Instant endedAt) {
     }
 
     record MessageRow(long id, boolean tutor, String content, String feedback, String better, String hint,
@@ -41,7 +42,7 @@ class LessonChatRepository {
     }
 
     private static final String CONVERSATION = """
-            SELECT id, lesson_id, status, summary, started_at, ended_at FROM ai_conversations""";
+            SELECT id, lesson_id, mode, charged, status, summary, started_at, ended_at FROM ai_conversations""";
 
     private final JdbcClient jdbc;
 
@@ -69,11 +70,6 @@ class LessonChatRepository {
                 .query(this::conversation).optional();
     }
 
-    Optional<ConversationRow> findActive(UUID userId, UUID lessonId) {
-        return jdbc.sql(CONVERSATION + " WHERE user_id = :user AND lesson_id = :lesson AND status = 'active'")
-                .param("user", userId).param("lesson", lessonId).query(this::conversation).optional();
-    }
-
     List<HistoryRow> history(UUID userId, UUID lessonId) {
         return jdbc.sql("""
                 SELECT c.id, c.status, c.started_at, c.ended_at, c.summary IS NOT NULL AS has_summary,
@@ -81,6 +77,7 @@ class LessonChatRepository {
                          WHERE m.conversation_id = c.id AND m.role = 'student') AS answered
                 FROM ai_conversations c
                 WHERE c.user_id = :user AND c.lesson_id = :lesson
+                  AND EXISTS (SELECT 1 FROM ai_conversation_messages m WHERE m.conversation_id = c.id)
                 ORDER BY c.started_at DESC""")
                 .param("user", userId).param("lesson", lessonId)
                 .query((rs, n) -> new HistoryRow(rs.getObject("id", UUID.class), rs.getString("status"),
@@ -101,21 +98,44 @@ class LessonChatRepository {
     }
 
     /**
-     * Đóng cuộc trò chuyện đang mở của bài (nếu có, giữ nguyên trong lịch sử, BR-AI-05) rồi mở cuộc mới. Chỉ mục duy nhất
-     * trên cuộc đang mở chặn hai yêu cầu bắt đầu chạy song song.
+     * Đóng cuộc trò chuyện đang mở của bài (nếu có, giữ nguyên trong lịch sử, BR-AI-05) rồi mở cuộc mới. Phiên giọng nói
+     * chưa bắt đầu (chưa trừ credit) đóng ở trạng thái lỗi. Chỉ mục duy nhất trên cuộc đang mở chặn hai yêu cầu bắt đầu
+     * chạy song song.
      */
     @Transactional
-    UUID startFresh(UUID userId, UUID lessonId) {
+    UUID startFresh(UUID userId, UUID lessonId, String mode) {
         jdbc.sql("""
-                UPDATE ai_conversations SET status = 'completed', ended_at = now()
+                UPDATE ai_conversations
+                SET status = CASE WHEN mode = 'live' AND NOT charged THEN 'error' ELSE 'completed' END, ended_at = now()
                 WHERE user_id = :user AND lesson_id = :lesson AND status = 'active'""")
                 .param("user", userId).param("lesson", lessonId).update();
         try {
-            return jdbc.sql("INSERT INTO ai_conversations (user_id, lesson_id) VALUES (:user, :lesson) RETURNING id")
-                    .param("user", userId).param("lesson", lessonId).query(UUID.class).single();
+            return jdbc.sql("""
+                    INSERT INTO ai_conversations (user_id, lesson_id, mode) VALUES (:user, :lesson, :mode)
+                    RETURNING id""")
+                    .param("user", userId).param("lesson", lessonId).param("mode", mode).query(UUID.class).single();
         } catch (DuplicateKeyException duplicate) {
             throw new BusinessException(ErrorCode.AI_CHAT_TURN_CONFLICT);
         }
+    }
+
+    /**
+     * Phiên giọng nói: gia sư đã nói câu đầu nên bắt đầu tính giờ và đánh dấu đã trừ credit. Trả false nếu phiên đã được
+     * đánh dấu trước đó (trình duyệt báo lặp), để không trừ hai lần.
+     */
+    boolean claimCharge(UUID conversationId) {
+        return jdbc.sql("""
+                UPDATE ai_conversations SET charged = true, started_at = now()
+                WHERE id = :id AND status = 'active' AND mode = 'live' AND NOT charged""")
+                .param("id", conversationId).update() > 0;
+    }
+
+    /** Phiên chưa tới lượt trừ credit mà ví không đủ: đóng ở trạng thái lỗi. */
+    void failUnlessCharged(UUID conversationId) {
+        jdbc.sql("""
+                UPDATE ai_conversations SET status = 'error', ended_at = now()
+                WHERE id = :id AND status = 'active' AND NOT charged""")
+                .param("id", conversationId).update();
     }
 
     long addTutorMessage(UUID conversationId, String question) {
@@ -131,14 +151,14 @@ class LessonChatRepository {
      * {@code AI_CHAT_TURN_CONFLICT} và không bị trừ credit.
      */
     @Transactional
-    void saveTurn(UUID conversationId, long expectedLastId, String answer, boolean voice, String feedback, String better,
+    void saveTurn(UUID conversationId, long expectedLastId, String answer, String feedback, String better,
             String nextQuestion) {
         requireOpenAt(conversationId, expectedLastId);
         jdbc.sql("""
                 INSERT INTO ai_conversation_messages (conversation_id, role, content, feedback, better, via_voice)
-                VALUES (:id, 'student', :text, :feedback, :better, :voice)""")
+                VALUES (:id, 'student', :text, :feedback, :better, false)""")
                 .param("id", conversationId).param("text", answer).param("feedback", feedback)
-                .param("better", better == null || better.isBlank() ? null : better).param("voice", voice).update();
+                .param("better", better == null || better.isBlank() ? null : better).update();
         if (nextQuestion != null && !nextQuestion.isBlank()) {
             addTutorMessage(conversationId, nextQuestion);
         }
@@ -154,6 +174,36 @@ class LessonChatRepository {
                 .param("id", questionId).query(String.class).single();
     }
 
+    /**
+     * Phiên giọng nói: lưu câu hỏi mới của gia sư. Chỉ khi chưa có câu nào hoặc câu trước đã có câu trả lời, và chưa đủ
+     * {@code maxQuestions} câu; gia sư nói hai câu hỏi liên tiếp thì lần sau nhận {@code AI_CHAT_TURN_CONFLICT}.
+     */
+    @Transactional
+    long addQuestion(UUID conversationId, String question, int maxQuestions) {
+        Tail tail = lockedTail(conversationId);
+        if (tail.tutorCount() >= maxQuestions) {
+            throw new BusinessException(ErrorCode.AI_CHAT_QUESTION_LIMIT);
+        }
+        if (tail.lastRole() != null && !"student".equals(tail.lastRole())) {
+            throw new BusinessException(ErrorCode.AI_CHAT_TURN_CONFLICT);
+        }
+        return addTutorMessage(conversationId, question);
+    }
+
+    /** Phiên giọng nói: lưu câu trả lời và nhận xét của câu hỏi đang chờ. */
+    @Transactional
+    void addLiveAnswer(UUID conversationId, String answer, String feedback, String better) {
+        Tail tail = lockedTail(conversationId);
+        if (!"tutor".equals(tail.lastRole())) {
+            throw new BusinessException(ErrorCode.AI_CHAT_TURN_CONFLICT);
+        }
+        jdbc.sql("""
+                INSERT INTO ai_conversation_messages (conversation_id, role, content, feedback, better, via_voice)
+                VALUES (:id, 'student', :text, :feedback, :better, true)""")
+                .param("id", conversationId).param("text", answer).param("feedback", feedback)
+                .param("better", better == null || better.isBlank() ? null : better).update();
+    }
+
     /** Đóng phiên đang mở; trả false nếu phiên đã được đóng bởi yêu cầu khác (để không trừ credit hai lần). */
     boolean complete(UUID conversationId, String summary) {
         return jdbc.sql("""
@@ -166,6 +216,25 @@ class LessonChatRepository {
     void fail(UUID conversationId) {
         jdbc.sql("UPDATE ai_conversations SET status = 'error', ended_at = now() WHERE id = :id AND status = 'active'")
                 .param("id", conversationId).update();
+    }
+
+    private record Tail(String lastRole, int tutorCount) {
+    }
+
+    /** Khóa dòng cuộc trò chuyện (phải đang mở) rồi đọc vai của dòng cuối và số câu hỏi đã có. */
+    private Tail lockedTail(UUID conversationId) {
+        String status = jdbc.sql("SELECT status FROM ai_conversations WHERE id = :id FOR UPDATE")
+                .param("id", conversationId).query(String.class).optional().orElse("");
+        if (!"active".equals(status)) {
+            throw new BusinessException(ErrorCode.AI_CHAT_NOT_ACTIVE);
+        }
+        String lastRole = jdbc.sql("""
+                SELECT role FROM ai_conversation_messages WHERE conversation_id = :id ORDER BY id DESC LIMIT 1""")
+                .param("id", conversationId).query(String.class).optional().orElse(null);
+        int tutors = jdbc.sql("""
+                SELECT count(*) FROM ai_conversation_messages WHERE conversation_id = :id AND role = 'tutor'""")
+                .param("id", conversationId).query(Integer.class).single();
+        return new Tail(lastRole, tutors);
     }
 
     private void requireOpenAt(UUID conversationId, long expectedLastId) {
@@ -183,7 +252,7 @@ class LessonChatRepository {
 
     private ConversationRow conversation(ResultSet rs, int n) throws SQLException {
         return new ConversationRow(rs.getObject("id", UUID.class), rs.getObject("lesson_id", UUID.class),
-                rs.getString("status"), rs.getString("summary"), instant(rs.getTimestamp("started_at")),
+                rs.getString("mode"), rs.getBoolean("charged"), rs.getString("status"), rs.getString("summary"), instant(rs.getTimestamp("started_at")),
                 instant(rs.getTimestamp("ended_at")));
     }
 

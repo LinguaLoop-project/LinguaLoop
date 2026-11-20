@@ -126,9 +126,6 @@ class GoogleGeminiJsonClient implements GeminiJsonClient {
             config.thinkingConfig(ThinkingConfig.builder()
                     .thinkingLevel(ThinkingLevel.Known.valueOf(request.thinkingLevel())).build());
         }
-        if (request.audio() != null) {
-            parts.add(Part.fromBytes(request.audio().data(), request.audio().mimeType()));
-        }
         parts.add(Part.fromText(request.prompt()));
         if (request.systemInstruction() != null) {
             config.systemInstruction(Content.fromParts(Part.fromText(request.systemInstruction())));

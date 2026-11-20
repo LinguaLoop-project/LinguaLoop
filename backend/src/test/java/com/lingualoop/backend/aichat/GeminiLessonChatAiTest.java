@@ -20,7 +20,7 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.config.GeminiProperties;
 
-/** Đọc kết quả JSON của Gemini cho gia sư AI (UC-AI-01) và dựng yêu cầu kèm lời thoại, âm thanh. */
+/** Đọc kết quả JSON của Gemini cho gia sư AI (UC-AI-01) và dựng yêu cầu kèm lời thoại. */
 class GeminiLessonChatAiTest {
 
     private static final LessonChatAi.Lesson LESSON = new LessonChatAi.Lesson("Morning", "B1", "I woke up early.");
@@ -38,10 +38,8 @@ class GeminiLessonChatAiTest {
                  "nextQuestion": "Where is he?"}
                 ```""", 120, 45));
 
-        var generated = ai.reply(LESSON, HISTORY, LessonChatAi.Answer.ofText("A man talk."), false);
+        var generated = ai.reply(LESSON, HISTORY, "A man talk.", false);
 
-        assertThat(generated.value().heard()).isTrue();
-        assertThat(generated.value().transcript()).isEqualTo("A man talk."); // câu gõ chữ giữ nguyên, không lấy từ AI
         assertThat(generated.value().feedback()).isEqualTo("Tốt lắm.");
         assertThat(generated.value().nextQuestion()).isEqualTo("Where is he?");
         assertThat(generated.inputTokens()).isEqualTo(120);
@@ -49,37 +47,10 @@ class GeminiLessonChatAiTest {
     }
 
     @Test
-    void reply_forVoiceSendsTheRecordingAndUsesTheTranscriptItReturns_AC_AI_02() {
-        when(gemini.generate(any())).thenReturn(new Result(
-                "{\"heard\": true, \"transcript\": \"He wakes up early\", \"feedback\": \"Đúng.\", \"nextQuestion\": \"Next?\"}",
-                10, 5));
-        byte[] wav = {1, 2, 3};
-
-        var generated = ai.reply(LESSON, HISTORY, LessonChatAi.Answer.ofVoice(wav), false);
-
-        assertThat(generated.value().transcript()).isEqualTo("He wakes up early");
-        ArgumentCaptor<Request> request = ArgumentCaptor.forClass(Request.class);
-        verify(gemini).generate(request.capture());
-        assertThat(request.getValue().audio().data()).isEqualTo(wav);
-        assertThat(request.getValue().audio().mimeType()).isEqualTo("audio/wav");
-        assertThat(request.getValue().systemInstruction()).contains("I woke up early.", "Morning");
-        assertThat(request.getValue().timeout()).isEqualTo(Duration.ofSeconds(40)); // nghe âm thanh được chờ lâu hơn
-    }
-
-    @Test
-    void reply_withoutSpeechIsReportedAsNotHeard_AC_AI_10() {
-        when(gemini.generate(any())).thenReturn(new Result("{\"heard\": false}", 10, 2));
-        assertThat(ai.reply(LESSON, HISTORY, LessonChatAi.Answer.ofVoice(new byte[] {1}), false).value().heard()).isFalse();
-
-        when(gemini.generate(any())).thenReturn(new Result("{\"heard\": true, \"transcript\": \"  \"}", 10, 2));
-        assertThat(ai.reply(LESSON, HISTORY, LessonChatAi.Answer.ofVoice(new byte[] {1}), false).value().heard()).isFalse();
-    }
-
-    @Test
     void reply_onTheLastTurnNeedsNoNextQuestion_AC_AI_05() {
         when(gemini.generate(any())).thenReturn(new Result("{\"feedback\": \"Xong.\", \"better\": \"\"}", 10, 2));
 
-        var generated = ai.reply(LESSON, HISTORY, LessonChatAi.Answer.ofText("Fine."), true);
+        var generated = ai.reply(LESSON, HISTORY, "Fine.", true);
 
         assertThat(generated.value().nextQuestion()).isEmpty();
     }
@@ -88,7 +59,7 @@ class GeminiLessonChatAiTest {
     void reply_failsWhenThereIsNoNextQuestionBeforeTheLastTurn_AC_AI_11() {
         when(gemini.generate(any())).thenReturn(new Result("{\"feedback\": \"Ok.\"}", 10, 2));
 
-        assertThatThrownBy(() -> ai.reply(LESSON, HISTORY, LessonChatAi.Answer.ofText("Fine."), false))
+        assertThatThrownBy(() -> ai.reply(LESSON, HISTORY, "Fine.", false))
                 .isInstanceOfSatisfying(BusinessException.class,
                         e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.AI_FEEDBACK_UNAVAILABLE));
     }

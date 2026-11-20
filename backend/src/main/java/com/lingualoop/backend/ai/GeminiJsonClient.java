@@ -20,35 +20,25 @@ public interface GeminiJsonClient {
     record VideoClip(String fileUri, Duration start, Duration end, Double fps) {
     }
 
-    /** Bản ghi âm gửi kèm yêu cầu để Gemini vừa nghe vừa trả lời trong một lần gọi. */
-    record AudioClip(byte[] data, String mimeType) {
-    }
-
     /**
      * @param systemInstruction hướng dẫn cố định cho mọi lần gọi, có thể {@code null}
      * @param prompt            nội dung của lần gọi này
      * @param video             đoạn video đi kèm, {@code null} nếu chỉ gửi chữ
      * @param timeout           thời gian chờ tối đa cho lần gọi này
      * @param thinkingLevel     mức suy nghĩ nội bộ ({@code LOW}, {@code MEDIUM}...); {@code null} = để model tự quyết
-     * @param audio             bản ghi âm đi kèm, {@code null} nếu không có
      * @param preferFallback    gọi model dự phòng trước: lần gọi trước trong cùng một việc đã phải dùng nó vì model
      *                          chính quá tải
      */
-    record Request(String systemInstruction, String prompt, VideoClip video, AudioClip audio, Duration timeout,
+    record Request(String systemInstruction, String prompt, VideoClip video, Duration timeout,
             String thinkingLevel, boolean preferFallback) {
 
-        public Request(String systemInstruction, String prompt, VideoClip video, Duration timeout,
-                String thinkingLevel, boolean preferFallback) {
-            this(systemInstruction, prompt, video, null, timeout, thinkingLevel, preferFallback);
-        }
-
         public static Request text(String prompt, Duration timeout, String thinkingLevel) {
-            return new Request(null, prompt, null, null, timeout, thinkingLevel, false);
+            return new Request(null, prompt, null, timeout, thinkingLevel, false);
         }
 
         /** Bản sao gọi model dự phòng trước (nếu có cấu hình). */
         public Request preferringFallback() {
-            return new Request(systemInstruction, prompt, video, audio, timeout, thinkingLevel, true);
+            return new Request(systemInstruction, prompt, video, timeout, thinkingLevel, true);
         }
     }
 

@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.lingualoop.backend.aichat.LessonChatAi.Answer;
 import com.lingualoop.backend.aichat.LessonChatAi.Generated;
 import com.lingualoop.backend.aichat.LessonChatAi.Line;
 import com.lingualoop.backend.aichat.LessonChatAi.Reply;
@@ -19,23 +18,30 @@ import com.lingualoop.backend.aichat.LessonChatRepository.MessageRow;
 import com.lingualoop.backend.aichat.LessonChatView.Credit;
 import com.lingualoop.backend.aichat.LessonChatView.HistoryItem;
 import com.lingualoop.backend.aichat.LessonChatView.Hint;
+import com.lingualoop.backend.aichat.LessonChatView.Limits;
+import com.lingualoop.backend.aichat.LessonChatView.LiveStart;
 import com.lingualoop.backend.aichat.LessonChatView.Message;
 import com.lingualoop.backend.aichat.LessonChatView.Session;
 import com.lingualoop.backend.aichat.LessonChatView.Turn;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
+import com.lingualoop.backend.config.CreditProperties;
 import com.lingualoop.backend.credit.AiFeature;
 import com.lingualoop.backend.credit.CreditService;
-import com.lingualoop.backend.shadowing.service.WavAudio;
+import com.lingualoop.backend.credit.dto.CreditBalance;
 import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
+import com.lingualoop.backend.tutor.LiveTokenIssuer;
+import com.lingualoop.backend.tutor.LiveTokenIssuer.LiveToken;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Luồng mỗi lượt: kiểm quyền và dữ liệu vào → nhờ AI → lưu → trừ credit theo token. Cố ý không có {@code @Transactional}
- * ở đây để lời gọi Gemini không giữ kết nối DB; các lần ghi nhiều câu lệnh nằm trong {@link LessonChatRepository}.
- * Credit chỉ chặn lúc bắt đầu (BR-AI-10): đã vào phiên thì các lượt sau vẫn chạy và việc trừ không để ví âm (BR-GA-06).
+ * Hai chế độ của một phiên. Giọng nói (Gemini Live): trình duyệt nói chuyện thẳng với Gemini, server cấp token, ghi lại
+ * câu hỏi, câu trả lời và nhận xét do gia sư báo qua tool, và trừ credit cố định một lần khi gia sư nói câu đầu. Chat chữ
+ * (dự phòng khi không dùng được micro hoặc Live): mỗi lượt một lần gọi Gemini, trừ theo token. Cố ý không có
+ * {@code @Transactional} ở đây để lời gọi Gemini không giữ kết nối DB; các lần ghi nhiều câu lệnh nằm trong
+ * {@link LessonChatRepository}. Credit chỉ chặn lúc bắt đầu (BR-AI-10) và việc trừ không để ví âm (BR-GA-06).
  */
 @Slf4j
 @Service
@@ -48,14 +54,115 @@ class LessonChatServiceImpl implements LessonChatService {
     static final Duration MAX_DURATION = Duration.ofMinutes(15);
     /** Độ dài câu trả lời gõ chữ sau khi bỏ khoảng trắng hai đầu (BR-AI-06). */
     static final int MAX_TEXT_LENGTH = 1000;
+    /** Giới hạn lời nhắc phiên giọng nói: nhắc chốt lại khi còn một phút. */
+    static final int WRAP_UP_AT_SECONDS = 14 * 60;
+    static final int START_TIMEOUT_SECONDS = 15;
+    static final int IDLE_ASK_SECONDS = 60;
+    static final int IDLE_END_SECONDS = 90;
+    private static final int MAX_FEEDBACK_LENGTH = 2000;
+    private static final int MAX_BETTER_LENGTH = 500;
+    private static final int MAX_QUESTION_LENGTH = 500;
 
     private static final AiFeature FEATURE = AiFeature.LESSON_CHAT;
 
     private final LessonChatRepository repository;
     private final LessonChatAi ai;
     private final CreditService credits;
+    private final CreditProperties creditProperties;
     private final SubscriptionQueryService subscriptions;
+    private final LiveTokenIssuer tokenIssuer;
     private final Clock clock;
+
+    // ── Chế độ giọng nói ───────────────────────────────────────────────────────────
+
+    @Override
+    public LiveStart startLive(UUID userId, UUID lessonId) {
+        LessonRow lesson = requireLesson(userId, lessonId);
+        credits.requireCanStart(userId, FEATURE);
+
+        UUID conversationId = repository.startFresh(userId, lessonId, "live");
+        LiveToken token;
+        try {
+            token = tokenIssuer.issueWith(LessonChatLive.spec(context(lesson), MAX_QUESTIONS));
+        } catch (RuntimeException e) {
+            log.warn("Không cấp được token Gemini Live cho phiên theo bài: {}", e.toString());
+            repository.failUnlessCharged(conversationId);
+            credits.logFailure(userId, FEATURE, false);
+            throw new BusinessException(ErrorCode.AI_CHAT_LIVE_UNAVAILABLE);
+        }
+        return new LiveStart(conversationId, token.token(), token.model(), token.expiresAt(),
+                new Limits(MAX_QUESTIONS, (int) MAX_DURATION.toSeconds(), WRAP_UP_AT_SECONDS, START_TIMEOUT_SECONDS,
+                        IDLE_ASK_SECONDS, IDLE_END_SECONDS),
+                creditProperties.lessonChatCost(), credits.balanceOf(userId));
+    }
+
+    @Override
+    public Credit liveStarted(UUID userId, UUID lessonId, UUID conversationId) {
+        ConversationRow conversation = requireLive(userId, lessonId, conversationId);
+        requireActive(conversation);
+        int cost = creditProperties.lessonChatCost();
+        if (conversation.charged()) {
+            return new Credit(0, credits.balanceOf(userId));
+        }
+        CreditBalance wallet = credits.balanceOf(userId);
+        if (wallet.balance() < cost) {
+            // Hết lượt giữa lúc tạo phiên và lúc bắt đầu (vd hai tab): đóng phiên, không trừ
+            repository.failUnlessCharged(conversationId);
+            credits.logFailure(userId, FEATURE, true);
+            throw new BusinessException(ErrorCode.QUOTA_EXCEEDED,
+                    Map.of("feature", FEATURE.dbValue(), "balance", wallet.balance(), "cost", cost));
+        }
+        int charged = repository.claimCharge(conversationId) ? credits.chargeFixed(userId, FEATURE, cost) : 0;
+        return new Credit(charged, credits.balanceOf(userId));
+    }
+
+    @Override
+    public Session liveQuestion(UUID userId, UUID lessonId, UUID conversationId, String question) {
+        ConversationRow conversation = requireLiveRunning(userId, lessonId, conversationId);
+        String text = clean(question, MAX_QUESTION_LENGTH);
+        if (text.isEmpty()) {
+            throw new BusinessException(ErrorCode.AI_CHAT_ANSWER_INVALID, Map.of("reason", "empty"));
+        }
+        repository.addQuestion(conversation.id(), text, MAX_QUESTIONS);
+        return detail(userId, lessonId, conversationId);
+    }
+
+    @Override
+    public Session liveFeedback(UUID userId, UUID lessonId, UUID conversationId, String answer, String feedback,
+            String better) {
+        ConversationRow conversation = requireLiveRunning(userId, lessonId, conversationId);
+        String said = clean(answer, MAX_TEXT_LENGTH);
+        String comment = clean(feedback, MAX_FEEDBACK_LENGTH);
+        if (said.isEmpty() || comment.isEmpty()) {
+            throw new BusinessException(ErrorCode.AI_CHAT_ANSWER_INVALID, Map.of("reason", "empty"));
+        }
+        repository.addLiveAnswer(conversation.id(), said, comment, clean(better, MAX_BETTER_LENGTH));
+        return detail(userId, lessonId, conversationId);
+    }
+
+    @Override
+    public Turn liveFinish(UUID userId, UUID lessonId, UUID conversationId) {
+        ConversationRow conversation = requireLive(userId, lessonId, conversationId);
+        requireActive(conversation);
+        List<MessageRow> messages = repository.messages(conversationId);
+        if (answered(messages) >= 1) {
+            LessonRow lesson = requireLesson(userId, lessonId);
+            Generated<String> summary;
+            try {
+                summary = ai.summarize(context(lesson), lines(messages));
+            } catch (RuntimeException e) {
+                // Phiên vẫn mở để học viên bấm tạo lại nhận xét; câu trả lời đã lưu không mất
+                credits.logFailure(userId, FEATURE, false);
+                throw e;
+            }
+            repository.complete(conversationId, summary.value());
+        } else {
+            repository.complete(conversationId, null);
+        }
+        return turn(userId, lessonId, conversationId, 0, false);
+    }
+
+    // ── Chế độ chat chữ ────────────────────────────────────────────────────────────
 
     @Override
     public Turn start(UUID userId, UUID lessonId) {
@@ -63,7 +170,7 @@ class LessonChatServiceImpl implements LessonChatService {
         credits.requireCanStart(userId, FEATURE);
         LessonChatAi.Lesson context = context(lesson);
 
-        UUID conversationId = repository.startFresh(userId, lessonId);
+        UUID conversationId = repository.startFresh(userId, lessonId, "text");
         Generated<String> opening;
         try {
             opening = ai.open(context);
@@ -78,24 +185,10 @@ class LessonChatServiceImpl implements LessonChatService {
     }
 
     @Override
-    public Session active(UUID userId, UUID lessonId) {
-        ConversationRow conversation = repository.findActive(userId, lessonId).orElse(null);
-        if (conversation == null) {
-            return null;
-        }
-        if (expired(conversation)) {
-            // Học viên bỏ đi giữa chừng: đóng lại, không tạo nhận xét (không ai đang chờ, đỡ tốn credit)
-            repository.complete(conversation.id(), null);
-            return null;
-        }
-        return session(conversation, repository.messages(conversation.id()));
-    }
-
-    @Override
-    public Turn answer(UUID userId, UUID lessonId, UUID conversationId, String text, byte[] wav) {
-        ConversationRow conversation = requireOwned(userId, lessonId, conversationId);
+    public Turn answer(UUID userId, UUID lessonId, UUID conversationId, String text) {
+        ConversationRow conversation = requireText(userId, lessonId, conversationId);
         requireActive(conversation);
-        Answer answer = validate(text, wav);
+        String answer = validate(text);
         LessonRow lesson = requireLesson(userId, lessonId);
         List<MessageRow> messages = repository.messages(conversationId);
         if (expired(conversation)) {
@@ -117,12 +210,8 @@ class LessonChatServiceImpl implements LessonChatService {
             throw e;
         }
         Reply value = reply.value();
-        if (!value.heard()) {
-            // Không nghe thấy lời nói: không lưu, không tính lượt, không trừ credit (AC-AI-10)
-            throw new BusinessException(ErrorCode.AI_CHAT_NO_SPEECH);
-        }
-        repository.saveTurn(conversationId, question.id(), value.transcript(), answer.voice(), value.feedback(),
-                value.better(), finalTurn ? null : value.nextQuestion());
+        repository.saveTurn(conversationId, question.id(), answer, value.feedback(), value.better(),
+                finalTurn ? null : value.nextQuestion());
         int charged = charge(userId, reply);
 
         if (finalTurn) {
@@ -137,11 +226,35 @@ class LessonChatServiceImpl implements LessonChatService {
     }
 
     @Override
+    public Turn finish(UUID userId, UUID lessonId, UUID conversationId) {
+        ConversationRow conversation = requireText(userId, lessonId, conversationId);
+        requireActive(conversation);
+        List<MessageRow> messages = repository.messages(conversationId);
+        if (answered(messages) < 1) {
+            throw new BusinessException(ErrorCode.AI_CHAT_FINISH_TOO_EARLY);
+        }
+        LessonRow lesson = requireLesson(userId, lessonId);
+        int charged;
+        try {
+            charged = summarize(userId, context(lesson), conversationId, lines(messages));
+        } catch (RuntimeException e) {
+            credits.logFailure(userId, FEATURE, false);
+            throw e;
+        }
+        return turn(userId, lessonId, conversationId, charged, false);
+    }
+
+    // ── Dùng chung cho hai chế độ ──────────────────────────────────────────────────
+
+    @Override
     public Hint hint(UUID userId, UUID lessonId, UUID conversationId) {
         ConversationRow conversation = requireOwned(userId, lessonId, conversationId);
         requireActive(conversation);
         if (expired(conversation)) {
-            repository.complete(conversationId, null);
+            if ("text".equals(conversation.mode())) {
+                repository.complete(conversationId, null);
+            }
+            // Phiên giọng nói hết giờ vẫn mở để học viên bấm kết thúc và nhận nhận xét tổng quát
             throw new BusinessException(ErrorCode.AI_CHAT_NOT_ACTIVE);
         }
         List<MessageRow> messages = repository.messages(conversationId);
@@ -157,25 +270,6 @@ class LessonChatServiceImpl implements LessonChatService {
         String stored = repository.saveHint(conversationId, question.id(), generated.value());
         // Gợi ý không trừ credit (BR-AI-08); yêu cầu đến trước đã lưu bản khác thì trả bản đó
         return new Hint(stored, !stored.equals(generated.value()));
-    }
-
-    @Override
-    public Turn finish(UUID userId, UUID lessonId, UUID conversationId) {
-        ConversationRow conversation = requireOwned(userId, lessonId, conversationId);
-        requireActive(conversation);
-        List<MessageRow> messages = repository.messages(conversationId);
-        if (answered(messages) < 1) {
-            throw new BusinessException(ErrorCode.AI_CHAT_FINISH_TOO_EARLY);
-        }
-        LessonRow lesson = requireLesson(userId, lessonId);
-        int charged;
-        try {
-            charged = summarize(userId, context(lesson), conversationId, lines(messages));
-        } catch (RuntimeException e) {
-            credits.logFailure(userId, FEATURE, false);
-            throw e;
-        }
-        return turn(userId, lessonId, conversationId, charged, false);
     }
 
     @Override
@@ -209,32 +303,60 @@ class LessonChatServiceImpl implements LessonChatService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.AI_CHAT_NOT_FOUND));
     }
 
+    private ConversationRow requireLive(UUID userId, UUID lessonId, UUID conversationId) {
+        ConversationRow conversation = requireOwned(userId, lessonId, conversationId);
+        if (!"live".equals(conversation.mode())) {
+            throw new BusinessException(ErrorCode.AI_CHAT_NOT_FOUND);
+        }
+        return conversation;
+    }
+
+    private ConversationRow requireText(UUID userId, UUID lessonId, UUID conversationId) {
+        ConversationRow conversation = requireOwned(userId, lessonId, conversationId);
+        if (!"text".equals(conversation.mode())) {
+            throw new BusinessException(ErrorCode.AI_CHAT_NOT_FOUND);
+        }
+        return conversation;
+    }
+
+    /** Phiên giọng nói đang chạy: còn mở, đã bắt đầu (đã trừ credit) và chưa quá 15 phút. */
+    private ConversationRow requireLiveRunning(UUID userId, UUID lessonId, UUID conversationId) {
+        ConversationRow conversation = requireLive(userId, lessonId, conversationId);
+        requireActive(conversation);
+        if (!conversation.charged() || expired(conversation)) {
+            throw new BusinessException(ErrorCode.AI_CHAT_NOT_ACTIVE);
+        }
+        return conversation;
+    }
+
     private static void requireActive(ConversationRow conversation) {
         if (!"active".equals(conversation.status())) {
             throw new BusinessException(ErrorCode.AI_CHAT_NOT_ACTIVE);
         }
     }
 
-    /** Đúng một trong chữ hoặc bản ghi, hợp lệ theo BR-AI-06; kiểm trước khi gọi AI để lỗi không tốn gì. */
-    private static Answer validate(String text, byte[] wav) {
-        boolean hasText = text != null && !text.isBlank();
-        boolean hasWav = wav != null && wav.length > 0;
-        if (hasText == hasWav) {
-            throw new BusinessException(ErrorCode.AI_CHAT_ANSWER_INVALID, Map.of("reason", hasText ? "both" : "empty"));
+    /** Câu trả lời gõ chữ hợp lệ theo BR-AI-06; kiểm trước khi gọi AI để lỗi không tốn gì. */
+    private static String validate(String text) {
+        if (text == null || text.isBlank()) {
+            throw new BusinessException(ErrorCode.AI_CHAT_ANSWER_INVALID, Map.of("reason", "empty"));
         }
-        if (hasText) {
-            String trimmed = text.strip();
-            if (trimmed.codePointCount(0, trimmed.length()) > MAX_TEXT_LENGTH) {
-                throw new BusinessException(ErrorCode.AI_CHAT_ANSWER_INVALID, Map.of("reason", "too_long"));
-            }
-            return Answer.ofText(trimmed);
+        String trimmed = text.strip();
+        if (trimmed.codePointCount(0, trimmed.length()) > MAX_TEXT_LENGTH) {
+            throw new BusinessException(ErrorCode.AI_CHAT_ANSWER_INVALID, Map.of("reason", "too_long"));
         }
-        try {
-            WavAudio.parse(wav);
-        } catch (BusinessException e) {
-            throw new BusinessException(ErrorCode.AI_CHAT_ANSWER_INVALID, Map.of("reason", "audio"));
+        return trimmed;
+    }
+
+    /** Chuỗi do AI báo qua tool: bỏ khoảng trắng hai đầu và cắt theo số ký tự thay vì từ chối. */
+    private static String clean(String value, int max) {
+        if (value == null) {
+            return "";
         }
-        return Answer.ofVoice(wav);
+        String trimmed = value.strip();
+        if (trimmed.codePointCount(0, trimmed.length()) <= max) {
+            return trimmed;
+        }
+        return trimmed.substring(0, trimmed.offsetByCodePoints(0, max));
     }
 
     private boolean expired(ConversationRow conversation) {
@@ -279,8 +401,8 @@ class LessonChatServiceImpl implements LessonChatService {
         int answered = answered(messages);
         Instant expiresAt = conversation.startedAt().plus(MAX_DURATION);
         boolean awaitingSummary = "active".equals(conversation.status()) && answered >= MAX_QUESTIONS;
-        return new Session(conversation.id(), conversation.status(), conversation.startedAt(), conversation.endedAt(),
-                expiresAt, answered, MAX_QUESTIONS, awaitingSummary, conversation.summary(),
+        return new Session(conversation.id(), conversation.mode(), conversation.status(), conversation.startedAt(),
+                conversation.endedAt(), expiresAt, answered, MAX_QUESTIONS, awaitingSummary, conversation.summary(),
                 messages.stream()
                         .map(m -> new Message(m.id(), m.tutor() ? "tutor" : "student", m.content(), m.feedback(),
                                 m.better(), m.hint(), m.voice(), m.createdAt()))
