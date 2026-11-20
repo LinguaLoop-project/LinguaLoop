@@ -10,7 +10,8 @@ public enum AuditEntityType {
     SENTENCE,
     DECK,
     CARD,
-    REPORT;
+    REPORT,
+    USER;
 
     public String value() {
         return name().toLowerCase(Locale.ROOT);

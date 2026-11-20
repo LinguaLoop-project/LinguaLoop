@@ -4,6 +4,7 @@ import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import EmptyState from "@/components/common/EmptyState";
 import ErrorState from "@/components/common/ErrorState";
+import Pagination from "@/components/common/Pagination";
 import SearchInput from "@/components/common/SearchInput";
 import Skeleton from "@/components/common/Skeleton";
 import { deckActions, type DeckAction } from "../../deckActions";
@@ -234,35 +235,7 @@ export default function ManageDeckList(props: ManageDeckListProps) {
         </ul>
       )}
 
-      {data && data.totalPages > 1 && (
-        <nav className="flex items-center justify-center gap-3" aria-label={t("manage.pagination")}>
-          <Button
-            size="sm"
-            variant="secondary"
-            iconOnly
-            aria-label={t("manage.prev")}
-            title={t("manage.prev")}
-            disabled={page === 0}
-            onClick={() => onPageChange(page - 1)}
-          >
-            <Icon name="chevron-left" />
-          </Button>
-          <span className="text-sm text-text-muted">
-            {page + 1} / {data.totalPages}
-          </span>
-          <Button
-            size="sm"
-            variant="secondary"
-            iconOnly
-            aria-label={t("manage.next")}
-            title={t("manage.next")}
-            disabled={page + 1 >= data.totalPages}
-            onClick={() => onPageChange(page + 1)}
-          >
-            <Icon name="chevron-right" />
-          </Button>
-        </nav>
-      )}
+      {data && <Pagination page={page} totalPages={data.totalPages} onChange={onPageChange} />}
     </section>
   );
 }

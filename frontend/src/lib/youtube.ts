@@ -7,6 +7,13 @@ export interface YouTubePlayer {
   getCurrentTime(): number;
   getDuration(): number;
   getPlayerState(): number;
+  mute(): void;
+  unMute(): void;
+  isMuted(): boolean;
+  /** Gỡ một mô-đun của trình phát (vd "captions" để tắt phụ đề có sẵn của YouTube). */
+  unloadModule?(name: string): void;
+  /** Đổi tùy chọn của một mô-đun (vd `setOption("captions", "track", {})` để bỏ phụ đề có sẵn). */
+  setOption?(module: string, option: string, value: unknown): void;
   destroy(): void;
 }
 
@@ -16,7 +23,11 @@ export interface YouTubeNamespace {
     options: {
       videoId: string;
       playerVars: Record<string, string | number>;
-      events: { onReady: () => void; onError: () => void; onStateChange?: (event: { data: number }) => void };
+      events: {
+        onReady: () => void;
+        onError: () => void;
+        onStateChange?: (event: { data: number }) => void;
+      };
     },
   ) => YouTubePlayer;
 }
@@ -27,6 +38,9 @@ declare global {
     onYouTubeIframeAPIReady?: () => void;
   }
 }
+
+/** Trạng thái trình phát YouTube. */
+export const YT_STATE = { ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3 } as const;
 
 /** Chờ tối đa bấy nhiêu mili giây để API sẵn sàng. */
 const LOAD_TIMEOUT_MS = 9000;

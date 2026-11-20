@@ -18,7 +18,7 @@ export type ReportStatus = "waiting_teacher" | "waiting_admin" | "resolved" | "r
 
 export type ReviewRole = "teacher" | "admin";
 
-/** Thao tác tác nhân được làm trên một dòng (BR-XL-02). `takedown` và `assign` chưa có màn hình. */
+/** Thao tác tác nhân được làm trên một dòng (BR-XL-02); `assign` mở màn giao lại nội dung (UC-QT-06 nhánh 1a). */
 export type ReportAction = "resolve" | "reject" | "takedown" | "assign";
 
 /** Loại nội dung mang dấu "Bị quản trị viên gỡ". */

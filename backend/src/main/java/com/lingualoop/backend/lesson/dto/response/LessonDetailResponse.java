@@ -16,5 +16,7 @@ public record LessonDetailResponse(
     Long sentenceCount,
     ModeProgressResponse progress,
     TopicResponse topic,
-    List<LessonSummaryResponse> relatedLessons
+    List<LessonSummaryResponse> relatedLessons,
+    /** Học viên đã lưu bài này vào Bài đã lưu (UC-TC-05). */
+    boolean saved
 ) {}

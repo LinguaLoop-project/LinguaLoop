@@ -339,9 +339,6 @@
     "counts": "{{groups}} nhóm · {{cards}} thẻ",
     "updatedOn": "Cập nhật {{date}}",
     "deletedOn": "Xóa ngày {{date}}",
-    "pagination": "Phân trang",
-    "prev": "Trang trước",
-    "next": "Trang sau",
     "action": {
       "publish": "Xuất bản",
       "unpublish": "Gỡ xuất bản",

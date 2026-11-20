@@ -3,7 +3,7 @@ package com.lingualoop.backend.audit.enums;
 import java.util.Locale;
 import java.util.Optional;
 
-/** Thao tác trên nội dung */
+/** Thao tác trên nội dung và tài khoản */
 public enum AuditAction {
     CREATE,
     UPDATE,
@@ -12,7 +12,11 @@ public enum AuditAction {
     UNPUBLISH,
     RESOLVE,
     REJECT,
-    RESTORE;
+    RESTORE,
+    LOCK,
+    UNLOCK,
+    CHANGE_ROLE,
+    TRANSFER;
 
     /** Giá trị lưu trong DB. */
     public String value() {

@@ -106,6 +106,11 @@ class CreditServiceImpl implements CreditService {
         });
     }
 
+    @Override
+    public void resetForRoleChange(UUID userId) {
+        wallets.resetBalance(userId, clock.instant());
+    }
+
     private int deduct(UUID userId, AiFeature feature, long inputUnits, long outputUnits, Integer fixedCost) {
         // Lambda luôn trả về số (không null) nên execute không trả null
         return Objects.requireNonNull(tx.execute(status -> {

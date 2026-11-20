@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Badge from "@/components/common/Badge";
-import Button from "@/components/common/Button";
 import EmptyState from "@/components/common/EmptyState";
 import ErrorState from "@/components/common/ErrorState";
+import Pagination from "@/components/common/Pagination";
 import Skeleton from "@/components/common/Skeleton";
 import { useRepublishList } from "../hooks";
 import { REPUBLISH_PATH } from "../paths";
@@ -59,23 +59,7 @@ export default function RepublishListScreen() {
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-5 p-6">
       <h1 className="text-2xl font-bold text-text">{t("republish.title")}</h1>
       {body}
-      {totalPages > 1 && (
-        <nav className="flex items-center justify-center gap-3 text-sm text-text-muted">
-          <Button type="button" variant="ghost" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>
-            {t("list.prev")}
-          </Button>
-          <span>{t("list.pageOf", { page: page + 1, total: totalPages })}</span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={page + 1 >= totalPages}
-            onClick={() => setPage(page + 1)}
-          >
-            {t("list.next")}
-          </Button>
-        </nav>
-      )}
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
     </main>
   );
 }

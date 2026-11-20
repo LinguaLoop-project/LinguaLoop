@@ -6,7 +6,7 @@
 |---|---|---|
 | BR-TC-01 | Mọi chức năng xem thư viện, chủ đề, chi tiết bài học, học thụ động và tra từ điển đều yêu cầu học viên đã đăng nhập. Quyền xem lời thoại, xem video Pro và luyện tập đối với bài học gắn nhãn Pro theo BR-PR-13. | UC-TC-01, UC-TC-02 (4a, 4b), UC-TC-04, AC-TC-08, AC-TC-10, AC-TC-14, AC-TC-15, AC-TC-18, AC-TC-32 |
 | BR-TC-02 | Tiến độ bài học, điểm cao nhất từng câu, danh sách bài đang học, trạng thái thích video và trạng thái lưu nghĩa từ điển hiển thị cho học viên nào thì chỉ tính trên dữ liệu của chính học viên đó, hoàn toàn tách biệt với học viên khác. | UC-TC-01, UC-TC-02, UC-TC-03, UC-TC-04, AC-TC-04, AC-TC-21 |
-| BR-TC-13 | Nguồn video trong mục Học thụ động chỉ bao gồm các bài học video ngắn đã xuất bản do hệ thống cung cấp; học viên không có quyền tự đăng tải video lên mục Học thụ động. | UC-TC-04, AC-TC-25, AC-TC-32 |
+| BR-TC-13 | Nguồn video trong mục Học thụ động chỉ bao gồm các bài học video ngắn đã xuất bản do hệ thống cung cấp; học viên không có quyền tự đăng tải video lên mục Học thụ động. Chỉ bài dài tối đa 3 phút vào luồng; luồng xáo trộn trong một phiên xem, bài học viên chưa luyện câu nào đứng trước, và bài mở từ trang chi tiết bài học đứng đầu luồng. Mỗi lần tải 10 video. | UC-TC-04, AC-TC-25, AC-TC-32 |
 
 ## Trạng thái
 
@@ -34,6 +34,7 @@
 | BR-TC-14 | Khi xem Học thụ động, hệ thống chỉ phát video đang hiển thị trên màn hình và tự động dừng video trước đó ngay khi học viên cuộn qua; lời thoại hiển thị chạy đồng bộ theo mốc thời gian của từng câu trong video. Khi học viên mở hộp Tra từ điển hoặc mở biểu mẫu Báo cáo nội dung, video đang xem tự động tạm dừng và phát tiếp khi đóng hộp thoại. | UC-TC-04 (3c, 3f), AC-TC-25, AC-TC-28 |
 | BR-TC-17 | Khi học viên chọn "Lưu câu" trong lúc xem Học thụ động, câu lời thoại đang phát được thêm vào danh sách Câu cần ôn (chế độ Shadowing, lý do ghim tay) ngay cả khi học viên chưa có lượt đọc nào cho câu đó (vì ở Học thụ động toàn bộ lời thoại đã được hiển thị công khai); bấm lại nút "Đã lưu câu" sẽ gỡ câu đó khỏi danh sách. | UC-TC-04 (3d), AC-TC-29 |
 | BR-TC-18 | Mỗi video trong mục Học thụ động luôn gắn với một bài học đã xuất bản của hệ thống; khi học viên chọn chuyển sang luyện bài từ video đang xem, hệ thống dừng phát video thụ động và mở trực tiếp màn hình Thực hành shadowing (UC-SH-01) của bài học đó. | UC-TC-04 (3e), AC-TC-30 |
+| BR-TC-19 | Bài đã lưu là danh sách riêng của từng học viên: mỗi học viên lưu một bài tối đa một lần, lưu lặp lại giữ nguyên thời điểm lưu đầu tiên, bỏ lưu bài chưa lưu thì không làm gì. Chỉ lưu được bài thư viện đã xuất bản và chưa xóa; học viên gói Free không lưu được bài Pro. Bài đã lưu mà sau đó bị gỡ xuất bản, bị xóa hoặc thành bài Pro khi học viên hết gói vẫn ở trong danh sách, hiện là không còn khả dụng hoặc cần Pro và chỉ bỏ lưu được. Danh sách xếp mới lưu trước (đảo được), 12 bài mỗi trang, tìm theo tên không phân biệt hoa thường, lọc theo tiến độ như thư viện (Chưa học, Đang học, Đã xong). Lưu bài không đổi tiến độ luyện và không đưa bài vào Câu cần ôn hay Ôn tập hằng ngày. | UC-TC-05, UC-TC-04 (3g), AC-TC-34, AC-TC-35, AC-TC-36, AC-TC-37, AC-TC-38, AC-TC-39, AC-TC-40 |
 
 ## Giới hạn số
 

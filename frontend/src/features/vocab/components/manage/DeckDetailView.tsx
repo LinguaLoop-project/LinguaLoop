@@ -8,6 +8,7 @@ import ErrorState from "@/components/common/ErrorState";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import { FormAlert } from "@/components/common/FormAlert";
 import Icon from "@/components/common/Icon";
+import Pagination from "@/components/common/Pagination";
 import SearchInput from "@/components/common/SearchInput";
 import Skeleton from "@/components/common/Skeleton";
 import { toast } from "@/stores/toastStore";
@@ -369,33 +370,7 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
                 ))}
               </ul>
             )}
-            {cards.data && cards.data.totalPages > 1 && (
-              <nav className="flex items-center justify-center gap-3" aria-label={t("manage.pagination")}>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  iconOnly
-                  aria-label={t("manage.prev")}
-                  disabled={page === 0}
-                  onClick={() => setPage(page - 1)}
-                >
-                  <Icon name="chevron-left" />
-                </Button>
-                <span className="text-sm text-text-muted">
-                  {page + 1} / {cards.data.totalPages}
-                </span>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  iconOnly
-                  aria-label={t("manage.next")}
-                  disabled={page + 1 >= cards.data.totalPages}
-                  onClick={() => setPage(page + 1)}
-                >
-                  <Icon name="chevron-right" />
-                </Button>
-              </nav>
-            )}
+            {cards.data && <Pagination page={page} totalPages={cards.data.totalPages} onChange={setPage} />}
           </div>
         </div>
       )}
