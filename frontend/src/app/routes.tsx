@@ -55,6 +55,9 @@ const AdminLessonDetailPage = lazy(() => import("@/features/lesson/pages/admin/A
 
 const TeacherReportListPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportListPage"));
 const TeacherReportDetailPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportDetailPage"));
+const AdminUserListPage = lazy(() => import("@/features/user/pages/admin/AdminUserListPage"));
+const AdminUserDetailPage = lazy(() => import("@/features/user/pages/admin/AdminUserDetailPage"));
+const AdminContentTransferPage = lazy(() => import("@/features/user/pages/admin/AdminContentTransferPage"));
 const AdminReportListPage = lazy(() => import("@/features/report/pages/admin/AdminReportListPage"));
 const AdminReportDetailPage = lazy(() => import("@/features/report/pages/admin/AdminReportDetailPage"));
 const AdminRepublishListPage = lazy(() => import("@/features/report/pages/admin/AdminRepublishListPage"));
@@ -328,11 +331,15 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "users",
-          element: <PlaceholderPage pageKey="admin.users" />,
+          element: <AdminUserListPage />,
         },
         {
           path: "users/:id",
-          element: <PlaceholderPage pageKey="admin.userDetail" />,
+          element: <AdminUserDetailPage />,
+        },
+        {
+          path: "transfers",
+          element: <AdminContentTransferPage />,
         },
         {
           path: "reports",

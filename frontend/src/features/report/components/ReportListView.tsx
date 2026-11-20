@@ -4,6 +4,7 @@ import Button from "@/components/common/Button";
 import EmptyState from "@/components/common/EmptyState";
 import ErrorState from "@/components/common/ErrorState";
 import Icon from "@/components/common/Icon";
+import Pagination from "@/components/common/Pagination";
 import SearchInput from "@/components/common/SearchInput";
 import Skeleton from "@/components/common/Skeleton";
 import { DEFAULT_REPORT_FILTER, isFiltered, reasonFilterGroups, reasonFitsType } from "../reportForm";
@@ -223,23 +224,7 @@ export default function ReportListView(props: Readonly<ReportListViewProps>) {
 
       {body}
 
-      {totalPages > 1 && (
-        <nav className="flex items-center justify-center gap-3 text-sm text-text-muted">
-          <Button type="button" variant="ghost" size="sm" disabled={page === 0} onClick={() => onPageChange(page - 1)}>
-            {t("list.prev")}
-          </Button>
-          <span>{t("list.pageOf", { page: page + 1, total: totalPages })}</span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={page + 1 >= totalPages}
-            onClick={() => onPageChange(page + 1)}
-          >
-            {t("list.next")}
-          </Button>
-        </nav>
-      )}
+      <Pagination page={page} totalPages={totalPages} onChange={onPageChange} />
     </section>
   );
 }

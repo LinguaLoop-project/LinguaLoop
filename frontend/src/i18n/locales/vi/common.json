@@ -80,5 +80,12 @@
       "title": "Không tìm thấy nội dung",
       "desc": "Đường dẫn có thể đã đổi hoặc nội dung đã bị gỡ."
     }
+  },
+  "pagination": {
+    "label": "Phân trang",
+    "prev": "Trang trước",
+    "next": "Trang sau",
+    "page": "Trang {{page}}",
+    "goTo": "Đến trang"
   }
 }

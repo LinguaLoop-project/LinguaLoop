@@ -81,13 +81,13 @@
       "aria": "Điều hướng giáo viên",
       "homeLabel": "LinguaLoop Giáo viên",
       "groups": {
-        "content": "NỘI DUNG",
-        "tracking": "THEO DÕI"
+        "queue": "CẦN XỬ LÝ",
+        "content": "NỘI DUNG"
       },
       "items": {
         "dashboard": "Tổng quan",
         "lessons": "Bài học",
-        "decks": "Bộ từ vựng",
+        "decks": "Bộ thẻ",
         "reports": "Báo cáo nội dung"
       }
     },
@@ -103,11 +103,11 @@
         "overview": "Tổng quan",
         "lessons": "Bài học",
         "compose": "Soạn bài học mới",
-        "decks": "Bộ từ vựng",
+        "decks": "Bộ thẻ",
         "reports": "Báo cáo nội dung",
         "settings": "Cài đặt",
         "lessonDetail": "Chi tiết bài học",
-        "deckDetail": "Chi tiết bộ từ",
+        "deckDetail": "Chi tiết bộ thẻ",
         "reportDetail": "Chi tiết báo cáo lỗi"
       }
     }
@@ -117,8 +117,9 @@
       "aria": "Điều hướng Admin",
       "homeLabel": "LinguaLoop Quản trị",
       "groups": {
-        "system": "HỆ THỐNG",
-        "moderation": "KIỂM DUYỆT",
+        "accounts": "TÀI KHOẢN",
+        "queue": "CẦN XỬ LÝ",
+        "content": "NỘI DUNG",
         "config": "CẤU HÌNH"
       },
       "items": {
@@ -126,12 +127,13 @@
         "users": "Người dùng",
         "reports": "Báo cáo nội dung",
         "lessons": "Bài học đã xuất bản",
-        "decks": "Bộ thẻ từ vựng",
-        "audit": "Nhật ký nội dung",
+        "decks": "Bộ thẻ đã xuất bản",
+        "audit": "Nhật ký hoạt động",
         "limits": "Gói & Hạn mức",
         "subs": "Đăng ký Pro",
         "errors": "Danh mục lỗi",
-        "republish": "Duyệt xuất bản lại"
+        "republish": "Duyệt xuất bản lại",
+        "transfers": "Giao lại nội dung"
       }
     },
     "topbar": {
@@ -147,8 +149,8 @@
         "users": "Quản lý người dùng",
         "reports": "Báo cáo nội dung",
         "lessons": "Bài học đã xuất bản",
-        "decks": "Bộ thẻ từ vựng",
-        "audit": "Nhật ký nội dung",
+        "decks": "Bộ thẻ đã xuất bản",
+        "audit": "Nhật ký hoạt động",
         "limits": "Gói & Hạn mức",
         "subs": "Đăng ký Pro",
         "errors": "Danh mục lỗi",
@@ -163,7 +165,8 @@
         "reportDetail": "Chi tiết báo cáo lỗi",
         "lessonDetail": "Chi tiết bài học",
         "deckDetail": "Chi tiết bộ thẻ",
-        "republish": "Duyệt xuất bản lại"
+        "republish": "Duyệt xuất bản lại",
+        "transfers": "Giao lại nội dung"
       }
     }
   },

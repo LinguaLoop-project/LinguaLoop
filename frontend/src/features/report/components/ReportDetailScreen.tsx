@@ -7,6 +7,7 @@ import ErrorState from "@/components/common/ErrorState";
 import { FormAlert } from "@/components/common/FormAlert";
 import Icon from "@/components/common/Icon";
 import Skeleton from "@/components/common/Skeleton";
+import { contentTransferPath } from "@/features/user";
 import { useReportDetail } from "../hooks";
 import { reportListPath, contentEditPath } from "../paths";
 import { cellText, compareRows, formatDateTime, statusKey } from "../reportFormat";
@@ -195,7 +196,22 @@ function DetailBody({
               </Button>
             )}
             {can("assign") && (
-              <Button type="button" variant="secondary" disabled title={t("detail.comingSoon")}>
+              <Button
+                type="button"
+                variant="secondary"
+                leftIcon={<Icon name="arrow-left-right" />}
+                onClick={() =>
+                  navigate(
+                    contentTransferPath({
+                      type: item.targetType === "card" ? "deck" : "lesson",
+                      id: item.containerId,
+                      name: item.containerName,
+                      ownerId: item.ownerId,
+                      ownerName: item.ownerName,
+                    }),
+                  )
+                }
+              >
                 {t("detail.assign")}
               </Button>
             )}

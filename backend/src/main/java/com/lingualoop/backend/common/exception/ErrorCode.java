@@ -66,6 +66,21 @@ public enum ErrorCode {
     YOUTUBE_NO_ENGLISH_SPEECH(HttpStatus.UNPROCESSABLE_CONTENT, "Video không có phụ đề tiếng Anh"),
     YOUTUBE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Tạm thời không lấy được dữ liệu từ YouTube, hãy thử lại"),
 
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản này"),
+    USER_PROTECTED(HttpStatus.FORBIDDEN, "Không thể khóa hoặc đổi vai trò tài khoản này"),
+    USER_ALREADY_LOCKED(HttpStatus.CONFLICT, "Tài khoản đã ở trạng thái Đã khóa"),
+    USER_NOT_LOCKED(HttpStatus.CONFLICT, "Tài khoản đang hoạt động"),
+    USER_LOCKED_ROLE_CHANGE(HttpStatus.CONFLICT, "Tài khoản đang bị khóa, cần mở khóa trước khi đổi vai trò"),
+    USER_ROLE_UNCHANGED(HttpStatus.CONFLICT, "Tài khoản đã có vai trò này"),
+    USER_TEACHER_HAS_CONTENT(HttpStatus.CONFLICT, "Giáo viên còn bài học hoặc bộ thẻ cần giao lại"),
+    USER_ACTIVE_PRO(HttpStatus.CONFLICT, "Học viên đang có gói Pro còn hạn, chỉ đổi được sau khi gói hết hạn"),
+    TRANSFER_NOTHING_SELECTED(HttpStatus.BAD_REQUEST, "Cần chọn ít nhất một nội dung"),
+    TRANSFER_NO_CONTENT(HttpStatus.CONFLICT, "Giáo viên này không còn nội dung cần giao"),
+    TRANSFER_SOURCE_NOT_TEACHER(HttpStatus.CONFLICT, "Tài khoản nguồn không phải giáo viên"),
+    TRANSFER_RECIPIENT_INVALID(HttpStatus.CONFLICT, "Giáo viên nhận không còn hợp lệ, hãy chọn giáo viên khác"),
+    TRANSFER_NAME_CONFLICT(HttpStatus.CONFLICT, "Có nội dung trùng tên với nội dung của giáo viên nhận"),
+    TRANSFER_CONTENT_CHANGED(HttpStatus.CONFLICT, "Danh sách nội dung đã thay đổi, hãy xem lại"),
+
     DICTIONARY_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy từ này trong từ điển"),
 
     VOCAB_MEANING_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy nghĩa này của từ"),

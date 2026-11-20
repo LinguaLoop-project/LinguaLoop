@@ -184,6 +184,7 @@ class SavedLessonApiIntegrationTest {
         UUID lesson = lesson("mine", false, "published");
         UUID owner = newUser();
         UUID other = newUser();
+        UUID teacher = newTeacher();
         jdbc.update("INSERT INTO lesson_saves (user_id, lesson_id) VALUES (?, ?)", owner, lesson);
 
         as(other, get("/api/v1/lessons/saved"))
@@ -192,7 +193,7 @@ class SavedLessonApiIntegrationTest {
                 .andExpect(jsonPath("$.data.items.length()").value(0));
         mockMvc.perform(get("/api/v1/lessons/saved")).andExpect(status().isUnauthorized());
         mockMvc.perform(get("/api/v1/lessons/saved").header(HttpHeaders.AUTHORIZATION, "Bearer "
-                + jwtTokenService.issueAccessToken(other, Role.TEACHER, UUID.randomUUID()).token()))
+                + jwtTokenService.issueAccessToken(teacher, Role.TEACHER, UUID.randomUUID()).token()))
                 .andExpect(status().isForbidden());
     }
 
@@ -230,5 +231,12 @@ class SavedLessonApiIntegrationTest {
 
     private UUID newUser() {
         return userAccountService.createLocal("saved-" + UUID.randomUUID() + "@x.com", "Lâm", "bcrypt-hash").id();
+    }
+
+    /** Vai trò trong token phải khớp vai trò trong cơ sở dữ liệu, nếu không token bị từ chối (BR-QT-04). */
+    private UUID newTeacher() {
+        UUID teacher = newUser();
+        jdbc.update("UPDATE users SET role = 'teacher' WHERE id = ?", teacher);
+        return teacher;
     }
 }

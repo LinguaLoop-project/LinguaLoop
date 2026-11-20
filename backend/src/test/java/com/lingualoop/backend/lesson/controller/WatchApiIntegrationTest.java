@@ -218,7 +218,7 @@ class WatchApiIntegrationTest {
     void anonymousIs401_andTeachersAre403_AC_TC_32() throws Exception {
         mockMvc.perform(get("/api/v1/watch/feed")).andExpect(status().isUnauthorized());
         mockMvc.perform(get("/api/v1/watch/feed").header(HttpHeaders.AUTHORIZATION, "Bearer "
-                + jwtTokenService.issueAccessToken(newUser(), Role.TEACHER, UUID.randomUUID()).token()))
+                + jwtTokenService.issueAccessToken(newTeacher(), Role.TEACHER, UUID.randomUUID()).token()))
                 .andExpect(status().isForbidden());
     }
 
@@ -267,5 +267,12 @@ class WatchApiIntegrationTest {
 
     private UUID newUser() {
         return userAccountService.createLocal("watch-" + UUID.randomUUID() + "@x.com", "Lâm", "bcrypt-hash").id();
+    }
+
+    /** Vai trò trong token phải khớp vai trò trong cơ sở dữ liệu, nếu không token bị từ chối (BR-QT-04). */
+    private UUID newTeacher() {
+        UUID teacher = newUser();
+        jdbc.update("UPDATE users SET role = 'teacher' WHERE id = ?", teacher);
+        return teacher;
     }
 }

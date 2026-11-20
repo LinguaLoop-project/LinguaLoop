@@ -116,6 +116,23 @@ public class User extends BaseEntity {
         return lockedAt != null;
     }
 
+    /** Khóa tài khoản kèm lý do (UC-QT-02, BR-QT-03); gọi khi tài khoản đang hoạt động. */
+    public void lock(String reason, Instant now) {
+        this.lockedAt = now;
+        this.lockedReason = reason;
+    }
+
+    /** Mở khóa (UC-QT-03): xóa cả thời điểm và lý do khóa (ràng buộc {@code chk_users_locked}). */
+    public void unlock() {
+        this.lockedAt = null;
+        this.lockedReason = null;
+    }
+
+    /** Đổi vai trò giữa Học viên và Giáo viên (UC-QT-04); điều kiện do service kiểm. */
+    public void changeRole(Role newRole) {
+        this.role = newRole;
+    }
+
     public boolean isOnboarded() {
         return onboardedAt != null;
     }

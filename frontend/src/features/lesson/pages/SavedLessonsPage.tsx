@@ -8,7 +8,7 @@ import SearchInput from "@/components/common/SearchInput";
 import SegmentedControl from "@/components/common/SegmentedControl";
 import Skeleton from "@/components/common/Skeleton";
 import { toast } from "@/stores/toastStore";
-import Pagination from "../components/Pagination";
+import Pagination from "@/components/common/Pagination";
 import QueryError from "../components/QueryError";
 import SavedLessonRow from "../components/saved/SavedLessonRow";
 import { savedLessonsApi, type SavedLesson, type SavedSort } from "../savedLessons";

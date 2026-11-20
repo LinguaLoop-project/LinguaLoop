@@ -356,9 +356,6 @@
     "counts": "{{groups}} groups · {{cards}} cards",
     "updatedOn": "Updated {{date}}",
     "deletedOn": "Deleted {{date}}",
-    "pagination": "Pagination",
-    "prev": "Previous page",
-    "next": "Next page",
     "action": {
       "publish": "Publish",
       "unpublish": "Unpublish",

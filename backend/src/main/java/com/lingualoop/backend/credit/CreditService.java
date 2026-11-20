@@ -31,4 +31,11 @@ public interface CreditService {
     void logFailure(UUID userId, AiFeature feature, boolean rejectedNoCredit);
 
     CreditBalance balanceOf(UUID userId);
+
+    /**
+     * Hủy toàn bộ số dư khi tài khoản đổi vai trò (UC-QT-04, BR-QT-04): giáo viên đổi thành học viên mất credit giáo
+     * viên và dùng credit Free từ lần đọc ví sau; học viên đổi thành giáo viên có số dư giáo viên bằng 0. Chạy trong
+     * giao dịch của nghiệp vụ đang gọi. Chưa có ví thì không làm gì.
+     */
+    void resetForRoleChange(UUID userId);
 }
