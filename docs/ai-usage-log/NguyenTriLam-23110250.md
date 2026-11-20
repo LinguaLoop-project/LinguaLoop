@@ -909,11 +909,11 @@
 - **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
 - **Phạm vi (`Scope`):** FULLSTACK
 - **Loại công việc (`Task Type`):** CODE_GENERATION
-- **Prompt chính / yêu cầu:** Lên kế hoạch qua vòng hỏi đáp thiết kế rồi triển khai Thực hành với AI theo bài (UC-AI-01): gia sư Gemini hỏi tối đa 5 câu trong 15 phút về nội dung bài, trả lời bằng chữ hoặc giọng nói, gợi ý miễn phí, nhận xét tổng quát, bắt đầu lại và lịch sử
-- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../aichat/` (`LessonChatServiceImpl`, `LessonChatRepository`, `GeminiLessonChatAi`, `LessonChatPrompts`, `LessonChatController`); `ai/GeminiJsonClient.java:AudioClip`; migration `V20261120_1000`; `frontend/src/features/aichat/` (`AiChatPage`, `AnswerBar`, `ChatThread`, `SummaryCard`, `HistoryDialog`, `AiPracticeCard`); bản dịch `aichat.json`; test `LessonChatApiIntegrationTest`, `GeminiLessonChatAiTest`, `utils.test.ts`
-- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên duyệt 11 quyết định thiết kế (một lần gọi trả JSON, gửi âm thanh thẳng cho Gemini để vừa chép vừa nhận xét, gợi ý miễn phí và lưu một lần mỗi câu, tiếp tục hoặc bắt đầu lại phiên dang dở, nhánh riêng từ main) và quyết định phạm vi. AI chạy thử trên trình duyệt với Gemini thật và ghi nhận kết quả.
-- **Commit:** 85c3e3a
-- **Lỗi liên quan:** NONE
+- **Prompt chính / yêu cầu:** Lên kế hoạch qua vòng hỏi đáp thiết kế rồi triển khai Thực hành với AI theo bài (UC-AI-01). Bản đầu là chat theo lượt; sinh viên yêu cầu làm lại giống Trò chuyện với AI theo câu: gia sư nói chuyện trực tiếp qua Gemini Live, hỏi tối đa 5 câu trong 15 phút về nội dung bài, gợi ý miễn phí, nhận xét tổng quát, chat chữ chỉ để dự phòng
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../aichat/` (`LessonChatServiceImpl`, `LessonChatRepository`, `LessonChatLive`, `LessonChatPrompts`, `GeminiLessonChatAi`, `LessonChatController`); `tutor/LiveTokenIssuer.java:LiveSpec`; migration `V20261120_1000`; `frontend/src/features/aichat/` (`controller.ts`, `rules.ts`, `LiveChatPanel`, `TextChatPanel`, `AiChatPage`, `ChatThread`, `SummaryCard`, `HistoryDialog`); bản dịch `aichat.json`; test `LessonChatLiveApiIntegrationTest`, `LessonChatApiIntegrationTest`, `GeminiLessonChatAiTest`, `controller.test.ts`, `rules.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên duyệt 11 quyết định thiết kế đầu, sau đó chỉ ra bản chat theo lượt chưa đúng ý và duyệt 9 quyết định cho bản live (Gemini Live với micro mở liên tục, trừ credit cố định khi gia sư nói câu đầu, ba tool ghi từng lượt, gợi ý miễn phí, không tiếp tục lại phiên, chat chữ dự phòng). AI chạy thử trên trình duyệt với Gemini Live thật qua micro giả và ghi nhận kết quả, kể cả lỗi chạy đua tìm thấy khi thử.
+- **Commit:** 85c3e3a, a7ab2e8, 0b8f569, 3625c8b
+- **Lỗi liên quan:** AI-ERR-LAM-009
 
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
@@ -1038,6 +1038,21 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit sửa (bắt buộc, khác commit trên):** 96c384a
 - **Kiểm chứng sau sửa:** Chạy lại `DailyReviewApiIntegrationTest` đúng lúc 00:04: 33/33 qua, rồi toàn bộ 1304 test backend qua.
 - **Trạng thái (`Error Status`):** FIXED
+
+### AI-ERR-LAM-009
+
+- **Liên kết bản ghi AI:** AI-LAM-081
+- **Loại lỗi (`Error Type`):** EDGE_CASE_MISSED
+- **Ngày phát hiện:** 2026-11-20
+- **Đầu ra sai/thiếu sót và bối cảnh:** Gia sư giọng nói thường gọi tool `next_question` ngay trong lượt nói đầu, cùng lúc trình duyệt báo `started` để server trừ credit. Server chỉ nhận câu hỏi sau khi đã trừ credit nên yêu cầu câu hỏi đến trước bị trả 409; bộ điều khiển hiểu 409 là phiên đã đóng và kết thúc phiên, trong khi credit đã bị trừ. Phiên chết không có câu hỏi nào.
+- **Vị trí (`file:hàm`):** `frontend/src/features/aichat/controller.ts` (`#onTutorOutput`, `#handleToolCall`)
+- **Nguyên nhân phân tích:** AI coi hai lời gọi là tuần tự trong khi cả hai đều chạy bất đồng bộ; các lần thử đầu tình cờ thắng cuộc đua nên test giả lập không lộ.
+- **Cách phát hiện / bằng chứng:** Chạy thật trên trình duyệt với Gemini Live: lần thử thứ ba phiên đóng sau 13 ms, ví mất 5 credit và lịch sử ghi "dừng giữa chừng"; nhật ký server cho thấy POST `questions` đến trước lúc `started` ghi nhận.
+- **Cách sửa:** Giữ lời hứa của lời gọi `started` và cho mọi tool chờ nó xong trước khi gửi lên server; thêm test giữ lời báo `started` lại rồi kiểm tra câu hỏi chỉ được gửi sau đó.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** 0b8f569
+- **Commit sửa (bắt buộc, khác commit trên):** 3625c8b
+- **Kiểm chứng sau sửa:** `controller.test.ts` (36 test của aichat qua); chạy lại trên trình duyệt: phiên sống, 5 câu trả lời được ghi đủ và gia sư tự gọi `end_session` kèm nhận xét tổng quát.
+- **Trạng thái (`Error Status`):** VERIFIED
 
 ## 3. Bằng chứng bổ sung (nếu cần)
 
