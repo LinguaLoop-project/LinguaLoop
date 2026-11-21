@@ -674,6 +674,11 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                       attemptId={record.attemptId}
                       saved={record.aiFeedback}
                       onUpgrade={() => setShowUpgradeModal(true, "ai_feedback")}
+                      onSelectWord={(word) => {
+                        const target = record.words.find((w) => w.word.toLowerCase() === word.toLowerCase());
+                        if (target) setSelected(target.position);
+                      }}
+                      onAskTutor={askTutor}
                     />
                     {selectedWord && (
                       <div className="mt-4">

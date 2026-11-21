@@ -26,12 +26,21 @@ export interface SegmentPlayer {
  * Trình phát YouTube để giáo viên và quản trị viên nghe thử từng câu. Không ghi nhận tiến độ học (BR-BH-15). Video bị
  * gỡ hoặc riêng tư thì báo `failed`, trang vẫn hiện đủ danh sách câu (UC-BH-02 3a).
  */
-export function useSegmentPlayer(videoId: string | null, containerRef: RefObject<HTMLDivElement | null>): SegmentPlayer {
+export function useSegmentPlayer(
+  videoId: string | null,
+  containerRef: RefObject<HTMLDivElement | null>,
+  /** Gọi khi video bắt đầu hoặc ngừng phát, kể cả khi người dùng tự bấm trên khung video (không chỉ `play`). */
+  onPlayingChange?: (playing: boolean) => void,
+): SegmentPlayer {
   const [status, setStatus] = useState<SegmentPlayerStatus>("loading");
   const [playingKey, setPlayingKey] = useState<string | null>(null);
   const [positionMs, setPositionMs] = useState<number | null>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
   const tickRef = useRef<number | undefined>(undefined);
+  const playingChangeRef = useRef(onPlayingChange);
+  useEffect(() => {
+    playingChangeRef.current = onPlayingChange;
+  });
 
   const stop = useCallback(() => {
     window.clearInterval(tickRef.current);
@@ -68,6 +77,8 @@ export function useSegmentPlayer(videoId: string | null, containerRef: RefObject
               window.clearTimeout(loadTimer);
               if (!cancelled) setStatus("failed");
             },
+            // 1 = đang phát, 3 = đang tải đệm; còn lại (dừng, hết video, chưa phát) là không có tiếng
+            onStateChange: (event) => playingChangeRef.current?.(event.data === 1 || event.data === 3),
           },
         });
       })

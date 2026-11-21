@@ -34,6 +34,7 @@ const LessonLibraryPage = lazy(() =>
 const LessonDetailPage = lazy(() =>
   import("@/features/lesson/pages/LessonDetailPage").then((m) => ({ default: m.LessonDetailPage })),
 );
+const AiChatPage = lazy(() => import("@/features/aichat/pages/AiChatPage"));
 const TopicDetailPage = lazy(() =>
   import("@/features/lesson/pages/TopicDetailPage").then((m) => ({ default: m.TopicDetailPage })),
 );
@@ -161,6 +162,10 @@ const getRoutesConfig = (): RouteObject[] => {
         {
           path: "saved-lessons",
           element: <SavedLessonsPage />,
+        },
+        {
+          path: "lessons/:id/ai",
+          element: <AiChatPage />,
         },
         {
           path: "dictation",

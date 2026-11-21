@@ -24,7 +24,7 @@ Hai tỉ lệ ở cột cuối đo hai việc khác nhau:
 
 | Module | Số AC | Đã có test | Một phần | Thiếu | Thủ công | Không áp dụng | % phủ đủ AC | % tự động |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| [AI-thuc-hanh-voi-ai](traceability/AI-thuc-hanh-voi-ai.md) | 30 | 0 | 0 | 30 | 0 | 0 | 0% | — |
+| [AI-thuc-hanh-voi-ai](traceability/AI-thuc-hanh-voi-ai.md) | 30 | 11 | 0 | 19 | 0 | 0 | 37% | 100% |
 | [BC-bao-cao-noi-dung](traceability/BC-bao-cao-noi-dung.md) | 8 | 3 | 3 | 2 | 0 | 0 | 38% | 100% |
 | [BH-quan-ly-bai-hoc](traceability/BH-quan-ly-bai-hoc.md) | 101 | 67 | 2 | 29 | 0 | 3 | 66% | 100% |
 | [BT-quan-ly-bo-the](traceability/BT-quan-ly-bo-the.md) | 80 | 54 | 19 | 7 | 0 | 0 | 68% | 100% |
@@ -42,4 +42,4 @@ Hai tỉ lệ ở cột cuối đo hai việc khác nhau:
 | [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 58 | 42 | 7 | 8 | 1 | 0 | 72% | 98% |
 | [TN-xem-thong-ke-noi-dung](traceability/TN-xem-thong-ke-noi-dung.md) | 23 | 0 | 0 | 23 | 0 | 0 | 0% | — |
 | [XL-xu-ly-bao-cao](traceability/XL-xu-ly-bao-cao.md) | 62 | 14 | 27 | 21 | 0 | 0 | 23% | 100% |
-| **Tổng** | **816** | **289** | **93** | **425** | **6** | **3** | **35%** | **98.5%** |
+| **Tổng** | **816** | **300** | **93** | **414** | **6** | **3** | **37%** | **98.5%** |

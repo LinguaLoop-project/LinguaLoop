@@ -135,6 +135,51 @@ class AiFeedbackIntegrationTest {
     }
 
     @Test
+    void feedback_includesThePreviousAttemptOfTheSameSentenceAndTheSystemTips_AC_SHADOW_24() throws Exception {
+        UUID user = newUser();
+        Sentence s = sentence("compare");
+        Sentence other = sentence("other");
+        long first = attempt(user, s);
+        jdbc.update("UPDATE sentence_attempts SET total_score = 52 WHERE id = ?", first);
+        jdbc.update("""
+                INSERT INTO sentence_attempt_words (attempt_id, position, expected_word, actual_word, outcome, accuracy_score)
+                VALUES (?, 0, 'think', 'think', 'mispronounced', 41)""", first);
+        attempt(user, other); // lượt của câu khác trong cùng khoảng thời gian không được lấy làm lượt trước
+        long second = attempt(user, s);
+        long word = jdbc.queryForObject("""
+                INSERT INTO sentence_attempt_words (attempt_id, position, expected_word, actual_word, outcome, accuracy_score)
+                VALUES (?, 0, 'think', 'think', 'mispronounced', 55) RETURNING id""", Long.class, second);
+        jdbc.update("""
+                INSERT INTO sentence_attempt_phonemes
+                    (attempt_word_id, position, target_phoneme_id, heard_phoneme_id, accuracy_score)
+                VALUES (?, 0, (SELECT id FROM phonemes WHERE symbol = 'θ'), (SELECT id FROM phonemes WHERE symbol = 'θ'), 30)""", word);
+
+        feedback(user, second).andExpect(status().isOk());
+
+        ArgumentCaptor<FeedbackRequest> captor = ArgumentCaptor.forClass(FeedbackRequest.class);
+        verify(generator).generate(captor.capture());
+        FeedbackRequest request = captor.getValue();
+        assertThat(request.previous()).isNotNull();
+        assertThat(request.previous().score()).isEqualTo(52.0);
+        assertThat(request.previous().wordScores()).containsEntry("think", 41.0);
+        // mẹo khẩu hình đi kèm theo âm yếu để nhận xét gắn mẹo của hệ thống thay vì để AI tự viết
+        assertThat(request.tips()).containsKey("θ");
+        assertThat(request.tips().get("θ")).isNotBlank();
+    }
+
+    @Test
+    void feedback_ofTheFirstAttemptOfASentenceHasNoPreviousAttempt_AC_SHADOW_24() throws Exception {
+        UUID user = newUser();
+        long attempt = attempt(user, sentence("firstonly"));
+
+        feedback(user, attempt).andExpect(status().isOk());
+
+        ArgumentCaptor<FeedbackRequest> captor = ArgumentCaptor.forClass(FeedbackRequest.class);
+        verify(generator).generate(captor.capture());
+        assertThat(captor.getValue().previous()).isNull();
+    }
+
+    @Test
     void feedback_ofAnotherUsersOrUnknownAttempt_returns404_AC_SHADOW_25() throws Exception {
         UUID owner = newUser();
         long attempt = attempt(owner, sentence("owner"));

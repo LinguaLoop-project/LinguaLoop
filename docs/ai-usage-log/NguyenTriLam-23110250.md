@@ -927,6 +927,30 @@
 - **Commit:** ec89768, 2fe10ca
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-081
+
+- **Ngày:** 2026-11-20
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Lên kế hoạch qua vòng hỏi đáp thiết kế rồi triển khai Thực hành với AI theo bài (UC-AI-01). Bản đầu là chat theo lượt; sinh viên yêu cầu làm lại giống Trò chuyện với AI theo câu: gia sư nói chuyện trực tiếp qua Gemini Live, hỏi tối đa 5 câu trong 15 phút về nội dung bài, gợi ý miễn phí, nhận xét tổng quát, chat chữ chỉ để dự phòng
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../aichat/` (`LessonChatServiceImpl`, `LessonChatRepository`, `LessonChatLive`, `LessonChatPrompts`, `GeminiLessonChatAi`, `LessonChatController`); `tutor/LiveTokenIssuer.java:LiveSpec`; migration `V20261120_1000`; `frontend/src/features/aichat/` (`controller.ts`, `rules.ts`, `LiveChatPanel`, `TextChatPanel`, `AiChatPage`, `ChatThread`, `SummaryCard`, `HistoryDialog`); bản dịch `aichat.json`; `LessonChatStyle`, migration `V20261120_1200` (kiểu trò chuyện) và tool `play_clip`; test `LessonChatLiveApiIntegrationTest`, `LessonChatApiIntegrationTest`, `GeminiLessonChatAiTest`, `controller.test.ts`, `rules.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên duyệt 11 quyết định thiết kế đầu, sau đó chỉ ra bản chat theo lượt chưa đúng ý và duyệt 9 quyết định cho bản live (Gemini Live với micro mở liên tục, trừ credit cố định khi gia sư nói câu đầu, ba tool ghi từng lượt, gợi ý miễn phí, không tiếp tục lại phiên, chat chữ dự phòng). Sinh viên chọn ba hướng làm cuộc trò chuyện tự nhiên hơn (gia sư nói lại câu tự nhiên rồi hỏi tiếp, kiểu Phỏng vấn và Kể lại, phát lại đoạn video) và duyệt thêm nút "Nghe lại đoạn này" cho người học tự bấm khi bí, tra từ điển khi bấm vào chữ trong câu hỏi, và bố cục một cột (video lớn, khung chat, khung gia sư dính đáy). AI chạy thử trên trình duyệt với Gemini Live thật qua micro giả và ghi nhận kết quả, kể cả hai lỗi chạy đua tìm thấy khi thử.
+- **Commit:** 85c3e3a, a7ab2e8, 0b8f569, 3625c8b, 4d6d527, ebcd7be, bb0ceb4, 2cc6ae7, 0b4a4d2, 61e637d, 32a912b, 7c600e5
+- **Lỗi liên quan:** AI-ERR-LAM-009, AI-ERR-LAM-010, AI-ERR-LAM-011
+
+### AI-LAM-082
+
+- **Ngày:** 2026-11-21
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Cải thiện Nhận xét AI cho lượt đọc Shadowing (UC-AI-03) từ 4 câu văn xuôi thành nhận xét có cấu trúc: tổng quan có so sánh với lượt trước, điểm mạnh, tối đa 3 lỗi ưu tiên gom theo âm kèm mẹo khẩu hình, từ bị bỏ sót và một bước tiếp theo bấm được
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../ai/StructuredFeedback.java:normalize`, `FeedbackPromptBuilder.java` (bản v2), `FeedbackRequest.java`, `GeminiFeedbackGenerator.java:callGemini`, `shadowing/service/FeedbackRequestLoader.java:previousOf, tipsFor`; `frontend/src/features/shadowing/feedback.ts:parseFeedback`, `components/AiFeedbackCard.tsx:StructuredBody`; bản dịch `pages.json`; test `StructuredFeedbackTest`, `FeedbackPromptBuilderTest`, `AiFeedbackIntegrationTest`, `feedback.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên đưa ví dụ nhận xét mong muốn (tổng quan, điểm mạnh, cần cải thiện từng từ, bước tiếp theo), duyệt hướng ngắn gọn và chính xác hơn và yêu cầu làm trên nhánh `feat/ai-lesson-chat`. AI chỉ ra các điểm không nên chép theo ví dụ (quá dài, mẹo khẩu hình có thể sai, bắt sửa từ chức năng) và chọn: mẹo do hệ thống lấy từ kho thay vì AI viết, lọc từ và âm AI nêu ngoài dữ liệu, lưu JSON vào cột văn bản sẵn có nên không cần migration và nhận xét cũ vẫn hiện nguyên văn. AI chạy thử Gemini thật với một câu nhiều lỗi và xem nhận xét trên trình duyệt.
+- **Commit:** 57ba584
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
@@ -1050,6 +1074,51 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit sửa (bắt buộc, khác commit trên):** 96c384a
 - **Kiểm chứng sau sửa:** Chạy lại `DailyReviewApiIntegrationTest` đúng lúc 00:04: 33/33 qua, rồi toàn bộ 1304 test backend qua.
 - **Trạng thái (`Error Status`):** FIXED
+
+### AI-ERR-LAM-009
+
+- **Liên kết bản ghi AI:** AI-LAM-081
+- **Loại lỗi (`Error Type`):** EDGE_CASE_MISSED
+- **Ngày phát hiện:** 2026-11-20
+- **Đầu ra sai/thiếu sót và bối cảnh:** Gia sư giọng nói thường gọi tool `next_question` ngay trong lượt nói đầu, cùng lúc trình duyệt báo `started` để server trừ credit. Server chỉ nhận câu hỏi sau khi đã trừ credit nên yêu cầu câu hỏi đến trước bị trả 409; bộ điều khiển hiểu 409 là phiên đã đóng và kết thúc phiên, trong khi credit đã bị trừ. Phiên chết không có câu hỏi nào.
+- **Vị trí (`file:hàm`):** `frontend/src/features/aichat/controller.ts` (`#onTutorOutput`, `#handleToolCall`)
+- **Nguyên nhân phân tích:** AI coi hai lời gọi là tuần tự trong khi cả hai đều chạy bất đồng bộ; các lần thử đầu tình cờ thắng cuộc đua nên test giả lập không lộ.
+- **Cách phát hiện / bằng chứng:** Chạy thật trên trình duyệt với Gemini Live: lần thử thứ ba phiên đóng sau 13 ms, ví mất 5 credit và lịch sử ghi "dừng giữa chừng"; nhật ký server cho thấy POST `questions` đến trước lúc `started` ghi nhận.
+- **Cách sửa:** Giữ lời hứa của lời gọi `started` và cho mọi tool chờ nó xong trước khi gửi lên server; thêm test giữ lời báo `started` lại rồi kiểm tra câu hỏi chỉ được gửi sau đó.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** 0b8f569
+- **Commit sửa (bắt buộc, khác commit trên):** 3625c8b
+- **Kiểm chứng sau sửa:** `controller.test.ts` (36 test của aichat qua); chạy lại trên trình duyệt: phiên sống, 5 câu trả lời được ghi đủ và gia sư tự gọi `end_session` kèm nhận xét tổng quát.
+- **Trạng thái (`Error Status`):** VERIFIED
+
+### AI-ERR-LAM-010
+
+- **Liên kết bản ghi AI:** AI-LAM-081
+- **Loại lỗi (`Error Type`):** EDGE_CASE_MISSED
+- **Ngày phát hiện:** 2026-11-20
+- **Đầu ra sai/thiếu sót và bối cảnh:** Bản sửa AI-ERR-LAM-009 chỉ gắn lời báo `started` vào lần gia sư phát âm thanh đầu tiên. Ở kiểu Kể lại, gia sư gọi `next_question` trước khi phát bất kỳ âm thanh nào, nên chưa có lời báo `started` nào để chờ: câu hỏi đến server trước lúc trừ credit, bị 409 và phiên bị đóng.
+- **Vị trí (`file:hàm`):** `frontend/src/features/aichat/controller.ts` (`#onTutorOutput`, `#handleToolCall`)
+- **Nguyên nhân phân tích:** AI giả định lượt đầu của gia sư luôn mở đầu bằng âm thanh; lời nhắc mới của kiểu Kể lại làm gia sư gọi tool trước khi nói.
+- **Cách phát hiện / bằng chứng:** Chạy kiểu Kể lại trên trình duyệt: phiên đóng ngay với `charged=false`, nhật ký server có POST `questions` trả 409.
+- **Cách sửa:** Tách `#markStarted` (bật đồng hồ và báo `started`) và gọi cả từ đường âm thanh lẫn đầu `#handleToolCall`; thêm test lời gọi tool đến trước mọi âm thanh.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** 3625c8b
+- **Commit sửa (bắt buộc, khác commit trên):** bb0ceb4
+- **Kiểm chứng sau sửa:** `controller.test.ts` (41 test của aichat qua); chạy lại kiểu Kể lại trên trình duyệt: gia sư mời kể, phản ứng "Oh, I see" và hỏi tiếp.
+- **Trạng thái (`Error Status`):** VERIFIED
+
+### AI-ERR-LAM-011
+
+- **Liên kết bản ghi AI:** AI-LAM-081
+- **Loại lỗi (`Error Type`):** LOGIC_ERROR
+- **Ngày phát hiện:** 2026-11-21
+- **Đầu ra sai/thiếu sót và bối cảnh:** Gia sư giọng nói thỉnh thoảng nói lặp lại cả lượt: phụ đề hiện cùng một đoạn hai lần và âm thanh phát hai lần. Cùng hiện tượng ở gia sư theo câu của Shadowing.
+- **Vị trí (`file:hàm`):** `backend/.../aichat/LessonChatPrompts.java:live` (thứ tự gọi tool), `frontend/src/features/aichat/controller.ts` (lời nhắc khi gia sư quên gọi tool), `frontend/src/features/tutor/controller.ts` (`NUDGE_TEXT`)
+- **Nguyên nhân phân tích:** Lời nhắc bảo gia sư nói rồi mới gọi `next_question`. Gemini Live luôn sinh một lượt nói mới sau khi nhận kết quả tool, nên gia sư nói xong, gọi tool, rồi nói lại cả lời. Ở gia sư theo câu, lời nhắc "bạn chưa gọi tool" cũng làm gia sư nói lại lời trước khi gọi tool.
+- **Cách phát hiện / bằng chứng:** Ghi lại các thông điệp WebSocket giữa trình duyệt và Gemini: lượt lặp có dạng `IN, TOOL give_feedback, OUT (nói), TOOL next_question, OUT (nói lại y nguyên)`.
+- **Cách sửa:** `give_feedback` mang luôn câu hỏi tiếp theo và gọi một lần trước khi nói, kết quả tool bảo "nói MỘT lần duy nhất"; `next_question` chỉ còn dùng cho câu mở đầu; các lời nhắc quên gọi tool đổi thành "chỉ gọi tool, không nói lại". Gia sư theo câu chỉ sửa lời nhắc quên gọi tool, chưa chạy lại với Azure.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** ebcd7be
+- **Commit sửa (bắt buộc, khác commit trên):** 32a912b
+- **Kiểm chứng sau sửa:** 5 test mới ở `controller.test.ts` và kiểm schema tool ở `LessonChatLiveApiIntegrationTest`; chạy lại trên trình duyệt với Gemini Live thật qua 3 lượt: mỗi lượt đúng `TOOL give_feedback, OUT một lần, TURNCOMPLETE`, không còn lặp.
+- **Trạng thái (`Error Status`):** VERIFIED
 
 ## 3. Bằng chứng bổ sung (nếu cần)
 

@@ -89,6 +89,8 @@ app:
     zone: Asia/Ho_Chi_Minh
     # credit cố định của một phiên gia sư
     tutor-session-cost: 3
+    # credit cố định của một phiên Thực hành với AI theo bài (chế độ giọng nói)
+    lesson-chat-cost: 5
   storage:
     s3:
       # Bucket riêng tư; client tải thẳng lên bằng presigned URL. Bucket rỗng thì tải tệp báo STORAGE_UNAVAILABLE.

@@ -387,7 +387,19 @@
         "consent": "You need to allow AI processing to see feedback.",
         "quotaOut": "You don't have enough AI energy for feedback today.",
         "upgrade": "Unlock with Pro",
-        "remaining": "{{remaining}}/{{limit}} AI energy left"
+        "remaining": "{{remaining}}/{{limit}} AI energy left",
+        "strengths": "Strengths",
+        "focus": "Focus on",
+        "howToFix": "How to fix /{{phoneme}}/",
+        "omitted": "Skipped words:",
+        "next": {
+          "keep_going": "You are doing well. Keep the rhythm and stress, then move on to the next sentence.",
+          "listen_word": "Listen to the model for \"{{word}}\" and read the whole sentence again.",
+          "ask_tutor": "This sentence still has repeated mistakes, so practice it with the tutor.",
+          "retry": "Read the whole sentence again following the feedback above.",
+          "listenCta": "Listen to \"{{word}}\"",
+          "tutorCta": "Practice with the tutor"
+        }
       },
       "mouth": {
         "title": "Mouth video for /{{symbol}}/",

@@ -8,6 +8,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import QueryError from "../components/QueryError";
 import { NotesCard, ProgressCard, RelatedLessons, VocabCard } from "../components/detail/AsideCards";
 import LessonHead from "../components/detail/LessonHead";
+import AiPracticeCard from "@/features/aichat/components/AiPracticeCard";
 import PracticeModeCard from "../components/detail/PracticeModeCard";
 import TranscriptList from "../components/detail/TranscriptList";
 import type { PracticeMode } from "../components/ModeButton";
@@ -132,6 +133,7 @@ export const LessonDetailPage = () => {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <PracticeModeCard mode="dictation" slug={lesson.id} sentenceCount={lesson.sentenceCount} percent={d} recommended={rec === "dictation"} locked={lesson.locked} />
             <PracticeModeCard mode="shadowing" slug={lesson.id} sentenceCount={lesson.sentenceCount} percent={s} recommended={rec === "shadowing"} locked={lesson.locked} />
+            <AiPracticeCard lessonId={lesson.id} locked={lesson.locked} />
           </div>
 
           {!lesson.locked && (

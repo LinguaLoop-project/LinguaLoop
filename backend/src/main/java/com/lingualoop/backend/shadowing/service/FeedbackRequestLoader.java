@@ -2,6 +2,7 @@ package com.lingualoop.backend.shadowing.service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,10 +29,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 class FeedbackRequestLoader {
 
+    /** Số lượt gần nhất trong bài được xem để tìm lượt trước của cùng câu. */
+    private static final int PREVIOUS_LOOKBACK = 30;
+
     private final ShadowingAttemptRepository attempts;
     private final AttemptWordRepository wordRepository;
     private final PhonemeRepository phonemes;
     private final SentenceQueryService sentenceQueryService;
+    private final AttemptSnapshots snapshots;
+    private final PhonemeTips phonemeTips;
 
     /** @throws NotFoundException lượt không tồn tại, không phải của người gọi, hoặc không phải lượt shadowing */
     @Transactional(readOnly = true)
@@ -52,7 +58,43 @@ class FeedbackRequestLoader {
                 .toList();
         return new FeedbackRequest(sentence.text(), value(attempt.getTotalScore()), nullable(attempt.getAccuracyScore()),
                 nullable(attempt.getFluencyScore()), nullable(attempt.getCompletenessScore()),
-                nullable(attempt.getProsodyScore()), words);
+                nullable(attempt.getProsodyScore()), words, previousOf(userId, attempt), tipsFor(words));
+    }
+
+    /** Lượt gần nhất trước đó của CÙNG câu (không phải cùng bài), để nhận xét nói rõ tiến bộ hay tụt lùi. */
+    private FeedbackRequest.Previous previousOf(UUID userId, SentenceAttempt current) {
+        return snapshots.previous(userId, current.getId(), PREVIOUS_LOOKBACK).stream()
+                .filter(s -> s.sentenceId().equals(current.getSentenceId()))
+                .findFirst()
+                .flatMap(s -> attempts.findById(s.attemptId()).map(a -> {
+                    Map<String, Double> byWord = new HashMap<>();
+                    s.words().forEach(w -> byWord.putIfAbsent(w.text().toLowerCase(Locale.ROOT), w.accuracy()));
+                    return new FeedbackRequest.Previous(value(a.getTotalScore()), byWord);
+                }))
+                .orElse(null);
+    }
+
+    /**
+     * Mẹo khẩu hình cho các âm yếu của lượt, theo âm ĐÍCH (âm người học cần đọc) và cả âm Azure báo, để dù AI nêu âm nào thì
+     * mẹo gắn vào vẫn nói về âm cần luyện. Âm đích được ưu tiên khi hai khóa trùng nhau.
+     */
+    private Map<String, String> tipsFor(List<FeedbackRequest.Word> words) {
+        Map<String, String> tips = new HashMap<>();
+        for (FeedbackRequest.Word w : words) {
+            for (FeedbackRequest.Phoneme p : w.weakPhonemes()) {
+                String target = p.expected() != null ? p.expected() : p.symbol();
+                phonemeTips.tipFor(target).ifPresent(tip -> tips.put(target, tip));
+            }
+        }
+        for (FeedbackRequest.Word w : words) {
+            for (FeedbackRequest.Phoneme p : w.weakPhonemes()) {
+                String target = p.expected() != null ? p.expected() : p.symbol();
+                if (tips.containsKey(target)) {
+                    tips.putIfAbsent(p.symbol(), tips.get(target));
+                }
+            }
+        }
+        return tips;
     }
 
     private static FeedbackRequest.Word toWord(SentenceAttemptWord w, Map<Short, String> symbols, List<String> expectedWord) {

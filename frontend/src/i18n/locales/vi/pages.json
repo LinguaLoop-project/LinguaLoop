@@ -389,7 +389,19 @@
         "consent": "Bạn cần đồng ý cho phép xử lý bằng AI để xem nhận xét.",
         "quotaOut": "Bạn không còn đủ năng lượng AI cho nhận xét hôm nay.",
         "upgrade": "Mở với Pro",
-        "remaining": "Còn {{remaining}}/{{limit}} năng lượng AI"
+        "remaining": "Còn {{remaining}}/{{limit}} năng lượng AI",
+        "strengths": "Điểm mạnh",
+        "focus": "Cần luyện",
+        "howToFix": "Cách sửa /{{phoneme}}/",
+        "omitted": "Từ bị bỏ sót:",
+        "next": {
+          "keep_going": "Bạn đọc tốt rồi. Giữ nhịp và trọng âm, rồi sang câu tiếp theo.",
+          "listen_word": "Nghe mẫu từ \"{{word}}\" rồi đọc lại cả câu.",
+          "ask_tutor": "Câu này còn nhiều lỗi lặp lại, nên luyện kèm với gia sư.",
+          "retry": "Đọc lại cả câu theo nhận xét trên.",
+          "listenCta": "Nghe mẫu \"{{word}}\"",
+          "tutorCta": "Luyện với gia sư"
+        }
       },
       "mouth": {
         "title": "Video khẩu hình âm /{{symbol}}/",

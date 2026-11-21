@@ -38,10 +38,30 @@ class FeedbackPromptBuilderTest {
     }
 
     @Test
-    void systemInstruction_keepsTheAnswerShortVietnameseAndGrounded() {
+    void userPrompt_includesThePreviousAttemptOfTheSameSentence() {
+        FeedbackRequest r = new FeedbackRequest("Think about it", 72.5, 70.0, 80.0, 100.0, null, List.of(
+                new FeedbackRequest.Word("think", 45, "mispronounced", List.of()),
+                new FeedbackRequest.Word("about", 90, "correct", List.of())),
+                new FeedbackRequest.Previous(61.0, java.util.Map.of("think", 30.0)), java.util.Map.of());
+
+        String prompt = FeedbackPromptBuilder.userPrompt(r);
+
+        assertThat(prompt).contains("Lượt trước của câu này: 61/100");
+        assertThat(prompt).contains("- think: 45 điểm, đọc sai, lượt trước 30");
+        assertThat(prompt).contains("- about: 90 điểm, đọc đúng\n"); // từ không có trong lượt trước thì không bịa số
+    }
+
+    @Test
+    void userPrompt_withoutAPreviousAttemptHasNoComparison() {
+        assertThat(FeedbackPromptBuilder.userPrompt(request())).doesNotContain("Lượt trước");
+    }
+
+    @Test
+    void systemInstruction_asksForGroupedPrioritizedJsonAndForbidsInventedMouthTips() {
         String system = FeedbackPromptBuilder.systemInstruction();
 
-        assertThat(system).contains("tiếng Việt").contains("tối đa 4 câu").contains("không bịa");
-        assertThat(FeedbackPromptBuilder.VERSION).isEqualTo("shadowing-feedback-v1");
+        assertThat(system).contains("tiếng Việt", "không bịa", "TỐI ĐA 3 lỗi", "GOM theo âm", "JSON");
+        assertThat(system).contains("từ chức năng", "KHÔNG viết cách đặt lưỡi", "keep_going", "listen_word", "ask_tutor", "retry");
+        assertThat(FeedbackPromptBuilder.VERSION).isEqualTo("shadowing-feedback-v2");
     }
 }

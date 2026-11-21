@@ -1,10 +1,14 @@
 import { useEffect, useRef } from "react";
 import Mascot from "@/components/common/Mascot";
 import type { MascotMood } from "@/components/common/Mascot";
-import type { TutorSessionController } from "../controller";
+
+/** Nguồn âm lượng của người học và gia sư (0..1); Phiên gia sư và Thực hành với AI theo bài đều có. */
+export interface LevelSource {
+  getLevels: () => { learner: number; tutor: number };
+}
 
 export interface TutorStageProps {
-  controller: TutorSessionController;
+  controller: LevelSource;
   mood: MascotMood;
   /** Lượt chấm đang mở: gia sư tạm không nghe nên Loopi mờ đi. */
   dim?: boolean;
