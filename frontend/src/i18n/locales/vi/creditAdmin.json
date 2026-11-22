@@ -1,0 +1,152 @@
+{
+  "title": "Cấu hình credit",
+  "lastEdit": "Sửa gần nhất bởi {{name}}, {{at}}",
+  "neverEdited": "Chưa có chỉnh sửa",
+  "unknownAdmin": "quản trị viên",
+  "edit": "Sửa cấu hình",
+  "save": "Lưu thay đổi",
+  "cancel": "Hủy",
+  "unchanged": "Chưa có thay đổi nào",
+  "saved": "Đã lưu cấu hình credit",
+  "saveFailed": "Lưu không thành công, vui lòng kiểm tra kết nối rồi thử lại",
+  "loadFailed": "Không tải được cấu hình",
+  "reload": "Tải lại",
+  "fields": {
+    "creditValueVnd": "Giá trị 1 credit (đồng)",
+    "gatewayFeePct": "Phí cổng thanh toán (%)",
+    "marginPct": "Biên lợi nhuận tối thiểu (%)",
+    "trialCredits": "Credit dùng thử cho học viên mới"
+  },
+  "sections": {
+    "conversion": "Thông số quy đổi",
+    "free": "Credit dùng thử",
+    "features": "Bảng dịch vụ tính credit"
+  },
+  "hints": {
+    "margin": "Biên lợi nhuận tối thiểu là ngưỡng cảnh báo khi đặt số credit cho gói Pro, không dùng để tính credit trừ mỗi lần dùng.",
+    "free": "Tặng một lần khi học viên dùng ứng dụng lần đầu. Giá trị mới chỉ áp dụng cho học viên được tặng sau khi lưu; không áp dụng cho tài khoản đổi từ giáo viên.",
+    "features": "Credit mỗi đơn vị là số credit trừ của người dùng. Đơn giá (đồng cho một triệu đơn vị xử lý) và chi phí cố định chỉ dùng để tính chi phí thực tế."
+  },
+  "columns": {
+    "feature": "Tính năng",
+    "creditsPerUse": "Credit mỗi đơn vị",
+    "inputPriceVnd": "Đơn giá đầu vào",
+    "outputPriceVnd": "Đơn giá đầu ra",
+    "fixedCostVnd": "Chi phí cố định mỗi lần"
+  },
+  "perUnit": "{{count}} credit / {{unit}}",
+  "features": {
+    "shadowing_feedback": {
+      "name": "Nhận xét AI cho lượt đọc",
+      "who": "Học viên",
+      "unit": "lần nhận xét"
+    },
+    "tutor_session": {
+      "name": "Phiên gia sư theo câu",
+      "who": "Học viên",
+      "unit": "phiên"
+    },
+    "lesson_chat": {
+      "name": "Thực hành với AI theo bài",
+      "who": "Học viên · giọng nói và chat chữ",
+      "unit": "cuộc trò chuyện"
+    },
+    "lesson_suggest": {
+      "name": "Gợi ý bản dịch khi soạn bài",
+      "who": "Giáo viên",
+      "unit": "câu"
+    },
+    "lesson_import": {
+      "name": "Tạo bài từ link YouTube",
+      "who": "Giáo viên, học viên Pro",
+      "unit": "bài"
+    }
+  },
+  "summary": {
+    "title": "Xác nhận thay đổi cấu hình",
+    "change": "{{from}} thành {{to}}",
+    "warning": "Thay đổi này ảnh hưởng chi phí và lợi nhuận",
+    "back": "Quay lại",
+    "confirm": "Xác nhận"
+  },
+  "errors": {
+    "percent": "Nhập số từ 0 đến 99, tối đa 1 chữ số thập phân",
+    "int1to1000": "Nhập số nguyên từ 1 đến 1.000",
+    "int0to10000": "Nhập số nguyên từ 0 đến 10.000",
+    "money": "Nhập số nguyên từ 0 đến 100.000.000",
+    "invalid": "Giá trị không hợp lệ",
+    "unknown": "Thao tác không thành công, vui lòng thử lại",
+    "CREDIT_CONFIG_FEE_MARGIN_TOO_HIGH": "Tổng phí cổng thanh toán và biên lợi nhuận tối thiểu phải nhỏ hơn 100%",
+    "CREDIT_CONFIG_STALE": "Cấu hình vừa được quản trị viên khác thay đổi. Đã tải cấu hình mới nhất, bạn xem lại rồi sửa lại.",
+    "PRO_PLAN_NAME_TAKEN": "Tên gói đã tồn tại",
+    "PRO_PLAN_STALE": "Gói đã được cập nhật bởi người khác. Đã hiện thông tin mới nhất, bạn xem lại rồi sửa lại.",
+    "PRO_PLAN_STATUS_UNCHANGED": "Gói đang ở trạng thái {{status}}",
+    "PRO_PLAN_NOT_FOUND": "Không tìm thấy gói Pro"
+  },
+  "status": {
+    "onSale": "Đang bán",
+    "offSale": "Ngừng bán"
+  },
+  "plans": {
+    "title": "Gói Pro",
+    "subtitle": "Gói mới tạo ở trạng thái Ngừng bán. Sửa gói chỉ áp dụng cho các lượt mua sau.",
+    "loadFailed": "Không tải được danh sách",
+    "empty": "Chưa có gói Pro",
+    "add": "Thêm gói",
+    "edit": "Sửa",
+    "start": "Bật bán",
+    "stop": "Ngừng bán",
+    "noneOnSale": "Không có gói nào đang bán: học viên chưa mua được gói Pro.",
+    "monthsValue": "{{count}} tháng",
+    "columns": {
+      "name": "Tên gói",
+      "months": "Thời hạn",
+      "price": "Giá",
+      "credits": "Credit mỗi tháng",
+      "status": "Trạng thái",
+      "purchases": "Lượt đã mua",
+      "actions": "Thao tác"
+    }
+  },
+  "form": {
+    "addTitle": "Thêm gói Pro",
+    "editTitle": "Sửa gói {{name}}",
+    "purchases": "Đã có {{count}} lượt mua; các lượt này giữ nguyên giá và số credit lúc mua.",
+    "fields": {
+      "name": "Tên gói",
+      "months": "Thời hạn (tháng)",
+      "priceVnd": "Giá (đồng)",
+      "creditsPerMonth": "Credit mỗi tháng"
+    },
+    "errors": {
+      "name": "Tên gói dài 1 đến 50 ký tự",
+      "months": "Thời hạn là số nguyên từ 1 đến 36",
+      "price": "Giá là số nguyên từ 0 đến 100.000.000",
+      "credits": "Số credit là số nguyên từ 0 đến 1.000.000"
+    },
+    "unchanged": "Chưa có thay đổi nào",
+    "saveFailed": "Lưu không thành công, vui lòng kiểm tra kết nối rồi thử lại",
+    "created": "Đã thêm gói {{name}} (Ngừng bán)",
+    "updated": "Đã lưu gói {{name}}",
+    "save": "Lưu gói"
+  },
+  "margin": {
+    "value": "Biên khi dùng hết credit:",
+    "formula": "1 − {{credits}} × {{value}} ÷ ({{price}} ÷ {{months}} × (1 − {{fee}}%))",
+    "low": "Thấp hơn biên lợi nhuận tối thiểu {{min}}%",
+    "free": "Hệ thống chịu tối đa {{cost}} đồng mỗi học viên mỗi tháng",
+    "unavailable": "Không tải được cấu hình credit nên chưa tính được biên."
+  },
+  "onSale": {
+    "startTitle": "Bật bán gói {{name}}?",
+    "stopTitle": "Ngừng bán gói {{name}}?",
+    "startBody": "Học viên sẽ thấy gói này khi chọn nâng cấp Pro. Các lượt đã mua không bị ảnh hưởng.",
+    "stopBody": "Học viên sẽ không còn thấy gói này để mua. Các lượt đã mua vẫn giữ Pro và credit đến hết hạn.",
+    "lastWarning": "Sau khi ngừng bán, học viên sẽ không mua được gói Pro nào",
+    "cancel": "Hủy bỏ",
+    "confirm": "Xác nhận",
+    "startDone": "Đã bật bán gói {{name}}",
+    "stopDone": "Đã ngừng bán gói {{name}}",
+    "failed": "Không thành công, vui lòng kiểm tra kết nối rồi thử lại"
+  }
+}

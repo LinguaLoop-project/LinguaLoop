@@ -55,6 +55,7 @@ vi.mock("./api", async (importOriginal) => ({
   uploadAttempt: vi.fn(),
   getSession: vi.fn(),
   endSession: vi.fn(),
+  reportUsage: vi.fn(),
   postTopic: vi.fn(),
   switchWord: vi.fn(),
 }));
@@ -103,9 +104,24 @@ beforeEach(() => {
   vi.mocked(api.createSession).mockResolvedValue(session);
   vi.mocked(api.markStarted).mockResolvedValue();
   vi.mocked(api.endSession).mockImplementation(async (_id, outcome) => outcome);
+  vi.mocked(api.reportUsage).mockResolvedValue();
 });
 
 afterEach(() => vi.useRealTimers());
+
+describe("chi phí phiên (BR-GA-12)", () => {
+  it("hết lượt giữa chừng vẫn báo số token Gemini đã dùng", async () => {
+    vi.mocked(api.markStarted).mockRejectedValue(new api.TutorApiError("hết lượt", 429, "QUOTA_EXCEEDED"));
+    await openLive();
+    h.callbacks!.onmessage({ usageMetadata: { promptTokenCount: 250, responseTokenCount: 80 } });
+
+    tutorSpeaks();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(api.reportUsage).toHaveBeenCalledTimes(1);
+    expect(api.reportUsage).toHaveBeenCalledWith("s1", { inputTokens: 250, outputTokens: 80 });
+  });
+});
 
 describe("server từ chối started", () => {
   it("hết lượt giữa chừng: dừng, vào dự phòng kèm mã lỗi và không nói chuyện tiếp", async () => {

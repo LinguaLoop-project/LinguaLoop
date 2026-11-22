@@ -71,6 +71,7 @@ const api = {
   liveQuestion: vi.fn(),
   liveFeedback: vi.fn(),
   liveFinish: vi.fn(),
+  liveUsage: vi.fn(),
   hint: vi.fn(),
   detail: vi.fn(),
 };
@@ -98,9 +99,36 @@ beforeEach(() => {
   api.liveStarted.mockResolvedValue({ charged: 5, balance });
   api.liveFinish.mockImplementation(async () => turn(session([msg(1, "tutor"), msg(2, "student")], { status: "completed", summary: "Tốt." })));
   api.detail.mockResolvedValue(session([]));
+  api.liveUsage.mockResolvedValue(undefined);
 });
 
 afterEach(() => vi.useRealTimers());
+
+describe("chi phí phiên (BR-GA-12)", () => {
+  it("đóng phiên đã bắt đầu: cộng số token Gemini báo trong từng tin nhắn và báo về server một lần", async () => {
+    const controller = await openLive();
+    tutorSpeaks();
+    await flush();
+    h.callbacks!.onmessage({ usageMetadata: { promptTokenCount: 100, responseTokenCount: 40, thoughtsTokenCount: 5 } });
+    h.callbacks!.onmessage({ usageMetadata: { promptTokenCount: 300, toolUsePromptTokenCount: 20, responseTokenCount: 60 } });
+
+    controller.leave();
+    await flush();
+    controller.dispose();
+
+    expect(api.liveUsage).toHaveBeenCalledTimes(1);
+    expect(api.liveUsage).toHaveBeenCalledWith("l1", "s1", { inputTokens: 420, outputTokens: 105 });
+  });
+
+  it("gia sư chưa nói gì và Gemini chưa báo token: không báo chi phí", async () => {
+    const controller = await openLive();
+
+    controller.leave();
+    await flush();
+
+    expect(api.liveUsage).not.toHaveBeenCalled();
+  });
+});
 
 describe("bắt đầu", () => {
   it("xin token, nối Gemini, mời gia sư bắt đầu và chưa báo started cho tới khi gia sư nói", async () => {

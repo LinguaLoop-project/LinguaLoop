@@ -1,5 +1,6 @@
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/lesson/types";
+import type { LiveUsage } from "@/lib/liveUsage";
 import type { ChatCredit, ChatHint, ChatHistoryItem, ChatSession, ChatStyle, ChatTurn, LiveStart } from "./types";
 
 const base = (lessonId: string) => `/lessons/${lessonId}/ai-chat`;
@@ -27,6 +28,11 @@ export const aiChatApi = {
 
   liveFinish: async (lessonId: string, sessionId: string): Promise<ChatTurn> =>
     (await axiosClient.post<ApiResponse<ChatTurn>>(`${live(lessonId, sessionId)}/finish`)).data.data,
+
+  /** Báo số token Gemini Live đã dùng khi phiên đóng để ghi chi phí (BR-GA-12); không trừ credit, gọi lại không ghi thêm. */
+  liveUsage: async (lessonId: string, sessionId: string, usage: LiveUsage): Promise<void> => {
+    await axiosClient.post(`${live(lessonId, sessionId)}/usage`, usage);
+  },
 
   // ── Chế độ chat chữ (dự phòng) ──
   start: async (lessonId: string): Promise<ChatTurn> =>

@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
+import { CREDIT_QUERY_KEY } from "@/features/subscription/hooks/useCredit";
 import { parseYouTubeId } from "@/lib/youtube";
 import { lessonManageApi } from "./api";
 import { lessonManageKeys } from "./hooks";
@@ -54,7 +55,10 @@ function run(job: CreateJob, callbacks: CreateCallbacks, queryClient: QueryClien
       update(job.key, { status: "failed", error });
       callbacks.onFailed(failed);
     })
-    .finally(() => void queryClient.invalidateQueries({ queryKey: lessonManageKeys.all }));
+    .finally(() => {
+      void queryClient.invalidateQueries({ queryKey: lessonManageKeys.all });
+      void queryClient.invalidateQueries({ queryKey: CREDIT_QUERY_KEY });
+    });
 }
 
 export function startCreate(

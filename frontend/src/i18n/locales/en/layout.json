@@ -64,7 +64,7 @@
       "search": "Open quick search",
       "searchPlaceholder": "Look up words, open lessons, jump to a page…",
       "streak": "Learning streak",
-      "quota": "AI energy left today",
+      "quota": "AI credits left",
       "account": "Account of {{name}}",
       "menuAria": "Account",
       "upgrade": "Upgrade to Pro",
@@ -96,6 +96,7 @@
       "breadcrumbAria": "Current location",
       "root": "Teacher",
       "accountAria": "Teacher account",
+      "credit": "Lesson-authoring credits left (granted by an admin, never expire)",
       "menuAria": "Account",
       "settings": "Settings",
       "logout": "Sign out",
@@ -129,11 +130,10 @@
         "lessons": "Published lessons",
         "decks": "Published decks",
         "audit": "Activity log",
-        "limits": "Plans & Quotas",
-        "subs": "Pro subscriptions",
-        "errors": "Error categories",
         "republish": "Republish requests",
-        "transfers": "Reassign content"
+        "transfers": "Reassign content",
+        "credit": "Credit settings",
+        "plans": "Pro plans"
       }
     },
     "topbar": {
@@ -151,11 +151,7 @@
         "lessons": "Published lessons",
         "decks": "Published decks",
         "audit": "Activity log",
-        "limits": "Plans & Quotas",
-        "subs": "Pro subscriptions",
-        "errors": "Error categories",
         "teachers": "Teachers",
-        "subscriptions": "Service plans",
         "content": "Content",
         "settings": "System settings",
         "logs": "Activity log",
@@ -166,7 +162,9 @@
         "lessonDetail": "Lesson details",
         "deckDetail": "Deck details",
         "republish": "Republish requests",
-        "transfers": "Reassign content"
+        "transfers": "Reassign content",
+        "credit": "Credit settings",
+        "plans": "Pro plans"
       }
     }
   },

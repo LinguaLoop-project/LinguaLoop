@@ -165,6 +165,21 @@
     "TRANSFER_NAME_CONFLICT": "Có nội dung trùng tên với nội dung của giáo viên nhận",
     "TRANSFER_CONTENT_CHANGED": "Danh sách nội dung đã thay đổi, hãy xem lại",
     "TRANSFER_CONTENT_CHANGED_ALL": "Nội dung của giáo viên đã thay đổi, hãy xem lại tóm tắt",
-    "VALIDATION_FAILED": "Dữ liệu không hợp lệ"
+    "VALIDATION_FAILED": "Dữ liệu không hợp lệ",
+    "CREDIT_GRANT_NOT_ALLOWED": "Không thể cấp credit cho tài khoản này"
+  },
+  "grant": {
+    "open": "Cấp credit",
+    "title": "Cấp credit cho giáo viên",
+    "intro": "Giáo viên {{name}} đang có {{balance}} credit. Credit được cấp không hết hạn và chỉ dùng khi soạn bài (gợi ý bản dịch, tạo bài từ YouTube).",
+    "credits": "Số credit",
+    "note": "Ghi chú",
+    "creditsInvalid": "Nhập số nguyên từ 1 đến 1.000.000",
+    "noteRequired": "Ghi chú là bắt buộc",
+    "noteTooLong": "Ghi chú tối đa 500 ký tự",
+    "confirm": "Cấp",
+    "done": "Đã cấp {{credits}} credit cho {{name}}. Số dư mới: {{balance}} credit",
+    "failed": "Cấp không thành công, vui lòng thử lại",
+    "lockedNote": "Mở khóa tài khoản để cấp credit"
   }
 }

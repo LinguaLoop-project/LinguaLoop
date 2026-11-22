@@ -52,8 +52,8 @@ export interface TopBarProps {
 
 /** Thanh trên theo mockup v2 (`.topbar`): cao 64, nền bg-base 82% + mờ, ô tìm nhanh, chuỗi ngày, gói, đổi giao diện, tài khoản. */
 export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette }: TopBarProps) {
-  const { t } = useTranslation("layout");
-  const { isPro, remaining, energyLimit } = useAiEnergy();
+  const { t, i18n } = useTranslation("layout");
+  const { isPro, remaining, resetsAt, balance } = useAiEnergy();
   const { isDark, toggleTheme } = useTheme();
   const learner = config.topBar.kind === "learner";
 
@@ -97,16 +97,18 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
             <Icon name="flame" />
             <span className="font-display tabular-nums">4</span>
           </span>
-          {!isPro && remaining !== null && energyLimit !== null && (
+          {remaining !== null && (
             <span
-              className={`${PILL} max-md:hidden`}
-              title={t("student.topbar.quota")}
-              aria-label={`${t("student.topbar.quota")}: ${remaining}/${energyLimit}`}
+              className={`${PILL} max-md:hidden ${remaining <= 0 ? "border-danger text-danger" : ""}`}
+              title={
+                resetsAt
+                  ? `${t("student.topbar.quota")} · ${new Date(resetsAt).toLocaleDateString(i18n.language)}`
+                  : t("student.topbar.quota")
+              }
+              aria-label={`${t("student.topbar.quota")}: ${remaining}`}
             >
               <Icon name="zap" />
-              <span className="font-display tabular-nums">
-                {remaining}/{energyLimit}
-              </span>
+              <span className="font-display tabular-nums">{remaining}</span>
             </span>
           )}
           <span
@@ -123,6 +125,17 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
             )}
           </span>
         </>
+      )}
+
+      {config.role === "teacher" && balance !== null && (
+        <span
+          className={`${PILL} ${balance <= 0 ? "border-danger text-danger" : ""}`}
+          title={t("teacher.topbar.credit")}
+          aria-label={`${t("teacher.topbar.credit")}: ${balance}`}
+        >
+          <Icon name="zap" />
+          <span className="font-display tabular-nums">{balance}</span>
+        </span>
       )}
 
       {learner && <DictionarySearchButton />}

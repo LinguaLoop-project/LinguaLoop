@@ -1,6 +1,6 @@
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/lesson/types";
-import type { CreditBalance, PlanCode, PlanResponse } from "../types";
+import type { CreditBalance, CreditPrices, PlanCode, PlanResponse } from "../types";
 
 export const subscriptionService = {
   getMyPlan: async (): Promise<PlanResponse> => {
@@ -10,6 +10,11 @@ export const subscriptionService = {
 
   getCredit: async (): Promise<CreditBalance> => {
     const response = await axiosClient.get<ApiResponse<CreditBalance>>("/credits/balance");
+    return response.data.data;
+  },
+
+  getPrices: async (): Promise<CreditPrices> => {
+    const response = await axiosClient.get<ApiResponse<CreditPrices>>("/credits/prices");
     return response.data.data;
   },
 

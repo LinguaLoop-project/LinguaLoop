@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
+import CreditCost from "@/features/subscription/components/CreditCost";
+import { AI_ACTION_LESSON_IMPORT } from "@/features/subscription/types";
 import { parseYouTubeId, youTubeThumbnail } from "@/lib/youtube";
 import { toast } from "@/stores/toastStore";
 import { isCreating, startCreate } from "../createJobs";
@@ -254,7 +256,7 @@ export default function LessonCreateCard({ topics, initial, linkRef }: Readonly<
                 </div>
                 <div className="flex justify-end">
                   <Button type="submit" leftIcon={<Icon name="wand-sparkles" />}>
-                    {t("create.start")}
+                    {t("create.start")} <CreditCost action={AI_ACTION_LESSON_IMPORT} />
                   </Button>
                 </div>
               </div>

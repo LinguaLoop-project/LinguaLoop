@@ -55,7 +55,6 @@ const adminGroups: NavGroup[] = [
     items: [
       { id: "users", icon: "users", labelKey: k("admin", "sidebar.items", "users"), to: "/admin/users" },
       { id: "transfers", icon: "arrow-left-right", labelKey: k("admin", "sidebar.items", "transfers"), to: "/admin/transfers" },
-      { id: "subs", icon: "credit-card", labelKey: k("admin", "sidebar.items", "subs"), to: "/admin/subs" },
     ],
   },
   {
@@ -75,8 +74,8 @@ const adminGroups: NavGroup[] = [
   {
     titleKey: "admin.sidebar.groups.config",
     items: [
-      { id: "limits", icon: "sliders-horizontal", labelKey: k("admin", "sidebar.items", "limits"), to: "/admin/limits" },
-      { id: "errors", icon: "circle-alert", labelKey: k("admin", "sidebar.items", "errors"), to: "/admin/errors" },
+      { id: "credit", icon: "sliders-horizontal", labelKey: k("admin", "sidebar.items", "credit"), to: "/admin/credit" },
+      { id: "plans", icon: "crown", labelKey: k("admin", "sidebar.items", "plans"), to: "/admin/plans" },
     ],
   },
   {

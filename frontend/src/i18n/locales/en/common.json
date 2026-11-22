@@ -27,16 +27,16 @@
   },
   "upgradeModal": {
     "close": "Close",
-    "title": "You've run out of AI energy today!",
-    "description": "You've used all {{count}} free AI energy for today. Upgrade to <b>LinguaLoop Pro</b> for unlimited use.",
-    "titleTutor": "Not enough AI energy for a tutor session!",
+    "title": "You're out of AI credits!",
+    "description": "You've used all your AI credits. Upgrade to <b>LinguaLoop Pro</b> to get new credits every month.",
+    "titleTutor": "Not enough credits for a tutor session!",
     "titlePro": "This is a Pro feature",
     "descriptionPro": "This lesson or feature is only in <b>LinguaLoop Pro</b>. Basic shadowing practice stays unlimited on every plan.",
-    "titleFeedback": "Out of energy for AI feedback!",
-    "descriptionFeedback": "You don't have enough AI energy to request feedback today (free plan: {{count}} per day). Shadowing practice is still unlimited. Upgrade to <b>LinguaLoop Pro</b> for unlimited AI.",
-    "descriptionTutor": "Each tutor session costs {{cost}} AI energy, and you don't have enough energy today. Upgrade to <b>LinguaLoop Pro</b> to study with the tutor without limits.",
+    "titleFeedback": "Not enough credits for AI feedback!",
+    "descriptionFeedback": "You don't have enough credits for AI feedback. Shadowing practice stays free. Upgrade to <b>LinguaLoop Pro</b> to get new credits every month.",
+    "descriptionTutor": "Each tutor session costs {{cost}} credits and you don't have enough. Upgrade to <b>LinguaLoop Pro</b> to get new credits every month.",
     "benefits": {
-      "unlimited": "Unlimited AI energy",
+      "unlimited": "New AI credits every month",
       "advanced": "Unlock all advanced lessons",
       "support": "Personalized support 24/7"
     },
@@ -87,5 +87,11 @@
     "next": "Next page",
     "page": "Page {{page}}",
     "goTo": "Go to page"
+  },
+  "credit": {
+    "cost_one": "{{count}} credit",
+    "cost_other": "{{count}} credits",
+    "costEach_one": "{{count}} credit per sentence",
+    "costEach_other": "{{count}} credits per sentence"
   }
 }

@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CREDIT_QUERY_KEY } from "@/features/subscription/hooks/useCredit";
 import { lessonManageApi } from "./api";
 import type { CreateLessonInput, LessonListFilter, ManageRole, NewSentence, SentenceEdit, UpdateLessonInput } from "./types";
 
@@ -76,10 +77,12 @@ export function useUpdateSentences(lessonId: string) {
   );
 }
 
-/** Gợi ý chỉ điền vào ô, không đổi dữ liệu bài nên không cần làm mới gì. */
+/** Gợi ý chỉ điền vào ô, không đổi dữ liệu bài; chỉ đọc lại số dư credit vì gợi ý dịch có trừ credit. */
 export function useSuggest(lessonId: string) {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: Parameters<typeof lessonManageApi.suggest>[1]) => lessonManageApi.suggest(lessonId, input),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: CREDIT_QUERY_KEY }),
   });
 }
 

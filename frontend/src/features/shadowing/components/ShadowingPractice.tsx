@@ -50,6 +50,7 @@ import { SettingsPanel, ShortcutsPanel } from "./ToolbarPanels";
 import ToolbarPopover from "./ToolbarPopover";
 import WatchPanel from "./WatchPanel";
 import WordDetail from "./WordDetail";
+import { AI_ACTION_TUTOR } from "@/features/subscription/types";
 
 // Tải theo yêu cầu: kéo theo @google/genai (khá nặng), chỉ cần khi người học mở gia sư
 const TutorPanel = lazy(() => import("@/features/tutor/components/TutorPanel"));
@@ -99,7 +100,7 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 export default function ShadowingPractice({ lesson, sentences, latest }: ShadowingPracticeProps) {
   const { t } = useTranslation("pages");
   const navigate = useNavigate();
-  const { isPro, tutorOut: tutorQuotaOut, tutorSessionsPerDay, refresh: refreshEnergy } = useAiEnergy();
+  const { isPro, tutorOut: tutorQuotaOut, priceOf, refresh: refreshEnergy } = useAiEnergy();
   const setShowUpgradeModal = useQuotaStore((s) => s.setShowUpgradeModal);
   const assess = useAssessAttempt();
   const tutorMode = useTutorMode(lesson.id);
@@ -573,7 +574,7 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                   <TutorAsk
                     onEnable={() => tutorMode.answer(true)}
                     onDecline={() => tutorMode.answer(false)}
-                    freeLimit={isPro ? null : tutorSessionsPerDay}
+                    cost={priceOf(AI_ACTION_TUTOR)}
                   />
                 )}
                 <ControlBar
