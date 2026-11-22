@@ -27,8 +27,8 @@ import com.lingualoop.backend.aichat.LessonChatView.Session;
 import com.lingualoop.backend.aichat.LessonChatView.Turn;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
-import com.lingualoop.backend.config.CreditProperties;
 import com.lingualoop.backend.credit.AiFeature;
+import com.lingualoop.backend.credit.AiUsage;
 import com.lingualoop.backend.credit.CreditService;
 import com.lingualoop.backend.credit.dto.CreditBalance;
 import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
@@ -70,7 +70,6 @@ class LessonChatServiceImpl implements LessonChatService {
     private final LessonChatRepository repository;
     private final LessonChatAi ai;
     private final CreditService credits;
-    private final CreditProperties creditProperties;
     private final SubscriptionQueryService subscriptions;
     private final LiveTokenIssuer tokenIssuer;
     private final Clock clock;
@@ -97,14 +96,14 @@ class LessonChatServiceImpl implements LessonChatService {
         return new LiveStart(conversationId, token.token(), token.model(), token.expiresAt(),
                 new Limits(MAX_QUESTIONS, (int) MAX_DURATION.toSeconds(), WRAP_UP_AT_SECONDS, START_TIMEOUT_SECONDS,
                         IDLE_ASK_SECONDS, IDLE_END_SECONDS),
-                creditProperties.lessonChatCost(), credits.balanceOf(userId), style.dbValue(), clips(sentences));
+                credits.priceOf(FEATURE), credits.balanceOf(userId), style.dbValue(), clips(sentences));
     }
 
     @Override
     public Credit liveStarted(UUID userId, UUID lessonId, UUID conversationId) {
         ConversationRow conversation = requireLive(userId, lessonId, conversationId);
         requireActive(conversation);
-        int cost = creditProperties.lessonChatCost();
+        int cost = credits.priceOf(FEATURE);
         if (conversation.charged()) {
             return new Credit(0, credits.balanceOf(userId));
         }
@@ -112,11 +111,11 @@ class LessonChatServiceImpl implements LessonChatService {
         if (wallet.balance() < cost) {
             // Hết lượt giữa lúc tạo phiên và lúc bắt đầu (vd hai tab): đóng phiên, không trừ
             repository.failUnlessCharged(conversationId);
-            credits.logFailure(userId, FEATURE, true);
+            credits.logFailure(userId, FEATURE, true, conversationId);
             throw new BusinessException(ErrorCode.QUOTA_EXCEEDED,
                     Map.of("feature", FEATURE.dbValue(), "balance", wallet.balance(), "cost", cost));
         }
-        int charged = repository.claimCharge(conversationId) ? credits.chargeFixed(userId, FEATURE, cost) : 0;
+        int charged = repository.claimCharge(conversationId) ? credits.charge(userId, FEATURE, AiUsage.live(conversationId)) : 0;
         return new Credit(charged, credits.balanceOf(userId));
     }
 
@@ -146,6 +145,12 @@ class LessonChatServiceImpl implements LessonChatService {
     }
 
     @Override
+    public void liveUsage(UUID userId, UUID lessonId, UUID conversationId, long inputTokens, long outputTokens) {
+        requireLive(userId, lessonId, conversationId);
+        credits.recordLiveUsage(userId, conversationId, inputTokens, outputTokens);
+    }
+
+    @Override
     public Turn liveFinish(UUID userId, UUID lessonId, UUID conversationId) {
         ConversationRow conversation = requireLive(userId, lessonId, conversationId);
         requireActive(conversation);
@@ -160,7 +165,9 @@ class LessonChatServiceImpl implements LessonChatService {
                 credits.logFailure(userId, FEATURE, false);
                 throw e;
             }
-            repository.complete(conversationId, summary.value());
+            if (repository.complete(conversationId, summary.value())) {
+                recordCost(userId, summary);
+            }
         } else {
             repository.complete(conversationId, null);
         }
@@ -172,7 +179,11 @@ class LessonChatServiceImpl implements LessonChatService {
     @Override
     public Turn start(UUID userId, UUID lessonId) {
         LessonRow lesson = requireLesson(userId, lessonId);
-        credits.requireCanStart(userId, FEATURE);
+        // Chuyển từ cuộc giọng nói vừa trừ credit sang chat chữ: cùng một cuộc trò chuyện, không trừ lại (BR-AI-04)
+        boolean paidByLive = repository.chargedLiveWithoutTextSince(userId, lessonId, clock.instant().minus(MAX_DURATION));
+        if (!paidByLive) {
+            credits.requireCanStart(userId, FEATURE);
+        }
         LessonChatAi.Lesson context = context(lesson);
 
         UUID conversationId = repository.startFresh(userId, lessonId, "text", LessonChatStyle.QA.dbValue());
@@ -186,7 +197,14 @@ class LessonChatServiceImpl implements LessonChatService {
             credits.logFailure(userId, FEATURE, false);
             throw e;
         }
-        return turn(userId, lessonId, conversationId, charge(userId, opening), false);
+        int charged;
+        if (paidByLive) {
+            recordCost(userId, opening);
+            charged = 0;
+        } else {
+            charged = credits.charge(userId, FEATURE, usage(opening));
+        }
+        return turn(userId, lessonId, conversationId, charged, false);
     }
 
     @Override
@@ -217,11 +235,13 @@ class LessonChatServiceImpl implements LessonChatService {
         Reply value = reply.value();
         repository.saveTurn(conversationId, question.id(), answer, value.feedback(), value.better(),
                 finalTurn ? null : value.nextQuestion());
-        int charged = charge(userId, reply);
+        // Cuộc trò chuyện đã trừ credit ở câu hỏi mở đầu; các lượt sau chỉ ghi chi phí (BR-AI-04)
+        recordCost(userId, reply);
+        int charged = 0;
 
         if (finalTurn) {
             try {
-                charged += summarize(userId, context, conversationId, lines(repository.messages(conversationId)));
+                summarize(userId, context, conversationId, lines(repository.messages(conversationId)));
             } catch (RuntimeException e) {
                 // Câu trả lời đã được lưu và tính tiền; nhận xét tổng quát tạo lại được bằng "Kết thúc"
                 log.warn("Chưa tạo được nhận xét tổng quát cho cuộc trò chuyện {}: {}", conversationId, e.getMessage());
@@ -273,7 +293,8 @@ class LessonChatServiceImpl implements LessonChatService {
         LessonRow lesson = requireLesson(userId, lessonId);
         Generated<String> generated = ai.hint(context(lesson), lines(messages));
         String stored = repository.saveHint(conversationId, question.id(), generated.value());
-        // Gợi ý không trừ credit (BR-AI-08); yêu cầu đến trước đã lưu bản khác thì trả bản đó
+        recordCost(userId, generated);
+        // Gợi ý không trừ credit (BR-AI-08), chỉ ghi chi phí; yêu cầu đến trước đã lưu bản khác thì trả bản đó
         return new Hint(stored, !stored.equals(generated.value()));
     }
 
@@ -384,16 +405,26 @@ class LessonChatServiceImpl implements LessonChatService {
         return turn(userId, lesson.id(), conversation.id(), charged, true);
     }
 
-    /** Tạo nhận xét tổng quát, đóng phiên rồi trừ credit; phiên đã được yêu cầu khác đóng trước thì không trừ lại. */
+    /**
+     * Tạo nhận xét tổng quát rồi đóng phiên. Nhận xét tổng quát không trừ credit (BR-AI-04), chỉ ghi chi phí; phiên đã
+     * được yêu cầu khác đóng trước thì không ghi lại. Luôn trả 0 credit đã trừ.
+     */
     private int summarize(UUID userId, LessonChatAi.Lesson context, UUID conversationId, List<Line> history) {
         Generated<String> summary = ai.summarize(context, history);
-        return repository.complete(conversationId, summary.value()) ? charge(userId, summary) : 0;
+        if (repository.complete(conversationId, summary.value())) {
+            recordCost(userId, summary);
+        }
+        return 0;
     }
 
     // ── Dựng kết quả ───────────────────────────────────────────────────────────────
 
-    private int charge(UUID userId, Generated<?> generated) {
-        return credits.charge(userId, FEATURE, generated.inputTokens(), generated.outputTokens());
+    private void recordCost(UUID userId, Generated<?> generated) {
+        credits.recordCost(userId, FEATURE, usage(generated));
+    }
+
+    private static AiUsage usage(Generated<?> generated) {
+        return AiUsage.tokens(generated.inputTokens(), generated.outputTokens(), null);
     }
 
     private Turn turn(UUID userId, UUID lessonId, UUID conversationId, int charged, boolean expired) {

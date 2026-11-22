@@ -54,6 +54,8 @@ class LessonChatLiveApiIntegrationTest {
 
     private static final String BASE = "/api/v1/lessons/%s/ai-chat";
     private static final int COST = 5;
+    /** Credit dùng thử của học viên mới (BR-GA-03). */
+    private static final int TRIAL = 100;
 
     @Autowired private MockMvc mockMvc;
     @Autowired private JwtTokenService jwtTokenService;
@@ -89,7 +91,7 @@ class LessonChatLiveApiIntegrationTest {
                 .andExpect(jsonPath("$.data.limits.maxQuestions").value(5))
                 .andExpect(jsonPath("$.data.limits.maxSeconds").value(900))
                 .andExpect(jsonPath("$.data.cost").value(COST))
-                .andExpect(jsonPath("$.data.balance.balance").value(20)); // chưa trừ
+                .andExpect(jsonPath("$.data.balance.balance").value(TRIAL)); // chưa trừ
 
         ArgumentCaptor<LiveSpec> spec = ArgumentCaptor.forClass(LiveSpec.class);
         verify(tokenIssuer).issueWith(spec.capture());
@@ -106,7 +108,7 @@ class LessonChatLiveApiIntegrationTest {
                 .containsExactly("next_question", "give_feedback", "play_clip", "end_session");
         assertThat(spec.getValue().lifetime()).isEqualTo(Duration.ofMinutes(17));
         assertThat(spec.getValue().compressContext()).isTrue();
-        assertThat(balance(user)).isEqualTo(20);
+        assertThat(balance(user)).isEqualTo(TRIAL);
         assertThat(used(user)).isZero();
     }
 
@@ -178,13 +180,50 @@ class LessonChatLiveApiIntegrationTest {
         started(user, lesson, session)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.charged").value(COST))
-                .andExpect(jsonPath("$.data.balance.balance").value(20 - COST));
+                .andExpect(jsonPath("$.data.balance.balance").value(TRIAL - COST));
         started(user, lesson, session) // trình duyệt báo lặp: không trừ thêm
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.charged").value(0))
-                .andExpect(jsonPath("$.data.balance.balance").value(20 - COST));
+                .andExpect(jsonPath("$.data.balance.balance").value(TRIAL - COST));
 
         assertThat(used(user)).isEqualTo(COST);
+    }
+
+    /** AC-AI-31: cuộc giọng nói đã trừ credit chuyển sang chat chữ thì không trừ lại; lần chat chữ kế tiếp thì trừ. */
+    @Test
+    void switchingToTextAfterAChargedLiveChat_doesNotChargeAgain_AC_AI_31() throws Exception {
+        UUID user = newUser();
+        UUID lesson = lesson(false);
+        UUID session = startLiveSession(user, lesson);
+        started(user, lesson, session).andExpect(status().isOk());
+        when(ai.open(any())).thenReturn(generated("Who is talking?"));
+
+        mockMvc.perform(post(BASE.formatted(lesson) + "/sessions").headers(auth(user)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.credit.charged").value(0))
+                .andExpect(jsonPath("$.data.credit.balance.balance").value(TRIAL - COST));
+        mockMvc.perform(post(BASE.formatted(lesson) + "/sessions").headers(auth(user)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.credit.charged").value(COST));
+
+        assertThat(used(user)).isEqualTo(2 * COST);
+    }
+
+    /** BR-GA-12: số token Gemini Live do trình duyệt báo được điền vào dòng trừ credit của phiên, một lần. */
+    @Test
+    void liveUsage_fillsTheCostOfTheChargedConversationOnce() throws Exception {
+        UUID user = newUser();
+        UUID lesson = lesson(false);
+        UUID session = runningSession(user, lesson);
+
+        usage(user, lesson, session, 1_000, 500).andExpect(status().isOk());
+        usage(user, lesson, session, 9_000, 9_000).andExpect(status().isOk()); // báo lặp: không ghi thêm
+
+        assertThat(count("ai_usage_logs WHERE session_id = ? AND status = 'success' AND credits_charged = ? "
+                + "AND input_units = 1000 AND output_units = 500 AND cost_vnd = 234.90 AND cost_estimated",
+                session, COST)).isEqualTo(1);
+        assertThat(balance(user)).isEqualTo(TRIAL - COST); // không đổi credit
+        usage(newUser(), lesson, session, 1, 1).andExpect(status().isNotFound());
     }
 
     // ── AC-AI-02 ───────────────────────────────────────────────────────────────────
@@ -210,7 +249,7 @@ class LessonChatLiveApiIntegrationTest {
                 .andExpect(jsonPath("$.data.messages[1].feedback").value("Đúng rồi, đó là một người đàn ông."))
                 .andExpect(jsonPath("$.data.messages[1].better").value("A man is speaking at the start."))
                 .andExpect(jsonPath("$.data.messages[1].voice").value(true));
-        assertThat(balance(user)).isEqualTo(20 - COST); // các lượt không trừ thêm
+        assertThat(balance(user)).isEqualTo(TRIAL - COST); // các lượt không trừ thêm
     }
 
     @Test
@@ -484,7 +523,7 @@ class LessonChatLiveApiIntegrationTest {
         startLive(user, lesson).andExpect(status().isServiceUnavailable())
                 .andExpect(jsonPath("$.code").value("AI_CHAT_LIVE_UNAVAILABLE"));
 
-        assertThat(balance(user)).isEqualTo(20);
+        assertThat(balance(user)).isEqualTo(TRIAL);
         assertThat(used(user)).isZero();
         assertThat(jdbc.queryForObject("SELECT status FROM ai_conversations WHERE user_id = ?", String.class, user))
                 .isEqualTo("error");
@@ -551,6 +590,12 @@ class LessonChatLiveApiIntegrationTest {
         return mockMvc.perform(post(BASE.formatted(lesson) + "/live-sessions/" + session + "/feedback")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json("answer", answer, "feedback", feedback, "better", better)).headers(auth(user)));
+    }
+
+    private ResultActions usage(UUID user, UUID lesson, UUID session, long in, long out) throws Exception {
+        return mockMvc.perform(post(BASE.formatted(lesson) + "/live-sessions/" + session + "/usage")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"inputTokens\": " + in + ", \"outputTokens\": " + out + "}").headers(auth(user)));
     }
 
     private ResultActions finish(UUID user, UUID lesson, UUID session) throws Exception {

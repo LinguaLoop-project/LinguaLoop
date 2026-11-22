@@ -18,8 +18,10 @@ import com.lingualoop.backend.aichat.LessonChatView.LiveStart;
 import com.lingualoop.backend.aichat.LessonChatView.Session;
 import com.lingualoop.backend.aichat.LessonChatView.Turn;
 import com.lingualoop.backend.common.response.ApiResponse;
+import com.lingualoop.backend.credit.dto.LiveUsageRequest;
 import com.lingualoop.backend.security.CurrentUserId;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -75,6 +77,13 @@ public class LessonChatController {
             @PathVariable UUID id, @RequestBody FeedbackRequest request) {
         return ApiResponse.ok(service.liveFeedback(userId, lessonId, id, request.answer(), request.feedback(),
                 request.better()));
+    }
+
+    @PostMapping("/live-sessions/{id}/usage")
+    public ApiResponse<Void> liveUsage(@CurrentUserId UUID userId, @PathVariable UUID lessonId, @PathVariable UUID id,
+            @Valid @RequestBody LiveUsageRequest request) {
+        service.liveUsage(userId, lessonId, id, request.inputTokens(), request.outputTokens());
+        return ApiResponse.ok(null);
     }
 
     @PostMapping("/live-sessions/{id}/finish")

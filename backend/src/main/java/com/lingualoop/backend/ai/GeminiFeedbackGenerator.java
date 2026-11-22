@@ -120,7 +120,12 @@ class GeminiFeedbackGenerator implements AiFeedbackGenerator {
                 GenerateContentResponseUsageMetadata usage = chunk.usageMetadata().orElse(null);
                 if (usage != null) {
                     inputTokens = usage.promptTokenCount().orElse(inputTokens);
-                    outputTokens = usage.candidatesTokenCount().orElse(outputTokens);
+                    // Google tính token suy nghĩ theo giá đầu ra nên cộng vào phần đầu ra (BR-GA-12)
+                    Integer candidates = usage.candidatesTokenCount().orElse(null);
+                    Integer thoughts = usage.thoughtsTokenCount().orElse(null);
+                    if (candidates != null || thoughts != null) {
+                        outputTokens = (candidates == null ? 0 : candidates) + (thoughts == null ? 0 : thoughts);
+                    }
                 }
             }
         }

@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.response.ApiResponse;
+import com.lingualoop.backend.credit.dto.LiveUsageRequest;
 import com.lingualoop.backend.security.CurrentUserId;
 import com.lingualoop.backend.tutor.TutorAttemptService;
 import com.lingualoop.backend.tutor.TutorOfferService;
@@ -68,6 +69,13 @@ public class TutorController {
     @PostMapping("/sessions/{sessionId}/started")
     public ApiResponse<Void> started(@CurrentUserId UUID userId, @PathVariable UUID sessionId) {
         sessionService.started(userId, sessionId);
+        return ApiResponse.ok(null);
+    }
+
+    @PostMapping("/sessions/{sessionId}/usage")
+    public ApiResponse<Void> usage(@CurrentUserId UUID userId, @PathVariable UUID sessionId,
+            @Valid @RequestBody LiveUsageRequest request) {
+        sessionService.reportUsage(userId, sessionId, request.inputTokens(), request.outputTokens());
         return ApiResponse.ok(null);
     }
 

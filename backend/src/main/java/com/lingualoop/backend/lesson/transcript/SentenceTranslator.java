@@ -35,8 +35,12 @@ public class SentenceTranslator {
         AI_FAILED
     }
 
-    /** @param translations cùng số phần tử với đầu vào; câu chưa dịch là {@code null} */
-    public record Translation(List<String> translations, Outcome outcome) {
+    /**
+     * @param translations cùng số phần tử với đầu vào; câu chưa dịch là {@code null}
+     * @param inputTokens tổng đơn vị xử lý đầu vào của các lô đã trả về, để ghi chi phí thật (BR-GA-12)
+     * @param outputTokens tổng đơn vị xử lý đầu ra, gồm cả phần suy nghĩ nội bộ
+     */
+    public record Translation(List<String> translations, Outcome outcome, long inputTokens, long outputTokens) {
 
         public long translatedCount() {
             return translations.stream().filter(t -> t != null).count();
@@ -68,6 +72,8 @@ public class SentenceTranslator {
         Outcome outcome = Outcome.COMPLETE;
         // Model chính quá tải ở một lô thì các lô sau gọi thẳng model dự phòng, khỏi mất thêm một lần 503 mỗi lô
         boolean preferFallback = false;
+        long inputTokens = 0;
+        long outputTokens = 0;
 
         for (int from = 0; from < sentences.size(); from += batchSize) {
             int to = Math.min(from + batchSize, sentences.size());
@@ -77,6 +83,8 @@ public class SentenceTranslator {
             try {
                 reply = gemini.generate(preferFallback ? request.preferringFallback() : request);
                 preferFallback = reply.byFallback();
+                inputTokens += reply.inputTokens();
+                outputTokens += reply.outputTokens();
             } catch (BusinessException e) {
                 log.warn("Gemini dịch lô {}-{} lỗi: {}", from, to, e.getErrorCode());
                 outcome = Outcome.AI_FAILED;
@@ -88,7 +96,7 @@ public class SentenceTranslator {
                 break;
             }
         }
-        return new Translation(Arrays.asList(result), outcome);
+        return new Translation(Arrays.asList(result), outcome, inputTokens, outputTokens);
     }
 
     private static String prompt(List<String> sentences, String[] translated, int from, int to) {
