@@ -36,4 +36,10 @@ public interface UserAdminService {
      * {@code endsAt}).
      */
     AdminUserView.Detail changeRole(UUID adminId, UUID userId, Role newRole);
+
+    /**
+     * Cấp credit cho giáo viên đang hoạt động, ghi nhật ký kèm ghi chú và báo cho giáo viên (UC-GA-07, BR-GA-11).
+     * Tài khoản bị khóa hoặc không phải giáo viên: {@code CREDIT_GRANT_NOT_ALLOWED} (6b).
+     */
+    AdminUserView.Detail grantCredit(UUID adminId, UUID userId, int amount, String note);
 }

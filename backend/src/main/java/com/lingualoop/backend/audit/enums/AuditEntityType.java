@@ -11,7 +11,11 @@ public enum AuditEntityType {
     DECK,
     CARD,
     REPORT,
-    USER;
+    USER,
+    /** Cấu hình credit (UC-GA-02). */
+    SETTINGS,
+    /** Gói Pro (UC-GA-04 đến 06). */
+    PLAN;
 
     public String value() {
         return name().toLowerCase(Locale.ROOT);

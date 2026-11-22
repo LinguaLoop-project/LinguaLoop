@@ -19,6 +19,7 @@ import com.lingualoop.backend.security.Role;
 import com.lingualoop.backend.user.dto.AdminUserView;
 import com.lingualoop.backend.user.dto.ContentTransferView;
 import com.lingualoop.backend.user.dto.request.ChangeRoleRequest;
+import com.lingualoop.backend.user.dto.request.GrantCreditRequest;
 import com.lingualoop.backend.user.dto.request.LockUserRequest;
 import com.lingualoop.backend.user.dto.request.TransferAllRequest;
 import com.lingualoop.backend.user.enums.AccountPlan;
@@ -80,7 +81,14 @@ public class AdminUserController {
         return ApiResponse.ok(userAdminService.changeRole(adminId, userId, request.targetRole()));
     }
 
-    /** Tóm tắt nội dung thư viện của giáo viên trước khi giao toàn bộ (UC-QT-07 Bước 2). */
+    /** Cấp credit cho giáo viên kèm ghi chú (UC-GA-07). */
+    @PostMapping("/{userId}/credits")
+    public ApiResponse<AdminUserView.Detail> grantCredit(@CurrentUserId UUID adminId, @PathVariable UUID userId,
+            @Valid @RequestBody GrantCreditRequest request) {
+        return ApiResponse.ok(userAdminService.grantCredit(adminId, userId, request.credits(), request.note()));
+    }
+
+        /** Tóm tắt nội dung thư viện của giáo viên trước khi giao toàn bộ (UC-QT-07 Bước 2). */
     @GetMapping("/{userId}/content-summary")
     public ApiResponse<ContentTransferView.TeacherSummary> contentSummary(@PathVariable UUID userId) {
         return ApiResponse.ok(contentTransferService.summary(userId));
