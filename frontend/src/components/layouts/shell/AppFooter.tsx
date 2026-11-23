@@ -16,7 +16,6 @@ const COLUMNS: { titleKey: string; links: FooterLink[] }[] = [
       { key: "dictation", to: "/student/dictation" },
       { key: "shadowing", to: "/student/shadowing" },
       { key: "vocab", to: "/student/vocab" },
-      { key: "test", to: "/student/test" },
     ],
   },
   {

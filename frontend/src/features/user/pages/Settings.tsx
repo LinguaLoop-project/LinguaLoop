@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LearningProfileForm from "../components/LearningProfileForm";
 import SecuritySection from "../components/SecuritySection";
@@ -19,7 +20,9 @@ type TabId = (typeof TABS)[number]["id"];
 /** Khung trang Cài đặt theo mockup; hiện có tab "Học tập" và "Bảo mật & đăng nhập", các tab khác để dành. */
 export default function Settings() {
   const { t } = useTranslation("auth");
-  const [tab, setTab] = useState<TabId>("security");
+  const [params] = useSearchParams();
+  const requested = TABS.find((entry) => entry.id === params.get("tab"));
+  const [tab, setTab] = useState<TabId>(requested?.id ?? "security");
 
   const { handleLogout } = useAuth();
 

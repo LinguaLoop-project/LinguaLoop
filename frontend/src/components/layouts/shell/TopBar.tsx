@@ -159,7 +159,7 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
         >
           <Icon name={isDark ? "sun" : "moon"} />
         </button>
-        <NotificationBell buttonClassName={GROUP_BUTTON} />
+        <NotificationBell buttonClassName={GROUP_BUTTON} allHref={config.role === "student" ? "/student/notifications" : undefined} />
         <span aria-hidden="true" className={DIVIDER} />
         <AccountMenu config={config} compact />
       </div>

@@ -22,10 +22,6 @@
       "weakness": {
         "title": "Chẩn đoán điểm yếu",
         "desc": "Phân tích lỗi phát âm & ngữ âm"
-      },
-      "test": {
-        "title": "Kiểm tra trình độ",
-        "desc": "Đánh giá chuẩn khung CEFR"
       }
     },
     "login": "Đăng nhập",
@@ -51,8 +47,7 @@
         "savedLessons": "Bài đã lưu",
         "mywords": "Từ & câu đã lưu",
         "stats": "Thống kê",
-        "weakness": "Điểm yếu",
-        "test": "Kiểm tra trình độ"
+        "weakness": "Điểm yếu"
       },
       "pro": {
         "price": "Từ 33k/tháng",
@@ -190,7 +185,6 @@
         "dictation": "Nghe chép",
         "shadowing": "Shadowing",
         "vocab": "Từ vựng",
-        "test": "Kiểm tra trình độ",
         "mywords": "Từ & câu đã lưu",
         "weakness": "Điểm yếu",
         "settings": "Cài đặt tài khoản",
@@ -233,6 +227,16 @@
     "error": "Không tải được thông báo.",
     "retry": "Thử lại",
     "unread": "Chưa đọc",
-    "ariaUnread": "Thông báo, {{count}} chưa đọc"
+    "ariaUnread": "Thông báo, {{count}} chưa đọc",
+    "viewAll": "Xem tất cả thông báo",
+    "page": {
+      "overline": "Hộp thư",
+      "sub": "Thông báo hệ thống gửi cho bạn, mới nhất ở đầu.",
+      "filterAria": "Lọc thông báo",
+      "all": "Tất cả",
+      "unread": "Chưa đọc",
+      "unreadCount": "Chưa đọc ({{count}})",
+      "emptyUnread": "Bạn đã đọc hết thông báo"
+    }
   }
 }

@@ -22,7 +22,7 @@ interface MoreEntry {
   to: string;
   icon: string;
   /** Khoá trong `header.more`. */
-  key: "lessons" | "weakness" | "test";
+  key: "lessons" | "weakness";
   iconClass: string;
 }
 
@@ -35,7 +35,6 @@ const NAV: NavEntry[] = [
 const MORE: MoreEntry[] = [
   { to: "/student/lessons", icon: "library", key: "lessons", iconClass: "bg-primary-soft text-primary-text" },
   { to: "/student/weakness", icon: "target", key: "weakness", iconClass: "bg-fn-assessment-soft text-fn-assessment" },
-  { to: "/student/test", icon: "file-check", key: "test", iconClass: "bg-fn-assessment-soft text-fn-assessment" },
 ];
 
 const LINK =

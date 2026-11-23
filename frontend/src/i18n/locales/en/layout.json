@@ -22,10 +22,6 @@
       "weakness": {
         "title": "Weakness diagnosis",
         "desc": "Analyze pronunciation and phonetic errors"
-      },
-      "test": {
-        "title": "Placement test",
-        "desc": "CEFR-based assessment"
       }
     },
     "login": "Sign in",
@@ -51,8 +47,7 @@
         "savedLessons": "Saved lessons",
         "mywords": "Saved words & sentences",
         "stats": "Stats",
-        "weakness": "Weaknesses",
-        "test": "Placement test"
+        "weakness": "Weaknesses"
       },
       "pro": {
         "price": "From 33k VND/month",
@@ -190,7 +185,6 @@
         "dictation": "Dictation",
         "shadowing": "Shadowing",
         "vocab": "Vocabulary",
-        "test": "Level test",
         "mywords": "Saved words & sentences",
         "weakness": "Weak spots",
         "settings": "Account settings",
@@ -233,6 +227,16 @@
     "error": "Couldn't load notifications.",
     "retry": "Retry",
     "unread": "Unread",
-    "ariaUnread": "Notifications, {{count}} unread"
+    "ariaUnread": "Notifications, {{count}} unread",
+    "viewAll": "View all notifications",
+    "page": {
+      "overline": "Inbox",
+      "sub": "System notifications sent to you, newest first.",
+      "filterAria": "Filter notifications",
+      "all": "All",
+      "unread": "Unread",
+      "unreadCount": "Unread ({{count}})",
+      "emptyUnread": "You're all caught up"
+    }
   }
 }

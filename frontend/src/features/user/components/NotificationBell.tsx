@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Icon from "@/components/common/Icon";
 import { relativeTime, useMarkAllNotificationsRead, useMarkNotificationRead, useNotifications } from "../notifications";
@@ -7,13 +8,15 @@ import type { NotificationItem } from "../notifications";
 export interface NotificationBellProps {
   /** Lớp cho nút chuông, để khớp cụm nút trên thanh trên. */
   buttonClassName?: string;
+  /** Đường dẫn trang Thông báo đầy đủ; có thì hộp chuông hiện liên kết "Xem tất cả thông báo" (UC-TK-09). */
+  allHref?: string;
 }
 
 /**
  * Chuông thông báo trên thanh trên cho mọi vai trò: chấm đỏ đếm số chưa đọc, bấm mở danh sách 20 thông báo mới nhất.
  * Bấm một thông báo thì đánh dấu đã đọc; có nút đánh dấu tất cả đã đọc.
  */
-export default function NotificationBell({ buttonClassName = "" }: Readonly<NotificationBellProps>) {
+export default function NotificationBell({ buttonClassName = "", allHref }: Readonly<NotificationBellProps>) {
   const { t } = useTranslation("layout");
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -84,6 +87,15 @@ export default function NotificationBell({ buttonClassName = "" }: Readonly<Noti
             items={query.data?.items ?? []}
             onRetry={() => void query.refetch()}
           />
+          {allHref && (
+            <Link
+              to={allHref}
+              onClick={() => setOpen(false)}
+              className="block border-t border-border px-4 py-2.5 text-center text-sm font-semibold text-primary hover:bg-surface-hover"
+            >
+              {t("notifications.viewAll")}
+            </Link>
+          )}
         </div>
       )}
     </div>
