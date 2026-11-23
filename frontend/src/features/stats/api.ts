@@ -1,6 +1,7 @@
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/auth";
 import type {
+  ActivityMap,
   DictationErrors,
   HistoryMode,
   HistoryPage,
@@ -11,6 +12,7 @@ import type {
   StatsOverview,
   StatsRange,
   Streak,
+  WrongWords,
 } from "./types";
 
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -26,6 +28,12 @@ export const statsApi = {
 
   /** Chỉ chuỗi ngày học, cho chip ở thanh trên cùng. */
   getStreak: () => get<Streak>("/streak"),
+
+  /** Lịch nhiệt 13 tuần gần nhất (UC-TH-01). */
+  getActivity: () => get<ActivityMap>("/activity"),
+
+  /** Mười từ nghe sai nhiều nhất (UC-TH-01). */
+  getWrongWords: (range: StatsRange) => get<WrongWords>("/dictation-errors/words", { range }),
 
   /** Lỗi Nghe chép theo đủ sáu nhóm từ (UC-TH-01). */
   getDictationErrors: (range: StatsRange) => get<DictationErrors>("/dictation-errors", { range }),

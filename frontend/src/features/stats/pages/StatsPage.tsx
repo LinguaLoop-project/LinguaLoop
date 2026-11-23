@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import Icon from "@/components/common/Icon";
 import Skeleton from "@/components/common/Skeleton";
 import { buttonClasses } from "@/components/common/buttonStyles";
+import ActivityHeatmap from "../components/ActivityHeatmap";
 import HistorySection from "../components/HistorySection";
 import RangeTabs from "../components/RangeTabs";
 import StatsError from "../components/StatsError";
@@ -81,6 +82,8 @@ export default function StatsPage() {
           </div>
         </>
       )}
+
+      <ActivityHeatmap />
 
       <HistorySection range={range} onRangeChange={setRange} />
     </section>

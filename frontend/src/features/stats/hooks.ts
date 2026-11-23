@@ -15,6 +15,8 @@ export const statsKeys = {
   all: ["stats"] as const,
   overview: (range: StatsRange) => ["stats", "overview", range] as const,
   streak: ["stats", "streak"] as const,
+  activity: ["stats", "activity"] as const,
+  wrongWords: (range: StatsRange) => ["stats", "wrong-words", range] as const,
   dictationErrors: (range: StatsRange) => ["stats", "dictation-errors", range] as const,
   history: (mode: HistoryMode, range: StatsRange, page: number) => ["stats", "history", mode, range, page] as const,
   practiceSession: (lessonId: string, mode: PracticeKind, day: string) =>
@@ -36,6 +38,17 @@ export const useStatsOverview = (range: StatsRange) =>
 /** Chuỗi ngày học cho chip ở thanh trên cùng; chỉ tải khi `enabled` (học viên đã đăng nhập). */
 export const useStreak = (enabled = true) =>
   useQuery({ ...base, queryKey: statsKeys.streak, queryFn: statsApi.getStreak, enabled });
+
+/** Lịch nhiệt 13 tuần, không phụ thuộc bộ lọc khoảng. */
+export const useActivity = () => useQuery({ ...base, queryKey: statsKeys.activity, queryFn: statsApi.getActivity });
+
+export const useWrongWords = (range: StatsRange) =>
+  useQuery({
+    ...base,
+    queryKey: statsKeys.wrongWords(range),
+    queryFn: () => statsApi.getWrongWords(range),
+    placeholderData: keepPreviousData,
+  });
 
 export const useDictationErrors = (range: StatsRange) =>
   useQuery({

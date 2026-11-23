@@ -1,4 +1,15 @@
 {
+  "heatmap": {
+    "title": "Study calendar, 3 months",
+    "summary_one": "Studied {{count}} day in the last 13 weeks",
+    "summary_other": "Studied {{count}} days in the last 13 weeks",
+    "aria": "Heatmap of study days over the last 13 weeks",
+    "cell_one": "{{date}}: {{count}} activity",
+    "cell_other": "{{date}}: {{count}} activities",
+    "cellNone": "{{date}}: no study",
+    "less": "Less",
+    "more": "More"
+  },
   "compare": {
     "vs": "{{delta}} vs previous {{period}}",
     "same": "Same as previous {{period}}"
@@ -129,6 +140,14 @@
       "cellNone": "not enough data",
       "cellAria": "Sound /{{symbol}}/ as in {{example}}, {{status}}"
     },
+    "words": {
+      "title": "Most missed words",
+      "hint": "Tap Save to vocabulary to pick the word's meaning and review it with your other cards.",
+      "saved": "Saved words & sentences",
+      "empty": "No missed words in this range",
+      "wrong": "missed {{wrong}}/{{seen}} times",
+      "save": "Save to vocabulary"
+    },
     "scores": {
       "title": "Shadowing pronunciation score",
       "daily": "Daily average",
@@ -150,6 +169,35 @@
       "practice": "Practice now",
       "practiceLibrary": "Pick a lesson to practice",
       "practiceAria": "{{action}}: {{group}} words",
+      "help": {
+        "toggle": "What are these word types?",
+        "intro": "Every word of the original sentence is automatically placed in exactly one of these six types, so you can see which type you miss most.",
+        "examples": "Examples: {{list}}",
+        "function": {
+          "desc": "Short grammar words that are usually said lightly and fast: articles, pronouns, auxiliary verbs, prepositions, conjunctions.",
+          "examples": "the, a, to, of, and, is, she"
+        },
+        "content": {
+          "desc": "Words that carry the main meaning: nouns, main verbs, adjectives, adverbs.",
+          "examples": "coffee, travel, beautiful, quickly"
+        },
+        "inflected": {
+          "desc": "Words ending in -ing, -ed or -s; the ending is often swallowed, so it is easy to miss.",
+          "examples": "walked, running, cats"
+        },
+        "number": {
+          "desc": "Numbers written as digits or as words.",
+          "examples": "25, twenty-one"
+        },
+        "proper": {
+          "desc": "Capitalized names that do not start the sentence.",
+          "examples": "London, Mary"
+        },
+        "other": {
+          "desc": "Everything else, such as interjections.",
+          "examples": "oh, wow, hmm"
+        }
+      },
       "class": {
         "function": "Function words",
         "content": "Content words",

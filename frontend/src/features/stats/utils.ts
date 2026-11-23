@@ -1,4 +1,5 @@
 import type {
+  ActivityDay,
   DictationErrorRow,
   HistoryItem,
   HistoryMode,
@@ -117,6 +118,54 @@ export function hasTrend(trend: WeekPoint[]): boolean {
 /** Đường dẫn của nút "Luyện ngay" ở một nhóm từ: bài gần nhất sai nhóm đó, hoặc thư viện Nghe chép (BR-TH-14). */
 export function dictationPracticeHref(row: Pick<DictationErrorRow, "practiceLessonId">): string {
   return row.practiceLessonId ? `/student/dictation/${row.practiceLessonId}` : "/student/dictation";
+}
+
+export type HeatLevel = 0 | 1 | 2 | 3 | 4;
+
+/** Mức màu của một ngày trên lịch nhiệt: 0, 1 đến 4, 5 đến 9, 10 đến 19, từ 20 hoạt động (BR-TH-15). */
+export function heatLevel(count: number): HeatLevel {
+  if (count <= 0) return 0;
+  if (count < 5) return 1;
+  if (count < 10) return 2;
+  if (count < 20) return 3;
+  return 4;
+}
+
+export interface HeatCell {
+  date: string;
+  count: number;
+  level: HeatLevel;
+}
+
+const DAY_MS = 86_400_000;
+
+function addDays(date: string, days: number): string {
+  return new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
+}
+
+/**
+ * Chia các ngày từ `from` (thứ Hai) đến `to` thành các cột tuần, mỗi cột 7 ô từ thứ Hai đến Chủ nhật. Ngày sau `to`
+ * chưa tới nên là null. Ngày không có trong `days` là 0 hoạt động.
+ */
+export function buildHeatWeeks(from: string, to: string, days: ActivityDay[]): (HeatCell | null)[][] {
+  const counts = new Map(days.map((d) => [d.date, d.count]));
+  const weeks: (HeatCell | null)[][] = [];
+  for (let start = from; start <= to; start = addDays(start, 7)) {
+    weeks.push(
+      Array.from({ length: 7 }, (_, i) => {
+        const date = addDays(start, i);
+        if (date > to) return null;
+        const count = counts.get(date) ?? 0;
+        return { date, count, level: heatLevel(count) };
+      }),
+    );
+  }
+  return weeks;
+}
+
+/** Số ngày có ít nhất một hoạt động trong lịch. */
+export function activeDayCount(days: ActivityDay[]): number {
+  return days.filter((d) => d.count > 0).length;
 }
 
 /** Chênh lệch có dấu: "+5", "-3" hoặc "0" (BR-TH-13). */

@@ -1,4 +1,13 @@
 {
+  "heatmap": {
+    "title": "Lịch học 3 tháng",
+    "summary": "Đã học {{count}} ngày trong 13 tuần gần nhất",
+    "aria": "Lịch nhiệt các ngày học trong 13 tuần gần nhất",
+    "cell": "{{date}}: {{count}} hoạt động",
+    "cellNone": "{{date}}: chưa học",
+    "less": "Ít",
+    "more": "Nhiều"
+  },
   "compare": {
     "vs": "{{delta}} so với {{period}} trước",
     "same": "Bằng {{period}} trước"
@@ -120,6 +129,14 @@
       "cellNone": "chưa đủ dữ liệu",
       "cellAria": "Âm /{{symbol}}/ như trong {{example}}, {{status}}"
     },
+    "words": {
+      "title": "Từ nghe sai nhiều nhất",
+      "hint": "Bấm Lưu vào từ vựng để chọn nghĩa của từ và ôn lại cùng các thẻ khác.",
+      "saved": "Từ & câu đã lưu",
+      "empty": "Chưa có từ nào bị sai trong khoảng này",
+      "wrong": "sai {{wrong}}/{{seen}} lần",
+      "save": "Lưu vào từ vựng"
+    },
     "scores": {
       "title": "Điểm phát âm Shadowing",
       "daily": "Trung bình theo ngày",
@@ -140,6 +157,35 @@
       "practice": "Luyện ngay",
       "practiceLibrary": "Chọn bài để luyện",
       "practiceAria": "{{action}} nhóm {{group}}",
+      "help": {
+        "toggle": "Giải thích các loại từ",
+        "intro": "Mỗi từ của câu gốc được tự động xếp vào đúng một trong sáu loại này để bạn biết mình hay sai ở loại nào.",
+        "examples": "Ví dụ: {{list}}",
+        "function": {
+          "desc": "Từ ngữ pháp ngắn, thường đọc nhẹ và nhanh: mạo từ, đại từ, trợ động từ, giới từ, liên từ.",
+          "examples": "the, a, to, of, and, is, she"
+        },
+        "content": {
+          "desc": "Từ mang nghĩa chính của câu: danh từ, động từ chính, tính từ, trạng từ.",
+          "examples": "coffee, travel, beautiful, quickly"
+        },
+        "inflected": {
+          "desc": "Từ có đuôi -ing, -ed hoặc -s; đuôi thường bị nuốt nên dễ nghe thiếu.",
+          "examples": "walked, running, cats"
+        },
+        "number": {
+          "desc": "Số viết bằng chữ số hoặc bằng chữ.",
+          "examples": "25, twenty-one"
+        },
+        "proper": {
+          "desc": "Tên riêng viết hoa, không đứng đầu câu.",
+          "examples": "London, Mary"
+        },
+        "other": {
+          "desc": "Các từ còn lại, như từ cảm thán.",
+          "examples": "oh, wow, hmm"
+        }
+      },
       "class": {
         "function": "Từ chức năng",
         "content": "Từ nội dung",

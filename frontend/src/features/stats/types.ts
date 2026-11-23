@@ -53,6 +53,34 @@ export interface DictationErrors {
   classes: DictationErrorRow[];
 }
 
+/** Hoạt động trong một ngày của lịch nhiệt (BR-TH-15). */
+export interface ActivityDay {
+  date: string;
+  count: number;
+}
+
+export interface ActivityMap {
+  /** Thứ Hai đầu tiên của 13 tuần. */
+  from: string;
+  /** Hôm nay theo múi giờ của học viên. */
+  to: string;
+  /** Chỉ các ngày có hoạt động, cũ đến mới. */
+  days: ActivityDay[];
+}
+
+/** Một từ nghe sai nhiều (BR-TH-16). */
+export interface WrongWord {
+  word: string;
+  wordClass: WordClass;
+  wrongCount: number;
+  seenCount: number;
+}
+
+export interface WrongWords {
+  range: StatsRange;
+  words: WrongWord[];
+}
+
 export type HistoryType = "practice" | "vocab" | "ai";
 
 /** Một dòng Lịch sử luyện tập; các trường không áp dụng cho loại dòng đó là null. */

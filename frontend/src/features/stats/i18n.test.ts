@@ -49,6 +49,10 @@ describe("chuỗi giao diện của thống kê học tập", () => {
       ...["good", "attention", "bad", "insufficient"].map((k) => `weakness.map.legend.${k}`),
       ...["new", "learning", "reviewing", "mastered"].map((k) => `cards.${k}`),
       ...["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((k) => `streak.weekdays.${k}`),
+      ...["function", "content", "inflected", "number", "proper", "other"].flatMap((k) => [
+        `weakness.dictation.help.${k}.desc`,
+        `weakness.dictation.help.${k}.examples`,
+      ]),
     ];
     const bad = dynamic.filter((key) => typeof lookup(vi, key) !== "string" || typeof lookup(en, key) !== "string");
     expect(bad).toEqual([]);

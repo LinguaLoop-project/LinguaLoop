@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import type { DictationErrorRow, HistoryItem, PhonemeCell, WeekPoint } from "./types";
 import {
   errorSegments,
+  activeDayCount,
+  buildHeatWeeks,
   dictationPracticeHref,
+  heatLevel,
   hasTrend,
   signedDelta,
   weeksWithData,
@@ -183,6 +186,41 @@ describe("scorePoints (AC-TH-18)", () => {
     expect(b).toBe("100.0,0.0");
     expect(scorePoints([{ from: "a", averageScore: 50, attempts: 1 }], 100, 60, 0)).toBe("50.0,30.0");
     expect(scorePoints([], 100, 60)).toBe("");
+  });
+});
+
+describe("heatLevel (AC-TH-31)", () => {
+  it("chia 5 mức theo số hoạt động trong ngày", () => {
+    expect([0, 1, 4, 5, 9, 10, 19, 20, 99].map(heatLevel)).toEqual([0, 1, 1, 2, 2, 3, 3, 4, 4]);
+  });
+});
+
+describe("buildHeatWeeks (AC-TH-31)", () => {
+  // 2026-11-23 là thứ Hai; hôm nay là thứ Tư 2026-11-25 nên thứ Năm đến Chủ nhật chưa tới
+  const weeks = buildHeatWeeks("2026-11-09", "2026-11-25", [
+    { date: "2026-11-10", count: 3 },
+    { date: "2026-11-25", count: 12 },
+  ]);
+
+  it("mỗi cột là một tuần từ thứ Hai, đủ các tuần từ ngày đầu đến hôm nay", () => {
+    expect(weeks).toHaveLength(3);
+    expect(weeks.every((week) => week.length === 7)).toBe(true);
+    expect(weeks[0][0]?.date).toBe("2026-11-09");
+    expect(weeks[2][0]?.date).toBe("2026-11-23");
+  });
+
+  it("ngày không có hoạt động là 0, ngày có hoạt động mang đúng số và mức", () => {
+    expect(weeks[0][1]).toEqual({ date: "2026-11-10", count: 3, level: 1 });
+    expect(weeks[0][0]).toEqual({ date: "2026-11-09", count: 0, level: 0 });
+    expect(weeks[2][2]).toEqual({ date: "2026-11-25", count: 12, level: 3 });
+  });
+
+  it("ngày sau hôm nay chưa tới nên để trống", () => {
+    expect(weeks[2].slice(3)).toEqual([null, null, null, null]);
+  });
+
+  it("đếm số ngày đã học", () => {
+    expect(activeDayCount([{ date: "a", count: 2 }, { date: "b", count: 0 }, { date: "c", count: 1 }])).toBe(2);
   });
 });
 

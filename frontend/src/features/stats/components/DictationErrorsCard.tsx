@@ -7,6 +7,7 @@ import { useDictationErrors } from "../hooks";
 import type { StatsRange } from "../types";
 import { dictationPracticeHref, errorSegments } from "../utils";
 import StatsError from "./StatsError";
+import WordClassHelp from "./WordClassHelp";
 
 const CAUSES = [
   { key: "omitted", bar: "bg-danger" },
@@ -30,7 +31,10 @@ export default function DictationErrorsCard({ range }: { range: StatsRange }) {
 
   return (
     <section className={shell} aria-busy={query.isFetching}>
-      <h2 className="mb-4 font-display text-xl font-bold">{t("weakness.dictation.title")}</h2>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <h2 className="font-display text-xl font-bold">{t("weakness.dictation.title")}</h2>
+        <WordClassHelp />
+      </div>
       {!query.data ? (
         <div className="flex flex-col gap-4">
           {[0, 1, 2].map((i) => (

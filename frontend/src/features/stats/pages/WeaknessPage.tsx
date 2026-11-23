@@ -7,6 +7,7 @@ import PhonemePanel from "../components/PhonemePanel";
 import RangeTabs from "../components/RangeTabs";
 import ScoreTrendCard from "../components/ScoreTrendCard";
 import StatsError from "../components/StatsError";
+import WrongWordsCard from "../components/WrongWordsCard";
 import { usePronunciation } from "../hooks";
 import type { PhonemeCell } from "../types";
 import { useRangeParam } from "../useRangeParam";
@@ -54,6 +55,7 @@ export default function WeaknessPage() {
             </>
           )}
           <DictationErrorsCard range={range} />
+          <WrongWordsCard range={range} />
         </div>
         <PhonemePanel symbol={selected} range={range} />
       </div>
