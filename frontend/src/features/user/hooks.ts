@@ -89,6 +89,15 @@ export function useUnlockUser() {
   return useMutation({ mutationFn: (userId: string) => adminUserApi.unlock(userId), onSettled: invalidate });
 }
 
+export function useGrantCredit() {
+  const invalidate = useInvalidateAdmin();
+  return useMutation({
+    mutationFn: ({ userId, credits, note }: { userId: string; credits: number; note: string }) =>
+      adminUserApi.grantCredit(userId, credits, note),
+    onSettled: invalidate,
+  });
+}
+
 export function useChangeRole() {
   const invalidate = useInvalidateAdmin();
   return useMutation({

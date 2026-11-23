@@ -143,6 +143,24 @@ class LessonChatRepository {
                 .param("id", conversationId).update() > 0;
     }
 
+    /**
+     * Có cuộc giọng nói của bài đã trừ credit, bắt đầu từ {@code since}, mà sau đó chưa có cuộc chat chữ nào: học viên
+     * chuyển từ giọng nói sang chat chữ trong cùng cuộc trò chuyện nên không trừ lại (BR-AI-04, AC-AI-31).
+     */
+    boolean chargedLiveWithoutTextSince(UUID userId, UUID lessonId, Instant since) {
+        return Boolean.TRUE.equals(jdbc.sql("""
+                SELECT EXISTS (
+                    SELECT 1 FROM ai_conversations live
+                    WHERE live.user_id = :user AND live.lesson_id = :lesson AND live.mode = 'live' AND live.charged
+                      AND live.started_at >= :since
+                      AND NOT EXISTS (
+                          SELECT 1 FROM ai_conversations txt
+                          WHERE txt.user_id = live.user_id AND txt.lesson_id = live.lesson_id AND txt.mode = 'text'
+                            AND txt.started_at > live.started_at))""")
+                .param("user", userId).param("lesson", lessonId).param("since", Timestamp.from(since))
+                .query(Boolean.class).single());
+    }
+
     /** Phiên chưa tới lượt trừ credit mà ví không đủ: đóng ở trạng thái lỗi. */
     void failUnlessCharged(UUID conversationId) {
         jdbc.sql("""

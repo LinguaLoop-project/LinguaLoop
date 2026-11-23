@@ -27,16 +27,16 @@
   },
   "upgradeModal": {
     "close": "Đóng",
-    "title": "Đã hết năng lượng AI hôm nay!",
-    "description": "Bạn đã sử dụng hết {{count}} năng lượng AI miễn phí trong ngày hôm nay. Nâng cấp lên <b>LinguaLoop Pro</b> để sử dụng không giới hạn.",
-    "titleTutor": "Không đủ năng lượng cho phiên gia sư!",
+    "title": "Đã hết credit AI!",
+    "description": "Bạn đã dùng hết credit AI hiện có. Nâng cấp lên <b>LinguaLoop Pro</b> để nhận credit mới mỗi tháng.",
+    "titleTutor": "Không đủ credit cho phiên gia sư!",
     "titlePro": "Nội dung dành cho gói Pro",
     "descriptionPro": "Bài học hoặc tính năng này chỉ có ở <b>LinguaLoop Pro</b>. Luyện shadowing cơ bản vẫn không giới hạn cho mọi gói.",
-    "titleFeedback": "Đã hết năng lượng cho nhận xét AI!",
-    "descriptionFeedback": "Bạn không còn đủ năng lượng AI để xin nhận xét hôm nay (miễn phí {{count}} năng lượng mỗi ngày). Luyện shadowing vẫn không giới hạn. Nâng cấp lên <b>LinguaLoop Pro</b> để dùng AI không giới hạn.",
-    "descriptionTutor": "Mỗi phiên gia sư tốn {{cost}} năng lượng AI và bạn không còn đủ năng lượng hôm nay. Nâng cấp lên <b>LinguaLoop Pro</b> để học cùng gia sư không giới hạn.",
+    "titleFeedback": "Không đủ credit cho nhận xét AI!",
+    "descriptionFeedback": "Bạn không còn đủ credit để xin nhận xét AI. Luyện shadowing vẫn miễn phí. Nâng cấp lên <b>LinguaLoop Pro</b> để nhận credit mới mỗi tháng.",
+    "descriptionTutor": "Mỗi phiên gia sư tốn {{cost}} credit và bạn không còn đủ credit. Nâng cấp lên <b>LinguaLoop Pro</b> để nhận credit mới mỗi tháng.",
     "benefits": {
-      "unlimited": "Không giới hạn năng lượng AI",
+      "unlimited": "Credit AI mới mỗi tháng",
       "advanced": "Mở khóa tất cả bài học nâng cao",
       "support": "Hỗ trợ cá nhân hóa 24/7"
     },
@@ -87,5 +87,9 @@
     "next": "Trang sau",
     "page": "Trang {{page}}",
     "goTo": "Đến trang"
+  },
+  "credit": {
+    "cost": "{{count}} credit",
+    "costEach": "{{count}} credit/câu"
   }
 }

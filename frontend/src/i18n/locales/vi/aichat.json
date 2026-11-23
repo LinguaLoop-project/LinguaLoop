@@ -92,7 +92,7 @@
     "hint": "Lời thoại được ẩn để bạn tự trả lời."
   },
   "errors": {
-    "QUOTA_EXCEEDED": "Bạn không đủ credit để bắt đầu. Gói Free nhận credit mới vào ngày mai, gói Pro vào tháng mới của gói.",
+    "QUOTA_EXCEEDED": "Bạn không đủ credit để bắt đầu. Gói Free dùng credit dùng thử được tặng một lần; nâng cấp Pro để nhận credit mới mỗi tháng.",
     "LESSON_PRO_REQUIRED": "Bài này dành cho gói Pro.",
     "LESSON_NOT_FOUND": "Không tìm thấy bài học này.",
     "AI_CHAT_ANSWER_INVALID": "Câu trả lời cần từ 1 đến 1000 ký tự.",

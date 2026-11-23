@@ -114,6 +114,9 @@ export interface CreatedLesson {
   title: string;
   sentenceCount: number;
   ipaCount: number;
+  /** Credit vừa trừ cho lượt tạo bài và số dư sau khi trừ (BR-GA-06). */
+  creditsCharged: number;
+  creditBalance: number;
 }
 
 export interface UpdateLessonInput {
@@ -155,6 +158,9 @@ export interface SuggestionResult {
   translatedCount: number;
   ipaCount: number;
   translationOutcome: SuggestionOutcome | null;
+  /** Credit vừa trừ (chỉ cho các câu có gợi ý dịch) và số dư sau khi trừ (BR-GA-06). */
+  creditsCharged: number;
+  creditBalance: number;
 }
 
 /** Lỗi của một ô câu do server trả (`details.errors[]` của `LESSON_SENTENCES_INVALID`). */

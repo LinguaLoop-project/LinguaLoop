@@ -113,6 +113,12 @@ export const adminUserApi = {
   changeRole: (userId: string, role: ChangeableRole) =>
     call<AdminUserDetail>(axiosClient.post(`${ADMIN_USERS}/${userId}/role`, { role }, { timeout: REQUEST_TIMEOUT_MS })),
 
+  /** Cấp credit cho giáo viên kèm ghi chú (UC-GA-07). */
+  grantCredit: (userId: string, credits: number, note: string) =>
+    call<AdminUserDetail>(
+      axiosClient.post(`${ADMIN_USERS}/${userId}/credits`, { credits, note }, { timeout: REQUEST_TIMEOUT_MS }),
+    ),
+
   summary: (teacherId: string) =>
     call<TeacherSummary>(axiosClient.get(`${ADMIN_USERS}/${teacherId}/content-summary`, { timeout: REQUEST_TIMEOUT_MS })),
 

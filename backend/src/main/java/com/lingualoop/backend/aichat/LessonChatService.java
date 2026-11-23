@@ -30,6 +30,12 @@ public interface LessonChatService {
      */
     Credit liveStarted(UUID userId, UUID lessonId, UUID conversationId);
 
+    /**
+     * Trình duyệt báo tổng số đơn vị xử lý của phiên giọng nói khi phiên đóng để ghi chi phí (BR-GA-12); không đổi
+     * credit, gọi lại không ghi thêm.
+     */
+    void liveUsage(UUID userId, UUID lessonId, UUID conversationId, long inputTokens, long outputTokens);
+
     /** Ghi câu hỏi mới của gia sư (tool {@code next_question}); tối đa 5 câu (BR-AI-11). */
     Session liveQuestion(UUID userId, UUID lessonId, UUID conversationId, String question);
 

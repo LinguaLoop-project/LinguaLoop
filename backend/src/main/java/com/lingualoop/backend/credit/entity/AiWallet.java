@@ -31,10 +31,33 @@ public class AiWallet {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    /** Thời điểm đã được tặng (hoặc mất quyền nhận) credit dùng thử; null = chưa (BR-GA-03). */
+    @Column(name = "trial_granted_at")
+    private Instant trialGrantedAt;
+
+    /** Tặng credit dùng thử một lần: số dư bằng {@code credits}, không có mốc đặt lại (BR-GA-03). */
+    public void grantTrial(int credits, Instant now) {
+        refill(credits, null, now);
+        this.trialGrantedAt = now;
+    }
+
+    /** Đánh dấu không còn quyền nhận credit dùng thử (giáo viên, đã kích hoạt Pro). */
+    public void closeTrial(Instant now) {
+        if (trialGrantedAt == null) {
+            this.trialGrantedAt = now;
+        }
+    }
+
     /** Nạp lại số dư và dời mốc đặt lại kế tiếp. */
     public void refill(int newBalance, Instant nextReset, Instant now) {
         this.balance = newBalance;
         this.resetsAt = nextReset;
+        this.updatedAt = now;
+    }
+
+    /** Cộng credit được cấp (giáo viên, BR-GA-11); không đổi mốc đặt lại. */
+    public void add(int credits, Instant now) {
+        this.balance = Math.addExact(balance, credits);
         this.updatedAt = now;
     }
 

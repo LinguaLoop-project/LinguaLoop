@@ -1,6 +1,7 @@
 import { isAxiosError } from "axios";
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/lesson/types";
+import type { LiveUsage } from "@/lib/liveUsage";
 import type {
   AttemptResult,
   AttemptTarget,
@@ -106,6 +107,11 @@ export async function endSession(sessionId: string, outcome: SessionOutcome): Pr
     axiosClient.post(`${BASE}/sessions/${sessionId}/events`, { type: "end", outcome }),
   );
   return res.outcome;
+}
+
+/** Báo số token Gemini Live đã dùng khi phiên đóng để ghi chi phí (BR-GA-12); không trừ lượt, gọi lại không ghi thêm. */
+export async function reportUsage(sessionId: string, usage: LiveUsage): Promise<void> {
+  await axiosClient.post(`${BASE}/sessions/${sessionId}/usage`, usage);
 }
 
 /** Trạng thái phiên (GET): `outcome` là null khi phiên còn mở. Chỉ dùng để biết phiên đã bị server đóng chưa. */

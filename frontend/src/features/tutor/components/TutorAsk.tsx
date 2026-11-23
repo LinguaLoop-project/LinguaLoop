@@ -7,12 +7,12 @@ const K = "student.tutor.ask";
 export interface TutorAskProps {
   onEnable: () => void;
   onDecline: () => void;
-  /** Số phiên mỗi ngày của gói Free; null cho Pro hoặc chưa biết. */
-  freeLimit: number | null;
+  /** Credit một phiên gia sư (BR-GA-06); undefined khi chưa tải xong giá. */
+  cost: number | undefined;
 }
 
 /** Hỏi bật gia sư một lần mỗi bài, trước câu đầu tiên. */
-export default function TutorAsk({ onEnable, onDecline, freeLimit }: TutorAskProps) {
+export default function TutorAsk({ onEnable, onDecline, cost }: TutorAskProps) {
   const { t } = useTranslation("pages");
   return (
     <div className="mb-3 flex flex-wrap items-center gap-4 rounded-lg border border-primary/50 bg-primary-soft p-4">
@@ -27,7 +27,7 @@ export default function TutorAsk({ onEnable, onDecline, freeLimit }: TutorAskPro
           <Button size="sm" variant="ghost" onClick={onDecline}>
             {t(`${K}.decline`)}
           </Button>
-          {freeLimit !== null && <span className="text-sm text-text-subtle">{t(`${K}.freeNote`, { limit: freeLimit })}</span>}
+          {cost !== undefined && <span className="text-sm text-text-subtle">{t(`${K}.costNote`, { cost })}</span>}
         </div>
       </div>
     </div>

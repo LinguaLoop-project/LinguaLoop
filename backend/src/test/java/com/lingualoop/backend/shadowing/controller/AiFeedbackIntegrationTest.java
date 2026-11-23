@@ -90,13 +90,13 @@ class AiFeedbackIntegrationTest {
                 .andExpect(jsonPath("$.data.content").value(FEEDBACK.content()))
                 .andExpect(jsonPath("$.data.cached").value(false))
                 .andExpect(jsonPath("$.data.credit.kind").value("free"))
-                .andExpect(jsonPath("$.data.credit.balance").value(19)); // ví Free 20, giá seed 0 nên trừ tối thiểu 1
+                .andExpect(jsonPath("$.data.credit.balance").value(98)); // credit dùng thử 100, nhận xét AI trừ 2 credit mỗi lần
 
         feedback(user, attempt)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").value(FEEDBACK.content()))
                 .andExpect(jsonPath("$.data.cached").value(true))
-                .andExpect(jsonPath("$.data.credit.balance").value(19));
+                .andExpect(jsonPath("$.data.credit.balance").value(98));
 
         verify(generator, times(1)).generate(any());
         assertThat(jdbc.queryForObject("SELECT content FROM ai_feedback WHERE attempt_id = ?", String.class, attempt))
@@ -195,19 +195,19 @@ class AiFeedbackIntegrationTest {
         UUID free = newUser();
         UUID pro = newUser();
         makePro(pro);
-        TestData.setCredits(jdbc, free, 5); // đúng ngưỡng min_balance_to_start
+        TestData.setCredits(jdbc, free, 3); // đủ cho đúng một lần nhận xét (2 credit)
         Sentence s = sentence("limits");
 
         feedback(free, attempt(free, s)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.credit.balance").value(4));
+                .andExpect(jsonPath("$.data.credit.balance").value(1));
         long second = attempt(free, s);
 
         feedback(free, second)
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
                 .andExpect(jsonPath("$.details.feature").value("shadowing_feedback"))
-                .andExpect(jsonPath("$.details.balance").value(4))
-                .andExpect(jsonPath("$.details.minBalance").value(5));
+                .andExpect(jsonPath("$.details.balance").value(1))
+                .andExpect(jsonPath("$.details.cost").value(2));
         assertThat(count("ai_feedback WHERE attempt_id = ?", second)).isZero();
         assertThat(count("ai_usage_logs WHERE user_id = ? AND status = 'rejected_no_credit'", free)).isEqualTo(1);
         verify(generator, times(1)).generate(any());
@@ -215,8 +215,8 @@ class AiFeedbackIntegrationTest {
         for (int i = 0; i < 3; i++) {
             feedback(pro, attempt(pro, s)).andExpect(status().isOk());
         }
-        assertThat(used(pro)).isEqualTo(3);
-        assertThat(balance(pro)).isEqualTo(TestData.PRO_CREDITS_PER_MONTH - 3);
+        assertThat(used(pro)).isEqualTo(3 * 2);
+        assertThat(balance(pro)).isEqualTo(TestData.PRO_CREDITS_PER_MONTH - 3 * 2);
     }
 
     @Test
@@ -259,7 +259,7 @@ class AiFeedbackIntegrationTest {
         }
 
         assertThat(count("ai_feedback WHERE attempt_id = ?", attempt)).isEqualTo(1);
-        assertThat(used(user)).isEqualTo(1);
+        assertThat(used(user)).isEqualTo(2);
     }
 
     // ── Phát dần (Server-Sent Events) ───────────────────────────────────────────────
@@ -294,7 +294,7 @@ class AiFeedbackIntegrationTest {
         assertThat(body).contains("event: delta\ndata: {\"text\":\"khá tốt.\"}\n\n");
         assertThat(body.indexOf("khá tốt.")).isLessThan(body.indexOf("event: done"));
         assertThat(body).contains("\"content\":\"Bạn đọc khá tốt.\"").contains("\"cached\":false");
-        assertThat(used(user)).isEqualTo(1);
+        assertThat(used(user)).isEqualTo(2);
         assertThat(count("ai_feedback WHERE attempt_id = ?", attempt)).isEqualTo(1);
     }
 
@@ -307,7 +307,7 @@ class AiFeedbackIntegrationTest {
         String body = body(streamOf(user, attempt).andExpect(status().isOk()));
 
         assertThat(body).contains("event: delta").contains(FEEDBACK.content()).contains("\"cached\":true");
-        assertThat(used(user)).isEqualTo(1);
+        assertThat(used(user)).isEqualTo(2);
         verify(generator, times(1)).generate(any());
     }
 

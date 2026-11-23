@@ -1,5 +1,6 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { FunctionCall, LiveServerMessage, Session } from "@google/genai";
+import { LiveUsageMeter } from "@/lib/liveUsage";
 import { PcmPlayer, int16ToBase64 } from "@/features/tutor/audio";
 import { MIC_RATE, MicCapture, int16Level } from "@/lib/pcmRecorder";
 import type { CreditBalance } from "@/features/subscription/types";
@@ -44,7 +45,7 @@ export type PlayClip = (startMs: number, endMs: number) => Promise<boolean>;
 export type LiveChatParams = {
   lessonId: string;
   style: ChatStyle;
-  api: Pick<AiChatApi, "startLive" | "liveStarted" | "liveQuestion" | "liveFeedback" | "liveFinish" | "hint" | "detail">;
+  api: Pick<AiChatApi, "startLive" | "liveStarted" | "liveQuestion" | "liveFeedback" | "liveFinish" | "liveUsage" | "hint" | "detail">;
   /** Số dư mới sau khi trừ credit của phiên. */
   onCredit?: (balance: CreditBalance) => void;
 };
@@ -110,6 +111,7 @@ export class LiveChatController {
 
   #sessionId: string | null = null;
   #live: Session | null = null;
+  #usage = new LiveUsageMeter();
   #mic: MicCapture | null = null;
   #player: PcmPlayer | null = null;
   #micLevel = 0;
@@ -294,6 +296,8 @@ export class LiveChatController {
   // --- tin nhắn từ Gemini Live ---
 
   #onMessage(message: LiveServerMessage) {
+    // Đếm cả tin nhắn đến lúc đang kết thúc: Gemini vẫn tính tiền phần đó
+    this.#usage.add(message.usageMetadata);
     if (this.#finishing) return;
     const content = message.serverContent;
     if (content) {
@@ -743,6 +747,18 @@ export class LiveChatController {
     } catch {
       // đã đóng
     }
+    if (live) this.#reportUsage();
+  }
+
+  /** Báo số token đã dùng để ghi chi phí (BR-GA-12); lỗi mạng thì backend tự ước tính. */
+  #reportUsage() {
+    const usage = this.#usage.take();
+    const sessionId = this.#sessionId;
+    // Chưa trừ credit mà Gemini đã trả lời (vd hết credit ở tab khác) vẫn có chi phí thật
+    if (!sessionId || (!this.#started && usage.inputTokens + usage.outputTokens === 0)) return;
+    this.#params.api
+      .liveUsage(this.#params.lessonId, sessionId, usage)
+      .catch((err: unknown) => console.warn("liveUsage failed", err));
   }
 
   #teardown() {
@@ -752,6 +768,7 @@ export class LiveChatController {
 
   #resetRuntime() {
     this.#sessionId = null;
+    this.#usage = new LiveUsageMeter();
     this.#started = false;
     this.#startedCall = Promise.resolve();
     this.#clips = [];

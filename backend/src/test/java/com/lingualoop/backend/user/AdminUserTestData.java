@@ -66,8 +66,10 @@ public class AdminUserTestData {
 
     public void setCredits(UUID userId, int balance) {
         jdbc.update("""
-                INSERT INTO ai_wallets (user_id, balance, resets_at, updated_at) VALUES (?, ?, NULL, now())
-                ON CONFLICT (user_id) DO UPDATE SET balance = EXCLUDED.balance, resets_at = NULL""", userId, balance);
+                INSERT INTO ai_wallets (user_id, balance, resets_at, updated_at, trial_granted_at)
+                VALUES (?, ?, NULL, now(), now())
+                ON CONFLICT (user_id) DO UPDATE SET balance = EXCLUDED.balance, resets_at = NULL,
+                    trial_granted_at = COALESCE(ai_wallets.trial_granted_at, now())""", userId, balance);
     }
 
     /** Một phiên đăng nhập còn hiệu lực; trả id dòng refresh token. */

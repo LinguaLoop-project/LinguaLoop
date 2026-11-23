@@ -10,13 +10,14 @@ import { formatDate, formatDateTime, formatNumber, formatVnd } from "../../admin
 import { ADMIN_USERS_PATH } from "../../adminUsers";
 import { Avatar, RoleBadge, StatusBadge } from "../../components/admin/AdminBits";
 import ChangeRoleDialog from "../../components/admin/ChangeRoleDialog";
+import GrantCreditDialog from "../../components/admin/GrantCreditDialog";
 import LockUserDialog from "../../components/admin/LockUserDialog";
 import TransferDialog from "../../components/admin/TransferDialog";
 import UnlockUserDialog from "../../components/admin/UnlockUserDialog";
 import { useAdminUserDetail } from "../../hooks";
 import type { AdminApiError, AdminUserDetail } from "../../types";
 
-type DialogKind = "lock" | "unlock" | "role" | "transferAll";
+type DialogKind = "lock" | "unlock" | "role" | "transferAll" | "grantCredit";
 
 /**
  * Chi tiết một tài khoản (UC-QT-01 Bước 6) kèm các thao tác Khóa hoặc Mở khóa (UC-QT-02, 03), Đổi vai trò (UC-QT-04) và
@@ -59,6 +60,7 @@ export default function AdminUserDetailPage() {
       {user && dialog === "role" && (
         <ChangeRoleDialog user={user} onClose={() => setDialog(null)} onTransferAll={() => setDialog("transferAll")} />
       )}
+      {user && dialog === "grantCredit" && <GrantCreditDialog user={user} onClose={() => setDialog(null)} />}
       {user && dialog === "transferAll" && (
         <TransferDialog
           mode={{ kind: "all", teacherId: user.id, teacherName: user.displayName }}
@@ -158,7 +160,17 @@ function DetailBody({ user, onAction }: Readonly<{ user: AdminUserDetail; onActi
               <dt className="text-text-muted">{t("detail.waitingReports")}</dt>
               <dd className="text-text">{content.waitingTeacherReports}</dd>
               <dt className="text-text-muted">{t("detail.credit")}</dt>
-              <dd className="text-text">{formatNumber(user.creditBalance ?? 0, i18n.language)}</dd>
+              <dd className="flex flex-wrap items-center gap-2 text-text">
+                {formatNumber(user.creditBalance ?? 0, i18n.language)}
+                {user.locked ? (
+                  <span className="text-xs text-text-muted">{t("grant.lockedNote")}</span>
+                ) : (
+                  <Button type="button" size="sm" variant="secondary" leftIcon={<Icon name="plus" />}
+                    onClick={() => onAction("grantCredit")}>
+                    {t("grant.open")}
+                  </Button>
+                )}
+              </dd>
             </>
           )}
         </dl>

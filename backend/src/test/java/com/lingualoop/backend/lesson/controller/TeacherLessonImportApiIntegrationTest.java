@@ -127,6 +127,11 @@ class TeacherLessonImportApiIntegrationTest {
                 {"video_id":"%s","language":"en","transcript":[%s]}""".formatted(VIDEO_ID, String.join(",", lines)));
     }
 
+    private int importLogs(String status, int costVnd) {
+        return jdbc.queryForObject("SELECT count(*) FROM ai_usage_logs WHERE user_id = ? AND feature = 'lesson_import' "
+                + "AND status = ? AND credits_charged = 0 AND cost_vnd = ?", Integer.class, teacher, status, costVnd);
+    }
+
     private void transcript(int status, String body) {
         youtube.stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/youtube/transcript"))
                 .willReturn(aResponse().withStatus(status).withHeader("Content-Type", "application/json")
@@ -176,6 +181,8 @@ class TeacherLessonImportApiIntegrationTest {
                 .andExpect(jsonPath("$.data.durationSec").value(480))
                 .andExpect(jsonPath("$.data.sentenceCount").value(24))
                 .andExpect(jsonPath("$.data.ipaCount").value(24))
+                .andExpect(jsonPath("$.data.creditsCharged").value(10)) // BR-GA-06: hiện credit đã trừ và số dư
+                .andExpect(jsonPath("$.data.creditBalance").value(90))
                 .andReturn().getResponse().getContentAsString();
 
         UUID lessonId = UUID.fromString(com.jayway.jsonpath.JsonPath.read(response, "$.data.id"));
@@ -191,8 +198,10 @@ class TeacherLessonImportApiIntegrationTest {
                 .containsEntry("ipa_us", "ipa").containsEntry("start_ms", 1_000).containsEntry("end_ms", 6_000);
         assertThat(rows.get(23)).containsEntry("start_ms", 231_000).containsEntry("end_ms", 236_000);
 
-        // không gợi ý dịch khi tạo bài nên không trừ credit (BR-BH-14)
-        assertThat(balance()).isEqualTo(100);
+        // tạo bài trừ 10 credit mỗi bài, một lần khi lưu Nháp (BR-BH-14)
+        assertThat(balance()).isEqualTo(90);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM ai_usage_logs WHERE user_id = ? AND feature = 'lesson_import' "
+                + "AND status = 'success' AND credits_charged = 10 AND cost_vnd = 131", Integer.class, teacher)).isEqualTo(1);
         // học viên chưa thấy bài Nháp
         assertThat(jdbc.queryForObject("SELECT count(*) FROM lessons WHERE id = ? AND status = 'published'",
                 Integer.class, lessonId)).isZero();
@@ -238,6 +247,34 @@ class TeacherLessonImportApiIntegrationTest {
 
         assertThat(lessonCount()).isZero();
         assertThat(balance()).isEqualTo(100);
+        // TranscriptAPI đã trả phụ đề (rỗng) nên đã tính phí: ghi chi phí, không trừ credit (BR-GA-12)
+        assertThat(importLogs("failed", 131)).isEqualTo(1);
+    }
+
+    /** BR-GA-12: TranscriptAPI trả phụ đề ngôn ngữ khác (đã tính phí) thì ghi chi phí của lần lỗi, không trừ credit. */
+    @Test
+    void create_transcriptInAnotherLanguage_logsTheBilledCostWithoutCharging() throws Exception {
+        stubVideo("Tin tức", "PT3M");
+        transcript(200, """
+                {"video_id":"%s","language":"vi","transcript":[{"text":"Xin chào.","start":1,"duration":3}]}"""
+                .formatted(VIDEO_ID));
+
+        create(body(LINK, null, topic, "B1")).andExpect(jsonPath("$.code").value("YOUTUBE_NO_ENGLISH_SPEECH"));
+
+        assertThat(balance()).isEqualTo(100);
+        assertThat(importLogs("failed", 131)).isEqualTo(1);
+    }
+
+    /** BR-GA-12: video không có phụ đề tiếng Anh (TranscriptAPI báo 404, không tính phí) thì không ghi chi phí. */
+    @Test
+    void create_videoWithoutCaptions_logsNoCost() throws Exception {
+        stubVideo("Không phụ đề", "PT3M");
+        transcript(404, "{\"detail\":\"No captions\",\"code\":\"no_captions\"}");
+
+        create(body(LINK, null, topic, "B1")).andExpect(jsonPath("$.code").value("YOUTUBE_NO_ENGLISH_SPEECH"));
+
+        assertThat(balance()).isEqualTo(100);
+        assertThat(importLogs("failed", 131)).isZero();
     }
 
     @Test
@@ -308,17 +345,20 @@ class TeacherLessonImportApiIntegrationTest {
     }
 
     @Test
-    void create_withoutCredit_stillCreatesLesson_AC_BH_22() throws Exception {
-        TestData.setCredits(jdbc, teacher, 0);
+    void create_withoutEnoughCredit_createsNothingAndCallsNoService_AC_BH_102() throws Exception {
+        TestData.setCredits(jdbc, teacher, 6); // ít hơn 10 credit mỗi bài
         stubVideo("Airport", "PT3M");
 
         create(body(LINK, null, topic, "B1"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.sentenceCount").value(18));
+                .andExpect(status().isTooManyRequests())
+                .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
+                .andExpect(jsonPath("$.details.feature").value("lesson_import"))
+                .andExpect(jsonPath("$.details.balance").value(6))
+                .andExpect(jsonPath("$.details.cost").value(10));
 
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM sentences s JOIN lessons l ON l.id = s.lesson_id "
-                + "WHERE l.owner_id = ? AND s.text_vi IS NULL", Integer.class, teacher)).isEqualTo(18);
-        assertThat(balance()).isZero();
+        assertThat(lessonCount()).isZero();
+        assertThat(balance()).isEqualTo(6);
+        youtube.verify(0, getRequestedFor(urlPathEqualTo("/videos")));
     }
 
     @Test

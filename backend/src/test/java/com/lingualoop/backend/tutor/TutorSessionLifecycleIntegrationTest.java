@@ -92,6 +92,22 @@ class TutorSessionLifecycleIntegrationTest {
         assertThat(count("tutor_sessions WHERE id = ? AND started_at IS NOT NULL", s.id)).isEqualTo(1);
     }
 
+    /** BR-GA-12: trình duyệt báo số token Gemini Live đã dùng; chi phí điền vào dòng trừ credit của phiên, một lần. */
+    @Test
+    void usage_fillsTheCostOfTheChargedSessionOnce_andHidesOthersSessions() throws Exception {
+        S s = open("Think about it", word("think", 45, "θ", 20));
+        started(s).andExpect(status().isOk());
+
+        usage(s.user, s.id, "{\"inputTokens\": 1000, \"outputTokens\": 500}").andExpect(status().isOk());
+        usage(s.user, s.id, "{\"inputTokens\": 9000, \"outputTokens\": 9000}").andExpect(status().isOk());
+
+        assertThat(count("ai_usage_logs WHERE session_id = ? AND status = 'success' AND input_units = 1000 "
+                + "AND output_units = 500 AND cost_vnd = 234.90 AND cost_estimated", s.id)).isEqualTo(1);
+        UUID stranger = userAccountService.createLocal("u-" + UUID.randomUUID() + "@x.com", "U", "h").id();
+        usage(stranger, s.id, "{\"inputTokens\": 1, \"outputTokens\": 1}").andExpect(status().isNotFound());
+        usage(s.user, s.id, "{\"inputTokens\": -1, \"outputTokens\": 1}").andExpect(status().isBadRequest());
+    }
+
     @Test
     void aSessionThatNeverStartedEndsAsConnectFailedWithoutCharge_AC_TUTOR_13() throws Exception {
         S s = open("Think about it", word("think", 45, "θ", 20));
@@ -490,6 +506,11 @@ class TutorSessionLifecycleIntegrationTest {
         UUID id = jdbc.queryForObject("SELECT id FROM tutor_sessions WHERE attempt_id = ? ORDER BY created_at DESC LIMIT 1",
                 UUID.class, attempt);
         return new S(user, id, attempt);
+    }
+
+    private ResultActions usage(UUID user, UUID session, String body) throws Exception {
+        return mockMvc.perform(post("/api/v1/tutor/sessions/{id}/usage", session).headers(auth(user))
+                .contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     private ResultActions started(S s) throws Exception {

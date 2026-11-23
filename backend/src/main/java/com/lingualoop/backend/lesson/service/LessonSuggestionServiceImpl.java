@@ -13,6 +13,9 @@ import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.FieldValidationException;
 import com.lingualoop.backend.common.exception.ForbiddenException;
+import com.lingualoop.backend.credit.AiFeature;
+import com.lingualoop.backend.credit.AiUsage;
+import com.lingualoop.backend.credit.CreditService;
 import com.lingualoop.backend.lesson.dto.request.SuggestSentencesRequest;
 import com.lingualoop.backend.lesson.dto.response.SentenceSuggestionResponse;
 import com.lingualoop.backend.lesson.entity.Lesson;
@@ -27,8 +30,8 @@ import com.lingualoop.backend.lesson.transcript.SentenceTranslator.Translation;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Không đánh dấu {@code @Transactional}: gọi Gemini mất nhiều giây, không giữ kết nối DB. Chưa trừ credit (module credit
- * làm sau).
+ * Không đánh dấu {@code @Transactional}: gọi Gemini mất nhiều giây, không giữ kết nối DB. Gợi ý dịch trừ credit mỗi câu
+ * (BR-BH-14): kiểm số dư đủ cho mọi câu đã chọn trước khi gọi AI, chỉ trừ cho các câu có gợi ý. IPA không tốn credit.
  */
 @Service
 @RequiredArgsConstructor
@@ -38,6 +41,7 @@ class LessonSuggestionServiceImpl implements LessonSuggestionService {
     private final SentenceRepository sentences;
     private final SentenceTranslator translator;
     private final IpaGenerator ipaGenerator;
+    private final CreditService credits;
 
     @Override
     public SentenceSuggestionResponse suggest(UUID teacherId, UUID lessonId, SuggestSentencesRequest request) {
@@ -61,14 +65,14 @@ class LessonSuggestionServiceImpl implements LessonSuggestionService {
         }
 
         List<String> texts = request.sentences().stream().map(item -> item.textEn().strip()).toList();
-        Translation translation = request.translation() ? translator.translate(texts) : null;
+        Charged translation = request.translation() ? translate(teacherId, texts) : null;
         List<SentenceIpa> ipa = request.ipa() ? ipaGenerator.generate(texts)
                 : Collections.nCopies(texts.size(), SentenceIpa.NONE);
 
         List<SentenceSuggestionResponse.Item> items = new ArrayList<>(texts.size());
         int ipaCount = 0;
         for (int i = 0; i < texts.size(); i++) {
-            String vi = translation == null ? null : translation.translations().get(i);
+            String vi = translation == null ? null : translation.translated().translations().get(i);
             SentenceIpa p = ipa.get(i);
             if (p.us() != null) {
                 ipaCount++;
@@ -76,7 +80,27 @@ class LessonSuggestionServiceImpl implements LessonSuggestionService {
             items.add(new SentenceSuggestionResponse.Item(request.sentences().get(i).id(), vi, p.us(), p.uk()));
         }
         return new SentenceSuggestionResponse(items,
-                translation == null ? 0 : (int) translation.translatedCount(), ipaCount,
-                translation == null ? null : translation.outcome().name());
+                translation == null ? 0 : (int) translation.translated().translatedCount(), ipaCount,
+                translation == null ? null : translation.translated().outcome().name(),
+                translation == null ? 0 : translation.charged(), credits.balanceOf(teacherId).balance());
+    }
+
+    /** Kiểm số dư cho mọi câu (3b), gọi AI rồi trừ credit cho các câu có gợi ý (4a); không câu nào có gợi ý thì ghi lỗi. */
+    private Charged translate(UUID teacherId, List<String> texts) {
+        credits.requireCanStart(teacherId, AiFeature.LESSON_SUGGEST, texts.size());
+        Translation translation = translator.translate(texts);
+        int translated = (int) translation.translatedCount();
+        int charged = 0;
+        if (translated > 0) {
+            charged = credits.charge(teacherId, AiFeature.LESSON_SUGGEST,
+                    AiUsage.units(translated, translation.inputTokens(), translation.outputTokens(), null));
+        } else {
+            credits.logFailure(teacherId, AiFeature.LESSON_SUGGEST, false);
+        }
+        return new Charged(translation, charged);
+    }
+
+    /** Bản dịch gợi ý kèm credit đã trừ cho nó. */
+    private record Charged(Translation translated, int charged) {
     }
 }

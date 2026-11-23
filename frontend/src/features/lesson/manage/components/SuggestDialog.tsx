@@ -4,6 +4,8 @@ import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import { FormAlert } from "@/components/common/FormAlert";
 import SegmentedControl from "@/components/common/SegmentedControl";
+import CreditCost from "@/features/subscription/components/CreditCost";
+import { AI_ACTION_LESSON_SUGGEST } from "@/features/subscription/types";
 import { errorMessage } from "../errors";
 import { useSuggest } from "../hooks";
 import {
@@ -116,6 +118,7 @@ export default function SuggestDialog({ lessonId, rows, selected, onClose, onApp
           </Button>
           <Button type="button" isLoading={suggest.isPending} disabled={targets.length === 0} onClick={run}>
             {runLabel}
+            {targets.length > 0 && <CreditCost action={AI_ACTION_LESSON_SUGGEST} quantity={targets.length} />}
           </Button>
         </div>
       </div>

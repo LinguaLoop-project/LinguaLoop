@@ -7,6 +7,8 @@ import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
+import CreditCost from "@/features/subscription/components/CreditCost";
+import { AI_ACTION_LESSON_IMPORT } from "@/features/subscription/types";
 import { useAiEnergy } from "@/hooks/useAiEnergy";
 import { toast } from "@/stores/toastStore";
 
@@ -89,7 +91,13 @@ export default function YouTubeImportButton() {
             {t("student.lessons.cancel", "Huỷ")}
           </Button>
           <Button onClick={submit} leftIcon={<Icon name={isPro ? "wand-sparkles" : "crown"} />}>
-            {isPro ? t(`${p}.createBtn`, "Tạo bài") : t("student.lessons.tryPro", "Dùng thử Pro")}
+            {isPro ? (
+              <>
+                {t(`${p}.createBtn`, "Tạo bài")} <CreditCost action={AI_ACTION_LESSON_IMPORT} />
+              </>
+            ) : (
+              t("student.lessons.tryPro", "Dùng thử Pro")
+            )}
           </Button>
         </div>
       </Dialog>

@@ -10,8 +10,10 @@ import { toApiError } from "@/features/auth";
 import Breadcrumbs from "@/features/lesson/components/Breadcrumbs";
 import { useLessonDetail } from "@/features/lesson/hooks/useLessons";
 import { useSegmentPlayer } from "@/features/lesson/manage/useSegmentPlayer";
+import CreditCost from "@/features/subscription/components/CreditCost";
 import { useCreditBalance } from "@/features/subscription/hooks/useCredit";
 import { formatDuration } from "@/lib/format";
+import { AI_ACTION_LESSON_CHAT } from "@/features/subscription/types";
 import ChatThread from "../components/ChatThread";
 import HistoryDialog from "../components/HistoryDialog";
 import LiveChatPanel from "../components/LiveChatPanel";
@@ -351,10 +353,10 @@ export default function AiChatPage() {
 
                 <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-border pt-5">
                   <Button size="lg" onClick={() => setMode("live")} leftIcon={<Icon name="mic" />}>
-                    {t("intro.start")}
+                    {t("intro.start")} <CreditCost action={AI_ACTION_LESSON_CHAT} />
                   </Button>
                   <Button variant="ghost" size="lg" onClick={() => setMode("text")} leftIcon={<Icon name="keyboard" />}>
-                    {t("intro.useText")}
+                    {t("intro.useText")} <CreditCost action={AI_ACTION_LESSON_CHAT} />
                   </Button>
                 </div>
               </div>

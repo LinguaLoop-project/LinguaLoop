@@ -564,6 +564,54 @@
 - **Commit:** ef22ae9
 - **Lỗi liên quan:** NONE
 
+### AI-KE-050
+
+- **Ngày:** 2026-11-22
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** SUBSCRIPTION
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Trừ credit cố định theo đơn vị nghiệp vụ (ADR 0013): tặng credit dùng thử một lần thay credit miễn phí mỗi ngày, ghi chi phí thật của mỗi lần dùng (token, chi phí cố định, phiên giọng nói do trình duyệt báo token hoặc ước tính theo thời lượng), nối vào 5 tính năng tính credit, trả credit đã trừ và số dư khi tạo bài và gợi ý dịch; phạm vi phụ: DATABASE (migration), LESSON, SHADOWING
+- **Vị trí code do AI sinh (`file:hàm`):** `db/migration/V20261121_1000__fixed_credit_pricing.sql`; `credit/service/CreditServiceImpl.java:requireCanStart`, `:charge`, `:recordCost`, `:logFailedCost`, `:logFailure`, `:recordLiveUsage`, `:estimateUnreportedLiveCosts`, `:fillEstimate`, `:fill`, `:maxLiveDuration`, `:costOf`, `:refresh`, `:grant`; `credit/service/LiveCostEstimateJob.java:run`; `credit/AiUsage.java`; `credit/entity/AiWallet.java:grantTrial`, `:closeTrial`, `:add`; `credit/entity/AiUsageLog.java:forSession`, `:liveCostPending`, `:fillLiveCost`; `credit/entity/AiSettings.java:update`; `credit/entity/AiFeaturePrice.java:update`; `credit/repository/AiUsageLogRepository.java:findLivePendingForUpdate`, `:lockStaleLivePending`; `credit/repository/AiWalletRepository.java:resetBalance`; `credit/dto/LiveUsageRequest.java`; `config/CreditProperties.java`; `aichat/LessonChatServiceImpl.java:liveStarted`, `:liveUsage`; `aichat/LessonChatController.java:liveUsage`; `tutor/TutorSessionService.java:started`, `:reportUsage`; `tutor/controller/TutorController.java:usage`; `lesson/service/TeacherLessonImportServiceImpl.java:create`, `:saveDraft`; `lesson/service/LessonSuggestionServiceImpl.java:suggest`, `:translate`; `lesson/transcript/Transcript.java`; `lesson/transcriptapi/TranscriptApiTranscriber.java:transcribe`; `shadowing/service/AiFeedbackServiceImpl.java`; `CreditServiceIntegrationTest.java`; `LiveCostIntegrationTest.java`; `TutorSessionLifecycleIntegrationTest.java:usage_fillsTheCostOfTheChargedSessionOnce_andHidesOthersSessions`; `LessonChatLiveApiIntegrationTest.java:liveUsage_fillsTheCostOfTheChargedConversationOnce`; `TeacherLessonImportApiIntegrationTest.java:create_transcriptInAnotherLanguage_logsTheBilledCostWithoutCharging`, `:create_videoWithoutCaptions_logsNoCost`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chốt các quyết định nghiệp vụ và thiết kế, AI viết code theo: tặng 100 credit dùng thử một lần thay credit miễn phí mỗi ngày, bỏ credit dùng thử còn lại khi mua Pro, số dư về 0 khi Pro hết hạn, không cấp bù cho tài khoản cũ; tạo bài từ YouTube 10 credit; thực hành theo bài giữ đơn giá Live; gộp hai migration chưa chạy trên prod thành một file; chi phí phiên giọng nói lấy token do trình duyệt báo kèm ước tính theo thời lượng; điền chi phí vào dòng trừ credit qua cột `session_id` thay cho cột `cost_recorded_at` AI đề xuất; ghi chi phí khi tạo bài lỗi sau lúc đã lấy phụ đề; ở MVP chấp nhận tính theo giá model chính, bỏ qua model dự phòng
+- **Commit:** b28a11e
+- **Lỗi liên quan:** NONE
+
+### AI-KE-051
+
+- **Ngày:** 2026-11-22
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** SUBSCRIPTION
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** API quản trị theo UC-GA-01 đến UC-GA-07: xem và sửa cấu hình credit (kiểm tra người khác vừa sửa, ghi audit), danh sách, thêm, sửa, mở bán và ngừng bán gói Pro, cấp credit cho giáo viên kèm thông báo; phạm vi phụ: USER, AUDIT
+- **Vị trí code do AI sinh (`file:hàm`):** `credit/service/AdminCreditConfigServiceImpl.java:get`, `:update`; `credit/controller/AdminCreditConfigController.java`; `credit/dto/CreditConfigView.java`; `credit/dto/UpdateCreditConfigRequest.java`; `subscription/service/AdminProPlanServiceImpl.java:list`, `:create`, `:update`, `:setOnSale`; `subscription/controller/AdminProPlanController.java`; `subscription/entity/ProPlan.java:create`, `:edit`, `:setOnSale`; `subscription/repository/ProPlanRepository.java:nameTaken`, `:purchaseCounts`, `:findForUpdate`; `subscription/dto/ProPlanView.java`; `subscription/dto/request/ProPlanRequest.java`; `subscription/dto/request/SetOnSaleRequest.java`; `user/service/UserAdminServiceImpl.java:grantCredit`; `user/controller/AdminUserController.java:grantCredit`; `user/dto/request/GrantCreditRequest.java`; `common/exception/ErrorCode.java` (các mã `CREDIT_CONFIG_*`, `PRO_PLAN_*`, `CREDIT_GRANT_NOT_ALLOWED`); `audit/enums/AuditAction.java:GRANT_CREDIT`; `audit/enums/AuditEntityType.java:SETTINGS`, `:PLAN`; `AdminCreditConfigApiIntegrationTest.java`; `AdminProPlanApiIntegrationTest.java`; `AdminTeacherCreditApiIntegrationTest.java`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế quyết định làm các API quản trị trong cùng nhánh với phần trừ credit và cho quản trị viên sửa số credit dùng thử
+- **Commit:** a542af7
+- **Lỗi liên quan:** NONE
+
+### AI-KE-052
+
+- **Ngày:** 2026-11-22
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Giao diện cho credit cố định: giá trên từng nút dùng AI, thanh số dư của học viên và giáo viên, thông báo credit đã trừ và số dư sau khi tạo bài và gợi ý dịch, đếm và báo token của phiên giọng nói, trang quản trị cấu hình credit, gói Pro và hộp cấp credit cho giáo viên; bỏ menu "Đăng ký Pro" và "Danh mục lỗi"; i18n vi/en
+- **Vị trí code do AI sinh (`file:hàm`):** `src/features/credit/pages/admin/AdminCreditConfigPage.tsx:AdminCreditConfigPage`; `src/features/credit/margin.ts:planMargin`, `:parseIntIn`, `:parsePercent`; `src/features/credit/api.ts`; `src/features/credit/hooks.ts:useCreditConfig`, `:useUpdateCreditConfig`; `src/features/subscription/pages/admin/AdminProPlanPage.tsx:AdminProPlanPage`; `src/features/subscription/components/admin/PlanFormDialog.tsx:PlanFormDialog`; `src/features/subscription/components/admin/PlanOnSaleDialog.tsx:PlanOnSaleDialog`; `src/features/subscription/services/adminPlanService.ts`; `src/features/subscription/hooks/useAdminPlans.ts`; `src/features/subscription/components/CreditCost.tsx:CreditCost`; `src/features/user/components/admin/GrantCreditDialog.tsx:GrantCreditDialog`; `src/features/user/pages/admin/AdminUserDetailPage.tsx:AdminUserDetailPage`; `src/lib/liveUsage.ts:LiveUsageMeter`; `src/features/aichat/controller.ts:#reportUsage`; `src/features/tutor/controller.ts:#reportUsage`; `src/hooks/aiEnergyMath.ts:deriveEnergy`; `src/hooks/useAiEnergy.ts:useAiEnergy`; `src/components/layouts/shell/TopBar.tsx:TopBar`; `src/features/lesson/manage/useCreateCallbacks.ts:useCreateCallbacks`; `src/features/lesson/manage/components/LessonWorkspace.tsx:applySuggestions`; `src/app/routes.tsx`; `src/features/credit/margin.test.ts`; `src/lib/liveUsage.test.ts`; `src/hooks/aiEnergyMath.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế yêu cầu bỏ hai mục menu quản trị không dùng và hiện thanh số dư cho cả giáo viên
+- **Commit:** 479ddde
+- **Lỗi liên quan:** NONE
+
+### AI-KE-053
+
+- **Ngày:** 2026-11-22
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DOCUMENTATION
+- **Loại công việc (`Task Type`):** DESIGN
+- **Prompt chính / yêu cầu:** Ghi quyết định trừ credit cố định theo đơn vị nghiệp vụ (ADR 0013) và cập nhật đặc tả cho thống nhất giữa các module: credit dùng thử, chi phí thật và chi phí phiên giọng nói (BR-GA-03, 04, 06, 12), các UC và AC liên quan của AI, BH, PR, QT, NK; điền bảng truy vết GA, AI, BH
+- **Vị trí code do AI sinh (`file:hàm`):** `docs/adr/0013-tru-credit-co-dinh-theo-don-vi-nghiep-vu.md`; `docs/adr/0012-loi-thoai-bai-hoc-lay-tu-phu-de-qua-transcriptapi.md`; `docs/srs/GA-quan-ly-goi-han-muc-ai/quy-tac-nghiep-vu.md`, `usecase.md`; `docs/srs/AI-thuc-hanh-voi-ai/quy-tac-nghiep-vu.md`, `usecase.md`; `docs/srs/BH-quan-ly-bai-hoc/quy-tac-nghiep-vu.md`, `usecase.md`; `docs/srs/PR-goi-pro/quy-tac-nghiep-vu.md`, `usecase.md`; `docs/srs/QT-quan-tri-tai-khoan/quy-tac-nghiep-vu.md`, `usecase.md`; `docs/srs/NK-nhat-ky-thong-ke-he-thong/quy-tac-nghiep-vu.md`, `usecase.md`; `docs/test/traceability/GA-quan-ly-goi-han-muc-ai.md`, `AI-thuc-hanh-voi-ai.md`, `BH-quan-ly-bai-hoc.md`; `docs/test/TRACEABILITY-AC-TEST.md`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chốt chính sách credit dùng thử và cách ghi chi phí phiên giọng nói (xem AI-KE-050), AI ghi lại vào ADR và đặc tả
+- **Commit:** 5800230
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).

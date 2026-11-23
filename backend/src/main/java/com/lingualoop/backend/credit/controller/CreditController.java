@@ -1,5 +1,7 @@
 package com.lingualoop.backend.credit.controller;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,5 +25,13 @@ public class CreditController {
     @GetMapping("/balance")
     public ApiResponse<CreditBalance> balance(@CurrentUserId UUID userId) {
         return ApiResponse.ok(creditService.balanceOf(userId));
+    }
+
+    /** Credit mỗi đơn vị của từng tính năng, để hiển thị giá trước khi dùng (BR-GA-06). Khóa là mã tính năng. */
+    @GetMapping("/prices")
+    public ApiResponse<Map<String, Integer>> prices() {
+        Map<String, Integer> prices = new LinkedHashMap<>();
+        creditService.prices().forEach((feature, credits) -> prices.put(feature.dbValue(), credits));
+        return ApiResponse.ok(prices);
     }
 }

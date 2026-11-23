@@ -1,8 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { DEFAULT_FREE_AI_ENERGY } from "@/hooks/useAiEnergy";
 import { toApiError } from "@/features/auth";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
+import CreditCost from "@/features/subscription/components/CreditCost";
+import { AI_ACTION_FEEDBACK } from "@/features/subscription/types";
 import { parseFeedback } from "../feedback";
 import type { StructuredFeedback } from "../feedback";
 import { useAiFeedback } from "../hooks/useAiFeedback";
@@ -139,9 +140,9 @@ export default function AiFeedbackCard({ attemptId, saved, onUpgrade, onSelectWo
           <Icon name="sparkles" />
         </span>
         <b className="text-sm">{t(`${K}.title`)}</b>
-        {data?.credit && data.credit.kind === "free" && (
+        {data?.credit && data.credit.kind !== "staff" && (
           <span className="rounded-full border border-border-strong px-2 text-[11px] leading-5 text-text-muted">
-            {t(`${K}.remaining`, { remaining: data.credit.balance, limit: DEFAULT_FREE_AI_ENERGY })}
+            {t(`${K}.remaining`, { remaining: data.credit.balance })}
           </span>
         )}
       </div>
@@ -190,7 +191,7 @@ export default function AiFeedbackCard({ attemptId, saved, onUpgrade, onSelectWo
               }}
               leftIcon={<Icon name="rotate-cw" />}
             >
-              {t(`${K}.retry`)}
+              {t(`${K}.retry`)} <CreditCost action={AI_ACTION_FEEDBACK} />
             </Button>
           )}
         </div>
@@ -198,7 +199,7 @@ export default function AiFeedbackCard({ attemptId, saved, onUpgrade, onSelectWo
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <p className="min-w-48 flex-1 text-sm text-text-muted">{t(`${K}.hint`)}</p>
           <Button variant="ghost" size="sm" onClick={() => mutate(attemptId)} leftIcon={<Icon name="wand-sparkles" />}>
-            {t(`${K}.ask`)}
+            {t(`${K}.ask`)} <CreditCost action={AI_ACTION_FEEDBACK} />
           </Button>
         </div>
       )}

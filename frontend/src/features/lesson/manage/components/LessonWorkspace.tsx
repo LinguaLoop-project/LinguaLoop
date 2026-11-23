@@ -252,7 +252,11 @@ export default function LessonWorkspace({ role, lesson }: Readonly<{ role: Manag
     const missing = result.sentences.filter((s) => !s.textVi).map((s) => s.id);
     setSuggestRetry(missing.length > 0 ? { ids: missing, mode: suggestMode } : null);
     setRetryError(null);
-    toast(t("suggest.translated", { count: result.translatedCount }), {
+    const credit =
+      result.creditsCharged > 0
+        ? t("suggest.charged", { charged: result.creditsCharged, balance: result.creditBalance })
+        : "";
+    toast(`${t("suggest.translated", { count: result.translatedCount })}${credit}`, {
       icon: missing.length > 0 ? "triangle-alert" : "sparkles",
     });
   };

@@ -357,14 +357,14 @@ class AdminUserApiIntegrationTest {
         asAdmin(get(USERS + "/" + teacher)).andExpect(jsonPath("$.data.creditBalance").value(1200));
         changeRole(teacher, "student").andExpect(status().isOk());
 
-        // Ví bị hủy rồi nạp lại ngay theo gói Free khi đọc chi tiết (mốc đặt lại hằng ngày được đặt).
-        assertThat(data.walletBalance(teacher)).isLessThan(1200);
+        // Ví bị hủy về 0; tài khoản từng là giáo viên không được tặng credit dùng thử (BR-QT-04, BR-GA-03).
+        assertThat(data.walletBalance(teacher)).isZero();
         assertThat(data.countAudit(teacher, "change_role")).isEqualTo(1);
         mockMvc.perform(get("/api/v1/credits/balance")
                 .header(HttpHeaders.AUTHORIZATION, data.bearer(teacher, Role.STUDENT)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.kind").value("free"));
-        assertThat(data.walletHasReset(teacher)).isTrue();
+                .andExpect(jsonPath("$.data.kind").value("free"))
+                .andExpect(jsonPath("$.data.balance").value(0));
     }
 
     @Test

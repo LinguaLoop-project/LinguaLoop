@@ -85,12 +85,14 @@ app:
   audio:
     base-url: ${AUDIO_BASE_URL:}
   credit:
-    # ví Free đặt lại lúc 00:00 theo múi giờ này (BR-GA-03)
+    # mốc làm mới credit tháng của gói Pro tính theo ngày ở múi giờ này (BR-GA-10)
     zone: Asia/Ho_Chi_Minh
-    # credit cố định của một phiên gia sư
-    tutor-session-cost: 3
-    # credit cố định của một phiên Thực hành với AI theo bài (chế độ giọng nói)
-    lesson-chat-cost: 5
+    # Phiên giọng nói mà trình duyệt không báo số đơn vị xử lý: ước tính theo thời lượng (BR-GA-12, ADR 0013)
+    live-estimate:
+      input-units-per-second: 32
+      output-units-per-second: 16
+      report-grace: PT5M
+      sweep-interval: PT5M
   storage:
     s3:
       # Bucket riêng tư; client tải thẳng lên bằng presigned URL. Bucket rỗng thì tải tệp báo STORAGE_UNAVAILABLE.

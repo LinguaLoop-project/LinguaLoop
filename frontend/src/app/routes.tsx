@@ -59,6 +59,8 @@ const TeacherReportListPage = lazy(() => import("@/features/report/pages/teacher
 const TeacherReportDetailPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportDetailPage"));
 const AdminUserListPage = lazy(() => import("@/features/user/pages/admin/AdminUserListPage"));
 const AdminUserDetailPage = lazy(() => import("@/features/user/pages/admin/AdminUserDetailPage"));
+const AdminCreditConfigPage = lazy(() => import("@/features/credit/pages/admin/AdminCreditConfigPage"));
+const AdminProPlanPage = lazy(() => import("@/features/subscription/pages/admin/AdminProPlanPage"));
 const AdminContentTransferPage = lazy(() => import("@/features/user/pages/admin/AdminContentTransferPage"));
 const AdminReportListPage = lazy(() => import("@/features/report/pages/admin/AdminReportListPage"));
 const AdminReportDetailPage = lazy(() => import("@/features/report/pages/admin/AdminReportDetailPage"));
@@ -388,24 +390,21 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <PlaceholderPage pageKey="admin.audit" />,
         },
         {
+          path: "credit",
+          element: <AdminCreditConfigPage />,
+        },
+        {
+          path: "plans",
+          element: <AdminProPlanPage />,
+        },
+        {
+          // Đường dẫn cũ của "Gói & Hạn mức" (đã tách thành Cấu hình credit và Gói Pro)
           path: "limits",
-          element: <PlaceholderPage pageKey="admin.limits" />,
-        },
-        {
-          path: "subs",
-          element: <PlaceholderPage pageKey="admin.subs" />,
-        },
-        {
-          path: "errors",
-          element: <PlaceholderPage pageKey="admin.errors" />,
+          element: <Navigate to="/admin/credit" replace />,
         },
         {
           path: "teachers",
           element: <PlaceholderPage pageKey="admin.teachers" />,
-        },
-        {
-          path: "subscriptions",
-          element: <PlaceholderPage pageKey="admin.subscriptions" />,
         },
         {
           path: "content",

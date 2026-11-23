@@ -10,6 +10,7 @@ import com.lingualoop.backend.ai.AiFeedbackGenerator;
 import com.lingualoop.backend.ai.FeedbackRequest;
 import com.lingualoop.backend.ai.GeneratedFeedback;
 import com.lingualoop.backend.credit.AiFeature;
+import com.lingualoop.backend.credit.AiUsage;
 import com.lingualoop.backend.credit.CreditService;
 import com.lingualoop.backend.shadowing.dto.AiFeedbackResponse;
 import com.lingualoop.backend.shadowing.entity.AiFeedback;
@@ -58,8 +59,8 @@ class AiFeedbackServiceImpl implements AiFeedbackService {
         try {
             GeneratedFeedback generated = onText == null ? generator.generate(request) : generator.generate(request, onText);
             AiFeedback saved = recorder.save(attemptId, generated);
-            creditService.charge(userId, AiFeature.SHADOWING_FEEDBACK, tokens(generated.inputTokens()),
-                    tokens(generated.outputTokens()));
+            creditService.charge(userId, AiFeature.SHADOWING_FEEDBACK,
+                    AiUsage.tokens(tokens(generated.inputTokens()), tokens(generated.outputTokens()), generated.model()));
             return toResponse(saved, false, userId);
         } catch (DataIntegrityViolationException duplicate) {
             // Yêu cầu khác cho cùng lượt vừa lưu xong trước: dùng bản đó, không trừ thêm credit

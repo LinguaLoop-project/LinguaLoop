@@ -275,14 +275,14 @@
         "label": "Tutor",
         "on": "on",
         "off": "off",
-        "quotaOut": "not enough energy"
+        "quotaOut": "not enough credits"
       },
       "ask": {
         "title": "Study with the tutor in this lesson?",
         "body": "After a sentence with words to fix, the tutor joins by voice to practise word by word. You can change this any time.",
         "enable": "Turn on tutor",
         "decline": "Study alone",
-        "freeNote": "Free: up to {{limit}} sessions per day (uses AI energy)"
+        "costNote": "Each tutor session costs {{cost}} credits"
       },
       "offer": {
         "text_one": "I found {{count}} word to fix:",
@@ -406,9 +406,9 @@
         "retry": "Try again",
         "busy": "AI is busy, please try again in a few minutes. You were not charged.",
         "consent": "You need to allow AI processing to see feedback.",
-        "quotaOut": "You don't have enough AI energy for feedback today.",
+        "quotaOut": "You don't have enough credits for AI feedback.",
         "upgrade": "Unlock with Pro",
-        "remaining": "{{remaining}}/{{limit}} AI energy left",
+        "remaining": "{{remaining}} credits left",
         "strengths": "Strengths",
         "focus": "Focus on",
         "howToFix": "How to fix /{{phoneme}}/",
@@ -432,9 +432,7 @@
       "title": "Listen, repeat, spot mistakes",
       "back": "Lesson",
       "sentenceOf": "Sentence {{n}}/{{total}}",
-      "quotaLeft": "{{remaining}}/{{limit}} AI energy left today",
-      "quotaTitle": "Free plan: {{limit}} AI energy per day",
-      "quotaUnlimited": "Unlimited",
+      "quotaLeft": "{{remaining}} credits left",
       "listen": "Hear model",
       "stop": "Stop",
       "speed": "Speed",
@@ -619,7 +617,9 @@
         "retry": "Retry",
         "detailFailed": "Couldn't load the result of this attempt.",
         "noAudio": "Recordings aren't saved, so this attempt can't be played back."
-      }
+      },
+      "quotaTitleTrial": "Trial credits left. Upgrade to Pro for monthly credits.",
+      "quotaTitlePro": "Credits left this month, refreshed on {{date}}"
     }
   },
   "teacher": {
@@ -685,25 +685,9 @@
       "title": "Content log",
       "description": "Trace the full edit and publishing history of teachers content."
     },
-    "limits": {
-      "title": "Plans & Quotas",
-      "description": "Configure AI lookup limits and daily lesson caps for Free and Pro accounts."
-    },
-    "subs": {
-      "title": "Pro subscriptions",
-      "description": "Track paid subscribers, payment revenue and renewals."
-    },
-    "errors": {
-      "title": "Error categories",
-      "description": "Manage the cause taxonomy used to classify reports and statistics."
-    },
     "teachers": {
       "title": "Teacher management",
       "description": "Review applications, grant teacher access and assess authoring quality."
-    },
-    "subscriptions": {
-      "title": "Plan configuration",
-      "description": "Set monthly/yearly subscription prices, promotions and exclusive features."
     },
     "content": {
       "title": "Content administration",

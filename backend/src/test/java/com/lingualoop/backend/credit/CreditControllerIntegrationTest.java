@@ -30,14 +30,14 @@ class CreditControllerIntegrationTest {
     @Autowired private UserAccountService userAccountService;
 
     @Test
-    void balance_ofANewFreeStudent_is20WithAResetTime() throws Exception {
+    void balance_ofANewFreeStudent_isTheTrialCreditsWithoutResetTime() throws Exception {
         UUID user = userAccountService.createLocal("bal-" + UUID.randomUUID() + "@x.com", "Bal", "h").id();
 
         mockMvc.perform(get("/api/v1/credits/balance").header(HttpHeaders.AUTHORIZATION, bearer(user)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.balance").value(20))
+                .andExpect(jsonPath("$.data.balance").value(100)) // credit dùng thử tặng một lần (BR-GA-03)
                 .andExpect(jsonPath("$.data.kind").value("free"))
-                .andExpect(jsonPath("$.data.resetsAt").isNotEmpty());
+                .andExpect(jsonPath("$.data.resetsAt").isEmpty()); // không làm mới
     }
 
     @Test
