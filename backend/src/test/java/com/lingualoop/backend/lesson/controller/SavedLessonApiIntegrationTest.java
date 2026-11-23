@@ -197,7 +197,99 @@ class SavedLessonApiIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
+    // ---------------------------------------------------------------- AC-TC-41
+
+    @Test
+    void list_filtersByLevelTopicFreeAndDuration_AC_TC_41() throws Exception {
+        UUID user = newUser();
+        UUID basic = lesson("basic", false, "published");
+        UUID advancedPro = fixtures.lesson(fixtures.topic("saved pro topic " + tag), tag + " adv", true, "published",
+                "C1", 0, false);
+        for (UUID id : List.of(basic, advancedPro)) {
+            jdbc.update("INSERT INTO lesson_saves (user_id, lesson_id) VALUES (?, ?)", user, id);
+        }
+        jdbc.update("UPDATE lessons SET duration_sec = 120 WHERE id = ?", basic);
+
+        assertThat(savedIds(user, "cefrLevel", "A1,A2")).containsExactly(basic.toString());
+        assertThat(savedIds(user, "cefrLevel", "c1")).containsExactly(advancedPro.toString());
+        assertThat(savedIds(user, "free", "true")).containsExactly(basic.toString());
+        assertThat(savedIds(user, "maxDuration", "180")).containsExactly(basic.toString());
+        assertThat(savedIds(user, "topic", "saved pro topic " + tag)).containsExactly(advancedPro.toString());
+        assertThat(savedIds(user, "topic", "khong co chu de nay")).isEmpty();
+    }
+
+    @Test
+    void list_clampsThePageSizeTo48_AC_TC_41() throws Exception {
+        UUID user = newUser();
+
+        as(user, get("/api/v1/lessons/saved").param("size", "500")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size").value(48));
+        as(user, get("/api/v1/lessons/saved").param("size", "0")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size").value(1));
+    }
+
+    // ---------------------------------------------------------------- AC-TC-42
+
+    @Test
+    void summary_countsByProgressAndTopic_andAddsUpTheDuration_AC_TC_42() throws Exception {
+        UUID user = newUser();
+        UUID todo = lesson("s-todo", false, "published");
+        UUID done = lesson("s-done", false, "published");
+        UUID aDone = fixtures.sentence(done, 0, "x");
+        fixtures.sentence(todo, 0, "x");
+        for (UUID id : List.of(todo, done)) {
+            jdbc.update("INSERT INTO lesson_saves (user_id, lesson_id) VALUES (?, ?)", user, id);
+        }
+        attempt(user, aDone, "dictation");
+        attempt(user, aDone, "shadowing");
+
+        as(user, get("/api/v1/lessons/saved/summary")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.total").value(2))
+                .andExpect(jsonPath("$.data.todo").value(1))
+                .andExpect(jsonPath("$.data.doing").value(0))
+                .andExpect(jsonPath("$.data.done").value(1))
+                .andExpect(jsonPath("$.data.totalDurationSec").value(1200))
+                .andExpect(jsonPath("$.data.topics.length()").value(2));
+        as(newUser(), get("/api/v1/lessons/saved/summary")).andExpect(jsonPath("$.data.total").value(0))
+                .andExpect(jsonPath("$.data.topics.length()").value(0));
+    }
+
+    // ---------------------------------------------------------------- AC-TC-43
+
+    @Test
+    void clearCompleted_unsavesOnlyFinishedLessonsOfTheCaller_AC_TC_43() throws Exception {
+        UUID user = newUser();
+        UUID other = newUser();
+        UUID done = lesson("c-done", false, "published");
+        UUID doing = lesson("c-doing", false, "published");
+        UUID aDone = fixtures.sentence(done, 0, "x");
+        UUID aDoing = fixtures.sentence(doing, 0, "x");
+        fixtures.sentence(doing, 1, "y");
+        for (UUID id : List.of(done, doing)) {
+            jdbc.update("INSERT INTO lesson_saves (user_id, lesson_id) VALUES (?, ?)", user, id);
+        }
+        jdbc.update("INSERT INTO lesson_saves (user_id, lesson_id) VALUES (?, ?)", other, done);
+        attempt(user, aDone, "dictation");
+        attempt(user, aDone, "shadowing");
+        attempt(user, aDoing, "dictation");
+
+        as(user, delete("/api/v1/lessons/saved/completed")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.removedCount").value(1))
+                .andExpect(jsonPath("$.data.removedIds[0]").value(done.toString()));
+        assertThat(savedIds(user, "sort", "saved_desc")).containsExactly(doing.toString());
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM lesson_saves WHERE user_id = ?", Integer.class, other))
+                .isEqualTo(1);
+        as(user, delete("/api/v1/lessons/saved/completed")).andExpect(jsonPath("$.data.removedCount").value(0));
+        mockMvc.perform(delete("/api/v1/lessons/saved/completed")).andExpect(status().isUnauthorized());
+    }
+
     // ---------------------------------------------------------------- helpers
+
+    private List<String> savedIds(UUID user, String param, String value) throws Exception {
+        String body = as(user, get("/api/v1/lessons/saved").param(param, value)).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        return JsonPath.read(body, "$.data.items[*].id");
+    }
 
     private UUID lesson(String name, boolean pro, String status) {
         return fixtures.lesson(fixtures.topic("saved " + name + " " + tag), tag + " " + name, pro, status, "A2", 0, false);

@@ -4,7 +4,8 @@ import type { LessonDetail } from "../types";
 
 export const savedKeys = {
   all: ["lessons", "saved"] as const,
-  list: (query: SavedLessonsQuery) => ["lessons", "saved", query] as const,
+  list: (query: SavedLessonsQuery) => ["lessons", "saved", "list", query] as const,
+  summary: () => ["lessons", "saved", "summary"] as const,
 };
 
 /** Bài đã lưu của học viên (UC-TC-05); giữ danh sách cũ trên màn hình trong lúc tải trang hoặc bộ lọc mới. */
@@ -16,6 +17,28 @@ export const useSavedLessons = (query: SavedLessonsQuery) =>
     networkMode: "always",
     retry: 1,
   });
+
+/** Thống kê tổng quan (tổng, chưa học, đang học, đã xong, danh sách chủ đề) của toàn bộ Bài đã lưu. */
+export const useSavedSummary = () =>
+  useQuery({
+    queryKey: savedKeys.summary(),
+    queryFn: () => savedLessonsApi.summary(),
+    networkMode: "always",
+    retry: 1,
+  });
+
+/** Bỏ lưu hàng loạt toàn bộ bài đã hoàn thành. */
+export function useClearCompletedSaved() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => savedLessonsApi.clearCompleted(),
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: savedKeys.all });
+      void client.invalidateQueries({ queryKey: ["lessons", "overview"] });
+      void client.invalidateQueries({ queryKey: ["lessons", "search"] });
+    },
+  });
+}
 
 /**
  * Lưu hoặc bỏ lưu một bài. Cập nhật ngay cờ `saved` của chi tiết bài trong bộ nhớ đệm, lỗi thì trả lại như cũ; xong thì
@@ -38,6 +61,8 @@ export function useToggleLessonSaved() {
     },
     onSettled: () => {
       void client.invalidateQueries({ queryKey: savedKeys.all });
+      void client.invalidateQueries({ queryKey: ["lessons", "overview"] });
+      void client.invalidateQueries({ queryKey: ["lessons", "search"] });
     },
   });
 }

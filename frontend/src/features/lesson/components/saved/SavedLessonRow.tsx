@@ -6,7 +6,7 @@ import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import { formatDuration } from "@/lib/format";
 import type { SavedLesson, StudyMode } from "../../savedLessons";
-import { nextMode, savedAgo } from "../../savedUtils";
+import { lessonStateOf, nextMode, savedAgo } from "../../savedUtils";
 
 export interface SavedLessonRowProps {
   lesson: SavedLesson;
@@ -21,10 +21,15 @@ const MODE_TONE: Record<StudyMode, { rail: string; dot: string }> = {
   shadowing: { rail: "bg-fn-shadowing", dot: "bg-fn-shadowing" },
 };
 
+const STATE_BADGE: Record<"todo" | "doing" | "done", string> = {
+  todo: "border-border bg-bg-elevated text-text-muted",
+  doing: "border-primary/40 bg-primary-soft text-primary-text",
+  done: "border-success/40 bg-success-soft text-success",
+};
+
 /**
- * Một bài trong Bài đã lưu. Ảnh bìa mang hai dải tiến độ như thanh tua của video (xanh là nghe chép, hồng là shadowing);
- * nút luyện được gợi ý (chế độ làm ít hơn) tô màu chức năng, nút còn lại viền mảnh. Bài đã gỡ hoặc cần Pro bị làm mờ,
- * chỉ còn việc bỏ lưu hoặc nâng cấp.
+ * Một bài trong Bài đã lưu (chế độ danh sách). Ảnh bìa mang hai dải tiến độ như thanh tua của video
+ * (xanh là nghe chép, hồng là shadowing); nút luyện được gợi ý tô màu chức năng, nút còn lại và bỏ lưu xếp gọn.
  */
 export default function SavedLessonRow({ lesson, now, busy, onUnsave }: Readonly<SavedLessonRowProps>) {
   const { t, i18n } = useTranslation("saved");
@@ -35,13 +40,14 @@ export default function SavedLessonRow({ lesson, now, busy, onUnsave }: Readonly
   const next = nextMode(lesson.progress);
   const other: StudyMode = next === "dictation" ? "shadowing" : "dictation";
   const percent = { dictation: lesson.progress.dictationPercent, shadowing: lesson.progress.shadowingPercent };
+  const state = lessonStateOf(lesson.progress);
   const detailPath = `/student/lessons/${lesson.id}`;
 
   return (
     <article
       aria-label={t("row.aria", { title: lesson.title })}
-      className={`grid gap-4 p-4 sm:grid-cols-[minmax(0,224px)_minmax(0,1fr)] md:grid-cols-[minmax(0,224px)_minmax(0,1fr)_auto] md:gap-5 ${
-        open ? "" : "opacity-75"
+      className={`grid items-center gap-4 p-4 transition-colors duration-150 sm:grid-cols-[minmax(0,224px)_minmax(0,1fr)] md:grid-cols-[minmax(0,224px)_minmax(0,1fr)_auto] md:gap-5 ${
+        open ? "hover:bg-surface-hover/50" : "opacity-75"
       }`}
     >
       <div className="group/poster relative aspect-video overflow-hidden rounded-md bg-[linear-gradient(135deg,var(--primary-soft),transparent)]">
@@ -93,6 +99,9 @@ export default function SavedLessonRow({ lesson, now, busy, onUnsave }: Readonly
               PRO
             </Badge>
           )}
+          <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${STATE_BADGE[state]}`}>
+            {t(`states.${state}`)}
+          </span>
           {lesson.topicName && <span className="truncate">{lesson.topicName}</span>}
           <span>{t("row.sentences", { count: lesson.sentenceCount })}</span>
         </div>
@@ -109,15 +118,18 @@ export default function SavedLessonRow({ lesson, now, busy, onUnsave }: Readonly
             lesson.title
           )}
         </h3>
-        <ul className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-text-muted">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] text-text-muted">
           {(["dictation", "shadowing"] as const).map((mode) => (
-            <li key={mode} className="flex items-center gap-1.5">
+            <div key={mode} className="flex items-center gap-2">
               <span aria-hidden="true" className={`size-2 rounded-full ${MODE_TONE[mode].dot}`} />
-              {t(`row.${mode}`, { percent: percent[mode] })}
-            </li>
+              <span className="tabular-nums">{t(`row.${mode}`, { percent: percent[mode] })}</span>
+              <span aria-hidden="true" className="hidden h-1.5 w-14 overflow-hidden rounded-full bg-bg-elevated sm:inline-block">
+                <span className={`block h-full ${MODE_TONE[mode].rail}`} style={{ width: `${percent[mode]}%` }} />
+              </span>
+            </div>
           ))}
-          <li className="text-text-subtle">{t("row.savedAgo", { when: savedAgo(lesson.savedAt, now, locale) })}</li>
-        </ul>
+          <span className="text-text-subtle">{t("row.savedAgo", { when: savedAgo(lesson.savedAt, now, locale) })}</span>
+        </div>
         {lesson.availability !== "available" && (
           <p className="flex items-start gap-2 rounded-md bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] px-3 py-2 text-[13px] text-text">
             <Icon name={lesson.availability === "pro_required" ? "lock" : "triangle-alert"} className="mt-0.5 size-4 shrink-0 text-warning" />
@@ -128,42 +140,47 @@ export default function SavedLessonRow({ lesson, now, busy, onUnsave }: Readonly
 
       <div className="flex flex-wrap items-center gap-2 sm:col-span-2 md:col-span-1 md:w-52 md:flex-col md:items-stretch">
         {open && (
-          <>
-            <Button
-              variant="fn"
-              fn={next}
-              size="sm"
-              leftIcon={<Icon name={next === "dictation" ? "headphones" : "mic"} />}
-              onClick={() => navigate(`/student/${next}/${lesson.id}`)}
-            >
-              {t(`row.practice.${next}`)}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon={<Icon name={other === "dictation" ? "headphones" : "mic"} />}
-              onClick={() => navigate(`/student/${other}/${lesson.id}`)}
-            >
-              {t(`row.alsoPractice.${other}`)}
-            </Button>
-          </>
+          <Button
+            variant="fn"
+            fn={next}
+            size="sm"
+            leftIcon={<Icon name={next === "dictation" ? "headphones" : "mic"} />}
+            onClick={() => navigate(`/student/${next}/${lesson.id}`)}
+          >
+            {t(`row.practice.${next}`)}
+          </Button>
         )}
         {lesson.availability === "pro_required" && (
           <Button size="sm" leftIcon={<Icon name="crown" />} onClick={() => navigate("/pricing")}>
             {t("row.tryPro")}
           </Button>
         )}
-        <Button
-          variant="text"
-          size="sm"
-          disabled={busy}
-          leftIcon={<Icon name="bookmark" fill />}
-          aria-label={`${t("row.unsave")}: ${lesson.title}`}
-          onClick={() => onUnsave(lesson)}
-          className="text-primary-text md:justify-start"
-        >
-          {t("row.unsave")}
-        </Button>
+        <div className="flex items-center gap-2">
+          {open && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1"
+              leftIcon={<Icon name={other === "dictation" ? "headphones" : "mic"} />}
+              onClick={() => navigate(`/student/${other}/${lesson.id}`)}
+            >
+              {t(`row.alsoPractice.${other}`)}
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            iconOnly={open}
+            disabled={busy}
+            leftIcon={!open ? <Icon name="bookmark" fill /> : undefined}
+            aria-label={`${t("row.unsave")}: ${lesson.title}`}
+            title={t("row.unsave")}
+            onClick={() => onUnsave(lesson)}
+            className="text-primary-text"
+          >
+            {open ? <Icon name="bookmark" fill /> : t("row.unsave")}
+          </Button>
+        </div>
       </div>
     </article>
   );

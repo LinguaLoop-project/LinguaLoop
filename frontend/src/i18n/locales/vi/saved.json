@@ -1,18 +1,70 @@
 {
+  "overline": "Của tôi · Hàng đợi luyện tập",
   "title": "Bài đã lưu",
   "subtitle": "Những bài bạn muốn luyện sau. Bấm vào bài để xem chi tiết hoặc luyện ngay.",
   "count": "{{count}} bài",
-  "search": "Tìm trong bài đã lưu",
+  "summaryMeta": "{{count}} bài · ~{{duration}} tổng thời lượng",
+  "search": "Tìm trong bài đã lưu…",
   "stateLabel": "Lọc theo tiến độ",
   "states": { "all": "Tất cả", "todo": "Chưa học", "doing": "Đang học", "done": "Đã xong" },
+  "stateHints": {
+    "all": "bài trong danh sách lưu",
+    "todo": "chưa làm câu nào",
+    "doing": "đang luyện dở",
+    "done": "hoàn thành cả 2 chế độ"
+  },
+  "levelLabel": "Trình độ",
+  "levels": {
+    "all": "Tất cả",
+    "basic": "Cơ bản (A1–A2)",
+    "mid": "Trung cấp (B1–B2)",
+    "adv": "Nâng cao (C1–C2)"
+  },
   "sortLabel": "Sắp xếp",
-  "sorts": { "saved_desc": "Mới lưu", "saved_asc": "Lưu lâu nhất" },
+  "sorts": {
+    "saved_desc": "Mới lưu",
+    "saved_asc": "Lưu lâu nhất",
+    "short": "Ngắn nhất",
+    "progress_desc": "Gần xong"
+  },
+  "filters": {
+    "freeOnly": "Chỉ bài miễn phí",
+    "shortOnly": "Bài ngắn (≤ 3p)",
+    "topicsLabel": "Lọc theo chủ đề",
+    "allTopics": "Tất cả chủ đề",
+    "resultsCount": "{{count}} bài khớp bộ lọc",
+    "clear": "Xoá bộ lọc"
+  },
+  "view": {
+    "label": "Chế độ hiển thị",
+    "grid": "Dạng lưới",
+    "list": "Dạng danh sách"
+  },
+  "actions": {
+    "shuffle": "Luyện ngẫu nhiên",
+    "clearDone": "Dọn bài đã xong ({{count}})",
+    "clearDoneTitle": "Bỏ lưu các bài đã hoàn thành?",
+    "clearDoneDesc": "Sẽ bỏ lưu {{count}} bài bạn đã học xong khỏi danh sách Bài đã lưu. Tiến độ học và điểm số của bạn vẫn được giữ nguyên.",
+    "clearDoneConfirm": "Bỏ lưu {{count}} bài",
+    "cancel": "Hủy"
+  },
+  "say": {
+    "doing": "Còn {{count}} bài đang học dở, làm nốt nhé!",
+    "allDone": "Tuyệt vời! Bạn đã hoàn thành hết các bài đã lưu!",
+    "start": "Chọn một bài ngắn để khởi động hôm nay nào!"
+  },
+  "pagination": {
+    "showing": "Hiển thị {{from}}–{{to}} trong {{total}} bài",
+    "perPage": "Mỗi trang"
+  },
   "row": {
     "aria": "Bài {{title}}",
     "savedAgo": "Đã lưu {{when}}",
     "sentences": "{{count}} câu",
     "dictation": "Nghe chép {{percent}}%",
     "shadowing": "Shadowing {{percent}}%",
+    "dictationShort": "Nghe chép",
+    "shadowingShort": "Shadowing",
     "practice": { "dictation": "Luyện nghe chép", "shadowing": "Luyện shadowing" },
     "alsoPractice": { "dictation": "Nghe chép", "shadowing": "Shadowing" },
     "watch": "Xem video",
@@ -24,6 +76,7 @@
   },
   "toast": {
     "unsaved": "Đã bỏ lưu bài",
+    "clearedDone": "Đã bỏ lưu {{count}} bài đã hoàn thành",
     "undo": "Hoàn tác",
     "restored": "Đã lưu lại bài",
     "failed": "Không thể cập nhật bài đã lưu. Hãy thử lại."
@@ -34,7 +87,7 @@
     "library": "Mở thư viện bài học",
     "watch": "Xem video ngắn"
   },
-  "noMatch": { "title": "Không có bài nào khớp", "desc": "Thử từ khóa khác hoặc bỏ bộ lọc tiến độ.", "clear": "Xóa bộ lọc" },
+  "noMatch": { "title": "Không có bài nào khớp", "desc": "Thử từ khóa khác hoặc bỏ bớt bộ lọc đang chọn.", "clear": "Xóa bộ lọc" },
   "error": "Không tải được danh sách bài đã lưu. Kiểm tra kết nối mạng rồi thử lại.",
   "retry": "Thử lại",
   "page": "Phân trang bài đã lưu",

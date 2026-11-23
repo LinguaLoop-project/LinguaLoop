@@ -1,18 +1,70 @@
 {
+  "overline": "My library · Practice queue",
   "title": "Saved lessons",
   "subtitle": "Lessons you want to practise later. Open one for details or jump straight into practice.",
   "count": "{{count}} lessons",
-  "search": "Search saved lessons",
+  "summaryMeta": "{{count}} lessons · ~{{duration}} total",
+  "search": "Search saved lessons…",
   "stateLabel": "Filter by progress",
   "states": { "all": "All", "todo": "Not started", "doing": "In progress", "done": "Done" },
+  "stateHints": {
+    "all": "lessons in saved list",
+    "todo": "no sentences attempted",
+    "doing": "currently practising",
+    "done": "both modes completed"
+  },
+  "levelLabel": "Level",
+  "levels": {
+    "all": "All",
+    "basic": "Basic (A1–A2)",
+    "mid": "Intermediate (B1–B2)",
+    "adv": "Advanced (C1–C2)"
+  },
   "sortLabel": "Sort",
-  "sorts": { "saved_desc": "Newest", "saved_asc": "Oldest" },
+  "sorts": {
+    "saved_desc": "Newest",
+    "saved_asc": "Oldest",
+    "short": "Shortest",
+    "progress_desc": "Nearly done"
+  },
+  "filters": {
+    "freeOnly": "Free only",
+    "shortOnly": "Short (≤ 3m)",
+    "topicsLabel": "Filter by topic",
+    "allTopics": "All topics",
+    "resultsCount": "{{count}} matching lessons",
+    "clear": "Clear filters"
+  },
+  "view": {
+    "label": "Display mode",
+    "grid": "Grid view",
+    "list": "List view"
+  },
+  "actions": {
+    "shuffle": "Random practice",
+    "clearDone": "Clear completed ({{count}})",
+    "clearDoneTitle": "Unsave completed lessons?",
+    "clearDoneDesc": "This will remove {{count}} completed lessons from your Saved list. Your progress and scores will still be kept.",
+    "clearDoneConfirm": "Unsave {{count}} lessons",
+    "cancel": "Cancel"
+  },
+  "say": {
+    "doing": "You have {{count}} lessons in progress—let's finish them!",
+    "allDone": "Awesome! You've completed all your saved lessons!",
+    "start": "Pick a quick lesson to warm up today!"
+  },
+  "pagination": {
+    "showing": "Showing {{from}}–{{to}} of {{total}} lessons",
+    "perPage": "Per page"
+  },
   "row": {
     "aria": "Lesson {{title}}",
     "savedAgo": "Saved {{when}}",
     "sentences": "{{count}} sentences",
     "dictation": "Dictation {{percent}}%",
     "shadowing": "Shadowing {{percent}}%",
+    "dictationShort": "Dictation",
+    "shadowingShort": "Shadowing",
     "practice": { "dictation": "Practise dictation", "shadowing": "Practise shadowing" },
     "alsoPractice": { "dictation": "Dictation", "shadowing": "Shadowing" },
     "watch": "Watch video",
@@ -24,6 +76,7 @@
   },
   "toast": {
     "unsaved": "Lesson unsaved",
+    "clearedDone": "Unsaved {{count}} completed lessons",
     "undo": "Undo",
     "restored": "Lesson saved again",
     "failed": "Could not update your saved lessons. Please try again."
@@ -34,7 +87,7 @@
     "library": "Open the lesson library",
     "watch": "Watch short videos"
   },
-  "noMatch": { "title": "No lessons match", "desc": "Try another keyword or remove the progress filter.", "clear": "Clear filters" },
+  "noMatch": { "title": "No lessons match", "desc": "Try another keyword or clear some active filters.", "clear": "Clear filters" },
   "error": "Could not load your saved lessons. Check your connection and try again.",
   "retry": "Try again",
   "page": "Saved lessons pagination",

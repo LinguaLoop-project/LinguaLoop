@@ -28,7 +28,8 @@ public final class LessonSpecification {
      * @param completedIds   bài người dùng đã hoàn thành, cần khi {@code state != null}
      */
     public static Specification<Lesson> filterLessons(String q, UUID topicId, String cefrLevel, Boolean free,
-                                                      LessonState state, Collection<UUID> attemptedIds,
+                                                      Integer maxDuration, LessonState state,
+                                                      Collection<UUID> attemptedIds,
                                                       Collection<UUID> completedIds) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -62,6 +63,11 @@ public final class LessonSpecification {
 
             if (Boolean.TRUE.equals(free)) {
                 predicates.add(cb.equal(root.get("pro"), false));
+            }
+
+            if (maxDuration != null && maxDuration > 0) {
+                predicates.add(cb.greaterThan(root.get("durationSec"), 0));
+                predicates.add(cb.lessThanOrEqualTo(root.get("durationSec"), maxDuration));
             }
 
             if (state != null) {

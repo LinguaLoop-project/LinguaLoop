@@ -1,12 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import Button from "@/components/common/Button";
 import EmptyState from "@/components/common/EmptyState";
 import Icon from "@/components/common/Icon";
 import LoopiSay from "@/components/common/LoopiSay";
 import type { MascotMood } from "@/components/common/Mascot";
-import { useDebounce } from "@/hooks/useDebounce";
+import Pagination from "@/components/common/Pagination";
+import SegmentedControl from "@/components/common/SegmentedControl";
 import { useLessonOverview, useLessonSearch, useTopicList } from "../hooks/useLessons";
+import { useLibraryFilters, usePageClamp } from "../hooks/useLibraryFilters";
+import { LIBRARY_PAGE_SIZES, SHORT_MAX_SEC } from "../libraryFilters";
 import { LessonGrid, LessonGridSkeleton } from "../components/LessonGrid";
 import type { PracticeMode } from "../components/ModeButton";
 import QueryError from "../components/QueryError";
@@ -16,12 +20,27 @@ import LibraryToolbar from "../components/library/LibraryToolbar";
 import TopicChips from "../components/library/TopicChips";
 import TopicSection from "../components/library/TopicSection";
 import YouTubeImportButton from "../components/library/YouTubeImportButton";
-import type { LessonSummary } from "../types";
-import { DEFAULT_FILTERS, cefrLevelParam, isFiltered, sortParam } from "../utils";
+import { nextMode } from "../savedUtils";
+import type { LessonState, LessonSummary } from "../types";
+import { cefrLevelParam, isFiltered, sortParam } from "../utils";
 
-const RECOMMEND_COUNT = 6;
+const RECOMMEND_COUNT = 8;
 
 const MOODS: Record<PracticeMode | "all", MascotMood> = { all: "hello", dictation: "listening", shadowing: "speaking" };
+
+const MODE_ACCENT: Record<PracticeMode | "all", { overline: string; icon: string; badge: string }> = {
+  all: { overline: "text-primary-text", icon: "library", badge: "border-primary/30 bg-primary-soft text-primary-text" },
+  dictation: {
+    overline: "text-fn-dictation",
+    icon: "headphones",
+    badge: "border-fn-dictation/40 bg-[color-mix(in_srgb,var(--fn-dictation)_14%,transparent)] text-fn-dictation",
+  },
+  shadowing: {
+    overline: "text-fn-shadowing",
+    icon: "mic",
+    badge: "border-fn-shadowing/40 bg-[color-mix(in_srgb,var(--fn-shadowing)_14%,transparent)] text-fn-shadowing",
+  },
+};
 
 const progressOf = (l: LessonSummary, mode: PracticeMode | "all") =>
   mode === "dictation" ? l.progress.dictationPercent : mode === "shadowing" ? l.progress.shadowingPercent : Math.max(l.progress.dictationPercent, l.progress.shadowingPercent);
@@ -29,24 +48,31 @@ const progressOf = (l: LessonSummary, mode: PracticeMode | "all") =>
 /** Thư viện bài. `mode` lọc theo chế độ: "Nghe chép" và "Shadowing" trên thanh bên mở cùng thư viện này, thẻ chỉ còn nút của chế độ đó. */
 export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all" }) => {
   const { t } = useTranslation(["pages", "common"]);
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
-  const [selectedTopic, setSelectedTopic] = useState("all");
-  const debouncedSearch = useDebounce(filters.search, 300);
+  const navigate = useNavigate();
+  const topRef = useRef<HTMLElement>(null);
+  const { filters, effectiveFilters, page, pageSize, updateParams, setPage, handleFiltersChange, resetFilters, handlePageSizeChange } =
+    useLibraryFilters({ withTopic: true });
   const filtered = isFiltered(filters);
 
   const { data: topics = [] } = useTopicList();
   const overview = useLessonOverview();
   const search = useLessonSearch({
-    q: debouncedSearch,
+    q: filters.search.trim() || undefined,
+    topicId: filters.topic === "all" ? undefined : filters.topic,
     cefrLevel: cefrLevelParam(filters.level),
     free: filters.freeOnly ? true : undefined,
+    maxDuration: filters.shortOnly ? SHORT_MAX_SEC : undefined,
+    state: filters.state === "all" ? undefined : (filters.state as LessonState),
     sort: sortParam(filters.sort),
-    size: 60,
+    page: filtered ? page : 0,
+    size: filtered ? pageSize : 60,
   });
 
   const results = useMemo(() => search.data?.items ?? [], [search.data]);
-  const topicRows = overview.data?.topicRows ?? [];
-  const totalLessons = topics.reduce((sum, topic) => sum + topic.totalLessons, 0) || (search.data?.totalElements ?? 0);
+  const totalFiltered = search.data?.totalElements ?? 0;
+  const totalPages = search.data?.totalPages ?? 0;
+  const topicRows = useMemo(() => overview.data?.topicRows ?? [], [overview.data]);
+  const totalLessons = topics.reduce((sum, topic) => sum + topic.totalLessons, 0) || totalFiltered;
 
   // Đang học dở: có tiến độ và chưa xong ở chế độ đang xem
   const continueLessons = useMemo(
@@ -58,47 +84,50 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
     [overview.data, mode],
   );
 
-  // Gợi ý hợp trình độ B1: bài chưa học, không Pro, nhiều lượt học nhất (tạm lấy từ kết quả tìm; sẽ đổi sang kết quả kiểm tra trình độ khi có API).
-  const b1Lessons = useMemo(
-    () =>
-      results
-        .filter((l) => l.cefrLevel === "B1" && progressOf(l, "all") === 0 && !l.pro)
-        .sort((a, b) => b.viewCount - a.viewCount)
-        .slice(0, RECOMMEND_COUNT),
-    [results],
-  );
+  // Gợi ý hợp trình độ B1: bài chưa học, không Pro, nhiều lượt học nhất (gộp từ cả kết quả tìm kiếm và các hàng chủ đề để luôn đủ 6 bài)
+  const b1Lessons = useMemo(() => {
+    const seen = new Set<string>();
+    const combined = [...results, ...topicRows.flatMap((r) => r.lessons)];
+    return combined
+      .filter((l) => {
+        if (seen.has(l.id)) return false;
+        seen.add(l.id);
+        return l.cefrLevel === "B1" && progressOf(l, "all") === 0 && !l.pro;
+      })
+      .sort((a, b) => b.viewCount - a.viewCount)
+      .slice(0, RECOMMEND_COUNT);
+  }, [results, topicRows]);
 
-  // Khung (tiêu đề, bộ lọc) luôn hiện; chỉ vùng dữ liệu đổi theo trạng thái (STATES.md §2).
+  // Danh sách bài khả dụng (không bị khóa Pro) để phục vụ nút "Luyện ngẫu nhiên"
+  const playablePool = useMemo(() => {
+    const source = filtered ? results : [...continueLessons, ...topicRows.flatMap((r) => r.lessons), ...results];
+    const seen = new Set<string>();
+    return source.filter((l) => {
+      if (l.locked || seen.has(l.id)) return false;
+      seen.add(l.id);
+      return true;
+    });
+  }, [filtered, results, continueLessons, topicRows]);
+
   const active = filtered ? search : overview;
 
-  // Chip chủ đề sáng theo mục đang cuộn tới (scroll-spy)
-  useEffect(() => {
-    if (filtered || topicRows.length === 0) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setSelectedTopic(e.target.id.replace("topic-sec-", ""));
-        });
-      },
-      { rootMargin: "-140px 0px -70% 0px" },
-    );
-    document.querySelectorAll('[id^="topic-sec-"]').forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [filtered, topicRows.length]);
+  // Khi lọc đổi làm page vượt quá totalPages, tự lùi về trang cuối
+  usePageClamp(page, totalPages, filtered, setPage);
 
-  const resetFilters = () => {
-    setFilters(DEFAULT_FILTERS);
-    setSelectedTopic("all");
+  const handleTopicClick = (topicId: string) => {
+    updateParams({ ...filters, topic: topicId }, 0);
   };
 
-  const handleTopicClick = (slug: string) => {
-    setSelectedTopic(slug);
-    if (filtered) setFilters(DEFAULT_FILTERS);
-    // Đợi lưới theo chủ đề hiện ra (khi vừa thoát chế độ lọc) rồi mới cuộn
-    setTimeout(() => {
-      const el = slug === "all" ? document.getElementById("lsBody") : document.getElementById(`topic-sec-${slug}`);
-      el?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const startRandom = () => {
+    if (playablePool.length === 0) return;
+    const picked = playablePool[Math.floor(Math.random() * playablePool.length)];
+    const targetMode: PracticeMode = mode === "all" ? nextMode(picked.progress) : mode;
+    navigate(`/student/${targetMode}/${picked.id}`);
   };
 
   const body = () => {
@@ -108,12 +137,14 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
     if (active.isLoading) return <LessonGridSkeleton />;
 
     if (filtered) {
+      const from = totalFiltered > 0 ? page * pageSize + 1 : 0;
+      const to = Math.min(totalFiltered, (page + 1) * pageSize);
       return (
         <>
           <SectionHeading
             icon="filter"
             title={t("pages:student.lessons.filterResults.title", "Kết quả")}
-            count={t("pages:student.lessons.filterResults.count", { count: results.length, defaultValue: `${results.length} bài` })}
+            count={t("pages:student.lessons.filterResults.count", { count: totalFiltered, defaultValue: `${totalFiltered} bài` })}
             aside={
               <Button variant="text" size="sm" data-act="lsReset" leftIcon={<Icon name="x" />} onClick={resetFilters}>
                 {t("pages:student.lessons.filterResults.resetBtn", "Xoá bộ lọc")}
@@ -121,7 +152,29 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
             }
           />
           {results.length > 0 ? (
-            <LessonGrid lessons={results} mode={mode} />
+            <>
+              <LessonGrid lessons={results} mode={mode} />
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border bg-surface/70 px-4 py-3">
+                <p className="text-sm tabular-nums text-text-muted">
+                  {t("pages:student.lessons.toolbar.showing", {
+                    from,
+                    to,
+                    total: totalFiltered,
+                    defaultValue: `Hiển thị ${from}–${to} trong ${totalFiltered} bài`,
+                  })}
+                </p>
+                <Pagination page={page} totalPages={totalPages} onChange={handlePageChange} />
+                <div className="flex items-center gap-2 text-sm text-text-muted">
+                  <span>{t("pages:student.lessons.toolbar.perPage", "Mỗi trang")}</span>
+                  <SegmentedControl
+                    ariaLabel={t("pages:student.lessons.toolbar.perPage", "Mỗi trang")}
+                    value={String(pageSize)}
+                    options={LIBRARY_PAGE_SIZES.map((n) => ({ value: String(n), label: String(n) }))}
+                    onChange={(v) => handlePageSizeChange(Number(v))}
+                  />
+                </div>
+              </div>
+            </>
           ) : (
             <EmptyState
               title={t("pages:student.lessons.empty.title", "Không có bài nào khớp")}
@@ -174,17 +227,22 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
   };
 
   const m = `pages:student.lessons.modes.${mode}`;
+  const accent = MODE_ACCENT[mode];
+
   return (
-    <section className="w-full" id="v-lessons">
+    <section ref={topRef} className="w-full" id="v-lessons">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4 lg:flex-nowrap">
         <div className="min-w-0 lg:flex-1">
-          <div className="mb-1 block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text" id="lsOver">
-            {t(`${m}.overline`, "Thư viện bài học")}
+          <div className="mb-1.5 flex items-center gap-2">
+            <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] ${accent.badge}`} id="lsOver">
+              <Icon name={accent.icon} className="size-3.5" />
+              {t(`${m}.overline`, "Thư viện bài học")}
+            </span>
           </div>
           <h1 id="lsTitle" className="font-display text-4xl font-bold leading-[1.15] tracking-[-0.02em]">
             {t(`${m}.title`, "Bài học")}
           </h1>
-          <p className="text-text-muted" id="lsSub">
+          <p className="mt-1 text-text-muted" id="lsSub">
             {t("pages:student.lessons.library.stats", {
               sub: t(`${m}.subtitle`, "Nghe chép và shadowing trên video, audio thật"),
               total: totalLessons.toLocaleString("vi-VN"),
@@ -194,12 +252,23 @@ export const LessonLibraryPage = ({ mode = "all" }: { mode?: PracticeMode | "all
         </div>
         <div className="ml-auto flex shrink-0 flex-wrap items-center gap-3">
           <LoopiSay mood={MOODS[mode]} text={t(`${m}.say`, "Hôm nay học gì nào?")} />
+          {playablePool.length > 0 && (
+            <Button
+              variant={mode === "all" ? "secondary" : "fn"}
+              fn={mode === "all" ? undefined : mode}
+              size="sm"
+              leftIcon={<Icon name="shuffle" />}
+              onClick={startRandom}
+            >
+              {t("pages:student.lessons.toolbar.shuffle", "Luyện ngẫu nhiên")}
+            </Button>
+          )}
           <YouTubeImportButton />
         </div>
       </div>
 
-      <LibraryToolbar filters={filters} onChange={setFilters} />
-      <TopicChips topics={topics} selected={selectedTopic} onSelect={handleTopicClick} />
+      <LibraryToolbar filters={effectiveFilters} onChange={handleFiltersChange} />
+      <TopicChips topics={topics} selected={filters.topic} onSelect={handleTopicClick} />
 
       <div id="lsBody" aria-busy={active.isLoading}>
         {body()}

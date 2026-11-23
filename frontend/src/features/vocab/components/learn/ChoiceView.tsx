@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
+import Icon from "@/components/common/Icon";
 import { buildOptions } from "../../learn";
 import type { LearnMode } from "../../types";
 import { Feedback, ListenButton, RoundProgress, type CardViewProps } from "./shared";
@@ -69,7 +70,7 @@ export default function ChoiceView({
       {options.length < 2 ? (
         <p className="mt-4 text-sm text-text-muted">{t("learn.quiz.single")}</p>
       ) : (
-        <div role="group" aria-label={t("learn.quiz.options")} className="mt-4 flex flex-col gap-2">
+        <div role="group" aria-label={t("learn.quiz.options")} className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {options.map((option, position) => {
             const chosen = picked === position;
             const showRight = picked !== null && option.correct;
@@ -81,18 +82,28 @@ export default function ChoiceView({
                 disabled={picked !== null}
                 onClick={() => choose(position)}
                 lang={reverse ? "en" : undefined}
-                className={`flex min-h-12 items-center gap-3 rounded-md border px-4 py-2.5 text-left transition-colors disabled:cursor-default ${
+                className={`group flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all duration-150 disabled:cursor-default ${
                   showRight
-                    ? "border-success bg-success/10"
+                    ? "border-success bg-success/12 shadow-sm"
                     : showWrong
-                      ? "border-danger bg-danger/10"
-                      : "border-border-strong bg-surface hover:border-primary hover:bg-primary-soft disabled:hover:border-border-strong disabled:hover:bg-surface"
+                      ? "border-danger bg-danger/12"
+                      : "border-border-strong bg-surface hover:-translate-y-0.5 hover:border-primary hover:bg-primary-soft/60 disabled:hover:translate-y-0 disabled:hover:border-border-strong disabled:hover:bg-surface"
                 }`}
               >
-                <kbd className="grid h-6 w-6 flex-none place-items-center rounded-sm border border-border-strong text-xs text-text-muted">
+                <kbd
+                  className={`grid h-7 w-7 flex-none place-items-center rounded-md border font-mono text-xs font-bold transition-colors ${
+                    showRight
+                      ? "border-success bg-success text-white"
+                      : showWrong
+                        ? "border-danger bg-danger text-white"
+                        : "border-border-strong bg-bg-elevated text-text-muted group-hover:border-primary group-hover:text-primary-text"
+                  }`}
+                >
                   {position + 1}
                 </kbd>
-                <span className="flex-1">{option.label}</span>
+                <span className="flex-1 font-medium">{option.label}</span>
+                {showRight && <Icon name="circle-check" className="h-5 w-5 flex-none text-success" />}
+                {showWrong && <Icon name="circle-alert" className="h-5 w-5 flex-none text-danger" />}
               </button>
             );
           })}

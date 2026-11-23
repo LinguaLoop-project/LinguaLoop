@@ -1,7 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
-import Icon from "@/components/common/Icon";
 import Skeleton from "@/components/common/Skeleton";
 import { useLessonDetail, useLessonSentences } from "../hooks/useLessons";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -136,18 +135,8 @@ export const LessonDetailPage = () => {
             <AiPracticeCard lessonId={lesson.id} locked={lesson.locked} />
           </div>
 
-          {!lesson.locked && (
-            <Link
-              to={`/watch?start=${lesson.id}`}
-              title={t("watch:entry.hint")}
-              className="inline-flex w-fit items-center gap-2 rounded-md border border-border bg-surface px-3.5 py-2 text-sm font-semibold text-text-muted transition-colors hover:border-border-strong hover:text-text"
-            >
-              <Icon name="monitor-play" className="size-4" />
-              {t("watch:entry.cta")}
-            </Link>
-          )}
-
           <TranscriptList
+            lessonId={lesson.id}
             sentences={sentencesQuery.data ?? []}
             locked={lesson.locked}
             loading={sentencesQuery.isLoading}
@@ -159,8 +148,12 @@ export const LessonDetailPage = () => {
         </div>
 
         <aside className="flex min-w-0 flex-col gap-6">
-          <ProgressCard progress={lesson.progress} />
-          <VocabCard />
+          <ProgressCard progress={lesson.progress} sentenceCount={lesson.sentenceCount} />
+          <VocabCard
+            sentences={sentencesQuery.data ?? []}
+            lessonTitle={lesson.title}
+            loading={!lesson.locked && sentencesQuery.isLoading}
+          />
           <NotesCard slug={lesson.id} locked={lesson.locked} />
           <RelatedLessons lessons={lesson.relatedLessons ?? []} topicSlug={topicSlug} />
         </aside>

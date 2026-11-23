@@ -179,7 +179,7 @@ export default function DailyReviewPage() {
 
   if (query.isPending) {
     return (
-      <div role="status" aria-label={t("loading")} className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+      <div role="status" aria-label={t("loading")} className="flex w-full flex-col gap-4">
         <Skeleton className="h-[72px] rounded-lg" />
         <Skeleton className="h-[320px] rounded-lg" />
       </div>

@@ -53,5 +53,19 @@
     "removedToast": "Removed from saved words",
     "failed": "Couldn't save. Please try again.",
     "offline": "You're offline. Try again when you're back online."
+  },
+  "detail": {
+    "overline": "English – Vietnamese Dictionary",
+    "back": "Back",
+    "meaningsCount": "{{count}} meanings",
+    "allPos": "All ({{count}})",
+    "say": "Save the meaning you need so we can schedule it for review at the right time!",
+    "listenExample": "Listen to example sentence",
+    "savedSection": "Meanings you saved",
+    "savedEmpty": "You haven't saved any meaning of this word yet. Tap “Save” on any meaning to add it to your review queue.",
+    "viewAllSaved": "View in Saved words & sentences",
+    "relatedSection": "Related words",
+    "relatedEmpty": "No other related words found.",
+    "viewDetail": "View details for {{word}}"
   }
 }

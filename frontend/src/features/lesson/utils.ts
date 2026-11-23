@@ -29,15 +29,34 @@ export function localizedName(
 export interface LibraryFilters {
   search: string;
   level: string;
+  state: string;
+  topic: string;
   sort: string;
   freeOnly: boolean;
+  shortOnly: boolean;
 }
 
-export const DEFAULT_FILTERS: LibraryFilters = { search: "", level: "all", sort: "pop", freeOnly: false };
+export const DEFAULT_FILTERS: LibraryFilters = {
+  search: "",
+  level: "all",
+  state: "all",
+  topic: "all",
+  sort: "pop",
+  freeOnly: false,
+  shortOnly: false,
+};
 
-/** Có bộ lọc nào khác mặc định không (khi đó trang hiện lưới kết quả thay cho các hàng theo chủ đề). */
+/** Có bộ lọc nào khác mặc định không (khi đó trang hiện lưới kết quả phân trang thay cho các hàng theo chủ đề). */
 export function isFiltered(f: LibraryFilters): boolean {
-  return Boolean(f.search.trim()) || f.level !== "all" || f.freeOnly || f.sort !== "pop";
+  return (
+    Boolean(f.search.trim()) ||
+    f.level !== "all" ||
+    f.state !== "all" ||
+    f.topic !== "all" ||
+    f.freeOnly ||
+    f.shortOnly ||
+    f.sort !== "pop"
+  );
 }
 
 /** Mọi bài là video YouTube; dựng link xem và link nhúng từ `youtubeId`. */

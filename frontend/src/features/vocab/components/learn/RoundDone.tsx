@@ -39,14 +39,32 @@ export default function RoundDone({
   const { t } = useTranslation("vocab");
   const primary = buttonClasses({ variant: "primary" });
 
+  const accuracy = score.total > 0 ? Math.round((score.right / score.total) * 100) : 100;
+
   return (
-    <div className="flex flex-col items-center rounded-lg border-2 border-primary bg-surface p-10 text-center shadow-[var(--shadow-card)]">
+    <div className="flex flex-col items-center rounded-xl border-2 border-primary bg-surface p-8 text-center shadow-[var(--shadow-card)] sm:p-10">
       <Mascot mood="celebrate" size={120} alt="" />
       <h2 className="mt-4 font-display text-3xl font-bold">{t("learn.done.title")}</h2>
       <p className="mt-1.5 text-text-muted">
         {t("learn.done.subtitle", { mode: t(`learn.modeNames.${mode}`), round, part: partNumber })}
       </p>
-      <p className="mt-1 text-sm text-text-muted">{t("learn.done.score", { right: score.right, total: score.total })}</p>
+
+      <div className="mt-5 grid w-full max-w-md grid-cols-3 gap-2.5">
+        <div className="rounded-lg border border-border bg-bg-elevated p-3">
+          <div className="font-display text-2xl font-bold tabular-nums text-text">{score.total}</div>
+          <div className="text-xs text-text-muted">{t("learn.roundStats.cards")}</div>
+        </div>
+        <div className="rounded-lg border border-border bg-bg-elevated p-3">
+          <div className="font-display text-2xl font-bold tabular-nums text-success">{score.right}</div>
+          <div className="text-xs text-text-muted">{t("learn.roundStats.first")}</div>
+        </div>
+        <div className="rounded-lg border border-border bg-bg-elevated p-3">
+          <div className="font-display text-2xl font-bold tabular-nums text-primary-text">{accuracy}%</div>
+          <div className="text-xs text-text-muted">{t("learn.roundStats.accuracy")}</div>
+        </div>
+      </div>
+
+      <p className="mt-4 text-sm text-text-muted">{t("learn.done.score", { right: score.right, total: score.total })}</p>
       {score.redone > 0 && <p className="text-sm text-text-muted">{t("learn.done.redone", { count: score.redone })}</p>}
       <UnsentNotice />
       <div className="mt-6 flex flex-wrap justify-center gap-2">

@@ -40,10 +40,11 @@ public class LessonController {
             @RequestParam(required = false) UUID topicId,
             @RequestParam(required = false) String cefrLevel,
             @RequestParam(required = false) Boolean free,
+            @RequestParam(required = false) Integer maxDuration,
             @RequestParam(required = false) String state,
             Pageable pageable) {
         return ApiResponse.ok(PageResponse.from(lessonQueryService.searchLessons(
-                q, topicId, cefrLevel, free, LessonState.parse(state), userId, pageable)));
+                q, topicId, cefrLevel, free, maxDuration, LessonState.parse(state), userId, pageable)));
     }
 
     @GetMapping("/overview")

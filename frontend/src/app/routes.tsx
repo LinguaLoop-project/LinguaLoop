@@ -40,6 +40,7 @@ const TopicDetailPage = lazy(() =>
 );
 const DictationPage = lazy(() => import("@/features/dictation/pages/DictationPage"));
 const MyWordsPage = lazy(() => import("@/features/practice/pages/MyWordsPage"));
+const WordDetailPage = lazy(() => import("@/features/dictionary/pages/WordDetailPage"));
 const VocabPage = lazy(() => import("@/features/vocab/pages/VocabPage"));
 const StatsPage = lazy(() => import("@/features/stats/pages/StatsPage"));
 const WeaknessPage = lazy(() => import("@/features/stats/pages/WeaknessPage"));
@@ -218,6 +219,10 @@ const getRoutesConfig = (): RouteObject[] => {
         {
           path: "mywords",
           element: <MyWordsPage />,
+        },
+        {
+          path: "dictionary/:word",
+          element: <WordDetailPage />,
         },
         {
           path: "weakness",
