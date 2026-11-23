@@ -114,6 +114,26 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
     List<PlanEntry> findReviewableToday(@Param("userId") UUID userId, @Param("userPro") boolean userPro,
             @Param("dayStart") Instant dayStart);
 
+    /** Lấy một câu cụ thể trong danh sách Câu cần ôn để mở trực tiếp màn Ôn câu khi bấm "Luyện lại". */
+    @Query(value = """
+            SELECT r.sentence_id AS sentenceId, r.mode AS mode, l.id AS lessonId, l.title AS lessonTitle,
+                   l.youtube_id AS youtubeId, s.start_ms AS startMs, s.end_ms AS endMs,
+                   s.text_en AS text, s.text_vi AS textVi, a.total_score AS lastScore
+            FROM user_sentence_review r
+            JOIN sentences s ON s.id = r.sentence_id AND s.deleted_at IS NULL
+            JOIN lessons l ON l.id = s.lesson_id AND l.deleted_at IS NULL AND l.status = 'published'
+            LEFT JOIN LATERAL (
+                SELECT total_score FROM sentence_attempts
+                WHERE user_id = r.user_id AND sentence_id = r.sentence_id AND mode = r.mode
+                ORDER BY created_at DESC, id DESC LIMIT 1) a ON true
+            WHERE r.user_id = :userId
+              AND r.sentence_id = :sentenceId
+              AND r.mode = :mode
+              AND (NOT l.is_pro OR :userPro)
+            LIMIT 1""", nativeQuery = true)
+    List<PlanEntry> findSinglePlanEntry(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId,
+            @Param("mode") String mode, @Param("userPro") boolean userPro);
+
     /** Câu có đang trong danh sách Câu cần ôn của chế độ này không. */
     @Query(value = """
             SELECT EXISTS (SELECT 1 FROM user_sentence_review

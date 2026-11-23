@@ -517,6 +517,55 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
+    void sentencePlan_withSentenceAndMode_returnsOnlyThatSentence_UC_HT_05() throws Exception {
+        UUID user = student(10);
+        UUID lesson = lesson(false, "published", false);
+        UUID wanted = sentenceIn(lesson, 0);
+        UUID other = sentenceIn(lesson, 1);
+        list(user, wanted, "dictation", "40", "1 hour");
+        list(user, other, "dictation", "10", "1 hour");
+
+        as(user, get("/api/v1/review/sentence-plan").param("sentenceId", wanted.toString()).param("mode", "dictation"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].sentenceId").value(wanted.toString()))
+                .andExpect(jsonPath("$.data[0].mode").value("dictation"));
+    }
+
+    @Test
+    void sentencePlan_withSentenceNotInTheList_orOtherMode_returnsEmpty_UC_HT_05() throws Exception {
+        UUID user = student(10);
+        UUID lesson = lesson(false, "published", false);
+        UUID listed = sentenceIn(lesson, 0);
+        UUID notListed = sentenceIn(lesson, 1);
+        list(user, listed, "dictation", "40", "1 hour");
+
+        as(user, get("/api/v1/review/sentence-plan").param("sentenceId", notListed.toString()).param("mode", "dictation"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.length()").value(0));
+        as(user, get("/api/v1/review/sentence-plan").param("sentenceId", listed.toString()).param("mode", "shadowing"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.length()").value(0));
+    }
+
+    @Test
+    void sentencePlan_withSentenceOfProLesson_returnsEmptyForFreeLearner_UC_HT_05() throws Exception {
+        UUID user = student(10);
+        UUID proLesson = lesson(true, "published", false);
+        UUID sentence = sentenceIn(proLesson, 0);
+        list(user, sentence, "dictation", "40", "1 hour");
+
+        as(user, get("/api/v1/review/sentence-plan").param("sentenceId", sentence.toString()).param("mode", "dictation"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.length()").value(0));
+    }
+
+    @Test
+    void sentencePlan_withUnknownMode_returns400_UC_HT_05() throws Exception {
+        UUID user = student(10);
+
+        as(user, get("/api/v1/review/sentence-plan").param("sentenceId", UUID.randomUUID().toString()).param("mode", "karaoke"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void plan_withoutToken_returns401() throws Exception {
         mockMvc.perform(get(PLAN)).andExpect(status().isUnauthorized());
     }

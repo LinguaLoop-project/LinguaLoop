@@ -13,5 +13,6 @@ public record LessonSummaryResponse(
     boolean pro,
     boolean locked,
     Long sentenceCount,
-    ModeProgressResponse progress
+    ModeProgressResponse progress,
+    boolean saved
 ) {}
