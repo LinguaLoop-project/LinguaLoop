@@ -24,10 +24,11 @@ public final class VocabStatsView {
      * Một phiên học hoặc ôn thẻ đã có ít nhất một câu trả lời, là một dòng của Lịch sử luyện tập.
      *
      * @param deckName      null với phiên ôn chung nhiều bộ
+     * @param deckKind      {@code library}, {@code personal} hoặc {@code saved} ("Từ đã lưu"); null với phiên ôn chung
      * @param deckAvailable bộ còn mở được (chưa xóa; bộ thư viện còn xuất bản)
      * @param kind          {@code learn} hoặc {@code review}
      */
-    public record Session(UUID sessionId, UUID deckId, String deckName, boolean deckAvailable, String kind,
-            Instant startedAt, int answered, int correct) {
+    public record Session(UUID sessionId, UUID deckId, String deckName, String deckKind, boolean deckAvailable,
+            String kind, Instant startedAt, int answered, int correct) {
     }
 }

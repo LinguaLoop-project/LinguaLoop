@@ -16,6 +16,7 @@ import java.util.UUID;
  * @param available     nội dung gốc còn mở lại được
  * @param lessonId      bài của dòng {@code practice} và {@code ai}
  * @param deckId        bộ của dòng {@code vocab}
+ * @param deckKind      loại bộ của dòng {@code vocab}: {@code library}, {@code personal} hoặc {@code saved}
  * @param day           ngày của Buổi luyện, để xin danh sách lượt
  * @param sentences     số câu khác nhau của Buổi luyện
  * @param averageScore  điểm trung bình của điểm cao nhất mỗi câu trong Buổi luyện
@@ -25,6 +26,6 @@ import java.util.UUID;
  * @param correct       số câu trả lời đúng của phiên vocab
  */
 public record HistoryView(String type, String mode, Instant at, String title, boolean available, UUID lessonId,
-        UUID deckId, LocalDate day, Integer sentences, BigDecimal averageScore, Integer retries, Integer gaveUps,
-        Integer answered, Integer correct) {
+        UUID deckId, String deckKind, LocalDate day, Integer sentences, BigDecimal averageScore, Integer retries,
+        Integer gaveUps, Integer answered, Integer correct) {
 }

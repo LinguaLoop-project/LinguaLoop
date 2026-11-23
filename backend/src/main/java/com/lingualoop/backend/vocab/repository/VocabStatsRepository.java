@@ -70,7 +70,7 @@ public class VocabStatsRepository {
     /** Phiên đã có ít nhất một câu trả lời, từ mới đến cũ, tối đa {@code limit} dòng. */
     public List<VocabStatsView.Session> sessions(UUID userId, Instant since, int limit) {
         return jdbc.sql("""
-                SELECT s.id, s.deck_id, d.name, s.kind, s.started_at, count(l.id) AS answered,
+                SELECT s.id, s.deck_id, d.name, d.kind AS deck_kind, s.kind, s.started_at, count(l.id) AS answered,
                        count(l.id) FILTER (WHERE l.is_correct) AS correct,
                        (d.id IS NOT NULL AND d.deleted_at IS NULL
                         AND (d.kind <> 'library' OR d.status = 'published')) AS available
@@ -83,8 +83,8 @@ public class VocabStatsRepository {
                 LIMIT :limit""")
                 .param("user", userId).param("since", Timestamp.from(since)).param("limit", limit)
                 .query((rs, n) -> new VocabStatsView.Session(rs.getObject("id", UUID.class),
-                        rs.getObject("deck_id", UUID.class), rs.getString("name"), rs.getBoolean("available"),
-                        rs.getString("kind"), rs.getTimestamp("started_at").toInstant(), rs.getInt("answered"),
+                        rs.getObject("deck_id", UUID.class), rs.getString("name"), rs.getString("deck_kind"),
+                        rs.getBoolean("available"), rs.getString("kind"), rs.getTimestamp("started_at").toInstant(), rs.getInt("answered"),
                         rs.getInt("correct")))
                 .list();
     }

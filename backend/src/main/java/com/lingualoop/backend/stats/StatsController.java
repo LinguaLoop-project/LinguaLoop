@@ -41,6 +41,12 @@ public class StatsController {
         return ApiResponse.ok(statsService.overview(userId, range));
     }
 
+    /** Chuỗi ngày học hiện tại và kỷ lục, nhẹ hơn {@code /overview}; dùng cho chip chuỗi ở thanh trên cùng. */
+    @GetMapping("/streak")
+    public ApiResponse<StatsOverviewView.Streak> streak(@CurrentUserId UUID userId) {
+        return ApiResponse.ok(statsService.streak(userId));
+    }
+
     @GetMapping("/dictation-errors")
     public ApiResponse<DictationErrorsView> dictationErrors(@CurrentUserId UUID userId,
             @RequestParam(required = false) String range) {

@@ -80,15 +80,24 @@ class StatsServiceImpl implements StatsService {
         StatsRange range = StatsRange.parse(rawRange);
         Window w = window(userId, range);
 
+        VocabStatsView.AnswerStats answers = vocab.answerStats(userId, w.since());
+        Integer accuracy = answers.total() == 0 ? null : (int) Math.round(answers.correct() * 100.0 / answers.total());
+        return new StatsOverviewView(range.code(), streakOf(userId, w.today()),
+                practice.sentenceCounts(userId, w.since()), lessons.stateCounts(userId),
+                new StatsOverviewView.Vocab(vocab.cardCounts(userId), answers.total(), answers.correct(), accuracy));
+    }
+
+    @Override
+    public StatsOverviewView.Streak streak(UUID userId) {
+        return streakOf(userId, window(userId, StatsRange.DAYS_30).today());
+    }
+
+    /** Ngày đã học gộp từ luyện câu, thẻ từ vựng và phiên AI đã hoàn thành (BR-TH-02). */
+    private StatsOverviewView.Streak streakOf(UUID userId, LocalDate today) {
         Set<LocalDate> days = new HashSet<>(practice.activeDays(userId));
         days.addAll(vocab.activeDays(userId));
         days.addAll(aiChat.activeDays(userId));
-
-        VocabStatsView.AnswerStats answers = vocab.answerStats(userId, w.since());
-        Integer accuracy = answers.total() == 0 ? null : (int) Math.round(answers.correct() * 100.0 / answers.total());
-        return new StatsOverviewView(range.code(), StreakCalculator.compute(days, w.today()),
-                practice.sentenceCounts(userId, w.since()), lessons.stateCounts(userId),
-                new StatsOverviewView.Vocab(vocab.cardCounts(userId), answers.total(), answers.correct(), accuracy));
+        return StreakCalculator.compute(days, today);
     }
 
     @Override
@@ -197,17 +206,17 @@ class StatsServiceImpl implements StatsService {
 
     private static HistoryView toHistory(PracticeSessionView s) {
         return new HistoryView("practice", s.mode(), s.lastAt(), s.lessonTitle(), s.available(), s.lessonId(), null,
-                s.day(), s.sentences(), s.averageBestScore(), s.retries(), s.gaveUps(), null, null);
+                null, s.day(), s.sentences(), s.averageBestScore(), s.retries(), s.gaveUps(), null, null);
     }
 
     private static HistoryView toHistory(VocabStatsView.Session s) {
         return new HistoryView("vocab", s.kind(), s.startedAt(), s.deckName(), s.deckAvailable(), null, s.deckId(),
-                null, null, null, null, null, s.answered(), s.correct());
+                s.deckKind(), null, null, null, null, null, s.answered(), s.correct());
     }
 
     private static HistoryView toHistory(LessonChatStatsQueryService.Session s) {
         return new HistoryView("ai", s.mode(), s.endedAt(), s.lessonTitle(), s.lessonAvailable(), s.lessonId(), null,
-                null, null, null, null, null, s.answered(), null);
+                null, null, null, null, null, null, s.answered(), null);
     }
 
     private static int percent(long part, long whole) {

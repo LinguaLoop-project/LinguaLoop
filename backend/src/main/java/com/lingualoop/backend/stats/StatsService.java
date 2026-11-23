@@ -23,6 +23,9 @@ public interface StatsService {
 
     StatsOverviewView overview(UUID userId, String range);
 
+    /** Chỉ chuỗi ngày học, cho chip trên thanh trên cùng; nhẹ hơn {@link #overview} vì không tính số liệu khác. */
+    StatsOverviewView.Streak streak(UUID userId);
+
     /** Lỗi Nghe chép theo đủ sáu nhóm từ (BR-TH-05, BR-TH-12). */
     DictationErrorsView dictationErrors(UUID userId, String range);
 

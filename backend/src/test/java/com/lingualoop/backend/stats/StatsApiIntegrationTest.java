@@ -151,6 +151,22 @@ class StatsApiIntegrationTest {
     }
 
     @Test
+    void streakEndpoint_returnsTheSameStreakAsTheOverview_AC_TH_02() throws Exception {
+        UUID user = users.newUser();
+        UUID s = sentence(lesson(false, "published"), 0);
+        for (int ago = 1; ago <= 3; ago++) {
+            dictation(user, s, at(ago), 80);
+        }
+
+        as(user, get("/api/v1/stats/streak")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.current").value(3))
+                .andExpect(jsonPath("$.data.longest").value(3))
+                .andExpect(jsonPath("$.data.studiedToday").value(false))
+                .andExpect(jsonPath("$.data.week.length()").value(7));
+        mockMvc.perform(get("/api/v1/stats/streak")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void streak_countsGiveUpsRetriesVocabAnswersAndCompletedAiSessions_butNotUnfinishedAiOnes_AC_TH_23() throws Exception {
         UUID lesson = lesson(false, "published");
         UUID s = sentence(lesson, 0);
@@ -280,7 +296,8 @@ class StatsApiIntegrationTest {
         jdbc.update("UPDATE users SET role = 'teacher' WHERE id = ?", teacher);
         String teacherToken = jwtTokenService.issueAccessToken(teacher, Role.TEACHER, UUID.randomUUID()).token();
 
-        for (String path : List.of(OVERVIEW, HISTORY, PRONUNCIATION, "/api/v1/stats/dictation-errors")) {
+        for (String path : List.of(OVERVIEW, HISTORY, PRONUNCIATION, "/api/v1/stats/dictation-errors",
+                "/api/v1/stats/streak")) {
             mockMvc.perform(get(path)).andExpect(status().isUnauthorized());
             mockMvc.perform(get(path).header(HttpHeaders.AUTHORIZATION, "Bearer " + teacherToken))
                     .andExpect(status().isForbidden());
@@ -327,6 +344,7 @@ class StatsApiIntegrationTest {
                 .andExpect(jsonPath("$.data.items[1].answered").value(2))
                 .andExpect(jsonPath("$.data.items[1].correct").value(1))
                 .andExpect(jsonPath("$.data.items[1].deckId").value(deck.toString()))
+                .andExpect(jsonPath("$.data.items[1].deckKind").value("library"))
                 .andExpect(jsonPath("$.data.items[2].type").value("practice"))
                 .andExpect(jsonPath("$.data.items[2].mode").value("dictation"))
                 .andExpect(jsonPath("$.data.items[2].sentences").value(3))
