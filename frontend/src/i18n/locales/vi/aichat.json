@@ -1,6 +1,18 @@
 {
   "title": "Thực hành với AI",
   "breadcrumbLessons": "Bài học",
+  "studio": {
+    "rulesTitle": "Lưu ý khi thực hành",
+    "sentenceCount_other": "{{count}} câu",
+    "chips": {
+      "questions": "Tối đa 5 câu",
+      "questionsHint": "Hỏi sâu theo bài",
+      "time": "15 phút / phiên",
+      "timeHint": "Có tổng kết cuối",
+      "hints": "Gợi ý miễn phí",
+      "hintsHint": "Trừ credit khi bắt đầu"
+    }
+  },
   "card": {
     "title": "Thực hành với AI",
     "desc": "Nói chuyện trực tiếp với gia sư về nội dung bài, như một cuộc gọi. Gia sư hỏi, bạn trả lời bằng giọng, nhận xét sát với video sau từng câu.",

@@ -23,6 +23,10 @@ export interface ReviewShellProps {
   progressLabel?: string;
   /** Có thì hiện nút "Thoát"; không có (vd chặng thẻ, đã có nút thoát riêng) thì ẩn. */
   onExit?: () => void;
+  /** Đích quay về ở góc trên trái (mặc định `/student`). */
+  backTo?: string;
+  /** Nhãn của link quay về (mặc định `t("backToToday")`). */
+  backLabel?: string;
   /** Đổi giá trị này (chặng, số câu đã xong) thì trang cuộn về đầu. */
   scrollKey: string | number;
   children: ReactNode;
@@ -35,16 +39,26 @@ const CHIP: Record<StepState, string> = {
 };
 
 /** Khung dùng chung của phiên ôn: tiêu đề, thanh tiến độ nối các chặng (thẻ rồi câu) và nút thoát. */
-export default function ReviewShell({ title, steps, percent, progressLabel, onExit, scrollKey, children }: ReviewShellProps) {
+export default function ReviewShell({
+  title,
+  steps,
+  percent,
+  progressLabel,
+  onExit,
+  backTo = "/student",
+  backLabel,
+  scrollKey,
+  children,
+}: ReviewShellProps) {
   const { t } = useTranslation("review");
   useScrollTopOn(scrollKey);
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+    <section className="flex w-full flex-col gap-4">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
-          <Link to="/student" className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary-text">
+          <Link to={backTo} className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary-text">
             <Icon name="arrow-left" />
-            {t("backToToday")}
+            {backLabel ?? t("backToToday")}
           </Link>
           <h1 className="font-display text-2xl font-bold leading-tight">{title}</h1>
         </div>

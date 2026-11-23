@@ -6,7 +6,6 @@ import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useAiEnergy } from "@/hooks/useAiEnergy";
 import DevPlanSwitch from "@/features/subscription/components/DevPlanSwitch";
 import { DEV_TOOLS_ENABLED } from "@/features/subscription/devTools";
-import { DictionarySearchButton } from "@/features/dictionary";
 import { useTheme } from "@/hooks/useTheme";
 import { NotificationBell } from "@/features/user";
 import AccountMenu from "./AccountMenu";
@@ -125,7 +124,6 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
         </>
       )}
 
-      {learner && <DictionarySearchButton />}
       {/* Ngôn ngữ, giao diện, thông báo và tài khoản gom trong một khối thay cho các nút rời. */}
       <div className="flex items-center gap-0.5 rounded-full border border-border bg-surface p-1 shadow-xs">
         <span className="flex items-center max-sm:hidden">

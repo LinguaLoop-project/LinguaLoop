@@ -7,12 +7,14 @@ export type PracticeMode = "dictation" | "shadowing";
 const STYLE: Record<PracticeMode, { icon: string; button: string; bar: string }> = {
   dictation: {
     icon: "headphones",
-    button: "border-border-strong bg-fn-dictation-soft text-fn-dictation hover:border-fn-dictation",
+    button:
+      "border-border-strong bg-fn-dictation-soft text-fn-dictation hover:-translate-y-0.5 hover:border-fn-dictation hover:bg-fn-dictation hover:text-white hover:shadow-[0_8px_20px_-4px_color-mix(in_srgb,var(--fn-dictation)_55%,transparent)]",
     bar: "bg-fn-dictation",
   },
   shadowing: {
     icon: "mic",
-    button: "border-border-strong bg-fn-shadowing-soft text-fn-shadowing hover:border-fn-shadowing",
+    button:
+      "border-border-strong bg-fn-shadowing-soft text-fn-shadowing hover:-translate-y-0.5 hover:border-fn-shadowing hover:bg-fn-shadowing hover:text-white hover:shadow-[0_8px_20px_-4px_color-mix(in_srgb,var(--fn-shadowing)_55%,transparent)]",
     bar: "bg-fn-shadowing",
   },
 };
@@ -42,11 +44,11 @@ export default function ModeButton({ mode, label, ariaLabel, percent, locked = f
       aria-label={ariaLabel}
       title={title}
       onClick={onClick}
-      className={`relative flex h-10 cursor-pointer items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-md border text-[13px] font-semibold transition-[border-color,transform] duration-150 active:translate-y-0.5 ${single ? "col-span-full" : ""} ${
+      className={`group/btn relative flex h-10 cursor-pointer items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-md border text-[13px] font-semibold transition-all duration-200 active:translate-y-0 ${single ? "col-span-full" : ""} ${
         locked ? "border-dashed border-border-strong bg-transparent text-text-muted hover:border-warning hover:text-text" : style.button
       }`}
     >
-      <Icon name={locked ? "lock" : style.icon} className="h-4 w-4" />
+      <Icon name={locked ? "lock" : style.icon} className="h-4 w-4 transition-transform duration-200 group-hover/btn:scale-110" />
       {label}
       {!locked && done && <Icon name="circle-check" className="h-4 w-4 text-success" />}
       {!locked && percent > 0 && (

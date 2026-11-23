@@ -1,19 +1,27 @@
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import Icon from "@/components/common/Icon";
+import ProgressBar from "@/components/common/ProgressBar";
 import ProgressRing from "@/components/common/ProgressRing";
-import { useNoteEntries } from "@/features/practice/hooks";
-import type { NoteEntry } from "@/features/practice/types";
-import { modeUrl } from "@/features/practice";
+import {
+  displayGroups,
+  mainPronunciation,
+  playPronunciation,
+  useWordLookup,
+} from "@/features/dictionary";
+import { modeUrl, useNoteEntries, type NoteEntry } from "@/features/practice";
+import { findSaved, useSaveWord, useSavedWords, useUnsaveWord } from "@/features/vocab";
 import { formatDuration } from "@/lib/format";
-import type { LessonSummary, ModeProgress } from "../../types";
+import { toast } from "@/stores/toastStore";
+import type { LessonSummary, ModeProgress, SentenceResponse } from "../../types";
 import LessonThumb from "../LessonThumb";
+import { compactIpa, extractCandidateWords, FUNCTION_POS } from "../../vocabCandidates";
 
-const OVERLINE = "text-[15px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text";
+const OVERLINE = "text-[14px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text";
 
 function AsideCard({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
   return (
@@ -27,32 +35,42 @@ function AsideCard({ title, aside, children }: { title: string; aside?: ReactNod
   );
 }
 
-const pct = (n: number) => (n > 0 ? `${Math.round(n)}%` : "—");
-
-/** Tiến độ tổng (trung bình hai chế độ) và từng chế độ. */
-export function ProgressCard({ progress }: { progress: ModeProgress }) {
+/** Tiến độ tổng (trung bình hai chế độ) và từng chế độ kèm thanh tiến độ mini. */
+export function ProgressCard({ progress, sentenceCount = 0 }: { progress: ModeProgress; sentenceCount?: number }) {
   const { t } = useTranslation("pages");
   const overall = Math.round((progress.dictationPercent + progress.shadowingPercent) / 2);
-  const row = "flex items-center justify-between";
-  const label = "flex items-center gap-2 text-text-muted [&>svg]:h-5 [&>svg]:w-5";
+  const dDone = Math.round((sentenceCount * progress.dictationPercent) / 100);
+  const sDone = Math.round((sentenceCount * progress.shadowingPercent) / 100);
+
   return (
     <AsideCard title={t("student.lessonDetail.aside.progress", "Tiến độ của bạn")}>
       <div className="mt-4 flex items-center gap-4">
         <ProgressRing value={overall} size={88} label="%" ariaLabel={t("student.lessonDetail.aside.progress", "Tiến độ của bạn")} />
-        <div className="flex min-w-0 flex-1 flex-col gap-2 text-[13px]">
-          <div className={row}>
-            <span className={label}>
-              <Icon name="headphones" />
-              {t("student.lessonDetail.dictation.title", "Nghe chép")}
-            </span>
-            <b>{pct(progress.dictationPercent)}</b>
+        <div className="flex min-w-0 flex-1 flex-col gap-3 text-[13px]">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 font-medium text-fn-dictation [&>svg]:h-4 [&>svg]:w-4">
+                <Icon name="headphones" />
+                {t("student.lessonDetail.dictation.title", "Nghe chép")}
+              </span>
+              <b className="tabular-nums text-text">
+                {sentenceCount > 0 ? `${dDone}/${sentenceCount}` : ""} ({Math.round(progress.dictationPercent)}%)
+              </b>
+            </div>
+            <ProgressBar value={progress.dictationPercent} tone="dictation" thin label="Dictation" />
           </div>
-          <div className={row}>
-            <span className={label}>
-              <Icon name="mic" />
-              {t("student.lessonDetail.shadowing.title", "Shadowing")}
-            </span>
-            <b>{pct(progress.shadowingPercent)}</b>
+
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 font-medium text-fn-shadowing [&>svg]:h-4 [&>svg]:w-4">
+                <Icon name="mic" />
+                {t("student.lessonDetail.shadowing.title", "Shadowing")}
+              </span>
+              <b className="tabular-nums text-text">
+                {sentenceCount > 0 ? `${sDone}/${sentenceCount}` : ""} ({Math.round(progress.shadowingPercent)}%)
+              </b>
+            </div>
+            <ProgressBar value={progress.shadowingPercent} tone="shadowing" thin label="Shadowing" />
           </div>
         </div>
       </div>
@@ -60,62 +78,156 @@ export function ProgressCard({ progress }: { progress: ModeProgress }) {
   );
 }
 
-// TODO: thay bằng từ vựng thật của bài khi backend có API (hiện là dữ liệu mẫu).
-const SAMPLE_WORDS = [
-  { word: "latte", cefr: "B1", meaning: "cà phê latte (cà phê sữa kiểu Ý)" },
-  { word: "go", cefr: "A1", meaning: "đi" },
-  { word: "present", cefr: "B1", meaning: "có mặt, hiện diện" },
-];
 
-function speak(text: string) {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
-    window.speechSynthesis.speak(utterance);
-  }
+function VocabWordRow({
+  word,
+  sentenceId,
+  fallbackMeaning,
+}: {
+  word: string;
+  sentenceId?: string;
+  fallbackMeaning?: string;
+}) {
+  const { t } = useTranslation("dictionary");
+  const lookup = useWordLookup(word);
+  const savedList = useSavedWords();
+  const saveWord = useSaveWord();
+  const unsaveWord = useUnsaveWord();
+
+  const view = lookup.data;
+  const targetHeadword = (view?.lemma?.headword ?? view?.headword ?? word).toLowerCase();
+  const groups = view ? displayGroups(view) : [];
+
+  const isGoodMeaning = (text?: string | null) => {
+    const trimmed = (text ?? "").trim();
+    return trimmed.length > 0 && !/^xem\s+/i.test(trimmed) && !/^\([A-Z]/.test(trimmed);
+  };
+
+  // Ưu tiên nhóm từ loại thực từ (danh/động/tính/trạng từ) và nghĩa thông dụng (không phải "xem ..." hay chú thích tên riêng "(Sound)...")
+  const preferredGroup =
+    groups.find(
+      (g) =>
+        !FUNCTION_POS.has((g.pos ?? "").toLowerCase()) &&
+        g.meanings.some((m) => isGoodMeaning(m.translationVi)),
+    ) ??
+    groups.find((g) => !FUNCTION_POS.has((g.pos ?? "").toLowerCase())) ??
+    groups[0];
+
+  const preferredMeaning =
+    preferredGroup?.meanings.find((m) => isGoodMeaning(m.translationVi)) ??
+    preferredGroup?.meanings.find((m) => !/^xem\s+/i.test((m.translationVi ?? "").trim())) ??
+    preferredGroup?.meanings[0];
+
+  const meaningNo = preferredMeaning?.no ?? 1;
+  const meaningText = preferredMeaning?.translationVi ?? fallbackMeaning;
+  const pos = preferredGroup?.pos;
+  const pron = view ? mainPronunciation(view) : null;
+  const primaryIpa = compactIpa(pron?.ipaUs);
+  const savedItem = findSaved(savedList.data, targetHeadword, meaningNo);
+  const isSaved = Boolean(savedItem);
+
+  // Ẩn từ không có trong từ điển, hoặc đại từ/hư từ chỉ có nghĩa tham chiếu "xem ..."
+  if (lookup.isError && !fallbackMeaning) return null;
+  if (view && preferredGroup && FUNCTION_POS.has((preferredGroup.pos ?? "").toLowerCase())) return null;
+  if (meaningText && /^xem\s+/i.test(meaningText.trim()) && groups.length <= 1) return null;
+
+  const handleToggleSave = () => {
+    if (savedItem) {
+      unsaveWord.mutate(savedItem.id, {
+        onSuccess: () => toast(t("save.removedToast"), { icon: "bookmark" }),
+      });
+    } else if (preferredMeaning) {
+      saveWord.mutate(
+        { headword: targetHeadword, meaningNo, sentenceId },
+        {
+          onSuccess: () => toast(t("save.savedToast", { word: targetHeadword }), { icon: "bookmark-check" }),
+        },
+      );
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-[32px_minmax(0,1fr)_32px] items-start gap-2.5 border-b border-border py-2.5 last:border-b-0">
+      <Button
+        variant="ghost"
+        size="sm"
+        iconOnly
+        className="mt-0.5 h-8 w-8 shrink-0"
+        aria-label={`Nghe ${targetHeadword}`}
+        onClick={() => playPronunciation(targetHeadword, "us", pron?.audioUs ?? null)}
+      >
+        <Icon name="volume-2" />
+      </Button>
+
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+          <Link
+            to={`/student/dictionary/${encodeURIComponent(targetHeadword)}`}
+            className="max-w-full truncate font-bold text-text transition-colors hover:text-primary-text"
+          >
+            {targetHeadword}
+          </Link>
+          {pos && (
+            <span className="shrink-0 rounded-full border border-border bg-bg-elevated px-1.5 py-0.2 text-[10px] font-semibold text-text-muted">
+              {t(`pos.${pos}`, { defaultValue: pos })}
+            </span>
+          )}
+          {primaryIpa && (
+            <span className="max-w-full truncate font-mono text-[11px] text-text-muted">{primaryIpa}</span>
+          )}
+        </div>
+        {meaningText && (
+          <div className="mt-0.5 line-clamp-1 text-[13px] leading-snug text-text-muted">{meaningText}</div>
+        )}
+      </div>
+
+      {preferredMeaning ? (
+        <button
+          type="button"
+          aria-pressed={isSaved}
+          aria-label={t(isSaved ? "save.unsaveAria" : "save.saveAria", { word: targetHeadword })}
+          disabled={saveWord.isPending || unsaveWord.isPending}
+          onClick={handleToggleSave}
+          className={`mt-0.5 grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-sm border-0 bg-transparent transition-colors hover:bg-surface-hover ${
+            isSaved ? "text-fn-vocab" : "text-text-subtle hover:text-text"
+          }`}
+        >
+          <Icon name="bookmark" fill={isSaved} />
+        </button>
+      ) : (
+        <span className="h-8 w-8 shrink-0" aria-hidden="true" />
+      )}
+    </div>
+  );
 }
 
-export function VocabCard() {
+export function VocabCard({
+  sentences = [],
+  lessonTitle = "",
+  loading = false,
+}: {
+  sentences?: SentenceResponse[];
+  lessonTitle?: string;
+  loading?: boolean;
+}) {
   const { t } = useTranslation("pages");
-  const [saved, setSaved] = useState<Set<string>>(new Set());
-  const toggle = (word: string) =>
-    setSaved((prev) => {
-      const next = new Set(prev);
-      if (!next.delete(word)) next.add(word);
-      return next;
-    });
+  const candidates = useMemo(
+    () => extractCandidateWords(sentences, lessonTitle, loading),
+    [sentences, lessonTitle, loading],
+  );
+
   return (
-    <AsideCard
-      title={t("student.lessonDetail.aside.vocab", "Từ vựng trong bài")}
-      aside={
-        <Button variant="text" size="sm" onClick={() => setSaved(new Set(SAMPLE_WORDS.map((w) => w.word)))}>
-          {t("student.lessonDetail.aside.saveAll", "Lưu tất cả")}
-        </Button>
-      }
-    >
-      {SAMPLE_WORDS.map((w) => (
-        <div key={w.word} className="flex items-center justify-between gap-2 border-b border-border py-2.5 last:border-b-0">
-          <div className="flex min-w-0 items-center gap-2">
-            <Button variant="ghost" iconOnly aria-label={`Nghe ${w.word}`} onClick={() => speak(w.word)}>
-              <Icon name="volume-2" />
-            </Button>
-            <div className="min-w-0">
-              <b>{w.word}</b> <Badge variant={w.cefr}>{w.cefr}</Badge>
-              <div className="text-[13px] leading-normal text-text-muted">{w.meaning}</div>
-            </div>
-          </div>
-          <button
-            type="button"
-            aria-pressed={saved.has(w.word)}
-            aria-label={`Lưu từ ${w.word}`}
-            onClick={() => toggle(w.word)}
-            className={`grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-sm border-0 bg-transparent hover:bg-surface-hover ${saved.has(w.word) ? "text-fn-vocab" : "text-text-subtle hover:text-text"}`}
-          >
-            <Icon name="bookmark" fill={saved.has(w.word)} />
-          </button>
-        </div>
-      ))}
+    <AsideCard title={t("student.lessonDetail.aside.vocab", "Từ vựng trong bài")}>
+      <div className="mt-2">
+        {candidates.map((c) => (
+          <VocabWordRow
+            key={c.word}
+            word={c.word}
+            sentenceId={c.sentenceId}
+            fallbackMeaning={c.fallbackMeaning}
+          />
+        ))}
+      </div>
     </AsideCard>
   );
 }
@@ -202,25 +314,29 @@ export function RelatedLessons({ lessons, topicSlug }: { lessons: LessonSummary[
   const { t } = useTranslation("pages");
   return (
     <AsideCard title={t("student.lessonDetail.related.title", "Bài cùng chủ đề")}>
-      {lessons.map((rel) => (
-        <div
-          key={rel.id}
-          role="link"
-          tabIndex={0}
-          onClick={() => navigate(`/student/lessons/${rel.id}`)}
-          onKeyDown={(e) => e.key === "Enter" && navigate(`/student/lessons/${rel.id}`)}
-          className="group grid grid-cols-[40%_60%] cursor-pointer items-center gap-3 py-3"
-        >
-          <LessonThumb lesson={rel} corners={false} compact className="h-full rounded-sm" />
-          <div className="min-w-0">
-            <b className="text-[13px] font-bold leading-[1.35]">{rel.title}</b>
-            <div className="text-[13px] leading-normal text-text-muted">
-              {rel.cefrLevel ? `${rel.cefrLevel} · ` : ""}
-              {formatDuration(rel.durationSec || 0)}
+      <div className="mt-2 flex flex-col gap-1">
+        {lessons.map((rel) => (
+          <div
+            key={rel.id}
+            role="link"
+            tabIndex={0}
+            onClick={() => navigate(`/student/lessons/${rel.id}`)}
+            onKeyDown={(e) => e.key === "Enter" && navigate(`/student/lessons/${rel.id}`)}
+            className="group -mx-2.5 grid cursor-pointer grid-cols-[40%_minmax(0,1fr)] items-center gap-3 rounded-md px-2.5 py-2.5 transition-colors hover:bg-surface-hover/70"
+          >
+            <LessonThumb lesson={rel} corners={false} compact className="w-full rounded-sm" />
+            <div className="flex min-w-0 flex-col gap-1">
+              <b className="line-clamp-2 text-[13px] font-bold leading-[1.35] transition-colors group-hover:text-primary-text">
+                {rel.title}
+              </b>
+              <div className="flex items-center gap-1.5 text-xs text-text-muted">
+                {rel.cefrLevel && <Badge variant={rel.cefrLevel}>{rel.cefrLevel}</Badge>}
+                <span className="tabular-nums">{formatDuration(rel.durationSec || 0)}</span>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
       <Button variant="text" size="sm" className="mt-2" onClick={() => navigate(topicSlug ? `/student/topics/${topicSlug}` : "/student/lessons")}>
         {topicSlug ? t("student.lessonDetail.related.viewTopic", "Xem cả chủ đề") : t("student.lessonDetail.related.exploreLessons", "Khám phá thêm bài học")}
         <Icon name="arrow-right" />

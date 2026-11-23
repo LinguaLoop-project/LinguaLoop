@@ -12,11 +12,42 @@
     "review": "Câu cần ôn",
     "notes": "Ghi chú"
   },
+  "header": {
+    "sayDueWords": "Bạn có {{count}} từ đến hạn ôn hôm nay!",
+    "sayAllWordsClear": "Các từ đã lưu đều đang đúng lịch ôn!",
+    "sayReviewSentences": "Còn {{count}} câu cần luyện lại cho chắc nhé!",
+    "sayNotes": "Ghi chú riêng giúp bạn nhớ sâu từng cấu trúc câu!",
+    "ctaReviewWords": "Ôn từ đến hạn",
+    "ctaReviewSentences": "Ôn câu ngay"
+  },
+  "pagination": {
+    "showing": "Hiển thị {{from}}–{{to}} trong {{total}} mục",
+    "perPage": "Mỗi trang"
+  },
   "review": {
     "startReview": "Ôn câu",
     "tip": "Khi bạn được dưới {{low}} điểm, hệ thống sẽ hỏi có lưu câu vào đây không. Luyện lại đạt từ {{high}} điểm, hệ thống sẽ hỏi có bỏ khỏi danh sách không. Nghe chép và Shadowing có danh sách riêng cho cùng một câu.",
     "count_other": "{{count}} câu đang chờ · ưu tiên câu điểm thấp",
     "lastScore": "Lần cuối {{score}} điểm",
+    "search": "Tìm theo nội dung câu hoặc tên bài…",
+    "listen": "Nghe câu",
+    "clearFilters": "Xoá bộ lọc",
+    "stats": {
+      "allHint": "câu trong danh sách ôn",
+      "dictationHint": "câu cần luyện gõ lại",
+      "shadowingHint": "câu cần luyện phát âm"
+    },
+    "reasonFilter": {
+      "label": "Lý do",
+      "all": "Mọi lý do",
+      "low": "Điểm thấp",
+      "manual": "Tự ghim"
+    },
+    "sorts": {
+      "label": "Sắp xếp",
+      "score_asc": "Điểm thấp nhất",
+      "newest": "Mới thêm"
+    },
     "reason": {
       "low_score": "Điểm thấp",
       "manual": "Tự ghim",
@@ -42,6 +73,11 @@
   },
   "notes": {
     "hint": "Ghi chú gắn với từng câu ở từng chế độ: nghe chép và Shadowing có ghi chú riêng. Trong lúc luyện, bấm N để thêm.",
+    "search": "Tìm trong ghi chú, câu gốc hoặc tên bài…",
+    "allLessons": "Mọi bài học",
+    "clearFilters": "Xoá bộ lọc",
+    "emptyFilteredTitle": "Không có ghi chú nào khớp",
+    "emptyFilteredDesc": "Thử đổi từ khóa hoặc chọn bài học khác.",
     "emptyTitle": "Chưa có ghi chú nào",
     "emptyDesc": "Làm một câu rồi bấm N để viết ghi chú cho câu đó ở chế độ đang luyện.",
     "edit": "Sửa ghi chú",
@@ -85,6 +121,21 @@
       "learning": "Đang học",
       "mastered": "Đã thuộc"
     },
+    "sorts": {
+      "label": "Sắp xếp",
+      "newest": "Mới lưu",
+      "due_first": "Đến hạn trước",
+      "alpha": "A → Z"
+    },
+    "pos": {
+      "all": "Mọi từ loại"
+    },
+    "quiz": {
+      "hideMeaning": "Ẩn nghĩa để tự nhẩm",
+      "showMeaning": "Hiện nghĩa",
+      "revealHint": "Bấm hoặc rê chuột để xem nghĩa"
+    },
+    "clearFilters": "Xoá bộ lọc",
     "status": {
       "new": "Mới",
       "learning": "Đang học",

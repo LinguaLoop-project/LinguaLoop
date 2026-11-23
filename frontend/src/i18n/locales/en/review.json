@@ -61,6 +61,7 @@
     "hint": "Listen to the model, then read along. Pronunciation is scored like a normal Shadowing attempt.",
     "listen": "Listen to model",
     "record": "Read along",
+    "recordAgain": "Read again",
     "stop": "Stop and score",
     "scoring": "Scoring…"
   },
@@ -86,6 +87,7 @@
     "sentences": "Saved sentences",
     "sentencesScore_one": "Reviewed {{count}} sentence, average score {{average}}",
     "sentencesScore_other": "Reviewed {{count}} sentences, average score {{average}}",
+    "averageBadge": "Avg {{average}}",
     "sentencesNone": "No sentences reviewed.",
     "sentencesSkipped_one": "{{count}} sentence skipped, not counted as reviewed",
     "sentencesSkipped_other": "{{count}} sentences skipped, not counted as reviewed",

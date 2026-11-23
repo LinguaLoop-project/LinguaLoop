@@ -34,7 +34,18 @@
           "new": "Newest",
           "short": "Shortest"
         },
-        "freeOnly": "Free only"
+        "states": {
+          "label": "Progress",
+          "all": "All",
+          "todo": "Not started",
+          "doing": "In progress",
+          "done": "Done"
+        },
+        "freeOnly": "Free only",
+        "shortOnly": "Short (≤ 3m)",
+        "shuffle": "Random practice",
+        "showing": "Showing {{from}}–{{to}} of {{total}} lessons",
+        "perPage": "Per page"
       },
       "continue": {
         "title": "Continue learning",
@@ -137,7 +148,14 @@
         "empty": "No sentence data available for this lesson.",
         "showMore": "Show {{count}} more sentences",
         "collapse": "Collapse",
-        "showingCount": "Showing {{visible}} of {{total}} sentences"
+        "showingCount": "Showing {{visible}} of {{total}} sentences",
+        "searchPlaceholder": "Search sentences in lesson…",
+        "filterAll": "All",
+        "filterDone": "Practised",
+        "filterTodo": "Not practised",
+        "clickToPeek": "Click any blurred sentence to peek at it",
+        "practiceDictation": "Practise dictation on sentence {{index}}",
+        "practiceShadowing": "Practise shadowing on sentence {{index}}"
       },
       "backToLibrary": "Back to Library",
       "playVideo": "Play video",
@@ -150,6 +168,9 @@
         "notes": "My notes",
         "noNotes": "No notes yet. While practicing, press N to take notes for the active sentence.",
         "add": "Add",
+        "moreNotes": "Show {{count}} more notes",
+        "allNotes": "My notes ({{count}})",
+        "close": "Close",
         "modes": {
           "dictation": "Dictation",
           "shadowing": "Shadowing"

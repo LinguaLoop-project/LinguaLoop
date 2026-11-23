@@ -3,6 +3,10 @@
   "title": "Vocabulary",
   "subtitle": "Learn decks part by part and review cards just before you forget them.",
   "reviewToday": "Today's review",
+  "say": {
+    "due": "You have {{count}} cards due today—review them before you forget!",
+    "clear": "All cards are on schedule! Pick a deck to learn a new part."
+  },
   "loading": "Loading",
   "overview": {
     "label": "Vocabulary overview",
@@ -41,6 +45,15 @@
       "label": "Category",
       "all": "All categories"
     },
+    "sorts": {
+      "label": "Sort",
+      "default": "Default",
+      "due": "Due cards first",
+      "progress": "Most progress",
+      "cards": "Most cards"
+    },
+    "freeOnly": "Free only",
+    "dueOnly": "Has due cards",
     "results_one": "{{count}} matching deck",
     "results_other": "{{count}} matching decks",
     "clear": "Clear filters",
@@ -60,6 +73,8 @@
     "cards_other": "{{count, number}} cards",
     "parts_one": "{{count, number}} part",
     "parts_other": "{{count, number}} parts",
+    "dueBadge": "{{count}} due",
+    "reviewNow": "Review ({{count}})",
     "pro": "PRO",
     "mastered": "Mastered {{mastered}}/{{total}}",
     "percent": "{{percent}}% learned",
@@ -73,6 +88,10 @@
     "allLearned": "All unlocked parts learned",
     "reviewDeck": "Review this deck ({{count}})",
     "unlock": "Unlock with Pro",
+    "nextLabel": "Next:",
+    "partLabel": "Part {{n}} · {{name}}",
+    "progressTitle": "Deck progress",
+    "current": "Learning",
     "legend": {
       "mastered": "Mastered",
       "reviewing": "Reviewing",
@@ -114,6 +133,12 @@
   },
   "learn": {
     "back": "Vocabulary",
+    "roundTab": "Round {{n}}",
+    "roundStats": {
+      "cards": "Cards this round",
+      "first": "Right first time",
+      "accuracy": "Accuracy"
+    },
     "partTitle": "Part {{number}} · {{name}}",
     "modeLabel": "Study mode",
     "modes": {
@@ -304,6 +329,11 @@
   },
   "review": {
     "title": "Review due cards",
+    "stats": {
+      "reviewed": "Reviewed",
+      "first": "Right first time",
+      "accuracy": "Accuracy"
+    },
     "deckTitle": "Reviewing deck: {{name}}",
     "allDecks": "Review all decks",
     "loading": "Loading due cards",

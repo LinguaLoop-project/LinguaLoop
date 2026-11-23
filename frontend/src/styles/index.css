@@ -22,6 +22,9 @@
 
   --color-danger: var(--danger);
   --color-warning: var(--warning);
+  /* Nhấn vàng trên nền video luôn tối (Học thụ động), không đổi theo giao diện sáng/tối. */
+  --color-video-accent: #fcd34d;
+  --color-video-accent-soft: #fde68a;
   --color-success: var(--success);
   --color-info: var(--info);
 

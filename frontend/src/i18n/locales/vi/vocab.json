@@ -3,6 +3,10 @@
   "title": "Từ vựng",
   "subtitle": "Học bộ từ theo từng phần, ôn thẻ đúng lúc sắp quên.",
   "reviewToday": "Ôn tập hôm nay",
+  "say": {
+    "due": "Bạn có {{count}} thẻ đến hạn ôn hôm nay, ôn ngay kẻo quên nhé!",
+    "clear": "Mọi thẻ đã ôn đúng lịch! Chọn một bộ từ để học phần mới nhé."
+  },
   "loading": "Đang tải",
   "overview": {
     "label": "Tổng quan từ vựng",
@@ -41,6 +45,15 @@
       "label": "Danh mục",
       "all": "Tất cả danh mục"
     },
+    "sorts": {
+      "label": "Sắp xếp",
+      "default": "Mặc định",
+      "due": "Có thẻ cần ôn",
+      "progress": "Tiến độ cao",
+      "cards": "Nhiều thẻ nhất"
+    },
+    "freeOnly": "Chỉ bộ miễn phí",
+    "dueOnly": "Có thẻ đến hạn",
     "results_other": "{{count}} bộ từ phù hợp",
     "clear": "Xoá bộ lọc",
     "noMatchTitle": "Không có bộ từ nào khớp",
@@ -57,6 +70,8 @@
   "deck": {
     "cards_other": "{{count, number}} thẻ",
     "parts_other": "{{count, number}} phần",
+    "dueBadge": "{{count}} cần ôn",
+    "reviewNow": "Ôn ({{count}})",
     "pro": "PRO",
     "mastered": "Đã thuộc {{mastered}}/{{total}}",
     "percent": "{{percent}}% đã học",
@@ -70,6 +85,10 @@
     "allLearned": "Đã học hết các phần mở được",
     "reviewDeck": "Ôn bộ này ({{count}})",
     "unlock": "Mở khoá với Pro",
+    "nextLabel": "Tiếp theo:",
+    "partLabel": "Phần {{n}} · {{name}}",
+    "progressTitle": "Tiến độ bộ từ",
+    "current": "Đang học",
     "legend": {
       "mastered": "Đã thuộc",
       "reviewing": "Đang ôn",
@@ -110,6 +129,12 @@
   },
   "learn": {
     "back": "Từ vựng",
+    "roundTab": "Lượt {{n}}",
+    "roundStats": {
+      "cards": "Thẻ trong lượt",
+      "first": "Nhớ lần đầu",
+      "accuracy": "Độ chính xác"
+    },
     "partTitle": "Phần {{number}} · {{name}}",
     "modeLabel": "Cách học",
     "modes": {
@@ -290,6 +315,11 @@
   },
   "review": {
     "title": "Ôn thẻ đến hạn",
+    "stats": {
+      "reviewed": "Đã ôn",
+      "first": "Nhớ lần đầu",
+      "accuracy": "Độ chính xác"
+    },
     "deckTitle": "Ôn bộ: {{name}}",
     "allDecks": "Ôn mọi bộ",
     "loading": "Đang tải thẻ đến hạn",
