@@ -8,6 +8,7 @@ import DevPlanSwitch from "@/features/subscription/components/DevPlanSwitch";
 import { DEV_TOOLS_ENABLED } from "@/features/subscription/devTools";
 import { DictionarySearchButton } from "@/features/dictionary";
 import { useTheme } from "@/hooks/useTheme";
+import { useStreak } from "@/features/stats";
 import { NotificationBell } from "@/features/user";
 import AccountMenu from "./AccountMenu";
 import type { ShellConfig } from "./shellConfig";
@@ -56,6 +57,7 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
   const { isPro, remaining, resetsAt, balance } = useAiEnergy();
   const { isDark, toggleTheme } = useTheme();
   const learner = config.topBar.kind === "learner";
+  const { data: streak } = useStreak(learner);
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-[color-mix(in_srgb,var(--bg-base)_82%,transparent)] px-3 backdrop-blur-[12px] md:px-6">
@@ -93,10 +95,15 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
       {learner && (
         <>
           {DEV_TOOLS_ENABLED && <DevPlanSwitch />}
-          <span className={`${PILL} max-sm:hidden`} title={t("student.topbar.streak")}>
+          <Link
+            to="/student/stats"
+            className={`${PILL} max-sm:hidden ${streak?.studiedToday ? "" : "opacity-80"}`}
+            title={t("student.topbar.streak")}
+            aria-label={`${t("student.topbar.streak")}: ${streak?.current ?? 0}`}
+          >
             <Icon name="flame" />
-            <span className="font-display tabular-nums">4</span>
-          </span>
+            <span className="font-display tabular-nums">{streak?.current ?? 0}</span>
+          </Link>
           {remaining !== null && (
             <span
               className={`${PILL} max-md:hidden ${remaining <= 0 ? "border-danger text-danger" : ""}`}

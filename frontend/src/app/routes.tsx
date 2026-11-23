@@ -41,6 +41,8 @@ const TopicDetailPage = lazy(() =>
 const DictationPage = lazy(() => import("@/features/dictation/pages/DictationPage"));
 const MyWordsPage = lazy(() => import("@/features/practice/pages/MyWordsPage"));
 const VocabPage = lazy(() => import("@/features/vocab/pages/VocabPage"));
+const StatsPage = lazy(() => import("@/features/stats/pages/StatsPage"));
+const WeaknessPage = lazy(() => import("@/features/stats/pages/WeaknessPage"));
 const DeckPage = lazy(() => import("@/features/vocab/pages/DeckPage"));
 const PartPage = lazy(() => import("@/features/vocab/pages/PartPage"));
 const MyDeckDetailPage = lazy(() => import("@/features/vocab/pages/MyDeckDetailPage"));
@@ -219,7 +221,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "weakness",
-          element: <PlaceholderPage pageKey="student.weakness" />,
+          element: <WeaknessPage />,
         },
         {
           path: "test",
@@ -239,7 +241,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "stats",
-          element: <PlaceholderPage pageKey="student.stats" />,
+          element: <StatsPage />,
         },
       ],
     },

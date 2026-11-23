@@ -1,0 +1,175 @@
+{
+  "range": {
+    "label": "Time range",
+    "7d": "7 days",
+    "30d": "30 days",
+    "all": "All time"
+  },
+  "overview": {
+    "overline": "Learning stats",
+    "title": "How are you doing?",
+    "sub": "Your study streak, sentences practiced and vocabulary progress",
+    "weaknessLink": "See your weakness profile"
+  },
+  "streak": {
+    "title": "Study streak",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "longest_one": "Record {{count}} day",
+    "longest_other": "Record {{count}} days",
+    "noRecord": "No record yet",
+    "keepIt_one": "Study today to keep your {{count}}-day streak",
+    "keepIt_other": "Study today to keep your {{count}}-day streak",
+    "start": "Practice a sentence or study a card today to start a streak",
+    "doneToday": "You've studied today. Keep it up!",
+    "weekAria": "Days studied this week",
+    "studied": "studied",
+    "notStudied": "not studied",
+    "weekdays": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    }
+  },
+  "summary": {
+    "sentences": "Sentences practiced",
+    "sentencesSplit": "{{dictation}} dictation · {{shadowing}} shadowing",
+    "lessonsDoing": "Lessons in progress",
+    "lessonsDone": "Lessons completed",
+    "lessonsHint": "Counted over all time",
+    "accuracy": "Vocabulary accuracy",
+    "accuracyHint": "{{correct}}/{{answered}} answers correct",
+    "accuracyNone": "No answers yet",
+    "accuracyAria": "Vocabulary answers correct"
+  },
+  "cards": {
+    "title": "Vocabulary cards",
+    "hint": "In the decks you've started",
+    "total_one": "{{count}} card",
+    "total_other": "{{count}} cards",
+    "new": "New",
+    "learning": "Learning",
+    "reviewing": "Reviewing",
+    "mastered": "Mastered"
+  },
+  "empty": {
+    "title": "Start your learning journey",
+    "desc": "Practice a dictation sentence or study a few vocabulary cards and your stats will show up here.",
+    "lessons": "Open the lesson library",
+    "vocab": "Study vocabulary"
+  },
+  "history": {
+    "title": "Practice history",
+    "total_one": "{{count}} entry",
+    "total_other": "{{count}} entries",
+    "modeLabel": "Practice mode",
+    "mode": {
+      "all": "All",
+      "dictation": "Dictation",
+      "shadowing": "Shadowing",
+      "vocab": "Vocabulary",
+      "ai": "AI practice"
+    },
+    "sentences_one": "{{count}} sentence",
+    "sentences_other": "{{count}} sentences",
+    "average": "Avg {{score}}",
+    "retries_one": "{{count}} retry",
+    "retries_other": "{{count}} retries",
+    "gaveUps_one": "{{count}} gave up",
+    "gaveUps_other": "{{count}} gave up",
+    "vocabResult": "{{correct}}/{{answered}} cards correct",
+    "vocabLearn": "Learn new words",
+    "vocabReview": "Card review",
+    "allDecks": "Several decks",
+    "aiLive": "AI practice · voice",
+    "aiText": "AI practice · text chat",
+    "aiResult_one": "{{count}} answer",
+    "aiResult_other": "{{count}} answers",
+    "open": "Open again",
+    "unavailable": "The original content is no longer available",
+    "expand": "Show each attempt",
+    "collapse": "Collapse",
+    "attempts": "Attempts in this session",
+    "attemptKind": {
+      "normal": "Regular",
+      "retry": "Retry",
+      "gave_up": "Gave up"
+    },
+    "attemptScore": "{{score}}",
+    "empty": {
+      "title": "No matching history",
+      "desc": "No practice matches the filters you picked.",
+      "clear": "Clear filters"
+    }
+  },
+  "weakness": {
+    "overline": "Weakness profile",
+    "title": "Where do you slip up?",
+    "sub": "Based on your practice in the selected time range",
+    "map": {
+      "title": "Map of 44 phonemes",
+      "hint": "Tap a sound to see what you tend to say instead",
+      "vowels": "Vowels & diphthongs",
+      "consonants": "Consonants",
+      "legend": {
+        "good": "Under 15% errors",
+        "attention": "15–30%",
+        "bad": "Over 30%",
+        "insufficient": "Not enough data"
+      },
+      "cellPercent": "{{percent}}% errors",
+      "cellNone": "not enough data",
+      "cellAria": "Sound /{{symbol}}/ as in {{example}}, {{status}}"
+    },
+    "scores": {
+      "title": "Shadowing pronunciation score",
+      "daily": "Daily average",
+      "weekly": "Weekly average",
+      "empty": "No shadowing attempts in this range",
+      "latest": "Latest {{score}}",
+      "aria": "Average pronunciation score, latest {{score}} points"
+    },
+    "dictation": {
+      "title": "Dictation: errors by word type",
+      "errorRate": "{{percent}}% errors",
+      "opportunities_one": "{{count}} word seen",
+      "opportunities_other": "{{count}} words seen",
+      "lastWrong": "Latest wrong word: {{word}}",
+      "noError": "No wrong words yet",
+      "noData": "No words of this type yet",
+      "revealedNote": "Words revealed by asking for a hint count as Omitted.",
+      "class": {
+        "function": "Function words",
+        "content": "Content words",
+        "inflected": "Inflected words",
+        "number": "Numbers",
+        "proper": "Proper names",
+        "other": "Other"
+      },
+      "cause": {
+        "omitted": "Omitted",
+        "substituted": "Wrong word",
+        "misspelled": "Misspelled"
+      }
+    },
+    "detail": {
+      "placeholder": "Pick a sound on the map to see the details",
+      "errors_one": "{{count}} mistake",
+      "errors_other": "{{count}} mistakes",
+      "listen": "Hear the example word “{{word}}”",
+      "insufficient": "You've practiced this sound fewer than 5 times. Practice a few more sentences with “{{word}}” for accurate stats.",
+      "confusedAs": "You usually say",
+      "omitted": "dropped (left out)",
+      "tip": "How to fix it",
+      "trend": "8-week error trend",
+      "trendAria": "Weekly error rate, latest week {{percent}}%",
+      "trendEmpty": "Not enough weekly data to draw a trend",
+      "practice": "Practice now",
+      "practiceLibrary": "Pick a lesson to practice"
+    }
+  }
+}
