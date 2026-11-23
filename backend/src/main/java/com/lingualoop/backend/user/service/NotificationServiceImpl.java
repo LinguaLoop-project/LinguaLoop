@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
+import com.lingualoop.backend.common.response.PageResponse;
 import com.lingualoop.backend.user.dto.response.NotificationsResponse;
 import com.lingualoop.backend.user.repository.NotificationRepository;
 
@@ -30,6 +31,14 @@ class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public NotificationsResponse latest(UUID userId, int limit) {
         return new NotificationsResponse(repository.findLatest(userId, limit), repository.countUnread(userId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<NotificationsResponse.Item> page(UUID userId, boolean unreadOnly, int page, int size) {
+        int safePage = Math.max(page, 0);
+        return PageResponse.of(repository.findPage(userId, unreadOnly, size, (long) safePage * size), safePage, size,
+                repository.countAll(userId, unreadOnly));
     }
 
     @Override

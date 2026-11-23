@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TK-tai-khoan-xac-thuc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 58 AC, 42 đã có test, 7 một phần, 8 thiếu, 1 thủ công.
+Tổng hợp: 64 AC, 42 đã có test, 9 một phần, 12 thiếu, 1 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -64,3 +64,9 @@ Tổng hợp: 58 AC, 42 đã có test, 7 một phần, 8 thiếu, 1 thủ công.
 | AC-TK-56 | Chưa có thông báo | UC-TK-09 | B |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
 | AC-TK-57 | Không tải được thông báo | UC-TK-09 | A |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
 | AC-TK-58 | Không ghi nhận được đã đọc | UC-TK-09 | A |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
+| AC-TK-59 | Trang Thông báo phân trang 20 thông báo, mới nhất ở đầu | UC-TK-09 | D, A | NotificationApiIntegrationTest.all_pagesBy20NewestFirstAndOnlyOwn_AC_TK_59; NotificationApiIntegrationTest.all_rejectsAnUnknownFilter_andNeedsAToken_AC_TK_59; `frontend/src/features/user/notifications.test.ts` (parsePageIndex) | Một phần (backend và tham số địa chỉ có test; trang chưa có test giao diện) |
+| AC-TK-60 | Lọc chưa đọc và đánh dấu đã đọc ngay trên trang | UC-TK-09 | D | NotificationApiIntegrationTest.all_unreadFilterListsOnlyUnreadAndFollowsMarkRead_AC_TK_60; `frontend/src/features/user/notifications.test.ts` (parseNotificationFilter) | Một phần (backend và tham số địa chỉ có test; trang chưa có test giao diện) |
+| AC-TK-61 | Trang Thông báo khi chưa có thông báo hoặc không tải được | UC-TK-09 | B, A |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
+| AC-TK-62 | Hiển thị hồ sơ của chính học viên | UC-TK-10 | D |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
+| AC-TK-63 | Hồ sơ của học viên mới | UC-TK-10 | B |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
+| AC-TK-64 | Chuyển sang Cài đặt để chỉnh sửa | UC-TK-10 | D |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |

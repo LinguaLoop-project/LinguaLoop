@@ -34,6 +34,24 @@ public class NotificationRepository {
                 .query(NotificationsResponse.Item.class).list();
     }
 
+    /** Một trang thông báo từ mới đến cũ; {@code unreadOnly} chỉ lấy thông báo chưa đọc. */
+    public List<NotificationsResponse.Item> findPage(UUID userId, boolean unreadOnly, int limit, long offset) {
+        return jdbc.sql("""
+                SELECT id, message, read_at IS NOT NULL AS read, created_at
+                FROM notifications
+                WHERE user_id = :user AND (NOT :unreadOnly OR read_at IS NULL)
+                ORDER BY created_at DESC, id DESC LIMIT :limit OFFSET :offset""")
+                .param("user", userId).param("unreadOnly", unreadOnly).param("limit", limit).param("offset", offset)
+                .query(NotificationsResponse.Item.class).list();
+    }
+
+    public long countAll(UUID userId, boolean unreadOnly) {
+        return jdbc.sql("""
+                SELECT count(*) FROM notifications
+                WHERE user_id = :user AND (NOT :unreadOnly OR read_at IS NULL)""")
+                .param("user", userId).param("unreadOnly", unreadOnly).query(Long.class).single();
+    }
+
     public long countUnread(UUID userId) {
         return jdbc.sql("SELECT count(*) FROM notifications WHERE user_id = :user AND read_at IS NULL")
                 .param("user", userId).query(Long.class).single();
