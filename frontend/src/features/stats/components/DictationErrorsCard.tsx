@@ -1,8 +1,11 @@
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import Icon from "@/components/common/Icon";
 import Skeleton from "@/components/common/Skeleton";
+import { buttonClasses } from "@/components/common/buttonStyles";
 import { useDictationErrors } from "../hooks";
 import type { StatsRange } from "../types";
-import { errorSegments } from "../utils";
+import { dictationPracticeHref, errorSegments } from "../utils";
 import StatsError from "./StatsError";
 
 const CAUSES = [
@@ -65,6 +68,19 @@ export default function DictationErrorsCard({ range }: { range: StatsRange }) {
                       : t("weakness.dictation.noError")}
                   {row.opportunities > 0 && <> · {t("weakness.dictation.opportunities", { count: row.opportunities })}</>}
                 </p>
+                {row.errors > 0 && (
+                  <Link
+                    to={dictationPracticeHref(row)}
+                    aria-label={t("weakness.dictation.practiceAria", {
+                      action: row.practiceLessonId ? t("weakness.dictation.practice") : t("weakness.dictation.practiceLibrary"),
+                      group: t(`weakness.dictation.class.${row.wordClass}`),
+                    })}
+                    className={buttonClasses({ variant: "ghost", size: "sm", className: "mt-2" })}
+                  >
+                    <Icon name="target" />
+                    {row.practiceLessonId ? t("weakness.dictation.practice") : t("weakness.dictation.practiceLibrary")}
+                  </Link>
+                )}
               </li>
             );
           })}

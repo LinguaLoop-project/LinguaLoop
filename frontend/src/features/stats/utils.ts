@@ -104,9 +104,24 @@ export function scorePoints(scores: ScorePoint[], width: number, height: number,
     .join(" ");
 }
 
+/** Số tuần có dữ liệu trong xu hướng. */
+export function weeksWithData(trend: WeekPoint[]): number {
+  return trend.filter((p) => p.errorPercent !== null).length;
+}
+
 /** Có đủ tuần có dữ liệu để vẽ một đường (ít nhất hai điểm). */
 export function hasTrend(trend: WeekPoint[]): boolean {
-  return trend.filter((p) => p.errorPercent !== null).length >= 2;
+  return weeksWithData(trend) >= 2;
+}
+
+/** Đường dẫn của nút "Luyện ngay" ở một nhóm từ: bài gần nhất sai nhóm đó, hoặc thư viện Nghe chép (BR-TH-14). */
+export function dictationPracticeHref(row: Pick<DictationErrorRow, "practiceLessonId">): string {
+  return row.practiceLessonId ? `/student/dictation/${row.practiceLessonId}` : "/student/dictation";
+}
+
+/** Chênh lệch có dấu: "+5", "-3" hoặc "0" (BR-TH-13). */
+export function signedDelta(delta: number): string {
+  return delta > 0 ? `+${delta}` : String(delta);
 }
 
 /** Đường dẫn của nút "Luyện ngay": bài gần nhất đọc sai âm đó, hoặc thư viện Shadowing nếu không có (BR-TH-10). */

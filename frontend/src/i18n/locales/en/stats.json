@@ -1,4 +1,8 @@
 {
+  "compare": {
+    "vs": "{{delta}} vs previous {{period}}",
+    "same": "Same as previous {{period}}"
+  },
   "range": {
     "label": "Time range",
     "7d": "7 days",
@@ -131,7 +135,8 @@
       "weekly": "Weekly average",
       "empty": "No shadowing attempts in this range",
       "latest": "Latest {{score}}",
-      "aria": "Average pronunciation score, latest {{score}} points"
+      "aria": "Average pronunciation score, latest {{score}} points",
+      "average": "Average {{score}}"
     },
     "dictation": {
       "title": "Dictation: errors by word type",
@@ -142,6 +147,9 @@
       "noError": "No wrong words yet",
       "noData": "No words of this type yet",
       "revealedNote": "Words revealed by asking for a hint count as Omitted.",
+      "practice": "Practice now",
+      "practiceLibrary": "Pick a lesson to practice",
+      "practiceAria": "{{action}}: {{group}} words",
       "class": {
         "function": "Function words",
         "content": "Content words",
@@ -168,6 +176,7 @@
       "trend": "8-week error trend",
       "trendAria": "Weekly error rate, latest week {{percent}}%",
       "trendEmpty": "Not enough weekly data to draw a trend",
+      "trendFew": "Only 1 week has data so far. At least 2 weeks are needed to draw a trend, so keep practicing next week.",
       "practice": "Practice now",
       "practiceLibrary": "Pick a lesson to practice"
     }

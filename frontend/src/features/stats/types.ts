@@ -27,6 +27,8 @@ export interface StatsOverview {
     /** Null khi chưa trả lời lần nào. */
     accuracyPercent: number | null;
   };
+  /** So với khoảng liền trước cùng độ dài; null với "Toàn bộ" hoặc khi khoảng liền trước chưa luyện câu nào (BR-TH-13). */
+  comparison: { previousSentences: number; sentencesDelta: number } | null;
 }
 
 export type WordClass = "function" | "content" | "inflected" | "number" | "proper" | "other";
@@ -42,6 +44,8 @@ export interface DictationErrorRow {
   /** Từ đã lộ do xin gợi ý; vẫn tính là sai. */
   revealed: number;
   lastWrongWord: string | null;
+  /** Bài để "Luyện ngay"; null thì mở thư viện bài ở chế độ Nghe chép (BR-TH-14). */
+  practiceLessonId: string | null;
 }
 
 export interface DictationErrors {
@@ -123,6 +127,10 @@ export interface PronunciationOverview {
   range: StatsRange;
   weekly: boolean;
   scores: ScorePoint[];
+  /** Điểm trung bình cả khoảng đang lọc; null khi chưa có lượt Shadowing nào. */
+  averageScore: number | null;
+  /** Chênh lệch với khoảng liền trước; null với "Toàn bộ" hoặc khi khoảng liền trước chưa có lượt nào (BR-TH-13). */
+  scoreDelta: number | null;
   phonemes: PhonemeCell[];
 }
 

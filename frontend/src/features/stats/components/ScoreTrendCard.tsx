@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import type { PronunciationOverview } from "../types";
 import { scorePoints } from "../utils";
+import DeltaBadge from "./DeltaBadge";
 
 const W = 300;
 const H = 72;
@@ -23,6 +24,12 @@ export default function ScoreTrendCard({ data }: { data: PronunciationOverview }
           <p className="mt-2 font-display text-3xl font-bold tabular-nums text-fn-shadowing">
             {t("weakness.scores.latest", { score: Math.round(latest.averageScore) })}
           </p>
+          {data.averageScore !== null && (
+            <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[13px] text-text-muted">
+              {t("weakness.scores.average", { score: data.averageScore })}
+              {data.scoreDelta !== null && <DeltaBadge delta={data.scoreDelta} range={data.range} />}
+            </p>
+          )}
           <svg
             className="mt-2 h-[72px] w-full"
             viewBox={`0 0 ${W} ${H}`}

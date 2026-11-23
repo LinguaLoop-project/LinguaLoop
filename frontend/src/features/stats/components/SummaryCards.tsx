@@ -1,16 +1,31 @@
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import ProgressRing from "@/components/common/ProgressRing";
 import type { StatsOverview } from "../types";
+import DeltaBadge from "./DeltaBadge";
 
 const CARD = "rounded-lg border border-border bg-surface p-5 shadow-[var(--shadow-card)]";
 const OVERLINE = "text-xs font-bold uppercase tracking-wider";
 
-function Tile({ label, value, hint, tone }: { label: string; value: number; hint: string; tone: string }) {
+function Tile({
+  label,
+  value,
+  hint,
+  tone,
+  extra,
+}: {
+  label: string;
+  value: number;
+  hint: string;
+  tone: string;
+  extra?: ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
       <span className={`${OVERLINE} ${tone}`}>{label}</span>
       <span className="font-display text-[30px] font-bold leading-none tabular-nums">{value}</span>
       <span className="text-[13px] text-text-muted">{hint}</span>
+      {extra}
     </div>
   );
 }
@@ -18,7 +33,7 @@ function Tile({ label, value, hint, tone }: { label: string; value: number; hint
 /** Số câu đã luyện (theo khoảng), bài đang học và đã xong (hiện trạng), tỷ lệ trả lời đúng từ vựng (theo khoảng). */
 export function SummaryTiles({ overview }: { overview: StatsOverview }) {
   const { t } = useTranslation("stats");
-  const { sentences, lessons, vocab } = overview;
+  const { sentences, lessons, vocab, comparison } = overview;
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <Tile
@@ -26,6 +41,7 @@ export function SummaryTiles({ overview }: { overview: StatsOverview }) {
         value={sentences.total}
         hint={t("summary.sentencesSplit", { dictation: sentences.dictation, shadowing: sentences.shadowing })}
         tone="text-primary-text"
+        extra={comparison && <DeltaBadge delta={comparison.sentencesDelta} range={overview.range} />}
       />
       <Tile label={t("summary.lessonsDoing")} value={lessons.doing} hint={t("summary.lessonsHint")} tone="text-fn-dictation" />
       <Tile label={t("summary.lessonsDone")} value={lessons.done} hint={t("summary.lessonsHint")} tone="text-success" />

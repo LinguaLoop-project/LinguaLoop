@@ -1,4 +1,8 @@
 {
+  "compare": {
+    "vs": "{{delta}} so với {{period}} trước",
+    "same": "Bằng {{period}} trước"
+  },
   "range": {
     "label": "Khoảng thời gian",
     "7d": "7 ngày",
@@ -122,7 +126,8 @@
       "weekly": "Trung bình theo tuần",
       "empty": "Chưa có lượt Shadowing nào trong khoảng này",
       "latest": "Gần nhất {{score}}đ",
-      "aria": "Điểm phát âm trung bình, gần nhất {{score}} điểm"
+      "aria": "Điểm phát âm trung bình, gần nhất {{score}} điểm",
+      "average": "Trung bình {{score}}đ"
     },
     "dictation": {
       "title": "Nghe chép: lỗi theo loại từ",
@@ -132,6 +137,9 @@
       "noError": "Chưa sai từ nào",
       "noData": "Chưa gặp từ nào của nhóm này",
       "revealedNote": "Từ đã lộ do xin gợi ý được tính vào Bỏ sót.",
+      "practice": "Luyện ngay",
+      "practiceLibrary": "Chọn bài để luyện",
+      "practiceAria": "{{action}} nhóm {{group}}",
       "class": {
         "function": "Từ chức năng",
         "content": "Từ nội dung",
@@ -157,6 +165,7 @@
       "trend": "Xu hướng lỗi 8 tuần",
       "trendAria": "Tỷ lệ lỗi theo tuần, tuần gần nhất {{percent}}%",
       "trendEmpty": "Chưa đủ dữ liệu theo tuần để vẽ xu hướng",
+      "trendFew": "Mới có 1 tuần có dữ liệu. Cần ít nhất 2 tuần để vẽ xu hướng, hãy luyện thêm trong tuần tới.",
       "practice": "Luyện ngay",
       "practiceLibrary": "Chọn bài để luyện"
     }

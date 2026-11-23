@@ -7,7 +7,7 @@ import { buttonClasses } from "@/components/common/buttonStyles";
 import { playPronunciation } from "@/features/dictionary";
 import { usePhoneme } from "../hooks";
 import type { StatsRange } from "../types";
-import { hasTrend, phonemeTone, practiceHref, trendPoints } from "../utils";
+import { hasTrend, phonemeTone, practiceHref, trendPoints, weeksWithData } from "../utils";
 import StatsError from "./StatsError";
 
 const TREND_W = 300;
@@ -114,7 +114,9 @@ export default function PhonemePanel({ symbol, range }: { symbol: string | null;
                 />
               </svg>
             ) : (
-              <p className="mt-1 text-[13px] text-text-muted">{t("weakness.detail.trendEmpty")}</p>
+              <p className="mt-1 text-[13px] text-text-muted">
+                {weeksWithData(detail.trend) === 0 ? t("weakness.detail.trendEmpty") : t("weakness.detail.trendFew")}
+              </p>
             )}
           </div>
 

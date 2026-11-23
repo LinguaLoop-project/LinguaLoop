@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import type { DictationErrorRow, HistoryItem, PhonemeCell, WeekPoint } from "./types";
 import {
   errorSegments,
+  dictationPracticeHref,
   hasTrend,
+  signedDelta,
+  weeksWithData,
   historyHref,
   parseHistoryMode,
   parsePage,
@@ -16,6 +19,13 @@ import {
   trendPoints,
 } from "./utils";
 
+const week = (weekStart: string, errorPercent: number | null): WeekPoint => ({
+  weekStart,
+  total: errorPercent === null ? 0 : 10,
+  errors: 0,
+  errorPercent,
+});
+
 const row = (over: Partial<DictationErrorRow>): DictationErrorRow => ({
   wordClass: "function",
   opportunities: 10,
@@ -26,6 +36,7 @@ const row = (over: Partial<DictationErrorRow>): DictationErrorRow => ({
   misspelled: 0,
   revealed: 0,
   lastWrongWord: null,
+  practiceLessonId: null,
   ...over,
 });
 
@@ -135,13 +146,6 @@ describe("errorSegments (AC-TH-04)", () => {
 });
 
 describe("trendPoints (AC-TH-16)", () => {
-  const week = (weekStart: string, errorPercent: number | null): WeekPoint => ({
-    weekStart,
-    total: errorPercent === null ? 0 : 10,
-    errors: 0,
-    errorPercent,
-  });
-
   it("tỷ lệ lỗi càng cao thì điểm càng cao trên màn hình (y nhỏ)", () => {
     const [low, high] = trendPoints([week("a", 0), week("b", 100)], 100, 60, 0).split(" ");
     expect(low).toBe("0.0,60.0");
@@ -179,6 +183,32 @@ describe("scorePoints (AC-TH-18)", () => {
     expect(b).toBe("100.0,0.0");
     expect(scorePoints([{ from: "a", averageScore: 50, attempts: 1 }], 100, 60, 0)).toBe("50.0,30.0");
     expect(scorePoints([], 100, 60)).toBe("");
+  });
+});
+
+describe("weeksWithData (AC-TH-30)", () => {
+  it("đếm các tuần có dữ liệu để báo học viên còn thiếu bao nhiêu tuần", () => {
+    expect(weeksWithData([])).toBe(0);
+    expect(weeksWithData([week("a", 10), week("b", null), week("c", null)])).toBe(1);
+    expect(weeksWithData([week("a", 10), week("b", 0), week("c", 20)])).toBe(3);
+  });
+});
+
+describe("dictationPracticeHref (AC-TH-29)", () => {
+  it("có bài thì mở Nghe chép của bài đó", () => {
+    expect(dictationPracticeHref({ practiceLessonId: "abc" })).toBe("/student/dictation/abc");
+  });
+
+  it("không có bài phù hợp thì mở thư viện Nghe chép", () => {
+    expect(dictationPracticeHref({ practiceLessonId: null })).toBe("/student/dictation");
+  });
+});
+
+describe("signedDelta (AC-TH-27, AC-TH-28)", () => {
+  it("tăng có dấu cộng, giảm có dấu trừ, bằng nhau là 0", () => {
+    expect(signedDelta(12)).toBe("+12");
+    expect(signedDelta(-3)).toBe("-3");
+    expect(signedDelta(0)).toBe("0");
   });
 });
 
