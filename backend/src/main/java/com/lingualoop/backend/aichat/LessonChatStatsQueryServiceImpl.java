@@ -3,7 +3,9 @@ package com.lingualoop.backend.aichat;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,6 +30,22 @@ class LessonChatStatsQueryServiceImpl implements LessonChatStatsQueryService {
                 WHERE c.user_id = :user AND c.status = 'completed'""")
                 .param("user", userId)
                 .query(LocalDate.class).list());
+    }
+
+    @Override
+    public Map<LocalDate, Long> activityByDay(UUID userId, Instant since) {
+        Map<LocalDate, Long> result = new HashMap<>();
+        jdbc.sql("""
+                SELECT (COALESCE(c.ended_at, c.started_at) AT TIME ZONE u.timezone)::date AS day, count(*) AS n
+                FROM ai_conversations c JOIN users u ON u.id = c.user_id
+                WHERE c.user_id = :user AND c.status = 'completed' AND COALESCE(c.ended_at, c.started_at) >= :since
+                GROUP BY 1""")
+                .param("user", userId).param("since", Timestamp.from(since))
+                .query((rs, i) -> {
+                    result.put(rs.getObject("day", LocalDate.class), rs.getLong("n"));
+                    return null;
+                }).list();
+        return result;
     }
 
     @Override

@@ -31,6 +31,22 @@ public class VocabStatsRepository {
                 .query(LocalDate.class).list());
     }
 
+    /** Số câu trả lời thẻ mỗi ngày lịch của học viên từ {@code since}. */
+    public java.util.Map<LocalDate, Long> activityByDay(UUID userId, java.time.Instant since) {
+        java.util.Map<LocalDate, Long> result = new java.util.HashMap<>();
+        jdbc.sql("""
+                SELECT (l.created_at AT TIME ZONE u.timezone)::date AS day, count(*) AS n
+                FROM vocab_review_logs l JOIN users u ON u.id = l.user_id
+                WHERE l.user_id = :user AND l.created_at >= :since
+                GROUP BY 1""")
+                .param("user", userId).param("since", java.sql.Timestamp.from(since))
+                .query((rs, i) -> {
+                    result.put(rs.getObject("day", LocalDate.class), rs.getLong("n"));
+                    return null;
+                }).list();
+        return result;
+    }
+
     /** Thẻ chưa xóa của các bộ mà học viên đã có tiến độ ở ít nhất một thẻ, theo trạng thái. */
     public VocabStatsView.CardCounts cardCounts(UUID userId) {
         return jdbc.sql("""

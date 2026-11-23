@@ -3,6 +3,7 @@ package com.lingualoop.backend.vocab.service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,6 +25,11 @@ class VocabStatsQueryServiceImpl implements VocabStatsQueryService {
     @Override
     public Set<LocalDate> activeDays(UUID userId) {
         return stats.activeDays(userId);
+    }
+
+    @Override
+    public Map<LocalDate, Long> activityByDay(UUID userId, Instant since) {
+        return stats.activityByDay(userId, since);
     }
 
     @Override

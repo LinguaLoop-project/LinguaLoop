@@ -6,10 +6,12 @@ import java.util.UUID;
 import com.lingualoop.backend.common.response.PageResponse;
 import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.practice.dto.PracticeSessionDetailView;
+import com.lingualoop.backend.stats.dto.ActivityView;
 import com.lingualoop.backend.stats.dto.DictationErrorsView;
 import com.lingualoop.backend.stats.dto.HistoryView;
 import com.lingualoop.backend.stats.dto.PronunciationView;
 import com.lingualoop.backend.stats.dto.StatsOverviewView;
+import com.lingualoop.backend.stats.dto.WrongWordsView;
 
 /**
  * Thống kê học tập của chính học viên (UC-TH-01, UC-TH-02, UC-TH-03). Mọi số liệu tính trực tiếp từ dữ liệu gốc, không
@@ -28,6 +30,12 @@ public interface StatsService {
 
     /** Lỗi Nghe chép theo đủ sáu nhóm từ (BR-TH-05, BR-TH-12). */
     DictationErrorsView dictationErrors(UUID userId, String range);
+
+    /** Mười từ nghe sai nhiều nhất trong khoảng (BR-TH-16). */
+    WrongWordsView wrongWords(UUID userId, String range);
+
+    /** Lịch nhiệt 13 tuần gần nhất (BR-TH-15). */
+    ActivityView activity(UUID userId);
 
     /** Lịch sử luyện tập từ mới đến cũ, đã lọc theo chế độ và khoảng (BR-TH-06, BR-TH-07); {@code page} từ 0. */
     PageResponse<HistoryView> history(UUID userId, String mode, String range, int page);

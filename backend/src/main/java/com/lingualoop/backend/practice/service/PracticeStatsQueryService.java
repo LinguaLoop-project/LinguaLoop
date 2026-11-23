@@ -14,6 +14,7 @@ import com.lingualoop.backend.practice.dto.PracticeSessionDetailView;
 import com.lingualoop.backend.practice.dto.PracticeSessionView;
 import com.lingualoop.backend.practice.dto.SentenceCountsView;
 import com.lingualoop.backend.practice.dto.WordClassErrorView;
+import com.lingualoop.backend.practice.dto.WrongWordView;
 
 /**
  * Số liệu luyện câu của một học viên cho feature {@code stats}. Chỉ đọc; không để lộ entity hay repository của
@@ -25,6 +26,12 @@ public interface PracticeStatsQueryService {
     Set<LocalDate> activeDays(UUID userId);
 
     SentenceCountsView sentenceCounts(UUID userId, Instant since);
+
+    /** Số lượt làm Nghe chép và Shadowing mỗi ngày lịch từ {@code since}, chỉ các ngày có lượt (BR-TH-15). */
+    Map<LocalDate, Long> activityByDay(UUID userId, Instant since);
+
+    /** Các từ bị sai nhiều nhất trên lượt nộp đầu tiên, nhiều lần sai nhất trước, tối đa {@code limit} từ (BR-TH-16). */
+    List<WrongWordView> topWrongWords(UUID userId, Instant since, int limit);
 
     /** Số câu khác nhau đã luyện trong khoảng nửa mở {@code [from, until)}, để so với khoảng liền trước (BR-TH-13). */
     long sentencesBetween(UUID userId, Instant from, Instant until);

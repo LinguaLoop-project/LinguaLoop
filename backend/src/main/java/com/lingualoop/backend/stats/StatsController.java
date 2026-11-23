@@ -16,10 +16,12 @@ import com.lingualoop.backend.common.response.PageResponse;
 import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.practice.dto.PracticeSessionDetailView;
 import com.lingualoop.backend.security.CurrentUserId;
+import com.lingualoop.backend.stats.dto.ActivityView;
 import com.lingualoop.backend.stats.dto.DictationErrorsView;
 import com.lingualoop.backend.stats.dto.HistoryView;
 import com.lingualoop.backend.stats.dto.PronunciationView;
 import com.lingualoop.backend.stats.dto.StatsOverviewView;
+import com.lingualoop.backend.stats.dto.WrongWordsView;
 
 import lombok.RequiredArgsConstructor;
 
@@ -51,6 +53,19 @@ public class StatsController {
     public ApiResponse<DictationErrorsView> dictationErrors(@CurrentUserId UUID userId,
             @RequestParam(required = false) String range) {
         return ApiResponse.ok(statsService.dictationErrors(userId, range));
+    }
+
+    /** Mười từ nghe sai nhiều nhất theo khoảng, để học viên lưu vào từ vựng. */
+    @GetMapping("/dictation-errors/words")
+    public ApiResponse<WrongWordsView> wrongWords(@CurrentUserId UUID userId,
+            @RequestParam(required = false) String range) {
+        return ApiResponse.ok(statsService.wrongWords(userId, range));
+    }
+
+    /** Lịch nhiệt các ngày học trong 13 tuần gần nhất; không phụ thuộc bộ lọc khoảng. */
+    @GetMapping("/activity")
+    public ApiResponse<ActivityView> activity(@CurrentUserId UUID userId) {
+        return ApiResponse.ok(statsService.activity(userId));
     }
 
     /** Lịch sử luyện tập; {@code mode} là {@code all}, {@code dictation}, {@code shadowing}, {@code vocab} hoặc {@code ai}. */

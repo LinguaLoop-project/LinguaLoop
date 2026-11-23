@@ -758,6 +758,92 @@ class StatsApiIntegrationTest {
                 .andExpect(jsonPath("$.data.classes[0].practiceLessonId").doesNotExist());
     }
 
+    // ---------------------------------------------------------------- lịch nhiệt và từ nghe sai nhiều nhất
+
+    @Test
+    void activity_countsAttemptsCardAnswersAndFinishedAiSessionsPerDayOver13Weeks_AC_TH_31() throws Exception {
+        UUID user = users.newUser();
+        UUID lesson = lesson(false, "published");
+        UUID s0 = sentence(lesson, 0);
+        UUID s1 = sentence(lesson, 1);
+        dictation(user, s0, at(0), 80);
+        dictation(user, s1, at(0), 70);
+        shadowing(user, s0, at(0), 60);
+        List<UUID> cards = vocab.fill(vocab.deck(base + "act", false), 1, 1, base + "a");
+        reviewLog(user, cards.get(0), null, true, at(1));
+        reviewLog(user, cards.get(0), null, false, at(1));
+        aiSession(user, lesson, "completed", at(2), 2);
+        aiSession(user, lesson, "active", at(3), 1);                   // chưa xong: không tính
+        dictation(user, s1, at(100), 50);                              // ngoài 13 tuần
+
+        LocalDate today = LocalDate.now(ZONE);
+        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(12);
+        as(user, get("/api/v1/stats/activity")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.from").value(monday.toString()))
+                .andExpect(jsonPath("$.data.to").value(today.toString()))
+                .andExpect(jsonPath("$.data.days.length()").value(3))
+                .andExpect(jsonPath("$.data.days[0].date").value(today.minusDays(2).toString()))
+                .andExpect(jsonPath("$.data.days[0].count").value(1))
+                .andExpect(jsonPath("$.data.days[1].date").value(today.minusDays(1).toString()))
+                .andExpect(jsonPath("$.data.days[1].count").value(2))
+                .andExpect(jsonPath("$.data.days[2].date").value(today.toString()))
+                .andExpect(jsonPath("$.data.days[2].count").value(3));
+    }
+
+    @Test
+    void activity_forANewLearner_hasNoActiveDays_AC_TH_31() throws Exception {
+        as(users.newUser(), get("/api/v1/stats/activity")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.days.length()").value(0));
+    }
+
+    @Test
+    void wrongWords_rankFirstSubmissionMistakesCaseInsensitively_AC_TH_32() throws Exception {
+        UUID user = users.newUser();
+        UUID lesson = lesson(false, "published");
+        UUID s0 = sentence(lesson, 0);
+        UUID s1 = sentence(lesson, 1);
+        long a0 = attempts.insertAttempt(user, s0, "dictation", "normal", false, false, at(5));
+        attempts.insertWord(a0, 0, "the", null, "omitted", "function");
+        attempts.insertWord(a0, 1, "tree", null, "omitted", "content");
+        long a1 = attempts.insertAttempt(user, s1, "dictation", "normal", false, false, at(3));
+        attempts.insertWord(a1, 0, "the", "the", "correct", "function");
+        attempts.insertWord(a1, 1, "Tree", "tre", "substituted", "content");
+        long redo = attempts.insertAttempt(user, s0, "dictation", "normal", true, false, at(1));   // làm lại: không tính
+        attempts.insertWord(redo, 0, "tree", null, "omitted", "content");
+
+        as(user, get("/api/v1/stats/dictation-errors/words")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.range").value("30d"))
+                .andExpect(jsonPath("$.data.words.length()").value(2))
+                .andExpect(jsonPath("$.data.words[0].word").value("Tree"))
+                .andExpect(jsonPath("$.data.words[0].wordClass").value("content"))
+                .andExpect(jsonPath("$.data.words[0].wrongCount").value(2))
+                .andExpect(jsonPath("$.data.words[0].seenCount").value(2))
+                .andExpect(jsonPath("$.data.words[1].word").value("the"))
+                .andExpect(jsonPath("$.data.words[1].wrongCount").value(1))
+                .andExpect(jsonPath("$.data.words[1].seenCount").value(2));
+    }
+
+    @Test
+    void wrongWords_followTheRange_skipGiveUpsAndStopAtTen_AC_TH_32() throws Exception {
+        UUID user = users.newUser();
+        UUID lesson = lesson(false, "published");
+        long old = attempts.insertAttempt(user, sentence(lesson, 0), "dictation", "normal", false, false, at(60));
+        attempts.insertWord(old, 0, "river", null, "omitted", "content");
+        long gaveUp = attempts.insertAttempt(user, sentence(lesson, 1), "dictation", "normal", false, true, at(1));
+        attempts.insertWord(gaveUp, 0, "lake", null, "revealed", "content");
+        long many = attempts.insertAttempt(user, sentence(lesson, 2), "dictation", "normal", false, false, at(1));
+        for (int i = 0; i < 12; i++) {
+            attempts.insertWord(many, i, "word" + i, null, "omitted", "content");
+        }
+
+        as(user, get("/api/v1/stats/dictation-errors/words")).andExpect(jsonPath("$.data.words.length()").value(10));
+        as(user, get("/api/v1/stats/dictation-errors/words").param("range", "all"))
+                .andExpect(jsonPath("$.data.words.length()").value(10));
+        as(user, get("/api/v1/stats/dictation-errors/words").param("range", "week")).andExpect(status().isBadRequest());
+        as(users.newUser(), get("/api/v1/stats/dictation-errors/words"))
+                .andExpect(jsonPath("$.data.words.length()").value(0));
+    }
+
     // ---------------------------------------------------------------- dữ liệu mẫu
 
     private ResultActions as(UUID user, MockHttpServletRequestBuilder request) throws Exception {

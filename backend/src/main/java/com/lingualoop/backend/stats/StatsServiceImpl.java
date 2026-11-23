@@ -34,10 +34,12 @@ import com.lingualoop.backend.practice.service.PracticeStatsQueryService;
 import com.lingualoop.backend.shadowing.dto.PhonemeDetailView;
 import com.lingualoop.backend.shadowing.dto.PhonemeStatView;
 import com.lingualoop.backend.shadowing.service.ShadowingStatsQueryService;
+import com.lingualoop.backend.stats.dto.ActivityView;
 import com.lingualoop.backend.stats.dto.DictationErrorsView;
 import com.lingualoop.backend.stats.dto.HistoryView;
 import com.lingualoop.backend.stats.dto.PronunciationView;
 import com.lingualoop.backend.stats.dto.StatsOverviewView;
+import com.lingualoop.backend.stats.dto.WrongWordsView;
 import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.UserAccountService;
@@ -54,6 +56,12 @@ class StatsServiceImpl implements StatsService {
     /** Thứ tự cố định của sáu nhóm từ (BR-TH-12). */
     private static final List<String> WORD_CLASSES =
             List.of("function", "content", "inflected", "number", "proper", "other");
+
+    /** Số từ nghe sai nhiều nhất được liệt kê (BR-TH-16). */
+    private static final int TOP_WRONG_WORDS = 10;
+
+    /** Số tuần của lịch nhiệt, khoảng 3 tháng (BR-TH-15). */
+    private static final int ACTIVITY_WEEKS = 13;
 
     /** Trang lịch sử tối đa; chặn offset lớn vì mỗi nguồn phải lấy {@code (page + 1) * 20} dòng để trộn. */
     private static final int MAX_HISTORY_PAGE = 500;
@@ -131,6 +139,30 @@ class StatsServiceImpl implements StatsService {
                             c.revealed(), c.lastWrongWord(), lessonsByClass.get(wordClass)));
         }
         return new DictationErrorsView(range.code(), rows);
+    }
+
+    @Override
+    public WrongWordsView wrongWords(UUID userId, String rawRange) {
+        StatsRange range = StatsRange.parse(rawRange);
+        Window w = window(userId, range);
+        return new WrongWordsView(range.code(), practice.topWrongWords(userId, w.since(), TOP_WRONG_WORDS));
+    }
+
+    @Override
+    public ActivityView activity(UUID userId) {
+        Window w = window(userId, StatsRange.DAYS_30);
+        LocalDate from = w.today().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                .minusWeeks(ACTIVITY_WEEKS - 1L);
+        Instant since = from.atStartOfDay(w.zone()).toInstant();
+        Map<LocalDate, Long> counts = new java.util.TreeMap<>();
+        for (Map<LocalDate, Long> part : List.of(practice.activityByDay(userId, since),
+                vocab.activityByDay(userId, since), aiChat.activityByDay(userId, since))) {
+            part.forEach((day, n) -> counts.merge(day, n, Long::sum));
+        }
+        List<ActivityView.Day> days = counts.entrySet().stream()
+                .filter(e -> e.getValue() > 0 && !e.getKey().isAfter(w.today()))
+                .map(e -> new ActivityView.Day(e.getKey(), e.getValue())).toList();
+        return new ActivityView(from, w.today(), days);
     }
 
     @Override

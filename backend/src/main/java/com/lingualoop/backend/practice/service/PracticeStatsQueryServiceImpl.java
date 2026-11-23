@@ -17,6 +17,7 @@ import com.lingualoop.backend.practice.dto.PracticeSessionDetailView;
 import com.lingualoop.backend.practice.dto.PracticeSessionView;
 import com.lingualoop.backend.practice.dto.SentenceCountsView;
 import com.lingualoop.backend.practice.dto.WordClassErrorView;
+import com.lingualoop.backend.practice.dto.WrongWordView;
 import com.lingualoop.backend.practice.repository.PracticeStatsRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,16 @@ class PracticeStatsQueryServiceImpl implements PracticeStatsQueryService {
     @Override
     public SentenceCountsView sentenceCounts(UUID userId, Instant since) {
         return stats.sentenceCounts(userId, since);
+    }
+
+    @Override
+    public Map<LocalDate, Long> activityByDay(UUID userId, Instant since) {
+        return stats.activityByDay(userId, since);
+    }
+
+    @Override
+    public List<WrongWordView> topWrongWords(UUID userId, Instant since, int limit) {
+        return stats.topWrongWords(userId, since, limit);
     }
 
     @Override

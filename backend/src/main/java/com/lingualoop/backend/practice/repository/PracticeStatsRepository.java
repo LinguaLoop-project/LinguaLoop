@@ -18,6 +18,7 @@ import com.lingualoop.backend.practice.dto.PracticeSessionDetailView;
 import com.lingualoop.backend.practice.dto.PracticeSessionView;
 import com.lingualoop.backend.practice.dto.SentenceCountsView;
 import com.lingualoop.backend.practice.dto.WordClassErrorView;
+import com.lingualoop.backend.practice.dto.WrongWordView;
 
 import lombok.RequiredArgsConstructor;
 
@@ -52,6 +53,52 @@ public class PracticeStatsRepository {
                 .query((rs, n) -> new SentenceCountsView(rs.getLong("total"), rs.getLong("dictation"),
                         rs.getLong("shadowing")))
                 .single();
+    }
+
+    /** Số lượt làm (kể cả làm lại và bỏ cuộc) mỗi ngày lịch của học viên từ {@code since}. */
+    public Map<LocalDate, Long> activityByDay(UUID userId, Instant since) {
+        Map<LocalDate, Long> result = new HashMap<>();
+        jdbc.sql("""
+                SELECT (a.created_at AT TIME ZONE u.timezone)::date AS day, count(*) AS n
+                FROM sentence_attempts a JOIN users u ON u.id = a.user_id
+                WHERE a.user_id = :user AND a.created_at >= :since
+                GROUP BY 1""")
+                .param("user", userId).param("since", Timestamp.from(since))
+                .query((rs, i) -> {
+                    result.put(rs.getObject("day", LocalDate.class), rs.getLong("n"));
+                    return null;
+                }).list();
+        return result;
+    }
+
+    /**
+     * Từ bị sai nhiều nhất trên lượt nộp đầu tiên của mỗi câu (cùng cách chọn lượt đầu như {@link #dictationErrors}),
+     * gom theo chữ thường. Hòa số lần sai thì từ sai gần đây hơn đứng trước (BR-TH-16).
+     */
+    public List<WrongWordView> topWrongWords(UUID userId, Instant since, int limit) {
+        return jdbc.sql("""
+                WITH first_attempt AS (
+                    SELECT DISTINCT ON (sentence_id) id, created_at
+                    FROM sentence_attempts
+                    WHERE user_id = :user AND mode = 'dictation' AND NOT is_retry AND NOT gave_up
+                    ORDER BY sentence_id, created_at, id
+                )
+                SELECT (array_agg(w.expected_word ORDER BY f.created_at DESC, w.position DESC))[1] AS word,
+                       (array_agg(w.word_class ORDER BY f.created_at DESC, w.position DESC))[1] AS word_class,
+                       count(*) FILTER (WHERE w.outcome IN ('omitted', 'substituted', 'misspelled', 'revealed')) AS wrong,
+                       count(*) AS seen,
+                       max(f.created_at) FILTER (WHERE w.outcome IN ('omitted', 'substituted', 'misspelled', 'revealed')) AS last_wrong
+                FROM first_attempt f
+                JOIN sentence_attempt_words w ON w.attempt_id = f.id
+                WHERE f.created_at >= :since AND w.word_class IS NOT NULL
+                GROUP BY lower(w.expected_word)
+                HAVING count(*) FILTER (WHERE w.outcome IN ('omitted', 'substituted', 'misspelled', 'revealed')) > 0
+                ORDER BY wrong DESC, last_wrong DESC, lower(w.expected_word)
+                LIMIT :limit""")
+                .param("user", userId).param("since", Timestamp.from(since)).param("limit", limit)
+                .query((rs, n) -> new WrongWordView(rs.getString("word"), rs.getString("word_class"),
+                        rs.getLong("wrong"), rs.getLong("seen")))
+                .list();
     }
 
     public long sentencesBetween(UUID userId, Instant from, Instant until) {

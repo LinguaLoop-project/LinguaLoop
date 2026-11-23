@@ -3,6 +3,7 @@ package com.lingualoop.backend.vocab.service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,6 +17,9 @@ public interface VocabStatsQueryService {
 
     /** Ngày lịch có ít nhất một câu trả lời thẻ (BR-TH-02). */
     Set<LocalDate> activeDays(UUID userId);
+
+    /** Số câu trả lời thẻ mỗi ngày lịch từ {@code since}, chỉ các ngày có câu trả lời (BR-TH-15). */
+    Map<LocalDate, Long> activityByDay(UUID userId, Instant since);
 
     /** Số thẻ theo trạng thái, hiện trạng không theo khoảng (BR-TH-03, BR-TH-04). */
     VocabStatsView.CardCounts cardCounts(UUID userId);

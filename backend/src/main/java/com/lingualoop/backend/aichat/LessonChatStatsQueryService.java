@@ -3,6 +3,7 @@ package com.lingualoop.backend.aichat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,6 +25,9 @@ public interface LessonChatStatsQueryService {
 
     /** Ngày lịch (theo múi giờ của học viên) có ít nhất một phiên hoàn thành. */
     Set<LocalDate> activeDays(UUID userId);
+
+    /** Số phiên hoàn thành mỗi ngày lịch từ {@code since}, chỉ các ngày có phiên (BR-TH-15). */
+    Map<LocalDate, Long> activityByDay(UUID userId, Instant since);
 
     /** Phiên hoàn thành từ {@code since}, từ mới đến cũ, tối đa {@code limit} dòng. */
     List<Session> sessions(UUID userId, Instant since, int limit);
