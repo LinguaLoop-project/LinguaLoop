@@ -123,3 +123,25 @@ _Tránh_: bài ôn, phiên học (là bản ghi gom nhật ký của Học từ 
 **Hồ sơ học tập**:
 Phần thiết lập học viên điền ở lần đầu đăng nhập: tên hiển thị, Mục tiêu ngày, ngôn ngữ giao diện, múi giờ và việc đồng ý điều khoản. Chưa điền xong thì học viên chưa dùng được các trang khác. Múi giờ quyết định ranh giới của "hôm nay".
 _Tránh_: onboarding, thông tin tài khoản (gồm cả email và mật khẩu)
+
+### Thống kê học tập
+
+**Ngày đã học**:
+Một ngày lịch theo múi giờ của học viên mà trong đó học viên có ít nhất một hoạt động học: nộp một lượt làm nghe chép (kể cả làm lại hay bỏ cuộc), nộp một lượt làm shadowing, trả lời một thẻ, hoặc hoàn thành một phiên Thực hành với AI. Gia sư không tính.
+_Tránh_: ngày hoạt động, ngày đăng nhập (mở ứng dụng không tính là học)
+
+**Chuỗi ngày học**:
+Số Ngày đã học liền nhau tính đến hôm nay. Hôm nay chưa học thì chuỗi vẫn giữ theo hôm qua; trọn một ngày không học thì chuỗi về 0.
+_Tránh_: streak (chỉ dùng trong code), chuỗi đăng nhập
+
+**Kỷ lục chuỗi**:
+Chuỗi ngày học dài nhất từng có của học viên; không bao giờ giảm.
+_Tránh_: chuỗi tốt nhất, best streak
+
+**Buổi luyện**:
+Mọi lượt làm của một học viên trên một bài, ở một chế độ, trong một ngày lịch theo múi giờ của học viên. Là một dòng trong Lịch sử luyện tập; không phải bản ghi được lưu, chỉ là cách gom các lượt làm.
+_Tránh_: phiên luyện, phiên học (dùng cho phiên học từ vựng), session
+
+**Khoảng thống kê**:
+Khoảng thời gian học viên chọn khi xem thống kê: 7 ngày, 30 ngày (mặc định) hoặc Toàn bộ. "7 ngày" là hôm nay và 6 ngày lịch trước đó theo múi giờ của học viên. Chỉ áp dụng cho số liệu theo hoạt động (câu đã luyện, tỷ lệ đúng, lỗi, âm vị), không áp dụng cho số liệu hiện trạng (Trạng thái thẻ, bài đang học, chuỗi ngày học).
+_Tránh_: bộ lọc ngày, kỳ
