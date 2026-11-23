@@ -75,6 +75,21 @@ class SentenceTokenServiceTest {
     }
 
     @Test
+    void tokenize_putsInflectedWordsAndMidSentenceCapitalsInTheirOwnGroups_AC_TH_21() {
+        List<SentenceToken> tokens = service.tokenize("She walked to London");
+
+        assertThat(tokens).extracting(SentenceToken::wordClass)
+                .containsExactly(WordClass.function, WordClass.inflected, WordClass.function, WordClass.proper);
+    }
+
+    @Test
+    void tokenize_aCapitalAtTheStartOfASentenceIsNotAProperName_AC_TH_22() {
+        List<SentenceToken> tokens = service.tokenize("Yesterday we walked home.");
+
+        assertThat(tokens.get(0).wordClass()).isEqualTo(WordClass.content);
+    }
+
+    @Test
     void tokenize_punctuationOnlyChunkKeepsPositionButIsOther() {
         List<SentenceToken> tokens = service.tokenize("Wait - what");
 
