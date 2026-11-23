@@ -5,6 +5,7 @@ import {
   activeDayCount,
   buildHeatWeeks,
   dictationPracticeHref,
+  goalPercent,
   heatLevel,
   hasTrend,
   signedDelta,
@@ -186,6 +187,16 @@ describe("scorePoints (AC-TH-18)", () => {
     expect(b).toBe("100.0,0.0");
     expect(scorePoints([{ from: "a", averageScore: 50, attempts: 1 }], 100, 60, 0)).toBe("50.0,30.0");
     expect(scorePoints([], 100, 60)).toBe("");
+  });
+});
+
+describe("goalPercent (AC-TH-35)", () => {
+  it("tính phần trăm mục tiêu ngày và dừng ở 100 khi luyện vượt", () => {
+    expect(goalPercent(0, 15)).toBe(0);
+    expect(goalPercent(6, 15)).toBe(40);
+    expect(goalPercent(15, 15)).toBe(100);
+    expect(goalPercent(40, 15)).toBe(100);
+    expect(goalPercent(3, 0)).toBe(0);
   });
 });
 

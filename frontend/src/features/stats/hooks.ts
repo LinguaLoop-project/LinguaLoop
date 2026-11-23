@@ -16,6 +16,7 @@ export const statsKeys = {
   overview: (range: StatsRange) => ["stats", "overview", range] as const,
   streak: ["stats", "streak"] as const,
   activity: ["stats", "activity"] as const,
+  todayGoal: ["stats", "today-goal"] as const,
   wrongWords: (range: StatsRange) => ["stats", "wrong-words", range] as const,
   dictationErrors: (range: StatsRange) => ["stats", "dictation-errors", range] as const,
   history: (mode: HistoryMode, range: StatsRange, page: number) => ["stats", "history", mode, range, page] as const,
@@ -38,6 +39,10 @@ export const useStatsOverview = (range: StatsRange) =>
 /** Chuỗi ngày học cho chip ở thanh trên cùng; chỉ tải khi `enabled` (học viên đã đăng nhập). */
 export const useStreak = (enabled = true) =>
   useQuery({ ...base, queryKey: statsKeys.streak, queryFn: statsApi.getStreak, enabled });
+
+/** Tiến độ mục tiêu câu luyện hôm nay; làm mới khi quay lại trang để thấy câu vừa luyện. */
+export const useTodayGoal = () =>
+  useQuery({ ...base, queryKey: statsKeys.todayGoal, queryFn: statsApi.getTodayGoal, staleTime: 0 });
 
 /** Lịch nhiệt 13 tuần, không phụ thuộc bộ lọc khoảng. */
 export const useActivity = () => useQuery({ ...base, queryKey: statsKeys.activity, queryFn: statsApi.getActivity });

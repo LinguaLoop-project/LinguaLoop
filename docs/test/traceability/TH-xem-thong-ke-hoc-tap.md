@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TH-xem-thong-ke-hoc-tap/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 34 AC, 25 đã có test, 5 một phần, 0 thiếu, 4 thủ công.
+Tổng hợp: 35 AC, 25 đã có test, 6 một phần, 0 thiếu, 4 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -22,6 +22,7 @@ Tổng hợp: 34 AC, 25 đã có test, 5 một phần, 0 thiếu, 4 thủ công.
 | AC-TH-32 | Xếp hạng từ nghe sai nhiều nhất | UC-TH-01 | D, A | StatsApiIntegrationTest.wrongWords_rankFirstSubmissionMistakesCaseInsensitively_AC_TH_32; StatsApiIntegrationTest.wrongWords_followTheRange_skipGiveUpsAndStopAtTen_AC_TH_32 | Đã có |
 | AC-TH-33 | Lưu từ nghe sai vào từ vựng | UC-TH-01 | A | `frontend/src/features/stats/i18n.test.ts` | Thủ công (bấm Lưu vào từ vựng, chọn nghĩa ở hộp tra từ, kiểm tra ở Từ & câu đã lưu) |
 | AC-TH-34 | Giải thích các nhóm từ bằng nút dấu chấm than | UC-TH-01 | D | `frontend/src/features/stats/i18n.test.ts` (đủ khoá giải thích ở cả hai ngôn ngữ) | Một phần |
+| AC-TH-35 | Vòng tiến độ mục tiêu luyện câu ở trang Hôm nay | UC-TH-01 | D, B | StatsApiIntegrationTest.todayGoal_countsDistinctSentencesPracticedTodayAgainstTheDailyMinutes_AC_TH_35; `frontend/src/features/stats/utils.test.ts` (goalPercent) | Một phần (vòng tiến độ ở trang Hôm nay kiểm tay trên trình duyệt) |
 | AC-TH-08 | Hiển thị lịch sử luyện tập gom theo Buổi luyện, từ mới nhất đến cũ nhất | UC-TH-02 | D | StatsApiIntegrationTest.history_groupsAttemptsIntoPracticeSessions_newestFirst_AC_TH_08 | Đã có |
 | AC-TH-09 | Lọc lịch sử luyện tập theo chế độ học và khoảng thời gian | UC-TH-02 | D, B | StatsApiIntegrationTest.history_filtersByModeAndRange_AC_TH_09 | Đã có |
 | AC-TH-10 | Phân trang danh sách lịch sử luyện tập | UC-TH-02 | B | StatsApiIntegrationTest.history_pagesBy20Rows_AC_TH_10; StatsApiIntegrationTest.history_mergesSourcesByTimeAcrossPages_AC_TH_10 | Đã có |

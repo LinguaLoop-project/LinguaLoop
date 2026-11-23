@@ -39,6 +39,7 @@ import com.lingualoop.backend.stats.dto.DictationErrorsView;
 import com.lingualoop.backend.stats.dto.HistoryView;
 import com.lingualoop.backend.stats.dto.PronunciationView;
 import com.lingualoop.backend.stats.dto.StatsOverviewView;
+import com.lingualoop.backend.stats.dto.TodayGoalView;
 import com.lingualoop.backend.stats.dto.WrongWordsView;
 import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 import com.lingualoop.backend.user.dto.UserAccountView;
@@ -146,6 +147,14 @@ class StatsServiceImpl implements StatsService {
         StatsRange range = StatsRange.parse(rawRange);
         Window w = window(userId, range);
         return new WrongWordsView(range.code(), practice.topWrongWords(userId, w.since(), TOP_WRONG_WORDS));
+    }
+
+    @Override
+    public TodayGoalView todayGoal(UUID userId) {
+        UserAccountView user = users.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
+        ZoneId zone = ZoneId.of(user.timezone());
+        Instant startOfToday = LocalDate.now(clock.withZone(zone)).atStartOfDay(zone).toInstant();
+        return new TodayGoalView(practice.sentenceCounts(userId, startOfToday).total(), user.dailyMinutes());
     }
 
     @Override

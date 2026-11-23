@@ -11,6 +11,7 @@ import com.lingualoop.backend.stats.dto.DictationErrorsView;
 import com.lingualoop.backend.stats.dto.HistoryView;
 import com.lingualoop.backend.stats.dto.PronunciationView;
 import com.lingualoop.backend.stats.dto.StatsOverviewView;
+import com.lingualoop.backend.stats.dto.TodayGoalView;
 import com.lingualoop.backend.stats.dto.WrongWordsView;
 
 /**
@@ -33,6 +34,9 @@ public interface StatsService {
 
     /** Mười từ nghe sai nhiều nhất trong khoảng (BR-TH-16). */
     WrongWordsView wrongWords(UUID userId, String range);
+
+    /** Tiến độ mục tiêu câu luyện của hôm nay, cho trang Hôm nay (BR-TH-18). */
+    TodayGoalView todayGoal(UUID userId);
 
     /** Lịch nhiệt 13 tuần gần nhất (BR-TH-15). */
     ActivityView activity(UUID userId);

@@ -8,6 +8,7 @@ import ProgressBar from "@/components/common/ProgressBar";
 import Skeleton from "@/components/common/Skeleton";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import { useAuthStore } from "@/features/auth";
+import { DailyGoalCard } from "@/features/stats";
 import SuggestionCards from "../components/SuggestionCards";
 import { hasSuggestions } from "../flow";
 import { useDailyPlan } from "../hooks";
@@ -126,6 +127,8 @@ export default function TodayPage() {
           {name ? t("today.greeting", { name }) : t("today.greetingAnon")}
         </h1>
       </header>
+
+      <DailyGoalCard />
 
       {query.isPending && (
         <div role="status" aria-label={t("loading")}>
