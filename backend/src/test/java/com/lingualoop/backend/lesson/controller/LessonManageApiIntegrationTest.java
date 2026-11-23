@@ -683,12 +683,14 @@ class LessonManageApiIntegrationTest {
                 .andExpect(jsonPath("$.data.sentences[0].id").value(s.get(2).toString()))
                 .andExpect(jsonPath("$.data.sentences[0].textVi").value("Gợi ý mới"))
                 .andExpect(jsonPath("$.data.sentences[0].ipaUs").value("ipa-us"))
-                .andExpect(jsonPath("$.data.translationOutcome").value("COMPLETE"));
+                .andExpect(jsonPath("$.data.translationOutcome").value("COMPLETE"))
+                .andExpect(jsonPath("$.data.creditsCharged").value(1)) // BR-GA-06: hiện credit đã trừ và số dư
+                .andExpect(jsonPath("$.data.creditBalance").value(99));
 
-        // gợi ý chỉ điền vào ô, không lưu; chưa trừ credit (module credit làm sau)
+        // gợi ý chỉ điền vào ô, không lưu; trừ 1 credit cho câu có gợi ý (BR-BH-14)
         assertThat(jdbc.queryForObject("SELECT text_vi FROM sentences WHERE id = ?", String.class, s.get(2)))
                 .isEqualTo("Câu 2");
-        assertThat(balance(teacherA)).isEqualTo(100);
+        assertThat(balance(teacherA)).isEqualTo(99);
     }
 
     @Test
@@ -703,6 +705,45 @@ class LessonManageApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.translationOutcome").value("AI_FAILED"))
                 .andExpect(jsonPath("$.data.sentences[0].textVi").doesNotExist());
+        assertThat(balance(teacherA)).isEqualTo(100); // lỗi hệ thống không trừ credit
+    }
+
+    @Test
+    void suggest_notEnoughCreditForEverySelectedSentence_suggestsNothing_AC_BH_72() throws Exception {
+        UUID id = lesson(teacherA, "L", "draft");
+        List<UUID> s = sentences(id, 3);
+        TestData.setCredits(jdbc, teacherA, 2); // cần 3 credit cho 3 câu
+
+        asA(post(TEACHER_URL + "/" + id + "/suggestions").content("""
+                {"sentences":[{"id":"%s","textEn":"a"},{"id":"%s","textEn":"b"},{"id":"%s","textEn":"c"}],
+                 "translation":true,"ipa":false}""".formatted(s.get(0), s.get(1), s.get(2))))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
+                .andExpect(jsonPath("$.details.feature").value("lesson_suggest"))
+                .andExpect(jsonPath("$.details.balance").value(2))
+                .andExpect(jsonPath("$.details.cost").value(3));
+
+        verify(gemini, never()).generate(any());
+        assertThat(balance(teacherA)).isEqualTo(2);
+    }
+
+    @Test
+    void suggest_aiAnswersOnlySomeSentences_chargesOnlyThose_AC_BH_73() throws Exception {
+        UUID id = lesson(teacherA, "L", "draft");
+        List<UUID> s = sentences(id, 3);
+        when(gemini.generate(any())).thenReturn(new Result(
+                "{\"items\":[{\"id\":0,\"vi\":\"Một\"},{\"id\":1,\"vi\":\"Hai\"}]}", 300, 100));
+
+        asA(post(TEACHER_URL + "/" + id + "/suggestions").content("""
+                {"sentences":[{"id":"%s","textEn":"a"},{"id":"%s","textEn":"b"},{"id":"%s","textEn":"c"}],
+                 "translation":true,"ipa":false}""".formatted(s.get(0), s.get(1), s.get(2))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.sentences[0].textVi").value("Một"))
+                .andExpect(jsonPath("$.data.sentences[2].textVi").doesNotExist());
+
+        assertThat(balance(teacherA)).isEqualTo(98);
+        assertThat(jdbc.queryForObject("SELECT quantity FROM ai_usage_logs WHERE user_id = ? "
+                + "AND feature = 'lesson_suggest' AND status = 'success'", Integer.class, teacherA)).isEqualTo(2);
     }
 
     @Test

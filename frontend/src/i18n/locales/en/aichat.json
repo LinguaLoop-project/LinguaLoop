@@ -80,7 +80,7 @@
     "hint": "The transcript is hidden so you answer on your own."
   },
   "errors": {
-    "QUOTA_EXCEEDED": "You don't have enough credits to start. Free credits refresh tomorrow; Pro credits refresh in your next plan month.",
+    "QUOTA_EXCEEDED": "You don't have enough credits to start. Free accounts get one-time trial credits; upgrade to Pro for new credits every month.",
     "LESSON_PRO_REQUIRED": "This lesson is for Pro.",
     "LESSON_NOT_FOUND": "This lesson was not found.",
     "AI_CHAT_ANSWER_INVALID": "Your answer must be 1 to 1000 characters.",

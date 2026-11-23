@@ -4,7 +4,7 @@ import Icon from "@/components/common/Icon";
 import { useMyPlan, PLAN_QUERY_KEY } from "../hooks/useMyPlan";
 import { CREDIT_QUERY_KEY } from "../hooks/useCredit";
 import { subscriptionService } from "../services/subscriptionService";
-import { FREE_DAILY_CREDITS, type PlanCode } from "../types";
+import { DEFAULT_TRIAL_CREDITS, type PlanCode } from "../types";
 
 const BTN =
   "inline-flex h-7 cursor-pointer items-center rounded-full px-2.5 text-xs font-semibold transition-colors disabled:cursor-wait disabled:opacity-60";
@@ -27,7 +27,7 @@ export default function DevPlanSwitch() {
   });
 
   const reset = useMutation({
-    mutationFn: () => subscriptionService.devSetCredits(FREE_DAILY_CREDITS),
+    mutationFn: () => subscriptionService.devSetCredits(DEFAULT_TRIAL_CREDITS),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CREDIT_QUERY_KEY }),
   });
 

@@ -64,7 +64,7 @@
       "search": "Mở tìm kiếm nhanh",
       "searchPlaceholder": "Tra từ, mở bài, chuyển màn…",
       "streak": "Chuỗi ngày học",
-      "quota": "Năng lượng AI còn lại hôm nay",
+      "quota": "Credit AI còn lại",
       "account": "Tài khoản {{name}}",
       "menuAria": "Tài khoản",
       "upgrade": "Nâng cấp Pro",
@@ -96,6 +96,7 @@
       "breadcrumbAria": "Vị trí hiện tại",
       "root": "Giáo viên",
       "accountAria": "Tài khoản giáo viên",
+      "credit": "Credit soạn bài còn lại (do quản trị viên cấp, không hết hạn)",
       "menuAria": "Tài khoản",
       "settings": "Cài đặt",
       "logout": "Đăng xuất",
@@ -129,11 +130,10 @@
         "lessons": "Bài học đã xuất bản",
         "decks": "Bộ thẻ đã xuất bản",
         "audit": "Nhật ký hoạt động",
-        "limits": "Gói & Hạn mức",
-        "subs": "Đăng ký Pro",
-        "errors": "Danh mục lỗi",
         "republish": "Duyệt xuất bản lại",
-        "transfers": "Giao lại nội dung"
+        "transfers": "Giao lại nội dung",
+        "credit": "Cấu hình credit",
+        "plans": "Gói Pro"
       }
     },
     "topbar": {
@@ -151,11 +151,7 @@
         "lessons": "Bài học đã xuất bản",
         "decks": "Bộ thẻ đã xuất bản",
         "audit": "Nhật ký hoạt động",
-        "limits": "Gói & Hạn mức",
-        "subs": "Đăng ký Pro",
-        "errors": "Danh mục lỗi",
         "teachers": "Giáo viên",
-        "subscriptions": "Gói dịch vụ",
         "content": "Nội dung",
         "settings": "Cài đặt hệ thống",
         "logs": "Nhật ký hoạt động",
@@ -166,7 +162,9 @@
         "lessonDetail": "Chi tiết bài học",
         "deckDetail": "Chi tiết bộ thẻ",
         "republish": "Duyệt xuất bản lại",
-        "transfers": "Giao lại nội dung"
+        "transfers": "Giao lại nội dung",
+        "credit": "Cấu hình credit",
+        "plans": "Gói Pro"
       }
     }
   },

@@ -257,14 +257,14 @@
         "label": "Gia sư",
         "on": "bật",
         "off": "tắt",
-        "quotaOut": "không đủ năng lượng"
+        "quotaOut": "không đủ credit"
       },
       "ask": {
         "title": "Học cùng gia sư trong bài này?",
         "body": "Sau câu có từ cần sửa, gia sư sẽ vào nói chuyện bằng giọng nói để luyện từng từ. Đổi được bất cứ lúc nào.",
         "enable": "Bật gia sư",
         "decline": "Tự học",
-        "freeNote": "Free: tối đa {{limit}} phiên mỗi ngày (tốn năng lượng AI)"
+        "costNote": "Mỗi phiên gia sư tốn {{cost}} credit"
       },
       "offer": {
         "text": "Mình thấy {{count}} từ cần sửa:",
@@ -387,9 +387,9 @@
         "retry": "Thử lại",
         "busy": "AI đang bận, bạn thử lại sau ít phút nhé. Lượt của bạn không bị trừ.",
         "consent": "Bạn cần đồng ý cho phép xử lý bằng AI để xem nhận xét.",
-        "quotaOut": "Bạn không còn đủ năng lượng AI cho nhận xét hôm nay.",
+        "quotaOut": "Bạn không còn đủ credit để xin nhận xét AI.",
         "upgrade": "Mở với Pro",
-        "remaining": "Còn {{remaining}}/{{limit}} năng lượng AI",
+        "remaining": "Còn {{remaining}} credit",
         "strengths": "Điểm mạnh",
         "focus": "Cần luyện",
         "howToFix": "Cách sửa /{{phoneme}}/",
@@ -413,9 +413,7 @@
       "title": "Nghe, đọc theo, xem lỗi",
       "back": "Bài học",
       "sentenceOf": "Câu {{n}}/{{total}}",
-      "quotaLeft": "Còn {{remaining}}/{{limit}} năng lượng AI hôm nay",
-      "quotaTitle": "Gói Free: {{limit}} năng lượng AI mỗi ngày",
-      "quotaUnlimited": "Không giới hạn",
+      "quotaLeft": "Còn {{remaining}} credit",
       "listen": "Nghe mẫu",
       "stop": "Dừng",
       "speed": "Tốc độ",
@@ -600,7 +598,9 @@
         "retry": "Thử lại",
         "detailFailed": "Chưa tải được kết quả của lượt này.",
         "noAudio": "Bản ghi âm không được lưu nên không nghe lại được."
-      }
+      },
+      "quotaTitleTrial": "Credit dùng thử còn lại. Nâng cấp Pro để có credit hằng tháng.",
+      "quotaTitlePro": "Credit còn lại trong tháng, làm mới ngày {{date}}"
     }
   },
   "teacher": {
@@ -666,25 +666,9 @@
       "title": "Nhật ký nội dung",
       "description": "Truy vết toàn bộ lịch sử chỉnh sửa, xuất bản nội dung của các giáo viên."
     },
-    "limits": {
-      "title": "Gói & Hạn mức",
-      "description": "Cấu hình giới hạn số lượt tra từ AI, số bài học mỗi ngày cho tài khoản Free và Pro."
-    },
-    "subs": {
-      "title": "Đăng ký Pro",
-      "description": "Theo dõi danh sách đăng ký thuê bao trả phí, doanh thu thanh toán và gia hạn."
-    },
-    "errors": {
-      "title": "Danh mục lỗi",
-      "description": "Quản lý bảng phân loại nguyên nhân lỗi phục vụ phân loại báo cáo và thống kê."
-    },
     "teachers": {
       "title": "Quản lý giáo viên",
       "description": "Xét duyệt hồ sơ, cấp quyền giáo viên và đánh giá chất lượng biên soạn."
-    },
-    "subscriptions": {
-      "title": "Cấu hình gói dịch vụ",
-      "description": "Thiết lập các mức giá thuê bao tháng/năm, chính sách khuyến mãi và tính năng độc quyền."
     },
     "content": {
       "title": "Quản trị nội dung",

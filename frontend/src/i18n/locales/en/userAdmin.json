@@ -165,6 +165,21 @@
     "TRANSFER_NAME_CONFLICT": "Some items have the same name as the receiving teacher's content",
     "TRANSFER_CONTENT_CHANGED": "The content list has changed, please review it",
     "TRANSFER_CONTENT_CHANGED_ALL": "The teacher's content has changed, please review the summary",
-    "VALIDATION_FAILED": "Invalid data"
+    "VALIDATION_FAILED": "Invalid data",
+    "CREDIT_GRANT_NOT_ALLOWED": "Credits cannot be granted to this account"
+  },
+  "grant": {
+    "open": "Grant credits",
+    "title": "Grant credits to teacher",
+    "intro": "{{name}} currently has {{balance}} credits. Granted credits never expire and are only used for lesson authoring (translation suggestions, lessons from YouTube).",
+    "credits": "Credits",
+    "note": "Note",
+    "creditsInvalid": "Enter a whole number from 1 to 1,000,000",
+    "noteRequired": "A note is required",
+    "noteTooLong": "The note can be at most 500 characters",
+    "confirm": "Grant",
+    "done": "Granted {{credits}} credits to {{name}}. New balance: {{balance}} credits",
+    "failed": "Could not grant credits, please try again",
+    "lockedNote": "Unlock the account to grant credits"
   }
 }

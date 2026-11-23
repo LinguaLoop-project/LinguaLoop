@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
+import com.lingualoop.backend.credit.AiFeature;
+import com.lingualoop.backend.credit.AiUsage;
+import com.lingualoop.backend.credit.CreditService;
 import com.lingualoop.backend.lesson.dto.request.CreateLessonFromYouTubeRequest;
 import com.lingualoop.backend.lesson.dto.response.CreatedLessonResponse;
 import com.lingualoop.backend.lesson.dto.response.YouTubePreviewResponse;
@@ -23,6 +26,7 @@ import com.lingualoop.backend.lesson.repository.TopicRepository;
 import com.lingualoop.backend.lesson.service.LessonDraftWriter.DraftLesson;
 import com.lingualoop.backend.lesson.service.LessonDraftWriter.DraftSentence;
 import com.lingualoop.backend.lesson.transcript.SegmentSanitizer;
+import com.lingualoop.backend.lesson.transcript.Transcript;
 import com.lingualoop.backend.lesson.transcript.TranscriptSegment;
 import com.lingualoop.backend.lesson.transcript.VideoTranscriber;
 import com.lingualoop.backend.lesson.youtube.YouTubeVideoId;
@@ -50,6 +54,7 @@ class TeacherLessonImportServiceImpl implements TeacherLessonImportService {
     private final LessonDraftWriter writer;
     private final LessonRepository lessons;
     private final TopicRepository topics;
+    private final CreditService credits;
 
     /**
      * Video đang được tạo bài trong tiến trình này (BR-BH-18, AC-BH-95). Chặn yêu cầu thứ hai trước khi gọi Gemini; khi
@@ -90,6 +95,9 @@ class TeacherLessonImportServiceImpl implements TeacherLessonImportService {
             requireFreeTitle(teacherId, typedTitle);
         }
 
+        // Bước 5: số dư đủ cho một bài (5e), kiểm trước khi gọi YouTube và dịch vụ lấy phụ đề (BR-BH-14)
+        credits.requireCanStart(teacherId, AiFeature.LESSON_IMPORT);
+
         // Bước 6: thông tin video (6a, 6c, 6d)
         YouTubeVideoInfo video = videoLookup.fetch(videoId);
         String title = typedTitle.isEmpty() ? titleFromVideo(video) : typedTitle;
@@ -99,7 +107,42 @@ class TeacherLessonImportServiceImpl implements TeacherLessonImportService {
 
         // Bước 7: lời thoại (6b khi không nhận được câu nào)
         int durationMs = (int) video.duration().toMillis();
-        List<TranscriptSegment> segments = sanitizer.sanitize(transcriber.transcribe(video), durationMs);
+        int durationSec = (int) Math.ceil(durationMs / 1000.0);
+        Transcript transcript = transcriber.transcribe(video);
+        Draft draft;
+        try {
+            draft = saveDraft(teacherId, request, title, videoId, durationMs, durationSec, transcript);
+        } catch (RuntimeException e) {
+            // Dịch vụ lấy phụ đề đã tính phí lần lấy này: ghi chi phí, không trừ credit (BR-GA-12)
+            if (transcript.billed()) {
+                credits.logFailedCost(teacherId, AiFeature.LESSON_IMPORT, AiUsage.once());
+            }
+            throw e;
+        }
+        Lesson lesson = draft.lesson();
+        List<SentenceIpa> ipa = draft.ipa();
+        int sentenceCount = ipa.size();
+        // Chỉ trừ khi bài đã lưu Nháp; chi phí thật là chi phí cố định mỗi lần lấy phụ đề (BR-BH-14, BR-GA-12)
+        int charged = credits.charge(teacherId, AiFeature.LESSON_IMPORT, AiUsage.once());
+
+        int ipaCount = (int) ipa.stream().map(SentenceIpa::us).filter(Objects::nonNull).count();
+        int ipaUkCount = (int) ipa.stream().map(SentenceIpa::uk).filter(Objects::nonNull).count();
+        log.info("Giáo viên {} tạo bài {} từ video {}: {} câu, {} câu có IPA Mỹ, {} câu có IPA Anh", teacherId,
+                lesson.getId(), videoId, sentenceCount, ipaCount, ipaUkCount);
+        return new CreatedLessonResponse(lesson.getId(), lesson.getTitle(), videoId, durationSec,
+                request.cefrLevel().name(), request.pro(), lesson.getStatus().value(), sentenceCount, ipaCount,
+                ipaUkCount, charged, credits.balanceOf(teacherId).balance());
+    }
+
+    /** Bài Nháp vừa lưu kèm IPA của từng câu (theo thứ tự câu). */
+    private record Draft(Lesson lesson, List<SentenceIpa> ipa) {
+    }
+
+    /** Bước 7 (sau khi lấy lời thoại) tới Bước 9: tách câu, tạo IPA, lưu Nháp. */
+    @SuppressWarnings("java:S107") // các giá trị đã kiểm ở các bước trước
+    private Draft saveDraft(UUID teacherId, CreateLessonFromYouTubeRequest request, String title, String videoId,
+            int durationMs, int durationSec, Transcript transcript) {
+        List<TranscriptSegment> segments = sanitizer.sanitize(transcript.segments(), durationMs);
         if (segments.isEmpty()) {
             throw new BusinessException(ErrorCode.YOUTUBE_NO_ENGLISH_SPEECH);
         }
@@ -114,17 +157,9 @@ class TeacherLessonImportServiceImpl implements TeacherLessonImportService {
             TranscriptSegment s = segments.get(i);
             rows.add(new DraftSentence(s.startMs(), s.endMs(), s.text(), null, ipa.get(i).us(), ipa.get(i).uk()));
         }
-        int durationSec = (int) Math.ceil(durationMs / 1000.0);
         Lesson lesson = writer.save(new DraftLesson(teacherId, request.topicId(), title, videoId, durationSec,
                 request.cefrLevel(), request.pro()), rows);
-
-        int ipaCount = (int) ipa.stream().map(SentenceIpa::us).filter(Objects::nonNull).count();
-        int ipaUkCount = (int) ipa.stream().map(SentenceIpa::uk).filter(Objects::nonNull).count();
-        log.info("Giáo viên {} tạo bài {} từ video {}: {} câu, {} câu có IPA Mỹ, {} câu có IPA Anh", teacherId,
-                lesson.getId(), videoId, rows.size(), ipaCount, ipaUkCount);
-        return new CreatedLessonResponse(lesson.getId(), lesson.getTitle(), videoId, durationSec,
-                request.cefrLevel().name(), request.pro(), lesson.getStatus().value(), rows.size(), ipaCount,
-                ipaUkCount);
+        return new Draft(lesson, ipa);
     }
 
     /**

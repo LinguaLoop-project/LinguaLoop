@@ -17,6 +17,7 @@ import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.NotFoundException;
 import com.lingualoop.backend.config.CreditProperties;
 import com.lingualoop.backend.credit.AiFeature;
+import com.lingualoop.backend.credit.AiUsage;
 import com.lingualoop.backend.credit.CreditService;
 import com.lingualoop.backend.credit.dto.CreditBalance;
 import com.lingualoop.backend.shadowing.dto.AttemptSnapshot;
@@ -120,22 +121,34 @@ public class TutorSessionService {
             if (session.getStartedAt() != null) {
                 return false;
             }
-            int cost = creditProperties.tutorSessionCost();
+            int cost = creditService.priceOf(AiFeature.TUTOR_SESSION);
             CreditBalance wallet = creditService.balanceOf(userId);
             if (wallet.balance() < cost) {
                 session.end(SessionOutcome.CONNECT_FAILED, clock.instant());
-                creditService.logFailure(userId, AiFeature.TUTOR_SESSION, true);
+                creditService.logFailure(userId, AiFeature.TUTOR_SESSION, true, sessionId);
                 return true;
             }
-            creditService.chargeFixed(userId, AiFeature.TUTOR_SESSION, cost);
+            creditService.charge(userId, AiFeature.TUTOR_SESSION, AiUsage.live(sessionId));
             session.markStarted(clock.instant());
             return false;
         });
         if (exhausted) {
             throw new BusinessException(ErrorCode.QUOTA_EXCEEDED,
                     Map.of("feature", AiFeature.TUTOR_SESSION.dbValue(), "balance",
-                            creditService.balanceOf(userId).balance(), "cost", creditProperties.tutorSessionCost()));
+                            creditService.balanceOf(userId).balance(), "cost",
+                            creditService.priceOf(AiFeature.TUTOR_SESSION)));
         }
+    }
+
+    /**
+     * Trình duyệt báo tổng số đơn vị xử lý của phiên khi phiên đóng để ghi chi phí (BR-GA-12); không đổi lượt, gọi lại
+     * không ghi thêm.
+     *
+     * @throws NotFoundException phiên không phải của người gọi
+     */
+    public void reportUsage(UUID userId, UUID sessionId, long inputTokens, long outputTokens) {
+        sessions.findByIdAndUserId(sessionId, userId).orElseThrow(() -> new NotFoundException("Session not found"));
+        creditService.recordLiveUsage(userId, sessionId, inputTokens, outputTokens);
     }
 
     // --- từ luyện ---

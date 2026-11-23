@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
+import CreditCost from "@/features/subscription/components/CreditCost";
+import { AI_ACTION_TUTOR } from "@/features/subscription/types";
 import { useTutorSession } from "../useTutorSession";
 import type { TutorNotice, TutorSummary } from "../types";
 import { formatClock } from "../utils";
@@ -131,7 +133,9 @@ export default function TutorPanel({
             {t(`${K}.headset`)}
           </p>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => void controller.start()}>{t(`${K}.start`)}</Button>
+            <Button onClick={() => void controller.start()}>
+              {t(`${K}.start`)} <CreditCost action={AI_ACTION_TUTOR} />
+            </Button>
             <Button variant="ghost" onClick={leave}>
               {t(`${K}.later`)}
             </Button>

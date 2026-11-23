@@ -88,13 +88,13 @@ class LessonChatApiIntegrationTest {
                 .andExpect(jsonPath("$.data.session.messages[0].role").value("tutor"))
                 .andExpect(jsonPath("$.data.session.messages[0].text").value("Who is talking in the video?"))
                 .andExpect(jsonPath("$.data.session.maxQuestions").value(5))
-                .andExpect(jsonPath("$.data.credit.charged").value(1)) // giá seed 0 nên trừ tối thiểu 1
-                .andExpect(jsonPath("$.data.credit.balance.balance").value(19));
+                .andExpect(jsonPath("$.data.credit.charged").value(5)) // 5 credit mỗi cuộc trò chuyện (BR-AI-04)
+                .andExpect(jsonPath("$.data.credit.balance.balance").value(95));
 
         ArgumentCaptor<LessonChatAi.Lesson> context = ArgumentCaptor.forClass(LessonChatAi.Lesson.class);
         verify(ai).open(context.capture());
         assertThat(context.getValue().transcript()).contains("I woke up early today", "Then I went to work");
-        assertThat(used(user)).isEqualTo(1);
+        assertThat(used(user)).isEqualTo(5);
     }
 
     // ── AC-AI-02 ───────────────────────────────────────────────────────────────────
@@ -115,9 +115,10 @@ class LessonChatApiIntegrationTest {
                 .andExpect(jsonPath("$.data.session.messages[1].better").value("A man is speaking at the start."))
                 .andExpect(jsonPath("$.data.session.messages[1].voice").value(false))
                 .andExpect(jsonPath("$.data.session.messages[2].text").value("Where is he?"))
-                .andExpect(jsonPath("$.data.credit.charged").value(1))
-                .andExpect(jsonPath("$.data.credit.balance.balance").value(18));
-        assertThat(used(user)).isEqualTo(2); // mở đầu + một lượt
+                .andExpect(jsonPath("$.data.credit.charged").value(0))
+                .andExpect(jsonPath("$.data.credit.balance.balance").value(95));
+        assertThat(used(user)).isEqualTo(5); // chỉ trừ ở câu hỏi mở đầu
+        assertThat(count("ai_usage_logs WHERE user_id = ? AND status = 'extra_cost'", user)).isEqualTo(1);
     }
 
     // ── AC-AI-03 ───────────────────────────────────────────────────────────────────
@@ -185,7 +186,7 @@ class LessonChatApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.session.status").value("completed"))
                 .andExpect(jsonPath("$.data.session.summary").value("Bạn hiểu bài khá tốt."))
-                .andExpect(jsonPath("$.data.credit.charged").value(1));
+                .andExpect(jsonPath("$.data.credit.charged").value(0)); // nhận xét tổng quát không trừ thêm
 
         // đã đóng: không nhận thêm câu trả lời
         answerText(user, lesson, session, "More.").andExpect(status().isConflict())
@@ -293,9 +294,9 @@ class LessonChatApiIntegrationTest {
     void start_isAllowedAtTheMinimumBalance_AC_AI_07() throws Exception {
         UUID user = newUser();
         UUID lesson = lesson(false);
-        TestData.setCredits(jdbc, user, 5);
+        TestData.setCredits(jdbc, user, 5); // đúng mức credit của một cuộc trò chuyện
 
-        start(user, lesson).andExpect(status().isOk()).andExpect(jsonPath("$.data.credit.balance.balance").value(4));
+        start(user, lesson).andExpect(status().isOk()).andExpect(jsonPath("$.data.credit.balance.balance").value(0));
     }
 
     // ── AC-AI-08 ───────────────────────────────────────────────────────────────────
@@ -311,7 +312,7 @@ class LessonChatApiIntegrationTest {
                     .andExpect(jsonPath("$.data.credit.balance.kind").value("pro"));
         }
         assertThat(count("ai_conversations WHERE user_id = ?", user)).isEqualTo(4);
-        assertThat(balance(user)).isEqualTo(TestData.PRO_CREDITS_PER_MONTH - 4);
+        assertThat(balance(user)).isEqualTo(TestData.PRO_CREDITS_PER_MONTH - 4 * 5);
     }
 
     // ── AC-AI-09 ───────────────────────────────────────────────────────────────────
@@ -374,7 +375,7 @@ class LessonChatApiIntegrationTest {
 
         start(user, lesson).andExpect(status().isBadGateway());
 
-        assertThat(balance(user)).isEqualTo(20);
+        assertThat(balance(user)).isEqualTo(100);
         assertThat(used(user)).isZero();
         assertThat(jdbc.queryForObject("SELECT status FROM ai_conversations WHERE user_id = ?", String.class, user))
                 .isEqualTo("error");
@@ -405,7 +406,7 @@ class LessonChatApiIntegrationTest {
 
         answerText(user, lesson, session, "A man.").andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.session.answered").value(1));
-        assertThat(balance(user)).isEqualTo(before - 1);
+        assertThat(balance(user)).isEqualTo(before); // lượt trả lời không trừ thêm (BR-AI-04)
     }
 
     @Test

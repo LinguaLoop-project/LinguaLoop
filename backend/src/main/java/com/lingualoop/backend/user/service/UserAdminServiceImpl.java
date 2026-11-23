@@ -3,6 +3,7 @@ package com.lingualoop.backend.user.service;
 import java.time.Clock;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,6 +44,7 @@ class UserAdminServiceImpl implements UserAdminService {
     private final SubscriptionQueryService subscriptions;
     private final CreditService credits;
     private final AdminAuditor auditor;
+    private final NotificationService notifications;
     private final ApplicationEventPublisher events;
     private final Clock clock;
 
@@ -134,6 +136,30 @@ class UserAdminServiceImpl implements UserAdminService {
         credits.resetForRoleChange(user.getId());
         audit(adminId, AuditAction.CHANGE_ROLE, user, diff, null);
         return toDetail(user);
+    }
+
+    @Override
+    @Transactional
+    public AdminUserView.Detail grantCredit(UUID adminId, UUID userId, int amount, String note) {
+        User user = lockRow(userId);
+        if (user.getRole() != Role.TEACHER || user.isLocked()) {
+            throw new BusinessException(ErrorCode.CREDIT_GRANT_NOT_ALLOWED);
+        }
+        String trimmed = note.trim();
+        int oldBalance = credits.balanceOf(user.getId()).balance();
+        int newBalance = credits.grant(user.getId(), amount);
+        Map<String, Object> diff = new LinkedHashMap<>();
+        diff.put("credits", amount);
+        diff.put("creditBalance", AdminAuditor.change(oldBalance, newBalance));
+        audit(adminId, AuditAction.GRANT_CREDIT, user, diff, trimmed);
+        notifications.send(user.getId(),
+                "Bạn vừa được cấp " + vnNumber(amount) + " credit để dùng khi soạn bài. Ghi chú: " + trimmed);
+        return toDetail(user);
+    }
+
+    /** 1500 -> "1.500" (dấu chấm ngăn cách hàng nghìn kiểu Việt Nam). */
+    private static String vnNumber(int value) {
+        return String.format(Locale.ROOT, "%,d", value).replace(',', '.');
     }
 
     private User lockRow(UUID userId) {

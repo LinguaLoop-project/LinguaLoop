@@ -216,13 +216,13 @@ class TutorOfferAndSessionIntegrationTest {
         Fx f = fx();
         long attempt = attempt(f, "Think about it", word("think", 45, "θ", 20));
 
-        TestData.setCredits(jdbc, f.user, 2); // dưới ngưỡng 5 credit để bắt đầu
+        TestData.setCredits(jdbc, f.user, 2); // ít hơn 3 credit của một phiên gia sư
         createSession(f.user, attempt, null)
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.code").value("QUOTA_EXCEEDED"))
                 .andExpect(jsonPath("$.details.feature").value("tutor_session"))
                 .andExpect(jsonPath("$.details.balance").value(2))
-                .andExpect(jsonPath("$.details.minBalance").value(5));
+                .andExpect(jsonPath("$.details.cost").value(3));
 
         verifyNoInteractions(tokenIssuer);
         assertThat(count("tutor_sessions WHERE attempt_id = ?", attempt)).isZero();

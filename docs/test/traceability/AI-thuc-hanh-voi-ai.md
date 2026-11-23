@@ -2,11 +2,11 @@
 
 > Nguồn AC: `docs/srs/AI-thuc-hanh-voi-ai/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 30 AC, 11 đã có test, 0 một phần, 19 thiếu.
+Tổng hợp: 31 AC, 13 đã có test, 1 một phần, 17 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
-| AC-AI-01 | Khởi tạo cuộc trò chuyện theo nội dung bài học và trừ hạn mức AI chung | UC-AI-01 | D, A | GeminiLessonChatAiTest.longTranscript_isClippedBeforeSending_AC_AI_01; LessonChatApiIntegrationTest.start_asksFirstQuestionFromLessonAndChargesTheOpeningTurn_AC_AI_01; LessonChatApiIntegrationTest.lessonThatIsDraftOrDeleted_isNotFound_AC_AI_01; LessonChatLiveApiIntegrationTest.startLive_issuesTokenLockedToTheLessonAndDoesNotCharge_AC_AI_01; LessonChatLiveApiIntegrationTest.liveStarted_chargesTheFixedCostOnlyOnce_AC_AI_01 | Đã có |
+| AC-AI-01 | Khởi tạo cuộc trò chuyện theo nội dung bài học và trừ credit một lần | UC-AI-01 | D, A | GeminiLessonChatAiTest.longTranscript_isClippedBeforeSending_AC_AI_01; LessonChatApiIntegrationTest.start_asksFirstQuestionFromLessonAndChargesTheOpeningTurn_AC_AI_01; LessonChatApiIntegrationTest.lessonThatIsDraftOrDeleted_isNotFound_AC_AI_01; LessonChatLiveApiIntegrationTest.startLive_issuesTokenLockedToTheLessonAndDoesNotCharge_AC_AI_01; LessonChatLiveApiIntegrationTest.liveStarted_chargesTheFixedCostOnlyOnce_AC_AI_01 | Đã có |
 | AC-AI-02 | Trả lời bằng giọng nói hoặc gõ chữ và nhận phản hồi đối chiếu với nhân vật trong bài | UC-AI-01 | D, A | GeminiLessonChatAiTest.reply_readsFeedbackAndNextQuestionAndReportsTokens_AC_AI_02; LessonChatApiIntegrationTest.answerByText_returnsFeedbackAndNextQuestionAndChargesTheTurn_AC_AI_02; LessonChatApiIntegrationTest.staleSecondSubmit_isRejectedAndNotCharged_AC_AI_02; LessonChatLiveApiIntegrationTest.questionsAndFeedback_areStoredPerTurnAsVoice_AC_AI_02; LessonChatLiveApiIntegrationTest.turnsOutOfOrder_areRejected_AC_AI_02 | Đã có |
 | AC-AI-03 | Xin gợi ý trả lời cho câu hỏi hiện tại | UC-AI-01 | D | LessonChatApiIntegrationTest.hint_isFreeAndGeneratedOncePerQuestion_AC_AI_03; LessonChatLiveApiIntegrationTest.hint_isFreeInLiveSessions_AC_AI_03 | Đã có |
 | AC-AI-04 | Bắt đầu lại cuộc trò chuyện | UC-AI-01 | D | LessonChatApiIntegrationTest.restart_closesTheOldSessionAndKeepsItInHistory_AC_AI_04; LessonChatLiveApiIntegrationTest.restart_closesTheOldLiveSessionAndKeepsOnlySessionsWithContentInHistory_AC_AI_04 | Đã có |
@@ -17,10 +17,11 @@ Tổng hợp: 30 AC, 11 đã có test, 0 một phần, 19 thiếu.
 | AC-AI-09 | Từ chối khi bài học thuộc gói Pro đối với gói Free | UC-AI-01 | A | LessonChatApiIntegrationTest.proLesson_isRejectedForFreeStudent_AC_AI_09; LessonChatLiveApiIntegrationTest.proLesson_isRejectedForFreeStudent_AC_AI_09 | Đã có |
 | AC-AI-10 | Nhắc nhở khi câu trả lời trống hoặc không dùng được micro | UC-AI-01 | A, B | LessonChatApiIntegrationTest.emptyOrOversizedAnswer_isRejectedWithoutCountingTheTurn_AC_AI_10; LessonChatLiveApiIntegrationTest.emptyAnswerOrQuestion_isRejected_AC_AI_10 | Đã có |
 | AC-AI-11 | Không trừ credit khi lỗi khởi tạo và cho phép thử lại khi lỗi giữa phiên | UC-AI-01 | A, D | GeminiLessonChatAiTest.reply_failsWhenThereIsNoNextQuestionBeforeTheLastTurn_AC_AI_11; GeminiLessonChatAiTest.malformedJson_failsInsteadOfStoringGarbage_AC_AI_11; LessonChatApiIntegrationTest.openingFailure_closesTheSessionWithErrorAndDoesNotCharge_AC_AI_11; LessonChatApiIntegrationTest.midSessionFailure_keepsTheSessionAndAllowsRetryWithoutCharging_AC_AI_11; LessonChatApiIntegrationTest.summaryFailureAfterTheLastAnswer_keepsTheAnswerAndCanBeRetried_AC_AI_11; LessonChatLiveApiIntegrationTest.tokenFailure_closesTheSessionWithErrorAndDoesNotCharge_AC_AI_11; LessonChatLiveApiIntegrationTest.summaryFailure_keepsTheSessionOpenForRetryAndDoesNotChargeAgain_AC_AI_11 | Đã có |
+| AC-AI-31 | Chuyển sang chat chữ không trừ thêm credit | UC-AI-01 | D | LessonChatLiveApiIntegrationTest.switchingToTextAfterAChargedLiveChat_doesNotChargeAgain_AC_AI_31; LessonChatApiIntegrationTest.start_asksFirstQuestionFromLessonAndChargesTheOpeningTurn_AC_AI_01 | Đã có |
 | AC-AI-12 | Tự động mời gia sư khi có từ dưới 60 điểm hoặc lỗi âm vị lặp lại và đảm bảo giãn cách 3 câu | UC-AI-02 |  |  | Thiếu |
-| AC-AI-13 | Tạo Phiên gia sư khi đủ credit tối thiểu (kể cả câu đã đọc tốt) | UC-AI-02 |  |  | Thiếu |
+| AC-AI-13 | Tạo Phiên gia sư khi đủ credit (kể cả câu đã đọc tốt) | UC-AI-02 |  |  | Thiếu |
 | AC-AI-14 | Chỉ trừ credit khi phiên thực sự bắt đầu trong 15 giây | UC-AI-02 |  |  | Thiếu |
-| AC-AI-30 | Hết credit giữa phiên gia sư thì hoàn tất lượt đang chạy rồi dừng | UC-AI-02 |  |  | Thiếu |
+| AC-AI-30 | Các lượt sau trong phiên gia sư không trừ thêm credit | UC-AI-02 | D | TutorSessionLifecycleIntegrationTest.started_chargesOnceEvenWhenCalledAgain_AC_TUTOR_12 | Đã có |
 | AC-AI-15 | Đổi từ đang luyện sang bất kỳ từ nào có trong câu | UC-AI-02 |  |  | Thiếu |
 | AC-AI-16 | Chấm lượt đọc từ trong phiên: đạt từ 80 điểm hoặc hết 3 lượt thì chuyển từ kế tiếp | UC-AI-02 |  |  | Thiếu |
 | AC-AI-17 | Đọc lại cả câu khi hết danh sách từ lỗi và không làm đổi điểm lượt gốc | UC-AI-02 |  |  | Thiếu |
@@ -35,4 +36,4 @@ Tổng hợp: 30 AC, 11 đã có test, 0 một phần, 19 thiếu.
 | AC-AI-26 | Chặn nhận xét AI khi không đủ credit hoặc lượt đọc của người khác | UC-AI-03 |  |  | Thiếu |
 | AC-AI-27 | Tự thử lại mô hình dự phòng khi AI quá tải trước khi có chữ | UC-AI-03 |  |  | Thiếu |
 | AC-AI-28 | Không trừ credit khi AI lỗi hoặc đóng trang giữa chừng | UC-AI-03 |  |  | Thiếu |
-| AC-AI-29 | Xem số dư credit và tự đặt lại credit miễn phí lúc 00:00 | UC-AI-03 |  |  | Thiếu |
+| AC-AI-29 | Credit dùng thử được tặng một lần và số dư theo gói | UC-AI-03 | D, B | CreditServiceIntegrationTest.newStudentGetsTheTrialCreditsOnceAndNeverAgain; CreditServiceIntegrationTest.buyingProReplacesTheRemainingTrialCredits; CreditServiceIntegrationTest.expiredProLeavesAnEmptyWalletWithoutTrial; `frontend/src/hooks/aiEnergyMath.test.ts` (hiển thị ngày làm mới ở thanh trên chưa có test giao diện) | Một phần |

@@ -16,7 +16,9 @@ public enum AuditAction {
     LOCK,
     UNLOCK,
     CHANGE_ROLE,
-    TRANSFER;
+    TRANSFER,
+    /** Quản trị viên cấp credit cho giáo viên (UC-GA-07). */
+    GRANT_CREDIT;
 
     /** Giá trị lưu trong DB. */
     public String value() {

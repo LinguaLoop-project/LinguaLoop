@@ -43,12 +43,14 @@ class DevToolsService {
         }
     }
 
-    /** Đặt số dư ví credit (tạo ví nếu chưa có); mốc đặt lại giữ nguyên. */
+    /** Đặt số dư ví credit (tạo ví nếu chưa có); mốc đặt lại giữ nguyên, coi như đã nhận credit dùng thử. */
     @Transactional
     public void setCredits(UUID userId, int balance) {
         jdbc.sql("""
-                INSERT INTO ai_wallets (user_id, balance, resets_at, updated_at) VALUES (:u, :b, NULL, :now)
-                ON CONFLICT (user_id) DO UPDATE SET balance = :b, updated_at = :now""")
+                INSERT INTO ai_wallets (user_id, balance, resets_at, updated_at, trial_granted_at)
+                VALUES (:u, :b, NULL, :now, :now)
+                ON CONFLICT (user_id) DO UPDATE SET balance = :b, updated_at = :now,
+                    trial_granted_at = COALESCE(ai_wallets.trial_granted_at, :now)""")
                 .param("u", userId).param("b", balance).param("now", java.sql.Timestamp.from(clock.instant()))
                 .update();
     }

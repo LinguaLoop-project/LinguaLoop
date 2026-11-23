@@ -3,7 +3,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { Button } from "./Button";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../features/auth/stores/authStore";
-import { DEFAULT_FREE_AI_ENERGY, useAiEnergy } from "@/hooks/useAiEnergy";
+import { useAiEnergy } from "@/hooks/useAiEnergy";
 import { AI_ACTION_TUTOR } from "@/features/subscription/types";
 import Icon from "@/components/common/Icon";
 import type { UpgradeReason } from "@/stores/quotaStore";
@@ -22,7 +22,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, rea
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { energyLimit, costs } = useAiEnergy();
+  const { priceOf } = useAiEnergy();
 
   // Esc đóng hộp (hộp là role=dialog nên người dùng bàn phím mong đợi vậy)
   useEffect(() => {
@@ -41,7 +41,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, rea
     onClose();
     // Navigate to a subscription page
     if (user?.role === "admin") {
-      navigate("/admin/subs");
+      navigate("/admin/plans");
     } else {
       // Assuming student upgrade page
       navigate("/student/subs"); // Change this to real upgrade page if available
@@ -73,7 +73,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, rea
             <Trans
               t={t}
               i18nKey={`upgradeModal.description${suffix}`}
-              values={{ count: energyLimit ?? DEFAULT_FREE_AI_ENERGY, cost: costs[AI_ACTION_TUTOR] }}
+              values={{ cost: priceOf(AI_ACTION_TUTOR) ?? "" }}
               components={{ b: <span className="font-semibold text-primary-text" /> }}
             />
           </p>

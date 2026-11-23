@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.config.LessonImportProperties;
+import com.lingualoop.backend.lesson.transcript.Transcript;
 import com.lingualoop.backend.lesson.transcript.TranscriptSegment;
 import com.lingualoop.backend.lesson.transcript.VideoTranscriber;
 import com.lingualoop.backend.lesson.youtube.YouTubeVideoInfo;
@@ -43,16 +44,21 @@ public class TranscriptApiTranscriber implements VideoTranscriber {
     private final LessonImportProperties properties;
 
     @Override
-    public List<TranscriptSegment> transcribe(YouTubeVideoInfo video) {
+    public Transcript transcribe(YouTubeVideoInfo video) {
         if (!properties.transcriptApiConfigured()) {
             log.error("TranscriptAPI chưa cấu hình (TRANSCRIPT_API_KEY trống)");
             throw new BusinessException(ErrorCode.LESSON_TRANSCRIPT_UNAVAILABLE);
         }
         TranscriptApiResponse response = fetch(video.videoId());
-        if (response == null || !isEnglish(response.language())) {
+        if (response == null) {
+            log.info("Video {} không có phụ đề tiếng Anh", video.videoId());
+            return Transcript.none();
+        }
+        // Từ đây TranscriptAPI đã trả phụ đề nên đã tính phí lần lấy này (ADR 0012)
+        if (!isEnglish(response.language())) {
             log.info("Video {} không có phụ đề tiếng Anh (ngôn ngữ nhận được: {})", video.videoId(),
-                    response == null ? null : response.language());
-            return List.of();
+                    response.language());
+            return new Transcript(List.of(), true);
         }
         List<TranscriptSegment> sentences = CaptionMerger.merge(response.transcript());
         log.info("TranscriptAPI: video {} có {} dòng phụ đề ({}, {}), {}, ghép thành {} câu", video.videoId(),
@@ -60,7 +66,7 @@ public class TranscriptApiTranscriber implements VideoTranscriber {
                 response.language() != null && response.language().startsWith("asr") ? "tự động" : "người làm",
                 CaptionMerger.isPunctuated(response.transcript()) ? "có dấu câu" : "không dấu câu",
                 sentences.size());
-        return sentences;
+        return new Transcript(sentences, true);
     }
 
     private TranscriptApiResponse fetch(String videoId) {

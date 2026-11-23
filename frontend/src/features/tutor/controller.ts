@@ -1,5 +1,6 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { FunctionCall, LiveServerMessage, Session } from "@google/genai";
+import { LiveUsageMeter } from "@/lib/liveUsage";
 import { MIC_RATE, MicCapture, encodeWav, int16Level, totalSamples } from "@/lib/pcmRecorder";
 import * as api from "./api";
 import { PcmPlayer, int16ToBase64 } from "./audio";
@@ -105,6 +106,7 @@ export class TutorSessionController {
 
   #sessionId: string | null = null;
   #live: Session | null = null;
+  #usage = new LiveUsageMeter();
   #mic: MicCapture | null = null;
   #player: PcmPlayer | null = null;
   #micLevel = 0;
@@ -399,6 +401,8 @@ export class TutorSessionController {
   // --- tin nhắn từ Gemini Live ---
 
   #onMessage(message: LiveServerMessage) {
+    // Đếm cả tin nhắn đến lúc đang kết thúc: Gemini vẫn tính tiền phần đó
+    this.#usage.add(message.usageMetadata);
     if (this.#finishing) return;
     const content = message.serverContent;
     if (content) {
@@ -782,10 +786,21 @@ export class TutorSessionController {
     } catch {
       // đã đóng
     }
+    if (live) this.#reportUsage();
+  }
+
+  /** Báo số token đã dùng để ghi chi phí (BR-GA-12); lỗi mạng thì backend tự ước tính. */
+  #reportUsage() {
+    const usage = this.#usage.take();
+    const sessionId = this.#sessionId;
+    // Chưa trừ credit mà Gemini đã trả lời (vd hết credit ở tab khác) vẫn có chi phí thật
+    if (!sessionId || (!this.#started && usage.inputTokens + usage.outputTokens === 0)) return;
+    api.reportUsage(sessionId, usage).catch((err: unknown) => console.warn("reportUsage failed", err));
   }
 
   #resetRuntime() {
     this.#sessionId = null;
+    this.#usage = new LiveUsageMeter();
     this.#started = false;
     this.#finishing = false;
     this.#serverEnded = null;

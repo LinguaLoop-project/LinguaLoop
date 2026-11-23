@@ -16,10 +16,18 @@ export function useCreateCallbacks(): CreateCallbacks {
   });
   return {
     onDone: (created) => {
-      toast(t("create.done", { title: created.title, count: created.sentenceCount }), {
-        icon: "circle-check",
-        action: open(created),
-      });
+      toast(
+        t("create.done", {
+          title: created.title,
+          count: created.sentenceCount,
+          charged: created.creditsCharged,
+          balance: created.creditBalance,
+        }),
+        {
+          icon: "circle-check",
+          action: open(created),
+        },
+      );
     },
     onFailed: (job) => {
       toast(t("create.failedToast", { reason: errorMessage(t, job.error) }), { icon: "circle-alert" });

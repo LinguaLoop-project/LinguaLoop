@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/BH-quan-ly-bai-hoc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 101 AC, 67 đã có test, 2 một phần, 29 thiếu, 3 không áp dụng.
+Tổng hợp: 102 AC, 69 đã có test, 2 một phần, 27 thiếu, 4 không áp dụng.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -28,7 +28,7 @@ Tổng hợp: 101 AC, 67 đã có test, 2 một phần, 29 thiếu, 3 không áp
 | AC-BH-19 | Video quá dài | UC-BH-03 | A, B | TeacherLessonImportApiIntegrationTest.create_videoLongerThan15Minutes_isRejected_AC_BH_19; TeacherLessonImportApiIntegrationTest.preview_invalidLinkTooLongOrTakenVideo_reportsSameErrorsAsCreate_AC_BH_16_19_93 | Đã có |
 | AC-BH-20 | Tiêu đề bị trùng | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_titleTakenIgnoringCase_isRejected_AC_BH_20 | Đã có |
 | AC-BH-21 | Thông tin bài chưa hợp lệ | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_missingTopicOrLevel_showsFieldError_AC_BH_21 | Đã có |
-| AC-BH-22 | Tạo bài không cần credit | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_withoutCredit_stillCreatesLesson_AC_BH_22 | Đã có |
+| AC-BH-22 | (Bỏ) Tạo bài không cần credit | UC-BH-03 | A | Tạo bài trừ credit mỗi bài (ADR 0013), thay bằng AC-BH-102 | Không áp dụng |
 | AC-BH-23 | Mất kết nối hoặc YouTube không phản hồi | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_youTubeDown_createsNothing_AC_BH_23 | Đã có |
 | AC-BH-83 | Không lấy được lời thoại | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_transcriptServiceFails_createsNothingAndChargesNothing_AC_BH_83; TranscriptApiLessonImportIntegrationTest.create_transcriptApiOutOfCredits_failsWithRetryAndCreatesNothing_AC_BH_83 | Đã có |
 | AC-BH-84 | (Bỏ) Lỗi AI khi gợi ý bản dịch lúc tạo bài | UC-BH-03 | A | Tạo bài không còn gọi AI dịch; TranscriptApiLessonImportIntegrationTest kiểm Gemini không được gọi | Không áp dụng |
@@ -37,6 +37,7 @@ Tổng hợp: 101 AC, 67 đã có test, 2 một phần, 29 thiếu, 3 không áp
 | AC-BH-93 | Video đã có bài của chính giáo viên | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_videoAlreadyUsedByOwnLesson_pointsToThatLesson_AC_BH_93; TeacherLessonImportApiIntegrationTest.preview_invalidLinkTooLongOrTakenVideo_reportsSameErrorsAsCreate_AC_BH_16_19_93 | Đã có |
 | AC-BH-94 | Video đã có bài của giáo viên khác | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_videoAlreadyUsedByAnotherTeacher_hidesThatLesson_AC_BH_94 | Đã có |
 | AC-BH-95 | Hai yêu cầu tạo bài cùng video cùng lúc | UC-BH-03 |  |  | Thiếu |
+| AC-BH-102 | Không đủ credit để tạo bài | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_withoutEnoughCredit_createsNothingAndCallsNoService_AC_BH_102 | Đã có |
 | AC-BH-24 | Sửa thông tin bài Nháp | UC-BH-04 | A | LessonManageApiIntegrationTest.updateInfo_savesAndAudits_AC_BH_24 | Đã có |
 | AC-BH-25 | Sửa bài đã xuất bản có hiệu lực ngay | UC-BH-04 |  |  | Thiếu |
 | AC-BH-26 | Bật nhãn Pro cho bài đã xuất bản | UC-BH-04 |  |  | Thiếu |
@@ -101,8 +102,8 @@ Tổng hợp: 101 AC, 67 đã có test, 2 một phần, 29 thiếu, 3 không áp
 | AC-BH-69 | Tạo lại gợi ý cho một câu | UC-BH-10 | A | LessonManageApiIntegrationTest.suggest_translationAndIpa_savesNothing_AC_BH_69_75; sentenceDraft.test.ts "ghi đè lấy mọi câu trong phạm vi; phạm vi câu đang chọn" | Đã có |
 | AC-BH-70 | Điền cho toàn bài, chỉ ô còn trống | UC-BH-10 | D | sentenceDraft.test.ts "chỉ điền ô còn trống: chỉ lấy câu chưa có bản dịch, thiếu IPA không tính"; chưa test phần điền gợi ý vào ô | Một phần |
 | AC-BH-71 | Ghi đè cần xác nhận | UC-BH-10 |  |  | Thiếu |
-| AC-BH-72 | Không đủ credit để bắt đầu | UC-BH-10 | A | Chưa có: phần credit của gợi ý dịch làm sau (module credit) | Thiếu |
-| AC-BH-73 | Hết credit giữa chừng | UC-BH-10 |  |  | Thiếu |
+| AC-BH-72 | Không đủ credit cho các câu đã chọn | UC-BH-10 | A | LessonManageApiIntegrationTest.suggest_notEnoughCreditForEverySelectedSentence_suggestsNothing_AC_BH_72; CreditServiceIntegrationTest.requireCanStartChecksEveryUnit | Đã có |
+| AC-BH-73 | AI không trả gợi ý cho một số câu | UC-BH-10 | A | LessonManageApiIntegrationTest.suggest_aiAnswersOnlySomeSentences_chargesOnlyThose_AC_BH_73 | Đã có |
 | AC-BH-74 | Lỗi hệ thống không trừ credit | UC-BH-10 | A | LessonManageApiIntegrationTest.suggest_aiFailure_keepsCellsEmpty_AC_BH_74 | Đã có |
 | AC-BH-75 | Gợi ý chưa lưu thì không đổi nội dung bài | UC-BH-10 | A | LessonManageApiIntegrationTest.suggest_translationAndIpa_savesNothing_AC_BH_69_75 | Đã có |
 | AC-BH-91 | Mất kết nối khi tạo gợi ý | UC-BH-10 |  |  | Thiếu |

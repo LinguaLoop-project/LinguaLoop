@@ -1,0 +1,154 @@
+{
+  "title": "Credit settings",
+  "lastEdit": "Last edited by {{name}}, {{at}}",
+  "neverEdited": "Never edited",
+  "unknownAdmin": "an admin",
+  "edit": "Edit settings",
+  "save": "Save changes",
+  "cancel": "Cancel",
+  "unchanged": "Nothing has changed",
+  "saved": "Credit settings saved",
+  "saveFailed": "Could not save, please check your connection and try again",
+  "loadFailed": "Could not load the settings",
+  "reload": "Reload",
+  "fields": {
+    "creditValueVnd": "Value of 1 credit (VND)",
+    "gatewayFeePct": "Payment gateway fee (%)",
+    "marginPct": "Minimum profit margin (%)",
+    "trialCredits": "Trial credits for new students"
+  },
+  "sections": {
+    "conversion": "Conversion",
+    "free": "Trial credits",
+    "features": "Credit-charged features"
+  },
+  "hints": {
+    "margin": "The minimum margin is a warning threshold when setting a Pro plan's credits; it does not change what each use costs.",
+    "free": "Given once when a student first uses the app. A new value only applies to students who get it after saving; accounts switched from teacher get none.",
+    "features": "Credits per unit is what users are charged. Unit prices (VND per one million processing units) and the fixed cost are only used to compute the actual cost."
+  },
+  "columns": {
+    "feature": "Feature",
+    "creditsPerUse": "Credits per unit",
+    "inputPriceVnd": "Input unit price",
+    "outputPriceVnd": "Output unit price",
+    "fixedCostVnd": "Fixed cost per use"
+  },
+  "perUnit": "{{count}} credits / {{unit}}",
+  "features": {
+    "shadowing_feedback": {
+      "name": "AI feedback on a reading",
+      "who": "Students",
+      "unit": "feedback"
+    },
+    "tutor_session": {
+      "name": "Sentence tutor session",
+      "who": "Students",
+      "unit": "session"
+    },
+    "lesson_chat": {
+      "name": "Lesson AI practice",
+      "who": "Students · voice and text chat",
+      "unit": "conversation"
+    },
+    "lesson_suggest": {
+      "name": "Translation suggestions",
+      "who": "Teachers",
+      "unit": "sentence"
+    },
+    "lesson_import": {
+      "name": "Lesson from a YouTube link",
+      "who": "Teachers, Pro students",
+      "unit": "lesson"
+    }
+  },
+  "summary": {
+    "title": "Confirm settings change",
+    "change": "{{from}} to {{to}}",
+    "warning": "This change affects costs and profit",
+    "back": "Back",
+    "confirm": "Confirm"
+  },
+  "errors": {
+    "percent": "Enter a number from 0 to 99 with at most 1 decimal place",
+    "int1to1000": "Enter a whole number from 1 to 1,000",
+    "int0to10000": "Enter a whole number from 0 to 10,000",
+    "money": "Enter a whole number from 0 to 100,000,000",
+    "invalid": "Invalid value",
+    "unknown": "Something went wrong, please try again",
+    "CREDIT_CONFIG_FEE_MARGIN_TOO_HIGH": "Gateway fee plus minimum margin must be below 100%",
+    "CREDIT_CONFIG_STALE": "Another admin just changed the settings. The latest settings are loaded; review them and edit again.",
+    "PRO_PLAN_NAME_TAKEN": "A plan with this name already exists",
+    "PRO_PLAN_STALE": "Someone else updated this plan. The latest details are shown; review them and edit again.",
+    "PRO_PLAN_STATUS_UNCHANGED": "The plan is already {{status}}",
+    "PRO_PLAN_NOT_FOUND": "Pro plan not found"
+  },
+  "status": {
+    "onSale": "On sale",
+    "offSale": "Not on sale"
+  },
+  "plans": {
+    "title": "Pro plans",
+    "subtitle": "New plans start as not on sale. Edits only apply to later purchases.",
+    "loadFailed": "Could not load the list",
+    "empty": "No Pro plans yet",
+    "add": "Add plan",
+    "edit": "Edit",
+    "start": "Put on sale",
+    "stop": "Stop selling",
+    "noneOnSale": "No plan is on sale: students cannot buy Pro.",
+    "monthsValue_one": "{{count}} month",
+    "monthsValue_other": "{{count}} months",
+    "columns": {
+      "name": "Plan",
+      "months": "Duration",
+      "price": "Price",
+      "credits": "Credits per month",
+      "status": "Status",
+      "purchases": "Purchases",
+      "actions": "Actions"
+    }
+  },
+  "form": {
+    "addTitle": "Add Pro plan",
+    "editTitle": "Edit plan {{name}}",
+    "purchases_one": "{{count}} purchase so far; it keeps the price and credits it was bought with.",
+    "purchases_other": "{{count}} purchases so far; they keep the price and credits they were bought with.",
+    "fields": {
+      "name": "Plan name",
+      "months": "Duration (months)",
+      "priceVnd": "Price (VND)",
+      "creditsPerMonth": "Credits per month"
+    },
+    "errors": {
+      "name": "The name must be 1 to 50 characters",
+      "months": "Duration must be a whole number from 1 to 36",
+      "price": "Price must be a whole number from 0 to 100,000,000",
+      "credits": "Credits must be a whole number from 0 to 1,000,000"
+    },
+    "unchanged": "Nothing has changed",
+    "saveFailed": "Could not save, please check your connection and try again",
+    "created": "Added plan {{name}} (not on sale)",
+    "updated": "Saved plan {{name}}",
+    "save": "Save plan"
+  },
+  "margin": {
+    "value": "Margin when all credits are used:",
+    "formula": "1 − {{credits}} × {{value}} ÷ ({{price}} ÷ {{months}} × (1 − {{fee}}%))",
+    "low": "Below the minimum profit margin of {{min}}%",
+    "free": "The system bears at most {{cost}} VND per student per month",
+    "unavailable": "Could not load credit settings, so the margin is not available."
+  },
+  "onSale": {
+    "startTitle": "Put plan {{name}} on sale?",
+    "stopTitle": "Stop selling plan {{name}}?",
+    "startBody": "Students will see this plan when upgrading to Pro. Existing purchases are not affected.",
+    "stopBody": "Students will no longer see this plan. Existing buyers keep Pro and credits until it expires.",
+    "lastWarning": "After this, students will not be able to buy any Pro plan",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "startDone": "Plan {{name}} is on sale",
+    "stopDone": "Stopped selling plan {{name}}",
+    "failed": "Something went wrong, please check your connection and try again"
+  }
+}
