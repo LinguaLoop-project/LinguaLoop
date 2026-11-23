@@ -1,5 +1,7 @@
 package com.lingualoop.backend.stats;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -26,6 +28,7 @@ import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.lesson.service.LessonStatsQueryService;
 import com.lingualoop.backend.practice.dto.PracticeSessionDetailView;
 import com.lingualoop.backend.practice.dto.PracticeSessionView;
+import com.lingualoop.backend.practice.dto.SentenceCountsView;
 import com.lingualoop.backend.practice.dto.WordClassErrorView;
 import com.lingualoop.backend.practice.service.PracticeStatsQueryService;
 import com.lingualoop.backend.shadowing.dto.PhonemeDetailView;
@@ -65,14 +68,15 @@ class StatsServiceImpl implements StatsService {
     private final Clock clock;
 
     /** Múi giờ và "hôm nay" của học viên; mọi ngày lịch trong thống kê tính theo đây (BR-TH-02). */
-    private record Window(ZoneId zone, LocalDate today, Instant since) {
+    private record Window(ZoneId zone, LocalDate today, Instant since, Instant until, Instant previousSince) {
     }
 
     private Window window(UUID userId, StatsRange range) {
         UserAccountView user = users.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
         ZoneId zone = ZoneId.of(user.timezone());
         LocalDate today = LocalDate.now(clock.withZone(zone));
-        return new Window(zone, today, range.since(today, zone));
+        return new Window(zone, today, range.since(today, zone), today.plusDays(1).atStartOfDay(zone).toInstant(),
+                range.previousSince(today, zone));
     }
 
     @Override
@@ -82,9 +86,19 @@ class StatsServiceImpl implements StatsService {
 
         VocabStatsView.AnswerStats answers = vocab.answerStats(userId, w.since());
         Integer accuracy = answers.total() == 0 ? null : (int) Math.round(answers.correct() * 100.0 / answers.total());
-        return new StatsOverviewView(range.code(), streakOf(userId, w.today()),
-                practice.sentenceCounts(userId, w.since()), lessons.stateCounts(userId),
-                new StatsOverviewView.Vocab(vocab.cardCounts(userId), answers.total(), answers.correct(), accuracy));
+        SentenceCountsView sentences = practice.sentenceCounts(userId, w.since());
+        return new StatsOverviewView(range.code(), streakOf(userId, w.today()), sentences, lessons.stateCounts(userId),
+                new StatsOverviewView.Vocab(vocab.cardCounts(userId), answers.total(), answers.correct(), accuracy),
+                compareSentences(userId, w, sentences.total()));
+    }
+
+    /** So số câu với khoảng liền trước; null khi không có khoảng liền trước hoặc khoảng liền trước chưa luyện câu nào (BR-TH-13). */
+    private StatsOverviewView.Comparison compareSentences(UUID userId, Window w, long current) {
+        if (w.previousSince() == null) {
+            return null;
+        }
+        long previous = practice.sentencesBetween(userId, w.previousSince(), w.since());
+        return previous == 0 ? null : new StatsOverviewView.Comparison(previous, current - previous);
     }
 
     @Override
@@ -104,16 +118,17 @@ class StatsServiceImpl implements StatsService {
     public DictationErrorsView dictationErrors(UUID userId, String rawRange) {
         StatsRange range = StatsRange.parse(rawRange);
         Window w = window(userId, range);
+        Map<String, UUID> lessonsByClass = practice.latestOpenLessonByWordClass(userId, subscriptions.isPro(userId));
         Map<String, WordClassErrorView> byClass = practice.dictationErrors(userId, w.since()).stream()
                 .collect(Collectors.toMap(WordClassErrorView::wordClass, c -> c));
         List<DictationErrorsView.Row> rows = new ArrayList<>();
         for (String wordClass : WORD_CLASSES) {
             WordClassErrorView c = byClass.get(wordClass);
             rows.add(c == null
-                    ? new DictationErrorsView.Row(wordClass, 0, 0, 0, 0, 0, 0, 0, null)
+                    ? new DictationErrorsView.Row(wordClass, 0, 0, 0, 0, 0, 0, 0, null, null)
                     : new DictationErrorsView.Row(wordClass, c.opportunities(), c.errors(),
                             percent(c.errors(), c.opportunities()), c.omitted(), c.substituted(), c.misspelled(),
-                            c.revealed(), c.lastWrongWord()));
+                            c.revealed(), c.lastWrongWord(), lessonsByClass.get(wordClass)));
         }
         return new DictationErrorsView(range.code(), rows);
     }
@@ -162,8 +177,18 @@ class StatsServiceImpl implements StatsService {
         boolean weekly = range == StatsRange.ALL;
         List<PronunciationView.Cell> cells = shadowing.phonemeMap(userId, w.since(), w.zone()).stream()
                 .map(StatsServiceImpl::toCell).toList();
+        Integer average = shadowing.averageScore(userId, w.since(), w.until()).map(StatsServiceImpl::rounded)
+                .orElse(null);
+        Integer previous = w.previousSince() == null ? null
+                : shadowing.averageScore(userId, w.previousSince(), w.since()).map(StatsServiceImpl::rounded)
+                        .orElse(null);
+        Integer delta = average == null || previous == null ? null : average - previous;
         return new PronunciationView.Overview(range.code(), weekly, shadowing.scoreTrend(userId, w.since(), weekly),
-                cells);
+                average, delta, cells);
+    }
+
+    private static int rounded(BigDecimal score) {
+        return score.setScale(0, RoundingMode.HALF_UP).intValue();
     }
 
     @Override

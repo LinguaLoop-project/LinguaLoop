@@ -1,5 +1,6 @@
 package com.lingualoop.backend.shadowing.service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -24,6 +25,9 @@ public interface ShadowingStatsQueryService {
 
     /** Điểm Shadowing trung bình theo ngày, hoặc theo tuần khi {@code weekly} (BR-TH-08). */
     List<ScorePointView> scoreTrend(UUID userId, Instant since, boolean weekly);
+
+    /** Điểm Shadowing trung bình trong nửa mở {@code [from, until)}; rỗng khi chưa có lượt nào (BR-TH-13). */
+    Optional<BigDecimal> averageScore(UUID userId, Instant from, Instant until);
 
     /** Chi tiết một âm; rỗng nếu ký hiệu không thuộc bảng 44 âm vị. */
     Optional<PhonemeDetailView> phonemeDetail(UUID userId, String symbol, Instant since, ZoneId zone);

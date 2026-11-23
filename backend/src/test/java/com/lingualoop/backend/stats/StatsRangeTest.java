@@ -52,4 +52,18 @@ class StatsRangeTest {
     void allStartsAtTheBeginningOfTime_AC_TH_03() {
         assertThat(StatsRange.ALL.since(TODAY, ZONE)).isEqualTo(Instant.EPOCH);
     }
+
+    @Test
+    void previousPeriodIsTheSameNumberOfCalendarDaysRightBeforeTheRange_AC_TH_27() {
+        // 7 ngày: 19/11 đến 25/11, khoảng liền trước: 12/11 đến 18/11
+        assertThat(StatsRange.DAYS_7.previousSince(TODAY, ZONE))
+                .isEqualTo(LocalDate.of(2026, 11, 12).atStartOfDay(ZONE).toInstant());
+        assertThat(StatsRange.DAYS_30.previousSince(TODAY, ZONE))
+                .isEqualTo(LocalDate.of(2026, 9, 27).atStartOfDay(ZONE).toInstant());
+    }
+
+    @Test
+    void allHasNoPreviousPeriod_AC_TH_27() {
+        assertThat(StatsRange.ALL.previousSince(TODAY, ZONE)).isNull();
+    }
 }

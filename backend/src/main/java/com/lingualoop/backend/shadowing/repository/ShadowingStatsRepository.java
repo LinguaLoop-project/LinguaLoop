@@ -63,6 +63,16 @@ public class ShadowingStatsRepository {
                 .list();
     }
 
+    public Optional<java.math.BigDecimal> averageScore(UUID userId, Instant from, Instant until) {
+        List<java.math.BigDecimal> found = jdbc.sql("""
+                SELECT avg(total_score)
+                FROM sentence_attempts
+                WHERE user_id = :user AND mode = 'shadowing' AND created_at >= :from AND created_at < :until""")
+                .param("user", userId).param("from", Timestamp.from(from)).param("until", Timestamp.from(until))
+                .query((rs, n) -> rs.getBigDecimal(1)).list();
+        return found.isEmpty() ? Optional.empty() : Optional.ofNullable(found.get(0));
+    }
+
     public Optional<PhonemeStatView> phonemeStat(UUID userId, String symbol, LocalDate sinceDay) {
         return phonemeMap(userId, sinceDay).stream().filter(p -> p.symbol().equals(symbol)).findFirst();
     }

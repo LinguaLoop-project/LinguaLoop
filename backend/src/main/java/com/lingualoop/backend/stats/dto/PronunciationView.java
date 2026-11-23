@@ -14,9 +14,13 @@ public final class PronunciationView {
 
     /**
      * @param weekly  điểm theo tuần ({@code range=all}) hay theo ngày
+     * @param averageScore điểm Shadowing trung bình trong khoảng đang lọc, làm tròn; null khi chưa có lượt nào
+     * @param scoreDelta   chênh lệch với khoảng liền trước cùng độ dài (BR-TH-13); null với {@code all} hoặc khi khoảng liền trước
+     *                     chưa có lượt nào
      * @param phonemes đủ 44 âm theo thứ tự chuẩn; giao diện tự chia nhóm nguyên âm và phụ âm theo {@code kind}
      */
-    public record Overview(String range, boolean weekly, List<ScorePointView> scores, List<Cell> phonemes) {
+    public record Overview(String range, boolean weekly, List<ScorePointView> scores, Integer averageScore,
+            Integer scoreDelta, List<Cell> phonemes) {
 
         public Overview {
             scores = List.copyOf(scores);

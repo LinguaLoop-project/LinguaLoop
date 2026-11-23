@@ -2,6 +2,7 @@ package com.lingualoop.backend.shadowing.service;
 
 import java.time.Clock;
 import java.time.DayOfWeek;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -38,6 +39,11 @@ class ShadowingStatsQueryServiceImpl implements ShadowingStatsQueryService {
     @Override
     public List<ScorePointView> scoreTrend(UUID userId, Instant since, boolean weekly) {
         return stats.scoreTrend(userId, since, weekly ? "week" : "day");
+    }
+
+    @Override
+    public Optional<BigDecimal> averageScore(UUID userId, Instant from, Instant until) {
+        return stats.averageScore(userId, from, until);
     }
 
     @Override

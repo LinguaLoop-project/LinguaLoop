@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -24,6 +25,15 @@ public interface PracticeStatsQueryService {
     Set<LocalDate> activeDays(UUID userId);
 
     SentenceCountsView sentenceCounts(UUID userId, Instant since);
+
+    /** Số câu khác nhau đã luyện trong khoảng nửa mở {@code [from, until)}, để so với khoảng liền trước (BR-TH-13). */
+    long sentencesBetween(UUID userId, Instant from, Instant until);
+
+    /**
+     * Với mỗi nhóm từ: bài gần nhất học viên từng làm sai từ thuộc nhóm đó ở lượt nộp đầu tiên mà còn mở được với gói
+     * hiện tại. Nhóm không có bài nào thì vắng mặt trong kết quả (BR-TH-14).
+     */
+    Map<String, UUID> latestOpenLessonByWordClass(UUID userId, boolean pro);
 
     /** Lỗi Nghe chép theo nhóm từ, chỉ có các nhóm đã gặp (BR-TH-05). */
     List<WordClassErrorView> dictationErrors(UUID userId, Instant since);

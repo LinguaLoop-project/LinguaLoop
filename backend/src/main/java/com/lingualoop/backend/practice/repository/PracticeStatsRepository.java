@@ -4,7 +4,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -50,6 +52,47 @@ public class PracticeStatsRepository {
                 .query((rs, n) -> new SentenceCountsView(rs.getLong("total"), rs.getLong("dictation"),
                         rs.getLong("shadowing")))
                 .single();
+    }
+
+    public long sentencesBetween(UUID userId, Instant from, Instant until) {
+        return jdbc.sql("""
+                SELECT count(DISTINCT sentence_id)
+                FROM sentence_attempts
+                WHERE user_id = :user AND created_at >= :from AND created_at < :until""")
+                .param("user", userId).param("from", Timestamp.from(from)).param("until", Timestamp.from(until))
+                .query(Long.class).single();
+    }
+
+    /**
+     * Bài gần nhất có từ sai ở lượt nộp đầu tiên của từng nhóm từ, chỉ lấy bài còn mở được: đã xuất bản, chưa xóa, là
+     * bài thư viện hoặc của chính học viên, không phải bài Pro khi chưa có gói (BR-TH-14). Cùng cách chọn lượt đầu như
+     * {@link #dictationErrors}.
+     */
+    public Map<String, UUID> latestOpenLessonByWordClass(UUID userId, boolean pro) {
+        Map<String, UUID> result = new HashMap<>();
+        jdbc.sql("""
+                WITH first_attempt AS (
+                    SELECT DISTINCT ON (sentence_id) id, sentence_id, created_at
+                    FROM sentence_attempts
+                    WHERE user_id = :user AND mode = 'dictation' AND NOT is_retry AND NOT gave_up
+                    ORDER BY sentence_id, created_at, id
+                )
+                SELECT DISTINCT ON (w.word_class) w.word_class, s.lesson_id
+                FROM first_attempt f
+                JOIN sentence_attempt_words w ON w.attempt_id = f.id
+                JOIN sentences s ON s.id = f.sentence_id AND s.deleted_at IS NULL
+                JOIN lessons l ON l.id = s.lesson_id AND l.status = 'published' AND l.deleted_at IS NULL
+                WHERE w.word_class IS NOT NULL
+                  AND w.outcome IN ('omitted', 'substituted', 'misspelled', 'revealed')
+                  AND (l.kind = 'library' OR l.owner_id = :user)
+                  AND (NOT l.is_pro OR :pro)
+                ORDER BY w.word_class, f.created_at DESC, f.id DESC""")
+                .param("user", userId).param("pro", pro)
+                .query((rs, n) -> {
+                    result.put(rs.getString("word_class"), rs.getObject("lesson_id", UUID.class));
+                    return null;
+                }).list();
+        return result;
     }
 
     /**

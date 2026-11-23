@@ -145,3 +145,7 @@ _Tránh_: phiên luyện, phiên học (dùng cho phiên học từ vựng), ses
 **Khoảng thống kê**:
 Khoảng thời gian học viên chọn khi xem thống kê: 7 ngày, 30 ngày (mặc định) hoặc Toàn bộ. "7 ngày" là hôm nay và 6 ngày lịch trước đó theo múi giờ của học viên. Chỉ áp dụng cho số liệu theo hoạt động (câu đã luyện, tỷ lệ đúng, lỗi, âm vị), không áp dụng cho số liệu hiện trạng (Trạng thái thẻ, bài đang học, chuỗi ngày học).
 _Tránh_: bộ lọc ngày, kỳ
+
+**Khoảng liền trước**:
+Khoảng có cùng số ngày lịch nằm ngay trước Khoảng thống kê đang chọn (7 ngày so với 7 ngày liền trước), dùng để so sánh số câu đã luyện và điểm Shadowing trung bình. Khoảng Toàn bộ không có khoảng liền trước.
+_Tránh_: kỳ trước, tuần trước

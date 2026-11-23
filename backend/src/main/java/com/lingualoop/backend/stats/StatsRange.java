@@ -42,4 +42,12 @@ enum StatsRange {
     Instant since(LocalDate today, ZoneId zone) {
         return this == ALL ? Instant.EPOCH : today.minusDays(days - 1L).atStartOfDay(zone).toInstant();
     }
+
+    /**
+     * Đầu ngày lịch đầu tiên của khoảng liền trước: cùng số ngày, liền ngay trước khoảng này (BR-TH-13). {@code all} không có
+     * khoảng liền trước nên trả null.
+     */
+    Instant previousSince(LocalDate today, ZoneId zone) {
+        return this == ALL ? null : today.minusDays(2L * days - 1).atStartOfDay(zone).toInstant();
+    }
 }

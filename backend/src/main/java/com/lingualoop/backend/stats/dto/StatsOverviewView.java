@@ -8,7 +8,17 @@ import com.lingualoop.backend.vocab.dto.VocabStatsView;
 
 /** Trang Thống kê học tập (UC-TH-01). Số liệu theo hoạt động đi theo {@code range}; số liệu hiện trạng thì không. */
 public record StatsOverviewView(String range, Streak streak, SentenceCountsView sentences, LessonStateCounts lessons,
-        Vocab vocab) {
+        Vocab vocab, Comparison comparison) {
+
+    /**
+     * So với khoảng liền trước cùng độ dài (BR-TH-13). Cả record là null với {@code all} hoặc khi khoảng liền trước chưa có lượt
+     * luyện nào.
+     *
+     * @param previousSentences số câu khác nhau đã luyện ở khoảng liền trước
+     * @param sentencesDelta    chênh lệch số câu so với khoảng liền trước, âm khi giảm
+     */
+    public record Comparison(long previousSentences, long sentencesDelta) {
+    }
 
     /**
      * Chuỗi ngày học (BR-TH-02).

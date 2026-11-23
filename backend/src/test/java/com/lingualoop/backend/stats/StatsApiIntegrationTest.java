@@ -662,6 +662,102 @@ class StatsApiIntegrationTest {
                 .andExpect(jsonPath("$.data.practiceLessonId").doesNotExist());
     }
 
+    // ---------------------------------------------------------------- so với khoảng liền trước và "Luyện ngay" Nghe chép
+
+    @Test
+    void overview_comparesSentencesWithTheSameLengthPeriodBefore_AC_TH_27() throws Exception {
+        UUID user = users.newUser();
+        UUID lesson = lesson(false, "published");
+        for (int i = 0; i < 3; i++) {
+            dictation(user, sentence(lesson, i), at(i + 1), 80);       // 3 câu trong 7 ngày gần nhất
+        }
+        dictation(user, sentence(lesson, 3), at(8), 80);               // 1 câu ở 7 ngày liền trước
+
+        as(user, get(OVERVIEW).param("range", "7d")).andExpect(jsonPath("$.data.sentences.total").value(3))
+                .andExpect(jsonPath("$.data.comparison.previousSentences").value(1))
+                .andExpect(jsonPath("$.data.comparison.sentencesDelta").value(2));
+        as(user, get(OVERVIEW).param("range", "30d")).andExpect(jsonPath("$.data.sentences.total").value(4))
+                .andExpect(jsonPath("$.data.comparison").doesNotExist());     // 30 ngày trước đó chưa luyện câu nào
+        as(user, get(OVERVIEW).param("range", "all")).andExpect(jsonPath("$.data.comparison").doesNotExist());
+    }
+
+    @Test
+    void overview_showsADropAsANegativeDelta_AC_TH_27() throws Exception {
+        UUID user = users.newUser();
+        UUID lesson = lesson(false, "published");
+        dictation(user, sentence(lesson, 0), at(1), 80);
+        for (int i = 1; i <= 4; i++) {
+            dictation(user, sentence(lesson, i), at(6 + i), 80);       // 4 câu ở 7 ngày liền trước (ngày 7 đến 10)
+        }
+
+        as(user, get(OVERVIEW).param("range", "7d")).andExpect(jsonPath("$.data.comparison.previousSentences").value(4))
+                .andExpect(jsonPath("$.data.comparison.sentencesDelta").value(-3));
+    }
+
+    @Test
+    void pronunciation_averagesTheRangeAndComparesItWithThePreviousPeriod_AC_TH_28() throws Exception {
+        UUID user = users.newUser();
+        UUID lesson = lesson(false, "published");
+        shadowing(user, sentence(lesson, 0), at(1), 80);
+        shadowing(user, sentence(lesson, 1), at(2), 90);               // trung bình 85
+        shadowing(user, sentence(lesson, 2), at(9), 70);               // khoảng liền trước: trung bình 70
+        dictation(user, sentence(lesson, 3), at(1), 10);               // Nghe chép không tính
+
+        as(user, get(PRONUNCIATION).param("range", "7d")).andExpect(jsonPath("$.data.averageScore").value(85))
+                .andExpect(jsonPath("$.data.scoreDelta").value(15));
+        as(user, get(PRONUNCIATION).param("range", "all")).andExpect(jsonPath("$.data.averageScore").value(80))
+                .andExpect(jsonPath("$.data.scoreDelta").doesNotExist());
+    }
+
+    @Test
+    void pronunciation_hasNoDeltaWithoutAPreviousPeriodOrWithoutAnyAttempt_AC_TH_28() throws Exception {
+        UUID user = users.newUser();
+        UUID lesson = lesson(false, "published");
+        shadowing(user, sentence(lesson, 0), at(1), 80);
+
+        as(user, get(PRONUNCIATION).param("range", "7d")).andExpect(jsonPath("$.data.averageScore").value(80))
+                .andExpect(jsonPath("$.data.scoreDelta").doesNotExist());
+        as(users.newUser(), get(PRONUNCIATION).param("range", "7d"))
+                .andExpect(jsonPath("$.data.averageScore").doesNotExist())
+                .andExpect(jsonPath("$.data.scoreDelta").doesNotExist());
+    }
+
+    @Test
+    void dictationErrors_practiceLessonIsTheLatestOpenLessonWithAWrongWordOfThatClass_AC_TH_29() throws Exception {
+        UUID free = users.newUser();
+        UUID proUser = users.newProUser();
+        UUID olderFree = lesson(false, "published");
+        UUID newerPro = lesson(true, "published");
+        UUID freeSentence = sentence(olderFree, 0);
+        UUID proSentence = sentence(newerPro, 0);
+        for (UUID u : List.of(free, proUser)) {
+            long a = attempts.insertAttempt(u, freeSentence, "dictation", "normal", false, false, at(5));
+            attempts.insertWord(a, 0, "the", null, "omitted", "function");
+            long b = attempts.insertAttempt(u, proSentence, "dictation", "normal", false, false, at(2));
+            attempts.insertWord(b, 0, "to", null, "omitted", "function");
+            attempts.insertWord(b, 1, "tree", "tree", "correct", "content");       // nhóm này không có từ sai
+        }
+
+        as(free, get("/api/v1/stats/dictation-errors"))
+                .andExpect(jsonPath("$.data.classes[0].practiceLessonId").value(olderFree.toString()))
+                .andExpect(jsonPath("$.data.classes[1].practiceLessonId").doesNotExist());
+        as(proUser, get("/api/v1/stats/dictation-errors"))
+                .andExpect(jsonPath("$.data.classes[0].practiceLessonId").value(newerPro.toString()));
+    }
+
+    @Test
+    void dictationErrors_withoutAnyOpenLesson_hasNoPracticeLesson_AC_TH_29() throws Exception {
+        UUID user = users.newUser();
+        UUID gone = lesson(false, "published");
+        long a = attempts.insertAttempt(user, sentence(gone, 0), "dictation", "normal", false, false, at(3));
+        attempts.insertWord(a, 0, "the", null, "omitted", "function");
+        jdbc.update("UPDATE lessons SET status = 'draft' WHERE id = ?", gone);
+
+        as(user, get("/api/v1/stats/dictation-errors")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.classes[0].errors").value(1))
+                .andExpect(jsonPath("$.data.classes[0].practiceLessonId").doesNotExist());
+    }
+
     // ---------------------------------------------------------------- dữ liệu mẫu
 
     private ResultActions as(UUID user, MockHttpServletRequestBuilder request) throws Exception {
