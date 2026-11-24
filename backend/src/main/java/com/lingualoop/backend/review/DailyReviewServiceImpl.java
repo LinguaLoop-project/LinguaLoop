@@ -1,6 +1,7 @@
 package com.lingualoop.backend.review;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -34,6 +35,9 @@ class DailyReviewServiceImpl implements DailyReviewService {
 
     /** Số câu tối đa mỗi chế độ cho phiên Ôn câu riêng. */
     private static final int MAX_PER_MODE = 10;
+
+    /** Khoảng thời gian tính cấp độ hiện tại của học viên (BR-HT-32). */
+    private static final Duration LEVEL_WINDOW = Duration.ofDays(30);
 
     private static final List<PracticeMode> SENTENCE_MODES = List.of(PracticeMode.dictation, PracticeMode.shadowing);
 
@@ -84,9 +88,14 @@ class DailyReviewServiceImpl implements DailyReviewService {
     private TodaySuggestions suggestionsFor(UUID userId) {
         boolean pro = subscriptions.isPro(userId);
         return new TodaySuggestions(
-                vocabSuggestions.nextNewWords(userId).orElse(null),
+                vocabSuggestions.nextNewWords(userId, currentLevel(userId)).orElse(null),
                 lessons.suggestDictationLesson(userId, pro).orElse(null),
                 lessons.suggestShadowingLesson(userId, pro).orElse(null));
+    }
+
+    /** Cấp độ hiện tại của học viên: mức CEFR luyện nhiều nhất trong 30 ngày gần nhất, chưa luyện thì A1 (BR-HT-32). */
+    private String currentLevel(UUID userId) {
+        return lessons.mostPracticedLevel(userId, clock.instant().minus(LEVEL_WINDOW)).orElse("A1");
     }
 
     @Override

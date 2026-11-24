@@ -39,6 +39,11 @@ function DeckThumb({ deck }: { deck: DeckSummary }) {
             {t("deck.pro")}
           </Badge>
         )}
+        {deck.cefrLevel && (
+          <Badge variant={deck.cefrLevel} solid>
+            {deck.cefrLevel}
+          </Badge>
+        )}
       </span>
       {deck.dueCount > 0 && (
         <span className="absolute right-2.5 top-2.5 inline-flex h-6 items-center gap-1 rounded-full bg-danger px-2.5 text-xs font-bold tabular-nums text-white shadow-sm">

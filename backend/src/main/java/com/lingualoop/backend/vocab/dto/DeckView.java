@@ -17,13 +17,17 @@ public final class DeckView {
     public record Category(UUID id, String name) {
     }
 
-    /** Một bộ kèm tiến độ của người học; {@code dueCount} là số thẻ của bộ đã đến hạn ôn (BR-HT-13). */
+    /**
+     * Một bộ kèm tiến độ của người học; {@code dueCount} là số thẻ của bộ đã đến hạn ôn (BR-HT-13). {@code cefrLevel} là
+     * A1 đến C2 hoặc trống khi bộ chưa gắn cấp độ (BR-BT-16).
+     */
     public record Summary(
             UUID id,
             String name,
             boolean pro,
             String thumbnailUrl,
             Category category,
+            String cefrLevel,
             int cardCount,
             int groupCount,
             Progress progress,

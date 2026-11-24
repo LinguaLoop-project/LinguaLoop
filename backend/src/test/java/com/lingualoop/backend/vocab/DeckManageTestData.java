@@ -89,6 +89,7 @@ public class DeckManageTestData {
         private String status = "draft";
         private boolean pro;
         private UUID category;
+        private String cefrLevel;
         private Instant updatedAt = Instant.now();
         private Instant deletedAt;
         private String imageUrl;
@@ -118,6 +119,12 @@ public class DeckManageTestData {
             return this;
         }
 
+        /** Cấp độ CEFR của bộ (BR-BT-16); mặc định chưa gắn. */
+        public DeckBuilder cefr(String level) {
+            this.cefrLevel = level;
+            return this;
+        }
+
         public DeckBuilder updatedAt(Instant at) {
             this.updatedAt = at;
             return this;
@@ -136,10 +143,10 @@ public class DeckManageTestData {
         public UUID insert() {
             UUID id = UUID.randomUUID();
             jdbc.update("""
-                    INSERT INTO vocab_decks (id, owner_id, kind, category_id, name, image_url, is_pro, status,
-                                             deleted_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                    id, owner, kind, category, name, imageUrl, pro, status,
+                    INSERT INTO vocab_decks (id, owner_id, kind, category_id, cefr_level, name, image_url, is_pro,
+                                             status, deleted_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    id, owner, kind, category, cefrLevel, name, imageUrl, pro, status,
                     deletedAt == null ? null : Timestamp.from(deletedAt), Timestamp.from(updatedAt));
             return id;
         }

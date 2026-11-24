@@ -68,6 +68,8 @@ export interface DeckSummary {
   /** Ảnh bìa bộ; null khi bộ chưa có ảnh. */
   thumbnailUrl: string | null;
   category: DeckCategory | null;
+  /** Cấp độ CEFR của bộ (A1 đến C2); null khi chưa gắn (BR-BT-16). */
+  cefrLevel: string | null;
   cardCount: number;
   groupCount: number;
   progress: DeckProgress;

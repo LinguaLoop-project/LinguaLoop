@@ -1,5 +1,6 @@
 package com.lingualoop.backend.lesson.repository;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -213,6 +214,21 @@ public interface LessonRepository extends JpaRepository<Lesson, UUID>, JpaSpecif
                      l.cefr_level, l.view_count DESC, l.created_at, l.id
             LIMIT 1""")
     List<SuggestedLesson> findUnpracticedShadowingLesson(@Param("userId") UUID userId, @Param("userPro") boolean userPro);
+
+    /**
+     * Mức CEFR của bài người học luyện nhiều nhất (đếm số bài khác nhau có lượt Nghe chép hoặc Shadowing từ
+     * {@code since}); bằng nhau thì mức thấp hơn. Rỗng khi người học chưa luyện bài nào từ mốc đó (BR-HT-32).
+     */
+    @Query(nativeQuery = true, value = """
+            SELECT l.cefr_level
+            FROM sentence_attempts a
+            JOIN sentences s ON s.id = a.sentence_id
+            JOIN lessons l ON l.id = s.lesson_id
+            WHERE a.user_id = :userId AND a.created_at >= :since
+            GROUP BY l.cefr_level
+            ORDER BY count(DISTINCT l.id) DESC, l.cefr_level
+            LIMIT 1""")
+    List<String> findMostPracticedLevel(@Param("userId") UUID userId, @Param("since") Instant since);
 
     /** Bài người học làm gần nhất, mới trước (kể cả bài đã hoàn thành). */
     @Query(nativeQuery = true, value = """

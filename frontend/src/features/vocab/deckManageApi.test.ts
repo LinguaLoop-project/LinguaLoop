@@ -67,13 +67,13 @@ describe("deckManageApi (UC-BT-01, UC-BT-02)", () => {
     const image = new File([new Uint8Array(4)], "a.jpg", { type: "image/jpeg" });
 
     await expect(
-      deckManageApi.createTeacherDeck({ name: "TOEIC 1", categoryId: null, pro: true }, image),
+      deckManageApi.createTeacherDeck({ name: "TOEIC 1", categoryId: null, cefrLevel: null, pro: true }, image),
     ).resolves.toEqual({ id: "d1" });
 
     expect(uploadFile).toHaveBeenCalledWith("DECK_IMAGE", image);
     expect(post).toHaveBeenCalledWith(
       "/teacher/vocab/decks",
-      { name: "TOEIC 1", categoryId: null, pro: true, imageKey: "vocab-decks/u1/a.jpg" },
+      { name: "TOEIC 1", categoryId: null, cefrLevel: null, pro: true, imageKey: "vocab-decks/u1/a.jpg" },
       expect.anything(),
     );
   });
@@ -91,10 +91,10 @@ describe("deckManageApi (UC-BT-01, UC-BT-02)", () => {
   it("tạo bộ không ảnh: không tải gì, imageKey null (AC-BT-08, dương)", async () => {
     post.mockResolvedValueOnce({ data: { data: { id: "d1" } } });
 
-    await deckManageApi.createTeacherDeck({ name: "Bộ 1", categoryId: null, pro: false }, null);
+    await deckManageApi.createTeacherDeck({ name: "Bộ 1", categoryId: null, cefrLevel: null, pro: false }, null);
 
     expect(uploadFile).not.toHaveBeenCalled();
-    expect(post.mock.calls[0][1]).toEqual({ name: "Bộ 1", categoryId: null, pro: false, imageKey: null });
+    expect(post.mock.calls[0][1]).toEqual({ name: "Bộ 1", categoryId: null, cefrLevel: null, pro: false, imageKey: null });
   });
 
   it("ảnh bị từ chối ở bước xin URL: lỗi validation, không gọi tạo bộ (AC-BT-12, âm)", async () => {
@@ -102,7 +102,7 @@ describe("deckManageApi (UC-BT-01, UC-BT-02)", () => {
     const image = new File([new Uint8Array(4)], "a.png", { type: "image/png" });
 
     await expect(
-      deckManageApi.createTeacherDeck({ name: "Bộ 1", categoryId: null, pro: false }, image),
+      deckManageApi.createTeacherDeck({ name: "Bộ 1", categoryId: null, cefrLevel: null, pro: false }, image),
     ).rejects.toMatchObject({ kind: "validation", fieldErrors: [{ field: "size", code: "MaxBytes" }] });
     expect(post).not.toHaveBeenCalled();
   });

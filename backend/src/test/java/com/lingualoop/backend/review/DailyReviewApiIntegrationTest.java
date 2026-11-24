@@ -392,6 +392,42 @@ class DailyReviewApiIntegrationTest {
                 .andExpect(jsonPath("$.data.suggestions.newWords.continuing").value(false));
     }
 
+    /** Một bài thư viện ở mức {@code level} mà {@code user} đã luyện nghe chép một câu (tính vào cấp độ hiện tại). */
+    private void practiceLessonAt(UUID user, UUID topic, String level, String title) {
+        UUID lesson = lessonFixtures.lesson(topic, title + " " + base, false, "published", level, nextViews(), false);
+        UUID sentence = lessonFixtures.sentence(lesson, 0, "Hello there.");
+        attempts.insertAttempt(user, sentence, "dictation", "normal", false, false, Instant.now());
+    }
+
+    @Test
+    void plan_neverStudied_startsWithTheDeckAtTheLearnersLevel_BR_HT_32_AC_HT_81() throws Exception {
+        UUID user = student(15);
+        UUID a1 = vocab.deck(base + "lvA1", false);
+        UUID b1 = vocab.deck(base + "lvB1", false);
+        vocab.fill(a1, 1, 3, base + "la");
+        vocab.fill(b1, 1, 3, base + "lb");
+        jdbc.update("UPDATE vocab_decks SET cefr_level = 'A1' WHERE id = ?", a1);
+        jdbc.update("UPDATE vocab_decks SET cefr_level = 'B1' WHERE id = ?", b1);
+
+        // Chưa luyện bài nào: cấp độ hiện tại là A1.
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.newWords.deckId").value(a1.toString()))
+                .andExpect(jsonPath("$.data.suggestions.newWords.continuing").value(false));
+
+        // Luyện 3 bài B1 và 1 bài A2 trong 30 ngày gần nhất: cấp độ hiện tại là B1.
+        UUID topic = lessonFixtures.topic("Level " + base);
+        practiceLessonAt(user, topic, "B1", "B1 một");
+        practiceLessonAt(user, topic, "B1", "B1 hai");
+        practiceLessonAt(user, topic, "B1", "B1 ba");
+        practiceLessonAt(user, topic, "A2", "A2 một");
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.newWords.deckId").value(b1.toString()));
+
+        // Bộ đang học luôn đứng trước quy tắc cấp độ: chấm một thẻ của bộ A1 thì gợi ý quay lại bộ đó.
+        List<UUID> a1Cards = jdbc.queryForList("SELECT id FROM vocab_cards WHERE deck_id = ? ORDER BY created_at", UUID.class, a1);
+        vocab.progress(user, a1Cards.get(0), 1, 1, "now() + interval '3 days'");
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.newWords.deckId").value(a1.toString()))
+                .andExpect(jsonPath("$.data.suggestions.newWords.continuing").value(true));
+    }
+
     @Test
     void plan_nothingToReview_suggestsAnUnpracticedDictationLessonOfTheLowestLevel() throws Exception {
         UUID user = student(15);

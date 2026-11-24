@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/BT-quan-ly-bo-the/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 81 AC, 54 đã có test, 19 một phần, 8 thiếu.
+Tổng hợp: 81 AC, 54 đã có test, 20 một phần, 7 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -22,7 +22,7 @@ Tổng hợp: 81 AC, 54 đã có test, 19 một phần, 8 thiếu.
 | AC-BT-63 | Quản trị viên không có nút sửa, xóa, khôi phục | UC-BT-01 | A | TeacherVocabDeckApiIntegrationTest.listDecks_adminCallsTeacherEndpoint_returns403_AC_BT_63; TeacherVocabDeckApiIntegrationTest.createDeck_admin_returns403_AC_BT_63; VocabDeckLifecycleApiIntegrationTest.updateDeck_adminCannotEdit_returns403_AC_BT_63; `frontend/src/features/vocab/deckActions.test.ts` | Đã có |
 | AC-BT-64 | Lỗi khi tải danh sách | UC-BT-01 | D, A | `frontend/src/features/vocab/deckListState.test.ts`; `frontend/src/features/vocab/deckManageApi.test.ts` | Đã có |
 | AC-BT-07 | Thêm bộ thành công | UC-BT-02 | D, A | TeacherVocabDeckApiIntegrationTest.createDeck_validNameJpgCategoryPro_returns201Draft_AC_BT_07; VocabDeckManageServiceIntegrationTest.createDeck_persistsLibraryDraftOwnedByTeacher_notVisibleToStudents_AC_BT_07; TeacherVocabDeckApiIntegrationTest.createDeck_unknownCategoryId_returns400or404_AC_BT_07; VocabDeckManageServiceImplTest.createDeck_uploadedJpg_savesKeyAndReturnsPublicUrl_AC_BT_07; `frontend/src/features/vocab/deckManageApi.test.ts` (chưa test thông báo tạo thành công và chuyển đến màn hình quản lý bộ) | Một phần |
-| AC-BT-81 | Gắn cấp độ cho bộ | UC-BT-02 |  |  | Thiếu |
+| AC-BT-81 | Gắn cấp độ cho bộ | UC-BT-02 | D, A | TeacherVocabDeckApiIntegrationTest.createAndUpdateDeck_cefrLevelIsOptionalAndValidated_AC_BT_81; `frontend/src/features/vocab/editDeckForm.test.ts` (chưa test giao diện ô chọn cấp độ và nhãn ở danh sách) | Một phần |
 | AC-BT-08 | Thêm bộ không chọn ảnh | UC-BT-02 | D | TeacherVocabDeckApiIntegrationTest.createDeck_nameOnly_usesDefaultImageNoCategoryNotPro_AC_BT_08; `frontend/src/features/vocab/deckManageApi.test.ts` | Đã có |
 | AC-BT-09 | Hủy tạo bộ | UC-BT-02 | D | `frontend/src/features/vocab/createDeckForm.test.ts` | Đã có |
 | AC-BT-10 | Thiếu hoặc sai tên bộ | UC-BT-02 | A | TeacherVocabDeckApiIntegrationTest.createDeck_blankName_returns400_AC_BT_10; `frontend/src/features/vocab/createDeckForm.test.ts` | Đã có |
