@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TH-xem-thong-ke-hoc-tap/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 34 AC, 25 đã có test, 5 một phần, 0 thiếu, 4 thủ công.
+Tổng hợp: 35 AC, 26 đã có test, 5 một phần, 0 thiếu, 4 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -29,6 +29,7 @@ Tổng hợp: 34 AC, 25 đã có test, 5 một phần, 0 thiếu, 4 thủ công.
 | AC-TH-12 | Hiển thị thông báo khi chưa có lịch sử khớp bộ lọc | UC-TH-02 | B | StatsApiIntegrationTest.history_showsOnlyFinishedAiSessions_andAnEmptyFilterIsEmpty_AC_TH_12 | Một phần |
 | AC-TH-13 | Thông báo lỗi khi mất kết nối lúc tải lịch sử | UC-TH-02 | A | `frontend/src/features/stats/api.test.ts` | Thủ công (kiểm tay trên trình duyệt: chặn request thống kê, hiện thẻ Mất kết nối kèm nút Thử lại, bấm Thử lại tải lại được) |
 | AC-TH-24 | Xem từng lượt trong một Buổi luyện | UC-TH-02 | D, A | StatsApiIntegrationTest.history_aPracticeSessionIsNotFoundForOtherLearnersOrOtherDays_AC_TH_24; StatsApiIntegrationTest.history_aPracticeSessionOpensIntoItsAttempts_evenWhenTheLessonWasUnpublished_AC_TH_11 | Đã có |
+| AC-TH-35 | Phân trang lịch sử theo ngày | UC-TH-02 | D, B | StatsApiIntegrationTest.history_pagesByDays_neverSplitsADay_andCountsRealTotals_AC_TH_35; StatsApiIntegrationTest.history_byDaysLoadsBeyondTheFirstBatch_soTotalsStayExact_AC_TH_35; `frontend/src/features/stats/utils.test.ts` (groupHistoryByDate, dayKeyInZone) | Đã có |
 | AC-TH-14 | Hiển thị Bản đồ 44 âm vị phân nhóm Nguyên âm, Phụ âm và phân màu theo tỷ lệ lỗi | UC-TH-03 | D, B | StatsApiIntegrationTest.pronunciation_mapsAll44Phonemes_withLevelsFromTheErrorRate_AC_TH_14; PhonemeLevelTest.fewerThanFiveEncounters_isInsufficientNoMatterTheErrors_AC_TH_14; PhonemeLevelTest.below15Percent_isGood_andExactly15IsAttention_AC_TH_14; PhonemeLevelTest.between15And30Percent_isAttention_andAbove30IsBad_AC_TH_14 | Đã có |
 | AC-TH-15 | Tính đúng tỷ lệ lỗi âm vị theo âm đích và ngưỡng dưới 60 điểm | UC-TH-03 | D, B | StatsApiIntegrationTest.pronunciation_countsErrorsAgainstTheTargetPhonemeAndTheBelow60Threshold_AC_TH_15; PhonemeLevelTest.percentRoundsAndIsNullWhenNeverEncountered_AC_TH_15 | Đã có |
 | AC-TH-16 | Xem chi tiết một âm yếu đã đủ dữ liệu | UC-TH-03 | D | StatsApiIntegrationTest.phonemeDetail_showsConfusionTipTrendAndTheLessonToPractice_AC_TH_16; StatsApiIntegrationTest.phonemeDetail_trendIsAlwaysTheLast8Weeks_regardlessOfTheRange_AC_TH_16; StatsApiIntegrationTest.phonemeDetail_whenMostFailuresHearNothing_reportsOmission_AC_TH_16 | Đã có |

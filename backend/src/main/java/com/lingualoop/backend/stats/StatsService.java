@@ -40,6 +40,9 @@ public interface StatsService {
     /** Lịch sử luyện tập từ mới đến cũ, đã lọc theo chế độ và khoảng (BR-TH-06, BR-TH-07); {@code page} từ 0. */
     PageResponse<HistoryView> history(UUID userId, String mode, String range, int page);
 
+    /** Lịch sử luyện tập phân trang theo số ngày có hoạt động khớp bộ lọc (mặc định 3 ngày/trang); {@code page} từ 0. */
+    PageResponse<HistoryView> historyByDays(UUID userId, String mode, String range, int page, int daysPerPage);
+
     /** Từng lượt của một Buổi luyện; 404 nếu học viên không có buổi đó. */
     PracticeSessionDetailView practiceSession(UUID userId, UUID lessonId, PracticeMode mode, LocalDate day);
 

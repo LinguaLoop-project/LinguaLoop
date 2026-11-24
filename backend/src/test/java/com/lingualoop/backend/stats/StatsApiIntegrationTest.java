@@ -427,6 +427,52 @@ class StatsApiIntegrationTest {
     }
 
     @Test
+    void history_pagesByDays_neverSplitsADay_andCountsRealTotals_AC_TH_35() throws Exception {
+        UUID user = users.newUser();
+        UUID deck = vocab.deck(base + "days", false);
+        UUID card = vocab.fill(deck, 1, 1, base + "d").get(0);
+        for (int i = 0; i < 4; i++) {                       // ngày mới nhất có 4 dòng
+            Instant when = at(0).minusSeconds(i * 60L);
+            reviewLog(user, card, vocabSession(user, deck, when), true, when);
+        }
+        for (int day = 1; day <= 4; day++) {                // bốn ngày trước, mỗi ngày một dòng
+            Instant when = at(day);
+            reviewLog(user, card, vocabSession(user, deck, when), true, when);
+        }
+
+        as(user, get(HISTORY).param("days", "3").param("range", "all")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.items.length()").value(6))
+                .andExpect(jsonPath("$.data.totalElements").value(8))
+                .andExpect(jsonPath("$.data.totalPages").value(2))
+                .andExpect(jsonPath("$.data.size").value(3));
+        as(user, get(HISTORY).param("days", "3").param("range", "all").param("page", "1"))
+                .andExpect(jsonPath("$.data.items.length()").value(2))
+                .andExpect(jsonPath("$.data.page").value(1));
+        as(user, get(HISTORY).param("days", "3").param("range", "all").param("page", "2"))
+                .andExpect(jsonPath("$.data.items.length()").value(0));
+        // ngày không có hoạt động khớp bộ lọc thì không xuất hiện
+        as(user, get(HISTORY).param("days", "3").param("range", "all").param("mode", "shadowing"))
+                .andExpect(jsonPath("$.data.items.length()").value(0))
+                .andExpect(jsonPath("$.data.totalPages").value(0));
+    }
+
+    @Test
+    void history_byDaysLoadsBeyondTheFirstBatch_soTotalsStayExact_AC_TH_35() throws Exception {
+        UUID user = users.newUser();
+        UUID deck = vocab.deck(base + "big", false);
+        UUID card = vocab.fill(deck, 1, 1, base + "b").get(0);
+        for (int i = 0; i < 620; i++) {                     // vượt lượt nạp đầu (500 dòng), dồn vào 2 ngày
+            Instant when = at(i % 2 == 0 ? 0 : 1).minusSeconds(i);
+            reviewLog(user, card, vocabSession(user, deck, when), true, when);
+        }
+
+        as(user, get(HISTORY).param("days", "3").param("range", "all"))
+                .andExpect(jsonPath("$.data.items.length()").value(620))
+                .andExpect(jsonPath("$.data.totalElements").value(620))
+                .andExpect(jsonPath("$.data.totalPages").value(1));
+    }
+
+    @Test
     void history_aPracticeSessionOpensIntoItsAttempts_evenWhenTheLessonWasUnpublished_AC_TH_11() throws Exception {
         UUID user = users.newUser();
         UUID lesson = lesson(false, "published");

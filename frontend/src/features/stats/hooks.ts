@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { statsApi } from "./api";
 import type { HistoryMode, PracticeKind, StatsRange } from "./types";
+import { HISTORY_DAYS_PER_PAGE } from "./utils";
 
 /**
  * Mặc định TanStack Query tạm dừng request khi trình duyệt báo offline; `always` cho request chạy và thất bại ngay để
@@ -62,8 +63,11 @@ export const useHistory = (mode: HistoryMode, range: StatsRange, page: number) =
   useQuery({
     ...base,
     queryKey: statsKeys.history(mode, range, page),
-    queryFn: () => statsApi.getHistory(mode, range, page),
-    placeholderData: keepPreviousData,
+    queryFn: () => statsApi.getHistory(mode, range, page, HISTORY_DAYS_PER_PAGE),
+    // Chỉ giữ dữ liệu trang trước khi chuyển trang trong CÙNG chế độ (mode) và khoảng (range);
+    // khi đổi mode (vd: Tất cả -> Nghe chép), phải xóa ngay dữ liệu cũ để không hiện nhầm dòng Từ vựng.
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[2] === mode && previousQuery?.queryKey[3] === range ? previousData : undefined,
   });
 
 /** Các lượt của một Buổi luyện; chỉ tải khi học viên mở dòng đó. */

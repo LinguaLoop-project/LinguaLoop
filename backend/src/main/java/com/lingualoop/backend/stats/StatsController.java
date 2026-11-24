@@ -71,9 +71,13 @@ public class StatsController {
     /** Lịch sử luyện tập; {@code mode} là {@code all}, {@code dictation}, {@code shadowing}, {@code vocab} hoặc {@code ai}. */
     @GetMapping("/history")
     public ApiResponse<PageResponse<HistoryView>> history(@CurrentUserId UUID userId,
-            @RequestParam(required = false) String mode, @RequestParam(required = false) String range,
-            @RequestParam(defaultValue = "0") int page) {
-        return ApiResponse.ok(statsService.history(userId, mode, range, page));
+            @RequestParam(name = "mode", required = false) String mode,
+            @RequestParam(name = "range", required = false) String range,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "days", required = false) Integer days) {
+        return ApiResponse.ok(days != null
+                ? statsService.historyByDays(userId, mode, range, page, days)
+                : statsService.history(userId, mode, range, page));
     }
 
     /** Từng lượt của một Buổi luyện: bài, chế độ và ngày lịch (theo múi giờ của học viên). */

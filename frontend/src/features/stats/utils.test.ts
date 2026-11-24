@@ -3,10 +3,16 @@ import type { DictationErrorRow, HistoryItem, PhonemeCell, WeekPoint } from "./t
 import {
   errorSegments,
   activeDayCount,
+  activitySummary,
+  dayKeyInZone,
+  previousDayKey,
   buildHeatWeeks,
   dictationPracticeHref,
+  groupHistoryByDate,
   heatLevel,
   hasTrend,
+  matchesHistoryMode,
+  scoreBadgeTone,
   signedDelta,
   weeksWithData,
   historyHref,
@@ -300,5 +306,93 @@ describe("percentOf", () => {
     expect(percentOf(1, 3)).toBe(33);
     expect(percentOf(2, 3)).toBe(67);
     expect(percentOf(5, 0)).toBe(0);
+  });
+});
+
+describe("activitySummary", () => {
+  it("tổng hợp số ngày có học, tổng số hoạt động và đỉnh ngày cao nhất", () => {
+    expect(
+      activitySummary([
+        { date: "2026-11-20", count: 4 },
+        { date: "2026-11-21", count: 0 },
+        { date: "2026-11-22", count: 11 },
+      ]),
+    ).toEqual({ activeDays: 2, totalActivities: 15, bestDayCount: 11 });
+    expect(activitySummary([])).toEqual({ activeDays: 0, totalActivities: 0, bestDayCount: 0 });
+  });
+});
+
+describe("groupHistoryByDate", () => {
+  it("gom các dòng cùng ngày vào một nhóm, sắp xếp ngày mới nhất trước và giới hạn tối đa 3 ngày mỗi trang", () => {
+    const a = item({ day: "2026-11-24", at: "2026-11-24T15:00:00Z", title: "A" });
+    const b = item({ day: "2026-11-24", at: "2026-11-24T09:00:00Z", title: "B" });
+    const c = item({ day: "2026-11-23", at: "2026-11-23T12:00:00Z", title: "C" });
+    const d = item({ day: "2026-11-22", at: "2026-11-22T12:00:00Z", title: "D" });
+    const e = item({ day: "2026-11-21", at: "2026-11-21T12:00:00Z", title: "E" });
+    const groups = groupHistoryByDate([a, b, c, d, e], "all", 3);
+    expect(groups).toHaveLength(3);
+    expect(groups.map((g) => g.dayKey)).toEqual(["2026-11-24", "2026-11-23", "2026-11-22"]);
+    expect(groups[0].items.map((x) => x.title)).toEqual(["A", "B"]);
+  });
+
+  it("loại bỏ triệt để các dòng và các ngày không khớp chế độ đang lọc (vd chọn dictation không hiện vocab)", () => {
+    const dictationOn24 = item({
+      type: "practice",
+      mode: "dictation",
+      day: "2026-11-24",
+      at: "2026-11-24T10:00:00Z",
+      title: "Dictation 24",
+    });
+    const vocabOn23 = item({
+      type: "vocab",
+      mode: "review",
+      day: "2026-11-23",
+      at: "2026-11-23T10:00:00Z",
+      title: "Vocab 23",
+    });
+    const shadowingOn22 = item({
+      type: "practice",
+      mode: "shadowing",
+      day: "2026-11-22",
+      at: "2026-11-22T10:00:00Z",
+      title: "Shadowing 22",
+    });
+
+    const dictationGroups = groupHistoryByDate([dictationOn24, vocabOn23, shadowingOn22], "dictation", 3);
+    expect(dictationGroups).toHaveLength(1);
+    expect(dictationGroups[0].dayKey).toBe("2026-11-24");
+    expect(dictationGroups[0].items.map((x) => x.title)).toEqual(["Dictation 24"]);
+
+    expect(matchesHistoryMode(dictationOn24, "dictation")).toBe(true);
+    expect(matchesHistoryMode(vocabOn23, "dictation")).toBe(false);
+    expect(matchesHistoryMode(shadowingOn22, "dictation")).toBe(false);
+    expect(matchesHistoryMode(vocabOn23, "vocab")).toBe(true);
+  });
+});
+
+describe("scoreBadgeTone", () => {
+  it("phân loại màu huy hiệu điểm theo ngưỡng 80 và 50", () => {
+    expect(scoreBadgeTone(85)).toBe("success");
+    expect(scoreBadgeTone(80)).toBe("success");
+    expect(scoreBadgeTone(65)).toBe("warning");
+    expect(scoreBadgeTone(50)).toBe("warning");
+    expect(scoreBadgeTone(49)).toBe("danger");
+  });
+});
+
+describe("dayKeyInZone / previousDayKey", () => {
+  it("uses the learner time zone, not the browser's", () => {
+    const instant = new Date("2026-11-24T18:30:00Z"); // 01:30 ngày 25 ở Hà Nội, 10:30 ngày 24 ở Los Angeles
+    expect(dayKeyInZone(instant, "Asia/Ho_Chi_Minh")).toBe("2026-11-25");
+    expect(dayKeyInZone(instant, "America/Los_Angeles")).toBe("2026-11-24");
+  });
+
+  it("falls back to the browser zone for an unknown zone name", () => {
+    expect(dayKeyInZone(new Date("2026-11-24T12:00:00Z"), "Not/AZone")).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it("steps back one calendar day across month and year ends", () => {
+    expect(previousDayKey("2026-03-01")).toBe("2026-02-28");
+    expect(previousDayKey("2027-01-01")).toBe("2026-12-31");
   });
 });
