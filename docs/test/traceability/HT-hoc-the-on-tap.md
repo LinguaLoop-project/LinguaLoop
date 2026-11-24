@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/HT-hoc-the-on-tap/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 75 AC, 12 đã có test, 20 một phần, 43 thiếu.
+Tổng hợp: 81 AC, 12 đã có test, 20 một phần, 49 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -51,6 +51,12 @@ Tổng hợp: 75 AC, 12 đã có test, 20 một phần, 43 thiếu.
 | AC-HT-59 | Phiên mới chỉ lấy phần định mức còn lại của ngày | UC-HT-05 | D, B | DailyReviewApiIntegrationTest.plan_cardsReviewedTodayAreDeductedFromTheDailyQuota_BR_HT_24_AC_HT_59; DailyReviewApiIntegrationTest.plan_onlyReviewAnswersCount_notLearningAndNotYesterday_andACardCountsOnce_AC_HT_59; DailyReviewApiIntegrationTest.plan_sentencesReviewedTodayAreDeductedPerMode_BR_HT_24_AC_HT_59 | Đã có |
 | AC-HT-60 | Ôn thêm không tính định mức và không lấy câu | UC-HT-05 | D | DailyReviewApiIntegrationTest.plan_quotaReachedWithMoreCardsDue_showsDoneAndSuggestionsButKeepsAMoreRound_AC_HT_58_AC_HT_60; `frontend/src/features/review/flow.test.ts` | Đã có |
 | AC-HT-61 | Câu bỏ qua không quay lại trong ngày và được chọn lại vào ngày mai | UC-HT-05 | D, B | DailyReviewApiIntegrationTest.skip_postponesTheSentenceToTomorrow_withoutCountingItAsReviewed_AC_HT_32_AC_HT_61; DailyReviewApiIntegrationTest.skip_cameBackTheNextDay_AC_HT_61; DailyReviewApiIntegrationTest.skip_theOnlyRemainingSentence_letsTheDayFinish_AC_HT_61 | Đã có |
+| AC-HT-76 | Ít thẻ đến hạn thì khung bài lấp bằng từ mới rồi thẻ củng cố | UC-HT-05 |  |  | Thiếu |
+| AC-HT-77 | Giới hạn từ mới mỗi ngày và khi ngày mai đã nhiều thẻ | UC-HT-05 |  |  | Thiếu |
+| AC-HT-78 | Thẻ củng cố không làm đổi lịch ôn | UC-HT-05 |  |  | Thiếu |
+| AC-HT-79 | Câu luyện thêm lấp chỗ thiếu nhưng không vào danh sách Câu cần ôn | UC-HT-05 |  |  | Thiếu |
+| AC-HT-80 | Gói Free không lấp bằng nội dung Pro | UC-HT-05 |  |  | Thiếu |
+| AC-HT-81 | Học viên chưa học bộ nào được chọn bộ khởi đầu theo cấp độ | UC-HT-05 |  |  | Thiếu |
 | AC-HT-42 | Lưu một nghĩa mới từ từ điển | UC-HT-06 |  |  | Thiếu |
 | AC-HT-43 | Lưu trùng một nghĩa đang lưu không báo lỗi | UC-HT-06 |  |  | Thiếu |
 | AC-HT-44 | Lưu nhiều nghĩa khác nhau của cùng một từ | UC-HT-06 |  |  | Thiếu |
