@@ -250,6 +250,7 @@ class ProPaymentApiIntegrationTest {
                 .andExpect(jsonPath("$.data.order.kind").value("upgrade"))
                 .andExpect(jsonPath("$.data.order.amountVnd").value(99_000))
                 .andExpect(jsonPath("$.data.order.months").value(1))
+                .andExpect(jsonPath("$.data.order.planId").value(monthPlan.toString()))
                 .andReturn().getResponse().getContentAsString();
         String orderId = JsonPath.read(json, "$.data.order.id");
         Map<String, String> query = query(JsonPath.read(json, "$.data.paymentUrl"));

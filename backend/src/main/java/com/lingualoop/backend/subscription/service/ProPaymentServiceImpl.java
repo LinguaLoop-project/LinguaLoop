@@ -229,7 +229,7 @@ class ProPaymentServiceImpl implements ProPaymentService {
     }
 
     private static OrderView view(OrderRow o) {
-        return new OrderView(o.id(), o.planName(), o.months(), o.creditsPerMonth(), o.amountVnd(), o.kind(),
+        return new OrderView(o.id(), o.planId(), o.planName(), o.months(), o.creditsPerMonth(), o.amountVnd(), o.kind(),
                 o.status(), o.createdAt(), o.expiresAt(), o.paidAt(), o.startsAt(), o.endsAt(), o.transactionNo(),
                 o.bankCode(), o.payDate(), o.responseCode());
     }

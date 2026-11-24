@@ -1,0 +1,140 @@
+{
+  "page": {
+    "overline": "Account",
+    "title": "Subscription",
+    "subtitle": "Your current plan, Pro benefits and payment history."
+  },
+  "current": {
+    "label": "Current plan",
+    "active": "Active",
+    "since": "Started {{date}}",
+    "until": "Expires {{date}}",
+    "trialCredits": "Trial credits left",
+    "trialHint": "Trial credits are given once. When they run out, you need Pro to keep using AI.",
+    "monthlyCredits": "Credits left this month",
+    "renewsOn": "Refills on {{date}}",
+    "upgrade": "Upgrade to Pro",
+    "renew": "Extend Pro"
+  },
+  "benefits": {
+    "title": "Compare benefits",
+    "feature": "Benefit",
+    "free": "Free",
+    "pro": "Pro",
+    "items": {
+      "proLessons": "Pro lessons: full transcript and practice",
+      "proDecks": "Pro vocabulary decks",
+      "mouthVideos": "Mouth-shape videos for sounds under 60 points",
+      "credits": "Credits for AI features",
+      "personalLessons": "Personal lessons from a YouTube link"
+    },
+    "freeCredits": "One-time trial",
+    "proCredits": "Refilled every month"
+  },
+  "picker": {
+    "titleUpgrade": "Choose a Pro plan",
+    "titleRenew": "Extend Pro",
+    "close": "Close",
+    "months_one": "{{count}} month",
+    "months_other": "{{count}} months",
+    "perMonth": "{{credits}} credits per month",
+    "save": "Save {{percent}}%",
+    "endsOn": "Expected end: {{date}}",
+    "currentEnd": "Your plan ends on {{date}}. The new period is added after it, so you lose no days.",
+    "total": "Total",
+    "continue": "Continue to payment",
+    "redirecting": "Redirecting to VNPAY…",
+    "empty": "No Pro plans are on sale right now.",
+    "note": "You will be taken to the VNPAY gateway to pay by QR, ATM card or international card. The order is held for 15 minutes.",
+    "activatedFree": "The plan is now active."
+  },
+  "history": {
+    "title": "Payment history",
+    "empty": "No payments yet.",
+    "columns": {
+      "date": "Created",
+      "plan": "Plan",
+      "kind": "Type",
+      "amount": "Amount",
+      "status": "Status",
+      "period": "Period",
+      "txn": "VNPAY transaction"
+    }
+  },
+  "kind": {
+    "upgrade": "Upgrade",
+    "renew": "Extension"
+  },
+  "status": {
+    "pending": "Awaiting payment",
+    "paid": "Paid",
+    "canceled": "Canceled",
+    "failed": "Failed",
+    "expired": "Expired"
+  },
+  "result": {
+    "loading": "Confirming your payment…",
+    "paid": {
+      "title": "You're now on Pro!",
+      "titleRenew": "Pro extended!",
+      "body": "{{plan}} is active until {{date}}. All Pro benefits are unlocked."
+    },
+    "canceled": {
+      "title": "You canceled the payment",
+      "body": "Your current plan has not changed."
+    },
+    "failed": {
+      "title": "Payment failed",
+      "body": "Your current plan has not changed."
+    },
+    "expired": {
+      "title": "The payment session expired",
+      "body": "Orders are held for 15 minutes. Please pay again."
+    },
+    "pending": {
+      "title": "Waiting for VNPAY to confirm",
+      "body": "This page updates itself when the result arrives. You can leave; your plan is activated as soon as VNPAY confirms."
+    },
+    "invalid": {
+      "title": "Invalid payment result",
+      "body": "This result could not be verified with VNPAY, so your plan has not changed. If your bank account was charged, check your payment history again in a few minutes."
+    },
+    "missing": {
+      "title": "No payment result",
+      "body": "This page only receives results from VNPAY."
+    },
+    "reason": {
+      "07": "The transaction was flagged as suspicious. Please contact support.",
+      "09": "The card or account is not registered for Internet Banking.",
+      "10": "Card details were entered wrongly more than 3 times.",
+      "11": "The payment time ran out.",
+      "12": "The card or account is locked.",
+      "13": "The OTP is incorrect.",
+      "51": "Insufficient balance.",
+      "65": "The account has exceeded its daily transaction limit.",
+      "75": "The paying bank is under maintenance.",
+      "79": "The payment password was entered wrongly too many times.",
+      "other": "VNPAY reported the payment as unsuccessful (code {{code}})."
+    },
+    "receipt": {
+      "amount": "Amount",
+      "txn": "Transaction",
+      "bank": "Bank",
+      "paidAt": "Paid at"
+    },
+    "payAgain": "Pay again",
+    "choosePlan": "Choose another plan",
+    "goBack": "Back to where I was",
+    "toSubscription": "View subscription"
+  },
+  "errors": {
+    "PRO_ALREADY_ACTIVE": "Your account is already on Pro. You can extend it to add more time.",
+    "PRO_NOT_ACTIVE": "Your Pro plan has expired. Upgrade again; the new period starts today.",
+    "PRO_PLAN_NOT_ON_SALE": "This plan is no longer on sale. Please choose another.",
+    "PAYMENT_UNAVAILABLE": "Payment is temporarily unavailable. Please try again later.",
+    "NETWORK_ERROR": "You are offline. Check your connection and try again.",
+    "default": "Could not create the payment. Please try again."
+  },
+  "retry": "Try again",
+  "loadFailed": "Could not load your subscription."
+}

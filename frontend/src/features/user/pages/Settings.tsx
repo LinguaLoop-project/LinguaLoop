@@ -4,6 +4,7 @@ import LearningProfileForm from "../components/LearningProfileForm";
 import SecuritySection from "../components/SecuritySection";
 import Icon from "@/components/common/Icon";
 import { useAuth } from "@/features/auth";
+import SubscriptionPanel from "@/features/subscription/components/SubscriptionPanel";
 
 const TABS = [
   { id: "profile", icon: "circle-user" },
@@ -69,6 +70,8 @@ export default function Settings() {
             <SecuritySection />
           ) : tab === "learning" ? (
             <LearningProfileForm mode="settings" />
+          ) : tab === "plan" ? (
+            <SubscriptionPanel />
           ) : (
             <div className="rounded-lg border border-border bg-surface p-5 text-sm text-text-muted shadow-[var(--shadow-card)]">{t("settings.comingSoon")}</div>
           )}

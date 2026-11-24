@@ -60,6 +60,8 @@ const AdminUserListPage = lazy(() => import("@/features/user/pages/admin/AdminUs
 const AdminUserDetailPage = lazy(() => import("@/features/user/pages/admin/AdminUserDetailPage"));
 const AdminCreditConfigPage = lazy(() => import("@/features/credit/pages/admin/AdminCreditConfigPage"));
 const AdminProPlanPage = lazy(() => import("@/features/subscription/pages/admin/AdminProPlanPage"));
+const SubscriptionPage = lazy(() => import("@/features/subscription/pages/SubscriptionPage"));
+const PaymentReturnPage = lazy(() => import("@/features/subscription/pages/PaymentReturnPage"));
 const AdminContentTransferPage = lazy(() => import("@/features/user/pages/admin/AdminContentTransferPage"));
 const AdminReportListPage = lazy(() => import("@/features/report/pages/admin/AdminReportListPage"));
 const AdminReportDetailPage = lazy(() => import("@/features/report/pages/admin/AdminReportDetailPage"));
@@ -230,6 +232,10 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <Settings />,
         },
         {
+          path: "subscription",
+          element: <SubscriptionPage />,
+        },
+        {
           path: "profile",
           element: <PlaceholderPage pageKey="student.profile" />,
         },
@@ -242,6 +248,19 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <PlaceholderPage pageKey="student.stats" />,
         },
       ],
+    },
+  ];
+
+  // VNPAY chuyển học viên về đúng VNPAY_RETURN_URL (/payment/vnpay-return), nằm trong khung học viên.
+  const paymentRoutes: RouteObject[] = [
+    {
+      path: "payment",
+      element: (
+        <AuthGuard allowedRoles={["student"]}>
+          <StudentLayout />
+        </AuthGuard>
+      ),
+      children: [{ path: "vnpay-return", element: <PaymentReturnPage /> }],
     },
   ];
 
@@ -430,6 +449,7 @@ const getRoutesConfig = (): RouteObject[] => {
   return [
     ...publicRoutes,
     ...studentRoutes,
+    ...paymentRoutes,
     ...watchRoutes,
     ...teacherRoutes,
     ...adminRoutes,

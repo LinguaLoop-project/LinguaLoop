@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProOrderPaymentRepository {
 
-    public record OrderRow(UUID id, UUID userId, String planName, int months, int creditsPerMonth, int amountVnd,
+    public record OrderRow(UUID id, UUID userId, UUID planId, String planName, int months, int creditsPerMonth, int amountVnd,
             String kind, String status, String responseCode, String transactionNo, String bankCode, Instant payDate,
             Instant createdAt, Instant expiresAt, Instant paidAt, Instant canceledAt, Instant startsAt,
             Instant endsAt) {
@@ -33,7 +33,7 @@ public class ProOrderPaymentRepository {
     }
 
     private static final String ORDER = """
-            SELECT id, user_id, plan_name, months, credits_per_month, amount_vnd, kind, status, vnpay_response_code,
+            SELECT id, user_id, plan_id, plan_name, months, credits_per_month, amount_vnd, kind, status, vnpay_response_code,
                    vnpay_transaction_no, vnpay_bank_code, vnpay_pay_date, created_at, expires_at, paid_at, canceled_at,
                    starts_at, ends_at
             FROM pro_orders""";
@@ -152,7 +152,7 @@ public class ProOrderPaymentRepository {
 
     private static OrderRow row(ResultSet rs, int n) throws SQLException {
         return new OrderRow(rs.getObject("id", UUID.class), rs.getObject("user_id", UUID.class),
-                rs.getString("plan_name"), rs.getInt("months"), rs.getInt("credits_per_month"),
+                rs.getObject("plan_id", UUID.class), rs.getString("plan_name"), rs.getInt("months"), rs.getInt("credits_per_month"),
                 rs.getInt("amount_vnd"), rs.getString("kind"), rs.getString("status"),
                 rs.getString("vnpay_response_code"), rs.getString("vnpay_transaction_no"),
                 rs.getString("vnpay_bank_code"), instant(rs, "vnpay_pay_date"), instant(rs, "created_at"),

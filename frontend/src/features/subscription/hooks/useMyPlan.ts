@@ -4,7 +4,7 @@ import { subscriptionService } from "../services/subscriptionService";
 
 export const PLAN_QUERY_KEY = ["subscription", "plan"] as const;
 
-/** Gói hiện tại do server tính (view v_user_plan). Chưa tải xong thì coi là Free. */
+/** Gói hiện tại do server tính (`GET /subscriptions/me`). Chưa tải xong thì coi là Free. */
 export const useMyPlan = () => {
   const hasToken = useAuthStore((s) => !!s.accessToken);
   return useQuery({

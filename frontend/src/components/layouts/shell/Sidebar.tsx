@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
@@ -7,6 +7,7 @@ import Mascot from "@/components/common/Mascot";
 import { useReviewEntries } from "@/features/practice";
 import { type ReportBadgeKind, useReportBadge } from "@/features/report";
 import { useAiEnergy } from "@/hooks/useAiEnergy";
+import { rememberReturnTo } from "@/features/subscription/payment";
 import type { NavItem, NavTone, ShellConfig } from "./shellConfig";
 
 /**
@@ -93,6 +94,7 @@ function Item({ item, config, collapsed, onNavigate }: { item: NavItem; config: 
 function ProCard({ hide }: { hide: string }) {
   const { t } = useTranslation("layout");
   const navigate = useNavigate();
+  const location = useLocation();
   const { isPro } = useAiEnergy();
   if (isPro) return null;
   return (
@@ -103,7 +105,14 @@ function ProCard({ hide }: { hide: string }) {
       </Badge>
       <b className="mt-2.5 block text-lg font-bold leading-[1.4]">{t("student.sidebar.pro.price")}</b>
       <p className="my-1 mb-3 text-[13px] leading-normal text-text-muted">{t("student.sidebar.pro.desc")}</p>
-      <Button size="sm" fullWidth onClick={() => navigate("/pricing")}>
+      <Button
+        size="sm"
+        fullWidth
+        onClick={() => {
+          rememberReturnTo(location.pathname + location.search);
+          navigate("/student/subscription?choose=1");
+        }}
+      >
         {t("student.sidebar.pro.cta")}
       </Button>
     </div>

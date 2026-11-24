@@ -1,0 +1,140 @@
+{
+  "page": {
+    "overline": "Tài khoản",
+    "title": "Gói đăng ký",
+    "subtitle": "Gói bạn đang dùng, quyền lợi Pro và lịch sử thanh toán."
+  },
+  "current": {
+    "label": "Gói hiện tại",
+    "active": "Đang hoạt động",
+    "since": "Bắt đầu {{date}}",
+    "until": "Hết hạn {{date}}",
+    "trialCredits": "Credit dùng thử còn lại",
+    "trialHint": "Credit dùng thử chỉ tặng một lần. Dùng hết thì cần gói Pro để tiếp tục dùng AI.",
+    "monthlyCredits": "Credit còn lại trong tháng",
+    "renewsOn": "Làm mới ngày {{date}}",
+    "upgrade": "Nâng cấp lên Pro",
+    "renew": "Gia hạn gói Pro"
+  },
+  "benefits": {
+    "title": "So sánh quyền lợi",
+    "feature": "Quyền lợi",
+    "free": "Free",
+    "pro": "Pro",
+    "items": {
+      "proLessons": "Bài học Pro: đọc lời thoại và luyện đầy đủ",
+      "proDecks": "Bộ từ vựng Pro",
+      "mouthVideos": "Video khẩu hình khi phát âm dưới 60 điểm",
+      "credits": "Credit cho tính năng AI",
+      "personalLessons": "Tạo bài cá nhân từ link YouTube"
+    },
+    "freeCredits": "Dùng thử một lần",
+    "proCredits": "Cấp lại mỗi tháng"
+  },
+  "picker": {
+    "titleUpgrade": "Chọn gói Pro",
+    "titleRenew": "Gia hạn gói Pro",
+    "close": "Đóng",
+    "months_one": "{{count}} tháng",
+    "months_other": "{{count}} tháng",
+    "perMonth": "{{credits}} credit mỗi tháng",
+    "save": "Tiết kiệm {{percent}}%",
+    "endsOn": "Hết hạn dự kiến: {{date}}",
+    "currentEnd": "Gói hiện tại hết hạn ngày {{date}}. Kỳ mới được cộng nối tiếp, không mất ngày nào.",
+    "total": "Tổng thanh toán",
+    "continue": "Tiếp tục thanh toán",
+    "redirecting": "Đang chuyển sang VNPAY…",
+    "empty": "Hiện chưa có gói Pro nào mở bán.",
+    "note": "Bạn sẽ được chuyển sang cổng VNPAY để thanh toán bằng QR, thẻ ATM hoặc thẻ quốc tế. Đơn được giữ trong 15 phút.",
+    "activatedFree": "Gói đã được kích hoạt."
+  },
+  "history": {
+    "title": "Lịch sử giao dịch",
+    "empty": "Chưa có giao dịch nào.",
+    "columns": {
+      "date": "Ngày tạo",
+      "plan": "Gói",
+      "kind": "Loại",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "period": "Thời hạn",
+      "txn": "Mã giao dịch VNPAY"
+    }
+  },
+  "kind": {
+    "upgrade": "Nâng cấp",
+    "renew": "Gia hạn"
+  },
+  "status": {
+    "pending": "Chờ thanh toán",
+    "paid": "Đã thanh toán",
+    "canceled": "Đã hủy",
+    "failed": "Thất bại",
+    "expired": "Hết hạn"
+  },
+  "result": {
+    "loading": "Đang xác nhận kết quả thanh toán…",
+    "paid": {
+      "title": "Nâng cấp Pro thành công!",
+      "titleRenew": "Gia hạn thành công!",
+      "body": "Gói {{plan}} có hiệu lực đến {{date}}. Mọi quyền lợi Pro đã được mở khóa."
+    },
+    "canceled": {
+      "title": "Bạn đã hủy thanh toán",
+      "body": "Gói hiện tại của bạn không thay đổi."
+    },
+    "failed": {
+      "title": "Thanh toán không thành công",
+      "body": "Gói hiện tại của bạn không thay đổi."
+    },
+    "expired": {
+      "title": "Phiên thanh toán đã hết hạn",
+      "body": "Đơn chỉ được giữ trong 15 phút. Hãy thanh toán lại."
+    },
+    "pending": {
+      "title": "Đang chờ VNPAY xác nhận",
+      "body": "Trang sẽ tự cập nhật khi có kết quả. Bạn có thể rời trang, gói sẽ được kích hoạt ngay khi VNPAY xác nhận."
+    },
+    "invalid": {
+      "title": "Kết quả thanh toán không hợp lệ",
+      "body": "Không xác minh được kết quả này với VNPAY nên gói của bạn không thay đổi. Nếu tài khoản ngân hàng đã bị trừ tiền, hãy xem lại lịch sử giao dịch sau ít phút."
+    },
+    "missing": {
+      "title": "Không có kết quả thanh toán",
+      "body": "Trang này chỉ dùng để nhận kết quả từ VNPAY."
+    },
+    "reason": {
+      "07": "Giao dịch bị nghi ngờ gian lận. Hãy liên hệ hỗ trợ để được kiểm tra.",
+      "09": "Thẻ hoặc tài khoản chưa đăng ký dịch vụ Internet Banking.",
+      "10": "Xác thực thông tin thẻ sai quá 3 lần.",
+      "11": "Đã hết thời gian chờ thanh toán.",
+      "12": "Thẻ hoặc tài khoản đang bị khóa.",
+      "13": "Mã OTP không đúng.",
+      "51": "Tài khoản không đủ số dư.",
+      "65": "Tài khoản đã vượt hạn mức giao dịch trong ngày.",
+      "75": "Ngân hàng thanh toán đang bảo trì.",
+      "79": "Nhập sai mật khẩu thanh toán quá số lần cho phép.",
+      "other": "VNPAY báo giao dịch không thành công (mã {{code}})."
+    },
+    "receipt": {
+      "amount": "Số tiền",
+      "txn": "Mã giao dịch",
+      "bank": "Ngân hàng",
+      "paidAt": "Thời gian thanh toán"
+    },
+    "payAgain": "Thanh toán lại",
+    "choosePlan": "Chọn gói khác",
+    "goBack": "Quay lại trang đang học",
+    "toSubscription": "Xem gói đăng ký"
+  },
+  "errors": {
+    "PRO_ALREADY_ACTIVE": "Tài khoản của bạn đã là gói Pro. Bạn có thể gia hạn để cộng thêm thời hạn.",
+    "PRO_NOT_ACTIVE": "Gói Pro của bạn đã hết hạn. Hãy nâng cấp lại, thời hạn mới tính từ hôm nay.",
+    "PRO_PLAN_NOT_ON_SALE": "Gói này không còn mở bán. Hãy chọn gói khác.",
+    "PAYMENT_UNAVAILABLE": "Thanh toán tạm thời không dùng được, hãy thử lại sau.",
+    "NETWORK_ERROR": "Mất kết nối mạng. Hãy kiểm tra kết nối rồi thử lại.",
+    "default": "Không tạo được đơn thanh toán, hãy thử lại."
+  },
+  "retry": "Thử lại",
+  "loadFailed": "Không tải được thông tin gói đăng ký."
+}
