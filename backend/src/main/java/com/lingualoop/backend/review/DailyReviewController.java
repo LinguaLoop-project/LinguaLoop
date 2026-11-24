@@ -28,6 +28,13 @@ public class DailyReviewController {
         return ApiResponse.ok(dailyReviewService.plan(userId));
     }
 
+    /** Thẻ của phần ôn thẻ theo khung bài ngày; {@code extra=true} là lượt "Ôn thêm" chỉ có thẻ đến hạn (BR-HT-24, BR-HT-29). */
+    @GetMapping("/daily-cards")
+    public ApiResponse<DailyCardsView> dailyCards(@CurrentUserId UUID userId,
+            @RequestParam(defaultValue = "false") boolean extra) {
+        return ApiResponse.ok(dailyReviewService.dailyCards(userId, extra));
+    }
+
     /**
      * Câu của phiên Ôn câu riêng: mỗi chế độ tối đa {@code perMode} câu (mặc định 2, BR-HT-20), hoặc đúng một câu khi
      * truyền cả {@code sentenceId} và {@code mode}.

@@ -21,7 +21,16 @@ public record AnswerRequest(
         Boolean correct,
         Boolean hintUsed,
         @Min(0) @Max(5) Integer quality,
-        @Min(0) Integer responseMs) {
+        @Min(0) Integer responseMs,
+        Boolean practice) {
+
+    /**
+     * Thẻ củng cố (BR-HT-30): câu trả lời chỉ được ghi nhật ký, không đổi lịch ôn. Chỉ có tác dụng với thẻ đã học và chưa
+     * đến hạn; thẻ đến hạn hay thẻ Mới luôn được chấm theo SM-2 dù gửi cờ này.
+     */
+    public boolean isPractice() {
+        return Boolean.TRUE.equals(practice);
+    }
 
     public boolean isCorrect() {
         return Boolean.TRUE.equals(correct);

@@ -13,6 +13,12 @@ public interface DailyReviewService {
     DailyPlanView plan(UUID userId);
 
     /**
+     * Thẻ của phần ôn thẻ: thẻ đến hạn, rồi từ mới, rồi thẻ củng cố, đủ phần định mức còn lại của ngày (BR-HT-29). Với
+     * {@code extra} (lượt "Ôn thêm") chỉ có thẻ đến hạn, tối đa bằng định mức thẻ, không tính định mức (BR-HT-24).
+     */
+    DailyCardsView dailyCards(UUID userId, boolean extra);
+
+    /**
      * Các câu của phiên Ôn câu riêng (UC-HT-04): mỗi chế độ tối đa {@code perMode} câu theo BR-HT-20, Nghe chép trước rồi
      * tới Shadowing. Câu đã ôn hôm nay không được chọn lại nên "Ôn thêm" gọi lại sẽ ra nhóm câu kế tiếp.
      */
