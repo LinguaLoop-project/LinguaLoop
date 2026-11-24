@@ -67,19 +67,21 @@ export default function GuessView({ card, done, total, onAnswer, onNext }: CardV
   return (
     <div>
       <RoundProgress done={done} total={total} label={t("learn.progress", { current: done + 1, total })} />
-      <div className="rounded-lg border border-border bg-surface p-6 shadow-[var(--shadow-card)]">
+      <div className="rounded-xl border border-border bg-surface p-6 shadow-[var(--shadow-card)]">
         <div className="text-xs font-bold uppercase tracking-wider text-text-muted">{t("learn.guess.prompt")}</div>
-        <div className="mt-6 flex flex-col items-center gap-2 justify-center ">
-          <CardImage url={card.imageUrl}/>
-          <div className="mt-2 flex gap-3 items-center">
+        <div className="mt-5 flex flex-col items-center justify-center gap-2.5">
+          <CardImage url={card.imageUrl} />
+          <div className="mt-1 flex items-center gap-2.5">
             {card.pos && <Badge variant="default">{card.pos}</Badge>}
-            <ListenButton card={card} label={t("learn.listenAria", { word: card.word }    )} />
+            <ListenButton card={card} label={t("learn.listenAria", { word: card.word })} />
           </div>
-          <h2 className="text-3xl font-bold">{card.meaningVi}</h2>
+          <h2 className="font-display text-3xl font-bold text-text">{card.meaningVi}</h2>
         </div>
         {masked && (
-          <div className="mt-4 rounded-md bg-surface-hover p-3.5">
-            <p lang="en" className="text-lg">{outcome ? card.exampleEn : masked}</p>
+          <div className="mt-4 rounded-xl border border-border bg-bg-elevated p-3.5 text-center">
+            <p lang="en" className="text-lg font-medium text-text">
+              {outcome ? card.exampleEn : masked}
+            </p>
             {card.exampleVi && <p className="mt-1 text-sm text-text-muted">{card.exampleVi}</p>}
           </div>
         )}
@@ -91,12 +93,23 @@ export default function GuessView({ card, done, total, onAnswer, onNext }: CardV
             check();
           }}
         >
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="font-mono text-xl tracking-[0.3em] text-text-muted" aria-label={t("learn.guess.letters", { count: letters })}>
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-bg-elevated px-3.5 py-2.5">
+            <span
+              className="font-mono text-xl font-bold tracking-[0.28em] text-primary-text"
+              aria-label={t("learn.guess.letters", { count: letters })}
+            >
               {outcome ? card.word : hintMask(card.word, hints)}
             </span>
-            <small className="text-text-muted">{t("learn.guess.letters", { count: letters })}</small>
-            {hints > 0 && !outcome && <small className="text-text-muted">· {t("learn.guess.usedHints", { count: hints })}</small>}
+            <div className="flex items-center gap-1.5 text-xs font-medium text-text-muted">
+              <span className="rounded-full bg-surface px-2.5 py-0.5 tabular-nums">
+                {t("learn.guess.letters", { count: letters })}
+              </span>
+              {hints > 0 && !outcome && (
+                <span className="rounded-full bg-warning/15 px-2.5 py-0.5 text-warning">
+                  {t("learn.guess.usedHints", { count: hints })}
+                </span>
+              )}
+            </div>
           </div>
           <input
             ref={input}
@@ -112,7 +125,7 @@ export default function GuessView({ card, done, total, onAnswer, onNext }: CardV
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck={false}
-            className="h-12 w-full rounded-md border border-border-strong bg-bg-base px-4 text-lg text-text outline-none transition-colors placeholder:text-text-subtle focus:border-primary disabled:opacity-70"
+            className="h-12 w-full rounded-xl border border-border-strong bg-bg-base px-4 text-lg font-medium text-text outline-none transition-colors placeholder:text-text-subtle focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-70"
           />
           {empty && (
             <p role="alert" className="text-sm text-warning">

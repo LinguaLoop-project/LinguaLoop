@@ -27,6 +27,7 @@ export interface FeedPlayer {
   currentMs: number;
   play: () => void;
   pause: () => void;
+  seekTo: (ms: number) => void;
   retry: () => void;
 }
 
@@ -174,7 +175,15 @@ export function useFeedPlayer({
 
   const play = useCallback(() => playerRef.current?.playVideo(), []);
   const pause = useCallback(() => playerRef.current?.pauseVideo(), []);
+  const seekTo = useCallback((ms: number) => {
+    const player = playerRef.current;
+    if (!player) return;
+    const clamped = Math.max(0, Math.round(ms));
+    player.seekTo(clamped / 1000, true);
+    setCurrentMs(clamped);
+    player.playVideo();
+  }, []);
   const retry = useCallback(() => setReloadKey((key) => key + 1), []);
 
-  return { status, playing, currentMs, play, pause, retry };
+  return { status, playing, currentMs, play, pause, seekTo, retry };
 }

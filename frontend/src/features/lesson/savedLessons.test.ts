@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import viSaved from "@/i18n/locales/vi/saved.json";
 import enSaved from "@/i18n/locales/en/saved.json";
-import { nextMode, savedAgo } from "./savedUtils";
+import { formatTotalMinutes, lessonStateOf, nextMode, savedAgo } from "./savedUtils";
 
 describe("nextMode (AC-TC-36)", () => {
   it("gợi ý chế độ làm ít hơn", () => {
@@ -12,6 +12,25 @@ describe("nextMode (AC-TC-36)", () => {
   it("bằng nhau (kể cả chưa học) thì nghe chép", () => {
     expect(nextMode({ dictationPercent: 0, shadowingPercent: 0 })).toBe("dictation");
     expect(nextMode({ dictationPercent: 100, shadowingPercent: 100 })).toBe("dictation");
+  });
+});
+
+describe("lessonStateOf", () => {
+  it("phân loại đúng todo, doing và done", () => {
+    expect(lessonStateOf({ dictationPercent: 0, shadowingPercent: 0 })).toBe("todo");
+    expect(lessonStateOf({ dictationPercent: 50, shadowingPercent: 0 })).toBe("doing");
+    expect(lessonStateOf({ dictationPercent: 100, shadowingPercent: 0 })).toBe("doing");
+    expect(lessonStateOf({ dictationPercent: 100, shadowingPercent: 100 })).toBe("done");
+  });
+});
+
+describe("formatTotalMinutes", () => {
+  it("định dạng phút và giờ theo ngôn ngữ", () => {
+    expect(formatTotalMinutes(45, "vi")).toBe("1 phút");
+    expect(formatTotalMinutes(1440, "vi")).toBe("24 phút");
+    expect(formatTotalMinutes(4320, "vi")).toBe("1 giờ 12 phút");
+    expect(formatTotalMinutes(3600, "en")).toBe("1h");
+    expect(formatTotalMinutes(4320, "en")).toBe("1h 12m");
   });
 });
 

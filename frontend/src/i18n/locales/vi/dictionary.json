@@ -53,5 +53,19 @@
     "removedToast": "Đã bỏ lưu từ",
     "failed": "Chưa lưu được. Thử lại nhé.",
     "offline": "Bạn đang mất mạng. Thử lại khi có mạng."
+  },
+  "detail": {
+    "overline": "Từ điển Anh – Việt",
+    "back": "Quay lại",
+    "meaningsCount": "{{count}} nghĩa",
+    "allPos": "Tất cả ({{count}})",
+    "say": "Lưu nghĩa bạn đang cần vào bộ thẻ để hệ thống nhắc ôn đúng lịch nhé!",
+    "listenExample": "Nghe câu ví dụ",
+    "savedSection": "Nghĩa bạn đã lưu",
+    "savedEmpty": "Bạn chưa lưu nghĩa nào của từ này. Bấm “Lưu” ở nghĩa bất kỳ bên trái để đưa vào lịch ôn.",
+    "viewAllSaved": "Xem trong Từ & câu đã lưu",
+    "relatedSection": "Từ liên quan",
+    "relatedEmpty": "Không có từ liên quan khác.",
+    "viewDetail": "Xem chi tiết từ {{word}}"
   }
 }

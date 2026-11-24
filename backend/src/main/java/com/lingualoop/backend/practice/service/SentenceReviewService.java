@@ -48,6 +48,9 @@ public interface SentenceReviewService {
      */
     List<ReviewPlanSentence> findReviewableToday(UUID userId, boolean userPro, Instant dayStart);
 
+    /** Lấy một câu cần ôn cụ thể của học viên để mở trực tiếp màn Ôn câu. */
+    List<ReviewPlanSentence> findSingleReviewSentence(UUID userId, UUID sentenceId, PracticeMode mode, boolean userPro);
+
     /**
      * Hoãn câu sang ngày mai khi học viên bỏ qua trong phiên ôn (BR-HT-21): câu không được chọn lại hôm nay và không được
      * tính là đã ôn; câu vẫn ở trong danh sách. Câu không ở trong danh sách thì lỗi không tìm thấy.

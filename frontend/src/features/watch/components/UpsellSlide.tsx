@@ -9,7 +9,7 @@ export default function UpsellSlide() {
   const navigate = useNavigate();
   return (
     <div className="mx-4 flex max-w-sm flex-col items-center gap-4 rounded-2xl border border-white/10 bg-gradient-to-b from-[#2a2140] to-[#14121c] px-6 py-8 text-center text-white shadow-[0_24px_60px_-20px_rgba(0,0,0,0.9)]">
-      <span className="grid size-14 place-items-center rounded-full bg-[#fcd34d]/15 text-[#fcd34d]">
+      <span className="grid size-14 place-items-center rounded-full bg-video-accent/15 text-video-accent">
         <Icon name="crown" className="size-7" />
       </span>
       <h2 className="text-xl font-bold">{t("upsell.title")}</h2>

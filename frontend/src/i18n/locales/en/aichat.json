@@ -1,6 +1,19 @@
 {
   "title": "Practice with AI",
   "breadcrumbLessons": "Lessons",
+  "studio": {
+    "rulesTitle": "Before you practice",
+    "sentenceCount_one": "{{count}} sentence",
+    "sentenceCount_other": "{{count}} sentences",
+    "chips": {
+      "questions": "Up to 5 questions",
+      "questionsHint": "Deep dive into the lesson",
+      "time": "15 min / session",
+      "timeHint": "Wrap-up at the end",
+      "hints": "Free hints",
+      "hintsHint": "Credits charged once at start"
+    }
+  },
   "card": {
     "title": "Practice with AI",
     "desc": "Talk to a tutor about the lesson, like a call. The tutor asks, you answer out loud, and you get feedback tied to the video after every question.",

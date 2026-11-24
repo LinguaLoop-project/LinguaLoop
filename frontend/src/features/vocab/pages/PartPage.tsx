@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -17,7 +17,7 @@ import { usePart } from "../hooks";
 import { LEARN_MODES, loadMode, saveMode } from "../learn";
 import { useAnswerSubmit } from "../useAnswerSubmit";
 import type { DeckPart, LearnMode, PartDetail } from "../types";
-import { deckUrl, nextPartIndex, partState, partUrl, visibleParts } from "../utils";
+import { deckUrl, nextPartIndex, partState, partUrl } from "../utils";
 
 const MODE_ICONS: Record<LearnMode, string> = {
   guess: "keyboard",
@@ -26,52 +26,81 @@ const MODE_ICONS: Record<LearnMode, string> = {
   reverse_quiz: "arrow-left-right",
 };
 
-const SIDE_WINDOW = 12;
-
-/** Danh sách phần của bộ ở bên cạnh: phần đang học, phần đã xong, phần bị khoá. */
+/** Danh sách phần của bộ ở bên cạnh: có thanh cuộn hiển thị mọi phần và tự cuộn tới phần đang học. */
 function PartsNav({ detail }: { detail: PartDetail }) {
   const { t } = useTranslation("vocab");
   const openUpgrade = useQuotaStore((s) => s.setShowUpgradeModal);
   const next = nextPartIndex(detail.parts);
-  const shown = visibleParts(detail.parts, detail.index, false, SIDE_WINDOW);
+  const activeRef = useRef<HTMLAnchorElement | null>(null);
+  const doneCount = detail.parts.filter((p) => p.cardCount > 0 && p.studiedCount >= p.cardCount).length;
+
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({ block: "nearest" });
+  }, [detail.index]);
 
   const label = (part: DeckPart) => part.name;
 
   return (
-    <nav aria-label={t("learn.partsNav")} className="flex flex-col gap-0.5">
-      <div className="px-3 pb-2 text-xs font-bold uppercase tracking-wider text-text-muted">
-        {t("learn.partsNav")}
-        {detail.parts.length > SIDE_WINDOW && (
-          <span className="ml-1 font-medium normal-case tracking-normal">
-            · {t("learn.partsRange", { from: shown.from + 1, to: shown.to, total: detail.parts.length })}
-          </span>
-        )}
+    <nav aria-label={t("learn.partsNav")} className="flex flex-col">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-3 pb-2.5 pt-1 text-xs font-bold uppercase tracking-wider text-text-muted">
+        <span className="truncate">{t("learn.partsNav")}</span>
+        <span className="shrink-0 rounded-full bg-bg-elevated px-2 py-0.5 font-mono text-[11px] font-semibold normal-case tracking-normal text-text-muted">
+          {doneCount}/{detail.parts.length}
+        </span>
       </div>
-      {shown.items.map((part) => {
-        const state = partState(part, next);
-        const current = part.index === detail.index;
-        const icon = state === "locked" ? "lock" : state === "done" ? "circle-check" : "play";
-        const className = `flex items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm transition-colors ${
-          current ? "bg-primary-soft font-semibold text-text" : "text-text-muted hover:bg-surface-hover hover:text-text"
-        } ${state === "locked" ? "opacity-70" : ""}`;
-        const content = (
-          <>
-            <Icon name={icon} className={`h-4 w-4 flex-none ${state === "done" ? "text-success" : ""}`} />
-            <span className="min-w-0 flex-1 truncate">
-              {part.index + 1}. {label(part)}
-            </span>
-          </>
-        );
-        return state === "locked" ? (
-          <button key={part.index} type="button" className={className} onClick={() => openUpgrade(true, "pro")}>
-            {content}
-          </button>
-        ) : (
-          <Link key={part.index} to={partUrl(detail.deck.id, part.index)} className={className} aria-current={current ? "page" : undefined}>
-            {content}
-          </Link>
-        );
-      })}
+      <div className="mt-1.5 flex max-h-[360px] flex-col gap-0.5 overflow-y-auto pr-1 [scrollbar-color:var(--border-strong)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border-strong hover:[&::-webkit-scrollbar-thumb]:bg-primary/60 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
+        {detail.parts.map((part) => {
+          const state = partState(part, next);
+          const current = part.index === detail.index;
+          const icon = state === "locked" ? "lock" : state === "done" ? "circle-check" : "play";
+          const className = `flex items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm transition-colors ${
+            current
+              ? "border-l-2 border-l-primary bg-primary-soft font-semibold text-text"
+              : "text-text-muted hover:bg-surface-hover hover:text-text"
+          } ${state === "locked" ? "opacity-70" : ""}`;
+          const content = (
+            <>
+              <Icon
+                name={icon}
+                className={`h-4 w-4 flex-none ${
+                  state === "done" ? "text-success" : current ? "text-primary-text" : ""
+                }`}
+              />
+              <span className="min-w-0 flex-1 truncate">
+                {part.index + 1}. {label(part)}
+              </span>
+              {part.cardCount > 0 && !part.locked && (
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums ${
+                    state === "done"
+                      ? "bg-success/15 text-success"
+                      : part.studiedCount > 0
+                        ? "bg-fn-vocab-soft text-fn-vocab"
+                        : "text-text-subtle"
+                  }`}
+                >
+                  {part.studiedCount}/{part.cardCount}
+                </span>
+              )}
+            </>
+          );
+          return state === "locked" ? (
+            <button key={part.index} type="button" className={className} onClick={() => openUpgrade(true, "pro")}>
+              {content}
+            </button>
+          ) : (
+            <Link
+              key={part.index}
+              ref={current ? activeRef : undefined}
+              to={partUrl(detail.deck.id, part.index)}
+              className={className}
+              aria-current={current ? "page" : undefined}
+            >
+              {content}
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }

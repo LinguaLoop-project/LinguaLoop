@@ -4,6 +4,7 @@ import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import { toast } from "@/stores/toastStore";
 import { toApiError } from "@/features/auth";
+import { ClickableText, WordSourceProvider } from "@/features/dictionary";
 import ReviewPromptDialog from "@/features/practice/components/ReviewPromptDialog";
 import { useSetReview } from "@/features/practice/hooks";
 import { reviewPromptKind, type ReviewPrompt } from "@/features/practice/reviewPrompt";
@@ -65,7 +66,7 @@ export default function ShadowingReviewStep({ sentence, player, onFinished }: St
         { sentenceId: sentence.sentenceId, wav },
         {
           onSuccess: (result) => {
-            setRecord(recordFromAttempt(undefined, result));
+            setRecord((prev) => recordFromAttempt(prev ?? undefined, result));
             setPhase("idle");
             markReviewed.mutate({ mode: "shadowing", sentenceId: sentence.sentenceId });
             const kind = reviewPromptKind(result.score, true);
@@ -121,23 +122,64 @@ export default function ShadowingReviewStep({ sentence, player, onFinished }: St
     if (canPlay) player.playSentence(sentence.startMs, sentence.endMs);
   };
 
+  const recording = phase === "recording";
+  const scoring = phase === "scoring";
+
   if (record) {
     return (
       <div className="flex flex-col gap-4">
-        <p className="rounded-md border border-border bg-surface-hover px-4 py-3 text-[17px] leading-snug">{sentence.text}</p>
-        <AttemptResult record={record} isFinish={false} onListen={listen} onNext={() => onFinished({ score: record.score, skipped: false })} />
+        <div className="rounded-xl border border-border bg-bg-elevated px-4 py-3.5">
+          <WordSourceProvider sentenceId={sentence.sentenceId}>
+            <p className="text-[17px] font-medium leading-snug text-text">
+              <ClickableText text={sentence.text} />
+            </p>
+          </WordSourceProvider>
+          {sentence.textVi && <p className="mt-1 text-sm text-text-muted">{sentence.textVi}</p>}
+        </div>
+        {error && (
+          <div role="alert" className="flex items-center justify-between gap-3 rounded-md border border-dashed border-warning bg-[color-mix(in_srgb,var(--warning)_8%,transparent)] px-3.5 py-3 text-sm">
+            <span>{t(error)}</span>
+            {lastWav && error !== "errors.mic" && error !== "errors.tooShort" && (
+              <Button variant="text" size="sm" onClick={() => submit(lastWav)}>
+                {t("retry")}
+              </Button>
+            )}
+          </div>
+        )}
+        <AttemptResult
+          record={record}
+          isFinish={false}
+          onListen={listen}
+          onNext={() => {
+            if (recording) cancelMic();
+            onFinished({ score: record.best, skipped: false });
+          }}
+          extraActions={
+            <Button
+              variant={recording ? "danger" : "secondary"}
+              size="sm"
+              leftIcon={<Icon name={recording ? "square" : "mic"} />}
+              disabled={scoring}
+              isLoading={scoring}
+              onClick={onMicClick}
+            >
+              {scoring ? t("shadowing.scoring") : recording ? t("shadowing.stop") : t("shadowing.recordAgain")}
+            </Button>
+          }
+        />
         <ReviewPromptDialog prompt={reviewPrompt} setReview={setReview} onClose={() => setReviewPrompt(null)} />
       </div>
     );
   }
-
-  const recording = phase === "recording";
-  const scoring = phase === "scoring";
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-text-muted">{t("shadowing.hint")}</p>
-      <div className="rounded-md border border-border bg-surface-hover px-4 py-4">
-        <p className="text-[19px] font-medium leading-snug">{sentence.text}</p>
+      <div className="rounded-xl border border-border bg-bg-elevated px-5 py-4 shadow-sm">
+        <WordSourceProvider sentenceId={sentence.sentenceId}>
+          <p className="text-[19px] font-semibold leading-snug text-text">
+            <ClickableText text={sentence.text} />
+          </p>
+        </WordSourceProvider>
         {sentence.textVi && <p className="mt-1.5 text-sm text-text-muted">{sentence.textVi}</p>}
       </div>
 

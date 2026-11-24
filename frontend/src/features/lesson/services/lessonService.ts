@@ -24,6 +24,7 @@ export const lessonService = {
     topicId?: string;
     cefrLevel?: string;
     free?: boolean;
+    maxDuration?: number;
     state?: LessonState;
     page?: number;
     size?: number;

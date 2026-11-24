@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lingualoop.backend.common.response.ApiResponse;
+import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.practice.dto.ReviewPlanSentence;
 import com.lingualoop.backend.security.CurrentUserId;
 
@@ -27,10 +28,15 @@ public class DailyReviewController {
         return ApiResponse.ok(dailyReviewService.plan(userId));
     }
 
-    /** Câu của phiên Ôn câu riêng: mỗi chế độ tối đa {@code perMode} câu (mặc định 2, BR-HT-20). */
+    /**
+     * Câu của phiên Ôn câu riêng: mỗi chế độ tối đa {@code perMode} câu (mặc định 2, BR-HT-20), hoặc đúng một câu khi
+     * truyền cả {@code sentenceId} và {@code mode}.
+     */
     @GetMapping("/sentence-plan")
     public ApiResponse<List<ReviewPlanSentence>> sentencePlan(@CurrentUserId UUID userId,
-            @RequestParam(defaultValue = "2") int perMode) {
-        return ApiResponse.ok(dailyReviewService.sentencePlan(userId, perMode));
+            @RequestParam(defaultValue = "2") int perMode,
+            @RequestParam(required = false) UUID sentenceId,
+            @RequestParam(required = false) PracticeMode mode) {
+        return ApiResponse.ok(dailyReviewService.sentencePlan(userId, perMode, sentenceId, mode));
     }
 }

@@ -59,6 +59,7 @@
     "hint": "Nghe mẫu rồi đọc theo, hệ thống chấm phát âm như một lượt Shadowing thường.",
     "listen": "Nghe mẫu",
     "record": "Đọc theo",
+    "recordAgain": "Đọc lại",
     "stop": "Dừng và chấm",
     "scoring": "Đang chấm…"
   },
@@ -82,6 +83,7 @@
     "cardsRedone_other": "{{count}} thẻ phải ôn lại trong lượt",
     "sentences": "Câu đã lưu",
     "sentencesScore_other": "Đã ôn {{count}} câu, điểm trung bình {{average}}",
+    "averageBadge": "TB {{average}}đ",
     "sentencesNone": "Chưa ôn câu nào.",
     "sentencesSkipped_other": "{{count}} câu bỏ qua, chưa tính là đã ôn",
     "skipped": "Bỏ qua",

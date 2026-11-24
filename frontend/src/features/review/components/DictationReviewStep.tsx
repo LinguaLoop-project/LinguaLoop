@@ -125,6 +125,19 @@ export default function DictationReviewStep({ sentence, player, onFinished }: St
           <Button variant="ghost" size="sm" leftIcon={<Icon name="volume-2" />} disabled={!canPlay} onClick={listen}>
             {t("dictation.listenAgain")}
           </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            leftIcon={<Icon name="rotate-ccw" />}
+            onClick={() => {
+              setResult(null);
+              setTyped("");
+              setRevealed({});
+              setReplays(0);
+            }}
+          >
+            {t("retry")}
+          </Button>
           <span className="grow" />
           <Button rightIcon={<Icon name="arrow-right" />} onClick={finish}>
             {t("next")}
