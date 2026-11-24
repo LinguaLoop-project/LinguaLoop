@@ -70,9 +70,11 @@ export default function MyWordsPage() {
     <section className="w-full" id="v-mywords">
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4 lg:flex-nowrap">
         <div className="min-w-0 lg:flex-1">
-          <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-fn-vocab">
-            <Icon name="bookmark" className="h-3.5 w-3.5" />
-            {t("overline")}
+          <div className="mb-1.5 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-fn-vocab/40 bg-fn-vocab-soft px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-fn-vocab">
+              <Icon name="bookmark" className="size-3.5" />
+              {t("overline")}
+            </span>
           </div>
           <h1 className="font-display text-4xl font-bold leading-[1.15] tracking-[-0.02em]">{t("title")}</h1>
           <p className="mt-1 text-text-muted">{t("subtitle")}</p>

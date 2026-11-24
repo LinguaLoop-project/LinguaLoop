@@ -1,7 +1,7 @@
 /** Cấu hình khung chung cho ba vai trò. Khung (AppShell, Sidebar, TopBar) không biết gì về vai trò; mọi khác biệt nằm ở đây. */
 
 /** Màu của mục đang chọn: tím cho chung, còn lại là màu chức năng (DESIGN.v2 §2.2, §7.3). */
-export type NavTone = "primary" | "dictation" | "shadowing" | "vocab" | "assessment";
+export type NavTone = "primary" | "dictation" | "shadowing" | "vocab" | "watch" | "weakness" | "assessment";
 
 export type NavItem = {
   id: string;
