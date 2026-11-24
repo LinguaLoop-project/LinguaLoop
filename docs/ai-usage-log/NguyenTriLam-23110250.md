@@ -951,6 +951,18 @@
 - **Commit:** 57ba584
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-085
+
+- **Ngày:** 2026-11-24
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Lên kế hoạch rồi triển khai tính năng thống kê học tập (UC-TH-01 đến 03): thống kê theo khoảng thời gian có so sánh kỳ trước, lịch sử luyện tập, bản đồ âm vị phát âm, chuỗi ngày học, lịch hoạt động (heatmap), từ nghe sai nhiều nhất kèm nút lưu từ, vòng mục tiêu câu trong ngày ở trang Hôm nay
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../stats/StatsServiceImpl.java`, `StatsController.java`, `StatsRange.java`, `StreakCalculator.java`, `PhonemeLevel.java`, các DTO trong `stats/dto/`, truy vấn thống kê ở `practice` và `shadowing` (`DictationStatsQueryService`, `dto`), `vocab` (loại bộ ở dòng lịch sử); `frontend/src/features/stats/` (`StatsPage.tsx`, `WeaknessPage.tsx`, `components/`, `hooks.ts`, `utils.ts`, `useRangeParam.ts`), bản dịch `stats.json`, chip chuỗi ngày ở `TopBar`; test `StatsApiIntegrationTest`, `DictationStatsQueryServiceIntegrationTest`, `StatsRangeTest`, `StreakCalculatorTest`, `PhonemeLevelTest` và test frontend của `features/stats`; đặc tả `docs/srs/TH-xem-thong-ke-hoc-tap` (AC-TH-23..26, quy tắc Buổi luyện và chuỗi ngày)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên cùng AI chốt phạm vi và quy tắc nghiệp vụ qua phiên hỏi đáp trước khi viết code, yêu cầu làm theo đặc tả module TH và nghiệm thu các trang trên trình duyệt. AI viết đặc tả bổ sung, API, trang và test, lấy mốc ngày theo múi giờ của học viên, chỉ đếm lượt làm đầu tiên của mỗi câu khi tính từ sai, và rà lại các lỗi giao diện thấy được khi chạy thử.
+- **Commit:** 58df768, 77a158d, 8b54da3, bb79348, 22e2b7b, 8a1d08d
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
