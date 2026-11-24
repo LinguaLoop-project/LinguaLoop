@@ -9,6 +9,7 @@ import Skeleton from "@/components/common/Skeleton";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import { useAuthStore } from "@/features/auth";
 import { DailyGoalCard } from "@/features/stats";
+import CardSourceChips from "../components/CardSourceChips";
 import SuggestionCards from "../components/SuggestionCards";
 import { hasSuggestions } from "../flow";
 import { useDailyPlan } from "../hooks";
@@ -59,6 +60,11 @@ function ReviewCard({ plan }: { plan: DailyPlan }) {
               ? t("today.reviewDesc", { cards: plan.cardsInPlan, sentences: plan.sentences.length })
               : `${backlog ? t("today.doneQuota", { cards: plan.cardsDue, sentences: plan.sentencesPending }) : t("today.doneDesc")} ${next}`}
           </p>
+          {hasWork && (
+            <div className="mt-2">
+              <CardSourceChips sources={plan.cardSources} />
+            </div>
+          )}
         </div>
       </div>
 

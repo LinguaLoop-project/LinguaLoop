@@ -16,7 +16,7 @@
     "greeting": "Chào {{name}}, hôm nay ôn gì nhé?",
     "greetingAnon": "Hôm nay ôn gì nhé?",
     "reviewTitle": "Ôn tập hôm nay",
-    "reviewDesc": "Phiên hôm nay gồm {{cards}} thẻ từ vựng rồi {{sentences}} câu đã lưu, theo mục tiêu mỗi ngày của bạn.",
+    "reviewDesc": "Phiên hôm nay gồm {{cards}} thẻ từ vựng rồi {{sentences}} câu, theo mục tiêu mỗi ngày của bạn.",
     "doneTitle": "Hôm nay bạn đã ôn xong",
     "doneDesc": "Không còn thẻ hay câu nào cần ôn.",
     "doneQuota": "Bạn đã ôn đủ định mức hôm nay. Còn {{cards}} thẻ và {{sentences}} câu đến hạn, có thể để ngày mai.",
@@ -28,6 +28,18 @@
     "goal": "mục tiêu mỗi ngày",
     "minutes": "{{count}} phút",
     "start": "Ôn tập hôm nay"
+  },
+  "source": {
+    "chipsLabel": "Thẻ của phiên theo nguồn",
+    "due": "{{count}} đến hạn",
+    "newWords": "{{count}} từ mới",
+    "reinforce": "{{count}} củng cố",
+    "newWord": "Từ mới",
+    "newWordHint": "Từ mới được đưa vào lịch ôn của bạn.",
+    "reinforceTag": "Củng cố",
+    "reinforceHint": "Chỉ luyện thêm, không đổi lịch ôn của thẻ.",
+    "extraSentence": "Luyện thêm",
+    "extraSentenceHint": "Câu bạn đã luyện nhưng điểm còn thấp, không nằm trong Câu cần ôn."
   },
   "daily": {
     "title": "Ôn tập hôm nay",

@@ -18,6 +18,7 @@ export function useScrollTopOn(key: string | number): void {
 
 export const reviewKeys = {
   dailyPlan: (run: number) => ["review", "daily-plan", run] as const,
+  dailyCards: (run: number, extra: boolean) => ["review", "daily-cards", run, extra] as const,
   sentencePlan: (perMode: number, run: number, sentenceId?: string, mode?: PracticeMode) =>
     ["review", "sentence-plan", perMode, run, sentenceId ?? "all", mode ?? "all"] as const,
 };
@@ -35,6 +36,21 @@ export const useDailyPlan = (run: number, enabled = true) =>
     gcTime: 0,
     retry: 1,
     refetchOnWindowFocus: false,
+  });
+
+/**
+ * Thẻ của phần ôn thẻ (đến hạn, từ mới, thẻ củng cố). Không tự tải lại để danh sách thẻ không đổi giữa lượt; `run` tăng khi
+ * "Ôn tiếp".
+ */
+export const useDailyCards = (run: number, extra: boolean) =>
+  useQuery({
+    queryKey: reviewKeys.dailyCards(run, extra),
+    queryFn: () => reviewApi.getDailyCards(extra),
+    networkMode: NETWORK_MODE,
+    gcTime: 0,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
 /**

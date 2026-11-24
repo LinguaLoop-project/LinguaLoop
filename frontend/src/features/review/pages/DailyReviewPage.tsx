@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import { preloadYouTubeApi } from "@/features/dictation/usePlayer";
 import type { RoundSummary } from "@/features/vocab/components/review/ReviewSession";
+import CardSourceChips from "../components/CardSourceChips";
 import DailyCards from "../components/DailyCards";
 import ReviewShell, { type ShellStep } from "../components/ReviewShell";
 import ReviewSummary from "../components/ReviewSummary";
@@ -145,7 +146,16 @@ function DailySession({ plan, run, extra, onContinue }: SessionProps) {
           : undefined
       }
     >
-      {phase === "cards" && <DailyCards limit={cardsInSession} run={run} onComplete={completeCards} onExit={exitCards} />}
+      {phase === "cards" && (
+        <>
+          {!extra && (
+            <div className="mb-3">
+              <CardSourceChips sources={plan.cardSources} />
+            </div>
+          )}
+          <DailyCards extra={extra} run={run} onComplete={completeCards} onExit={exitCards} />
+        </>
+      )}
       {phase === "bridge" && (
         <div role="status" className="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface px-6 py-14 text-center shadow-[var(--shadow-card)]">
           <Mascot mood="celebrate" size={96} alt="" />

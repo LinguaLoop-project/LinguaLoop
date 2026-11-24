@@ -1,4 +1,5 @@
 import type { PracticeMode } from "@/features/practice/types";
+import type { LearnCard } from "@/features/vocab/types";
 
 /** Một câu được chọn cho phiên ôn câu (`ReviewPlanSentence`): kèm video và mốc thời gian để phát. */
 export interface PlanSentence {
@@ -13,6 +14,8 @@ export interface PlanSentence {
   textVi: string | null;
   /** Điểm lượt gần nhất; null nếu chưa có. */
   lastScore: number | null;
+  /** Câu luyện thêm lấp chỗ thiếu của danh sách Câu cần ôn: không nằm trong danh sách (BR-HT-31). */
+  extra: boolean;
 }
 
 /** Phần từ mới kế tiếp để học; `partNumber` tính từ 1 và khớp `/student/vocab/:deckId/parts/:part`. */
@@ -42,15 +45,38 @@ export interface TodaySuggestions {
   shadowingLesson: LessonSuggestion | null;
 }
 
-/** Kế hoạch Ôn tập hằng ngày (`DailyPlanView`). Thẻ lấy riêng từ `GET /vocab/review?limit=`. */
+/** Số thẻ của phiên theo nguồn (BR-HT-29): thẻ đến hạn, từ mới và thẻ củng cố. */
+export interface CardSources {
+  due: number;
+  newWords: number;
+  reinforce: number;
+}
+
+/** Nguồn của một thẻ trong phiên (`DailyCardsView.Source`). */
+export type DailyCardSource = "DUE" | "NEW_WORD" | "REINFORCE";
+
+/** Một thẻ của phần ôn thẻ kèm nguồn (`DailyCardsView.Item`). */
+export interface DailyCardItem {
+  card: LearnCard;
+  source: DailyCardSource;
+}
+
+/** Thẻ của phần ôn thẻ: đến hạn, rồi từ mới, rồi thẻ củng cố (`GET /review/daily-cards`). */
+export interface DailyCards {
+  cards: DailyCardItem[];
+}
+
+/** Kế hoạch Ôn tập hằng ngày (`DailyPlanView`). Thẻ của phiên lấy từ `GET /review/daily-cards`. */
 export interface DailyPlan {
   dailyMinutes: number;
   /** Số thẻ tối đa của cả ngày theo mục tiêu ngày (Định mức ôn ngày, BR-HT-24). */
   cardQuota: number;
   /** Tổng số thẻ đến hạn. */
   cardsDue: number;
-  /** Số thẻ của phiên: phần định mức còn lại sau những thẻ đã ôn hôm nay, không quá số thẻ đến hạn (0 khi đã đủ). */
+  /** Số thẻ của phiên: phần định mức còn lại sau những thẻ đã ôn hôm nay, đã lấp theo khung bài ngày (0 khi đã đủ). */
   cardsInPlan: number;
+  /** `cardsInPlan` chia theo nguồn (BR-HT-29). */
+  cardSources: CardSources;
   /** Số thẻ đã ôn hôm nay trên mục tiêu của ngày (`cardsTarget`); không vượt mục tiêu. */
   cardsDoneToday: number;
   cardsTarget: number;

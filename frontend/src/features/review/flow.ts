@@ -1,4 +1,4 @@
-import type { SentenceOutcome, TodaySuggestions } from "./types";
+import type { CardSources, SentenceOutcome, TodaySuggestions } from "./types";
 
 /** Các chặng của phiên Ôn tập hằng ngày: thẻ, đoạn chuyển ngắn, câu, tổng kết (UC-HT-05). */
 export type DailyPhase = "cards" | "bridge" | "sentences" | "summary";
@@ -31,6 +31,24 @@ export function startPhase(plan: PlanLike, extraRound: boolean): DailyPhase | "e
 /** Sau chặng thẻ: có câu thì qua đoạn chuyển rồi tới phần câu, không có (luồng 2b hoặc "Ôn tiếp") thì tổng kết. */
 export function phaseAfterCards(plan: PlanLike, extraRound: boolean): "bridge" | "summary" {
   return sentenceCount(plan, extraRound) > 0 ? "bridge" : "summary";
+}
+
+export type CardSourceKey = keyof CardSources;
+
+/**
+ * Các nguồn có thẻ của phiên theo thứ tự thẻ đến hạn, từ mới, thẻ củng cố; nguồn không có thẻ thì bỏ (BR-HT-29). Dùng để
+ * ghi rõ phiên hôm nay gồm những gì.
+ */
+export function cardSourceParts(sources: CardSources | null | undefined): { key: CardSourceKey; count: number }[] {
+  if (!sources) return [];
+  return (["due", "newWords", "reinforce"] as const)
+    .map((key) => ({ key, count: sources[key] }))
+    .filter((part) => part.count > 0);
+}
+
+/** Có đáng ghi chú nguồn thẻ không: chỉ khi phiên có từ mới hoặc thẻ củng cố, còn toàn thẻ đến hạn thì không cần. */
+export function hasFilledCards(sources: CardSources | null | undefined): boolean {
+  return cardSourceParts(sources).some((part) => part.key !== "due");
 }
 
 export type StepState = "active" | "done" | "todo";

@@ -52,6 +52,11 @@ export default function SentenceReviewFlow({ sentences, index, onFinished }: Sen
             <Icon name={isDictation ? "headphones" : "mic"} className="mr-1 h-3.5 w-3.5" />
             {t(`mode.${sentence.mode}`)}
           </Badge>
+          {sentence.extra && (
+            <span title={t("source.extraSentenceHint")}>
+              <Badge variant="warning">{t("source.extraSentence")}</Badge>
+            </span>
+          )}
           <Link
             to={`/student/lessons/${sentence.lessonId}`}
             className="truncate font-semibold text-text transition-colors hover:text-primary-text"

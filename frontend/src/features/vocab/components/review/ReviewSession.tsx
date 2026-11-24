@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
@@ -6,7 +6,7 @@ import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import { answerCard, isRoundDone, nextCard, roundScore, startRound } from "../../learn";
-import type { AnswerDraft, ReviewQueue } from "../../types";
+import type { AnswerDraft, LearnCard, ReviewQueue } from "../../types";
 import FlashView from "../learn/FlashView";
 import { useImagePreload } from "../learn/learnHooks";
 import UnsentNotice from "../learn/UnsentNotice";
@@ -23,13 +23,15 @@ interface ReviewSessionProps {
    * `onComplete` để khung ngoài chuyển thẳng sang chặng kế; `onExit` là nút "Thoát" giữa chừng (kết quả đã chấm vẫn giữ).
    */
   embedded?: { onComplete: (score: RoundSummary) => void; onExit: (score: RoundSummary) => void };
+  /** Ghi chú hiện phía trên thẻ đang ôn, vd nhãn "Từ mới" hay "Củng cố" của khung bài ngày (BR-HT-29). */
+  renderNote?: (card: LearnCard) => ReactNode;
 }
 
 /**
  * Một lượt ôn (UC-HT-03): hàng đợi chung với Flashcard. Chấm Quên thì thẻ xuống cuối lượt và hiện lại ngay trong lượt
  * (BR-HT-14). Hết lượt thì hiện số thẻ nhớ ngay lần đầu, số thẻ phải ôn lại và "Ôn tiếp" nếu vẫn còn thẻ đến hạn.
  */
-export default function ReviewSession({ queue, onAnswer, onContinue, embedded }: ReviewSessionProps) {
+export default function ReviewSession({ queue, onAnswer, onContinue, embedded, renderNote }: ReviewSessionProps) {
   const { t } = useTranslation("vocab");
   const [state, setState] = useState(() => startRound(queue.cards));
   const completed = useRef(false);
@@ -98,6 +100,7 @@ export default function ReviewSession({ queue, onAnswer, onContinue, embedded }:
   }
 
   const card = state.queue[0];
+  const note = renderNote?.(card);
   return (
     <div>
       {!embedded && (
@@ -119,6 +122,7 @@ export default function ReviewSession({ queue, onAnswer, onContinue, embedded }:
           </Button>
         </div>
       )}
+      {note && <div className="mb-2.5">{note}</div>}
       <FlashView
         key={`${card.id}-${state.turn}`}
         card={card}

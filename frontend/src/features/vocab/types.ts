@@ -178,6 +178,11 @@ export interface AnswerInput {
   /** Bắt buộc với Flashcard: 1 Quên, 3 Khó, 4 Được, 5 Dễ. */
   quality?: number;
   responseMs?: number;
+  /**
+   * Thẻ củng cố của phiên Ôn tập hằng ngày (BR-HT-30): chỉ ghi nhật ký, không đổi lịch ôn. Server chỉ nghe theo với thẻ
+   * đã học và chưa đến hạn.
+   */
+  practice?: boolean;
 }
 
 /** Một câu trả lời trước khi trang học gắn `answerId`. */

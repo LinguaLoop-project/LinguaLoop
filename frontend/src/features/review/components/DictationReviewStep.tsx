@@ -53,7 +53,8 @@ export default function DictationReviewStep({ sentence, player, onFinished }: St
     setResult(attempt);
     if (attempt.gaveUp) return;
     markReviewed.mutate({ mode: "dictation", sentenceId: sentence.sentenceId });
-    const kind = reviewPromptKind(attempt.score, true);
+    // Câu luyện thêm không ở trong danh sách nên chỉ có thể được hỏi lưu, không được hỏi bỏ (BR-HT-31).
+    const kind = reviewPromptKind(attempt.score, !sentence.extra);
     if (kind) setReviewPrompt({ kind, sentenceId: sentence.sentenceId, mode: "dictation", score: attempt.score });
   };
 
