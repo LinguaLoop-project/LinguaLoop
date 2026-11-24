@@ -200,11 +200,6 @@ export function practiceKind(item: HistoryItem): PracticeKind | null {
   return item.mode === "dictation" || item.mode === "shadowing" ? item.mode : null;
 }
 
-/** Phần trăm hoàn thành mục tiêu ngày, tối đa 100 dù đã luyện vượt (BR-TH-18). */
-export function goalPercent(done: number, target: number): number {
-  return Math.min(100, percentOf(done, target));
-}
-
 /** Tỷ lệ phần trăm làm tròn; 0 khi mẫu số bằng 0. */
 export function percentOf(part: number, whole: number): number {
   return whole > 0 ? Math.round((part * 100) / whole) : 0;

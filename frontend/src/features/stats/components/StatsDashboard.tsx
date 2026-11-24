@@ -4,15 +4,15 @@ import { EmptyState } from "@/components/common/EmptyState";
 import Icon from "@/components/common/Icon";
 import Skeleton from "@/components/common/Skeleton";
 import { buttonClasses } from "@/components/common/buttonStyles";
-import ActivityHeatmap from "../components/ActivityHeatmap";
-import HistorySection from "../components/HistorySection";
-import RangeTabs from "../components/RangeTabs";
-import StatsError from "../components/StatsError";
-import StreakCard from "../components/StreakCard";
-import { CardsBreakdown, SummaryTiles } from "../components/SummaryCards";
 import { useStatsOverview } from "../hooks";
 import type { StatsOverview } from "../types";
 import { useRangeParam } from "../useRangeParam";
+import ActivityHeatmap from "./ActivityHeatmap";
+import HistorySection from "./HistorySection";
+import RangeTabs from "./RangeTabs";
+import StatsError from "./StatsError";
+import StreakCard from "./StreakCard";
+import { CardsBreakdown, SummaryTiles } from "./SummaryCards";
 
 /** Học viên chưa có hoạt động nào: hiện lời mời bắt đầu bên cạnh các số 0 (AC-TH-05). */
 function isBrandNew(o: StatsOverview): boolean {
@@ -26,19 +26,24 @@ function isBrandNew(o: StatsOverview): boolean {
   );
 }
 
-/** Trang Thống kê học tập (UC-TH-01) kèm Lịch sử luyện tập (UC-TH-02). Bảng lỗi và bản đồ âm vị nằm ở trang Điểm yếu. */
-export default function StatsPage() {
+/**
+ * Khu vực Thống kê học tập (UC-TH-01) kèm Lịch sử luyện tập (UC-TH-02), nằm cuối trang Hôm nay. Bảng lỗi và bản đồ âm vị
+ * nằm ở trang Điểm yếu.
+ */
+export default function StatsDashboard() {
   const { t } = useTranslation("stats");
   const [range, setRange] = useRangeParam();
   const query = useStatsOverview(range);
   const data = query.data;
 
   return (
-    <section className="flex w-full flex-col gap-6" id="v-stats">
+    <section className="flex w-full flex-col gap-6" id="v-stats" aria-labelledby="stats-title">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-primary-text">{t("overview.overline")}</div>
-          <h1 className="font-display text-4xl font-bold leading-[1.15] tracking-[-0.02em]">{t("overview.title")}</h1>
+          <h2 id="stats-title" className="font-display text-3xl font-bold leading-[1.15] tracking-[-0.02em]">
+            {t("overview.title")}
+          </h2>
           <p className="mt-1 text-text-muted">{t("overview.sub")}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">

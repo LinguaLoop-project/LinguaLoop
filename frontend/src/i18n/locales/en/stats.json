@@ -1,14 +1,4 @@
 {
-  "goal": {
-    "title": "Today's sentence goal",
-    "aria": "Progress toward today's sentence goal",
-    "progress": "{{done}}/{{target}} sentences",
-    "remaining_one": "{{count}} more sentence to reach your goal.",
-    "remaining_other": "{{count}} more sentences to reach your goal.",
-    "reached": "You reached today's goal!",
-    "change": "Change goal",
-    "practice": "Practice"
-  },
   "heatmap": {
     "title": "Study calendar, 3 months",
     "summary_one": "Studied {{count}} day in the last 13 weeks",

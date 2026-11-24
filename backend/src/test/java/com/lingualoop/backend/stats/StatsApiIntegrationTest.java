@@ -844,27 +844,6 @@ class StatsApiIntegrationTest {
                 .andExpect(jsonPath("$.data.words.length()").value(0));
     }
 
-    @Test
-    void todayGoal_countsDistinctSentencesPracticedTodayAgainstTheDailyMinutes_AC_TH_35() throws Exception {
-        UUID user = users.newUser();
-        UUID lesson = lesson(false, "published");
-        UUID s0 = sentence(lesson, 0);
-        UUID s1 = sentence(lesson, 1);
-        UUID s2 = sentence(lesson, 2);
-        dictation(user, s0, at(0), 80);
-        shadowing(user, s0, at(0), 70);          // cùng câu ở chế độ khác: chỉ tính một câu
-        dictation(user, s1, at(0), 60);
-        dictation(user, s2, at(1), 90);          // hôm qua: không tính
-
-        as(user, get("/api/v1/stats/today-goal")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.sentences").value(2))
-                .andExpect(jsonPath("$.data.target").value(15));
-
-        jdbc.update("UPDATE users SET daily_minutes = 30 WHERE id = ?", user);
-        as(user, get("/api/v1/stats/today-goal")).andExpect(jsonPath("$.data.target").value(30));
-        as(users.newUser(), get("/api/v1/stats/today-goal")).andExpect(jsonPath("$.data.sentences").value(0));
-    }
-
     // ---------------------------------------------------------------- dữ liệu mẫu
 
     private ResultActions as(UUID user, MockHttpServletRequestBuilder request) throws Exception {

@@ -12,7 +12,6 @@ import type {
   StatsOverview,
   StatsRange,
   Streak,
-  TodayGoal,
   WrongWords,
 } from "./types";
 
@@ -29,9 +28,6 @@ export const statsApi = {
 
   /** Chỉ chuỗi ngày học, cho chip ở thanh trên cùng. */
   getStreak: () => get<Streak>("/streak"),
-
-  /** Số câu đã luyện hôm nay và mục tiêu ngày, cho trang Hôm nay. */
-  getTodayGoal: () => get<TodayGoal>("/today-goal"),
 
   /** Lịch nhiệt 13 tuần gần nhất (UC-TH-01). */
   getActivity: () => get<ActivityMap>("/activity"),

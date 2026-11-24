@@ -21,7 +21,6 @@ import com.lingualoop.backend.stats.dto.DictationErrorsView;
 import com.lingualoop.backend.stats.dto.HistoryView;
 import com.lingualoop.backend.stats.dto.PronunciationView;
 import com.lingualoop.backend.stats.dto.StatsOverviewView;
-import com.lingualoop.backend.stats.dto.TodayGoalView;
 import com.lingualoop.backend.stats.dto.WrongWordsView;
 
 import lombok.RequiredArgsConstructor;
@@ -61,12 +60,6 @@ public class StatsController {
     public ApiResponse<WrongWordsView> wrongWords(@CurrentUserId UUID userId,
             @RequestParam(required = false) String range) {
         return ApiResponse.ok(statsService.wrongWords(userId, range));
-    }
-
-    /** Số câu đã luyện hôm nay và mục tiêu ngày, cho vòng tiến độ ở trang Hôm nay. */
-    @GetMapping("/today-goal")
-    public ApiResponse<TodayGoalView> todayGoal(@CurrentUserId UUID userId) {
-        return ApiResponse.ok(statsService.todayGoal(userId));
     }
 
     /** Lịch nhiệt các ngày học trong 13 tuần gần nhất; không phụ thuộc bộ lọc khoảng. */

@@ -1,13 +1,4 @@
 {
-  "goal": {
-    "title": "Mục tiêu luyện câu hôm nay",
-    "aria": "Tiến độ mục tiêu luyện câu hôm nay",
-    "progress": "{{done}}/{{target}} câu",
-    "remaining": "Còn {{count}} câu nữa là đạt mục tiêu.",
-    "reached": "Bạn đã đạt mục tiêu hôm nay!",
-    "change": "Đổi mục tiêu",
-    "practice": "Luyện câu"
-  },
   "heatmap": {
     "title": "Lịch học 3 tháng",
     "summary": "Đã học {{count}} ngày trong 13 tuần gần nhất",

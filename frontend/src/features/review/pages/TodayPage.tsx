@@ -8,7 +8,7 @@ import ProgressBar from "@/components/common/ProgressBar";
 import Skeleton from "@/components/common/Skeleton";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import { useAuthStore } from "@/features/auth";
-import { DailyGoalCard } from "@/features/stats";
+import { StatsDashboard } from "@/features/stats";
 import SuggestionCards from "../components/SuggestionCards";
 import { hasSuggestions } from "../flow";
 import { useDailyPlan } from "../hooks";
@@ -111,14 +111,17 @@ function ReviewCard({ plan }: { plan: DailyPlan }) {
   );
 }
 
-/** Trang "Hôm nay" (đích sau onboarding): mục tiêu ngày, việc cần ôn và nút bắt đầu Ôn tập hôm nay (UC-HT-05). */
+/**
+ * Trang "Hôm nay" (đích sau onboarding): mục tiêu ngày, việc cần ôn và nút bắt đầu Ôn tập hôm nay (UC-HT-05), kèm khu
+ * vực Thống kê học tập ở bên dưới (UC-TH-01, UC-TH-02).
+ */
 export default function TodayPage() {
   const { t } = useTranslation("review");
   const name = useAuthStore((state) => state.user?.displayName);
   const query = useDailyPlan(0);
 
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-5">
+    <section className="mx-auto flex w-full max-w-5xl flex-col gap-8">
       <header>
         <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
           {t("today.overline")}
@@ -127,8 +130,6 @@ export default function TodayPage() {
           {name ? t("today.greeting", { name }) : t("today.greetingAnon")}
         </h1>
       </header>
-
-      <DailyGoalCard />
 
       {query.isPending && (
         <div role="status" aria-label={t("loading")}>
@@ -143,6 +144,8 @@ export default function TodayPage() {
         />
       )}
       {query.isSuccess && <ReviewCard plan={query.data} />}
+
+      <StatsDashboard />
     </section>
   );
 }
