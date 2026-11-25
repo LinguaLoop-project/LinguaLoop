@@ -54,9 +54,9 @@
         "test": "Kiểm tra trình độ"
       },
       "pro": {
-        "price": "Từ 33k/tháng",
+        "price": "Từ {{price}}/tháng",
         "desc": "Chấm không giới hạn, nhận xét AI, video khẩu hình.",
-        "cta": "Dùng thử Pro"
+        "cta": "Đăng ký Pro"
       },
       "loopi": "Giữ chuỗi hôm nay nhé!"
     },

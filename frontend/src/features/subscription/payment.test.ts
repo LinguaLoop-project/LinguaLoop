@@ -4,6 +4,7 @@ import {
   clearReturnTo,
   expectedEnd,
   failureReasonKey,
+  lowestMonthlyPriceVnd,
   peekReturnTo,
   rememberReturnTo,
   savingsPercent,
@@ -57,6 +58,20 @@ describe("savingsPercent", () => {
     expect(savingsPercent(plans[0], plans)).toBeNull();
     expect(savingsPercent(plans[3], plans)).toBeNull();
     expect(savingsPercent(plans[2], [plans[2]])).toBeNull();
+  });
+});
+
+describe("lowestMonthlyPriceVnd", () => {
+  it("picks the lowest monthly-equivalent price across available plans", () => {
+    const plans = [plan(1, 5_000), plan(3, 249_000), plan(12, 399_000)];
+    expect(lowestMonthlyPriceVnd(plans)).toBe(5_000);
+    expect(lowestMonthlyPriceVnd([plan(1, 99_000), plan(12, 399_000)])).toBe(33_250);
+    expect(lowestMonthlyPriceVnd([])).toBeNull();
+  });
+
+  it("ignores free (0 VND) plans so the sidebar never advertises 0 VND", () => {
+    expect(lowestMonthlyPriceVnd([plan(1, 0), plan(12, 399_000)])).toBe(33_250);
+    expect(lowestMonthlyPriceVnd([plan(1, 0)])).toBeNull();
   });
 });
 

@@ -40,6 +40,18 @@ export function savingsPercent(plan: SalePlan, plans: SalePlan[]): number | null
   return percent > 0 ? percent : null;
 }
 
+/**
+ * Giá quy đổi thấp nhất mỗi tháng (VND) trong danh sách gói đang mở bán; null khi chưa có gói nào. Gói 0 đồng (kích hoạt
+ * ngay, không thanh toán) không tính vì không phải mức giá để quảng bá.
+ */
+export function lowestMonthlyPriceVnd(plans: SalePlan[]): number | null {
+  const perMonth = plans
+    .filter((p) => p.months > 0 && p.priceVnd > 0)
+    .map((p) => Math.round(p.priceVnd / p.months));
+  if (perMonth.length === 0) return null;
+  return Math.min(...perMonth);
+}
+
 /** Tham số VNPAY trên Return URL (`vnp_*`), giữ nguyên để server kiểm chữ ký. */
 export function vnpayParams(search: string): Record<string, string> {
   const params: Record<string, string> = {};

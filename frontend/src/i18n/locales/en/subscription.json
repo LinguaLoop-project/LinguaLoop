@@ -6,6 +6,9 @@
   },
   "current": {
     "label": "Current plan",
+    "freeName": "Free Plan",
+    "proName": "Pro Plan",
+    "freeDesc": "Subscribe to Pro to unlock all Pro lessons, vocabulary decks, and monthly AI credits.",
     "active": "Active",
     "since": "Started {{date}}",
     "until": "Expires {{date}}",
@@ -13,7 +16,7 @@
     "trialHint": "Trial credits are given once. When they run out, you need Pro to keep using AI.",
     "monthlyCredits": "Credits left this month",
     "renewsOn": "Refills on {{date}}",
-    "upgrade": "Upgrade to Pro",
+    "upgrade": "Subscribe to Pro",
     "renew": "Extend Pro"
   },
   "benefits": {
@@ -34,10 +37,13 @@
   "picker": {
     "titleUpgrade": "Choose a Pro plan",
     "titleRenew": "Extend Pro",
+    "subtitleUpgrade": "Pick a billing period to unlock all Pro features right away.",
+    "subtitleRenew": "Add time directly onto your current Pro subscription.",
     "close": "Close",
     "months_one": "{{count}} month",
     "months_other": "{{count}} months",
-    "perMonth": "{{credits}} credits per month",
+    "perMonth": "{{credits}} AI credits / month",
+    "pricePerMonth": "~{{price}}/mo",
     "save": "Save {{percent}}%",
     "endsOn": "Expected end: {{date}}",
     "currentEnd": "Your plan ends on {{date}}. The new period is added after it, so you lose no days.",
@@ -45,12 +51,23 @@
     "continue": "Continue to payment",
     "redirecting": "Redirecting to VNPAY…",
     "empty": "No Pro plans are on sale right now.",
-    "note": "You will be taken to the VNPAY gateway to pay by QR, ATM card or international card. The order is held for 15 minutes.",
+    "note": "Pay securely via VNPAY (QR, ATM card, or international card). Your order is held for 15 minutes.",
     "activatedFree": "The plan is now active."
   },
   "history": {
     "title": "Payment history",
     "empty": "No payments yet.",
+    "emptyFiltered": "No transactions match this filter.",
+    "showing": "Showing {{from}}–{{to}} of {{total}} transactions",
+    "copyTxn": "Copy transaction ID",
+    "copied": "Copied",
+    "filters": {
+      "label": "Filter transactions",
+      "all": "All",
+      "paid": "Paid",
+      "pending": "Pending",
+      "unpaid": "Canceled / Failed"
+    },
     "columns": {
       "date": "Created",
       "plan": "Plan",
@@ -116,13 +133,20 @@
       "79": "The payment password was entered wrongly too many times.",
       "other": "VNPAY reported the payment as unsuccessful (code {{code}})."
     },
+    "reasonLabel": "Reason from VNPAY",
+    "noChargeHint": "No charge was completed for this transaction. You can retry immediately or pick a different plan.",
     "receipt": {
+      "title": "Order summary",
+      "plan": "Plan",
+      "status": "Status",
       "amount": "Amount",
       "txn": "Transaction",
       "bank": "Bank",
-      "paidAt": "Paid at"
+      "paidAt": "Paid at",
+      "createdAt": "Created at"
     },
     "payAgain": "Pay again",
+    "retrying": "Creating payment session…",
     "choosePlan": "Choose another plan",
     "goBack": "Back to where I was",
     "toSubscription": "View subscription"

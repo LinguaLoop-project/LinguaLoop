@@ -6,6 +6,9 @@
   },
   "current": {
     "label": "Gói hiện tại",
+    "freeName": "Gói Miễn phí",
+    "proName": "Gói Pro",
+    "freeDesc": "Nâng cấp lên Pro để mở khóa toàn bộ bài học, từ vựng Pro và credit AI mỗi tháng.",
     "active": "Đang hoạt động",
     "since": "Bắt đầu {{date}}",
     "until": "Hết hạn {{date}}",
@@ -13,7 +16,7 @@
     "trialHint": "Credit dùng thử chỉ tặng một lần. Dùng hết thì cần gói Pro để tiếp tục dùng AI.",
     "monthlyCredits": "Credit còn lại trong tháng",
     "renewsOn": "Làm mới ngày {{date}}",
-    "upgrade": "Nâng cấp lên Pro",
+    "upgrade": "Đăng ký Pro",
     "renew": "Gia hạn gói Pro"
   },
   "benefits": {
@@ -34,10 +37,13 @@
   "picker": {
     "titleUpgrade": "Chọn gói Pro",
     "titleRenew": "Gia hạn gói Pro",
+    "subtitleUpgrade": "Chọn kỳ hạn phù hợp để mở khóa toàn bộ quyền lợi Pro ngay lập tức.",
+    "subtitleRenew": "Cộng nối tiếp thời hạn vào gói Pro hiện tại của bạn.",
     "close": "Đóng",
     "months_one": "{{count}} tháng",
     "months_other": "{{count}} tháng",
-    "perMonth": "{{credits}} credit mỗi tháng",
+    "perMonth": "{{credits}} credit AI / tháng",
+    "pricePerMonth": "~{{price}}/tháng",
     "save": "Tiết kiệm {{percent}}%",
     "endsOn": "Hết hạn dự kiến: {{date}}",
     "currentEnd": "Gói hiện tại hết hạn ngày {{date}}. Kỳ mới được cộng nối tiếp, không mất ngày nào.",
@@ -45,12 +51,23 @@
     "continue": "Tiếp tục thanh toán",
     "redirecting": "Đang chuyển sang VNPAY…",
     "empty": "Hiện chưa có gói Pro nào mở bán.",
-    "note": "Bạn sẽ được chuyển sang cổng VNPAY để thanh toán bằng QR, thẻ ATM hoặc thẻ quốc tế. Đơn được giữ trong 15 phút.",
+    "note": "Thanh toán an toàn qua cổng VNPAY (QR, thẻ ATM, thẻ quốc tế). Đơn được giữ trong 15 phút.",
     "activatedFree": "Gói đã được kích hoạt."
   },
   "history": {
     "title": "Lịch sử giao dịch",
     "empty": "Chưa có giao dịch nào.",
+    "emptyFiltered": "Không có giao dịch nào phù hợp với bộ lọc.",
+    "showing": "Hiển thị {{from}}–{{to}} trong tổng {{total}} giao dịch",
+    "copyTxn": "Sao chép mã giao dịch",
+    "copied": "Đã sao chép",
+    "filters": {
+      "label": "Lọc giao dịch",
+      "all": "Tất cả",
+      "paid": "Đã thanh toán",
+      "pending": "Chờ thanh toán",
+      "unpaid": "Đã hủy / Thất bại"
+    },
     "columns": {
       "date": "Ngày tạo",
       "plan": "Gói",
@@ -116,13 +133,20 @@
       "79": "Nhập sai mật khẩu thanh toán quá số lần cho phép.",
       "other": "VNPAY báo giao dịch không thành công (mã {{code}})."
     },
+    "reasonLabel": "Lý do từ VNPAY",
+    "noChargeHint": "Không có khoản tiền nào được thu cho giao dịch này. Bạn có thể thử lại ngay hoặc chọn gói khác.",
     "receipt": {
+      "title": "Chi tiết đơn hàng",
+      "plan": "Gói đăng ký",
+      "status": "Trạng thái",
       "amount": "Số tiền",
       "txn": "Mã giao dịch",
       "bank": "Ngân hàng",
-      "paidAt": "Thời gian thanh toán"
+      "paidAt": "Thời gian thanh toán",
+      "createdAt": "Thời gian tạo đơn"
     },
     "payAgain": "Thanh toán lại",
+    "retrying": "Đang tạo phiên thanh toán…",
     "choosePlan": "Chọn gói khác",
     "goBack": "Quay lại trang đang học",
     "toSubscription": "Xem gói đăng ký"

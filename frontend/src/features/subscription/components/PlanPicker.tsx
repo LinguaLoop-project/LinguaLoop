@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
@@ -36,6 +36,15 @@ export default function PlanPicker({ kind, currentEnd, onClose }: PlanPickerProp
   const [chosen, setChosen] = useState<string | null>(null);
   const [redirecting, setRedirecting] = useState(false);
 
+  // Bấm Quay lại từ trang VNPAY, trình duyệt có thể khôi phục trang từ bộ nhớ đệm: mở lại nút thanh toán
+  useEffect(() => {
+    const onShow = (event: PageTransitionEvent) => {
+      if (event.persisted) setRedirecting(false);
+    };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
+
   const list = plans.data ?? [];
   const selected = list.find((p) => p.id === chosen) ?? list[0];
 
@@ -68,23 +77,35 @@ export default function PlanPicker({ kind, currentEnd, onClose }: PlanPickerProp
   return (
     <section
       aria-labelledby="plan-picker-title"
-      className="rounded-lg border border-primary bg-surface p-5 shadow-[var(--shadow-card)]"
+      className="rounded-2xl border border-primary/50 bg-surface p-6 shadow-[var(--shadow-card)]"
     >
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <h2 id="plan-picker-title" className="font-display text-2xl font-bold">
-          {t(kind === "renew" ? "picker.titleRenew" : "picker.titleUpgrade")}
-        </h2>
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary-text">
+            <Icon name="crown" className="text-xl" />
+          </span>
+          <div>
+            <h2 id="plan-picker-title" className="font-display text-2xl font-bold leading-tight">
+              {t(kind === "renew" ? "picker.titleRenew" : "picker.titleUpgrade")}
+            </h2>
+            <p className="mt-1 text-sm text-text-muted">
+              {kind === "renew" && currentEnd
+                ? t("picker.currentEnd", { date: formatDay(currentEnd, i18n.language) })
+                : t(kind === "renew" ? "picker.subtitleRenew" : "picker.subtitleUpgrade")}
+            </p>
+          </div>
+        </div>
         <Button type="button" variant="ghost" size="sm" iconOnly aria-label={t("picker.close")} onClick={onClose}>
           <Icon name="x" />
         </Button>
       </div>
 
-      {kind === "renew" && currentEnd && (
-        <p className="mb-4 text-sm text-text-muted">{t("picker.currentEnd", { date: formatDay(currentEnd, i18n.language) })}</p>
-      )}
-
       {plans.isLoading ? (
-        <Skeleton className="h-40 w-full" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Skeleton className="h-48 w-full rounded-xl" />
+          <Skeleton className="h-48 w-full rounded-xl" />
+          <Skeleton className="h-48 w-full rounded-xl" />
+        </div>
       ) : plans.isError ? (
         <div className="flex flex-col items-start gap-3">
           <FormAlert variant="danger">{t("loadFailed")}</FormAlert>
@@ -93,13 +114,14 @@ export default function PlanPicker({ kind, currentEnd, onClose }: PlanPickerProp
           </Button>
         </div>
       ) : list.length === 0 ? (
-        <p className="text-text-muted">{t("picker.empty")}</p>
+        <p className="rounded-xl border border-border bg-bg-elevated/60 p-5 text-sm text-text-muted">{t("picker.empty")}</p>
       ) : (
         <>
-          <div role="radiogroup" aria-labelledby="plan-picker-title" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div role="radiogroup" aria-labelledby="plan-picker-title" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((plan) => {
               const active = plan.id === selected?.id;
               const save = savingsPercent(plan, list);
+              const perMonthPrice = plan.months > 1 ? Math.round(plan.priceVnd / plan.months) : null;
               return (
                 <button
                   key={plan.id}
@@ -107,22 +129,60 @@ export default function PlanPicker({ kind, currentEnd, onClose }: PlanPickerProp
                   role="radio"
                   aria-checked={active}
                   onClick={() => setChosen(plan.id)}
-                  className={`flex cursor-pointer flex-col gap-1.5 rounded-lg border-2 bg-surface p-4 text-left transition-colors ${
-                    active ? "border-primary bg-primary-soft" : "border-border hover:border-border-strong"
+                  className={`group relative flex cursor-pointer flex-col justify-between gap-4 rounded-xl border-2 p-5 text-left transition-all duration-150 ${
+                    active
+                      ? "border-primary bg-primary-soft/55 shadow-[0_12px_28px_-14px_rgba(124,92,255,0.55)]"
+                      : "border-border bg-bg-elevated/45 hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-hover/50"
                   }`}
                 >
-                  <span className="flex items-center justify-between gap-2">
-                    <b className="font-display text-lg">{plan.name}</b>
-                    {save !== null && <Badge variant="success">{t("picker.save", { percent: save })}</Badge>}
-                  </span>
-                  <span className="font-display text-2xl font-bold tabular-nums">{formatVnd(plan.priceVnd, i18n.language)}</span>
-                  <span className="text-sm text-text-muted">{t("picker.months", { count: plan.months })}</span>
-                  <span className="text-sm text-text-muted">{t("picker.perMonth", { credits: plan.creditsPerMonth })}</span>
-                  <span className="text-xs text-text-muted">
-                    {t("picker.endsOn", {
-                      date: formatDay(expectedEnd(kind, plan.months, new Date(), currentEnd).toISOString(), i18n.language),
-                    })}
-                  </span>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span
+                          aria-hidden="true"
+                          className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                            active
+                              ? "border-primary bg-primary text-white"
+                              : "border-border-strong bg-surface group-hover:border-primary/60"
+                          }`}
+                        >
+                          {active && <Icon name="check" className="text-[12px]" strokeWidth={3} />}
+                        </span>
+                        <b className="font-display text-lg font-bold text-text">{plan.name}</b>
+                      </div>
+                      {save !== null && <Badge variant="success">{t("picker.save", { percent: save })}</Badge>}
+                    </div>
+
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-display text-3xl font-bold tracking-tight tabular-nums text-text">
+                        {formatVnd(plan.priceVnd, i18n.language)}
+                      </span>
+                      {perMonthPrice !== null && (
+                        <span className="text-xs font-medium tabular-nums text-primary-text">
+                          {t("picker.pricePerMonth", { price: formatVnd(perMonthPrice, i18n.language) })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 border-t border-border/80 pt-3 text-xs text-text-muted">
+                    <span className="inline-flex items-center gap-2">
+                      <Icon name="calendar" className="text-sm text-primary-text" />
+                      <span>{t("picker.months", { count: plan.months })}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-2 font-medium text-text">
+                      <Icon name="zap" fill className="text-sm text-warning" />
+                      <span>{t("picker.perMonth", { credits: plan.creditsPerMonth })}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <Icon name="clock" className="text-sm text-text-muted" />
+                      <span>
+                        {t("picker.endsOn", {
+                          date: formatDay(expectedEnd(kind, plan.months, new Date(), currentEnd).toISOString(), i18n.language),
+                        })}
+                      </span>
+                    </span>
+                  </div>
                 </button>
               );
             })}
@@ -134,17 +194,23 @@ export default function PlanPicker({ kind, currentEnd, onClose }: PlanPickerProp
             </FormAlert>
           )}
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
-            <p className="max-w-prose text-sm text-text-muted">{t("picker.note")}</p>
-            <div className="flex items-center gap-4">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-bg-elevated/75 px-4 py-3.5">
+            <div className="flex max-w-prose items-start gap-2.5 text-sm text-text-muted">
+              <Icon name="shield-check" className="mt-0.5 shrink-0 text-base text-success" />
+              <p className="leading-relaxed">{t("picker.note")}</p>
+            </div>
+            <div className="ml-auto flex flex-wrap items-center gap-4">
               {selected && (
                 <span className="text-right">
                   <span className="block text-xs text-text-muted">{t("picker.total")}</span>
-                  <b className="font-display text-xl tabular-nums">{formatVnd(selected.priceVnd, i18n.language)}</b>
+                  <b className="font-display text-2xl font-bold tabular-nums text-text">
+                    {formatVnd(selected.priceVnd, i18n.language)}
+                  </b>
                 </span>
               )}
               <Button
                 type="button"
+                size="lg"
                 onClick={submit}
                 disabled={!selected || checkout.isPending || redirecting}
                 leftIcon={<Icon name={errorCode ? "rotate-cw" : "credit-card"} />}
