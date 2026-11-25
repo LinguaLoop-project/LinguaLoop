@@ -12,7 +12,7 @@ const studentGroups: NavGroup[] = [
       { id: "lessons", icon: "library", labelKey: k("student", "sidebar.items", "lessons"), to: "/student/lessons" },
       { id: "dictation", icon: "headphones", labelKey: k("student", "sidebar.items", "dictation"), to: "/student/dictation", tone: "dictation" },
       { id: "shadowing", icon: "mic", labelKey: k("student", "sidebar.items", "shadowing"), to: "/student/shadowing", tone: "shadowing" },
-      { id: "watch", icon: "monitor-play", labelKey: k("student", "sidebar.items", "watch"), to: "/watch" },
+      { id: "watch", icon: "monitor-play", labelKey: k("student", "sidebar.items", "watch"), to: "/watch", tone: "watch" },
       { id: "vocab", icon: "layers", labelKey: k("student", "sidebar.items", "vocab"), to: "/student/vocab", tone: "vocab" },
     ],
   },
@@ -21,8 +21,7 @@ const studentGroups: NavGroup[] = [
     items: [
       { id: "saved-lessons", icon: "bookmark-check", labelKey: k("student", "sidebar.items", "savedLessons"), to: "/student/saved-lessons" },
       { id: "mywords", icon: "bookmark", labelKey: k("student", "sidebar.items", "mywords"), to: "/student/mywords", tone: "vocab" },
-      { id: "stats", icon: "trending-up", labelKey: k("student", "sidebar.items", "stats"), to: "/student/stats" },
-      { id: "weakness", icon: "target", labelKey: k("student", "sidebar.items", "weakness"), to: "/student/weakness", tone: "assessment" },
+      { id: "weakness", icon: "target", labelKey: k("student", "sidebar.items", "weakness"), to: "/student/weakness", tone: "weakness" },
       { id: "test", icon: "file-check", labelKey: k("student", "sidebar.items", "test"), to: "/student/test", tone: "assessment" },
     ],
   },

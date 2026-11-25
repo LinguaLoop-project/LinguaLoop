@@ -11,7 +11,6 @@ import com.lingualoop.backend.stats.dto.DictationErrorsView;
 import com.lingualoop.backend.stats.dto.HistoryView;
 import com.lingualoop.backend.stats.dto.PronunciationView;
 import com.lingualoop.backend.stats.dto.StatsOverviewView;
-import com.lingualoop.backend.stats.dto.TodayGoalView;
 import com.lingualoop.backend.stats.dto.WrongWordsView;
 
 /**
@@ -35,14 +34,14 @@ public interface StatsService {
     /** Mười từ nghe sai nhiều nhất trong khoảng (BR-TH-16). */
     WrongWordsView wrongWords(UUID userId, String range);
 
-    /** Tiến độ mục tiêu câu luyện của hôm nay, cho trang Hôm nay (BR-TH-18). */
-    TodayGoalView todayGoal(UUID userId);
-
     /** Lịch nhiệt 13 tuần gần nhất (BR-TH-15). */
     ActivityView activity(UUID userId);
 
     /** Lịch sử luyện tập từ mới đến cũ, đã lọc theo chế độ và khoảng (BR-TH-06, BR-TH-07); {@code page} từ 0. */
     PageResponse<HistoryView> history(UUID userId, String mode, String range, int page);
+
+    /** Lịch sử luyện tập phân trang theo số ngày có hoạt động khớp bộ lọc (mặc định 3 ngày/trang); {@code page} từ 0. */
+    PageResponse<HistoryView> historyByDays(UUID userId, String mode, String range, int page, int daysPerPage);
 
     /** Từng lượt của một Buổi luyện; 404 nếu học viên không có buổi đó. */
     PracticeSessionDetailView practiceSession(UUID userId, UUID lessonId, PracticeMode mode, LocalDate day);

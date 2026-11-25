@@ -21,7 +21,6 @@ import com.lingualoop.backend.stats.dto.DictationErrorsView;
 import com.lingualoop.backend.stats.dto.HistoryView;
 import com.lingualoop.backend.stats.dto.PronunciationView;
 import com.lingualoop.backend.stats.dto.StatsOverviewView;
-import com.lingualoop.backend.stats.dto.TodayGoalView;
 import com.lingualoop.backend.stats.dto.WrongWordsView;
 
 import lombok.RequiredArgsConstructor;
@@ -63,12 +62,6 @@ public class StatsController {
         return ApiResponse.ok(statsService.wrongWords(userId, range));
     }
 
-    /** Số câu đã luyện hôm nay và mục tiêu ngày, cho vòng tiến độ ở trang Hôm nay. */
-    @GetMapping("/today-goal")
-    public ApiResponse<TodayGoalView> todayGoal(@CurrentUserId UUID userId) {
-        return ApiResponse.ok(statsService.todayGoal(userId));
-    }
-
     /** Lịch nhiệt các ngày học trong 13 tuần gần nhất; không phụ thuộc bộ lọc khoảng. */
     @GetMapping("/activity")
     public ApiResponse<ActivityView> activity(@CurrentUserId UUID userId) {
@@ -78,9 +71,13 @@ public class StatsController {
     /** Lịch sử luyện tập; {@code mode} là {@code all}, {@code dictation}, {@code shadowing}, {@code vocab} hoặc {@code ai}. */
     @GetMapping("/history")
     public ApiResponse<PageResponse<HistoryView>> history(@CurrentUserId UUID userId,
-            @RequestParam(required = false) String mode, @RequestParam(required = false) String range,
-            @RequestParam(defaultValue = "0") int page) {
-        return ApiResponse.ok(statsService.history(userId, mode, range, page));
+            @RequestParam(name = "mode", required = false) String mode,
+            @RequestParam(name = "range", required = false) String range,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "days", required = false) Integer days) {
+        return ApiResponse.ok(days != null
+                ? statsService.historyByDays(userId, mode, range, page, days)
+                : statsService.history(userId, mode, range, page));
     }
 
     /** Từng lượt của một Buổi luyện: bài, chế độ và ngày lịch (theo múi giờ của học viên). */

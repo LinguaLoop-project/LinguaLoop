@@ -1,19 +1,21 @@
 {
-  "goal": {
-    "title": "Today's sentence goal",
-    "aria": "Progress toward today's sentence goal",
-    "progress": "{{done}}/{{target}} sentences",
-    "remaining_one": "{{count}} more sentence to reach your goal.",
-    "remaining_other": "{{count}} more sentences to reach your goal.",
-    "reached": "You reached today's goal!",
-    "change": "Change goal",
-    "practice": "Practice"
-  },
   "heatmap": {
-    "title": "Study calendar, 3 months",
-    "summary_one": "Studied {{count}} day in the last 13 weeks",
-    "summary_other": "Studied {{count}} days in the last 13 weeks",
-    "aria": "Heatmap of study days over the last 13 weeks",
+    "title": "90-day study calendar",
+    "summary_one": "Studied {{count}} day in the last 90 days",
+    "summary_other": "Studied {{count}} days in the last 90 days",
+    "activeRate": "{{percent}}% active days",
+    "longestStreak_one": "Longest streak: {{count}} day",
+    "longestStreak_other": "Longest streak: {{count}} days",
+    "totalActivities_one": "{{count}} total activity",
+    "totalActivities_other": "{{count}} total activities",
+    "bestDay_one": "Peak {{count}} activity/day",
+    "bestDay_other": "Peak {{count}} activities/day",
+    "kpiActiveRate": "Active days",
+    "kpiLongestStreak": "Longest streak",
+    "kpiTotalActivities": "Total activities",
+    "kpiBestDay": "Peak per day",
+    "hoverHint": "Hover any day to see details",
+    "aria": "Heatmap of study days over the last 90 days",
     "cell_one": "{{date}}: {{count}} activity",
     "cell_other": "{{date}}: {{count}} activities",
     "cellNone": "{{date}}: no study",
@@ -32,8 +34,12 @@
   },
   "overview": {
     "overline": "Learning stats",
-    "title": "How are you doing?",
-    "sub": "Your study streak, sentences practiced and vocabulary progress",
+    "title": "Overall progress",
+    "sub": "Your study streak, lessons and vocabulary cards to date",
+    "periodTitle": "Activity by time range",
+    "periodSub": "Applies to sentences practiced, vocabulary accuracy, and history below",
+    "weaknessTitle": "Weakness profile & 44-phoneme map",
+    "weaknessSub": "Spot the sounds you mispronounce and your most missed dictation words",
     "weaknessLink": "See your weakness profile"
   },
   "streak": {
@@ -76,6 +82,7 @@
     "hint": "In the decks you've started",
     "total_one": "{{count}} card",
     "total_other": "{{count}} cards",
+    "masteredPct": "{{percent}}% mastered",
     "new": "New",
     "learning": "Learning",
     "reviewing": "Reviewing",
@@ -91,6 +98,13 @@
     "title": "Practice history",
     "total_one": "{{count}} entry",
     "total_other": "{{count}} entries",
+    "groupToday": "Today",
+    "groupYesterday": "Yesterday",
+    "dayCount_one": "{{count}} activity",
+    "dayCount_other": "{{count}} activities",
+    "showMoreDay_one": "Show {{count}} more activity on this day",
+    "showMoreDay_other": "Show {{count}} more activities on this day",
+    "showLessDay": "Show fewer for this day",
     "modeLabel": "Practice mode",
     "mode": {
       "all": "All",
@@ -135,9 +149,31 @@
     "overline": "Weakness profile",
     "title": "Where do you slip up?",
     "sub": "Based on your practice in the selected time range",
+    "tabs": {
+      "label": "Filter by skill",
+      "all": "All",
+      "pronunciation": "Shadowing pronunciation",
+      "dictation": "Dictation"
+    },
+    "sections": {
+      "pronunciation": "Shadowing pronunciation",
+      "dictation": "Dictation"
+    },
+    "summary": {
+      "pronunciationScore": "Avg pronunciation",
+      "noScore": "No data yet",
+      "scoreValue": "{{score}} pts",
+      "worstPhoneme": "Priority sound",
+      "noWorstPhoneme": "No weak sound yet",
+      "worstWordClass": "Hardest word type",
+      "noWorstClass": "No dictation errors",
+      "topWrongWord": "Most missed word",
+      "noWrongWord": "No missed words"
+    },
     "map": {
       "title": "Map of 44 phonemes",
-      "hint": "Tap a sound to see what you tend to say instead",
+      "hint": "Tap a sound for details, or click a level on the right to filter",
+      "filterAll": "All ({{count}})",
       "vowels": "Vowels & diphthongs",
       "consonants": "Consonants",
       "legend": {
@@ -152,11 +188,12 @@
     },
     "words": {
       "title": "Most missed words",
-      "hint": "Tap Save to vocabulary to pick the word's meaning and review it with your other cards.",
+      "hint": "Listen to the pronunciation or save words to review with your flashcards.",
       "saved": "Saved words & sentences",
       "empty": "No missed words in this range",
       "wrong": "missed {{wrong}}/{{seen}} times",
-      "save": "Save to vocabulary"
+      "listen": "Hear pronunciation of “{{word}}”",
+      "save": "Save"
     },
     "scores": {
       "title": "Shadowing pronunciation score",
@@ -165,11 +202,15 @@
       "empty": "No shadowing attempts in this range",
       "latest": "Latest {{score}}",
       "aria": "Average pronunciation score, latest {{score}} points",
-      "average": "Average {{score}}"
+      "average": "Average {{score}}",
+      "pointDetail_one": "{{date}}: {{score}} ({{attempts}} attempt)",
+      "pointDetail_other": "{{date}}: {{score}} ({{attempts}} attempts)",
+      "hoverHint": "Hover any point to inspect score details"
     },
     "dictation": {
       "title": "Dictation: errors by word type",
       "errorRate": "{{percent}}% errors",
+      "priority": "Top priority",
       "opportunities_one": "{{count}} word seen",
       "opportunities_other": "{{count}} words seen",
       "lastWrong": "Latest wrong word: {{word}}",
@@ -226,6 +267,8 @@
       "placeholder": "Pick a sound on the map to see the details",
       "errors_one": "{{count}} mistake",
       "errors_other": "{{count}} mistakes",
+      "errorRatio": "{{errors}}/{{total}} missed",
+      "targetSound": "Target sound",
       "listen": "Hear the example word “{{word}}”",
       "insufficient": "You've practiced this sound fewer than 5 times. Practice a few more sentences with “{{word}}” for accurate stats.",
       "confusedAs": "You usually say",
@@ -233,6 +276,7 @@
       "tip": "How to fix it",
       "trend": "8-week error trend",
       "trendAria": "Weekly error rate, latest week {{percent}}%",
+      "trendWeekDetail": "Week of {{date}}: {{percent}}% errors ({{errors}}/{{total}})",
       "trendEmpty": "Not enough weekly data to draw a trend",
       "trendFew": "Only 1 week has data so far. At least 2 weeks are needed to draw a trend, so keep practicing next week.",
       "practice": "Practice now",
