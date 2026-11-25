@@ -4,6 +4,8 @@ spring:
     # DB dev dùng chung giữa các nhánh: nhánh khác có thể đã chạy migration mà nhánh này không có file đó (vd dữ liệu
     # mẫu). Chỉ cảnh báo thay vì dừng khởi động. Profile prod KHÔNG có dòng này nên vẫn kiểm tra nghiêm ngặt.
     ignore-migration-patterns: "*:missing"
+    # Dữ liệu mẫu chỉ dành cho dev (gói Pro mẫu để thử thanh toán); prod chỉ đọc db/migration.
+    locations: classpath:db/migration,classpath:db/dev-seed
   mail:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}
