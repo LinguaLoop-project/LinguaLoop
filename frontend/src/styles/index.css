@@ -154,6 +154,89 @@
 
   }
 
+  /* Màu nhấn do học viên chọn ở Cài đặt (BR-TK-21); tím là mặc định nên không cần khối riêng. */
+  :root[data-theme="dark"][data-accent="blue"] {
+    --primary: #3B82F6;
+    --primary-hover: #60A5FA;
+    --primary-soft: rgba(59,130,246,0.16);
+    --primary-text: #93C5FD;
+    --btn-primary: #2563EB;
+    --btn-primary-hover: #1D4ED8;
+    --accent: #BFDBFE;
+    --accent-2: #67E8F9;
+    --page-wash: radial-gradient(60% 40% at 50% 0%, rgba(59,130,246,0.22) 0%, rgba(7,5,13,0) 70%);
+  }
+  :root[data-theme="light"][data-accent="blue"] {
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --primary-soft: rgba(37,99,235,0.10);
+    --primary-text: #1D4ED8;
+    --btn-primary: #2563EB;
+    --btn-primary-hover: #1D4ED8;
+    --accent: #3B82F6;
+    --accent-2: #0891B2;
+    --page-wash: radial-gradient(60% 40% at 50% 0%, rgba(96,165,250,0.22) 0%, rgba(250,248,255,0) 70%);
+  }
+  :root[data-theme="dark"][data-accent="pink"] {
+    --primary: #EC4899;
+    --primary-hover: #F472B6;
+    --primary-soft: rgba(236,72,153,0.16);
+    --primary-text: #F9A8D4;
+    --btn-primary: #DB2777;
+    --btn-primary-hover: #BE185D;
+    --accent: #FBCFE8;
+    --accent-2: #FDA4AF;
+    --page-wash: radial-gradient(60% 40% at 50% 0%, rgba(236,72,153,0.22) 0%, rgba(7,5,13,0) 70%);
+  }
+  :root[data-theme="light"][data-accent="pink"] {
+    --primary: #DB2777;
+    --primary-hover: #BE185D;
+    --primary-soft: rgba(219,39,119,0.10);
+    --primary-text: #BE185D;
+    --btn-primary: #DB2777;
+    --btn-primary-hover: #BE185D;
+    --accent: #EC4899;
+    --accent-2: #E11D48;
+    --page-wash: radial-gradient(60% 40% at 50% 0%, rgba(244,114,182,0.22) 0%, rgba(250,248,255,0) 70%);
+  }
+  :root[data-theme="dark"][data-accent="green"] {
+    --primary: #10B981;
+    --primary-hover: #34D399;
+    --primary-soft: rgba(16,185,129,0.16);
+    --primary-text: #6EE7B7;
+    --btn-primary: #047857;
+    --btn-primary-hover: #065F46;
+    --accent: #A7F3D0;
+    --accent-2: #5EEAD4;
+    --page-wash: radial-gradient(60% 40% at 50% 0%, rgba(16,185,129,0.22) 0%, rgba(7,5,13,0) 70%);
+  }
+  :root[data-theme="light"][data-accent="green"] {
+    --primary: #047857;
+    --primary-hover: #065F46;
+    --primary-soft: rgba(4,120,87,0.10);
+    --primary-text: #065F46;
+    --btn-primary: #047857;
+    --btn-primary-hover: #065F46;
+    --accent: #10B981;
+    --accent-2: #0D9488;
+    --page-wash: radial-gradient(60% 40% at 50% 0%, rgba(52,211,153,0.22) 0%, rgba(250,248,255,0) 70%);
+  }
+
+  /* Cỡ chữ câu luyện tập (BR-TK-21): vừa là mặc định, lớn phóng thêm 20%. */
+  :root { --sentence-scale: 1; }
+  :root[data-sentence="lg"] { --sentence-scale: 1.2; }
+  .practice-sentence { font-size: calc(22px * var(--sentence-scale)); }
+  .practice-input { font-size: calc(20px * var(--sentence-scale)); }
+  @media (min-width: 768px) { .practice-sentence { font-size: calc(26px * var(--sentence-scale)); } }
+
+  /* Nền các trang học (BR-TK-21): chỉ vài nền dịu có sẵn, thẻ nội dung vẫn giữ nền riêng nên chữ luôn đọc được. */
+  :root[data-learn-page][data-learn-bg="paper"][data-theme="light"] body { background-color: #F6F0E2; }
+  :root[data-learn-page][data-learn-bg="paper"][data-theme="dark"] body { background-color: #19150F; }
+  :root[data-learn-page][data-learn-bg="gradient"][data-theme="light"] body { background: linear-gradient(160deg, #F3EEFF 0%, #E8F0FF 55%, #E6F7F4 100%) fixed; }
+  :root[data-learn-page][data-learn-bg="gradient"][data-theme="dark"] body { background: linear-gradient(160deg, #0B0820 0%, #1A1038 55%, #0A1A2E 100%) fixed; }
+  :root[data-learn-page][data-learn-bg="paper"] body::before,
+  :root[data-learn-page][data-learn-bg="gradient"] body::before { display: none; }
+
   *, *::before, *::after { box-sizing: border-box; }
   html { overflow-x: clip; }
 

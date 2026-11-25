@@ -1,4 +1,5 @@
 import { Link, useParams } from "react-router-dom";
+import { useLearnPageBackground } from "@/hooks/useAppearance";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -29,6 +30,7 @@ const PracticeSkeleton = () => (
 
 /** Trang luyện shadowing của một bài: `/student/shadowing/:id`. */
 export default function ShadowingPage() {
+  useLearnPageBackground();
   const { id: slug = "" } = useParams<{ id: string }>();
   const { t } = useTranslation("pages");
   const setShowUpgradeModal = useQuotaStore((s) => s.setShowUpgradeModal);

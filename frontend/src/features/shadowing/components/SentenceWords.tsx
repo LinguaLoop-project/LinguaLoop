@@ -40,7 +40,7 @@ export default function SentenceWords({ text, words, ipa, lit, selected, onSelec
               className={`${WORD_BASE} text-text ${isLit ? "border-fn-shadowing bg-fn-shadowing-soft" : "border-transparent"}`}
             >
               {/* Chưa chấm: bấm vào từ để tra từ điển trước khi đọc (sau khi chấm, bấm từ mở chi tiết chấm điểm) */}
-              <span className="font-display text-[22px] font-bold leading-tight tracking-tight md:text-[26px]">
+              <span className="font-display practice-sentence font-bold leading-tight tracking-tight">
                 <LookupWord word={d.text} />
               </span>
               {ipaLine}
@@ -76,7 +76,7 @@ export default function SentenceWords({ text, words, ipa, lit, selected, onSelec
             }`}
           >
             <span
-              className={`font-display text-[22px] font-bold leading-tight tracking-tight md:text-[26px] ${TONE_TEXT[tone]} ${
+              className={`font-display practice-sentence font-bold leading-tight tracking-tight ${TONE_TEXT[tone]} ${
                 tone === "bad" ? "underline decoration-wavy underline-offset-[6px]" : ""
               } ${omitted ? "line-through opacity-80" : ""}`}
             >

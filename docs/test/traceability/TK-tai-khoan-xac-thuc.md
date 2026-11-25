@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TK-tai-khoan-xac-thuc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 69 AC, 42 đã có test, 14 một phần, 12 thiếu, 1 thủ công.
+Tổng hợp: 70 AC, 42 đã có test, 15 một phần, 12 thiếu, 1 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -75,3 +75,4 @@ Tổng hợp: 69 AC, 42 đã có test, 14 một phần, 12 thiếu, 1 thủ côn
 | AC-TK-67 | Ảnh đại diện không hợp lệ | UC-TK-10 | A, B | AvatarApiIntegrationTest.setAvatar_rejectsAFileThatIsNotReallyAnImage_AC_TK_67; AvatarApiIntegrationTest.setAvatar_rejectsAKeyThatIsNotTheCallers_orWasNeverUploaded_AC_TK_67; AvatarApiIntegrationTest.setAvatar_isForStudentsOnly_andNeedsAToken_AC_TK_67; `frontend/src/features/user/avatarImage.test.ts` (loại tệp và dung lượng) | Một phần (chưa có test giao diện) |
 | AC-TK-68 | Gỡ ảnh đại diện | UC-TK-10 | D, B | AvatarApiIntegrationTest.removeAvatar_fallsBackToTheGooglePictureAndDeletesTheFile_AC_TK_68 | Một phần (chưa có test giao diện) |
 | AC-TK-69 | Chọn tùy chọn luyện tập mặc định | UC-TK-10 | D, B | `frontend/src/features/user/practicePrefs.test.ts` (đọc mặc định, giá trị đã lưu, dữ liệu hỏng, giữ trường khác khi ghi) | Một phần (chưa có test giao diện) |
+| AC-TK-70 | Cá nhân hóa màu nhấn, cỡ chữ và nền trang học | UC-TK-10 | D, B | `frontend/src/hooks/useAppearance.test.ts` (mặc định, giá trị đã lưu, mục lạ hoặc hỏng) | Một phần (chưa có test giao diện) |

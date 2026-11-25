@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLearnPageBackground } from "@/hooks/useAppearance";
 import { isAxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -22,6 +23,7 @@ const PREFETCH_AHEAD = 3;
  * dụng (không thanh bên) để video chiếm trọn màn hình. `?start=<lessonId>` mở từ trang chi tiết bài học.
  */
 export default function WatchPage() {
+  useLearnPageBackground();
   const { t } = useTranslation("watch");
   const navigate = useNavigate();
   const location = useLocation();
