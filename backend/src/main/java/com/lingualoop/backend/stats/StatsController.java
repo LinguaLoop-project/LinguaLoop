@@ -62,7 +62,7 @@ public class StatsController {
         return ApiResponse.ok(statsService.wrongWords(userId, range));
     }
 
-    /** Lịch nhiệt các ngày học trong 13 tuần gần nhất; không phụ thuộc bộ lọc khoảng. */
+    /** Lịch nhiệt các ngày học trong 90 ngày gần nhất; không phụ thuộc bộ lọc khoảng. */
     @GetMapping("/activity")
     public ApiResponse<ActivityView> activity(@CurrentUserId UUID userId) {
         return ApiResponse.ok(statsService.activity(userId));

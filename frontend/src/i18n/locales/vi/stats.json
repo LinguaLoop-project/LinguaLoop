@@ -6,6 +6,7 @@
     "longestStreak_other": "Chuỗi dài nhất {{count}} ngày",
     "totalActivities_other": "Tổng {{count}} hoạt động",
     "bestDay_other": "Đỉnh {{count}} hoạt động/ngày",
+    "kpiActiveValue": "{{active}}/{{total}} ngày",
     "kpiActiveRate": "Ngày duy trì",
     "kpiLongestStreak": "Chuỗi dài nhất",
     "kpiTotalActivities": "Tổng hoạt động",
