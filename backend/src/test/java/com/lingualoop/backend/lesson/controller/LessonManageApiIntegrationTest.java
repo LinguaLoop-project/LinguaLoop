@@ -252,7 +252,7 @@ class LessonManageApiIntegrationTest {
     // ------------------------------------------------------------------ UC-BH-04 sửa thông tin
 
     @Test
-    void updateInfo_savesAndAudits_AC_BH_24() throws Exception {
+    void updateInfo_savesWithoutAudit_AC_BH_24() throws Exception {
         UUID id = lesson(teacherA, "Airport English", "draft");
 
         asA(put(TEACHER_URL + "/" + id).content("""
@@ -261,10 +261,8 @@ class LessonManageApiIntegrationTest {
                 .andExpect(jsonPath("$.data.title").value("Airport English 1"))
                 .andExpect(jsonPath("$.data.cefrLevel").value("A2"));
 
-        assertThat(auditCount(id, "update")).isEqualTo(1);
-        String changes = jdbc.queryForObject("SELECT changes::text FROM audit_logs WHERE target_id = ?", String.class,
-                id);
-        assertThat(changes).contains("Airport English 1").contains("\"old\": \"B1\"");
+        // Sửa thông tin bài không ghi nhật ký (BR-NK-18)
+        assertThat(auditCount(id, "update")).isZero();
     }
 
     @Test
@@ -301,7 +299,7 @@ class LessonManageApiIntegrationTest {
     // ------------------------------------------------------------------ UC-BH-05 sửa câu
 
     @Test
-    void updateSentences_savesTranslationAndIpaWithAudit_AC_BH_34_35_36() throws Exception {
+    void updateSentences_savesTranslationAndIpaWithoutAudit_AC_BH_34_35_36() throws Exception {
         UUID id = lesson(teacherA, "L", "draft");
         List<UUID> s = sentences(id, 3);
 
@@ -314,10 +312,8 @@ class LessonManageApiIntegrationTest {
                 .andExpect(jsonPath("$.data.sentences[1].endMs").value(1600))
                 .andExpect(jsonPath("$.data.sentences[0].textVi").value("Câu 0"));
 
-        String changes = jdbc.queryForObject(
-                "SELECT changes::text FROM audit_logs WHERE target_id = ? AND action = 'update'", String.class,
-                s.get(1));
-        assertThat(changes).contains("Câu 1").contains("Bản dịch mới");
+        // Sửa câu không ghi nhật ký (BR-NK-18)
+        assertThat(auditCount(s.get(1), "update")).isZero();
     }
 
     @Test
@@ -423,8 +419,8 @@ class LessonManageApiIntegrationTest {
                 .andExpect(jsonPath("$.data.sentences[1].textVi").doesNotExist())
                 .andExpect(jsonPath("$.data.sentences[2].id").value(s.get(1).toString()))
                 .andExpect(jsonPath("$.data.structureLocked").value(false));
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM audit_logs WHERE action = 'create' "
-                + "AND target_type = 'sentence' AND target_name = 'zero'", Integer.class)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM audit_logs WHERE target_type = 'sentence' "
+                + "AND target_name = 'zero'", Integer.class)).isZero();
     }
 
     @Test

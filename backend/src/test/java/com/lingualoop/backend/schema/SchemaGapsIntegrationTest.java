@@ -56,6 +56,24 @@ class SchemaGapsIntegrationTest {
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
+    // ---- tài khoản không bị xóa (BR-NK-16)
+
+    @Test
+    void users_cannotBeDeletedOrTruncated_soCascadesNeverWipeHistory() {
+        UUID user = newUser();
+        jdbc.update("INSERT INTO pro_orders (user_id, plan_name, months, credits_per_month, amount_vnd, expires_at, status) "
+                + "VALUES (?, 'P', 1, 1, 1, now(), 'pending')", user);
+
+        assertThatThrownBy(() -> jdbc.update("DELETE FROM users WHERE id = ?", user))
+                .isInstanceOf(DataAccessException.class)
+                .hasMessageContaining("Không được xóa tài khoản");
+        assertThatThrownBy(() -> jdbc.execute("TRUNCATE users CASCADE"))
+                .isInstanceOf(DataAccessException.class)
+                .hasMessageContaining("Không được xóa tài khoản");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM pro_orders WHERE user_id = ?", Integer.class, user))
+                .isEqualTo(1);
+    }
+
     // ---- trigger updated_at
 
     @Test

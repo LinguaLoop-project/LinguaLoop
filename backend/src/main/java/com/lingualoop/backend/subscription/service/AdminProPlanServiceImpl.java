@@ -96,8 +96,7 @@ class AdminProPlanServiceImpl implements AdminProPlanService {
         }
         plan.setOnSale(onSale);
         plans.flush();
-        audit(adminId, onSale ? AuditAction.PUBLISH : AuditAction.UNPUBLISH, plan,
-                Map.of("onSale", change(!onSale, onSale)));
+        audit(adminId, onSale ? AuditAction.PUBLISH : AuditAction.UNPUBLISH, plan, null);
         return view(plan, purchases().getOrDefault(plan.getId(), 0L));
     }
 

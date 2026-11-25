@@ -318,8 +318,15 @@ public class ModerationRepository {
 
     // ---------------------------------------------------------------- tự cập nhật báo cáo (UC-XL-06)
 
-    /** Một dòng vừa được nhắc quá hạn: giáo viên chủ (null nếu chưa có) và có giáo viên xử lý không (BR-XL-12). */
-    public record RemindedGroup(UUID ownerId, boolean noHandler) {
+    /**
+     * Một dòng vừa được nhắc quá hạn: giáo viên chủ (null nếu chưa có), có giáo viên xử lý không (BR-XL-12) và các báo
+     * cáo của dòng được đánh dấu đã nhắc (để ghi nhật ký, BR-XL-07).
+     */
+    public record RemindedGroup(UUID ownerId, boolean noHandler, List<UUID> reportIds) {
+
+        public RemindedGroup {
+            reportIds = List.copyOf(reportIds);
+        }
     }
 
     /**
@@ -342,60 +349,65 @@ public class ModerationRepository {
                     FROM grp
                     WHERE cr.status = 'waiting_teacher'
                       AND COALESCE(cr.sentence_id, cr.card_id) = grp.target AND cr.reason = grp.reason
-                    RETURNING grp.target, grp.reason
+                    RETURNING cr.id, grp.target, grp.reason
                 )
-                SELECT grp.owner_id, grp.no_handler FROM grp""")
+                SELECT grp.owner_id, grp.no_handler, array_agg(upd.id) AS report_ids
+                FROM grp JOIN upd ON upd.target = grp.target AND upd.reason = grp.reason
+                GROUP BY grp.target, grp.reason, grp.owner_id, grp.no_handler""")
                 .param("before", Timestamp.from(before)).param("at", Timestamp.from(at))
                 .query((rs, n) -> new RemindedGroup(rs.getObject("owner_id", UUID.class),
-                        rs.getBoolean("no_handler")))
+                        rs.getBoolean("no_handler"), List.of((UUID[]) rs.getArray("report_ids").getArray())))
                 .list();
     }
 
     /** Đóng báo cáo đang mở của bài học hoặc bộ thẻ đã xóa từ trước {@code before} (BR-XL-08, nhánh 1c). */
-    public List<UUID> closeForPermanentlyDeleted(Instant before, String note, Instant at) {
-        return jdbc.sql("UPDATE content_reports cr SET status = 'resolved', handled_by = NULL, handled_at = :at, "
-                + "handling_note = :note, status_changed_at = :at WHERE cr.status IN " + OPEN + """
-                 AND (EXISTS (SELECT 1 FROM sentences s JOIN lessons l ON l.id = s.lesson_id
+    public List<ClosedReport> closeForPermanentlyDeleted(Instant before, String note, Instant at) {
+        return jdbc.sql(CLOSE_BY_SYSTEM + """
+                (EXISTS (SELECT 1 FROM sentences s JOIN lessons l ON l.id = s.lesson_id
                               WHERE s.id = cr.sentence_id AND l.deleted_at < :before)
                    OR EXISTS (SELECT 1 FROM vocab_cards c JOIN vocab_decks d ON d.id = c.deck_id
                               WHERE c.id = cr.card_id AND d.deleted_at < :before))
-                RETURNING cr.id""")
+                RETURNING cr.id, old.status AS old_status""")
                 .param("before", Timestamp.from(before)).param("note", note).param("at", Timestamp.from(at))
-                .query(UUID.class).list();
+                .query(ReportRepository::closed).list();
     }
 
+    /** Hệ thống đóng báo cáo đang mở; tự join {@code old} để trả trạng thái trước khi đóng cho nhật ký. */
     private static final String CLOSE_BY_SYSTEM = "UPDATE content_reports cr SET status = 'resolved', handled_by = NULL, "
-            + "handled_at = :at, handling_note = :note, status_changed_at = :at WHERE cr.status IN " + OPEN + " AND ";
+            + "handled_at = :at, handling_note = :note, status_changed_at = :at FROM content_reports old "
+            + "WHERE old.id = cr.id AND cr.status IN " + OPEN + " AND ";
+    private static final String RETURNING_OLD = " RETURNING cr.id, old.status AS old_status";
 
     /** Đóng báo cáo đang mở về câu, thẻ đã bị xóa riêng hoặc thuộc nhóm thẻ đã xóa (nhánh 1a), cho lượt quét định kỳ. */
-    public List<UUID> closeForDeletedItems(String note, Instant at) {
+    public List<ClosedReport> closeForDeletedItems(String note, Instant at) {
         return jdbc.sql(CLOSE_BY_SYSTEM + """
                 (EXISTS (SELECT 1 FROM sentences s WHERE s.id = cr.sentence_id AND s.deleted_at IS NOT NULL)
                  OR EXISTS (SELECT 1 FROM vocab_cards c JOIN vocab_groups g ON g.id = c.group_id
                             WHERE c.id = cr.card_id AND (c.deleted_at IS NOT NULL OR g.deleted_at IS NOT NULL)))
-                RETURNING cr.id""")
+                RETURNING cr.id, old.status AS old_status""")
                 .param("note", note).param("at", Timestamp.from(at))
-                .query(UUID.class).list();
+                .query(ReportRepository::closed).list();
     }
 
     /** Đóng báo cáo đang mở về một câu vừa bị xóa (nhánh 1a). */
-    public List<UUID> closeForSentence(UUID sentenceId, String note, Instant at) {
-        return jdbc.sql(CLOSE_BY_SYSTEM + "cr.sentence_id = :id RETURNING cr.id")
+    public List<ClosedReport> closeForSentence(UUID sentenceId, String note, Instant at) {
+        return jdbc.sql(CLOSE_BY_SYSTEM + "cr.sentence_id = :id" + RETURNING_OLD)
                 .param("id", sentenceId).param("note", note).param("at", Timestamp.from(at))
-                .query(UUID.class).list();
+                .query(ReportRepository::closed).list();
     }
 
     /** Đóng báo cáo đang mở về một thẻ vừa bị xóa (nhánh 1a). */
-    public List<UUID> closeForCard(UUID cardId, String note, Instant at) {
-        return jdbc.sql(CLOSE_BY_SYSTEM + "cr.card_id = :id RETURNING cr.id")
+    public List<ClosedReport> closeForCard(UUID cardId, String note, Instant at) {
+        return jdbc.sql(CLOSE_BY_SYSTEM + "cr.card_id = :id" + RETURNING_OLD)
                 .param("id", cardId).param("note", note).param("at", Timestamp.from(at))
-                .query(UUID.class).list();
+                .query(ReportRepository::closed).list();
     }
 
     /** Đóng báo cáo đang mở về các thẻ của một nhóm thẻ vừa bị xóa (nhánh 1a). */
-    public List<UUID> closeForGroup(UUID groupId, String note, Instant at) {
-        return jdbc.sql(CLOSE_BY_SYSTEM + "cr.card_id IN (SELECT id FROM vocab_cards WHERE group_id = :id) RETURNING cr.id")
+    public List<ClosedReport> closeForGroup(UUID groupId, String note, Instant at) {
+        return jdbc.sql(CLOSE_BY_SYSTEM + "cr.card_id IN (SELECT id FROM vocab_cards WHERE group_id = :id)"
+                + RETURNING_OLD)
                 .param("id", groupId).param("note", note).param("at", Timestamp.from(at))
-                .query(UUID.class).list();
+                .query(ReportRepository::closed).list();
     }
 }

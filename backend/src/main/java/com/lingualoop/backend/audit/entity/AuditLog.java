@@ -71,11 +71,20 @@ public class AuditLog {
     @Column(name = "note", updatable = false)
     private String note;
 
+    /** Đối tượng chứa: bài học hoặc bộ thẻ của nội dung bị báo cáo; trống với đối tượng khác. */
+    @Convert(converter = AuditEntityTypeConverter.class)
+    @Column(name = "parent_type", updatable = false)
+    private AuditEntityType parentType;
+
+    @Column(name = "parent_id", updatable = false)
+    private UUID parentId;
+
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private Instant createdAt;
 
     public static AuditLog of(UUID actorId, String actorName, String actorRole, AuditAction action,
-            AuditEntityType targetType, UUID targetId, String targetName, Map<String, Object> changes, String note) {
+            AuditEntityType targetType, UUID targetId, String targetName, Map<String, Object> changes, String note,
+            AuditEntityType parentType, UUID parentId) {
         AuditLog log = new AuditLog();
         log.actorId = actorId;
         log.actorName = actorName;
@@ -86,6 +95,8 @@ public class AuditLog {
         log.targetName = targetName;
         log.changes = changes;
         log.note = note;
+        log.parentType = parentType;
+        log.parentId = parentId;
         return log;
     }
 }

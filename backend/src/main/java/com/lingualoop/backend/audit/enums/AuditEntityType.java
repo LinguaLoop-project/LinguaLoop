@@ -3,12 +3,18 @@ package com.lingualoop.backend.audit.enums;
 import java.util.Locale;
 import java.util.Optional;
 
-/** Loại nội dung được ghi nhật ký; thêm dần khi feature mới. */
+/**
+ * Loại đối tượng của một mục nhật ký (BR-NK-18). Thêm loại mới cùng lúc với dòng tương ứng trong
+ * ma trận ghi nhật ký (BR-NK-18).
+ */
 public enum AuditEntityType {
-    TOPIC,
     LESSON,
-    SENTENCE,
     DECK,
+    /** Chỉ để đọc mục cũ: câu, nhóm thẻ, thẻ không còn được ghi nhật ký (BR-NK-18). */
+    SENTENCE,
+    /** Chỉ để đọc mục cũ, xem {@link #SENTENCE}. */
+    GROUP,
+    /** Chỉ để đọc mục cũ, xem {@link #SENTENCE}. */
     CARD,
     REPORT,
     USER,

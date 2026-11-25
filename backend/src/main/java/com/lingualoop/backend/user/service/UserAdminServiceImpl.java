@@ -76,9 +76,7 @@ class UserAdminServiceImpl implements UserAdminService {
         String trimmed = reason.trim();
         user.lock(trimmed, clock.instant());
         users.saveAndFlush(user);
-        audit(adminId, AuditAction.LOCK, user,
-                Map.of("status", AdminAuditor.change(AccountStatus.ACTIVE.value(), AccountStatus.LOCKED.value())),
-                trimmed);
+        audit(adminId, AuditAction.LOCK, user, null, trimmed);
         events.publishEvent(new UserLockedEvent(user.getId()));
         return toDetail(user);
     }
@@ -90,12 +88,9 @@ class UserAdminServiceImpl implements UserAdminService {
         if (!user.isLocked()) {
             throw new BusinessException(ErrorCode.USER_NOT_LOCKED);
         }
-        String oldReason = user.getLockedReason();
         user.unlock();
         users.saveAndFlush(user);
-        audit(adminId, AuditAction.UNLOCK, user,
-                Map.of("status", AdminAuditor.change(AccountStatus.LOCKED.value(), AccountStatus.ACTIVE.value())),
-                oldReason);
+        audit(adminId, AuditAction.UNLOCK, user, null, null);
         return toDetail(user);
     }
 
@@ -148,10 +143,8 @@ class UserAdminServiceImpl implements UserAdminService {
         String trimmed = note.trim();
         int oldBalance = credits.balanceOf(user.getId()).balance();
         int newBalance = credits.grant(user.getId(), amount);
-        Map<String, Object> diff = new LinkedHashMap<>();
-        diff.put("credits", amount);
-        diff.put("creditBalance", AdminAuditor.change(oldBalance, newBalance));
-        audit(adminId, AuditAction.GRANT_CREDIT, user, diff, trimmed);
+        Map<String, Object> diff = Map.of("creditBalance", AdminAuditor.change(oldBalance, newBalance));
+        audit(adminId, AuditAction.GRANT_CREDIT, user, diff, "Cấp " + vnNumber(amount) + " credit: " + trimmed);
         notifications.send(user.getId(),
                 "Bạn vừa được cấp " + vnNumber(amount) + " credit để dùng khi soạn bài. Ghi chú: " + trimmed);
         return toDetail(user);
