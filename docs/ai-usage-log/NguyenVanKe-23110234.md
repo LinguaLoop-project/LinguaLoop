@@ -612,6 +612,54 @@
 - **Commit:** 5800230
 - **Lỗi liên quan:** NONE
 
+### AI-KE-054
+
+- **Ngày:** 2026-11-25
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DATABASE
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Thêm cột đối tượng chứa cho nhật ký, chặn xóa tài khoản ở cơ sở dữ liệu và thêm chỉ mục theo thời gian cho các truy vấn thống kê hệ thống
+- **Vị trí code do AI sinh (`file:hàm`):** `db/migration/V20261123_1000__audit_logs_parent.sql`; `db/migration/V20261123_1100__users_no_delete.sql:forbid_user_delete`; `db/migration/V20261123_1200__stats_time_indexes.sql`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chốt không xóa tài khoản mà chỉ khóa (BR-NK-16)
+- **Commit:** 6883f5f
+- **Lỗi liên quan:** NONE
+
+### AI-KE-055
+
+- **Ngày:** 2026-11-25
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** AUDIT
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** API nhật ký hoạt động và thống kê hệ thống cho quản trị viên (UC-NK-01 đến 04); thu gọn phạm vi ghi nhật ký theo mức rủi ro và thống nhất cột `changes` theo dạng `{"trường":{"old","new"}}`; rút gọn thống kê AI còn doanh thu thuần, chi phí, lãi gộp và lãi lỗ từng tính năng theo đơn vị tính tiền
+- **Vị trí code do AI sinh (`file:hàm`):** `audit/controller/AdminAuditLogController.java`; `audit/service/AuditAdminServiceImpl.java:list`, `:detail`, `:open`; `audit/repository/AuditLogQueryRepository.java:find`, `:count`, `:findDisplayName`; `audit/dto/AuditChanges.java:field`, `:build`; `audit/service/AuditTargetLookup.java`; `lesson/service/LessonAuditTargetLookup.java`; `vocab/service/VocabAuditTargetLookup.java`; `vocab/service/VocabAuditor.java:deck`; `auth/service/SecurityAuditor.java:loginLocked`, `:passwordReset`, `:passwordChanged`; `report/service/ReportAuditor.java:submitted`, `:closed`; `report/repository/ReportRepository.java:findAuditSubjects`, `:rejectOpenByReporter`; `report/repository/ModerationRepository.java:closeForPermanentlyDeleted`, `:closeForDeletedItems`, `:closeForSentence`, `:closeForCard`, `:closeForGroup`; `report/service/TakedownMarker.java:mark`; `lesson/service/LessonDraftWriter.java`; `lesson/service/LessonManageServiceImpl.java:updateInfo`, `:sameAs`; `vocab/service/VocabDeckManageServiceImpl.java`; `user/service/UserAdminServiceImpl.java`; `user/service/ContentTransferServiceImpl.java`; `stats/controller/AdminStatsController.java`; `stats/service/SystemStatsAdminServiceImpl.java:overview`, `:practice`, `:aiUsage`, `:feature`; `stats/service/RevenueCalculator.java:revenue`, `:grossProfit`, `:grossMarginPct`; `stats/service/AiEconomicsCalculator.java:pricePerUnit`, `:costPerUnit`, `:isLoss`, `:sharePct`; `stats/service/StatsWindow.java`; `stats/repository/OverviewStatsRepository.java`, `PracticeStatsRepository.java`, `AiUsageStatsRepository.java`, `RevenueStatsRepository.java`; `config/CacheConfig.java:cacheManager`; test `AdminAuditLogApiIntegrationTest`, `AuditCoverageIntegrationTest`, `AuditChangesTest`, `SystemStatsAdminServiceIntegrationTest`, `AdminStatsApiIntegrationTest`, `AiEconomicsCalculatorTest`, `RevenueCalculatorTest`, `StatsWindowTest`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế yêu cầu rút gọn trang thống kê AI, chỉ giữ số liệu lãi lỗ cùng biểu đồ credit theo ngày và top tài khoản; tính giá bán và chi phí theo đơn vị tính tiền thay vì theo lượt gọi. Kế chọn thu gọn nhật ký: bỏ ghi sửa câu, nhóm thẻ, thẻ, thông tin bài học và bộ thẻ, nhắc báo cáo quá hạn; bỏ trang lịch sử đối tượng (UC-NK-02 cũ). Kế bảo rollback phần gom nhiều lần sửa câu thành một mục nhật ký mà AI đã viết
+- **Commit:** 77d3e05
+- **Lỗi liên quan:** NONE
+
+### AI-KE-056
+
+- **Ngày:** 2026-11-25
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Trang nhật ký hoạt động (lọc, chi tiết Trước / Sau, "Thông tin lúc tạo", "Mở đối tượng") và ba trang thống kê quản trị: tổng quan, luyện tập, AI và chi phí; i18n vi/en
+- **Vị trí code do AI sinh (`file:hàm`):** `src/features/audit/pages/admin/AdminAuditLogPage.tsx:AdminAuditLogPage`; `src/features/audit/components/AuditDetailDialog.tsx:AuditDetailDialog`; `src/features/audit/components/AuditBits.tsx:ChangeList`, `:Value`, `:ActionBadge`, `:ActorCell`; `src/features/audit/components/AuditTable.tsx:AuditTable`; `src/features/audit/auditFormat.ts:auditObjectPath`, `:formatAuditTime`, `:changeLines`, `:changeMode`, `:valueText`, `:widerPeriod`; `src/features/audit/api.ts`; `src/features/audit/hooks.ts`; `src/features/stats/pages/admin/AdminOverviewPage.tsx:AdminOverviewPage`; `src/features/stats/pages/admin/AdminPracticeStatsPage.tsx:AdminPracticeStatsPage`; `src/features/stats/pages/admin/AdminAiStatsPage.tsx:AdminAiStatsPage`; `src/features/stats/components/AiStatsBits.tsx:ProfitSummary`, `:FeatureProfitTable`; `src/features/stats/components/LineChart.tsx:LineChart`; `src/features/stats/components/StatsBits.tsx`; `src/features/stats/statsFormat.ts`; `src/components/common/FilterSelect.tsx:FilterSelect`; `src/app/routes.tsx`; `src/i18n/locales/vi/auditAdmin.json`, `statsAdmin.json` (và bản `en`); `src/features/audit/auditFormat.test.ts`; `src/features/stats/statsFormat.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế góp ý giao diện chi tiết nhật ký: không hiện "trống → giá trị" khi tạo, hiện tên câu hoặc từ cho báo cáo thay vì "(không tên)", dịch mã trạng thái thay vì hiện JSON
+- **Commit:** 74b25ec
+- **Lỗi liên quan:** NONE
+
+### AI-KE-057
+
+- **Ngày:** 2026-11-25
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** DOCUMENTATION
+- **Loại công việc (`Task Type`):** DOCUMENTATION
+- **Prompt chính / yêu cầu:** Cập nhật đặc tả NK theo phạm vi nhật ký đã thu gọn (bỏ UC-NK-02 cũ, BR-NK-05, BR-NK-11; viết lại BR-NK-03, 17, 18 và ma trận ghi nhật ký), rút gọn UC thống kê AI (BR-NK-09, 14), đánh số lại UC-NK-01 đến 04 và AC-NK-01 đến 27 cho liên tục; sửa các module BH, BT, NT, XL cho khớp; đồng bộ bảng truy vết NK
+- **Vị trí code do AI sinh (`file:hàm`):** `docs/srs/NK-nhat-ky-thong-ke-he-thong/usecase.md`, `quy-tac-nghiep-vu.md`; `docs/srs/BH-quan-ly-bai-hoc/usecase.md`; `docs/srs/BT-quan-ly-bo-the/quy-tac-nghiep-vu.md`; `docs/srs/NT-quan-ly-nhom-the-the/quy-tac-nghiep-vu.md`; `docs/srs/XL-xu-ly-bao-cao/usecase.md`, `quy-tac-nghiep-vu.md`; `docs/test/traceability/NK-nhat-ky-thong-ke-he-thong.md`; `docs/test/TRACEABILITY-AC-TEST.md`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chọn phạm vi ghi nhật ký và yêu cầu đánh số lại cho liên tục.
+- **Commit:** 097c746
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
