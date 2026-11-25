@@ -18,6 +18,9 @@ public interface ProPlanRepository extends JpaRepository<ProPlan, UUID> {
     /** Danh sách theo thời hạn tăng dần (BR-GA-07); cùng thời hạn thì gói tạo trước đứng trước. */
     List<ProPlan> findAllByOrderByMonthsAscCreatedAtAsc();
 
+    /** Gói đang bán cho học viên chọn (BR-PR-11), cùng thứ tự với danh sách quản trị. */
+    List<ProPlan> findAllByOnSaleTrueOrderByMonthsAscCreatedAtAsc();
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM ProPlan p WHERE p.id = :id")
     Optional<ProPlan> findForUpdate(@Param("id") UUID id);

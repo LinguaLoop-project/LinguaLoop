@@ -30,6 +30,8 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_PATHS = {
         "/api/v1/auth/**",
+        // Máy chủ VNPAY báo kết quả thanh toán; tin cậy nhờ chữ ký, không có đăng nhập (UC-PR-03)
+        "/api/v1/payments/vnpay/ipn",
         "/actuator/health/**",
         "/v3/api-docs/**",
         "/swagger-ui/**",

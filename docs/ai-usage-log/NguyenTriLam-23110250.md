@@ -963,6 +963,18 @@
 - **Commit:** 0d11836, a3145aa, d0a6e2b, dcdd940, c5e0d53
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-084
+
+- **Ngày:** 2026-11-24
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Lên kế hoạch và triển khai Nâng cấp và thanh toán gói Pro qua VNPAY (UC-PR-01 đến 04) từ các biến môi trường VNPAY sẵn có
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../subscription/payment/VnpayGateway.java:paymentUrl, verify`, `subscription/service/ProPaymentServiceImpl.java:checkout, confirm, activate`, `subscription/repository/ProOrderPaymentRepository.java`, `subscription/controller/SubscriptionController.java`, `VnpayIpnController.java:ipn`, `ProOrderExpiryJob.java`, migration `V20261124_1100__pro_payment.sql`; `frontend/src/features/subscription/payment.ts`, `hooks/usePayment.ts`, `components/SubscriptionPanel.tsx`, `PlanPicker.tsx`, `OrderHistory.tsx`, `pages/SubscriptionPage.tsx`, `pages/PaymentReturnPage.tsx`, bản dịch `subscription.json`; test `VnpayGatewayTest`, `ProPaymentApiIntegrationTest`, `payment.test.ts`; đặc tả `docs/srs/PR-goi-pro/quy-trinh-nghiep-vu.md`, BR-PR-17, AC-PR-24
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chốt 4 quyết định AI đề xuất: Return URL được kích hoạt gói như IPN (vì VNPAY không gọi được localhost), kết quả thành công đến muộn cho đơn đã hủy hoặc hết hạn vẫn được ghi nhận và nối tiếp thời hạn (thêm BR-PR-17), giữ công cụ dev bật/tắt Pro, chưa làm hoàn tiền và tra cứu giao dịch. AI dựa trên bảng `pro_orders` và ví credit có sẵn (ví tự nạp credit theo đơn đang hiệu lực nên kích hoạt chỉ cần ghi đúng thời hạn), khóa theo học viên để IPN và Return URL đến cùng lúc chỉ kích hoạt một lần, và tự ký kết quả VNPAY bằng khóa thử trong test. Chạy trên trình duyệt với database riêng: sandbox VNPAY từ chối mã merchant (lỗi 71 "Website chưa được phê duyệt") nên phần trả về được thử bằng kết quả tự ký bằng khóa thật trong `.env`.
+- **Commit:** 21e6aa1, 340517d, 299c4a2, 1251056
+- **Lỗi liên quan:** NONE
+
 ### AI-LAM-085
 
 - **Ngày:** 2026-11-24
