@@ -29,7 +29,7 @@ import com.lingualoop.backend.practice.AttemptTestData;
 import com.lingualoop.backend.vocab.VocabTestData;
 
 /**
- * Phiên Ôn tập hằng ngày (UC-HT-05) trên Postgres thật: định mức theo mục tiêu ngày (BR-HT-24), cách chọn câu
+ * Phiên Luyện tập hằng ngày (UC-HT-05) trên Postgres thật: định mức theo mục tiêu ngày (BR-HT-24), cách chọn câu
  * (BR-HT-20) và đánh dấu "đã ôn hôm nay" (BR-HT-21). Mỗi test dùng học viên và bài riêng nên không đụng nhau.
  */
 @SpringBootTest

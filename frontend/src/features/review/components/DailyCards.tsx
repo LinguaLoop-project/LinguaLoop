@@ -23,7 +23,7 @@ export interface DailyCardsProps {
 }
 
 /**
- * Chặng ôn thẻ của phiên Ôn tập hằng ngày (UC-HT-05): lấy các thẻ của khung bài ngày (đến hạn, từ mới, thẻ củng cố,
+ * Chặng ôn thẻ của phiên Luyện tập hằng ngày (UC-HT-05): lấy các thẻ của khung bài ngày (đến hạn, từ mới, thẻ củng cố,
  * BR-HT-29), mở một phiên ôn mới (BR-HT-15) và chạy `ReviewSession` ở chế độ nhúng, không có màn kết thúc riêng để chuyển
  * thẳng sang phần câu. Thẻ củng cố chỉ luyện: câu trả lời gửi kèm `practice` để không đổi lịch ôn (BR-HT-30).
  */

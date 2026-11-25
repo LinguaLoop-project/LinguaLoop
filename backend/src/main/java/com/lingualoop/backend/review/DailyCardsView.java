@@ -5,7 +5,7 @@ import java.util.List;
 import com.lingualoop.backend.vocab.dto.LearnView;
 
 /**
- * Thẻ của phần ôn thẻ trong phiên Ôn tập hằng ngày, theo thứ tự thẻ đến hạn, từ mới rồi thẻ củng cố (BR-HT-29). Mỗi thẻ
+ * Thẻ của phần ôn thẻ trong phiên Luyện tập hằng ngày, theo thứ tự thẻ đến hạn, từ mới rồi thẻ củng cố (BR-HT-29). Mỗi thẻ
  * kèm nguồn để giao diện biết thẻ nào chỉ luyện (thẻ củng cố không đổi lịch ôn, BR-HT-30).
  */
 public record DailyCardsView(List<Item> cards) {

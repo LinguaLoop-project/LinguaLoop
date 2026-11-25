@@ -67,7 +67,7 @@ interface SessionProps {
   onContinue: () => void;
 }
 
-/** Một lượt của phiên Ôn tập hằng ngày: thẻ rồi câu, chuyển liền mạch, kết thúc bằng tổng kết chung (UC-HT-05). */
+/** Một lượt của phiên Luyện tập hằng ngày: thẻ rồi câu, chuyển liền mạch, kết thúc bằng tổng kết chung (UC-HT-05). */
 function DailySession({ plan, run, extra, onContinue }: SessionProps) {
   const { t } = useTranslation("review");
   const sentences = extra ? [] : plan.sentences;
@@ -178,7 +178,7 @@ function DailySession({ plan, run, extra, onContinue }: SessionProps) {
   );
 }
 
-/** Ôn tập hằng ngày (UC-HT-05): lập kế hoạch theo mục tiêu ngày rồi dẫn học viên qua thẻ và câu. */
+/** Luyện tập hằng ngày (UC-HT-05): lập kế hoạch theo mục tiêu ngày rồi dẫn học viên qua thẻ và câu. */
 export default function DailyReviewPage() {
   const { t } = useTranslation("review");
   const [run, setRun] = useState(0);

@@ -20,11 +20,11 @@
     "streakDone": "Studied today",
     "streakKeep": "Keep your streak",
     "streakStart": "Start a streak",
-    "reviewTitle": "Today's review",
+    "reviewTitle": "Today's practice",
     "reviewDesc": "Today's session has {{cards}} vocabulary cards, then {{sentences}} sentences, based on your daily goal.",
     "doneTitle": "You're done for today",
     "doneDesc": "No cards or sentences left to review.",
-    "doneQuota": "You have met today's review target. {{cards}} cards and {{sentences}} sentences are still due; they can wait until tomorrow.",
+    "doneQuota": "You have met today's practice target. {{cards}} cards and {{sentences}} sentences are still due; they can wait until tomorrow.",
     "completedBadge": "Quota reached",
     "cardsDone": "cards reviewed",
     "sentencesDone": "sentences reviewed",
@@ -37,7 +37,7 @@
     "goalProgress": "{{percent}}% of daily quota",
     "goalPlan": "About {{minutes}} min planned per day",
     "minutes": "{{count}} min",
-    "start": "Start today's review",
+    "start": "Start today's practice",
     "exploreTitle": "More ways to practice today",
     "exploreVocabTitle": "Learn new words",
     "exploreVocabDesc": "Explore vocabulary decks by topic and CEFR level",
@@ -58,11 +58,11 @@
     "loopiEvening": "Good evening!",
     "loopiDoneWithStreak_one": "Awesome! You met today's goal and kept your {{count}}-day streak alive.",
     "loopiDoneWithStreak_other": "Awesome! You met today's goal and kept your {{count}}-day streak alive.",
-    "loopiDone": "Awesome! You've finished today's review quota.",
+    "loopiDone": "Awesome! You've finished today's practice quota.",
     "loopiAlmostDone_one": "Just {{count}} item left to hit today's quota — you've got this!",
     "loopiAlmostDone_other": "Just {{count}} items left to hit today's quota — you've got this!",
-    "loopiKeepStreak_one": "{{greeting}} Finish today's review to extend your {{count}}-day streak!",
-    "loopiKeepStreak_other": "{{greeting}} Finish today's review to extend your {{count}}-day streak!",
+    "loopiKeepStreak_one": "{{greeting}} Finish today's practice to extend your {{count}}-day streak!",
+    "loopiKeepStreak_other": "{{greeting}} Finish today's practice to extend your {{count}}-day streak!",
     "loopiStartStreak": "{{greeting}} Just a few minutes today kicks off a brand new streak!"
   },
   "source": {
@@ -78,7 +78,7 @@
     "extraSentenceHint": "A sentence you practised with a low score that is not in your review list."
   },
   "daily": {
-    "title": "Today's review",
+    "title": "Today's practice",
     "titleMore": "Review more"
   },
   "sentences": {
@@ -141,7 +141,7 @@
     "skipped": "Skipped",
     "moreCards_one": "{{count}} card still due",
     "moreCards_other": "{{count}} cards still due",
-    "quotaDone": "You have met today's review target.",
+    "quotaDone": "You have met today's practice target.",
     "continueCards": "Review more",
     "moreSentences": "Review more",
     "backToToday": "Back to Today"
@@ -149,8 +149,8 @@
   "empty": {
     "title": "You're done for today",
     "desc": "No cards or sentences left to review.",
-    "descQuota_one": "You have met today's review target. {{count}} card is still due; review it now or wait until tomorrow.",
-    "descQuota_other": "You have met today's review target. {{count}} cards are still due; review them now or wait until tomorrow.",
+    "descQuota_one": "You have met today's practice target. {{count}} card is still due; review it now or wait until tomorrow.",
+    "descQuota_other": "You have met today's practice target. {{count}} cards are still due; review them now or wait until tomorrow.",
     "nextDue": "Your next card is due {{time}}.",
     "nextNone": "No cards are scheduled yet.",
     "learnNew": "Learn new words",

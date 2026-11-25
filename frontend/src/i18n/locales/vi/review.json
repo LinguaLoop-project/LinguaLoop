@@ -19,7 +19,7 @@
     "streakDone": "Đã học hôm nay",
     "streakKeep": "Học để giữ chuỗi",
     "streakStart": "Bắt đầu chuỗi mới",
-    "reviewTitle": "Ôn tập hôm nay",
+    "reviewTitle": "Luyện tập hôm nay",
     "reviewDesc": "Phiên hôm nay gồm {{cards}} thẻ từ vựng rồi {{sentences}} câu, theo mục tiêu mỗi ngày của bạn.",
     "doneTitle": "Hôm nay bạn đã ôn xong",
     "doneDesc": "Không còn thẻ hay câu nào cần ôn.",
@@ -35,7 +35,7 @@
     "goalProgress": "Hoàn thành {{percent}}% định mức",
     "goalPlan": "Dự kiến {{minutes}} phút mỗi ngày",
     "minutes": "{{count}} phút",
-    "start": "Ôn tập hôm nay",
+    "start": "Luyện tập hôm nay",
     "exploreTitle": "Luyện tập thêm hôm nay",
     "exploreVocabTitle": "Học từ vựng mới",
     "exploreVocabDesc": "Khám phá các bộ từ theo chủ đề và trình độ CEFR",
@@ -72,7 +72,7 @@
     "extraSentenceHint": "Câu bạn đã luyện nhưng điểm còn thấp, không nằm trong Câu cần ôn."
   },
   "daily": {
-    "title": "Ôn tập hôm nay",
+    "title": "Luyện tập hôm nay",
     "titleMore": "Ôn thêm"
   },
   "sentences": {

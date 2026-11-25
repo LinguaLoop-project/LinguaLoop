@@ -6,7 +6,7 @@ import java.util.List;
 import com.lingualoop.backend.practice.dto.ReviewPlanSentence;
 
 /**
- * Kế hoạch Ôn tập hằng ngày (UC-HT-05) tính trên phần còn lại của Định mức ôn ngày (BR-HT-24) và lấp theo khung bài ngày
+ * Kế hoạch Luyện tập hằng ngày (UC-HT-05) tính trên phần còn lại của Định mức ôn ngày (BR-HT-24) và lấp theo khung bài ngày
  * (BR-HT-29).
  * <ul>
  * <li>{@code cardQuota}: số thẻ tối đa của cả ngày; {@code cardsDue}: tổng số thẻ đang đến hạn.</li>

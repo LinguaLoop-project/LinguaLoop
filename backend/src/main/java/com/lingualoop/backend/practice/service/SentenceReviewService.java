@@ -51,7 +51,7 @@ public interface SentenceReviewService {
     /**
      * Câu luyện thêm của từng chế độ, tối đa {@code perMode} câu mỗi chế độ (BR-HT-31): câu đã luyện, không ở trong danh
      * Câu cần ôn, lượt gần nhất dưới 80 điểm, chưa luyện, chưa ôn và chưa bỏ qua từ {@code dayStart}. Dùng để lấp phần thiếu
-     * của phiên Ôn tập hằng ngày; hệ thống không thêm các câu này vào danh sách.
+     * của phiên Luyện tập hằng ngày; hệ thống không thêm các câu này vào danh sách.
      */
     List<ReviewPlanSentence> findExtraToday(UUID userId, boolean userPro, Instant dayStart, int perMode);
 

@@ -19,7 +19,7 @@ public interface VocabReviewService {
     }
 
     /**
-     * Như {@link #queue(UUID, UUID)} nhưng lấy tối đa {@code limit} thẻ (1 đến 50, trống là 50): phiên Ôn tập hằng ngày
+     * Như {@link #queue(UUID, UUID)} nhưng lấy tối đa {@code limit} thẻ (1 đến 50, trống là 50): phiên Luyện tập hằng ngày
      * lấy theo định mức của mục tiêu ngày (BR-HT-24).
      */
     ReviewView.Queue queue(UUID userId, UUID deckId, Integer limit);

@@ -179,7 +179,7 @@ export interface AnswerInput {
   quality?: number;
   responseMs?: number;
   /**
-   * Thẻ củng cố của phiên Ôn tập hằng ngày (BR-HT-30): chỉ ghi nhật ký, không đổi lịch ôn. Server chỉ nghe theo với thẻ
+   * Thẻ củng cố của phiên Luyện tập hằng ngày (BR-HT-30): chỉ ghi nhật ký, không đổi lịch ôn. Server chỉ nghe theo với thẻ
    * đã học và chưa đến hạn.
    */
   practice?: boolean;

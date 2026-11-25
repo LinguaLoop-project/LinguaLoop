@@ -66,7 +66,7 @@ export interface DailyCards {
   cards: DailyCardItem[];
 }
 
-/** Kế hoạch Ôn tập hằng ngày (`DailyPlanView`). Thẻ của phiên lấy từ `GET /review/daily-cards`. */
+/** Kế hoạch Luyện tập hằng ngày (`DailyPlanView`). Thẻ của phiên lấy từ `GET /review/daily-cards`. */
 export interface DailyPlan {
   dailyMinutes: number;
   /** Số thẻ tối đa của cả ngày theo mục tiêu ngày (Định mức ôn ngày, BR-HT-24). */

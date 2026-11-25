@@ -20,7 +20,7 @@ export interface SentenceReviewFlowProps {
 }
 
 /**
- * Ôn một câu một lúc (UC-HT-04), dùng chung cho "Ôn câu" riêng và chặng câu của phiên Ôn tập hằng ngày. Cả phiên chỉ có
+ * Ôn một câu một lúc (UC-HT-04), dùng chung cho "Ôn câu" riêng và chặng câu của phiên Luyện tập hằng ngày. Cả phiên chỉ có
  * một trình phát YouTube: video chỉ dựng lại khi sang câu của bài khác. Danh sách câu và thứ tự do server chọn (BR-HT-20).
  */
 export default function SentenceReviewFlow({ sentences, index, onFinished }: SentenceReviewFlowProps) {

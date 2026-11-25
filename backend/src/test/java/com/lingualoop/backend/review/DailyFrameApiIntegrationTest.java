@@ -34,7 +34,7 @@ import com.lingualoop.backend.practice.AttemptTestData;
 import com.lingualoop.backend.vocab.VocabTestData;
 
 /**
- * Khung bài ngày (BR-HT-29, BR-HT-30) trên Postgres thật: phần thẻ của phiên Ôn tập hằng ngày được lấp bằng thẻ đến hạn,
+ * Khung bài ngày (BR-HT-29, BR-HT-30) trên Postgres thật: phần thẻ của phiên Luyện tập hằng ngày được lấp bằng thẻ đến hạn,
  * rồi từ mới, rồi thẻ củng cố. Các test dùng chung một cơ sở dữ liệu nên mỗi test cho học viên "đang học" đúng một bộ để bộ
  * từ mới không phụ thuộc bộ của test khác.
  */

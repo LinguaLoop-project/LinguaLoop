@@ -425,7 +425,7 @@ function HeroStreakPill({ streak }: { streak: Streak }) {
 }
 
 /**
- * Trang "Hôm nay" (đích sau onboarding): mục tiêu ngày, việc cần ôn và nút bắt đầu Ôn tập hôm nay (UC-HT-05), kèm khu
+ * Trang "Hôm nay" (đích sau onboarding): mục tiêu ngày, việc cần ôn và nút bắt đầu Luyện tập hôm nay (UC-HT-05), kèm khu
  * vực Thống kê học tập ở bên dưới (UC-TH-01, UC-TH-02).
  */
 export default function TodayPage() {

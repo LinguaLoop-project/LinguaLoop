@@ -2,7 +2,7 @@
   "overline": "Vocabulary Practice",
   "title": "Vocabulary",
   "subtitle": "Learn decks part by part and review cards just before you forget them.",
-  "reviewToday": "Today's review",
+  "reviewToday": "Today's practice",
   "say": {
     "due": "You have {{count}} cards due today—review them before you forget!",
     "clear": "All cards are on schedule! Pick a deck to learn a new part."

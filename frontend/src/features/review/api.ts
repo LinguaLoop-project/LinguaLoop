@@ -6,7 +6,7 @@ import type { DailyCards, DailyPlan, PlanSentence } from "./types";
 const REQUEST_TIMEOUT_MS = 15_000;
 
 export const reviewApi = {
-  /** Kế hoạch Ôn tập hằng ngày: định mức theo mục tiêu ngày, số thẻ đến hạn và các câu được chọn (UC-HT-05). */
+  /** Kế hoạch Luyện tập hằng ngày: định mức theo mục tiêu ngày, số thẻ đến hạn và các câu được chọn (UC-HT-05). */
   getDailyPlan: async (): Promise<DailyPlan> => {
     const response = await axiosClient.get<ApiResponse<DailyPlan>>("/review/daily-plan", { timeout: REQUEST_TIMEOUT_MS });
     return response.data.data;

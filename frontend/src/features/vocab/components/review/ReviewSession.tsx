@@ -19,7 +19,7 @@ interface ReviewSessionProps {
   /** Mở lượt ôn tiếp theo cho các thẻ đến hạn còn lại. */
   onContinue: () => void;
   /**
-   * Chạy như một chặng của phiên Ôn tập hằng ngày (UC-HT-05): không hiện màn kết thúc riêng, hết lượt thì gọi
+   * Chạy như một chặng của phiên Luyện tập hằng ngày (UC-HT-05): không hiện màn kết thúc riêng, hết lượt thì gọi
    * `onComplete` để khung ngoài chuyển thẳng sang chặng kế; `onExit` là nút "Thoát" giữa chừng (kết quả đã chấm vẫn giữ).
    */
   embedded?: { onComplete: (score: RoundSummary) => void; onExit: (score: RoundSummary) => void };

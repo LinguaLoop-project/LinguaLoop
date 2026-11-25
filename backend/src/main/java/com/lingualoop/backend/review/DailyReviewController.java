@@ -15,7 +15,7 @@ import com.lingualoop.backend.security.CurrentUserId;
 
 import lombok.RequiredArgsConstructor;
 
-/** Phiên Ôn tập hằng ngày (UC-HT-05). Thẻ lấy từ {@code GET /vocab/review?limit=}, câu từ danh sách trong kế hoạch này. */
+/** Phiên Luyện tập hằng ngày (UC-HT-05). Thẻ lấy từ {@code GET /vocab/review?limit=}, câu từ danh sách trong kế hoạch này. */
 @RestController
 @RequestMapping("/api/v1/review")
 @RequiredArgsConstructor

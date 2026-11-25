@@ -24,7 +24,7 @@ export const reviewKeys = {
 };
 
 /**
- * Kế hoạch Ôn tập hằng ngày. `run` tăng mỗi lần học viên chọn "Ôn tiếp" để lập lại từ dữ liệu hiện tại. Luôn tải mới vì
+ * Kế hoạch Luyện tập hằng ngày. `run` tăng mỗi lần học viên chọn "Ôn tiếp" để lập lại từ dữ liệu hiện tại. Luôn tải mới vì
  * thẻ và câu đổi sau mỗi lượt ôn.
  */
 export const useDailyPlan = (run: number, enabled = true) =>

@@ -1,6 +1,6 @@
 import type { CardSources, SentenceOutcome, TodaySuggestions } from "./types";
 
-/** Các chặng của phiên Ôn tập hằng ngày: thẻ, đoạn chuyển ngắn, câu, tổng kết (UC-HT-05). */
+/** Các chặng của phiên Luyện tập hằng ngày: thẻ, đoạn chuyển ngắn, câu, tổng kết (UC-HT-05). */
 export type DailyPhase = "cards" | "bridge" | "sentences" | "summary";
 
 export interface PlanLike {
