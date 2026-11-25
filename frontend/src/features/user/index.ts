@@ -6,4 +6,4 @@ export { preselectPath as contentTransferPath } from "./adminUsers";
 export { toAdminApiError } from "./api";
 export { errorMessageKey, isRetryable } from "./adminUsers";
 export type { AdminApiError } from "./types";
-export { formatDateTime, formatNumber, formatVnd } from "./adminFormat";
+export { formatDate, formatDateTime, formatNumber, formatVnd } from "./adminFormat";

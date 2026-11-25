@@ -79,7 +79,12 @@ const adminGroups: NavGroup[] = [
     ],
   },
   {
-    items: [{ id: "audit", icon: "history", labelKey: k("admin", "sidebar.items", "audit"), to: "/admin/audit" }],
+    titleKey: "admin.sidebar.groups.monitoring",
+    items: [
+      { id: "practiceStats", icon: "chart-line", labelKey: k("admin", "sidebar.items", "practiceStats"), to: "/admin/practice-stats" },
+      { id: "aiStats", icon: "sparkles", labelKey: k("admin", "sidebar.items", "aiStats"), to: "/admin/ai-stats" },
+      { id: "audit", icon: "history", labelKey: k("admin", "sidebar.items", "audit"), to: "/admin/audit" },
+    ],
   },
 ];
 

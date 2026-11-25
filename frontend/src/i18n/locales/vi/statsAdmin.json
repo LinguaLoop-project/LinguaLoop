@@ -1,0 +1,126 @@
+{
+  "period": "Khoảng thời gian",
+  "periods": {
+    "D7": "7 ngày",
+    "D30": "30 ngày",
+    "D90": "90 ngày"
+  },
+  "plans": {
+    "ALL": "Tất cả",
+    "FREE": "Free",
+    "PRO": "Pro"
+  },
+  "accountPlans": {
+    "free": "Free",
+    "pro": "Pro",
+    "teacher": "Giáo viên",
+    "admin": "Quản trị viên"
+  },
+  "computedAt": "Số liệu cập nhật lúc {{time}}, tính lại mỗi giờ",
+  "vsPrevious": "so với kỳ trước",
+  "noPrevious": "Kỳ trước chưa có số liệu",
+  "empty": "Chưa có dữ liệu trong khoảng thời gian này",
+  "loadError": "Không tải được số liệu",
+  "chart": {
+    "showTable": "Xem dạng bảng",
+    "hideTable": "Ẩn bảng",
+    "day": "Ngày"
+  },
+  "overview": {
+    "title": "Tổng quan hệ thống",
+    "accounts": "Tổng số tài khoản",
+    "accountsSplit": "{{students}} học viên · {{teachers}} giáo viên · {{admins}} quản trị viên",
+    "verified": "Đã xác thực email",
+    "verifiedSub": "{{pct}} tổng số tài khoản",
+    "newAccounts": "Tài khoản mới",
+    "activePro": "Tài khoản Pro đang hoạt động",
+    "proRatio": "{{pct}} số học viên",
+    "revenue": "Doanh thu ghi nhận",
+    "revenueSub": "Phần đơn Pro có hiệu lực trong khoảng",
+    "published": "Nội dung đã xuất bản",
+    "publishedValue": "{{lessons}} bài · {{decks}} bộ",
+    "pendingReports": "Báo cáo chờ quản trị viên",
+    "handleNow": "Xử lý ngay",
+    "activeUsersChart": "Người dùng hoạt động mỗi ngày",
+    "activeUsersHint": "Có luyện nghe chép, shadowing, ôn thẻ hoặc dùng AI thành công",
+    "newAccountsChart": "Tài khoản mới mỗi ngày",
+    "activeUsers": "Người dùng hoạt động",
+    "newAccountsSeries": "Tài khoản mới",
+    "oldestReports": "Báo cáo chờ lâu nhất",
+    "noPendingReports": "Không có báo cáo nào đang chờ quản trị viên",
+    "reportedBy": "{{name}} báo cáo",
+    "unknownReporter": "Không rõ người báo"
+  },
+  "practice": {
+    "title": "Thống kê luyện tập",
+    "plan": "Gói của học viên",
+    "learners": "Học viên đã luyện",
+    "dictation": "Lượt nghe chép",
+    "shadowing": "Lượt shadowing",
+    "reviews": "Lượt ôn thẻ",
+    "lessonsCompleted": "Bài học được hoàn thành",
+    "dictationAvg": "Điểm TB nghe chép",
+    "shadowingAvg": "Điểm TB shadowing",
+    "correctRate": "Tỷ lệ đúng khi ôn thẻ",
+    "dailyChart": "Số lượt luyện mỗi ngày",
+    "series": {
+      "dictation": "Nghe chép",
+      "shadowing": "Shadowing",
+      "review": "Ôn thẻ"
+    },
+    "topLessons": "Bài học được luyện nhiều nhất",
+    "topDecks": "Bộ thẻ có nhiều học viên nhất",
+    "attempts_one": "{{value}} lượt",
+    "attempts_other": "{{value}} lượt",
+    "learnersUnit_one": "{{value}} học viên",
+    "learnersUnit_other": "{{value}} học viên"
+  },
+  "ai": {
+    "title": "Thống kê AI và chi phí",
+    "adjustCredit": "Điều chỉnh cấu hình credit",
+    "creditValue": "1 credit = {{value}}",
+    "features": {
+      "shadowing_feedback": "Nhận xét AI cho lượt đọc",
+      "lesson_chat": "Thực hành với AI theo bài",
+      "tutor_session": "Phiên gia sư theo câu",
+      "lesson_suggest": "Gợi ý bản dịch khi soạn bài",
+      "lesson_import": "Tạo bài từ link YouTube"
+    },
+    "netRevenue": "Doanh thu thuần",
+    "cost": "Chi phí AI",
+    "grossProfit": "Lãi gộp",
+    "grossMargin": "Tỷ suất {{pct}}",
+    "featureTable": "Lãi lỗ từng tính năng",
+    "colFeature": "Tính năng",
+    "colPrice": "Giá bán / đơn vị",
+    "colCost": "Tổng chi phí",
+    "creditsChart": "Credit đã tiêu mỗi ngày",
+    "topAccounts": "Tài khoản tiêu nhiều credit nhất",
+    "colName": "Tài khoản",
+    "colPlan": "Gói",
+    "colCredits": "Credit",
+    "credits_one": "{{value}} credit",
+    "credits_other": "{{value}} credit",
+    "colCostPerUnit": "Chi phí / đơn vị",
+    "perUnit": "{{value}} / {{unit}}",
+    "units": {
+      "shadowing_feedback": "lần nhận xét",
+      "tutor_session": "phiên",
+      "lesson_chat": "cuộc trò chuyện",
+      "lesson_suggest": "câu",
+      "lesson_import": "bài"
+    },
+    "unitCount": {
+      "shadowing_feedback_other": "{{value}} lần nhận xét",
+      "tutor_session_other": "{{value}} phiên",
+      "lesson_chat_other": "{{value}} cuộc trò chuyện",
+      "lesson_suggest_other": "{{value}} câu",
+      "lesson_import_other": "{{value}} bài"
+    },
+    "netRevenueHint": "Sau phí cổng thanh toán",
+    "trialShare": "Dùng thử Free: {{pct}}",
+    "loss": "Lỗ",
+    "colUsed": "Đã dùng",
+    "unusedList": "Chưa có lượt dùng: {{names}}"
+  }
+}

@@ -15,11 +15,13 @@ export interface ErrorStateProps {
   retrying?: boolean;
   /** Hành động phụ, vd nút "Về thư viện". */
   action?: ReactNode;
+  /** Tiêu đề riêng theo màn (vd "Không tải được nhật ký"); bỏ trống thì dùng tiêu đề chung theo `kind`. */
+  title?: string;
   className?: string;
 }
 
 /** `.err-state` của mockup: thẻ giữa trang có mascot 120, h2, mô tả, mã lỗi và nút (docs/ux/STATES.md §2). */
-export default function ErrorState({ kind = "server", code, onRetry, retrying = false, action, className = "" }: ErrorStateProps) {
+export default function ErrorState({ kind = "server", code, onRetry, retrying = false, action, title, className = "" }: ErrorStateProps) {
   const { t } = useTranslation("common");
   return (
     <div
@@ -27,7 +29,7 @@ export default function ErrorState({ kind = "server", code, onRetry, retrying = 
       className={`flex flex-col items-center rounded-lg border border-border bg-surface px-6 py-12 text-center shadow-[var(--shadow-card)] ${className}`}
     >
       <Mascot mood="encourage" size={120} alt="" />
-      <h2 className="mt-2 font-display text-2xl font-bold">{t(`error.${kind}.title`)}</h2>
+      <h2 className="mt-2 font-display text-2xl font-bold">{title ?? t(`error.${kind}.title`)}</h2>
       <p className="mt-2 max-w-md text-text-muted">{t(`error.${kind}.desc`)}</p>
       {code && <p className="mt-2 text-[13px] text-text-subtle">{t("error.code", { code })}</p>}
       {(onRetry || action) && (

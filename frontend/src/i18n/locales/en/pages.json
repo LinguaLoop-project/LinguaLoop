@@ -676,10 +676,6 @@
       "title": "System settings",
       "description": "Configure servers, AI API keys, service email and online payment gateways."
     },
-    "logs": {
-      "title": "Activity log",
-      "description": "Access, security and authentication logs plus server error monitoring."
-    },
     "profile": {
       "title": "Administrator profile",
       "description": "Administrator personal info and sign-in session log."

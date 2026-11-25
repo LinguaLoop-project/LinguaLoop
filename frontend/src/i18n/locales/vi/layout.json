@@ -121,7 +121,8 @@
         "accounts": "TÀI KHOẢN",
         "queue": "CẦN XỬ LÝ",
         "content": "NỘI DUNG",
-        "config": "CẤU HÌNH"
+        "config": "CẤU HÌNH",
+        "monitoring": "THEO DÕI"
       },
       "items": {
         "dashboard": "Tổng quan",
@@ -133,7 +134,9 @@
         "republish": "Duyệt xuất bản lại",
         "transfers": "Giao lại nội dung",
         "credit": "Cấu hình credit",
-        "plans": "Gói Pro"
+        "plans": "Gói Pro",
+        "practiceStats": "Thống kê luyện tập",
+        "aiStats": "Thống kê AI"
       }
     },
     "topbar": {
@@ -154,7 +157,6 @@
         "teachers": "Giáo viên",
         "content": "Nội dung",
         "settings": "Cài đặt hệ thống",
-        "logs": "Nhật ký hoạt động",
         "profile": "Hồ sơ quản trị viên",
         "analytics": "Phân tích & Thống kê",
         "userDetail": "Chi tiết người dùng",
@@ -164,7 +166,10 @@
         "republish": "Duyệt xuất bản lại",
         "transfers": "Giao lại nội dung",
         "credit": "Cấu hình credit",
-        "plans": "Gói Pro"
+        "plans": "Gói Pro",
+        "practice-stats": "Thống kê luyện tập",
+        "ai-stats": "Thống kê AI và chi phí",
+        "auditDetail": "Lịch sử đối tượng"
       }
     }
   },
