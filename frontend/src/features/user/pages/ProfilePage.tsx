@@ -98,10 +98,15 @@ export default function ProfilePage() {
               {user.emailVerified ? t("profile.emailVerified") : t("profile.emailUnverified")}
             </span>
             {plan.data && (
-              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 ${pro ? "border-primary/40 bg-primary-soft text-primary-text" : "border-border bg-bg-elevated text-text-muted"}`}>
+              <Link
+                to="/student/subscription"
+                title={t("profile.planManage")}
+                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 transition-colors hover:border-primary/60 ${pro ? "border-primary/40 bg-primary-soft text-primary-text" : "border-border bg-bg-elevated text-text-muted"}`}
+              >
                 {pro && <Icon name="crown" className="size-3.5" />}
                 {pro ? t("profile.planPro") : t("profile.planFree")}
-              </span>
+                <Icon name="arrow-right" className="size-3" />
+              </Link>
             )}
           </div>
         </div>
