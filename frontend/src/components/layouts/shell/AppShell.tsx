@@ -64,7 +64,7 @@ export default function AppShell({ config, children }: { config: ShellConfig; ch
         <div className="flex min-w-0 flex-col">
           <TopBar config={config} drawerOpen={drawerOpen} onOpenDrawer={() => setDrawerOpen(true)} onOpenPalette={() => setPaletteOpen(true)} />
           <main className={`min-w-0 flex-1 ${MAIN[config.density]}`} id="main-content">
-            <div className="mx-auto w-full max-w-[1200px]">
+            <div className="mx-auto w-full max-w-[1360px]">
               <RouteErrorBoundary>
                 <Outlet />
               </RouteErrorBoundary>

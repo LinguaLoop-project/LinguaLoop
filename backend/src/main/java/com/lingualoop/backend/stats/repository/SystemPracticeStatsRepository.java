@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Repository
 @RequiredArgsConstructor
-public class PracticeStatsRepository {
+public class SystemPracticeStatsRepository {
 
     private static final String ATTEMPTS = "FROM sentence_attempts a WHERE " + inRange("a") + " AND "
             + studentOnly("a") + " AND " + planFilter("a");
@@ -124,7 +124,7 @@ public class PracticeStatsRepository {
                 GROUP BY l.id, l.title, o.display_name
                 ORDER BY value DESC, lower(l.title), l.id LIMIT :limit""")
                 .params(params(from, to, plan)).param("limit", limit)
-                .query(PracticeStatsRepository::ranked).list();
+                .query(SystemPracticeStatsRepository::ranked).list();
     }
 
     /** Bộ thẻ thư viện có nhiều học viên ôn nhất, bằng nhau thì theo tên tăng dần (BR-NK-08, BR-TN-02). */
@@ -141,7 +141,7 @@ public class PracticeStatsRepository {
                 GROUP BY d.id, d.name, o.display_name
                 ORDER BY value DESC, lower(d.name), d.id LIMIT :limit""")
                 .params(params(from, to, plan)).param("limit", limit)
-                .query(PracticeStatsRepository::ranked).list();
+                .query(SystemPracticeStatsRepository::ranked).list();
     }
 
     private static RankedItem ranked(ResultSet rs, int n) throws SQLException {

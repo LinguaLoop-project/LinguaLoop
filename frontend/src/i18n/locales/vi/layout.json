@@ -218,6 +218,8 @@
     "palette": {
       "label": "Tìm kiếm nhanh",
       "placeholder": "Tìm từ, bài học, màn hình…",
+      "dictionary": "Từ điển",
+      "lessons": "Bài học",
       "goTo": "Đi tới",
       "actions": "Thao tác",
       "none": "Không có kết quả cho “{{q}}”"

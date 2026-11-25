@@ -16,6 +16,7 @@ public interface LessonMapper {
     @Mapping(target = "locked", ignore = true)
     @Mapping(target = "sentenceCount", ignore = true)
     @Mapping(target = "progress", ignore = true)
+    @Mapping(target = "saved", ignore = true)
     LessonSummaryResponse toSummary(Lesson lesson);
 
     @Mapping(target = "thumbnailUrl", expression = "java(thumbnailUrl(lesson))")

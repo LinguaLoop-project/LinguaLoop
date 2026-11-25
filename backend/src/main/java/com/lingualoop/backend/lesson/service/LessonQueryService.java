@@ -28,8 +28,13 @@ public interface LessonQueryService {
      * @param cefrLevel một hoặc nhiều mức CEFR cách nhau dấu phẩy
      * @param state     lọc theo tiến độ của {@code userId}; null = không lọc
      */
+    default Page<LessonSummaryResponse> searchLessons(String q, UUID topicId, String cefrLevel, Boolean free,
+                                              LessonState state, UUID userId, Pageable pageable) {
+        return searchLessons(q, topicId, cefrLevel, free, null, state, userId, pageable);
+    }
+
     Page<LessonSummaryResponse> searchLessons(String q, UUID topicId, String cefrLevel, Boolean free,
-                                      LessonState state, UUID userId, Pageable pageable);
+                                      Integer maxDuration, LessonState state, UUID userId, Pageable pageable);
 
     LibraryOverviewResponse getOverview(UUID userId);
 

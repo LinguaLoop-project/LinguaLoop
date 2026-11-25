@@ -96,6 +96,14 @@ class DailyReviewServiceImpl implements DailyReviewService {
         return choose(reviewableToday(userId, dayStart(user)), mode -> limit);
     }
 
+    @Override
+    public List<ReviewPlanSentence> sentencePlan(UUID userId, int perMode, UUID sentenceId, PracticeMode mode) {
+        if (sentenceId != null && mode != null) {
+            return sentenceReview.findSingleReviewSentence(userId, sentenceId, mode, subscriptions.isPro(userId));
+        }
+        return sentencePlan(userId, perMode);
+    }
+
     /** "Hôm nay" tính theo múi giờ của học viên (BR-HT-21). */
     private Instant dayStart(UserAccountView user) {
         ZoneId zone = ZoneId.of(user.timezone());

@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
+import Icon from "@/components/common/Icon";
 import MediaBar from "@/features/dictation/components/MediaBar";
 import { usePlayer } from "@/features/dictation/usePlayer";
 import { useSkipSentence } from "../hooks";
@@ -36,18 +38,43 @@ export default function SentenceReviewFlow({ sentences, index, onFinished }: Sen
     onFinished({ sentenceId: sentence.sentenceId, mode: sentence.mode, ...outcome });
   };
 
+  const isDictation = sentence.mode === "dictation";
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-text-muted">
-        <Badge tone={sentence.mode === "dictation" ? "info" : "success"}>{t(`mode.${sentence.mode}`)}</Badge>
-        <span className="truncate">{sentence.lessonTitle}</span>
+    <div
+      className={`flex flex-col gap-4 rounded-xl border bg-surface p-5 shadow-[var(--shadow-card)] ${
+        isDictation ? "border-t-2 border-border border-t-fn-dictation" : "border-t-2 border-border border-t-fn-shadowing"
+      }`}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3 text-sm text-text-muted">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Badge tone={isDictation ? "info" : "success"}>
+            <Icon name={isDictation ? "headphones" : "mic"} className="mr-1 h-3.5 w-3.5" />
+            {t(`mode.${sentence.mode}`)}
+          </Badge>
+          <Link
+            to={`/student/lessons/${sentence.lessonId}`}
+            className="truncate font-semibold text-text transition-colors hover:text-primary-text"
+          >
+            {sentence.lessonTitle}
+          </Link>
+        </div>
+        <span className="rounded-full bg-bg-elevated px-2.5 py-0.5 text-xs font-semibold tabular-nums text-text-muted">
+          {index + 1}/{sentences.length}
+        </span>
       </div>
-      <MediaBar player={player} videoRef={videoRef} hideVideo={hideVideo} onToggleVideo={() => setHideVideo((value) => !value)} />
-      {sentence.mode === "dictation" ? (
-        <DictationReviewStep key={sentence.sentenceId} sentence={sentence} player={player} onFinished={finish} />
-      ) : (
-        <ShadowingReviewStep key={sentence.sentenceId} sentence={sentence} player={player} onFinished={finish} />
-      )}
+
+      <div className={`grid grid-cols-1 items-start gap-5 ${hideVideo ? "" : "lg:grid-cols-[minmax(320px,5fr)_minmax(0,7fr)]"}`}>
+        <MediaBar player={player} videoRef={videoRef} hideVideo={hideVideo} onToggleVideo={() => setHideVideo((value) => !value)} />
+
+        <div className="min-w-0">
+          {isDictation ? (
+            <DictationReviewStep key={sentence.sentenceId} sentence={sentence} player={player} onFinished={finish} />
+          ) : (
+            <ShadowingReviewStep key={sentence.sentenceId} sentence={sentence} player={player} onFinished={finish} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }

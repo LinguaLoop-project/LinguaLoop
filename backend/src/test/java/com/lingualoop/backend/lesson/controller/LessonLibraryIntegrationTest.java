@@ -377,6 +377,34 @@ class LessonLibraryIntegrationTest {
     }
 
     @Test
+    void search_filtersByMaxDuration_AC_LESSON_02() throws Exception {
+        UUID topic = topic("t");
+        UUID shortLesson = lesson(topic, "short", false, "published", "A1", 0);
+        UUID longLesson = lesson(topic, "long", false, "published", "A1", 0);
+        jdbc.update("UPDATE lessons SET duration_sec = 120 WHERE id = ?", shortLesson);
+        jdbc.update("UPDATE lessons SET duration_sec = 900 WHERE id = ?", longLesson);
+
+        as(newUser(), get("/api/v1/lessons").param("q", tag).param("maxDuration", "180"))
+                .andExpect(jsonPath("$.data.totalElements").value(1))
+                .andExpect(jsonPath("$.data.items[0].id").value(shortLesson.toString()));
+        as(newUser(), get("/api/v1/lessons").param("q", tag))
+                .andExpect(jsonPath("$.data.totalElements").value(2));
+    }
+
+    @Test
+    void search_flagsLessonsTheCallerSaved_AC_LESSON_02() throws Exception {
+        UUID topic = topic("t");
+        UUID saved = lesson(topic, "saved", false, "published", "A1", 0);
+        lesson(topic, "plain", false, "published", "A1", 0);
+        UUID user = newUser();
+        jdbc.update("INSERT INTO lesson_saves (user_id, lesson_id) VALUES (?, ?)", user, saved);
+
+        as(user, get("/api/v1/lessons").param("q", tag))
+                .andExpect(jsonPath("$.data.items[?(@.id=='" + saved + "')].saved").value(true))
+                .andExpect(jsonPath("$.data.items[?(@.title=='" + tag + " plain')].saved").value(false));
+    }
+
+    @Test
     void search_stateFilterIsPerUserAndKeepsProLockFlag_AC_LESSON_03() throws Exception {
         UUID pro = lesson(topic("t"), "pro", true, "published", "A1", 0);
         UUID user = newUser();

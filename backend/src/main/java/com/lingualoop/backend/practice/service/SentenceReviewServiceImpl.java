@@ -82,6 +82,17 @@ class SentenceReviewServiceImpl implements SentenceReviewService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ReviewPlanSentence> findSingleReviewSentence(UUID userId, UUID sentenceId, PracticeMode mode,
+            boolean userPro) {
+        return reviews.findSinglePlanEntry(userId, sentenceId, mode.name(), userPro).stream()
+                .map(e -> new ReviewPlanSentence(e.getSentenceId(), PracticeMode.valueOf(e.getMode()), e.getLessonId(),
+                        e.getLessonTitle(), e.getYoutubeId(), e.getStartMs(), e.getEndMs(), e.getText(), e.getTextVi(),
+                        e.getLastScore()))
+                .toList();
+    }
+
+    @Override
     @Transactional
     public void skip(UUID userId, UUID sentenceId, PracticeMode mode) {
         if (reviews.skip(userId, sentenceId, mode.name(), Instant.now(clock)) == 0) {

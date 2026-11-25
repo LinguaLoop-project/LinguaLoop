@@ -6,6 +6,7 @@ import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
 import { useReviewEntries } from "@/features/practice";
 import { type ReportBadgeKind, useReportBadge } from "@/features/report";
+import { useSavedWords } from "@/features/vocab";
 import { useAiEnergy } from "@/hooks/useAiEnergy";
 import type { NavItem, NavTone, ShellConfig } from "./shellConfig";
 
@@ -26,16 +27,50 @@ const BAR_WHEN_COMPACT = { true: "md:before:-left-2.5", false: "md:max-lg:before
 const PAD_WHEN_COMPACT = { true: "md:items-center md:px-2.5", false: "md:max-lg:items-center md:max-lg:px-2.5" } as const;
 const DOT_WHEN_COMPACT = { true: "md:block", false: "md:max-lg:block" } as const;
 
-/** Màu chức năng của mục: icon luôn có màu, mục đang chọn nền `--fn-soft` + vạch 4px sát mép thanh bên. */
+/** Màu chức năng của mục: icon luôn có màu, mục đang chọn nền `--fn-soft` + viền mảnh đồng màu + vạch 4px sát mép thanh bên. */
+/** Viền mảnh và vệt sáng phía trên của mục đang chọn; màu viền đặt riêng theo từng chức năng. */
+const ACTIVE_RING = "ring-1 ring-inset shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]";
+
+/** Màu chức năng của mục: icon luôn có màu, mục đang chọn nền `--fn-soft` + viền mảnh đồng màu + vạch 4px sát mép thanh bên. */
 const TONE: Record<NavTone, { icon: string; on: string; tag: string }> = {
-  primary: { icon: "text-primary", on: "bg-primary-soft before:bg-primary", tag: "bg-primary-soft text-primary" },
-  dictation: { icon: "text-fn-dictation", on: "bg-fn-dictation-soft before:bg-fn-dictation", tag: "bg-fn-dictation-soft text-fn-dictation" },
-  shadowing: { icon: "text-fn-shadowing", on: "bg-fn-shadowing-soft before:bg-fn-shadowing", tag: "bg-fn-shadowing-soft text-fn-shadowing" },
-  vocab: { icon: "text-fn-vocab", on: "bg-fn-vocab-soft before:bg-fn-vocab", tag: "bg-fn-vocab-soft text-fn-vocab" },
-  assessment: { icon: "text-fn-assessment", on: "bg-fn-assessment-soft before:bg-fn-assessment", tag: "bg-fn-assessment-soft text-fn-assessment" },
+  primary: {
+    icon: "text-primary",
+    on: `bg-primary-soft ${ACTIVE_RING} ring-primary/30 before:bg-primary`,
+    tag: "bg-primary-soft text-primary",
+  },
+  dictation: {
+    icon: "text-fn-dictation",
+    on: `bg-fn-dictation-soft ${ACTIVE_RING} ring-fn-dictation/30 before:bg-fn-dictation`,
+    tag: "bg-fn-dictation-soft text-fn-dictation",
+  },
+  shadowing: {
+    icon: "text-fn-shadowing",
+    on: `bg-fn-shadowing-soft ${ACTIVE_RING} ring-fn-shadowing/30 before:bg-fn-shadowing`,
+    tag: "bg-fn-shadowing-soft text-fn-shadowing",
+  },
+  vocab: {
+    icon: "text-fn-vocab",
+    on: `bg-fn-vocab-soft ${ACTIVE_RING} ring-fn-vocab/30 before:bg-fn-vocab`,
+    tag: "bg-fn-vocab-soft text-fn-vocab",
+  },
+  watch: {
+    icon: "text-fn-watch",
+    on: `bg-fn-watch-soft ${ACTIVE_RING} ring-fn-watch/30 before:bg-fn-watch`,
+    tag: "bg-fn-watch-soft text-fn-watch",
+  },
+  weakness: {
+    icon: "text-fn-weakness",
+    on: `bg-fn-weakness-soft ${ACTIVE_RING} ring-fn-weakness/30 before:bg-fn-weakness`,
+    tag: "bg-fn-weakness-soft text-fn-weakness",
+  },
+  assessment: {
+    icon: "text-fn-assessment",
+    on: `bg-fn-assessment-soft ${ACTIVE_RING} ring-fn-assessment/30 before:bg-fn-assessment`,
+    tag: "bg-fn-assessment-soft text-fn-assessment",
+  },
 };
 const ON_BAR =
-  "text-text font-semibold before:content-[''] before:absolute before:-left-3.5 before:top-2.5 before:bottom-2.5 before:w-1 before:rounded-r-[4px]";
+  "text-text font-semibold before:content-[''] before:absolute before:-left-3.5 before:top-2 before:bottom-2 before:w-1 before:rounded-r-[4px]";
 
 /** Mục menu có số đếm từ feature báo cáo; null với các mục khác. */
 function reportBadgeKind(item: NavItem, config: ShellConfig): ReportBadgeKind | null {
@@ -50,12 +85,15 @@ function Item({ item, config, collapsed, onNavigate }: { item: NavItem; config: 
   const label = t(item.labelKey);
   const tone = TONE[item.tone ?? "primary"];
   const hide = HIDE_WHEN_COMPACT[`${collapsed}`];
-  // "Từ & câu đã lưu": số câu đang chờ ôn của học viên (cả hai chế độ), lấy từ cùng truy vấn với trang đó nên luôn khớp.
+  // "Từ & câu đã lưu": tổng số từ đã lưu và số câu đang chờ ôn của học viên (lấy từ cùng truy vấn với trang đó nên luôn khớp).
   const isMyWords = item.id === "mywords" && config.homePath.startsWith("/student");
   const reviewCount = useReviewEntries(undefined, undefined, isMyWords).data?.length;
+  const savedWordsCount = useSavedWords(isMyWords).data?.length;
+  const myWordsCount =
+    reviewCount == null && savedWordsCount == null ? undefined : (savedWordsCount ?? 0) + (reviewCount ?? 0);
   // "Báo cáo nội dung": số báo cáo đang chờ chính vai trò xử lý; "Duyệt xuất bản lại": số yêu cầu đang chờ duyệt.
   const reportCount = useReportBadge(reportBadgeKind(item, config));
-  const count = isMyWords ? reviewCount : reportCount;
+  const count = isMyWords ? myWordsCount : reportCount;
   const badge = count == null ? item.badge : count > 99 ? "99+" : count;
   const hasBadge = badge != null && badge !== 0;
 
@@ -67,12 +105,15 @@ function Item({ item, config, collapsed, onNavigate }: { item: NavItem; config: 
       title={label}
       aria-label={label}
       className={({ isActive }) =>
-        `group relative flex min-h-11 w-full items-center gap-3 rounded-md px-3 font-medium transition-colors duration-150 ${CENTER_WHEN_COMPACT[`${collapsed}`]} ${BAR_WHEN_COMPACT[`${collapsed}`]} ${
-          isActive ? `${ON_BAR} ${tone.on}` : "text-text-muted hover:bg-surface-hover hover:text-text"
+        `group relative flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-[14.5px] font-medium transition-all duration-150 ${CENTER_WHEN_COMPACT[`${collapsed}`]} ${BAR_WHEN_COMPACT[`${collapsed}`]} ${
+          isActive ? `${ON_BAR} ${tone.on}` : "text-text-muted hover:bg-surface-hover/80 hover:text-text"
         }`
       }
     >
-      <Icon name={item.icon} className={`text-2xl transition-transform duration-150 group-hover:translate-x-0.5 ${tone.icon}`} />
+      <Icon
+        name={item.icon}
+        className={`text-[21px] transition-transform duration-150 group-hover:translate-x-0.5 group-hover:scale-105 ${tone.icon}`}
+      />
       <span className={`truncate ${hide}`}>{label}</span>
       {hasBadge && (
         <>
@@ -96,13 +137,17 @@ function ProCard({ hide }: { hide: string }) {
   const { isPro } = useAiEnergy();
   if (isPro) return null;
   return (
-    <div className={`mb-2 rounded-lg border border-border-strong bg-surface p-3.5 shadow-[var(--shadow-card)] ${hide}`}>
-      <Badge variant="pro">
-        <Icon name="crown" />
-        PRO
-      </Badge>
-      <b className="mt-2.5 block text-lg font-bold leading-[1.4]">{t("student.sidebar.pro.price")}</b>
-      <p className="my-1 mb-3 text-[13px] leading-normal text-text-muted">{t("student.sidebar.pro.desc")}</p>
+    <div
+      className={`mb-2 rounded-xl border border-primary/30 bg-[linear-gradient(145deg,var(--surface),var(--primary-soft))] p-3 shadow-[var(--shadow-card)] ${hide}`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <Badge variant="pro">
+          <Icon name="crown" />
+          PRO
+        </Badge>
+        <b className="text-sm font-bold text-text">{t("student.sidebar.pro.price")}</b>
+      </div>
+      <p className="my-1.5 line-clamp-2 text-xs leading-snug text-text-muted">{t("student.sidebar.pro.desc")}</p>
       <Button size="sm" fullWidth onClick={() => navigate("/pricing")}>
         {t("student.sidebar.pro.cta")}
       </Button>
@@ -178,9 +223,12 @@ export default function Sidebar({ config, collapsed, drawerOpen, onToggleCollaps
       )}
 
       {config.groups.map((group, index) => (
-        <div key={group.titleKey ?? `g${index}`} className="flex flex-col gap-1">
+        <div
+          key={group.titleKey ?? `g${index}`}
+          className={`flex flex-col gap-0.5 ${index > 0 ? "mt-1.5 border-t border-border/60 pt-2" : ""}`}
+        >
           {group.titleKey && (
-            <div className={`px-3 pb-1 pt-3.5 text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text ${hide}`}>
+            <div className={`px-3 pb-1 pt-1.5 text-[10.5px] font-bold uppercase leading-[1.4] tracking-[0.14em] text-primary-text/85 ${hide}`}>
               {t(group.titleKey)}
             </div>
           )}
@@ -195,11 +243,15 @@ export default function Sidebar({ config, collapsed, drawerOpen, onToggleCollaps
       {config.showProUpsell && <ProCard hide={hide} />}
 
       {config.showProUpsell && (
-        <div className={`flex items-center gap-3 rounded-lg border border-border bg-primary-soft p-3.5 ${collapsed ? "md:p-2" : "md:max-lg:p-2"}`}>
-          <Mascot mood="hello" size={44} alt="" />
-          <div className={hide}>
-            <b className="text-[13px]">Loopi</b>
-            <div className="text-[13px] leading-normal text-text-muted">{t("student.sidebar.loopi")}</div>
+        <div
+          className={`flex items-center gap-2.5 rounded-xl border border-border bg-primary-soft/75 px-3 py-2.5 ${
+            collapsed ? "md:p-2" : "md:max-lg:p-2"
+          }`}
+        >
+          <Mascot mood="hello" size={36} alt="" />
+          <div className={`min-w-0 ${hide}`}>
+            <b className="block text-xs font-bold text-text">Loopi</b>
+            <div className="truncate text-xs leading-snug text-text-muted">{t("student.sidebar.loopi")}</div>
           </div>
         </div>
       )}

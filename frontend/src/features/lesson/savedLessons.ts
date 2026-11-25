@@ -18,13 +18,37 @@ export interface SavedLesson {
   savedAt: string;
 }
 
-export type SavedSort = "saved_desc" | "saved_asc";
+export interface SavedTopicCount {
+  name: string;
+  count: number;
+}
+
+export interface SavedSummary {
+  total: number;
+  todo: number;
+  doing: number;
+  done: number;
+  totalDurationSec: number;
+  topics: SavedTopicCount[];
+}
+
+export interface SavedCleared {
+  removedCount: number;
+  removedIds: string[];
+}
+
+export type SavedSort = "saved_desc" | "saved_asc" | "short" | "progress_desc";
 
 export interface SavedLessonsQuery {
   q?: string;
   state?: LessonState;
+  cefrLevel?: string;
+  topic?: string;
+  free?: boolean;
+  maxDuration?: number;
   sort?: SavedSort;
   page?: number;
+  size?: number;
 }
 
 export type StudyMode = "dictation" | "shadowing";
@@ -32,8 +56,28 @@ export type StudyMode = "dictation" | "shadowing";
 export const savedLessonsApi = {
   list: async (query: SavedLessonsQuery): Promise<PageResponse<SavedLesson>> => {
     const response = await axiosClient.get<ApiResponse<PageResponse<SavedLesson>>>("/lessons/saved", {
-      params: { q: query.q || undefined, state: query.state, sort: query.sort, page: query.page },
+      params: {
+        q: query.q || undefined,
+        state: query.state,
+        cefrLevel: query.cefrLevel || undefined,
+        topic: query.topic || undefined,
+        free: query.free ? true : undefined,
+        maxDuration: query.maxDuration || undefined,
+        sort: query.sort,
+        page: query.page,
+        size: query.size,
+      },
     });
+    return response.data.data;
+  },
+
+  summary: async (): Promise<SavedSummary> => {
+    const response = await axiosClient.get<ApiResponse<SavedSummary>>("/lessons/saved/summary");
+    return response.data.data;
+  },
+
+  clearCompleted: async (): Promise<SavedCleared> => {
+    const response = await axiosClient.delete<ApiResponse<SavedCleared>>("/lessons/saved/completed");
     return response.data.data;
   },
 

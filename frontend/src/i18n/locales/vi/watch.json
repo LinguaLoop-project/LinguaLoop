@@ -53,6 +53,19 @@
     "saveVideo": "Không thể lưu video. Hãy thử lại.",
     "pro": "Video này dành cho gói Pro"
   },
+  "caption": {
+    "prev": "Câu trước",
+    "prevTitle": "Câu trước (←)",
+    "next": "Câu tiếp theo",
+    "nextTitle": "Câu tiếp theo (→)",
+    "replay": "Nghe lại câu này",
+    "replayTitle": "Nghe lại câu này (R)",
+    "position": "Câu {{current}}/{{total}}"
+  },
+  "feed": {
+    "sentenceCount_other": "{{count}} câu",
+    "dictation": "Nghe chép"
+  },
   "entry": {
     "cta": "Xem dạng video ngắn",
     "hint": "Học thụ động: xem video kèm lời thoại chạy theo giọng nói"

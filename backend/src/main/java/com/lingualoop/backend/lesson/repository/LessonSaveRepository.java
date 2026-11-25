@@ -57,6 +57,15 @@ public class LessonSaveRepository {
                 .update();
     }
 
+    public int unsaveAll(UUID userId, Collection<UUID> lessonIds) {
+        if (lessonIds.isEmpty()) {
+            return 0;
+        }
+        return jdbc.sql("DELETE FROM lesson_saves WHERE user_id = :user AND lesson_id IN (:ids)")
+                .param("user", userId).param("ids", lessonIds)
+                .update();
+    }
+
     public boolean isSaved(UUID userId, UUID lessonId) {
         return Boolean.TRUE.equals(jdbc.sql("""
                 SELECT EXISTS (SELECT 1 FROM lesson_saves WHERE user_id = :user AND lesson_id = :lesson)""")

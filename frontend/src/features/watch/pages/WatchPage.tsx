@@ -11,7 +11,7 @@ import SettingsMenu from "../components/SettingsMenu";
 import UpsellSlide from "../components/UpsellSlide";
 import { buildEntries, newSeed } from "../feed";
 import { useToggleLike, useToggleSaved, useToggleVideoSaved, useWatchFeed } from "../hooks";
-import { loadPrefs, savePrefs, type WatchPrefs } from "../prefs";
+import { loadPrefs, RATES, savePrefs, type WatchPrefs } from "../prefs";
 import type { WatchItem, WatchLine } from "../types";
 
 /** Còn bấy nhiêu ô nữa là hết thì tải trang kế tiếp. */
@@ -156,7 +156,7 @@ export default function WatchPage() {
             <Icon name="arrow-left" className="size-5" />
           </button>
           <h1 className="flex items-center gap-2 text-[15px] font-bold">
-            <Icon name="monitor-play" className="size-4 text-primary-text" />
+            <Icon name="monitor-play" className="size-4 text-watch-video" />
             {t("title")}
           </h1>
         </div>
@@ -171,6 +171,51 @@ export default function WatchPage() {
               {t("unmute")}
             </button>
           )}
+          {/* Cụm bật/tắt nhanh Tốc độ, Dịch VI và Phiên âm IPA ngay trên thanh đầu */}
+          <div className="hidden items-center gap-1.5 sm:flex">
+            <button
+              type="button"
+              title={t("settings.speed")}
+              onClick={() => {
+                const idx = RATES.indexOf(prefs.rate);
+                const nextRate = RATES[(idx + 1) % RATES.length];
+                changePrefs({ ...prefs, rate: nextRate });
+              }}
+              className={`h-9 cursor-pointer rounded-full border px-3 text-xs font-bold tabular-nums backdrop-blur-md transition-colors ${
+                prefs.rate !== 1
+                  ? "border-watch-video/70 bg-watch-video/25 text-watch-video"
+                  : "border-white/20 bg-black/50 text-white/90 hover:bg-white/20"
+              }`}
+            >
+              {prefs.rate}×
+            </button>
+            <button
+              type="button"
+              aria-pressed={prefs.translation}
+              title={t("settings.translation")}
+              onClick={() => changePrefs({ ...prefs, translation: !prefs.translation })}
+              className={`h-9 cursor-pointer rounded-full border px-3 text-xs font-bold backdrop-blur-md transition-colors ${
+                prefs.translation
+                  ? "border-video-accent/70 bg-video-accent/25 text-video-accent-soft"
+                  : "border-white/20 bg-black/50 text-white/80 hover:bg-white/20 hover:text-white"
+              }`}
+            >
+              VI
+            </button>
+            <button
+              type="button"
+              aria-pressed={prefs.ipa}
+              title={t("settings.ipa")}
+              onClick={() => changePrefs({ ...prefs, ipa: !prefs.ipa })}
+              className={`h-9 cursor-pointer rounded-full border px-3 text-xs font-bold backdrop-blur-md transition-colors ${
+                prefs.ipa
+                  ? "border-watch-video/70 bg-watch-video/25 text-watch-video"
+                  : "border-white/20 bg-black/50 text-white/80 hover:bg-white/20 hover:text-white"
+              }`}
+            >
+              IPA
+            </button>
+          </div>
           <button
             type="button"
             aria-label={muted ? t("unmute") : t("mute")}
@@ -208,7 +253,7 @@ export default function WatchPage() {
           <Icon name="clapperboard" className="size-10 text-white/60" />
           <p className="text-lg font-bold">{t("empty.title")}</p>
           <p className="max-w-sm text-sm text-white/70">{t("empty.desc")}</p>
-          <Link to="/student/lessons" className="mt-2 text-sm font-semibold text-primary-text underline underline-offset-4">
+          <Link to="/student/lessons" className="mt-2 text-sm font-semibold text-watch-video underline underline-offset-4">
             {t("empty.cta")}
           </Link>
         </div>

@@ -29,7 +29,7 @@ import com.lingualoop.backend.stats.repository.AiUsageStatsRepository;
 import com.lingualoop.backend.stats.repository.AiUsageStatsRepository.FeatureRow;
 import com.lingualoop.backend.stats.repository.OverviewStatsRepository;
 import com.lingualoop.backend.stats.repository.OverviewStatsRepository.PublishedContent;
-import com.lingualoop.backend.stats.repository.PracticeStatsRepository;
+import com.lingualoop.backend.stats.repository.SystemPracticeStatsRepository;
 import com.lingualoop.backend.stats.repository.RevenueStatsRepository;
 import com.lingualoop.backend.stats.repository.RevenueStatsRepository.Settings;
 import com.lingualoop.backend.stats.service.RevenueCalculator.Revenue;
@@ -46,7 +46,7 @@ class SystemStatsAdminServiceImpl implements SystemStatsAdminService {
     static final int TOP_ACCOUNTS = 10;
 
     private final OverviewStatsRepository overviewRepository;
-    private final PracticeStatsRepository practiceRepository;
+    private final SystemPracticeStatsRepository practiceRepository;
     private final AiUsageStatsRepository aiRepository;
     private final RevenueStatsRepository revenueRepository;
     private final Clock clock;
@@ -75,8 +75,8 @@ class SystemStatsAdminServiceImpl implements SystemStatsAdminService {
     @Cacheable(CACHE_PRACTICE)
     public PracticeStatsView practice(StatsPeriod period, PlanFilter plan) {
         StatsWindow w = StatsWindow.of(period, clock);
-        PracticeStatsRepository.Totals cur = practiceRepository.totals(w.from(), w.to(), plan);
-        PracticeStatsRepository.Totals prev = practiceRepository.totals(w.previousFrom(), w.from(), plan);
+        SystemPracticeStatsRepository.Totals cur = practiceRepository.totals(w.from(), w.to(), plan);
+        SystemPracticeStatsRepository.Totals prev = practiceRepository.totals(w.previousFrom(), w.from(), plan);
         Map<String, Map<LocalDate, Long>> raw = practiceRepository.daily(w.from(), w.to(), plan);
         Map<String, Map<LocalDate, Long>> daily = new LinkedHashMap<>();
         daily.put(PracticeStatsView.SERIES_DICTATION, raw.getOrDefault("dictation", Map.of()));

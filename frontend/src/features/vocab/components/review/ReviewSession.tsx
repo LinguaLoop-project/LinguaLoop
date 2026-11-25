@@ -57,16 +57,33 @@ export default function ReviewSession({ queue, onAnswer, onContinue, embedded }:
   if (done) {
     const score = roundScore(state);
     const more = Math.max(0, queue.dueTotal - queue.cards.length);
+    const accuracy = score.total > 0 ? Math.round((score.right / score.total) * 100) : 100;
     return (
-      <div className="flex flex-col items-center rounded-lg border-2 border-primary bg-surface p-10 text-center shadow-[var(--shadow-card)]">
+      <div className="flex flex-col items-center rounded-xl border-2 border-primary bg-surface p-8 text-center shadow-[var(--shadow-card)] sm:p-10">
         <Mascot mood="celebrate" size={120} alt="" />
         <h2 className="mt-4 font-display text-3xl font-bold">{t("review.doneTitle")}</h2>
         <p className="mt-1.5 text-text-muted">{t("review.doneSubtitle", { count: score.total })}</p>
-        <p className="mt-1 text-sm text-text-muted">{t("review.score", { right: score.right, total: score.total })}</p>
+
+        <div className="mt-5 grid w-full max-w-md grid-cols-3 gap-2.5">
+          <div className="rounded-lg border border-border bg-bg-elevated p-3">
+            <div className="font-display text-2xl font-bold tabular-nums text-text">{score.total}</div>
+            <div className="text-xs text-text-muted">{t("review.stats.reviewed")}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-bg-elevated p-3">
+            <div className="font-display text-2xl font-bold tabular-nums text-success">{score.right}</div>
+            <div className="text-xs text-text-muted">{t("review.stats.first")}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-bg-elevated p-3">
+            <div className="font-display text-2xl font-bold tabular-nums text-primary-text">{accuracy}%</div>
+            <div className="text-xs text-text-muted">{t("review.stats.accuracy")}</div>
+          </div>
+        </div>
+
+        <p className="mt-4 text-sm text-text-muted">{t("review.score", { right: score.right, total: score.total })}</p>
         {score.redone > 0 && <p className="text-sm text-text-muted">{t("review.redone", { count: score.redone })}</p>}
-        {more > 0 && <p className="text-sm text-text-muted">{t("review.continueHint", { count: more })}</p>}
+        {more > 0 && <p className="mt-1 text-sm font-medium text-primary-text">{t("review.continueHint", { count: more })}</p>}
         <UnsentNotice />
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="mt-6 flex flex-wrap justify-center gap-2.5">
           <Link to="/student/vocab" className={buttonClasses({ variant: more > 0 ? "ghost" : "primary" })}>
             {t("review.backToDecks")}
           </Link>
@@ -84,9 +101,12 @@ export default function ReviewSession({ queue, onAnswer, onContinue, embedded }:
   return (
     <div>
       {!embedded && (
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm text-text-muted">
-          <b className="text-text">{heading}</b>
-          <span>
+        <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-text-muted shadow-sm">
+          <b className="flex items-center gap-2 text-text">
+            <Icon name="layers" className="h-4 w-4 text-fn-vocab" />
+            {heading}
+          </b>
+          <span className="rounded-full bg-bg-elevated px-2.5 py-0.5 text-xs font-medium">
             {t("review.queueInfo", { count: queue.cards.length })}
             {queue.dueTotal > queue.cards.length && ` · ${t("review.more", { count: queue.dueTotal - queue.cards.length })}`}
           </span>

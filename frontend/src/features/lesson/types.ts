@@ -41,6 +41,8 @@ export interface LessonSummary {
   locked: boolean;
   sentenceCount: number;
   progress: ModeProgress;
+  /** Học viên đã lưu bài vào Bài đã lưu (UC-TC-05). */
+  saved?: boolean;
 }
 
 export interface TopicRow {

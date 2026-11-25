@@ -12,10 +12,10 @@ export const reviewApi = {
     return response.data.data;
   },
 
-  /** Các câu của phiên Ôn câu riêng: mỗi chế độ tối đa `perMode` câu, loại câu đã ôn hôm nay (BR-HT-20). */
-  getSentencePlan: async (perMode = 2): Promise<PlanSentence[]> => {
+  /** Các câu của phiên Ôn câu riêng: mỗi chế độ tối đa `perMode` câu, hoặc một câu cụ thể khi truyền `sentenceId` & `mode`. */
+  getSentencePlan: async (perMode = 2, sentenceId?: string, mode?: PracticeMode): Promise<PlanSentence[]> => {
     const response = await axiosClient.get<ApiResponse<PlanSentence[]>>("/review/sentence-plan", {
-      params: { perMode },
+      params: { perMode, sentenceId: sentenceId || undefined, mode: mode || undefined },
       timeout: REQUEST_TIMEOUT_MS,
     });
     return response.data.data;

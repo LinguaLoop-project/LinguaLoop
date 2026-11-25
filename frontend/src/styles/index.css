@@ -22,6 +22,11 @@
 
   --color-danger: var(--danger);
   --color-warning: var(--warning);
+  /* Nhấn vàng trên nền video luôn tối (Học thụ động), không đổi theo giao diện sáng/tối. */
+  --color-video-accent: #fcd34d;
+  --color-video-accent-soft: #fde68a;
+  --color-watch-video: #34d399;
+  --color-watch-video-strong: #047857;
   --color-success: var(--success);
   --color-info: var(--info);
 
@@ -33,6 +38,10 @@
   --color-fn-shadowing-soft: var(--fn-shadowing-soft);
   --color-fn-vocab: var(--fn-vocab);
   --color-fn-vocab-soft: var(--fn-vocab-soft);
+  --color-fn-watch: var(--fn-watch);
+  --color-fn-watch-soft: var(--fn-watch-soft);
+  --color-fn-weakness: var(--fn-weakness);
+  --color-fn-weakness-soft: var(--fn-weakness-soft);
   --color-fn-assessment: var(--fn-assessment);
   --color-fn-assessment-soft: var(--fn-assessment-soft);
 
@@ -77,6 +86,8 @@
     --fn-dictation:   #60A5FA;  --fn-dictation-soft:   rgba(96, 165, 250, 0.14);
     --fn-shadowing:   #F472B6;  --fn-shadowing-soft:   rgba(244, 114, 182, 0.14);
     --fn-vocab:       #FB923C;  --fn-vocab-soft:       rgba(251, 146, 60, 0.14);
+    --fn-watch:       #34D399;  --fn-watch-soft:       rgba(52, 211, 153, 0.14);
+    --fn-weakness:    #F87171;  --fn-weakness-soft:    rgba(248, 113, 113, 0.14);
     --fn-assessment:  #2DD4BF;  --fn-assessment-soft:  rgba(45, 212, 191, 0.14);
     --on-fn:          #07050D;
 
@@ -123,6 +134,8 @@
     --fn-dictation:   #1D4ED8;  --fn-dictation-soft:   rgba(29, 78, 216, 0.09);
     --fn-shadowing:   #BE185D;  --fn-shadowing-soft:   rgba(190, 24, 93, 0.09);
     --fn-vocab:       #C2410C;  --fn-vocab-soft:       rgba(194, 65, 12, 0.09);
+    --fn-watch:       #047857;  --fn-watch-soft:       rgba(4, 120, 87, 0.09);
+    --fn-weakness:    #DC2626;  --fn-weakness-soft:    rgba(220, 38, 38, 0.08);
     --fn-assessment:  #0F766E;  --fn-assessment-soft:  rgba(15, 118, 110, 0.09);
     --on-fn:          #FFFFFF;
 

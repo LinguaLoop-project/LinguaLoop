@@ -34,7 +34,18 @@
           "new": "Mới",
           "short": "Ngắn"
         },
-        "freeOnly": "Chỉ bài miễn phí"
+        "states": {
+          "label": "Tiến độ",
+          "all": "Tất cả",
+          "todo": "Chưa học",
+          "doing": "Đang học",
+          "done": "Đã xong"
+        },
+        "freeOnly": "Chỉ bài miễn phí",
+        "shortOnly": "Bài ngắn (≤ 3p)",
+        "shuffle": "Luyện ngẫu nhiên",
+        "showing": "Hiển thị {{from}}–{{to}} trong {{total}} bài",
+        "perPage": "Mỗi trang"
       },
       "continue": {
         "title": "Tiếp tục học",
@@ -137,7 +148,14 @@
         "empty": "Chưa có dữ liệu câu cho bài học này.",
         "showMore": "Xem thêm {{count}} câu",
         "collapse": "Thu gọn",
-        "showingCount": "Đang hiện {{visible}}/{{total}} câu"
+        "showingCount": "Đang hiện {{visible}}/{{total}} câu",
+        "searchPlaceholder": "Tìm câu trong bài…",
+        "filterAll": "Tất cả",
+        "filterDone": "Đã luyện",
+        "filterTodo": "Chưa luyện",
+        "clickToPeek": "Bấm vào câu để xem lẻ câu đó",
+        "practiceDictation": "Nghe chép câu {{index}}",
+        "practiceShadowing": "Shadowing câu {{index}}"
       },
       "backToLibrary": "Quay lại Thư viện",
       "playVideo": "Phát video",

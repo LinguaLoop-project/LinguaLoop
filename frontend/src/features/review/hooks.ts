@@ -18,7 +18,8 @@ export function useScrollTopOn(key: string | number): void {
 
 export const reviewKeys = {
   dailyPlan: (run: number) => ["review", "daily-plan", run] as const,
-  sentencePlan: (perMode: number, run: number) => ["review", "sentence-plan", perMode, run] as const,
+  sentencePlan: (perMode: number, run: number, sentenceId?: string, mode?: PracticeMode) =>
+    ["review", "sentence-plan", perMode, run, sentenceId ?? "all", mode ?? "all"] as const,
 };
 
 /**
@@ -52,10 +53,10 @@ export const useRemainingPlan = (run: number, enabled: boolean) =>
   });
 
 /** Các câu của phiên Ôn câu riêng; `run` tăng khi "Ôn thêm". Không tự tải lại để danh sách không đổi giữa chừng. */
-export const useSentencePlan = (perMode: number, run: number) =>
+export const useSentencePlan = (perMode: number, run: number, sentenceId?: string, mode?: PracticeMode) =>
   useQuery({
-    queryKey: reviewKeys.sentencePlan(perMode, run),
-    queryFn: () => reviewApi.getSentencePlan(perMode),
+    queryKey: reviewKeys.sentencePlan(perMode, run, sentenceId, mode),
+    queryFn: () => reviewApi.getSentencePlan(perMode, sentenceId, mode),
     networkMode: NETWORK_MODE,
     gcTime: 0,
     retry: 1,
