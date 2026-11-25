@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import Button from "@/components/common/Button";
+import Icon from "@/components/common/Icon";
 import { ReportButton } from "@/features/report";
 import { answerCard, firstOpenRound, isRoundDone, nextCard, roundScore, roundsOf, startRound } from "../../learn";
 import type { AnswerDraft, LearnCard, LearnMode } from "../../types";
@@ -102,9 +104,46 @@ export default function LearnSession({
 
   return (
     <div>
-      <p className="mb-3 text-sm text-text-muted">
-        {t("learn.round", { current: round + 1, total: rounds.length, count: current.length })}
-      </p>
+      <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-sm font-medium text-text-muted">
+            {t("learn.round", { current: round + 1, total: rounds.length, count: current.length })}
+          </p>
+          {rounds.length > 1 && (
+            <div className="flex items-center gap-1 border-l border-border pl-2">
+              {rounds.map((rCards, idx) => {
+                const active = idx === round;
+                const rDone = rCards.every((c) => c.status !== "new");
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => goToRound(idx)}
+                    className={`inline-flex h-6 cursor-pointer items-center gap-1 rounded-full px-2.5 text-xs font-semibold transition-colors ${
+                      active
+                        ? "bg-primary text-white"
+                        : rDone
+                          ? "bg-success/15 text-success hover:bg-success/25"
+                          : "bg-bg-elevated text-text-muted hover:bg-surface-hover hover:text-text"
+                    }`}
+                  >
+                    {rDone && !active && <Icon name="check" className="h-3 w-3" />}
+                    <span>{t("learn.roundTab", { n: idx + 1 })}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          leftIcon={<Icon name="book-open-text" />}
+          onClick={() => setShowWords(true)}
+        >
+          {t("learn.done.words")}
+        </Button>
+      </div>
       {mode === "guess" && <GuessView key={key} {...viewProps} />}
       {mode === "flashcard" && <FlashView key={key} {...viewProps} />}
       {(mode === "quiz" || mode === "reverse_quiz") && <ChoiceView key={key} mode={mode} {...viewProps} />}

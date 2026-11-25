@@ -12,12 +12,43 @@
     "review": "Sentences to review",
     "notes": "Notes"
   },
+  "header": {
+    "sayDueWords": "You have {{count}} words due for review today!",
+    "sayAllWordsClear": "All your saved words are right on schedule!",
+    "sayReviewSentences": "You have {{count}} sentences to practise again!",
+    "sayNotes": "Personal notes help you remember sentence patterns deeply!",
+    "ctaReviewWords": "Review due words",
+    "ctaReviewSentences": "Review sentences"
+  },
+  "pagination": {
+    "showing": "Showing {{from}}–{{to}} of {{total}} items",
+    "perPage": "Per page"
+  },
   "review": {
     "startReview": "Review sentences",
     "tip": "A sentence joins this list when you score under {{low}}. Practice it again and score {{high}} or more to take it off. Dictation and Shadowing keep separate lists for the same sentence.",
     "count_one": "{{count}} sentence waiting · lowest scores first",
     "count_other": "{{count}} sentences waiting · lowest scores first",
     "lastScore": "Last score {{score}}",
+    "search": "Search by sentence or lesson title…",
+    "listen": "Listen to sentence",
+    "clearFilters": "Clear filters",
+    "stats": {
+      "allHint": "sentences in review queue",
+      "dictationHint": "sentences to type again",
+      "shadowingHint": "sentences to speak again"
+    },
+    "reasonFilter": {
+      "label": "Reason",
+      "all": "All reasons",
+      "low": "Low score",
+      "manual": "Pinned"
+    },
+    "sorts": {
+      "label": "Sort",
+      "score_asc": "Lowest score",
+      "newest": "Newest"
+    },
     "reason": {
       "low_score": "Low score",
       "manual": "Pinned",
@@ -43,6 +74,11 @@
   },
   "notes": {
     "hint": "Notes belong to a sentence in one mode: Dictation and Shadowing keep separate notes. While practicing, press N to add one.",
+    "search": "Search notes, sentence text, or lesson title…",
+    "allLessons": "All lessons",
+    "clearFilters": "Clear filters",
+    "emptyFilteredTitle": "No matching notes",
+    "emptyFilteredDesc": "Try another keyword or choose a different lesson.",
     "emptyTitle": "No notes yet",
     "emptyDesc": "Finish a sentence, then press N to write a note for it in the mode you're practicing.",
     "edit": "Edit note",
@@ -86,6 +122,21 @@
       "learning": "Learning",
       "mastered": "Mastered"
     },
+    "sorts": {
+      "label": "Sort",
+      "newest": "Newest",
+      "due_first": "Due first",
+      "alpha": "A → Z"
+    },
+    "pos": {
+      "all": "All parts of speech"
+    },
+    "quiz": {
+      "hideMeaning": "Hide meanings to self-test",
+      "showMeaning": "Show meanings",
+      "revealHint": "Click or hover to reveal meaning"
+    },
+    "clearFilters": "Clear filters",
     "status": {
       "new": "New",
       "learning": "Learning",

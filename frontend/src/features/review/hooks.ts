@@ -18,11 +18,13 @@ export function useScrollTopOn(key: string | number): void {
 
 export const reviewKeys = {
   dailyPlan: (run: number) => ["review", "daily-plan", run] as const,
-  sentencePlan: (perMode: number, run: number) => ["review", "sentence-plan", perMode, run] as const,
+  dailyCards: (run: number, extra: boolean) => ["review", "daily-cards", run, extra] as const,
+  sentencePlan: (perMode: number, run: number, sentenceId?: string, mode?: PracticeMode) =>
+    ["review", "sentence-plan", perMode, run, sentenceId ?? "all", mode ?? "all"] as const,
 };
 
 /**
- * Kế hoạch Ôn tập hằng ngày. `run` tăng mỗi lần học viên chọn "Ôn tiếp" để lập lại từ dữ liệu hiện tại. Luôn tải mới vì
+ * Kế hoạch Luyện tập hằng ngày. `run` tăng mỗi lần học viên chọn "Ôn tiếp" để lập lại từ dữ liệu hiện tại. Luôn tải mới vì
  * thẻ và câu đổi sau mỗi lượt ôn.
  */
 export const useDailyPlan = (run: number, enabled = true) =>
@@ -34,6 +36,21 @@ export const useDailyPlan = (run: number, enabled = true) =>
     gcTime: 0,
     retry: 1,
     refetchOnWindowFocus: false,
+  });
+
+/**
+ * Thẻ của phần ôn thẻ (đến hạn, từ mới, thẻ củng cố). Không tự tải lại để danh sách thẻ không đổi giữa lượt; `run` tăng khi
+ * "Ôn tiếp".
+ */
+export const useDailyCards = (run: number, extra: boolean) =>
+  useQuery({
+    queryKey: reviewKeys.dailyCards(run, extra),
+    queryFn: () => reviewApi.getDailyCards(extra),
+    networkMode: NETWORK_MODE,
+    gcTime: 0,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
 /**
@@ -52,10 +69,10 @@ export const useRemainingPlan = (run: number, enabled: boolean) =>
   });
 
 /** Các câu của phiên Ôn câu riêng; `run` tăng khi "Ôn thêm". Không tự tải lại để danh sách không đổi giữa chừng. */
-export const useSentencePlan = (perMode: number, run: number) =>
+export const useSentencePlan = (perMode: number, run: number, sentenceId?: string, mode?: PracticeMode) =>
   useQuery({
-    queryKey: reviewKeys.sentencePlan(perMode, run),
-    queryFn: () => reviewApi.getSentencePlan(perMode),
+    queryKey: reviewKeys.sentencePlan(perMode, run, sentenceId, mode),
+    queryFn: () => reviewApi.getSentencePlan(perMode, sentenceId, mode),
     networkMode: NETWORK_MODE,
     gcTime: 0,
     retry: 1,

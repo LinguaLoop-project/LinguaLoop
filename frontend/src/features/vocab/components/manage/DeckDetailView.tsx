@@ -185,6 +185,7 @@ export default function DeckDetailView({ role, deckId, hideUnpublishReason = fal
               <h1 className="text-2xl font-bold text-text">{deck.name}</h1>
               <div className="flex flex-wrap gap-1.5 text-xs text-text-muted">
                 <MetaChip icon="folders">{deck.categoryName ?? t("manage.otherCategory")}</MetaChip>
+                {deck.cefrLevel && <MetaChip icon="graduation-cap">{deck.cefrLevel}</MetaChip>}
                 <MetaChip icon="user">{deck.ownerName ?? t("manage.system")}</MetaChip>
               </div>
             </div>

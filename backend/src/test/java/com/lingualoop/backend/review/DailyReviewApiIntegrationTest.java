@@ -29,7 +29,7 @@ import com.lingualoop.backend.practice.AttemptTestData;
 import com.lingualoop.backend.vocab.VocabTestData;
 
 /**
- * Phiên Ôn tập hằng ngày (UC-HT-05) trên Postgres thật: định mức theo mục tiêu ngày (BR-HT-24), cách chọn câu
+ * Phiên Luyện tập hằng ngày (UC-HT-05) trên Postgres thật: định mức theo mục tiêu ngày (BR-HT-24), cách chọn câu
  * (BR-HT-20) và đánh dấu "đã ôn hôm nay" (BR-HT-21). Mỗi test dùng học viên và bài riêng nên không đụng nhau.
  */
 @SpringBootTest
@@ -92,6 +92,25 @@ class DailyReviewApiIntegrationTest {
             vocab.progress(user, card, 2, 6, "now() - interval '5 minutes'");
         }
         return cards;
+    }
+
+    /**
+     * Học viên đã học xong mọi thẻ của mọi bộ thư viện hiện có (đã thuộc, hẹn rất xa): khung bài ngày không còn từ mới hay
+     * thẻ củng cố để lấp, nên phiên chỉ còn thẻ đến hạn và câu. Các test dùng chung một cơ sở dữ liệu nên bộ của test khác
+     * luôn có sẵn thẻ Mới. Gọi sau khi đã tạo bộ của test.
+     */
+    private void learnedEverything(UUID user) {
+        jdbc.update("""
+                INSERT INTO user_card_progress (user_id, card_id, repetitions, interval_days, due_at)
+                SELECT ?, c.id, 6, 30, now() + interval '400 days'
+                FROM vocab_cards c JOIN vocab_decks d ON d.id = c.deck_id
+                WHERE d.kind = 'library' AND d.status = 'published' AND d.deleted_at IS NULL AND c.deleted_at IS NULL
+                ON CONFLICT DO NOTHING""", user);
+    }
+
+    /** Học viên mục tiêu 15 phút đã ôn đủ 20 thẻ hôm nay: phiên trống nên trang gợi ý việc khác (BR-HT-24). */
+    private void quotaReached(UUID user) {
+        answered(user, dueCards(user, 20), "review", "1 second");
     }
 
     @Test
@@ -273,6 +292,7 @@ class DailyReviewApiIntegrationTest {
         UUID user = student(15);
         List<UUID> cards = dueCards(user, 5);
         answered(user, cards.subList(0, 3), "review", "1 second");
+        learnedEverything(user);                       // không còn từ mới hay thẻ củng cố để lấp
 
         as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsInPlan").value(2))
                 .andExpect(jsonPath("$.data.cardsDoneToday").value(3))
@@ -356,14 +376,16 @@ class DailyReviewApiIntegrationTest {
     void plan_withSomethingToReview_hasNoSuggestions() throws Exception {
         UUID user = student(15);
         dueCards(user, 2);
+        learnedEverything(user);
 
         as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsInPlan").value(2))
                 .andExpect(jsonPath("$.data.suggestions").doesNotExist());
     }
 
     @Test
-    void plan_nothingToReview_suggestsTheNextNewWordsOfTheDeckBeingLearned() throws Exception {
+    void plan_quotaReached_suggestsTheNextNewWordsOfTheDeckBeingLearned() throws Exception {
         UUID user = student(15);
+        quotaReached(user);
         UUID deck = vocab.deck(base + "next", false);
         UUID part1 = vocab.group(deck, 1);
         UUID part2 = vocab.group(deck, 2);
@@ -383,8 +405,9 @@ class DailyReviewApiIntegrationTest {
     }
 
     @Test
-    void plan_nothingToReview_neverStudied_suggestsAFirstPartToStartWith() throws Exception {
+    void plan_quotaReached_neverStudied_suggestsAFirstPartToStartWith() throws Exception {
         UUID user = student(15);
+        quotaReached(user);
         vocab.fill(vocab.deck(base + "start", false), 1, 3, base + "s");
 
         as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.newWords.deckId").isNotEmpty())
@@ -392,9 +415,47 @@ class DailyReviewApiIntegrationTest {
                 .andExpect(jsonPath("$.data.suggestions.newWords.continuing").value(false));
     }
 
+    /** Một bài thư viện ở mức {@code level} mà {@code user} đã luyện nghe chép một câu (tính vào cấp độ hiện tại). */
+    private void practiceLessonAt(UUID user, UUID topic, String level, String title) {
+        UUID lesson = lessonFixtures.lesson(topic, title + " " + base, false, "published", level, nextViews(), false);
+        UUID sentence = lessonFixtures.sentence(lesson, 0, "Hello there.");
+        attempts.insertAttempt(user, sentence, "dictation", "normal", false, false, Instant.now());
+    }
+
+    @Test
+    void plan_neverStudied_startsWithTheDeckAtTheLearnersLevel_BR_HT_32_AC_HT_81() throws Exception {
+        UUID user = student(15);
+        quotaReached(user);                       // gợi ý "Học từ mới" chỉ hiện khi phiên trống
+        UUID a1 = vocab.deck(base + "lvA1", false);
+        UUID b1 = vocab.deck(base + "lvB1", false);
+        vocab.fill(a1, 1, 3, base + "la");
+        vocab.fill(b1, 1, 3, base + "lb");
+        jdbc.update("UPDATE vocab_decks SET cefr_level = 'A1' WHERE id = ?", a1);
+        jdbc.update("UPDATE vocab_decks SET cefr_level = 'B1' WHERE id = ?", b1);
+
+        // Chưa luyện bài nào: cấp độ hiện tại là A1.
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.newWords.deckId").value(a1.toString()))
+                .andExpect(jsonPath("$.data.suggestions.newWords.continuing").value(false));
+
+        // Luyện 3 bài B1 và 1 bài A2 trong 30 ngày gần nhất: cấp độ hiện tại là B1.
+        UUID topic = lessonFixtures.topic("Level " + base);
+        practiceLessonAt(user, topic, "B1", "B1 một");
+        practiceLessonAt(user, topic, "B1", "B1 hai");
+        practiceLessonAt(user, topic, "B1", "B1 ba");
+        practiceLessonAt(user, topic, "A2", "A2 một");
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.newWords.deckId").value(b1.toString()));
+
+        // Bộ đang học luôn đứng trước quy tắc cấp độ: chấm một thẻ của bộ A1 thì gợi ý quay lại bộ đó.
+        List<UUID> a1Cards = jdbc.queryForList("SELECT id FROM vocab_cards WHERE deck_id = ? ORDER BY created_at", UUID.class, a1);
+        vocab.progress(user, a1Cards.get(0), 1, 1, "now() + interval '3 days'");
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.newWords.deckId").value(a1.toString()))
+                .andExpect(jsonPath("$.data.suggestions.newWords.continuing").value(true));
+    }
+
     @Test
     void plan_nothingToReview_suggestsAnUnpracticedDictationLessonOfTheLowestLevel() throws Exception {
         UUID user = student(15);
+        quotaReached(user);
         UUID topic = lessonFixtures.topic("Suggest " + base);
         UUID easy = lessonFixtures.lesson(topic, "Easy " + base, false, "published", "A1", nextViews(), false);
         lessonFixtures.sentence(easy, 0, "Hello there.");
@@ -415,6 +476,7 @@ class DailyReviewApiIntegrationTest {
     @Test
     void plan_nothingToReview_suggestsShadowingOnALessonAlreadyDictated_beforeLowerLevelOnes() throws Exception {
         UUID user = student(15);
+        quotaReached(user);
         UUID topic = lessonFixtures.topic("Shadow suggest " + base);
         // bài mức thấp, rất nhiều lượt xem nhưng chưa nghe chép
         UUID untouched = lessonFixtures.lesson(topic, "Untouched " + base, false, "published", "A1", nextViews(), false);
@@ -422,7 +484,10 @@ class DailyReviewApiIntegrationTest {
         // bài mức cao hơn nhưng học viên đã nghe chép xong
         UUID dictated = lessonFixtures.lesson(topic, "Dictated " + base, false, "published", "B2", 10, false);
         UUID sentence = lessonFixtures.sentence(dictated, 0, "Heard before.");
-        attempts.insertAttempt(user, sentence, "dictation", "normal", false, false, Instant.now().minusSeconds(86_400));
+        // điểm cao nên không phải câu luyện thêm (BR-HT-31): phiên vẫn trống và trang gợi ý việc khác
+        long heard = attempts.insertAttempt(user, sentence, "dictation", "normal", false, false,
+                Instant.now().minusSeconds(86_400));
+        attempts.setScore(heard, "90");
 
         as(user, get(PLAN)).andExpect(jsonPath("$.data.suggestions.shadowingLesson.id").value(dictated.toString()))
                 .andExpect(jsonPath("$.data.suggestions.shadowingLesson.sentenceCount").value(1));
@@ -437,6 +502,8 @@ class DailyReviewApiIntegrationTest {
     void plan_nothingToReview_shadowingSuggestionSkipsProLessonsForFreeLearners() throws Exception {
         UUID free = student(15);
         UUID pro = users.newProUser();
+        quotaReached(free);
+        quotaReached(pro);
         UUID topic = lessonFixtures.topic("Pro shadow " + base);
         UUID proLesson = lessonFixtures.lesson(topic, "ProShadow " + base, true, "published", "A1", nextViews(), false);
         lessonFixtures.sentence(proLesson, 0, "Pro shadow sentence.");
@@ -450,6 +517,8 @@ class DailyReviewApiIntegrationTest {
     void plan_nothingToReview_skipsProLessonsForFreeLearners() throws Exception {
         UUID free = student(15);
         UUID pro = users.newProUser();
+        quotaReached(free);
+        quotaReached(pro);
         UUID topic = lessonFixtures.topic("Pro suggest " + base);
         UUID proLesson = lessonFixtures.lesson(topic, "Pro " + base, true, "published", "A1", nextViews(), false);
         lessonFixtures.sentence(proLesson, 0, "Pro sentence one.");
@@ -479,6 +548,7 @@ class DailyReviewApiIntegrationTest {
         UUID user = student(15);
         List<UUID> cards = vocab.fill(vocab.deck(base + "later", false), 1, 2, base + "later");
         vocab.progress(user, cards.get(0), 2, 6, "now() + interval '2 days'");
+        learnedEverything(user);                       // không còn từ mới hay thẻ củng cố để lấp (BR-HT-29)
 
         as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsDue").value(0))
                 .andExpect(jsonPath("$.data.cardsInPlan").value(0))
@@ -514,6 +584,55 @@ class DailyReviewApiIntegrationTest {
                 .andExpect(jsonPath("$.data[1].sentenceId").value(dictation.get(2).toString()));
         as(user, get("/api/v1/review/sentence-plan").param("perMode", "1"))
                 .andExpect(jsonPath("$.data.length()").value(2));
+    }
+
+    @Test
+    void sentencePlan_withSentenceAndMode_returnsOnlyThatSentence_UC_HT_05() throws Exception {
+        UUID user = student(10);
+        UUID lesson = lesson(false, "published", false);
+        UUID wanted = sentenceIn(lesson, 0);
+        UUID other = sentenceIn(lesson, 1);
+        list(user, wanted, "dictation", "40", "1 hour");
+        list(user, other, "dictation", "10", "1 hour");
+
+        as(user, get("/api/v1/review/sentence-plan").param("sentenceId", wanted.toString()).param("mode", "dictation"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].sentenceId").value(wanted.toString()))
+                .andExpect(jsonPath("$.data[0].mode").value("dictation"));
+    }
+
+    @Test
+    void sentencePlan_withSentenceNotInTheList_orOtherMode_returnsEmpty_UC_HT_05() throws Exception {
+        UUID user = student(10);
+        UUID lesson = lesson(false, "published", false);
+        UUID listed = sentenceIn(lesson, 0);
+        UUID notListed = sentenceIn(lesson, 1);
+        list(user, listed, "dictation", "40", "1 hour");
+
+        as(user, get("/api/v1/review/sentence-plan").param("sentenceId", notListed.toString()).param("mode", "dictation"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.length()").value(0));
+        as(user, get("/api/v1/review/sentence-plan").param("sentenceId", listed.toString()).param("mode", "shadowing"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.length()").value(0));
+    }
+
+    @Test
+    void sentencePlan_withSentenceOfProLesson_returnsEmptyForFreeLearner_UC_HT_05() throws Exception {
+        UUID user = student(10);
+        UUID proLesson = lesson(true, "published", false);
+        UUID sentence = sentenceIn(proLesson, 0);
+        list(user, sentence, "dictation", "40", "1 hour");
+
+        as(user, get("/api/v1/review/sentence-plan").param("sentenceId", sentence.toString()).param("mode", "dictation"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.length()").value(0));
+    }
+
+    @Test
+    void sentencePlan_withUnknownMode_returns400_UC_HT_05() throws Exception {
+        UUID user = student(10);
+
+        as(user, get("/api/v1/review/sentence-plan").param("sentenceId", UUID.randomUUID().toString()).param("mode", "karaoke"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -574,10 +693,129 @@ class DailyReviewApiIntegrationTest {
         UUID user = student(15);
         UUID sentence = sentenceIn(lesson(false, "published", false), 0);
         list(user, sentence, "dictation", "10", "2 hours");
-        attempts.insertAttempt(user, sentence, "shadowing", null, false, false, Instant.now());
 
+        // Chưa từng luyện ở Shadowing và không ở trong danh sách: không phải câu cần ôn cũng không phải câu luyện thêm.
         as(user, post(reviewed(sentence, "shadowing"))).andExpect(status().isNotFound());
         as(users.newUser(), post(reviewed(sentence, "dictation"))).andExpect(status().isNotFound());
+    }
+
+    // ── Câu luyện thêm lấp chỗ thiếu của danh sách Câu cần ôn (BR-HT-31) ──
+
+    /** Học viên đã luyện câu ở {@code mode} với điểm {@code score} cách đây {@code daysAgo} ngày, không đưa câu vào danh sách. */
+    private void practised(UUID user, UUID sentence, String mode, String score, int daysAgo) {
+        long attempt = attempts.insertAttempt(user, sentence, mode, "dictation".equals(mode) ? "normal" : null, false,
+                false, Instant.now().minusSeconds(86_400L * daysAgo));
+        attempts.setScore(attempt, score);
+    }
+
+    @Test
+    void plan_aShortListIsFilledWithPractisedSentencesBelowEighty_BR_HT_31_AC_HT_79() throws Exception {
+        UUID user = student(15);                                   // 2 câu mỗi chế độ
+        UUID lesson = lesson(false, "published", false);
+        UUID inList = sentenceIn(lesson, 0);
+        UUID x = sentenceIn(lesson, 1);
+        UUID y = sentenceIn(lesson, 2);
+        UUID z = sentenceIn(lesson, 3);
+        list(user, inList, "dictation", "50", "1 hour");
+        practised(user, x, "dictation", "45", 3);
+        practised(user, y, "dictation", "70", 3);
+        practised(user, z, "dictation", "90", 3);                  // từ 80 điểm: không bao giờ là câu luyện thêm
+        learnedEverything(user);
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.sentences.length()").value(2))
+                .andExpect(jsonPath("$.data.sentences[0].sentenceId").value(inList.toString()))
+                .andExpect(jsonPath("$.data.sentences[0].extra").value(false))
+                .andExpect(jsonPath("$.data.sentences[1].sentenceId").value(x.toString()))
+                .andExpect(jsonPath("$.data.sentences[1].extra").value(true))
+                .andExpect(jsonPath("$.data.sentencesTarget").value(2))
+                .andExpect(jsonPath("$.data.sentencesPending").value(1));        // chỉ tính Câu cần ôn
+
+        // Luyện xong x: tính vào số câu đã ôn của chế độ, không bị chọn lại, không vào danh sách Câu cần ôn.
+        attempts.insertAttempt(user, x, "dictation", "normal", true, false, Instant.now());
+        as(user, post(reviewed(x, "dictation"))).andExpect(status().isOk());
+        as(user, post(reviewed(x, "dictation"))).andExpect(status().isOk());      // gọi lại không đổi gì thêm
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.sentencesDoneToday").value(1))
+                .andExpect(jsonPath("$.data.sentences.length()").value(1))
+                .andExpect(jsonPath("$.data.sentences[0].sentenceId").value(inList.toString()));
+        org.assertj.core.api.Assertions.assertThat(jdbc.queryForObject(
+                "SELECT count(*) FROM user_sentence_review WHERE user_id = ? AND sentence_id = ?", Long.class, user, x))
+                .isZero();
+    }
+
+    @Test
+    void plan_extraSentences_neverTopUpTheOtherMode_andOnlyFillWhatTheListLacks_BR_HT_31() throws Exception {
+        UUID user = student(20);                                   // 2 câu mỗi chế độ
+        UUID lesson = lesson(false, "published", false);
+        for (int i = 0; i < 2; i++) {
+            list(user, sentenceIn(lesson, i), "dictation", "30", "1 hour");   // danh sách Nghe chép đã đủ định mức
+        }
+        UUID spare = sentenceIn(lesson, 5);
+        practised(user, spare, "dictation", "10", 2);                         // điểm rất thấp nhưng danh sách đã đủ
+        UUID shadow = sentenceIn(lesson, 6);
+        practised(user, shadow, "shadowing", "20", 2);
+        learnedEverything(user);
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.sentences.length()").value(3))
+                .andExpect(jsonPath("$.data.sentences[?(@.sentenceId=='" + spare + "')]").isEmpty())
+                .andExpect(jsonPath("$.data.sentences[2].sentenceId").value(shadow.toString()))
+                .andExpect(jsonPath("$.data.sentences[2].mode").value("shadowing"))
+                .andExpect(jsonPath("$.data.sentences[2].extra").value(true));
+    }
+
+    @Test
+    void plan_extraSentence_isSkippedForTheDay_andNotCountedAsReviewed_BR_HT_31_BR_HT_21() throws Exception {
+        UUID user = student(15);
+        UUID lesson = lesson(false, "published", false);
+        UUID first = sentenceIn(lesson, 0);
+        UUID second = sentenceIn(lesson, 1);
+        practised(user, first, "dictation", "30", 2);
+        practised(user, second, "dictation", "50", 2);
+        learnedEverything(user);
+
+        as(user, post(skipped(first, "dictation"))).andExpect(status().isOk());
+
+        as(user, get(PLAN)).andExpect(jsonPath("$.data.sentences[0].sentenceId").value(second.toString()))
+                .andExpect(jsonPath("$.data.sentences.length()").value(1))
+                .andExpect(jsonPath("$.data.sentencesDoneToday").value(0));
+        // Câu chưa từng luyện ở chế độ đó thì vẫn là 404
+        as(user, post(skipped(first, "shadowing"))).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void markReviewed_extraSentenceWithoutARecentAttempt_isRefused_BR_HT_31() throws Exception {
+        UUID user = student(15);
+        UUID sentence = sentenceIn(lesson(false, "published", false), 0);
+        practised(user, sentence, "dictation", "30", 2);           // lượt đã cũ hơn 1 giờ
+
+        as(user, post(reviewed(sentence, "dictation"))).andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("PRACTICE_SENTENCE_NOT_PRACTICED"));
+    }
+
+    @Test
+    void plan_extraSentences_skipProLessonsForFreeLearners_AC_HT_80() throws Exception {
+        UUID free = student(15);
+        UUID pro = users.newProUser();
+        UUID proLesson = lesson(true, "published", false);
+        UUID sentence = sentenceIn(proLesson, 0);
+        for (UUID user : List.of(free, pro)) {
+            practised(user, sentence, "dictation", "30", 2);
+            learnedEverything(user);
+        }
+
+        as(free, get(PLAN)).andExpect(jsonPath("$.data.sentences.length()").value(0));
+        as(pro, get(PLAN)).andExpect(jsonPath("$.data.sentences[0].sentenceId").value(sentence.toString()))
+                .andExpect(jsonPath("$.data.sentences[0].extra").value(true));
+    }
+
+    @Test
+    void sentencePlan_separateReviewSession_neverUsesExtraSentences_BR_HT_31() throws Exception {
+        UUID user = student(15);
+        UUID sentence = sentenceIn(lesson(false, "published", false), 0);
+        practised(user, sentence, "dictation", "30", 2);
+
+        as(user, get("/api/v1/review/sentence-plan")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(0));
     }
 
     @Test
@@ -639,6 +877,7 @@ class DailyReviewApiIntegrationTest {
         list(user, sentence, "shadowing", "10", "2 hours");
 
         as(user, post(skipped(sentence, "shadowing"))).andExpect(status().isOk());
+        learnedEverything(user);                       // không còn từ mới hay thẻ củng cố để lấp (BR-HT-29)
 
         // không còn việc nào trong định mức: phiên trống thay vì đưa lại đúng câu vừa bỏ qua
         as(user, get(PLAN)).andExpect(jsonPath("$.data.cardsInPlan").value(0))

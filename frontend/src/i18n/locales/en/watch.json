@@ -53,6 +53,20 @@
     "saveVideo": "Could not save the video. Please try again.",
     "pro": "This video is for Pro"
   },
+  "caption": {
+    "prev": "Previous sentence",
+    "prevTitle": "Previous sentence (←)",
+    "next": "Next sentence",
+    "nextTitle": "Next sentence (→)",
+    "replay": "Replay this sentence",
+    "replayTitle": "Replay this sentence (R)",
+    "position": "Sentence {{current}}/{{total}}"
+  },
+  "feed": {
+    "sentenceCount_one": "{{count}} sentence",
+    "sentenceCount_other": "{{count}} sentences",
+    "dictation": "Dictation"
+  },
   "entry": {
     "cta": "Watch as short videos",
     "hint": "Passive learning: watch videos with subtitles that follow the speech"

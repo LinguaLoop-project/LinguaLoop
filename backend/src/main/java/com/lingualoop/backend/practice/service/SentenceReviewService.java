@@ -49,8 +49,19 @@ public interface SentenceReviewService {
     List<ReviewPlanSentence> findReviewableToday(UUID userId, boolean userPro, Instant dayStart);
 
     /**
+     * Câu luyện thêm của từng chế độ, tối đa {@code perMode} câu mỗi chế độ (BR-HT-31): câu đã luyện, không ở trong danh
+     * Câu cần ôn, lượt gần nhất dưới 80 điểm, chưa luyện, chưa ôn và chưa bỏ qua từ {@code dayStart}. Dùng để lấp phần thiếu
+     * của phiên Luyện tập hằng ngày; hệ thống không thêm các câu này vào danh sách.
+     */
+    List<ReviewPlanSentence> findExtraToday(UUID userId, boolean userPro, Instant dayStart, int perMode);
+
+    /** Lấy một câu cần ôn cụ thể của học viên để mở trực tiếp màn Ôn câu. */
+    List<ReviewPlanSentence> findSingleReviewSentence(UUID userId, UUID sentenceId, PracticeMode mode, boolean userPro);
+
+    /**
      * Hoãn câu sang ngày mai khi học viên bỏ qua trong phiên ôn (BR-HT-21): câu không được chọn lại hôm nay và không được
-     * tính là đã ôn; câu vẫn ở trong danh sách. Câu không ở trong danh sách thì lỗi không tìm thấy.
+     * tính là đã ôn; câu vẫn ở trong danh sách. Câu không ở trong danh sách thì được coi là câu luyện thêm (BR-HT-31) nếu
+     * học viên đã luyện nó ở chế độ đó, còn không thì lỗi không tìm thấy.
      */
     void skip(UUID userId, UUID sentenceId, PracticeMode mode);
 
@@ -61,8 +72,9 @@ public interface SentenceReviewService {
     Map<PracticeMode, Integer> countReviewedSince(UUID userId, Instant since);
 
     /**
-     * Đánh dấu câu "đã ôn hôm nay" sau một lượt trong phiên ôn câu (BR-HT-21). Câu phải đang trong danh sách và học viên
-     * phải vừa có lượt thật ở chế độ đó; gọi lại nhiều lần không đổi gì thêm.
+     * Đánh dấu câu "đã ôn hôm nay" sau một lượt trong phiên ôn câu (BR-HT-21). Học viên phải vừa có lượt thật ở chế độ đó;
+     * gọi lại nhiều lần không đổi gì thêm. Câu ngoài danh sách chỉ được đánh dấu như câu luyện thêm (BR-HT-31) khi học viên
+     * đã luyện nó ở chế độ đó, còn không thì lỗi không tìm thấy.
      */
     void markReviewed(UUID userId, UUID sentenceId, PracticeMode mode);
 }

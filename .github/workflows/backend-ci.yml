@@ -343,18 +343,21 @@ jobs:
       - name: Gọi deploy hook
         if: env.DEPLOY_HOOK != ''
         run: |
-          # Webhook chung: Render / Railway / Coolify / Portainer đều nhận POST.
-          # Body gửi kèm tag ảnh theo SHA để phía server biết kéo đúng bản nào;
-          # server nào không đọc body thì bỏ qua, vẫn deploy bản mới nhất.
+          # Service Render chạy từ ảnh có sẵn (Existing Image) trên ghcr.io, không
+          # tự build nữa: build trên Render tải dependency từ Maven Central và
+          # hay bị chặn 429. Deploy hook của Render không đọc body, chỉ đọc
+          # query imgURL để biết kéo ảnh nào; thiếu imgURL thì deploy lại ảnh cũ.
           # metadata-action cắt SHA còn 7 ký tự nên ở đây cắt cho khớp.
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-$SHORT_SHA"
+          # Tên ảnh trên ghcr.io luôn viết thường, còn github.repository giữ chữ hoa.
+          IMAGE=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')
+          ENCODED=$(jq -rn --arg v "$IMAGE" '$v|@uri')
+          # Hook của Render đã có ?key=..., nên nối thêm bằng &.
+          case "$DEPLOY_HOOK" in *\?*) SEP='&' ;; *) SEP='?' ;; esac
           echo "Deploy ảnh: $IMAGE"
           # --fail-with-body: HTTP >= 400 thì lệnh trả lỗi VÀ in body để debug.
-          curl --fail-with-body -sS -X POST \
-            -H "Content-Type: application/json" \
-            -d "{\"image\":\"$IMAGE\"}" \
-            "$DEPLOY_HOOK"
+          curl --fail-with-body -sS -X POST "${DEPLOY_HOOK}${SEP}imgURL=${ENCODED}"
 
       - name: Kiểm tra /actuator/health
         if: env.DEPLOY_HOOK != '' && env.STAGING_URL != ''

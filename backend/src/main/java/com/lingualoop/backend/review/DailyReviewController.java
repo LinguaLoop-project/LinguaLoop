@@ -9,12 +9,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lingualoop.backend.common.response.ApiResponse;
+import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.practice.dto.ReviewPlanSentence;
 import com.lingualoop.backend.security.CurrentUserId;
 
 import lombok.RequiredArgsConstructor;
 
-/** Phiên Ôn tập hằng ngày (UC-HT-05). Thẻ lấy từ {@code GET /vocab/review?limit=}, câu từ danh sách trong kế hoạch này. */
+/** Phiên Luyện tập hằng ngày (UC-HT-05). Thẻ lấy từ {@code GET /vocab/review?limit=}, câu từ danh sách trong kế hoạch này. */
 @RestController
 @RequestMapping("/api/v1/review")
 @RequiredArgsConstructor
@@ -27,10 +28,22 @@ public class DailyReviewController {
         return ApiResponse.ok(dailyReviewService.plan(userId));
     }
 
-    /** Câu của phiên Ôn câu riêng: mỗi chế độ tối đa {@code perMode} câu (mặc định 2, BR-HT-20). */
+    /** Thẻ của phần ôn thẻ theo khung bài ngày; {@code extra=true} là lượt "Ôn thêm" chỉ có thẻ đến hạn (BR-HT-24, BR-HT-29). */
+    @GetMapping("/daily-cards")
+    public ApiResponse<DailyCardsView> dailyCards(@CurrentUserId UUID userId,
+            @RequestParam(defaultValue = "false") boolean extra) {
+        return ApiResponse.ok(dailyReviewService.dailyCards(userId, extra));
+    }
+
+    /**
+     * Câu của phiên Ôn câu riêng: mỗi chế độ tối đa {@code perMode} câu (mặc định 2, BR-HT-20), hoặc đúng một câu khi
+     * truyền cả {@code sentenceId} và {@code mode}.
+     */
     @GetMapping("/sentence-plan")
     public ApiResponse<List<ReviewPlanSentence>> sentencePlan(@CurrentUserId UUID userId,
-            @RequestParam(defaultValue = "2") int perMode) {
-        return ApiResponse.ok(dailyReviewService.sentencePlan(userId, perMode));
+            @RequestParam(defaultValue = "2") int perMode,
+            @RequestParam(required = false) UUID sentenceId,
+            @RequestParam(required = false) PracticeMode mode) {
+        return ApiResponse.ok(dailyReviewService.sentencePlan(userId, perMode, sentenceId, mode));
     }
 }

@@ -10,13 +10,14 @@ export const dictionaryKeys = {
 /** Từ không có trong từ điển (404), khác với lỗi mạng hay lỗi máy chủ. */
 export const isWordNotFound = (error: unknown) => isAxiosError(error) && error.response?.status === 404;
 
-/** Tra một từ đã chuẩn hóa. Nội dung từ điển gần như không đổi nên giữ cache đến hết phiên. */
+/** Tra một từ đã chuẩn hóa. Nội dung từ điển gần như không đổi nên giữ cache đến hết phiên; 404 không thử lại. */
 export const useWordLookup = (word: string | null) =>
   useQuery({
     queryKey: dictionaryKeys.word(word ?? ""),
     queryFn: () => dictionaryApi.lookup(word!),
     enabled: !!word,
     staleTime: Infinity,
+    retry: (failureCount, error) => !isWordNotFound(error) && failureCount < 1,
   });
 
 /** Tìm trong kho từ điển; giữ kết quả cũ trong lúc gõ để danh sách không nháy. */

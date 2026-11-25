@@ -53,7 +53,8 @@ export default function DictationReviewStep({ sentence, player, onFinished }: St
     setResult(attempt);
     if (attempt.gaveUp) return;
     markReviewed.mutate({ mode: "dictation", sentenceId: sentence.sentenceId });
-    const kind = reviewPromptKind(attempt.score, true);
+    // Câu luyện thêm không ở trong danh sách nên chỉ có thể được hỏi lưu, không được hỏi bỏ (BR-HT-31).
+    const kind = reviewPromptKind(attempt.score, !sentence.extra);
     if (kind) setReviewPrompt({ kind, sentenceId: sentence.sentenceId, mode: "dictation", score: attempt.score });
   };
 
@@ -124,6 +125,19 @@ export default function DictationReviewStep({ sentence, player, onFinished }: St
         <div className="flex flex-wrap items-center gap-2.5">
           <Button variant="ghost" size="sm" leftIcon={<Icon name="volume-2" />} disabled={!canPlay} onClick={listen}>
             {t("dictation.listenAgain")}
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            leftIcon={<Icon name="rotate-ccw" />}
+            onClick={() => {
+              setResult(null);
+              setTyped("");
+              setRevealed({});
+              setReplays(0);
+            }}
+          >
+            {t("retry")}
           </Button>
           <span className="grow" />
           <Button rightIcon={<Icon name="arrow-right" />} onClick={finish}>

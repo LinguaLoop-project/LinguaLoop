@@ -40,7 +40,9 @@ const TopicDetailPage = lazy(() =>
 );
 const DictationPage = lazy(() => import("@/features/dictation/pages/DictationPage"));
 const MyWordsPage = lazy(() => import("@/features/practice/pages/MyWordsPage"));
+const WordDetailPage = lazy(() => import("@/features/dictionary/pages/WordDetailPage"));
 const VocabPage = lazy(() => import("@/features/vocab/pages/VocabPage"));
+const WeaknessPage = lazy(() => import("@/features/stats/pages/WeaknessPage"));
 const DeckPage = lazy(() => import("@/features/vocab/pages/DeckPage"));
 const PartPage = lazy(() => import("@/features/vocab/pages/PartPage"));
 const MyDeckDetailPage = lazy(() => import("@/features/vocab/pages/MyDeckDetailPage"));
@@ -220,8 +222,12 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <MyWordsPage />,
         },
         {
+          path: "dictionary/:word",
+          element: <WordDetailPage />,
+        },
+        {
           path: "weakness",
-          element: <PlaceholderPage pageKey="student.weakness" />,
+          element: <WeaknessPage />,
         },
         {
           path: "test",
@@ -244,8 +250,9 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <PlaceholderPage pageKey="student.notifications" />,
         },
         {
+          // Thống kê nay nằm trên trang Hôm nay; giữ địa chỉ cũ để liên kết đã lưu vẫn dùng được
           path: "stats",
-          element: <PlaceholderPage pageKey="student.stats" />,
+          element: <Navigate to="/student" replace />,
         },
       ],
     },

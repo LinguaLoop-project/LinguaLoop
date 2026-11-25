@@ -113,13 +113,55 @@ Số phút học mỗi ngày mà học viên chọn (10, 15, 20 hoặc 30). Quy�
 _Tránh_: thời lượng học, hạn mức ngày (dùng cho credit AI)
 
 **Định mức ôn ngày**:
-Số thẻ và số câu mỗi chế độ tối đa học viên cần ôn trong một ngày, theo múi giờ của họ. Ôn đủ định mức, hoặc hết việc đến hạn, thì coi như đã ôn xong hôm nay; ôn thêm là tùy chọn. Chỉ tính thẻ ôn, không tính thẻ học từ mới.
+Số thẻ và số câu mỗi chế độ học viên cần ôn trong một ngày, theo múi giờ của họ. Ngày ít việc đến hạn thì phần thiếu được lấp theo Khung bài ngày. Ôn đủ định mức, hoặc không còn gì để lấp, thì coi như đã ôn xong hôm nay; ôn thêm là tùy chọn. Thẻ học ở trang Học từ mới không được tính.
 _Tránh_: hạn mức ngày (dùng cho credit AI), chỉ tiêu
 
 **Phiên ôn tập hằng ngày**:
-Một lần học viên ôn thẻ đến hạn rồi ôn câu, lấy phần còn lại của Định mức ôn ngày. Không được lưu ở máy chủ: thoát giữa chừng thì kết quả đã chấm vẫn giữ và được trừ vào định mức.
+Một lần học viên ôn thẻ rồi ôn câu, lấy phần còn lại của Định mức ôn ngày. Không được lưu ở máy chủ: thoát giữa chừng thì kết quả đã chấm vẫn giữ và được trừ vào định mức.
 _Tránh_: bài ôn, phiên học (là bản ghi gom nhật ký của Học từ mới)
+
+**Khung bài ngày**:
+Cách lấp đủ Định mức ôn ngày khi ít việc đến hạn: phần thẻ lấy thẻ đến hạn, rồi từ mới (có giới hạn mỗi ngày), rồi Thẻ củng cố; phần câu lấy Câu cần ôn, rồi Câu luyện thêm.
+_Tránh_: bài ôn cố định
+
+**Thẻ củng cố**:
+Thẻ đã học nhưng còn yếu (hay quên), chưa đến hạn, được đưa vào Phiên ôn tập hằng ngày để luyện thêm. Luyện thẻ củng cố không làm đổi lịch ôn của thẻ.
+_Tránh_: thẻ yếu, thẻ ôn sớm
+
+**Câu luyện thêm**:
+Câu học viên đã luyện nhưng điểm còn thấp và không nằm trong Câu cần ôn, được đưa vào Phiên ôn tập hằng ngày khi danh sách Câu cần ôn không đủ định mức. Không tự thêm vào Câu cần ôn.
+_Tránh_: câu gợi ý, câu bù
+
+**Cấp độ hiện tại**:
+Cấp CEFR hệ thống suy ra cho học viên từ các bài họ đã luyện gần đây, dùng để chọn bộ từ khởi đầu. Học viên chưa luyện bài nào được coi là A1.
+_Tránh_: trình độ (không còn bài kiểm tra trình độ)
 
 **Hồ sơ học tập**:
 Phần thiết lập học viên điền ở lần đầu đăng nhập: tên hiển thị, Mục tiêu ngày, ngôn ngữ giao diện, múi giờ và việc đồng ý điều khoản. Chưa điền xong thì học viên chưa dùng được các trang khác. Múi giờ quyết định ranh giới của "hôm nay".
 _Tránh_: onboarding, thông tin tài khoản (gồm cả email và mật khẩu)
+
+### Thống kê học tập
+
+**Ngày đã học**:
+Một ngày lịch theo múi giờ của học viên mà trong đó học viên có ít nhất một hoạt động học: nộp một lượt làm nghe chép (kể cả làm lại hay bỏ cuộc), nộp một lượt làm shadowing, trả lời một thẻ, hoặc hoàn thành một phiên Thực hành với AI. Gia sư không tính.
+_Tránh_: ngày hoạt động, ngày đăng nhập (mở ứng dụng không tính là học)
+
+**Chuỗi ngày học**:
+Số Ngày đã học liền nhau tính đến hôm nay. Hôm nay chưa học thì chuỗi vẫn giữ theo hôm qua; trọn một ngày không học thì chuỗi về 0.
+_Tránh_: streak (chỉ dùng trong code), chuỗi đăng nhập
+
+**Kỷ lục chuỗi**:
+Chuỗi ngày học dài nhất từng có của học viên; không bao giờ giảm.
+_Tránh_: chuỗi tốt nhất, best streak
+
+**Buổi luyện**:
+Mọi lượt làm của một học viên trên một bài, ở một chế độ, trong một ngày lịch theo múi giờ của học viên. Là một dòng trong Lịch sử luyện tập; không phải bản ghi được lưu, chỉ là cách gom các lượt làm.
+_Tránh_: phiên luyện, phiên học (dùng cho phiên học từ vựng), session
+
+**Khoảng thống kê**:
+Khoảng thời gian học viên chọn khi xem thống kê: 7 ngày, 30 ngày (mặc định) hoặc Toàn bộ. "7 ngày" là hôm nay và 6 ngày lịch trước đó theo múi giờ của học viên. Chỉ áp dụng cho số liệu theo hoạt động (câu đã luyện, tỷ lệ đúng, lỗi, âm vị), không áp dụng cho số liệu hiện trạng (Trạng thái thẻ, bài đang học, chuỗi ngày học).
+_Tránh_: bộ lọc ngày, kỳ
+
+**Khoảng liền trước**:
+Khoảng có cùng số ngày lịch nằm ngay trước Khoảng thống kê đang chọn (7 ngày so với 7 ngày liền trước), dùng để so sánh số câu đã luyện và điểm Shadowing trung bình. Khoảng Toàn bộ không có khoảng liền trước.
+_Tránh_: kỳ trước, tuần trước

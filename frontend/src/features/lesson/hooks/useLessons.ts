@@ -12,20 +12,25 @@ export const useLessonOverview = () => {
   });
 };
 
-export const useLessonSearch = (params: {
-  q?: string;
-  topicId?: string;
-  cefrLevel?: string;
-  free?: boolean;
-  state?: LessonState;
-  page?: number;
-  size?: number;
-  sort?: string;
-}) => {
+export const useLessonSearch = (
+  params: {
+    q?: string;
+    topicId?: string;
+    cefrLevel?: string;
+    free?: boolean;
+    maxDuration?: number;
+    state?: LessonState;
+    page?: number;
+    size?: number;
+    sort?: string;
+  },
+  options: { enabled?: boolean } = {},
+) => {
   return useQuery({
     queryKey: ["lessons", "search", params],
     queryFn: () => lessonService.searchLessons(params),
     placeholderData: (prev) => prev,
+    enabled: options.enabled ?? true,
   });
 };
 

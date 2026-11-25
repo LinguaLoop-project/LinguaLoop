@@ -213,6 +213,8 @@
     "palette": {
       "label": "Quick search",
       "placeholder": "Search words, lessons, screens…",
+      "dictionary": "Dictionary",
+      "lessons": "Lessons",
       "goTo": "Go to",
       "actions": "Actions",
       "none": "No results for “{{q}}”"

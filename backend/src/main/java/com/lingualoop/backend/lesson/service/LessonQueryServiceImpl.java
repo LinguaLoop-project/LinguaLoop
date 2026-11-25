@@ -2,6 +2,7 @@ package com.lingualoop.backend.lesson.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,7 +64,7 @@ class LessonQueryServiceImpl implements LessonQueryService {
     private static final int CONTINUE_LIMIT = 3;
     /** Số bài gần nhất lấy ra trước khi loại bài đã hoàn thành, để vẫn đủ {@link #CONTINUE_LIMIT} bài đang học. */
     private static final int RECENT_WINDOW = 30;
-    private static final int POPULAR_PER_TOPIC = 6;
+    private static final int POPULAR_PER_TOPIC = 8;
     private static final int RELATED_LIMIT = 3;
 
     private final TopicRepository topicRepository;
@@ -100,7 +101,7 @@ class LessonQueryServiceImpl implements LessonQueryService {
 
     @Override
     public Page<LessonSummaryResponse> searchLessons(String q, UUID topicId, String cefrLevel, Boolean free,
-                                             LessonState state, UUID userId, Pageable pageable) {
+                                             Integer maxDuration, LessonState state, UUID userId, Pageable pageable) {
         Set<UUID> attempted = Set.of();
         Set<UUID> completed = Set.of();
         if (state != null) {
@@ -108,7 +109,7 @@ class LessonQueryServiceImpl implements LessonQueryService {
             completed = new HashSet<>(lessonRepository.findCompletedLessonIds(userId));
         }
         Specification<Lesson> spec = LessonSpecification.filterLessons(
-                q, topicId, cefrLevel, free, state, attempted, completed);
+                q, topicId, cefrLevel, free, maxDuration, state, attempted, completed);
         Page<Lesson> page = lessonRepository.findAll(spec, pageable);
         return new PageImpl<>(toSummaries(page.getContent(), userId), pageable, page.getTotalElements());
     }
@@ -170,6 +171,11 @@ class LessonQueryServiceImpl implements LessonQueryService {
     }
 
     @Override
+    public Optional<String> mostPracticedLevel(UUID userId, Instant since) {
+        return lessonRepository.findMostPracticedLevel(userId, since).stream().findFirst();
+    }
+
+    @Override
     public List<SentenceResponse> getSentences(UUID lessonId, UUID userId) {
         Lesson lesson = findVisibleLesson(lessonId);
         if (lesson.isPro() && !subscriptionQueryService.isPro(userId)) {
@@ -223,20 +229,23 @@ class LessonQueryServiceImpl implements LessonQueryService {
         return new TopicResponse(base.id(), base.name(), total, completed);
     }
 
-    /** Chuyển bài sang summary: đếm câu một truy vấn, kiểm tra Pro một lần (chỉ khi có bài Pro). */
+    /** Chuyển bài sang summary: đếm câu một truy vấn, kiểm tra Pro và bài đã lưu theo lô. */
     private List<LessonSummaryResponse> toSummaries(List<Lesson> lessons, UUID userId) {
         if (lessons.isEmpty()) {
             return List.of();
         }
-        Map<UUID, Long> counts = lessonProgress.sentenceCounts(lessons.stream().map(Lesson::getId).toList());
+        List<UUID> ids = lessons.stream().map(Lesson::getId).toList();
+        Map<UUID, Long> counts = lessonProgress.sentenceCounts(ids);
         boolean hasProLesson = lessons.stream().anyMatch(Lesson::isPro);
         boolean userIsPro = hasProLesson && subscriptionQueryService.isPro(userId);
         Map<UUID, ModeProgressResponse> progress = lessonProgress.of(userId, counts);
+        Set<UUID> savedIds = userId == null ? Set.of() : lessonSaves.findSavedAmong(userId, ids);
         return lessons.stream().map(lesson -> {
             LessonSummaryResponse s = lessonMapper.toSummary(lesson);
             return new LessonSummaryResponse(s.id(), s.title(), s.cefrLevel(), s.youtubeId(), s.durationSec(),
                     s.viewCount(), s.thumbnailUrl(), s.pro(), lesson.isPro() && !userIsPro,
-                    counts.getOrDefault(lesson.getId(), 0L), progress.getOrDefault(lesson.getId(), LessonProgress.NONE));
+                    counts.getOrDefault(lesson.getId(), 0L), progress.getOrDefault(lesson.getId(), LessonProgress.NONE),
+                    savedIds.contains(lesson.getId()));
         }).toList();
     }
 

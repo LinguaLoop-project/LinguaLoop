@@ -1,5 +1,6 @@
 package com.lingualoop.backend.lesson.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,8 +29,13 @@ public interface LessonQueryService {
      * @param cefrLevel một hoặc nhiều mức CEFR cách nhau dấu phẩy
      * @param state     lọc theo tiến độ của {@code userId}; null = không lọc
      */
+    default Page<LessonSummaryResponse> searchLessons(String q, UUID topicId, String cefrLevel, Boolean free,
+                                              LessonState state, UUID userId, Pageable pageable) {
+        return searchLessons(q, topicId, cefrLevel, free, null, state, userId, pageable);
+    }
+
     Page<LessonSummaryResponse> searchLessons(String q, UUID topicId, String cefrLevel, Boolean free,
-                                      LessonState state, UUID userId, Pageable pageable);
+                                      Integer maxDuration, LessonState state, UUID userId, Pageable pageable);
 
     LibraryOverviewResponse getOverview(UUID userId);
 
@@ -44,6 +50,12 @@ public interface LessonQueryService {
      * Rỗng nếu người học đã luyện Shadowing mọi bài họ xem được.
      */
     Optional<LessonSuggestionResponse> suggestShadowingLesson(UUID userId, boolean userPro);
+
+    /**
+     * Cấp độ hiện tại của người học (BR-HT-32): mức CEFR xuất hiện nhiều nhất trong các bài họ đã luyện Nghe chép hoặc
+     * Shadowing từ {@code since}, bằng nhau thì mức thấp hơn. Rỗng nếu chưa luyện bài nào từ mốc đó.
+     */
+    Optional<String> mostPracticedLevel(UUID userId, Instant since);
 
     LessonDetailResponse getLessonDetail(UUID lessonId, UUID userId);
 

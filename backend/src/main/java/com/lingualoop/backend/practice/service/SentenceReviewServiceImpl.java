@@ -75,18 +75,46 @@ class SentenceReviewServiceImpl implements SentenceReviewService {
     @Transactional(readOnly = true)
     public List<ReviewPlanSentence> findReviewableToday(UUID userId, boolean userPro, Instant dayStart) {
         return reviews.findReviewableToday(userId, userPro, dayStart).stream()
-                .map(e -> new ReviewPlanSentence(e.getSentenceId(), PracticeMode.valueOf(e.getMode()), e.getLessonId(),
-                        e.getLessonTitle(), e.getYoutubeId(), e.getStartMs(), e.getEndMs(), e.getText(), e.getTextVi(),
-                        e.getLastScore()))
+                .map(e -> planSentence(e, false))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReviewPlanSentence> findExtraToday(UUID userId, boolean userPro, Instant dayStart, int perMode) {
+        if (perMode <= 0) {
+            return List.of();
+        }
+        return reviews.findExtraToday(userId, userPro, dayStart, perMode).stream().map(e -> planSentence(e, true)).toList();
+    }
+
+    private static ReviewPlanSentence planSentence(SentenceReviewRepository.PlanEntry e, boolean extra) {
+        return new ReviewPlanSentence(e.getSentenceId(), PracticeMode.valueOf(e.getMode()), e.getLessonId(),
+                e.getLessonTitle(), e.getYoutubeId(), e.getStartMs(), e.getEndMs(), e.getText(), e.getTextVi(),
+                e.getLastScore(), extra);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReviewPlanSentence> findSingleReviewSentence(UUID userId, UUID sentenceId, PracticeMode mode,
+            boolean userPro) {
+        return reviews.findSinglePlanEntry(userId, sentenceId, mode.name(), userPro).stream()
+                .map(e -> planSentence(e, false))
                 .toList();
     }
 
     @Override
     @Transactional
     public void skip(UUID userId, UUID sentenceId, PracticeMode mode) {
-        if (reviews.skip(userId, sentenceId, mode.name(), Instant.now(clock)) == 0) {
+        Instant now = Instant.now(clock);
+        if (reviews.skip(userId, sentenceId, mode.name(), now) > 0) {
+            return;
+        }
+        // Câu ngoài danh sách chỉ bỏ qua được khi là câu luyện thêm: học viên đã luyện nó ở chế độ này (BR-HT-31).
+        if (!reviews.hasAttempt(userId, sentenceId, mode.name())) {
             throw new BusinessException(ErrorCode.NOT_FOUND);
         }
+        reviews.skipExtra(userId, sentenceId, mode.name(), now);
     }
 
     @Override
@@ -102,11 +130,16 @@ class SentenceReviewServiceImpl implements SentenceReviewService {
     @Override
     @Transactional
     public void markReviewed(UUID userId, UUID sentenceId, PracticeMode mode) {
-        if (!reviews.isInList(userId, sentenceId, mode.name())) {
+        Instant now = Instant.now(clock);
+        Instant recent = now.minus(RECENT_ATTEMPT);
+        boolean inList = reviews.isInList(userId, sentenceId, mode.name());
+        // Câu ngoài danh sách chỉ đánh dấu được khi là câu luyện thêm: học viên đã luyện nó ở chế độ này (BR-HT-31).
+        if (!inList && !reviews.hasAttempt(userId, sentenceId, mode.name())) {
             throw new BusinessException(ErrorCode.NOT_FOUND);
         }
-        Instant now = Instant.now(clock);
-        if (reviews.markReviewed(userId, sentenceId, mode.name(), now, now.minus(RECENT_ATTEMPT)) == 0) {
+        int marked = inList ? reviews.markReviewed(userId, sentenceId, mode.name(), now, recent)
+                : reviews.markExtraReviewed(userId, sentenceId, mode.name(), now, recent);
+        if (marked == 0) {
             throw new BusinessException(ErrorCode.PRACTICE_SENTENCE_NOT_PRACTICED);
         }
     }

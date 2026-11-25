@@ -420,8 +420,11 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
             <Icon name="arrow-left" />
             <span className="truncate">{t("backTo", { title: lesson.title })}</span>
           </Link>
-          <div className="text-xs font-semibold uppercase tracking-wider text-fn-dictation">
-            {lesson.cefrLevel ? t("overlineWithLevel", { cefr: lesson.cefrLevel }) : t("overline")}
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-fn-dictation/40 bg-fn-dictation-soft px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-fn-dictation">
+              <Icon name="headphones" className="size-3.5" />
+              {lesson.cefrLevel ? t("overlineWithLevel", { cefr: lesson.cefrLevel }) : t("overline")}
+            </span>
           </div>
           <h1 className="font-display text-3xl font-bold">{t("title")}</h1>
         </div>

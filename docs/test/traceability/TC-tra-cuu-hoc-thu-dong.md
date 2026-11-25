@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TC-tra-cuu-hoc-thu-dong/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 40 AC, 9 đã có test, 2 một phần, 24 thiếu, 5 thủ công.
+Tổng hợp: 43 AC, 9 đã có test, 2 một phần, 27 thiếu, 5 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -46,3 +46,6 @@ Tổng hợp: 40 AC, 9 đã có test, 2 một phần, 24 thiếu, 5 thủ công.
 | AC-TC-38 | Bài không còn khả dụng vẫn nằm trong danh sách và bỏ lưu được | UC-TC-05 | B | SavedLessonApiIntegrationTest.list_keepsLessonsThatWereUnpublishedOrBecameProOnly_andTheyCanBeUnsaved_AC_TC_38 | Đã có |
 | AC-TC-39 | Danh sách trống, riêng tư và quyền truy cập | UC-TC-05 | A | SavedLessonApiIntegrationTest.list_isEmptyForANewLearner_isPrivate_andRefusesAnonymousAndTeachers_AC_TC_39 | Đã có |
 | AC-TC-40 | Nút Lưu bài và Lưu video đặt đúng chỗ | UC-TC-05 | D |  | Thủ công (kiểm tay trên trình duyệt: Lưu bài ở trang chi tiết, Lưu video và Lưu câu ở Học thụ động, thông báo, trang Bài đã lưu, bản điện thoại và nền tối) |
+| AC-TC-41 | Lọc Bài đã lưu theo trình độ, chủ đề, miễn phí, bài ngắn và giới hạn cỡ trang | UC-TC-05 |  |  | Thiếu |
+| AC-TC-42 | Thống kê Bài đã lưu | UC-TC-05 |  |  | Thiếu |
+| AC-TC-43 | Bỏ lưu hàng loạt các bài đã xong | UC-TC-05 |  |  | Thiếu |

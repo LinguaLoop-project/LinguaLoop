@@ -187,6 +187,7 @@ export default function ManageDeckList(props: ManageDeckListProps) {
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5 text-xs text-text-muted">
                     <MetaChip icon="folders">{deck.categoryName ?? t("manage.otherCategory")}</MetaChip>
+                    {deck.cefrLevel && <MetaChip icon="graduation-cap">{deck.cefrLevel}</MetaChip>}
                     <MetaChip icon="layers">{t("manage.groupCount", { count: deck.groupCount })}</MetaChip>
                     <MetaChip icon="sticky-note">{t("manage.cardCount", { count: deck.cardCount })}</MetaChip>
                     {owner && <MetaChip icon="user">{owner}</MetaChip>}
