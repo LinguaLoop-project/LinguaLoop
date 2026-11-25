@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LearningProfileForm from "../components/LearningProfileForm";
+import ProfileSection from "../components/ProfileSection";
 import SecuritySection from "../components/SecuritySection";
 import Icon from "@/components/common/Icon";
 import { useAuth } from "@/features/auth";
@@ -21,9 +21,10 @@ type TabId = (typeof TABS)[number]["id"];
 /** Khung trang Cài đặt theo mockup; hiện có tab "Học tập" và "Bảo mật & đăng nhập", các tab khác để dành. */
 export default function Settings() {
   const { t } = useTranslation("auth");
-  const [params] = useSearchParams();
-  const requested = TABS.find((entry) => entry.id === params.get("tab"));
-  const [tab, setTab] = useState<TabId>(requested?.id ?? "security");
+  // Tab nằm trên địa chỉ (`?tab=`) để liên kết từ menu tài khoản và giữa các tab chuyển tab ngay trong trang
+  const [params, setParams] = useSearchParams();
+  const tab: TabId = TABS.find((entry) => entry.id === params.get("tab"))?.id ?? "security";
+  const setTab = (next: TabId) => setParams({ tab: next });
 
   const { handleLogout } = useAuth();
 
@@ -74,7 +75,9 @@ export default function Settings() {
         </nav>
 
         <div className="min-w-0">
-          {tab === "security" ? (
+          {tab === "profile" ? (
+            <ProfileSection onSelectTab={setTab} />
+          ) : tab === "security" ? (
             <SecuritySection />
           ) : tab === "learning" ? (
             <LearningProfileForm mode="settings" />

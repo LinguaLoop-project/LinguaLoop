@@ -69,4 +69,4 @@ Tổng hợp: 64 AC, 42 đã có test, 9 một phần, 12 thiếu, 1 thủ công
 | AC-TK-61 | Trang Thông báo khi chưa có thông báo hoặc không tải được | UC-TK-09 | B, A |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
 | AC-TK-62 | Hiển thị hồ sơ của chính học viên | UC-TK-10 | D |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
 | AC-TK-63 | Hồ sơ của học viên mới | UC-TK-10 | B |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
-| AC-TK-64 | Chuyển sang Cài đặt để chỉnh sửa | UC-TK-10 | D |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
+| AC-TK-64 | Chuyển sang tab khác để chỉnh sửa | UC-TK-10 | D |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |

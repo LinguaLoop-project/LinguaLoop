@@ -23,7 +23,6 @@ const ResetPassword = lazy(() => import("@/features/auth/pages/ResetPassword"));
 const GoogleCallback = lazy(() => import("@/features/auth/pages/GoogleCallback"));
 
 const Settings = lazy(() => import("@/features/user/pages/Settings"));
-const ProfilePage = lazy(() => import("@/features/user/pages/ProfilePage"));
 const NotificationsPage = lazy(() => import("@/features/user/pages/NotificationsPage"));
 const OnboardingPage = lazy(() => import("@/features/user/pages/OnboardingPage"));
 const TodayPage = lazy(() => import("@/features/review/pages/TodayPage"));
@@ -241,7 +240,8 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "profile",
-          element: <ProfilePage />,
+          // Hồ sơ là một tab của Cài đặt (UC-TK-10); giữ địa chỉ cũ chuyển hướng để liên kết đã lưu vẫn dùng được
+          element: <Navigate to="/student/settings?tab=profile" replace />,
         },
         {
           path: "notifications",
