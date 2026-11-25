@@ -22,6 +22,7 @@
     "streakStart": "Start a streak",
     "reviewTitle": "Today's practice",
     "reviewDesc": "Today's session has {{cards}} vocabulary cards, then {{sentences}} sentences, based on your daily goal.",
+    "reviewDescRemaining": "You have {{cards}} vocabulary cards and {{sentences}} sentences left to hit today's goal.",
     "doneTitle": "You're done for today",
     "doneDesc": "No cards or sentences left to review.",
     "doneQuota": "You have met today's practice target. {{cards}} cards and {{sentences}} sentences are still due; they can wait until tomorrow.",

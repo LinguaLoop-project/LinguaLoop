@@ -21,6 +21,7 @@
     "streakStart": "Bắt đầu chuỗi mới",
     "reviewTitle": "Luyện tập hôm nay",
     "reviewDesc": "Phiên hôm nay gồm {{cards}} thẻ từ vựng rồi {{sentences}} câu, theo mục tiêu mỗi ngày của bạn.",
+    "reviewDescRemaining": "Hôm nay bạn còn {{cards}} thẻ từ vựng và {{sentences}} câu để hoàn thành mục tiêu.",
     "doneTitle": "Hôm nay bạn đã ôn xong",
     "doneDesc": "Không còn thẻ hay câu nào cần ôn.",
     "doneQuota": "Bạn đã ôn đủ định mức hôm nay. Còn {{cards}} thẻ và {{sentences}} câu đến hạn, có thể để ngày mai.",

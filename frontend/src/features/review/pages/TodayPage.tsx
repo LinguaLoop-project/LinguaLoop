@@ -316,7 +316,10 @@ function ReviewCard({ plan, streak }: { plan: DailyPlan; streak?: Streak }) {
           </div>
           <p className="mt-1 text-text-muted">
             {hasWork
-              ? t("today.reviewDesc", { cards: plan.cardsInPlan, sentences: plan.sentences.length })
+              ? t(plan.cardsDoneToday + plan.sentencesDoneToday > 0 ? "today.reviewDescRemaining" : "today.reviewDesc", {
+                  cards: plan.cardsInPlan,
+                  sentences: plan.sentences.length,
+                })
               : `${backlog ? t("today.doneQuota", { cards: plan.cardsDue, sentences: plan.sentencesPending }) : t("today.doneDesc")} ${next}`}
           </p>
           <p className="mt-2.5 inline-flex items-center gap-2 rounded-md border border-primary/25 bg-primary-soft/50 px-3 py-1.5 text-[13px] font-medium text-text">
