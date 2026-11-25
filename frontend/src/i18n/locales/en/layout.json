@@ -63,10 +63,9 @@
       "account": "Account of {{name}}",
       "menuAria": "Account",
       "upgrade": "Upgrade to Pro",
-      "profile": "Profile",
+      "profile": "Account",
       "learning": "Learning settings",
       "security": "Security & sign-in",
-      "privacy": "Privacy & data",
       "logout": "Sign out",
       "plan": "Current plan"
     }

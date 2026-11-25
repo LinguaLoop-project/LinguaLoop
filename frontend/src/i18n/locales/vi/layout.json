@@ -63,10 +63,9 @@
       "account": "Tài khoản {{name}}",
       "menuAria": "Tài khoản",
       "upgrade": "Nâng cấp Pro",
-      "profile": "Hồ sơ",
+      "profile": "Tài khoản",
       "learning": "Cài đặt học tập",
       "security": "Bảo mật & đăng nhập",
-      "privacy": "Quyền riêng tư & dữ liệu",
       "logout": "Đăng xuất",
       "plan": "Gói hiện tại"
     }

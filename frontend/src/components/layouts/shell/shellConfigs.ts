@@ -93,10 +93,9 @@ export const STUDENT_SHELL: ShellConfig = {
   accountAriaKey: "student.topbar.account",
   menuPlanRow: true,
   menu: [
-    { icon: "circle-user", labelKey: "student.topbar.profile", to: "/student/settings?tab=profile" },
+    { icon: "circle-user", labelKey: "student.topbar.profile", to: "/student/settings?tab=account" },
     { icon: "target", labelKey: "student.topbar.learning", to: "/student/settings?tab=learning" },
     { icon: "shield-check", labelKey: "student.topbar.security", to: "/student/settings?tab=security" },
-    { icon: "lock-keyhole", labelKey: "student.topbar.privacy", to: "/student/settings?tab=privacy" },
     { icon: "contrast", labelKey: "theme.toggle", action: "theme" },
   ],
 };

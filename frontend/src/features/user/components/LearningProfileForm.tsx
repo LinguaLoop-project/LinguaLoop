@@ -17,7 +17,7 @@ import SegmentedControl from "@/components/common/SegmentedControl";
 import { TextField } from "@/components/common/TextField";
 
 export type LearningProfileFormProps = {
-  /** `onboarding`: đủ 5 trường, lưu xong chuyển về trang Hôm nay. `settings`: chỉ thời lượng, ngôn ngữ, múi giờ. */
+  /** `onboarding`: đủ 5 trường, lưu xong chuyển về trang Hôm nay. `settings`: chỉ thời lượng và múi giờ (tên ở tab Tài khoản, ngôn ngữ ở tab Giao diện). */
   mode: "onboarding" | "settings";
 };
 
@@ -149,22 +149,24 @@ export default function LearningProfileForm({ mode }: LearningProfileFormProps) 
         </p>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-semibold text-text">{t("learningProfile.uiLanguage")}</span>
-        <SegmentedControl
-          options={[
-            { value: "vi", label: "Tiếng Việt" },
-            { value: "en", label: "English" },
-          ]}
-          value={uiLanguage}
-          ariaLabel={t("learningProfile.uiLanguage")}
-          onChange={(value) => {
-            setValue("uiLanguage", value as Language, { shouldValidate: true });
-            // Đổi giao diện ngay khi chọn, không chờ lưu.
-            void setLanguage(value as Language);
-          }}
-        />
-      </div>
+      {onboarding && (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-semibold text-text">{t("learningProfile.uiLanguage")}</span>
+          <SegmentedControl
+            options={[
+              { value: "vi", label: "Tiếng Việt" },
+              { value: "en", label: "English" },
+            ]}
+            value={uiLanguage}
+            ariaLabel={t("learningProfile.uiLanguage")}
+            onChange={(value) => {
+              setValue("uiLanguage", value as Language, { shouldValidate: true });
+              // Đổi giao diện ngay khi chọn, không chờ lưu.
+              void setLanguage(value as Language);
+            }}
+          />
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={`${formId}-timezone`} className="text-sm font-semibold text-text">

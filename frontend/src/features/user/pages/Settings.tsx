@@ -1,29 +1,31 @@
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import AccountSection from "../components/AccountSection";
+import DisplaySection from "../components/DisplaySection";
 import LearningProfileForm from "../components/LearningProfileForm";
-import ProfileSection from "../components/ProfileSection";
 import SecuritySection from "../components/SecuritySection";
 import Icon from "@/components/common/Icon";
 import { useAuth } from "@/features/auth";
 import SubscriptionPanel from "@/features/subscription/components/SubscriptionPanel";
 
 const TABS = [
-  { id: "profile", icon: "circle-user" },
+  { id: "account", icon: "circle-user" },
   { id: "learning", icon: "target" },
   { id: "display", icon: "palette" },
   { id: "security", icon: "shield-check" },
   { id: "plan", icon: "crown" },
-  { id: "privacy", icon: "lock-keyhole" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
 
-/** Khung trang Cài đặt theo mockup; hiện có tab "Học tập" và "Bảo mật & đăng nhập", các tab khác để dành. */
+/** Trang Cài đặt của học viên: Tài khoản, Học tập, Giao diện & ngôn ngữ, Bảo mật & đăng nhập, Gói & thanh toán. */
 export default function Settings() {
   const { t } = useTranslation("auth");
   // Tab nằm trên địa chỉ (`?tab=`) để liên kết từ menu tài khoản và giữa các tab chuyển tab ngay trong trang
   const [params, setParams] = useSearchParams();
-  const tab: TabId = TABS.find((entry) => entry.id === params.get("tab"))?.id ?? "security";
+  // `?tab=profile` là địa chỉ cũ của tab Tài khoản; vẫn nhận để liên kết đã lưu dùng được
+  const requested = params.get("tab") === "profile" ? "account" : params.get("tab");
+  const tab: TabId = TABS.find((entry) => entry.id === requested)?.id ?? "account";
   const setTab = (next: TabId) => setParams({ tab: next });
 
   const { handleLogout } = useAuth();
@@ -75,16 +77,16 @@ export default function Settings() {
         </nav>
 
         <div className="min-w-0">
-          {tab === "profile" ? (
-            <ProfileSection onSelectTab={setTab} />
+          {tab === "account" ? (
+            <AccountSection />
+          ) : tab === "display" ? (
+            <DisplaySection />
           ) : tab === "security" ? (
             <SecuritySection />
           ) : tab === "learning" ? (
             <LearningProfileForm mode="settings" />
-          ) : tab === "plan" ? (
-            <SubscriptionPanel />
           ) : (
-            <div className="rounded-lg border border-border bg-surface p-5 text-sm text-text-muted shadow-[var(--shadow-card)]">{t("settings.comingSoon")}</div>
+            <SubscriptionPanel />
           )}
         </div>
       </div>

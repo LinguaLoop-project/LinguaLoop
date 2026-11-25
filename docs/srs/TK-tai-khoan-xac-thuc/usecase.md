@@ -11,7 +11,7 @@
 | UC-TK-07 | Tạo hoặc đổi mật khẩu | Học viên, Giáo viên, Quản trị viên | Cao | 5 |
 | UC-TK-08 | Thiết lập hồ sơ học tập (onboarding) | Học viên | Cao | 8 |
 | UC-TK-09 | Xem thông báo | Học viên, Giáo viên, Quản trị viên | Trung bình | 9 |
-| UC-TK-10 | Xem hồ sơ cá nhân | Học viên | Trung bình | 3 |
+| UC-TK-10 | Quản lý tài khoản và giao diện | Học viên | Trung bình | 4 |
 
 ---
 
@@ -159,16 +159,16 @@
 
 ---
 
-### UC-TK-10: Xem hồ sơ cá nhân
+### UC-TK-10: Quản lý tài khoản và giao diện
 
 | Mục | Nội dung |
 |---|---|
 | Tác nhân | Học viên |
-| Mô tả | Cho phép học viên xem tổng hợp về chính mình gồm thông tin tài khoản, gói hiện tại, mục tiêu học và cách đăng nhập ở tab Hồ sơ của trang Cài đặt; chỉnh sửa thực hiện ở các tab khác của Cài đặt. |
+| Mô tả | Cho phép học viên xem thông tin tài khoản của mình, đổi tên hiển thị, gửi lại email xác thực và chọn chế độ màu, ngôn ngữ giao diện ở các tab Tài khoản và Giao diện & ngôn ngữ của trang Cài đặt. |
 | Điều kiện tiên quyết | Tác nhân đã đăng nhập (UC-TK-02 hoặc UC-TK-03). |
-| Điều kiện sau | Tác nhân xem được hồ sơ của chính mình; không có thay đổi nào được lưu. |
-| Luồng chính | 1. Tác nhân chọn "Hồ sơ" ở menu tài khoản; hệ thống mở trang Cài đặt ở tab Hồ sơ.<br>2. Hệ thống hiển thị tên, ảnh đại diện (hoặc chữ cái đầu), email kèm trạng thái xác thực và gói hiện tại theo BR-TK-19.<br>3. Hệ thống hiển thị mục tiêu học (thời lượng mỗi ngày, ngôn ngữ giao diện, múi giờ) và cách đăng nhập (đã đặt mật khẩu, đã liên kết Google hay chưa).<br>4. Tác nhân chọn liên kết chỉnh sửa để chuyển sang tab Học tập hoặc Bảo mật của Cài đặt, hoặc chọn nhãn gói để sang trang Gói đăng ký. |
-| Luồng thay thế | Không có. |
-| Luồng ngoại lệ | Không có. |
-| Tiêu chí chấp nhận | **AC-TK-62 — Hiển thị hồ sơ của chính học viên**<br>Given: Học viên A (gói Pro, đã xác thực email, đã đặt mật khẩu, mục tiêu 20 phút mỗi ngày) và học viên B có hồ sơ khác.<br>When: Học viên A mở tab Hồ sơ trong Cài đặt.<br>Then: Tab hiển thị tên, email, nhãn đã xác thực, gói Pro, mục tiêu 20 phút, múi giờ và mật khẩu đã đặt của riêng học viên A, không lẫn dữ liệu của học viên B (BR-TK-19).<br><br>**AC-TK-63 — Hồ sơ của học viên mới**<br>Given: Học viên mới đăng ký bằng Google, gói Free và chưa có tên hiển thị.<br>When: Học viên mở tab Hồ sơ.<br>Then: Tab hiển thị email thay cho tên, ảnh Google hoặc chữ cái đầu, gói Free, mật khẩu chưa đặt và Google đã liên kết (BR-TK-19).<br><br>**AC-TK-64 — Chuyển sang tab khác để chỉnh sửa**<br>Given: Học viên đang xem tab Hồ sơ.<br>When: Học viên chọn "Chỉnh sửa hồ sơ học tập" hoặc "Quản lý bảo mật".<br>Then: Hệ thống chuyển sang đúng tab Học tập hoặc Bảo mật của Cài đặt mà không tải lại trang (BR-TK-19). |
+| Điều kiện sau | Tên hiển thị, ngôn ngữ hoặc chế độ màu mới được lưu theo lựa chọn của tác nhân; không đổi dữ liệu của người khác. |
+| Luồng chính | 1. Tác nhân chọn "Tài khoản" ở menu tài khoản; hệ thống mở trang Cài đặt ở tab Tài khoản.<br>2. Hệ thống hiển thị tên, ảnh đại diện (hoặc chữ cái đầu), email kèm trạng thái xác thực và gói hiện tại theo BR-TK-19.<br>3. Tác nhân nhập tên hiển thị mới và chọn "Lưu thay đổi"; hệ thống lưu tên, giữ nguyên các trường hồ sơ khác và báo "Đã lưu tên hiển thị."<br>4. Tác nhân chọn tab "Giao diện & ngôn ngữ" để chọn chế độ sáng hoặc tối và ngôn ngữ; hệ thống áp dụng ngay và lưu ngôn ngữ vào hồ sơ. |
+| Luồng thay thế | **2a. Email chưa xác thực (Xuất phát từ Bước 2)**<br>1. Hệ thống hiển thị thông báo "Email chưa được xác thực" kèm nút "Gửi lại email xác thực".<br>2. Tác nhân chọn nút; hệ thống gửi lại thư và đếm ngược 60 giây trước khi cho gửi tiếp.<br>3. Chuyển đến Bước 3 của Luồng chính. |
+| Luồng ngoại lệ | **3a. Tên không hợp lệ hoặc không lưu được (Xuất phát từ Bước 3)**<br>1. Tên để trống hoặc dài hơn 50 ký tự thì hệ thống báo lỗi ngay tại ô tên; không lưu được do lỗi hoặc mất kết nối thì hệ thống báo lỗi và giữ nguyên nội dung đã nhập để thử lại (AC-TK-51).<br>2. Kết thúc Use Case. |
+| Tiêu chí chấp nhận | **AC-TK-62 — Hiển thị tài khoản của chính học viên**<br>Given: Học viên A (gói Pro, đã xác thực email) và học viên B có hồ sơ khác.<br>When: Học viên A mở tab Tài khoản trong Cài đặt.<br>Then: Tab hiển thị tên, email, nhãn đã xác thực và gói Pro của riêng học viên A, không lẫn dữ liệu của học viên B (BR-TK-19).<br><br>**AC-TK-63 — Tài khoản của học viên mới chưa xác thực email**<br>Given: Học viên mới chưa có tên hiển thị và chưa xác thực email, gói Free.<br>When: Học viên mở tab Tài khoản.<br>Then: Tab hiển thị email thay cho tên, chữ cái đầu thay cho ảnh, gói Free, thông báo "Email chưa được xác thực" kèm nút "Gửi lại email xác thực"; sau khi gửi, nút đếm ngược 60 giây (BR-TK-19).<br><br>**AC-TK-64 — Đổi tên hiển thị**<br>Given: Học viên A đang dùng gói Pro, mục tiêu 20 phút, múi giờ Asia/Ho_Chi_Minh, ngôn ngữ Tiếng Việt.<br>When: Học viên A đổi tên hiển thị thành "Lan Nguyen" và chọn "Lưu thay đổi".<br>Then: Tên được lưu; mục tiêu 20 phút, múi giờ và ngôn ngữ giữ nguyên; để trống tên hoặc nhập quá 50 ký tự thì báo lỗi và không lưu (BR-TK-19).<br><br>**AC-TK-65 — Chọn chế độ màu và ngôn ngữ giao diện**<br>Given: Học viên đang xem Cài đặt ở tab Giao diện & ngôn ngữ, giao diện Tiếng Việt, chế độ tối.<br>When: Học viên chọn English và chế độ sáng.<br>Then: Giao diện đổi ngay sang English và chế độ sáng; ngôn ngữ được lưu vào hồ sơ nên lần đăng nhập sau vẫn là English, các trường hồ sơ khác không đổi (BR-TK-19). |
 | Độ ưu tiên | Trung bình |

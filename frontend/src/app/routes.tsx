@@ -240,8 +240,8 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "profile",
-          // Hồ sơ là một tab của Cài đặt (UC-TK-10); giữ địa chỉ cũ chuyển hướng để liên kết đã lưu vẫn dùng được
-          element: <Navigate to="/student/settings?tab=profile" replace />,
+          // Hồ sơ là tab Tài khoản của Cài đặt (UC-TK-10); giữ địa chỉ cũ chuyển hướng để liên kết đã lưu vẫn dùng được
+          element: <Navigate to="/student/settings?tab=account" replace />,
         },
         {
           path: "notifications",
