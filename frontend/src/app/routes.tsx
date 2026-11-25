@@ -51,10 +51,12 @@ const TeacherDeckCreatePage = lazy(() => import("@/features/vocab/pages/teacher/
 const TeacherDeckDetailPage = lazy(() => import("@/features/vocab/pages/teacher/TeacherDeckDetailPage"));
 const AdminDeckListPage = lazy(() => import("@/features/vocab/pages/admin/AdminDeckListPage"));
 const AdminDeckDetailPage = lazy(() => import("@/features/vocab/pages/admin/AdminDeckDetailPage"));
+const AdminCategoryPage = lazy(() => import("@/features/vocab/pages/admin/AdminCategoryPage"));
 const TeacherLessonListPage = lazy(() => import("@/features/lesson/pages/teacher/TeacherLessonListPage"));
 const TeacherLessonDetailPage = lazy(() => import("@/features/lesson/pages/teacher/TeacherLessonDetailPage"));
 const AdminLessonListPage = lazy(() => import("@/features/lesson/pages/admin/AdminLessonListPage"));
 const AdminLessonDetailPage = lazy(() => import("@/features/lesson/pages/admin/AdminLessonDetailPage"));
+const AdminTopicPage = lazy(() => import("@/features/lesson/pages/admin/AdminTopicPage"));
 
 const TeacherReportListPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportListPage"));
 const TeacherReportDetailPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportDetailPage"));
@@ -398,6 +400,14 @@ const getRoutesConfig = (): RouteObject[] => {
         {
           path: "decks/:id",
           element: <AdminDeckDetailPage />,
+        },
+        {
+          path: "topics",
+          element: <AdminTopicPage />,
+        },
+        {
+          path: "categories",
+          element: <AdminCategoryPage />,
         },
         {
           path: "audit",

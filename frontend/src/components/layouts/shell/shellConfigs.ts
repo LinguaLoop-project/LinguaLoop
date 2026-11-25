@@ -69,6 +69,8 @@ const adminGroups: NavGroup[] = [
     items: [
       { id: "lessons", icon: "film", labelKey: k("admin", "sidebar.items", "lessons"), to: "/admin/lessons" },
       { id: "decks", icon: "layers", labelKey: k("admin", "sidebar.items", "decks"), to: "/admin/decks" },
+      { id: "topics", icon: "folders", labelKey: k("admin", "sidebar.items", "topics"), to: "/admin/topics" },
+      { id: "categories", icon: "tag", labelKey: k("admin", "sidebar.items", "categories"), to: "/admin/categories" },
     ],
   },
   {

@@ -11,7 +11,7 @@ export const AUDIT_ACTION_GROUPS: readonly { key: string; actions: readonly Audi
 ];
 
 /** Loại đối tượng còn được ghi nhật ký (BR-NK-18); mục cũ về câu, thẻ vẫn hiển thị được nhưng không còn trong ô lọc. */
-export const AUDIT_ENTITY_TYPES: readonly AuditEntityType[] = ["LESSON", "DECK", "REPORT", "USER", "PLAN", "SETTINGS"];
+export const AUDIT_ENTITY_TYPES: readonly AuditEntityType[] = ["LESSON", "DECK", "REPORT", "USER", "PLAN", "SETTINGS", "TOPIC", "CATEGORY"];
 
 export const AUDIT_ACTOR_ROLES: readonly AuditActorRole[] = ["student", "teacher", "admin", "system"];
 
@@ -44,6 +44,10 @@ export function auditObjectPath(link: AuditLink): string | null {
       return "/admin/plans";
     case "SETTINGS":
       return "/admin/credit";
+    case "TOPIC":
+      return "/admin/topics";
+    case "CATEGORY":
+      return "/admin/categories";
     default:
       return null;
   }

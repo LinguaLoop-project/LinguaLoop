@@ -38,6 +38,8 @@ describe("mở đối tượng (BR-NK-17)", () => {
     expect(auditObjectPath({ type: "USER", id: "u1" })).toBe("/admin/users/u1");
     expect(auditObjectPath({ type: "PLAN", id: "p1" })).toBe("/admin/plans");
     expect(auditObjectPath({ type: "SETTINGS", id: null })).toBe("/admin/credit");
+    expect(auditObjectPath({ type: "TOPIC", id: "t1" })).toBe("/admin/topics");
+    expect(auditObjectPath({ type: "CATEGORY", id: "c1" })).toBe("/admin/categories");
     expect(auditObjectPath({ type: "SENTENCE", id: "s1" })).toBeNull();
   });
 });
