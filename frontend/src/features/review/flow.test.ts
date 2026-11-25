@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { cardCount, hasSuggestions, phaseAfterCards, startPhase, stepStates, summarizeSentences } from "./flow";
+import {
+  cardCount,
+  cardSourceParts,
+  hasFilledCards,
+  hasSuggestions,
+  phaseAfterCards,
+  startPhase,
+  stepStates,
+  summarizeSentences,
+} from "./flow";
 
 /** `cardsMore` là số thẻ của lượt "Ôn thêm"; mặc định bằng số thẻ của phiên. */
 const plan = (cardsInPlan: number, sentences: number, cardsMore = cardsInPlan) => ({
@@ -91,5 +100,34 @@ describe("summarizeSentences", () => {
 
   it("has no average when nothing was reviewed", () => {
     expect(summarizeSentences([])).toEqual({ reviewed: 0, skipped: 0, average: null });
+  });
+});
+
+describe("cardSourceParts (BR-HT-29, AC-HT-76)", () => {
+  it("lists the sources of the session in the order due, new words, reinforce", () => {
+    expect(cardSourceParts({ due: 3, newWords: 7, reinforce: 10 })).toEqual([
+      { key: "due", count: 3 },
+      { key: "newWords", count: 7 },
+      { key: "reinforce", count: 10 },
+    ]);
+  });
+
+  it("drops the sources that contribute no card", () => {
+    expect(cardSourceParts({ due: 0, newWords: 5, reinforce: 0 })).toEqual([{ key: "newWords", count: 5 }]);
+    expect(cardSourceParts({ due: 0, newWords: 0, reinforce: 0 })).toEqual([]);
+  });
+
+  it("tolerates a missing breakdown", () => {
+    expect(cardSourceParts(null)).toEqual([]);
+    expect(cardSourceParts(undefined)).toEqual([]);
+  });
+});
+
+describe("hasFilledCards (BR-HT-29)", () => {
+  it("only notes the sources when the frame added new words or reinforcement cards", () => {
+    expect(hasFilledCards({ due: 20, newWords: 0, reinforce: 0 })).toBe(false);
+    expect(hasFilledCards({ due: 3, newWords: 7, reinforce: 0 })).toBe(true);
+    expect(hasFilledCards({ due: 3, newWords: 0, reinforce: 17 })).toBe(true);
+    expect(hasFilledCards(undefined)).toBe(false);
   });
 });

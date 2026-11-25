@@ -17,10 +17,11 @@ public class VocabSuggestionRepository {
 
     /**
      * Một phần của bộ thư viện: {@code newCards} là số thẻ học viên chưa học, {@code lastStudied} là lần gần nhất họ chấm
-     * một thẻ của phần này (trống nếu chưa học thẻ nào).
+     * một thẻ của phần này (trống nếu chưa học thẻ nào). {@code cefrLevel} là cấp độ của bộ, trống khi chưa gắn
+     * (BR-BT-16).
      */
-    public record PartCandidate(UUID deckId, String deckName, boolean systemDeck, int partNumber, String partName,
-            int newCards, Instant lastStudied) {
+    public record PartCandidate(UUID deckId, String deckName, boolean systemDeck, String cefrLevel, int partNumber,
+            String partName, int newCards, Instant lastStudied) {
     }
 
     private final JdbcClient jdbc;
@@ -32,6 +33,7 @@ public class VocabSuggestionRepository {
     public List<PartCandidate> findParts(UUID userId, boolean userPro) {
         return jdbc.sql("""
                 SELECT d.id AS deck_id, d.name AS deck_name, (d.owner_id IS NULL) AS system_deck,
+                       d.cefr_level AS cefr_level,
                        CAST(row_number() OVER (PARTITION BY d.id ORDER BY g.created_at, g.id) AS int) AS part_number,
                        g.name AS part_name,
                        count(c.id) FILTER (WHERE p.card_id IS NULL) AS new_cards,
@@ -49,8 +51,8 @@ public class VocabSuggestionRepository {
                 .query((rs, n) -> {
                     Timestamp last = rs.getTimestamp("last_studied");
                     return new PartCandidate(rs.getObject("deck_id", UUID.class), rs.getString("deck_name"),
-                            rs.getBoolean("system_deck"), rs.getInt("part_number"), rs.getString("part_name"),
-                            rs.getInt("new_cards"), last == null ? null : last.toInstant());
+                            rs.getBoolean("system_deck"), rs.getString("cefr_level"), rs.getInt("part_number"),
+                            rs.getString("part_name"), rs.getInt("new_cards"), last == null ? null : last.toInstant());
                 })
                 .list();
     }

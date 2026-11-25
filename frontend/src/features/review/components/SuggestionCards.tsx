@@ -81,7 +81,7 @@ export default function SuggestionCards({ suggestions, dailyMinutes }: Suggestio
           {t("suggest.title", { minutes: dailyMinutes })}
         </h3>
       </div>
-      <ul className="grid gap-3 md:grid-cols-3">
+      <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {newWords && (
           <SuggestionCardItem
             icon="layers"
@@ -128,6 +128,17 @@ export default function SuggestionCards({ suggestions, dailyMinutes }: Suggestio
             actionTone="text-fn-shadowing"
           />
         )}
+        {/* Học thụ động không phụ thuộc gợi ý của backend: luôn là lối tắt thứ tư, giống khối "Luyện tập thêm". */}
+        <SuggestionCardItem
+          icon="monitor-play"
+          iconShell="bg-fn-watch-soft text-fn-watch"
+          accentBorder="hover:border-fn-watch/50"
+          title={t("today.exploreWatchTitle")}
+          meta={t("today.exploreWatchDesc")}
+          to="/watch"
+          action={t("today.exploreWatchAction")}
+          actionTone="text-fn-watch"
+        />
       </ul>
     </section>
   );

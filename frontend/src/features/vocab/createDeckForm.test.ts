@@ -18,6 +18,7 @@ const created: TeacherDeckItem = {
   imageUrl: null,
   categoryId: null,
   categoryName: null,
+  cefrLevel: null,
   groupCount: 0,
   cardCount: 0,
   pro: false,
@@ -72,7 +73,7 @@ describe("createDeckForm (UC-BT-02)", () => {
   });
 
   it("mất kết nối khi tạo: giữ nguyên dữ liệu và cho tạo lại (AC-BT-13, âm)", async () => {
-    const values: CreateDeckValues = { name: "TOEIC 1", categoryId: "c1", pro: true, image: jpg(500) };
+    const values: CreateDeckValues = { name: "TOEIC 1", categoryId: "c1", cefrLevel: null, pro: true, image: jpg(500) };
     const create = vi.fn().mockRejectedValueOnce(networkError).mockResolvedValueOnce(created);
 
     const first = await submitCreateDeck(values, create);
@@ -84,7 +85,7 @@ describe("createDeckForm (UC-BT-02)", () => {
 
     const retry = await submitCreateDeck(values, create);
     expect(retry).toEqual({ ok: true, deck: created });
-    expect(create).toHaveBeenLastCalledWith({ name: "TOEIC 1", categoryId: "c1", pro: true }, values.image);
+    expect(create).toHaveBeenLastCalledWith({ name: "TOEIC 1", categoryId: "c1", cefrLevel: null, pro: true }, values.image);
   });
 
   it("tên 100 hợp lệ, 101 bị lỗi (AC-BT-65, biên)", () => {

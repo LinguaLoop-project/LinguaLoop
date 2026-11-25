@@ -63,7 +63,7 @@ class VocabDeckManageServiceIntegrationTest {
     }
 
     private static CreateDeckRequest named(String name) {
-        return new CreateDeckRequest(name, null, false, null);
+        return new CreateDeckRequest(name, null, null, false, null);
     }
 
     private static String imageKeyOf(UUID teacher) {
@@ -76,7 +76,7 @@ class VocabDeckManageServiceIntegrationTest {
         UUID academic = data.category("Học thuật " + UUID.randomUUID());
 
         String key = imageKeyOf(teacher);
-        DeckManageView.Item item = service.createDeck(teacher, new CreateDeckRequest("IELTS 1", academic, true, key));
+        DeckManageView.Item item = service.createDeck(teacher, new CreateDeckRequest("IELTS 1", academic, null, true, key));
 
         var row = jdbc.queryForMap("""
                 SELECT owner_id, kind, status, is_pro, category_id, image_url, deleted_at
@@ -179,7 +179,7 @@ class VocabDeckManageServiceIntegrationTest {
             return DeckImageValidatorTest.jpgHead();
         });
 
-        assertThatThrownBy(() -> service.createDeck(teacher, new CreateDeckRequest("Bộ lỗi", category, false, key)))
+        assertThatThrownBy(() -> service.createDeck(teacher, new CreateDeckRequest("Bộ lỗi", category, null, false, key)))
                 .isInstanceOf(DataIntegrityViolationException.class);
 
         verify(storage).discardUpload(teacher, UploadPurpose.DECK_IMAGE, key);

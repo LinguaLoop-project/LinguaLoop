@@ -1,10 +1,11 @@
 // Biểu mẫu sửa bộ thẻ (UC-BT-03, BR-BT-03, 13, 14): cùng quy tắc với biểu mẫu tạo bộ, thêm "Xóa ảnh" (luồng 3a).
 import { errorsFromApi, validateDeckImage, validateDeckName, type CreateDeckErrors } from "./createDeckForm";
-import type { DeckApiError, DeckDetail, UpdateDeckInput } from "./deckManageTypes";
+import type { CefrLevel, DeckApiError, DeckDetail, UpdateDeckInput } from "./deckManageTypes";
 
 export interface EditDeckValues {
   name: string;
   categoryId: string | null;
+  cefrLevel: CefrLevel | null;
   pro: boolean;
   /** Ảnh mới chọn; `null` = không đổi ảnh (hoặc xóa ảnh nếu `removeImage`). */
   image: File | null;
@@ -18,7 +19,14 @@ export interface EditDeckValues {
 export type EditDeckErrors = Omit<CreateDeckErrors, "form"> & { form?: "failed" | "notFound" | "forbidden" };
 
 export function editValuesFromDetail(detail: DeckDetail): EditDeckValues {
-  return { name: detail.name, categoryId: detail.categoryId, pro: detail.pro, image: null, removeImage: false };
+  return {
+    name: detail.name,
+    categoryId: detail.categoryId,
+    cefrLevel: detail.cefrLevel,
+    pro: detail.pro,
+    image: null,
+    removeImage: false,
+  };
 }
 
 /** Có thay đổi chưa lưu so với bộ hiện tại không (để hiện thanh "Lưu / Hủy"). Tên so sánh sau khi cắt khoảng trắng. */
@@ -26,6 +34,7 @@ export function isEditDirty(values: EditDeckValues, detail: DeckDetail): boolean
   return (
     values.name.trim() !== detail.name ||
     values.categoryId !== detail.categoryId ||
+    values.cefrLevel !== detail.cefrLevel ||
     values.pro !== detail.pro ||
     values.image !== null ||
     (values.removeImage && detail.imageUrl !== null)
@@ -45,6 +54,7 @@ export function toUpdateDeckInput(values: EditDeckValues): UpdateDeckInput {
   return {
     name: values.name.trim(),
     categoryId: values.categoryId,
+    cefrLevel: values.cefrLevel,
     pro: values.pro,
     removeImage: values.image === null && values.removeImage,
   };

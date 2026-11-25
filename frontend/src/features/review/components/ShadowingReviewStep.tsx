@@ -69,7 +69,8 @@ export default function ShadowingReviewStep({ sentence, player, onFinished }: St
             setRecord((prev) => recordFromAttempt(prev ?? undefined, result));
             setPhase("idle");
             markReviewed.mutate({ mode: "shadowing", sentenceId: sentence.sentenceId });
-            const kind = reviewPromptKind(result.score, true);
+            // Câu luyện thêm không ở trong danh sách nên chỉ có thể được hỏi lưu, không được hỏi bỏ (BR-HT-31).
+            const kind = reviewPromptKind(result.score, !sentence.extra);
             if (kind) setReviewPrompt({ kind, sentenceId: sentence.sentenceId, mode: "shadowing", score: result.score });
           },
           onError: (err) => {
@@ -79,7 +80,7 @@ export default function ShadowingReviewStep({ sentence, player, onFinished }: St
         },
       );
     },
-    [assess, markReviewed, sentence.sentenceId],
+    [assess, markReviewed, sentence.extra, sentence.sentenceId],
   );
 
   const stopRecording = useCallback(() => {

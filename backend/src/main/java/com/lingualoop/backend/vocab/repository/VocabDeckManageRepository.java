@@ -22,7 +22,7 @@ public interface VocabDeckManageRepository extends Repository<VocabDeck, UUID> {
 
     String SELECT = """
             SELECT d.id AS id, d.name AS name, d.image_url AS imageUrl, d.category_id AS categoryId,
-                   cat.name AS categoryName,
+                   cat.name AS categoryName, d.cefr_level AS cefrLevel,
                    (SELECT count(*) FROM vocab_groups g WHERE g.deck_id = d.id AND g.deleted_at IS NULL) AS groupCount,
                    (SELECT count(*) FROM vocab_cards c
                       JOIN vocab_groups g ON g.id = c.group_id AND g.deleted_at IS NULL
@@ -134,6 +134,8 @@ public interface VocabDeckManageRepository extends Repository<VocabDeck, UUID> {
 
         String getCategoryName();
 
+        String getCefrLevel();
+
         long getGroupCount();
 
         long getCardCount();
@@ -220,11 +222,12 @@ public interface VocabDeckManageRepository extends Repository<VocabDeck, UUID> {
     @Modifying
     @Query(value = """
             UPDATE vocab_decks
-               SET name = :name, category_id = CAST(:categoryId AS uuid), image_url = CAST(:imageUrl AS text),
-                   is_pro = :pro, updated_at = :now
+               SET name = :name, category_id = CAST(:categoryId AS uuid), cefr_level = CAST(:cefrLevel AS text),
+                   image_url = CAST(:imageUrl AS text), is_pro = :pro, updated_at = :now
              WHERE id = :id AND deleted_at IS NULL""", nativeQuery = true)
     int updateInfo(@Param("id") UUID id, @Param("name") String name, @Param("categoryId") UUID categoryId,
-            @Param("imageUrl") String imageUrl, @Param("pro") boolean pro, @Param("now") Instant now);
+            @Param("cefrLevel") String cefrLevel, @Param("imageUrl") String imageUrl, @Param("pro") boolean pro,
+            @Param("now") Instant now);
 
     /** Tên các nhóm chưa xóa nhưng chưa có thẻ nào chưa xóa, theo thứ tự thêm (BR-BT-05). */
     @Query(value = """

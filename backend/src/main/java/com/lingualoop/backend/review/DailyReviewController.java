@@ -15,7 +15,7 @@ import com.lingualoop.backend.security.CurrentUserId;
 
 import lombok.RequiredArgsConstructor;
 
-/** Phiên Ôn tập hằng ngày (UC-HT-05). Thẻ lấy từ {@code GET /vocab/review?limit=}, câu từ danh sách trong kế hoạch này. */
+/** Phiên Luyện tập hằng ngày (UC-HT-05). Thẻ lấy từ {@code GET /vocab/review?limit=}, câu từ danh sách trong kế hoạch này. */
 @RestController
 @RequestMapping("/api/v1/review")
 @RequiredArgsConstructor
@@ -26,6 +26,13 @@ public class DailyReviewController {
     @GetMapping("/daily-plan")
     public ApiResponse<DailyPlanView> dailyPlan(@CurrentUserId UUID userId) {
         return ApiResponse.ok(dailyReviewService.plan(userId));
+    }
+
+    /** Thẻ của phần ôn thẻ theo khung bài ngày; {@code extra=true} là lượt "Ôn thêm" chỉ có thẻ đến hạn (BR-HT-24, BR-HT-29). */
+    @GetMapping("/daily-cards")
+    public ApiResponse<DailyCardsView> dailyCards(@CurrentUserId UUID userId,
+            @RequestParam(defaultValue = "false") boolean extra) {
+        return ApiResponse.ok(dailyReviewService.dailyCards(userId, extra));
     }
 
     /**

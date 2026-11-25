@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import Icon from "@/components/common/Icon";
 import Skeleton from "@/components/common/Skeleton";
 import { useActivity } from "../hooks";
-import { activitySummary, buildHeatWeeks, percentOf, type HeatCell, type HeatLevel } from "../utils";
+import { activitySummary, activityWindowStart, buildHeatWeeks, type HeatCell, type HeatLevel } from "../utils";
 import StatsError from "./StatsError";
 
 const LEVEL_CLASS: Record<HeatLevel, string> = {
@@ -42,7 +42,7 @@ function KpiTile({
   );
 }
 
-/** Lịch nhiệt các ngày học trong 90 ngày (13 tuần) gần nhất, phóng lớn cân đối kèm 4 KPI và chi tiết hover (BR-TH-15). */
+/** Lịch nhiệt các ngày học trong 90 ngày gần nhất, phóng lớn cân đối kèm 4 KPI và chi tiết hover (BR-TH-15). */
 export default function ActivityHeatmap({ longestStreak }: { longestStreak?: number }) {
   const { t, i18n } = useTranslation("stats");
   const [hoveredCell, setHoveredCell] = useState<HeatCell | null>(null);
@@ -65,19 +65,19 @@ export default function ActivityHeatmap({ longestStreak }: { longestStreak?: num
   }
 
   const { from, to, days } = query.data;
-  const weeks = buildHeatWeeks(from, to, days);
+  const weeks = buildHeatWeeks(from, to, days, activityWindowStart(to));
   const totalCalendarDays = weeks.reduce((sum, w) => sum + w.filter((c) => c !== null).length, 0);
   const { activeDays, totalActivities, bestDayCount } = activitySummary(days);
-  const activePct = percentOf(activeDays, totalCalendarDays);
 
   const dateFormat = new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeZone: "UTC" });
   const monthFormat = new Intl.DateTimeFormat(i18n.language, { month: "short", timeZone: "UTC" });
   // Nhãn tháng ở cột tuần đầu tiên của mỗi tháng; bỏ nhãn ở cột quá sát nhãn kế tiếp (< 3 cột) để không đè chữ.
+  const firstCellOf = (week: (HeatCell | null)[]) => week.find((cell) => cell !== null) ?? null;
   const rawMonthLabels = weeks.map((week, i) => {
-    const first = week[0];
+    const first = firstCellOf(week);
     if (!first) return null;
     const month = first.date.slice(0, 7);
-    const previous = i > 0 ? weeks[i - 1][0]?.date.slice(0, 7) : null;
+    const previous = i > 0 ? firstCellOf(weeks[i - 1])?.date.slice(0, 7) : null;
     return month === previous ? null : monthFormat.format(new Date(`${first.date}T00:00:00Z`));
   });
   const monthLabels = rawMonthLabels.map((label, i) => {
@@ -168,7 +168,7 @@ export default function ActivityHeatmap({ longestStreak }: { longestStreak?: num
           <KpiTile
             icon="calendar"
             iconShell="bg-primary-soft text-primary-text"
-            value={`${activePct}%`}
+            value={t("heatmap.kpiActiveValue", { active: activeDays, total: totalCalendarDays })}
             label={t("heatmap.kpiActiveRate")}
           />
           <KpiTile
