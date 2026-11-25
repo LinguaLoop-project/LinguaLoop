@@ -409,7 +409,7 @@ class AiFeedbackIntegrationTest {
 
     private Sentence sentence(String name) {
         Topic topic = new Topic();
-        topic.setName(name + " topic");
+        topic.setName(name + " topic " + UUID.randomUUID());
         topic = topics.save(topic);
 
         Lesson lesson = new Lesson();

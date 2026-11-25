@@ -695,7 +695,7 @@ class ShadowingAttemptIntegrationTest {
 
     private Lesson lesson(String name, boolean pro) {
         Topic topic = new Topic();
-        topic.setName(name + " topic");
+        topic.setName(name + " topic " + UUID.randomUUID());
         topic = topics.save(topic);
 
         Lesson l = new Lesson();
