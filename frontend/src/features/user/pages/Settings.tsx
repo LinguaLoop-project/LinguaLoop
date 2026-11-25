@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import AccountSection from "../components/AccountSection";
 import DisplaySection from "../components/DisplaySection";
 import LearningProfileForm from "../components/LearningProfileForm";
+import PracticeSection from "../components/PracticeSection";
 import SecuritySection from "../components/SecuritySection";
 import Icon from "@/components/common/Icon";
 import { useAuth } from "@/features/auth";
@@ -11,6 +12,7 @@ import SubscriptionPanel from "@/features/subscription/components/SubscriptionPa
 const TABS = [
   { id: "account", icon: "circle-user" },
   { id: "learning", icon: "target" },
+  { id: "practice", icon: "headphones" },
   { id: "display", icon: "palette" },
   { id: "security", icon: "shield-check" },
   { id: "plan", icon: "crown" },
@@ -18,7 +20,7 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-/** Trang Cài đặt của học viên: Tài khoản, Học tập, Giao diện & ngôn ngữ, Bảo mật & đăng nhập, Gói & thanh toán. */
+/** Trang Cài đặt của học viên: Tài khoản, Học tập, Luyện tập, Giao diện & ngôn ngữ, Bảo mật & đăng nhập, Gói & thanh toán. */
 export default function Settings() {
   const { t } = useTranslation("auth");
   // Tab nằm trên địa chỉ (`?tab=`) để liên kết từ menu tài khoản và giữa các tab chuyển tab ngay trong trang
@@ -83,6 +85,8 @@ export default function Settings() {
             <DisplaySection />
           ) : tab === "security" ? (
             <SecuritySection />
+          ) : tab === "practice" ? (
+            <PracticeSection />
           ) : tab === "learning" ? (
             <LearningProfileForm mode="settings" />
           ) : (
