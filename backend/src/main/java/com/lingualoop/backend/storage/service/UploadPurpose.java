@@ -31,7 +31,17 @@ public enum UploadPurpose {
     CARD_IMAGE("vocab-decks/cards",
             Map.of("image/jpeg", "jpg", "image/png", "png"),
             2_097_152L,
-            Set.of(Role.TEACHER));
+            Set.of(Role.TEACHER)),
+
+    /**
+     * Ảnh đại diện của học viên (UC-TK-10): JPG/PNG/WebP, tối đa 1 MB (trình duyệt đã cắt vuông và nén). Nằm dưới
+     * {@code vocab-decks/} để dùng chung bucket policy đọc công khai như ảnh thẻ; thư mục riêng {@code avatars/} nên key
+     * của các mục đích không lẫn nhau khi kiểm chủ sở hữu.
+     */
+    AVATAR("vocab-decks/avatars",
+            Map.of("image/jpeg", "jpg", "image/png", "png", "image/webp", "webp"),
+            1_048_576L,
+            Set.of(Role.STUDENT));
 
     private final String prefix;
     /** Content-Type cho phép, ánh xạ sang đuôi tệp ghi vào key. */

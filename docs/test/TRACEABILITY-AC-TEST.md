@@ -39,7 +39,7 @@ Hai tỉ lệ ở cột cuối đo hai việc khác nhau:
 | [SH-shadowing](traceability/SH-shadowing.md) | 28 | 0 | 0 | 28 | 0 | 0 | 0% | — |
 | [TC-tra-cuu-hoc-thu-dong](traceability/TC-tra-cuu-hoc-thu-dong.md) | 43 | 9 | 2 | 27 | 5 | 0 | 21% | 68.8% |
 | [TH-xem-thong-ke-hoc-tap](traceability/TH-xem-thong-ke-hoc-tap.md) | 35 | 26 | 5 | 0 | 4 | 0 | 74% | 88.6% |
-| [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 65 | 42 | 11 | 11 | 1 | 0 | 65% | 98.1% |
+| [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 68 | 42 | 14 | 11 | 1 | 0 | 62% | 98.2% |
 | [TN-xem-thong-ke-noi-dung](traceability/TN-xem-thong-ke-noi-dung.md) | 23 | 0 | 0 | 23 | 0 | 0 | 0% | — |
 | [XL-xu-ly-bao-cao](traceability/XL-xu-ly-bao-cao.md) | 62 | 14 | 27 | 21 | 0 | 0 | 23% | 100% |
-| **Tổng** | **856** | **373** | **115** | **339** | **25** | **4** | **44%** | **95.1%** |
+| **Tổng** | **859** | **373** | **118** | **339** | **25** | **4** | **43%** | **95.2%** |

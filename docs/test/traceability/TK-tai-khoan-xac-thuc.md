@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TK-tai-khoan-xac-thuc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 65 AC, 42 đã có test, 11 một phần, 11 thiếu, 1 thủ công.
+Tổng hợp: 68 AC, 42 đã có test, 14 một phần, 11 thiếu, 1 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -71,3 +71,6 @@ Tổng hợp: 65 AC, 42 đã có test, 11 một phần, 11 thiếu, 1 thủ côn
 | AC-TK-63 | Tài khoản của học viên mới chưa xác thực email | UC-TK-10 | B |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
 | AC-TK-64 | Đổi tên hiển thị | UC-TK-10 | D, B | `frontend/src/features/user/profilePayload.test.ts` (đổi tên giữ nguyên các trường hồ sơ khác) | Một phần (chưa có test giao diện) |
 | AC-TK-65 | Chọn chế độ màu và ngôn ngữ giao diện | UC-TK-10 | D | `frontend/src/features/user/profilePayload.test.ts` (đổi ngôn ngữ giữ nguyên các trường khác) | Một phần (chưa có test giao diện) |
+| AC-TK-66 | Đổi ảnh đại diện | UC-TK-10 | D | AvatarApiIntegrationTest.setAvatar_savesTheKeyAndMeReturnsItsUrl_AC_TK_66; AvatarApiIntegrationTest.setAvatar_acceptsPngAndWebpAndReplacesThePreviousFile_AC_TK_66; `frontend/src/features/user/avatarImage.test.ts` (cắt vuông ở giữa) | Một phần (chưa có test giao diện) |
+| AC-TK-67 | Ảnh đại diện không hợp lệ | UC-TK-10 | A, B | AvatarApiIntegrationTest.setAvatar_rejectsAFileThatIsNotReallyAnImage_AC_TK_67; AvatarApiIntegrationTest.setAvatar_rejectsAKeyThatIsNotTheCallers_orWasNeverUploaded_AC_TK_67; AvatarApiIntegrationTest.setAvatar_isForStudentsOnly_andNeedsAToken_AC_TK_67; `frontend/src/features/user/avatarImage.test.ts` (loại tệp và dung lượng) | Một phần (chưa có test giao diện) |
+| AC-TK-68 | Gỡ ảnh đại diện | UC-TK-10 | D, B | AvatarApiIntegrationTest.removeAvatar_fallsBackToTheGooglePictureAndDeletesTheFile_AC_TK_68 | Một phần (chưa có test giao diện) |

@@ -18,5 +18,6 @@ public interface UserMapper {
 
     @Mapping(target = "role", expression = "java(view.role().value())")
     @Mapping(target = "hasPassword", expression = "java(view.hasPassword())")
+    @Mapping(target = "customAvatar", expression = "java(view.avatarKey() != null)")
     MeResponse toMe(UserAccountView view);
 }

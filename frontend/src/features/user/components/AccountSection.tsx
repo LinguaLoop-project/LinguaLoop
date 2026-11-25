@@ -11,18 +11,13 @@ import { applyFieldErrors, authService, errorMessage, toApiError, useAuthStore }
 import type { ApiError } from "@/features/auth";
 import { useMyPlan } from "@/features/subscription/hooks/useMyPlan";
 import { userApi } from "../api";
+import AvatarPicker from "./AvatarPicker";
 import { profilePayload } from "../profilePayload";
 import { buildDisplayNameSchema, type DisplayNameFormData } from "../validations";
 
 const CARD = "rounded-lg border border-border bg-surface p-5 shadow-[var(--shadow-card)]";
 /** Sau mỗi lần gửi lại email xác thực phải chờ 60 giây mới gửi tiếp (AC-AUTH-31). */
 const RESEND_COOLDOWN_MS = 60_000;
-
-function initialsOf(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const letters = parts.length > 1 ? [parts[0][0], parts[parts.length - 1][0]] : [parts[0]?.[0] ?? "?"];
-  return letters.join("").toUpperCase();
-}
 
 /** Nhắc xác thực email và cho gửi lại thư xác thực (UC-TK-05); chỉ hiện khi email chưa xác thực. */
 function VerifyEmailNotice({ email }: { email: string }) {
@@ -157,13 +152,7 @@ export default function AccountSection() {
   return (
     <section className="flex w-full flex-col gap-6" id="v-account">
       <div className={`${CARD} flex flex-wrap items-center gap-5`}>
-        {user.avatarUrl ? (
-          <img src={user.avatarUrl} alt="" className="size-20 shrink-0 rounded-full border border-border object-cover" referrerPolicy="no-referrer" />
-        ) : (
-          <span aria-hidden="true" className="grid size-20 shrink-0 place-items-center rounded-full bg-primary-soft font-display text-2xl font-bold text-primary-text">
-            {initialsOf(name)}
-          </span>
-        )}
+        <AvatarPicker name={name} />
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <h2 className="truncate font-display text-2xl font-bold">{name}</h2>
           <p className="truncate text-sm text-text-muted">{user.email}</p>

@@ -1,7 +1,7 @@
 import { axiosClient } from "./axiosClient";
 
 /** Mục đích tải tệp; khớp enum `UploadPurpose` ở backend, quyết định thư mục, loại tệp và dung lượng cho phép. */
-export type UploadPurpose = "DECK_IMAGE" | "CARD_IMAGE";
+export type UploadPurpose = "DECK_IMAGE" | "CARD_IMAGE" | "AVATAR";
 
 interface PresignedUpload {
   key: string;
