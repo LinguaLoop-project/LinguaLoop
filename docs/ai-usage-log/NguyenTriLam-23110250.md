@@ -987,6 +987,18 @@
 - **Commit:** 58df768, 77a158d, 8b54da3, bb79348, 22e2b7b, 66acb5e, 1acc9fd, 8b7b4d5, cbae2fc, 1a61237
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-086
+
+- **Ngày:** 2026-11-25
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Làm trang Thông báo đầy đủ cho học viên (chia trang, lọc chưa đọc) và trang Hồ sơ cá nhân chỉ để xem (thông tin tài khoản, gói, mục tiêu học, thành tích học tập), bỏ mục "Kiểm tra trình độ" chưa có nội dung; sau đó gộp `main`, giải quyết xung đột với phần thống kê đã chuyển vào trang Hôm nay và thêm liên kết quản lý gói ở trang Hồ sơ
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../user/controller/NotificationController.java:all`, `NotificationServiceImpl.java:page`, `NotificationRepository.java:findPage, countAll`, test `NotificationApiIntegrationTest` (AC-TK-59, AC-TK-60); `frontend/src/features/user/pages/NotificationsPage.tsx`, `ProfilePage.tsx`, `notifications.ts`, `NotificationBell.tsx` (liên kết "Xem tất cả thông báo"), `Settings.tsx` (mở tab theo `?tab=`), bản dịch `auth.json`, `layout.json`; đặc tả `docs/srs/TK-tai-khoan-xac-thuc` (BR-TK-18, BR-TK-19, UC-TK-10, AC-TK-59..62)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên quyết định phạm vi hai trang, việc bỏ mục Kiểm tra trình độ và yêu cầu xử lý xung đột sau khi gộp `main`. AI viết API, trang và test, chỉ ra các xung đột ngữ nghĩa (mục Thống kê và thẻ mục tiêu câu đã bị gỡ ở `main`) rồi giải quyết, và rà lại bằng typecheck, lint, test.
+- **Commit:** d6fb9d2, b3b4542
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
