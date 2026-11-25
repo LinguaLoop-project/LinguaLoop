@@ -54,6 +54,29 @@ public class VocabReviewRepository {
               AND NOT EXISTS (SELECT 1 FROM vocab_review_logs rl
                               WHERE rl.user_id = :user AND rl.card_id = c.id AND rl.created_at >= :since)""";
 
+    /**
+     * Câu truy vấn đầy đủ của từng nguồn thẻ, ghép từ hằng số lúc biên dịch: không nối chuỗi nào lúc chạy nên không có chỗ
+     * cho dữ liệu ngoài lọt vào SQL (mọi giá trị đi qua tham số có tên).
+     */
+    private static final String CARDS_SELECT = "SELECT " + VocabLearnRepository.CARD_COLUMNS + """
+            , se.text_en AS context_en, se.text_vi AS context_vi, l.id AS lesson_id, l.title AS lesson_title
+            """ + JOINS + """
+            LEFT JOIN sentences se ON se.id = c.source_sentence_id AND se.deleted_at IS NULL
+            LEFT JOIN lessons l ON l.id = se.lesson_id AND l.deleted_at IS NULL AND l.status = 'published'
+            """ + VISIBLE + " AND ";
+
+    private static final String SQL_DUE_CARDS = CARDS_SELECT + CardSql.IS_DUE
+            + " ORDER BY COALESCE(p.due_at, c.created_at), c.id LIMIT :limit";
+    private static final String SQL_NEW_WORD_CARDS = CARDS_SELECT + NEW_WORD
+            + " ORDER BY g.created_at, g.id, c.created_at, c.id LIMIT :limit";
+    private static final String SQL_REINFORCE_CARDS = CARDS_SELECT + REINFORCE
+            + " ORDER BY p.ease_factor, p.due_at, c.id LIMIT :limit";
+
+    private static final String SQL_NEW_WORD_COUNT = "SELECT count(*) FROM (SELECT 1 " + JOINS + VISIBLE + " AND "
+            + NEW_WORD + " LIMIT :cap) capped";
+    private static final String SQL_REINFORCE_COUNT = "SELECT count(*) FROM (SELECT 1 " + JOINS + VISIBLE + " AND "
+            + REINFORCE + " LIMIT :cap) capped";
+
     private final JdbcClient jdbc;
 
     /** Một thẻ kèm câu gốc của bài học nếu là từ đã lưu từ bài học. */
@@ -62,7 +85,7 @@ public class VocabReviewRepository {
 
     /** Tối đa {@code limit} thẻ đến hạn, thẻ đến hạn sớm nhất trước; thẻ Mới của từ đã lưu xếp theo lúc lưu. */
     public List<DueCard> findDue(UUID userId, UUID deckId, boolean userPro, int limit) {
-        return cards(CardSql.IS_DUE, "COALESCE(p.due_at, c.created_at), c.id", params(userId, deckId, userPro), limit);
+        return cards(SQL_DUE_CARDS, params(userId, deckId, userPro), limit);
     }
 
     /** Tổng số thẻ đến hạn, không giới hạn 50. */
@@ -74,26 +97,26 @@ public class VocabReviewRepository {
 
     /** Tối đa {@code limit} từ mới của bộ {@code deckId}, theo thứ tự phần rồi thứ tự thẻ trong phần (BR-HT-29). */
     public List<DueCard> findNewWords(UUID userId, UUID deckId, boolean userPro, int limit) {
-        return cards(NEW_WORD, "g.created_at, g.id, c.created_at, c.id", params(userId, deckId, userPro), limit);
+        return cards(SQL_NEW_WORD_CARDS, params(userId, deckId, userPro), limit);
     }
 
     /** Số từ mới còn lại của bộ, đếm tới {@code cap} (chỉ cần biết có đủ để lấp hay không). */
     public int countNewWords(UUID userId, UUID deckId, boolean userPro, int cap) {
-        return cappedCount(NEW_WORD, params(userId, deckId, userPro), cap);
+        return cappedCount(SQL_NEW_WORD_COUNT, params(userId, deckId, userPro), cap);
     }
 
     /** Tối đa {@code limit} thẻ củng cố: hệ số dễ thấp trước, bằng nhau thì thẻ hẹn sớm hơn trước (BR-HT-30). */
     public List<DueCard> findReinforce(UUID userId, boolean userPro, Instant since, int limit) {
         Map<String, Object> params = params(userId, null, userPro);
         params.put("since", Timestamp.from(since));
-        return cards(REINFORCE, "p.ease_factor, p.due_at, c.id", params, limit);
+        return cards(SQL_REINFORCE_CARDS, params, limit);
     }
 
     /** Số thẻ củng cố hiện có, đếm tới {@code cap}. */
     public int countReinforce(UUID userId, boolean userPro, Instant since, int cap) {
         Map<String, Object> params = params(userId, null, userPro);
         params.put("since", Timestamp.from(since));
-        return cappedCount(REINFORCE, params, cap);
+        return cappedCount(SQL_REINFORCE_COUNT, params, cap);
     }
 
     /** Số thẻ đã học có lịch hẹn trong {@code [from, to)}: dùng để biết ngày mai đã nhiều thẻ chưa (BR-HT-29). */
@@ -158,20 +181,12 @@ public class VocabReviewRepository {
         return params;
     }
 
-    private int cappedCount(String condition, Map<String, Object> params, int cap) {
-        return jdbc.sql("SELECT count(*) FROM (SELECT 1 " + JOINS + VISIBLE + " AND " + condition
-                + " LIMIT :cap) capped")
-                .params(params).param("cap", cap)
-                .query(Integer.class).single();
+    private int cappedCount(String sql, Map<String, Object> params, int cap) {
+        return jdbc.sql(sql).params(params).param("cap", cap).query(Integer.class).single();
     }
 
-    private List<DueCard> cards(String condition, String order, Map<String, Object> params, int limit) {
-        return jdbc.sql("SELECT " + VocabLearnRepository.CARD_COLUMNS + """
-                , se.text_en AS context_en, se.text_vi AS context_vi, l.id AS lesson_id, l.title AS lesson_title
-                """ + JOINS + """
-                LEFT JOIN sentences se ON se.id = c.source_sentence_id AND se.deleted_at IS NULL
-                LEFT JOIN lessons l ON l.id = se.lesson_id AND l.deleted_at IS NULL AND l.status = 'published'
-                """ + VISIBLE + " AND " + condition + " ORDER BY " + order + " LIMIT :limit")
+    private List<DueCard> cards(String sql, Map<String, Object> params, int limit) {
+        return jdbc.sql(sql)
                 .params(params).param("limit", limit)
                 .query((rs, n) -> new DueCard(VocabLearnRepository.card(rs), rs.getString("context_en"),
                         rs.getString("context_vi"), rs.getObject("lesson_id", UUID.class),
