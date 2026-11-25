@@ -51,7 +51,7 @@ function Stat({ icon, value, label, tone = "primary", progress, subLabel, action
             {actionTo && actionLabel && (
               <Link
                 to={actionTo}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-fn-shadowing hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-primary-text hover:underline"
               >
                 {actionLabel}
                 <Icon name="arrow-right" className="size-3" />
@@ -341,12 +341,12 @@ function ReviewCard({ plan, streak }: { plan: DailyPlan; streak?: Streak }) {
           tone="vocab"
         />
         <QuotaStat
-          icon="mic"
+          icon="messages-square"
           done={plan.sentencesDoneToday}
           target={plan.sentencesTarget}
           doneLabel={t("today.sentencesDone")}
           idleLabel={t("today.sentencesPending")}
-          tone="shadowing"
+          tone="primary"
           actionTo={canQuickReviewSentences ? "/student/review/sentences" : undefined}
           actionLabel={canQuickReviewSentences ? t("today.sentencesQuick") : undefined}
         />
@@ -356,12 +356,12 @@ function ReviewCard({ plan, streak }: { plan: DailyPlan; streak?: Streak }) {
             icon="target"
             value={`${overallPct}%`}
             label={t("today.goalProgress", { percent: overallPct })}
-            tone={overallPct === 100 ? "success" : "primary"}
+            tone={overallPct === 100 ? "success" : "assessment"}
             progress={overallPct}
             subLabel={t("today.goalPlan", { minutes: plan.dailyMinutes })}
           />
         ) : (
-          <Stat icon="target" value={t("today.minutes", { count: plan.dailyMinutes })} label={t("today.goal")} />
+          <Stat icon="target" value={t("today.minutes", { count: plan.dailyMinutes })} label={t("today.goal")} tone="assessment" />
         )}
       </div>
 
