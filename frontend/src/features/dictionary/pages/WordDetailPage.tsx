@@ -277,9 +277,11 @@ export default function WordDetailPage() {
 
       <header className="mb-6 flex flex-wrap items-start justify-between gap-4 rounded-lg border border-border bg-surface p-6 shadow-[var(--shadow-card)]">
         <div className="flex min-w-0 flex-1 flex-col gap-3">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-fn-vocab">
-            <Icon name="book-open-text" className="size-3.5" />
-            {t("dictionary:detail.overline")}
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-fn-vocab/40 bg-fn-vocab-soft px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-fn-vocab">
+              <Icon name="book-open-text" className="size-3.5" />
+              {t("dictionary:detail.overline")}
+            </span>
           </div>
 
           <div className="flex flex-wrap items-baseline gap-3">

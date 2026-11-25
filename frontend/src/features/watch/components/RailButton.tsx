@@ -17,7 +17,7 @@ export default function RailButton({
   label,
   caption,
   active = false,
-  activeClassName = "text-primary-text",
+  activeClassName = "text-watch-video",
   disabled = false,
   onClick,
 }: Readonly<RailButtonProps>) {

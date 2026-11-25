@@ -156,7 +156,7 @@ export default function WatchPage() {
             <Icon name="arrow-left" className="size-5" />
           </button>
           <h1 className="flex items-center gap-2 text-[15px] font-bold">
-            <Icon name="monitor-play" className="size-4 text-primary-text" />
+            <Icon name="monitor-play" className="size-4 text-watch-video" />
             {t("title")}
           </h1>
         </div>
@@ -183,7 +183,7 @@ export default function WatchPage() {
               }}
               className={`h-9 cursor-pointer rounded-full border px-3 text-xs font-bold tabular-nums backdrop-blur-md transition-colors ${
                 prefs.rate !== 1
-                  ? "border-primary bg-primary/85 text-white"
+                  ? "border-watch-video/70 bg-watch-video/25 text-watch-video"
                   : "border-white/20 bg-black/50 text-white/90 hover:bg-white/20"
               }`}
             >
@@ -209,7 +209,7 @@ export default function WatchPage() {
               onClick={() => changePrefs({ ...prefs, ipa: !prefs.ipa })}
               className={`h-9 cursor-pointer rounded-full border px-3 text-xs font-bold backdrop-blur-md transition-colors ${
                 prefs.ipa
-                  ? "border-primary bg-primary/85 text-white"
+                  ? "border-watch-video/70 bg-watch-video/25 text-watch-video"
                   : "border-white/20 bg-black/50 text-white/80 hover:bg-white/20 hover:text-white"
               }`}
             >
@@ -253,7 +253,7 @@ export default function WatchPage() {
           <Icon name="clapperboard" className="size-10 text-white/60" />
           <p className="text-lg font-bold">{t("empty.title")}</p>
           <p className="max-w-sm text-sm text-white/70">{t("empty.desc")}</p>
-          <Link to="/student/lessons" className="mt-2 text-sm font-semibold text-primary-text underline underline-offset-4">
+          <Link to="/student/lessons" className="mt-2 text-sm font-semibold text-watch-video underline underline-offset-4">
             {t("empty.cta")}
           </Link>
         </div>

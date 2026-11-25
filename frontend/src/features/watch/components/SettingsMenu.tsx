@@ -29,8 +29,8 @@ function Toggle({ label, icon, checked, onChange }: Readonly<{
       />
       <span
         aria-hidden="true"
-        className={`relative h-5 w-9 shrink-0 rounded-full transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-primary ${
-          checked ? "bg-primary" : "bg-border-strong"
+        className={`relative h-5 w-9 shrink-0 rounded-full transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-fn-watch ${
+          checked ? "bg-fn-watch" : "bg-border-strong"
         }`}
       >
         <span
@@ -61,7 +61,7 @@ function Segments<T extends string | number>({ label, options, value, format, on
             aria-pressed={option === value}
             onClick={() => onChange(option)}
             className={`flex-1 cursor-pointer rounded-sm px-1.5 py-1 text-xs font-semibold tabular-nums transition-colors ${
-              option === value ? "bg-primary text-white" : "text-text-muted hover:bg-surface-hover hover:text-text"
+              option === value ? "bg-fn-watch text-on-fn" : "text-text-muted hover:bg-surface-hover hover:text-text"
             }`}
           >
             {format(option)}

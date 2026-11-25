@@ -53,6 +53,16 @@ const TONE: Record<NavTone, { icon: string; on: string; tag: string }> = {
     on: `bg-fn-vocab-soft ${ACTIVE_RING} ring-fn-vocab/30 before:bg-fn-vocab`,
     tag: "bg-fn-vocab-soft text-fn-vocab",
   },
+  watch: {
+    icon: "text-fn-watch",
+    on: `bg-fn-watch-soft ${ACTIVE_RING} ring-fn-watch/30 before:bg-fn-watch`,
+    tag: "bg-fn-watch-soft text-fn-watch",
+  },
+  weakness: {
+    icon: "text-fn-weakness",
+    on: `bg-fn-weakness-soft ${ACTIVE_RING} ring-fn-weakness/30 before:bg-fn-weakness`,
+    tag: "bg-fn-weakness-soft text-fn-weakness",
+  },
   assessment: {
     icon: "text-fn-assessment",
     on: `bg-fn-assessment-soft ${ACTIVE_RING} ring-fn-assessment/30 before:bg-fn-assessment`,

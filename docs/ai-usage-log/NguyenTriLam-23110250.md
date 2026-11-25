@@ -951,6 +951,18 @@
 - **Commit:** 57ba584
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-085
+
+- **Ngày:** 2026-11-24
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Lên kế hoạch rồi triển khai tính năng thống kê học tập (UC-TH-01 đến 03): thống kê theo khoảng thời gian có so sánh kỳ trước, lịch sử luyện tập, bản đồ âm vị phát âm, chuỗi ngày học, lịch hoạt động (heatmap), từ nghe sai nhiều nhất kèm nút lưu từ; sau đó sinh viên đổi hướng: đưa khu vực thống kê vào trang Hôm nay và bỏ vòng mục tiêu câu trong ngày
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../stats/StatsServiceImpl.java`, `StatsController.java`, `StatsRange.java`, `StreakCalculator.java`, `PhonemeLevel.java`, các DTO trong `stats/dto/`, truy vấn thống kê ở `practice` và `shadowing` (`DictationStatsQueryService`, `dto`), `vocab` (loại bộ ở dòng lịch sử); `frontend/src/features/stats/` (`components/StatsDashboard.tsx` đặt cuối `TodayPage`, `WeaknessPage.tsx`, `components/`, `hooks.ts`, `utils.ts`, `useRangeParam.ts`), bản dịch `stats.json`, chip chuỗi ngày ở `TopBar`; test `StatsApiIntegrationTest`, `DictationStatsQueryServiceIntegrationTest`, `StatsRangeTest`, `StreakCalculatorTest`, `PhonemeLevelTest` và test frontend của `features/stats`; `StatsServiceImpl.historyByDays` (lịch sử chia trang theo ngày, nạp theo bậc để số trang và tổng số dòng luôn đúng); đặc tả `docs/srs/TH-xem-thong-ke-hoc-tap` (AC-TH-23..26 và AC-TH-35, quy tắc Buổi luyện, chuỗi ngày và BR-TH-11)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên cùng AI chốt phạm vi và quy tắc nghiệp vụ qua phiên hỏi đáp trước khi viết code, yêu cầu làm theo đặc tả module TH và nghiệm thu các trang trên trình duyệt. AI viết đặc tả bổ sung, API, trang và test, lấy mốc ngày theo múi giờ của học viên, chỉ đếm lượt làm đầu tiên của mỗi câu khi tính từ sai, và rà lại các lỗi giao diện thấy được khi chạy thử. Sau đợt chỉnh giao diện, AI rà soát và chỉ ra các lỗi: phân trang theo ngày lệch đặc tả và cắt âm thầm ở 1000 dòng, nhãn Hôm nay/Hôm qua tính theo giờ trình duyệt thay vì múi giờ học viên, hiển thị 0 khi dữ liệu chưa tải, chữ đơn vị gõ cứng và các điểm truy cập bằng bàn phím; sinh viên yêu cầu xử lý toàn bộ.
+- **Commit:** 58df768, 77a158d, 8b54da3, bb79348, 22e2b7b, 66acb5e, 1acc9fd, 8b7b4d5, cbae2fc, 1a61237
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
