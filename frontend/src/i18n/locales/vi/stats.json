@@ -1,17 +1,18 @@
 {
-  "goal": {
-    "title": "Mục tiêu luyện câu hôm nay",
-    "aria": "Tiến độ mục tiêu luyện câu hôm nay",
-    "progress": "{{done}}/{{target}} câu",
-    "remaining": "Còn {{count}} câu nữa là đạt mục tiêu.",
-    "reached": "Bạn đã đạt mục tiêu hôm nay!",
-    "change": "Đổi mục tiêu",
-    "practice": "Luyện câu"
-  },
   "heatmap": {
-    "title": "Lịch học 3 tháng",
-    "summary": "Đã học {{count}} ngày trong 13 tuần gần nhất",
-    "aria": "Lịch nhiệt các ngày học trong 13 tuần gần nhất",
+    "title": "Lịch học 90 ngày",
+    "summary": "Đã học {{count}} ngày trong 90 ngày gần nhất",
+    "activeRate": "{{percent}}% ngày duy trì",
+    "longestStreak_other": "Chuỗi dài nhất {{count}} ngày",
+    "totalActivities_other": "Tổng {{count}} hoạt động",
+    "bestDay_other": "Đỉnh {{count}} hoạt động/ngày",
+    "kpiActiveValue": "{{active}}/{{total}} ngày",
+    "kpiActiveRate": "Ngày duy trì",
+    "kpiLongestStreak": "Chuỗi dài nhất",
+    "kpiTotalActivities": "Tổng hoạt động",
+    "kpiBestDay": "Đỉnh hoạt động/ngày",
+    "hoverHint": "Rê chuột vào một ô ngày để xem chi tiết",
+    "aria": "Lịch nhiệt các ngày học trong 90 ngày gần nhất",
     "cell": "{{date}}: {{count}} hoạt động",
     "cellNone": "{{date}}: chưa học",
     "less": "Ít",
@@ -29,8 +30,12 @@
   },
   "overview": {
     "overline": "Thống kê học tập",
-    "title": "Bạn đang học thế nào?",
-    "sub": "Chuỗi ngày học, số câu đã luyện và tiến độ từ vựng của riêng bạn",
+    "title": "Tiến độ tổng thể",
+    "sub": "Chuỗi ngày học, bài học và tiến độ thẻ từ vựng tính đến hiện tại",
+    "periodTitle": "Hoạt động theo khoảng thời gian",
+    "periodSub": "Áp dụng cho số câu đã luyện, tỷ lệ đúng từ vựng và lịch sử bên dưới",
+    "weaknessTitle": "Hồ sơ điểm yếu & Bản đồ 44 âm vị",
+    "weaknessSub": "Phân tích các âm bạn hay phát âm nhầm và những từ nghe sai nhiều nhất để luyện trúng đích",
     "weaknessLink": "Xem hồ sơ điểm yếu"
   },
   "streak": {
@@ -69,6 +74,7 @@
     "title": "Thẻ từ vựng",
     "hint": "Trong các bộ bạn đã bắt đầu học",
     "total_other": "{{count}} thẻ",
+    "masteredPct": "{{percent}}% đã thuộc",
     "new": "Mới",
     "learning": "Đang học",
     "reviewing": "Đang ôn",
@@ -83,6 +89,11 @@
   "history": {
     "title": "Lịch sử luyện tập",
     "total_other": "{{count}} dòng",
+    "groupToday": "Hôm nay",
+    "groupYesterday": "Hôm qua",
+    "dayCount_other": "{{count}} hoạt động",
+    "showMoreDay_other": "Xem thêm {{count}} hoạt động khác trong ngày",
+    "showLessDay": "Thu gọn ngày này",
     "modeLabel": "Chế độ luyện tập",
     "mode": {
       "all": "Tất cả",
@@ -123,9 +134,31 @@
     "overline": "Hồ sơ điểm yếu",
     "title": "Bạn hay sai ở đâu?",
     "sub": "Tổng hợp từ các lượt luyện trong khoảng đã chọn",
+    "tabs": {
+      "label": "Chọn kỹ năng phân tích",
+      "all": "Tất cả",
+      "pronunciation": "Phát âm Shadowing",
+      "dictation": "Nghe chép"
+    },
+    "sections": {
+      "pronunciation": "Phát âm Shadowing",
+      "dictation": "Nghe chép (Dictation)"
+    },
+    "summary": {
+      "pronunciationScore": "Điểm phát âm TB",
+      "noScore": "Chưa có dữ liệu",
+      "scoreValue": "{{score}}đ",
+      "worstPhoneme": "Âm cần ưu tiên sửa",
+      "noWorstPhoneme": "Chưa có âm yếu",
+      "worstWordClass": "Loại từ dễ sai nhất",
+      "noWorstClass": "Chưa có lỗi nghe chép",
+      "topWrongWord": "Từ nghe sai nhiều nhất",
+      "noWrongWord": "Chưa có từ sai"
+    },
     "map": {
       "title": "Bản đồ 44 âm vị",
-      "hint": "Bấm vào một âm để xem bạn hay đọc nhầm thành âm gì",
+      "hint": "Bấm vào một âm để xem chi tiết, hoặc bấm mức màu bên phải để lọc nhanh",
+      "filterAll": "Tất cả ({{count}})",
       "vowels": "Nguyên âm đơn & đôi",
       "consonants": "Phụ âm",
       "legend": {
@@ -140,11 +173,12 @@
     },
     "words": {
       "title": "Từ nghe sai nhiều nhất",
-      "hint": "Bấm Lưu vào từ vựng để chọn nghĩa của từ và ôn lại cùng các thẻ khác.",
+      "hint": "Nghe lại phát âm chuẩn hoặc bấm Lưu vào từ vựng để ôn cùng các thẻ khác.",
       "saved": "Từ & câu đã lưu",
       "empty": "Chưa có từ nào bị sai trong khoảng này",
       "wrong": "sai {{wrong}}/{{seen}} lần",
-      "save": "Lưu vào từ vựng"
+      "listen": "Nghe phát âm từ “{{word}}”",
+      "save": "Lưu"
     },
     "scores": {
       "title": "Điểm phát âm Shadowing",
@@ -153,11 +187,14 @@
       "empty": "Chưa có lượt Shadowing nào trong khoảng này",
       "latest": "Gần nhất {{score}}đ",
       "aria": "Điểm phát âm trung bình, gần nhất {{score}} điểm",
-      "average": "Trung bình {{score}}đ"
+      "average": "Trung bình {{score}}đ",
+      "pointDetail_other": "{{date}}: {{score}}đ ({{attempts}} lượt)",
+      "hoverHint": "Rê chuột vào từng mốc để xem điểm chi tiết"
     },
     "dictation": {
       "title": "Nghe chép: lỗi theo loại từ",
       "errorRate": "{{percent}}% lỗi",
+      "priority": "Ưu tiên sửa",
       "opportunities_other": "Đã gặp {{count}} từ",
       "lastWrong": "Từ sai gần nhất: {{word}}",
       "noError": "Chưa sai từ nào",
@@ -212,6 +249,8 @@
     "detail": {
       "placeholder": "Chọn một âm trên bản đồ để xem chi tiết",
       "errors_other": "{{count}} lần sai",
+      "errorRatio": "Sai {{errors}}/{{total}} lần gặp",
+      "targetSound": "Âm đích",
       "listen": "Nghe từ ví dụ “{{word}}”",
       "insufficient": "Bạn mới luyện âm này dưới 5 lần. Luyện thêm vài câu có “{{word}}” để có thống kê chính xác.",
       "confusedAs": "Bạn thường đọc thành",
@@ -219,6 +258,7 @@
       "tip": "Mẹo sửa",
       "trend": "Xu hướng lỗi 8 tuần",
       "trendAria": "Tỷ lệ lỗi theo tuần, tuần gần nhất {{percent}}%",
+      "trendWeekDetail": "Tuần {{date}}: {{percent}}% lỗi ({{errors}}/{{total}})",
       "trendEmpty": "Chưa đủ dữ liệu theo tuần để vẽ xu hướng",
       "trendFew": "Mới có 1 tuần có dữ liệu. Cần ít nhất 2 tuần để vẽ xu hướng, hãy luyện thêm trong tuần tới.",
       "practice": "Luyện ngay",

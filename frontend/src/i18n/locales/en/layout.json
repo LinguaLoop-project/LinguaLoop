@@ -46,13 +46,12 @@
         "vocab": "Vocabulary",
         "savedLessons": "Saved lessons",
         "mywords": "Saved words & sentences",
-        "stats": "Stats",
         "weakness": "Weaknesses"
       },
       "pro": {
-        "price": "From 33k VND/month",
+        "price": "From {{price}}/mo",
         "desc": "Unlimited scoring, AI feedback, mouth-movement videos.",
-        "cta": "Try Pro"
+        "cta": "Subscribe to Pro"
       },
       "loopi": "Keep your streak going today!"
     },

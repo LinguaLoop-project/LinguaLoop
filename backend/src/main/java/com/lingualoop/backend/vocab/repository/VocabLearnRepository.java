@@ -111,6 +111,14 @@ public class VocabLearnRepository {
                 .optional();
     }
 
+    /** Thẻ đã có lịch ôn và lịch đó còn ở tương lai: điều kiện để chấm như thẻ củng cố mà không đổi lịch (BR-HT-30). */
+    public boolean isScheduledLater(UUID userId, UUID cardId) {
+        return jdbc.sql("""
+                SELECT EXISTS (SELECT 1 FROM user_card_progress
+                               WHERE user_id = :user AND card_id = :card AND due_at > now())""")
+                .param("user", userId).param("card", cardId).query(Boolean.class).single();
+    }
+
     /** Ghi một dòng nhật ký; false nếu {@code requestId} đã được ghi (gửi lại, BR-HT-16). */
     public boolean insertLog(UUID userId, UUID cardId, UUID sessionId, UUID requestId, String mode, boolean correct,
             int quality, Integer responseMs) {

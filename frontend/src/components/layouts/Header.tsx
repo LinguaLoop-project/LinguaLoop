@@ -34,7 +34,7 @@ const NAV: NavEntry[] = [
 
 const MORE: MoreEntry[] = [
   { to: "/student/lessons", icon: "library", key: "lessons", iconClass: "bg-primary-soft text-primary-text" },
-  { to: "/student/weakness", icon: "target", key: "weakness", iconClass: "bg-fn-assessment-soft text-fn-assessment" },
+  { to: "/student/weakness", icon: "target", key: "weakness", iconClass: "bg-fn-weakness-soft text-fn-weakness" },
 ];
 
 const LINK =

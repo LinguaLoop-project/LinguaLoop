@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { statsApi } from "./api";
 import type { HistoryMode, PracticeKind, StatsRange } from "./types";
+import { HISTORY_DAYS_PER_PAGE } from "./utils";
 
 /**
  * Mặc định TanStack Query tạm dừng request khi trình duyệt báo offline; `always` cho request chạy và thất bại ngay để
@@ -16,7 +17,6 @@ export const statsKeys = {
   overview: (range: StatsRange) => ["stats", "overview", range] as const,
   streak: ["stats", "streak"] as const,
   activity: ["stats", "activity"] as const,
-  todayGoal: ["stats", "today-goal"] as const,
   wrongWords: (range: StatsRange) => ["stats", "wrong-words", range] as const,
   dictationErrors: (range: StatsRange) => ["stats", "dictation-errors", range] as const,
   history: (mode: HistoryMode, range: StatsRange, page: number) => ["stats", "history", mode, range, page] as const,
@@ -40,11 +40,7 @@ export const useStatsOverview = (range: StatsRange) =>
 export const useStreak = (enabled = true) =>
   useQuery({ ...base, queryKey: statsKeys.streak, queryFn: statsApi.getStreak, enabled });
 
-/** Tiến độ mục tiêu câu luyện hôm nay; làm mới khi quay lại trang để thấy câu vừa luyện. */
-export const useTodayGoal = () =>
-  useQuery({ ...base, queryKey: statsKeys.todayGoal, queryFn: statsApi.getTodayGoal, staleTime: 0 });
-
-/** Lịch nhiệt 13 tuần, không phụ thuộc bộ lọc khoảng. */
+/** Lịch nhiệt 90 ngày, không phụ thuộc bộ lọc khoảng. */
 export const useActivity = () => useQuery({ ...base, queryKey: statsKeys.activity, queryFn: statsApi.getActivity });
 
 export const useWrongWords = (range: StatsRange) =>
@@ -67,8 +63,11 @@ export const useHistory = (mode: HistoryMode, range: StatsRange, page: number) =
   useQuery({
     ...base,
     queryKey: statsKeys.history(mode, range, page),
-    queryFn: () => statsApi.getHistory(mode, range, page),
-    placeholderData: keepPreviousData,
+    queryFn: () => statsApi.getHistory(mode, range, page, HISTORY_DAYS_PER_PAGE),
+    // Chỉ giữ dữ liệu trang trước khi chuyển trang trong CÙNG chế độ (mode) và khoảng (range);
+    // khi đổi mode (vd: Tất cả -> Nghe chép), phải xóa ngay dữ liệu cũ để không hiện nhầm dòng Từ vựng.
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[2] === mode && previousQuery?.queryKey[3] === range ? previousData : undefined,
   });
 
 /** Các lượt của một Buổi luyện; chỉ tải khi học viên mở dòng đó. */

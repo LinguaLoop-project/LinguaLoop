@@ -427,6 +427,52 @@ class StatsApiIntegrationTest {
     }
 
     @Test
+    void history_pagesByDays_neverSplitsADay_andCountsRealTotals_AC_TH_35() throws Exception {
+        UUID user = users.newUser();
+        UUID deck = vocab.deck(base + "days", false);
+        UUID card = vocab.fill(deck, 1, 1, base + "d").get(0);
+        for (int i = 0; i < 4; i++) {                       // ngày mới nhất có 4 dòng
+            Instant when = at(0).minusSeconds(i * 60L);
+            reviewLog(user, card, vocabSession(user, deck, when), true, when);
+        }
+        for (int day = 1; day <= 4; day++) {                // bốn ngày trước, mỗi ngày một dòng
+            Instant when = at(day);
+            reviewLog(user, card, vocabSession(user, deck, when), true, when);
+        }
+
+        as(user, get(HISTORY).param("days", "3").param("range", "all")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.items.length()").value(6))
+                .andExpect(jsonPath("$.data.totalElements").value(8))
+                .andExpect(jsonPath("$.data.totalPages").value(2))
+                .andExpect(jsonPath("$.data.size").value(3));
+        as(user, get(HISTORY).param("days", "3").param("range", "all").param("page", "1"))
+                .andExpect(jsonPath("$.data.items.length()").value(2))
+                .andExpect(jsonPath("$.data.page").value(1));
+        as(user, get(HISTORY).param("days", "3").param("range", "all").param("page", "2"))
+                .andExpect(jsonPath("$.data.items.length()").value(0));
+        // ngày không có hoạt động khớp bộ lọc thì không xuất hiện
+        as(user, get(HISTORY).param("days", "3").param("range", "all").param("mode", "shadowing"))
+                .andExpect(jsonPath("$.data.items.length()").value(0))
+                .andExpect(jsonPath("$.data.totalPages").value(0));
+    }
+
+    @Test
+    void history_byDaysLoadsBeyondTheFirstBatch_soTotalsStayExact_AC_TH_35() throws Exception {
+        UUID user = users.newUser();
+        UUID deck = vocab.deck(base + "big", false);
+        UUID card = vocab.fill(deck, 1, 1, base + "b").get(0);
+        for (int i = 0; i < 620; i++) {                     // vượt lượt nạp đầu (500 dòng), dồn vào 2 ngày
+            Instant when = at(i % 2 == 0 ? 0 : 1).minusSeconds(i);
+            reviewLog(user, card, vocabSession(user, deck, when), true, when);
+        }
+
+        as(user, get(HISTORY).param("days", "3").param("range", "all"))
+                .andExpect(jsonPath("$.data.items.length()").value(620))
+                .andExpect(jsonPath("$.data.totalElements").value(620))
+                .andExpect(jsonPath("$.data.totalPages").value(1));
+    }
+
+    @Test
     void history_aPracticeSessionOpensIntoItsAttempts_evenWhenTheLessonWasUnpublished_AC_TH_11() throws Exception {
         UUID user = users.newUser();
         UUID lesson = lesson(false, "published");
@@ -761,7 +807,7 @@ class StatsApiIntegrationTest {
     // ---------------------------------------------------------------- lịch nhiệt và từ nghe sai nhiều nhất
 
     @Test
-    void activity_countsAttemptsCardAnswersAndFinishedAiSessionsPerDayOver13Weeks_AC_TH_31() throws Exception {
+    void activity_countsAttemptsCardAnswersAndFinishedAiSessionsPerDayOverTheLast90Days_AC_TH_31() throws Exception {
         UUID user = users.newUser();
         UUID lesson = lesson(false, "published");
         UUID s0 = sentence(lesson, 0);
@@ -774,20 +820,23 @@ class StatsApiIntegrationTest {
         reviewLog(user, cards.get(0), null, false, at(1));
         aiSession(user, lesson, "completed", at(2), 2);
         aiSession(user, lesson, "active", at(3), 1);                   // chưa xong: không tính
-        dictation(user, s1, at(100), 50);                              // ngoài 13 tuần
+        dictation(user, s1, at(89), 50);                               // ngày thứ 90, còn trong cửa sổ
+        dictation(user, s1, at(90), 50);                               // ngoài 90 ngày
 
         LocalDate today = LocalDate.now(ZONE);
-        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(12);
+        LocalDate monday = today.minusDays(89).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         as(user, get("/api/v1/stats/activity")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.from").value(monday.toString()))
                 .andExpect(jsonPath("$.data.to").value(today.toString()))
-                .andExpect(jsonPath("$.data.days.length()").value(3))
-                .andExpect(jsonPath("$.data.days[0].date").value(today.minusDays(2).toString()))
+                .andExpect(jsonPath("$.data.days.length()").value(4))
+                .andExpect(jsonPath("$.data.days[0].date").value(today.minusDays(89).toString()))
                 .andExpect(jsonPath("$.data.days[0].count").value(1))
-                .andExpect(jsonPath("$.data.days[1].date").value(today.minusDays(1).toString()))
-                .andExpect(jsonPath("$.data.days[1].count").value(2))
-                .andExpect(jsonPath("$.data.days[2].date").value(today.toString()))
-                .andExpect(jsonPath("$.data.days[2].count").value(3));
+                .andExpect(jsonPath("$.data.days[1].date").value(today.minusDays(2).toString()))
+                .andExpect(jsonPath("$.data.days[1].count").value(1))
+                .andExpect(jsonPath("$.data.days[2].date").value(today.minusDays(1).toString()))
+                .andExpect(jsonPath("$.data.days[2].count").value(2))
+                .andExpect(jsonPath("$.data.days[3].date").value(today.toString()))
+                .andExpect(jsonPath("$.data.days[3].count").value(3));
     }
 
     @Test
@@ -842,27 +891,6 @@ class StatsApiIntegrationTest {
         as(user, get("/api/v1/stats/dictation-errors/words").param("range", "week")).andExpect(status().isBadRequest());
         as(users.newUser(), get("/api/v1/stats/dictation-errors/words"))
                 .andExpect(jsonPath("$.data.words.length()").value(0));
-    }
-
-    @Test
-    void todayGoal_countsDistinctSentencesPracticedTodayAgainstTheDailyMinutes_AC_TH_35() throws Exception {
-        UUID user = users.newUser();
-        UUID lesson = lesson(false, "published");
-        UUID s0 = sentence(lesson, 0);
-        UUID s1 = sentence(lesson, 1);
-        UUID s2 = sentence(lesson, 2);
-        dictation(user, s0, at(0), 80);
-        shadowing(user, s0, at(0), 70);          // cùng câu ở chế độ khác: chỉ tính một câu
-        dictation(user, s1, at(0), 60);
-        dictation(user, s2, at(1), 90);          // hôm qua: không tính
-
-        as(user, get("/api/v1/stats/today-goal")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.sentences").value(2))
-                .andExpect(jsonPath("$.data.target").value(15));
-
-        jdbc.update("UPDATE users SET daily_minutes = 30 WHERE id = ?", user);
-        as(user, get("/api/v1/stats/today-goal")).andExpect(jsonPath("$.data.target").value(30));
-        as(users.newUser(), get("/api/v1/stats/today-goal")).andExpect(jsonPath("$.data.sentences").value(0));
     }
 
     // ---------------------------------------------------------------- dữ liệu mẫu

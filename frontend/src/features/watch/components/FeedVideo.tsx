@@ -183,7 +183,7 @@ export default function FeedVideo({
           className="pointer-events-none absolute inset-x-0 bottom-0 z-30 mx-auto h-1 w-full max-w-[calc(100dvh*16/9)] bg-white/20"
         >
           <div
-            className="h-full bg-primary transition-[width] duration-150"
+            className="h-full bg-watch-video transition-[width] duration-150"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -259,7 +259,7 @@ export default function FeedVideo({
           />
         </Link>
         <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
-          <span className="rounded-md bg-primary px-2 py-0.5 text-white shadow-sm">{item.cefrLevel}</span>
+          <span className="rounded-md bg-watch-video-strong px-2 py-0.5 text-white shadow-sm">{item.cefrLevel}</span>
           {item.topicName && (
             <span className="rounded-md border border-white/20 bg-black/55 px-2 py-0.5 text-white/95 backdrop-blur-md">
               {item.topicName}

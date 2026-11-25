@@ -39,7 +39,6 @@ import com.lingualoop.backend.stats.dto.DictationErrorsView;
 import com.lingualoop.backend.stats.dto.HistoryView;
 import com.lingualoop.backend.stats.dto.PronunciationView;
 import com.lingualoop.backend.stats.dto.StatsOverviewView;
-import com.lingualoop.backend.stats.dto.TodayGoalView;
 import com.lingualoop.backend.stats.dto.WrongWordsView;
 import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 import com.lingualoop.backend.user.dto.UserAccountView;
@@ -62,10 +61,17 @@ class StatsServiceImpl implements StatsService {
     private static final int TOP_WRONG_WORDS = 10;
 
     /** Số tuần của lịch nhiệt, khoảng 3 tháng (BR-TH-15). */
-    private static final int ACTIVITY_WEEKS = 13;
+    /** Lịch nhiệt hiển thị đúng 90 ngày gần nhất tính cả hôm nay (BR-TH-15). */
+    private static final int ACTIVITY_DAYS = 90;
 
     /** Trang lịch sử tối đa; chặn offset lớn vì mỗi nguồn phải lấy {@code (page + 1) * 20} dòng để trộn. */
     private static final int MAX_HISTORY_PAGE = 500;
+
+    /** Số dòng nạp lần đầu từ mỗi nguồn khi gom lịch sử theo ngày; nạp thêm theo bậc nếu số đếm thật còn lớn hơn. */
+    private static final int HISTORY_BY_DAYS_FIRST_LIMIT = 500;
+
+    /** Trần số dòng nạp từ mỗi nguồn khi gom lịch sử theo ngày (BR-TH-11). */
+    private static final int MAX_HISTORY_BY_DAYS_LIMIT = 8000;
 
     private final UserAccountService users;
     private final SubscriptionQueryService subscriptions;
@@ -150,26 +156,19 @@ class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public TodayGoalView todayGoal(UUID userId) {
-        UserAccountView user = users.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
-        ZoneId zone = ZoneId.of(user.timezone());
-        Instant startOfToday = LocalDate.now(clock.withZone(zone)).atStartOfDay(zone).toInstant();
-        return new TodayGoalView(practice.sentenceCounts(userId, startOfToday).total(), user.dailyMinutes());
-    }
-
-    @Override
     public ActivityView activity(UUID userId) {
         Window w = window(userId, StatsRange.DAYS_30);
-        LocalDate from = w.today().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                .minusWeeks(ACTIVITY_WEEKS - 1L);
-        Instant since = from.atStartOfDay(w.zone()).toInstant();
+        LocalDate windowStart = w.today().minusDays(ACTIVITY_DAYS - 1L);
+        // Lưới xếp theo tuần từ thứ Hai nên cột đầu có thể bắt đầu trước cửa sổ; các ô trước cửa sổ không có dữ liệu.
+        LocalDate from = windowStart.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        Instant since = windowStart.atStartOfDay(w.zone()).toInstant();
         Map<LocalDate, Long> counts = new java.util.TreeMap<>();
         for (Map<LocalDate, Long> part : List.of(practice.activityByDay(userId, since),
                 vocab.activityByDay(userId, since), aiChat.activityByDay(userId, since))) {
             part.forEach((day, n) -> counts.merge(day, n, Long::sum));
         }
         List<ActivityView.Day> days = counts.entrySet().stream()
-                .filter(e -> e.getValue() > 0 && !e.getKey().isAfter(w.today()))
+                .filter(e -> e.getValue() > 0 && !e.getKey().isBefore(windowStart) && !e.getKey().isAfter(w.today()))
                 .map(e -> new ActivityView.Day(e.getKey(), e.getValue())).toList();
         return new ActivityView(from, w.today(), days);
     }
@@ -191,11 +190,11 @@ class StatsServiceImpl implements StatsService {
             total += practice.countPracticeSessions(userId, w.since(), practiceModes);
         }
         if (mode.includesVocab()) {
-            vocab.sessions(userId, w.since(), limit).forEach(s -> merged.add(toHistory(s)));
+            vocab.sessions(userId, w.since(), limit).forEach(s -> merged.add(toHistory(s, w.zone())));
             total += vocab.countSessions(userId, w.since());
         }
         if (mode.includesAi()) {
-            aiChat.sessions(userId, w.since(), limit).forEach(s -> merged.add(toHistory(s)));
+            aiChat.sessions(userId, w.since(), limit).forEach(s -> merged.add(toHistory(s, w.zone())));
             total += aiChat.countSessions(userId, w.since());
         }
 
@@ -203,6 +202,72 @@ class StatsServiceImpl implements StatsService {
         int from = Math.min(safePage * HISTORY_PAGE_SIZE, merged.size());
         List<HistoryView> items = merged.subList(from, Math.min(from + HISTORY_PAGE_SIZE, merged.size()));
         return PageResponse.of(items, safePage, HISTORY_PAGE_SIZE, total);
+    }
+
+    @Override
+    public PageResponse<HistoryView> historyByDays(UUID userId, String rawMode, String rawRange, int page,
+            int rawDaysPerPage) {
+        HistoryMode mode = HistoryMode.parse(rawMode);
+        StatsRange range = StatsRange.parse(rawRange);
+        Window w = window(userId, range);
+        int daysPerPage = Math.min(Math.max(rawDaysPerPage, 1), 30);
+        int safePage = Math.min(Math.max(page, 0), MAX_HISTORY_PAGE);
+
+        List<PracticeMode> practiceModes = mode.practiceModes();
+        long practiceTotal = practiceModes.isEmpty() ? 0 : practice.countPracticeSessions(userId, w.since(), practiceModes);
+        long vocabTotal = mode.includesVocab() ? vocab.countSessions(userId, w.since()) : 0;
+        long aiTotal = mode.includesAi() ? aiChat.countSessions(userId, w.since()) : 0;
+        long total = practiceTotal + vocabTotal + aiTotal;
+
+        // Nạp theo bậc 500 -> 2.000 -> 8.000 -> trần: dừng ngay khi mỗi nguồn đã được nạp đủ theo số đếm thật, để số ngày
+        // và số trang luôn chính xác; chỉ khi vượt trần mới bỏ phần cũ nhất (xem BR-TH-11).
+        int limit = HISTORY_BY_DAYS_FIRST_LIMIT;
+        List<HistoryView> merged;
+        while (true) {
+            List<HistoryView> batch = new ArrayList<>();
+            int loaded = 0;
+            if (practiceTotal > 0) {
+                List<PracticeSessionView> rows = practice.practiceSessions(userId, w.since(), practiceModes, limit);
+                rows.forEach(s -> batch.add(toHistory(s)));
+                loaded += rows.size();
+            }
+            if (vocabTotal > 0) {
+                List<VocabStatsView.Session> rows = vocab.sessions(userId, w.since(), limit);
+                rows.forEach(s -> batch.add(toHistory(s, w.zone())));
+                loaded += rows.size();
+            }
+            if (aiTotal > 0) {
+                List<LessonChatStatsQueryService.Session> rows = aiChat.sessions(userId, w.since(), limit);
+                rows.forEach(s -> batch.add(toHistory(s, w.zone())));
+                loaded += rows.size();
+            }
+            merged = batch;
+            if (loaded >= total || limit >= MAX_HISTORY_BY_DAYS_LIMIT) {
+                break;
+            }
+            limit = Math.min(limit * 4, MAX_HISTORY_BY_DAYS_LIMIT);
+        }
+
+        merged.sort(Comparator.comparing(HistoryView::at).reversed());
+
+        Map<LocalDate, List<HistoryView>> byDay = new java.util.TreeMap<>(Comparator.reverseOrder());
+        for (HistoryView item : merged) {
+            LocalDate day = item.day() != null ? item.day() : LocalDate.ofInstant(item.at(), w.zone());
+            byDay.computeIfAbsent(day, k -> new ArrayList<>()).add(item);
+        }
+
+        List<LocalDate> activeDays = new ArrayList<>(byDay.keySet());
+        int totalDays = activeDays.size();
+        int totalPages = (totalDays + daysPerPage - 1) / daysPerPage;
+        int fromDay = Math.min(safePage * daysPerPage, totalDays);
+        int toDay = Math.min(fromDay + daysPerPage, totalDays);
+
+        List<HistoryView> pageItems = new ArrayList<>();
+        for (LocalDate day : activeDays.subList(fromDay, toDay)) {
+            pageItems.addAll(byDay.get(day));
+        }
+
+        return new PageResponse<>(pageItems, safePage, daysPerPage, total, totalPages);
     }
 
     @Override
@@ -275,14 +340,15 @@ class StatsServiceImpl implements StatsService {
                 null, s.day(), s.sentences(), s.averageBestScore(), s.retries(), s.gaveUps(), null, null);
     }
 
-    private static HistoryView toHistory(VocabStatsView.Session s) {
+    private static HistoryView toHistory(VocabStatsView.Session s, ZoneId zone) {
         return new HistoryView("vocab", s.kind(), s.startedAt(), s.deckName(), s.deckAvailable(), null, s.deckId(),
-                s.deckKind(), null, null, null, null, null, s.answered(), s.correct());
+                s.deckKind(), LocalDate.ofInstant(s.startedAt(), zone), null, null, null, null, s.answered(),
+                s.correct());
     }
 
-    private static HistoryView toHistory(LessonChatStatsQueryService.Session s) {
+    private static HistoryView toHistory(LessonChatStatsQueryService.Session s, ZoneId zone) {
         return new HistoryView("ai", s.mode(), s.endedAt(), s.lessonTitle(), s.lessonAvailable(), s.lessonId(), null,
-                null, null, null, null, null, null, s.answered(), null);
+                null, LocalDate.ofInstant(s.endedAt(), zone), null, null, null, null, s.answered(), null);
     }
 
     private static int percent(long part, long whole) {

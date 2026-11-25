@@ -15,6 +15,7 @@ public final class DeckManageView {
      * "Khác" (BR-BT-13, 14). {@code status} là {@code draft} hoặc {@code published}; bộ đã xóa giữ trạng thái trước khi
      * xóa và có {@code deletedAt} (BR-BT-02). Số nhóm và số thẻ chỉ đếm bản ghi chưa xóa (BR-BT-12).
      * {@code unpublishReason} là lý do quản trị viên gỡ xuất bản, hiện cạnh bộ cho giáo viên (BR-BT-08).
+     * {@code cefrLevel} là A1 đến C2 hoặc trống khi chưa gắn cấp độ (BR-BT-16).
      */
     public record Item(
             UUID id,
@@ -22,6 +23,7 @@ public final class DeckManageView {
             String imageUrl,
             UUID categoryId,
             String categoryName,
+            String cefrLevel,
             long groupCount,
             long cardCount,
             boolean pro,
@@ -42,6 +44,7 @@ public final class DeckManageView {
             String imageUrl,
             UUID categoryId,
             String categoryName,
+            String cefrLevel,
             long groupCount,
             long cardCount,
             boolean pro,
@@ -62,6 +65,7 @@ public final class DeckManageView {
             String imageUrl,
             UUID categoryId,
             String categoryName,
+            String cefrLevel,
             boolean pro,
             String status,
             Instant updatedAt,

@@ -6,11 +6,17 @@ import java.util.UUID;
 import com.lingualoop.backend.lesson.enums.PracticeMode;
 import com.lingualoop.backend.practice.dto.ReviewPlanSentence;
 
-/** Lập kế hoạch cho phiên Ôn tập hằng ngày: thẻ đến hạn rồi câu cần ôn, theo mục tiêu ngày của học viên (UC-HT-05). */
+/** Lập kế hoạch cho phiên Luyện tập hằng ngày: thẻ đến hạn rồi câu cần ôn, theo mục tiêu ngày của học viên (UC-HT-05). */
 public interface DailyReviewService {
 
     /** Số lượng thẻ, các câu được chọn và thời điểm thẻ kế tiếp đến hạn. Không lưu gì: mỗi lần gọi lập lại từ dữ liệu hiện tại. */
     DailyPlanView plan(UUID userId);
+
+    /**
+     * Thẻ của phần ôn thẻ: thẻ đến hạn, rồi từ mới, rồi thẻ củng cố, đủ phần định mức còn lại của ngày (BR-HT-29). Với
+     * {@code extra} (lượt "Ôn thêm") chỉ có thẻ đến hạn, tối đa bằng định mức thẻ, không tính định mức (BR-HT-24).
+     */
+    DailyCardsView dailyCards(UUID userId, boolean extra);
 
     /**
      * Các câu của phiên Ôn câu riêng (UC-HT-04): mỗi chế độ tối đa {@code perMode} câu theo BR-HT-20, Nghe chép trước rồi

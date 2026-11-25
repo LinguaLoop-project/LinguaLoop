@@ -44,7 +44,6 @@ const DictationPage = lazy(() => import("@/features/dictation/pages/DictationPag
 const MyWordsPage = lazy(() => import("@/features/practice/pages/MyWordsPage"));
 const WordDetailPage = lazy(() => import("@/features/dictionary/pages/WordDetailPage"));
 const VocabPage = lazy(() => import("@/features/vocab/pages/VocabPage"));
-const StatsPage = lazy(() => import("@/features/stats/pages/StatsPage"));
 const WeaknessPage = lazy(() => import("@/features/stats/pages/WeaknessPage"));
 const DeckPage = lazy(() => import("@/features/vocab/pages/DeckPage"));
 const PartPage = lazy(() => import("@/features/vocab/pages/PartPage"));
@@ -65,6 +64,8 @@ const AdminUserListPage = lazy(() => import("@/features/user/pages/admin/AdminUs
 const AdminUserDetailPage = lazy(() => import("@/features/user/pages/admin/AdminUserDetailPage"));
 const AdminCreditConfigPage = lazy(() => import("@/features/credit/pages/admin/AdminCreditConfigPage"));
 const AdminProPlanPage = lazy(() => import("@/features/subscription/pages/admin/AdminProPlanPage"));
+const SubscriptionPage = lazy(() => import("@/features/subscription/pages/SubscriptionPage"));
+const PaymentReturnPage = lazy(() => import("@/features/subscription/pages/PaymentReturnPage"));
 const AdminContentTransferPage = lazy(() => import("@/features/user/pages/admin/AdminContentTransferPage"));
 const AdminReportListPage = lazy(() => import("@/features/report/pages/admin/AdminReportListPage"));
 const AdminReportDetailPage = lazy(() => import("@/features/report/pages/admin/AdminReportDetailPage"));
@@ -235,6 +236,10 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <Settings />,
         },
         {
+          path: "subscription",
+          element: <SubscriptionPage />,
+        },
+        {
           path: "profile",
           element: <ProfilePage />,
         },
@@ -243,10 +248,24 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <NotificationsPage />,
         },
         {
+          // Thống kê nay nằm trên trang Hôm nay; giữ địa chỉ cũ để liên kết đã lưu vẫn dùng được
           path: "stats",
-          element: <StatsPage />,
+          element: <Navigate to="/student" replace />,
         },
       ],
+    },
+  ];
+
+  // VNPAY chuyển học viên về đúng VNPAY_RETURN_URL (/payment/vnpay-return), nằm trong khung học viên.
+  const paymentRoutes: RouteObject[] = [
+    {
+      path: "payment",
+      element: (
+        <AuthGuard allowedRoles={["student"]}>
+          <StudentLayout />
+        </AuthGuard>
+      ),
+      children: [{ path: "vnpay-return", element: <PaymentReturnPage /> }],
     },
   ];
 
@@ -435,6 +454,7 @@ const getRoutesConfig = (): RouteObject[] => {
   return [
     ...publicRoutes,
     ...studentRoutes,
+    ...paymentRoutes,
     ...watchRoutes,
     ...teacherRoutes,
     ...adminRoutes,

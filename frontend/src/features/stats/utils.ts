@@ -17,6 +17,12 @@ export const DEFAULT_RANGE: StatsRange = "30d";
 
 export const HISTORY_MODES: HistoryMode[] = ["all", "dictation", "shadowing", "vocab", "ai"];
 
+/** Số ngày có hoạt động tối đa hiển thị trên mỗi trang Lịch sử luyện tập. */
+export const HISTORY_DAYS_PER_PAGE = 3;
+
+/** Số hoạt động hiển thị mặc định cho mỗi ngày trước khi thu gọn vào nút "Xem thêm". */
+export const INITIAL_ITEMS_PER_DAY = 3;
+
 /** Số lần gặp tối thiểu để một âm có tỷ lệ lỗi (BR-TH-11); trùng ngưỡng của backend. */
 export const MIN_PHONEME_ENCOUNTERS = 5;
 
@@ -147,14 +153,31 @@ function addDays(date: string, days: number): string {
  * Chia các ngày từ `from` (thứ Hai) đến `to` thành các cột tuần, mỗi cột 7 ô từ thứ Hai đến Chủ nhật. Ngày sau `to`
  * chưa tới nên là null. Ngày không có trong `days` là 0 hoạt động.
  */
-export function buildHeatWeeks(from: string, to: string, days: ActivityDay[]): (HeatCell | null)[][] {
+/** Số ngày của Lịch nhiệt, tính cả hôm nay (BR-TH-15); trùng hằng số của backend. */
+export const ACTIVITY_WINDOW_DAYS = 90;
+
+/** Ngày đầu tiên của cửa sổ 90 ngày kết thúc ở `to`. */
+export function activityWindowStart(to: string): string {
+  return addDays(to, -(ACTIVITY_WINDOW_DAYS - 1));
+}
+
+/**
+ * Lưới tuần của Lịch nhiệt, mỗi cột bắt đầu từ thứ Hai. Ô trước `windowStart` (đầu cột đầu tiên) hoặc sau `to` để trống
+ * nên số ô có ngày đúng bằng số ngày của cửa sổ.
+ */
+export function buildHeatWeeks(
+  from: string,
+  to: string,
+  days: ActivityDay[],
+  windowStart: string = from,
+): (HeatCell | null)[][] {
   const counts = new Map(days.map((d) => [d.date, d.count]));
   const weeks: (HeatCell | null)[][] = [];
   for (let start = from; start <= to; start = addDays(start, 7)) {
     weeks.push(
       Array.from({ length: 7 }, (_, i) => {
         const date = addDays(start, i);
-        if (date > to) return null;
+        if (date > to || date < windowStart) return null;
         const count = counts.get(date) ?? 0;
         return { date, count, level: heatLevel(count) };
       }),
@@ -166,6 +189,95 @@ export function buildHeatWeeks(from: string, to: string, days: ActivityDay[]): (
 /** Số ngày có ít nhất một hoạt động trong lịch. */
 export function activeDayCount(days: ActivityDay[]): number {
   return days.filter((d) => d.count > 0).length;
+}
+
+/** Tổng hợp nhanh cho Lịch nhiệt 90 ngày: số ngày có học, tổng hoạt động và kỷ lục hoạt động trong 1 ngày. */
+export function activitySummary(days: ActivityDay[]): {
+  activeDays: number;
+  totalActivities: number;
+  bestDayCount: number;
+} {
+  return {
+    activeDays: activeDayCount(days),
+    totalActivities: days.reduce((sum, d) => sum + Math.max(0, d.count), 0),
+    bestDayCount: days.reduce((max, d) => Math.max(max, d.count), 0),
+  };
+}
+
+export interface HistoryDateGroup {
+  dayKey: string;
+  items: HistoryItem[];
+}
+
+/** Kiểm tra một dòng lịch sử có khớp bộ lọc chế độ (`mode`) đang chọn hay không (BR-TH-07). */
+export function matchesHistoryMode(item: HistoryItem, mode: HistoryMode): boolean {
+  if (mode === "all") return true;
+  if (mode === "vocab") return item.type === "vocab";
+  if (mode === "ai") return item.type === "ai";
+  return item.type === "practice" && item.mode === mode;
+}
+
+/**
+ * Ngày lịch (`YYYY-MM-DD`) theo múi giờ địa phương của dòng lịch sử. Ưu tiên trường `day` từ backend;
+ * nếu thiếu thì đổi từ `at` theo giờ địa phương (không cắt chuỗi UTC `slice(0, 10)` để tránh lệch ngày lúc 00:00–07:00).
+ */
+export function itemLocalDayKey(item: HistoryItem, timeZone?: string): string {
+  if (item.day) return item.day;
+  const parsed = new Date(item.at);
+  if (Number.isNaN(parsed.getTime())) return item.at.slice(0, 10);
+  return dayKeyInZone(parsed, timeZone);
+}
+
+/** Ngày lịch `YYYY-MM-DD` của một thời điểm theo múi giờ `timeZone` (múi giờ hồ sơ học viên); thiếu hoặc sai thì dùng giờ trình duyệt. */
+export function dayKeyInZone(date: Date, timeZone?: string): string {
+  const format = (zone?: string) =>
+    new Intl.DateTimeFormat("en-CA", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
+  try {
+    return format(timeZone);
+  } catch {
+    return format(undefined);
+  }
+}
+
+/** Ngày lịch liền trước `dayKey` (`YYYY-MM-DD`), tính trên lịch nên không phụ thuộc múi giờ hay giờ mùa hè. */
+export function previousDayKey(dayKey: string): string {
+  const d = new Date(`${dayKey}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * Lọc các dòng khớp `mode`, gom theo từng ngày có hoạt động (mới nhất trước) và giới hạn tối đa `maxDays` ngày mỗi trang.
+ * Ngày không có hoạt động nào khớp `mode` sẽ hoàn toàn không xuất hiện.
+ */
+export function groupHistoryByDate(
+  items: HistoryItem[],
+  mode: HistoryMode = "all",
+  maxDays: number = HISTORY_DAYS_PER_PAGE,
+  timeZone?: string,
+): HistoryDateGroup[] {
+  const byDay = new Map<string, HistoryItem[]>();
+  for (const item of items) {
+    if (!matchesHistoryMode(item, mode)) continue;
+    const dayKey = itemLocalDayKey(item, timeZone);
+    const list = byDay.get(dayKey);
+    if (list) {
+      list.push(item);
+    } else {
+      byDay.set(dayKey, [item]);
+    }
+  }
+  return Array.from(byDay.entries())
+    .sort(([a], [b]) => b.localeCompare(a))
+    .slice(0, Math.max(1, maxDays))
+    .map(([dayKey, dayItems]) => ({ dayKey, items: dayItems }));
+}
+
+/** Màu huy hiệu điểm/độ chính xác trên dòng lịch sử: >= 80 xanh lá, 50–79 vàng, < 50 đỏ. */
+export function scoreBadgeTone(score: number): "success" | "warning" | "danger" {
+  if (score >= 80) return "success";
+  if (score >= 50) return "warning";
+  return "danger";
 }
 
 /** Chênh lệch có dấu: "+5", "-3" hoặc "0" (BR-TH-13). */
@@ -198,11 +310,6 @@ export function historyHref(item: HistoryItem): string | null {
 export function practiceKind(item: HistoryItem): PracticeKind | null {
   if (item.type !== "practice") return null;
   return item.mode === "dictation" || item.mode === "shadowing" ? item.mode : null;
-}
-
-/** Phần trăm hoàn thành mục tiêu ngày, tối đa 100 dù đã luyện vượt (BR-TH-18). */
-export function goalPercent(done: number, target: number): number {
-  return Math.min(100, percentOf(done, target));
 }
 
 /** Tỷ lệ phần trăm làm tròn; 0 khi mẫu số bằng 0. */

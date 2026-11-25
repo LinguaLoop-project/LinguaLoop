@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,6 +20,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -297,6 +299,33 @@ class TeacherVocabDeckApiIntegrationTest {
                 .andExpect(jsonPath("$.data.categoryId").doesNotExist())
                 .andExpect(jsonPath("$.data.pro").value(false))
                 .andExpect(jsonPath("$.data.status").value("draft"));
+    }
+
+    @Test
+    void createAndUpdateDeck_cefrLevelIsOptionalAndValidated_AC_BT_81() throws Exception {
+        UUID a = data.teacher("GV A");
+
+        String created = asTeacher(a, create("{\"name\":\"Bộ B1\",\"cefrLevel\":\"B1\"}")).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.cefrLevel").value("B1")).andReturn().getResponse().getContentAsString();
+        String id = JsonPath.read(created, "$.data.id");
+        asTeacher(a, get(DECKS).param("status", "draft")).andExpect(jsonPath("$.data.items[0].cefrLevel").value("B1"));
+
+        // Đổi sang "Chưa gắn": chuỗi trống bỏ cấp độ.
+        asTeacher(a, put(DECKS + "/" + id).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Bộ B1\",\"cefrLevel\":\"\"}")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.cefrLevel").doesNotExist());
+        asTeacher(a, put(DECKS + "/" + id).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Bộ B1\",\"cefrLevel\":\"C2\"}")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.cefrLevel").value("C2"));
+
+        // Giá trị ngoài A1..C2 bị từ chối ở cả hai nơi, bộ không đổi.
+        asTeacher(a, create("{\"name\":\"Bộ sai\",\"cefrLevel\":\"D1\"}")).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("cefrLevel"));
+        asTeacher(a, put(DECKS + "/" + id).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Bộ B1\",\"cefrLevel\":\"b1\"}")).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("cefrLevel"));
+        assertThat(data.countDecks(a)).isEqualTo(1);
+        asTeacher(a, get(DECKS + "/" + id)).andExpect(jsonPath("$.data.cefrLevel").value("C2"));
     }
 
     @Test

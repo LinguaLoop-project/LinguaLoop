@@ -39,6 +39,10 @@ public class VocabDeck extends BaseEntity {
     @Column(name = "category_id")
     private UUID categoryId;
 
+    /** Cấp độ CEFR (A1 đến C2) hoặc trống khi chưa gắn (BR-BT-16). */
+    @Column(name = "cefr_level")
+    private String cefrLevel;
+
     @Column(name = "image_url")
     private String imageUrl;
 
@@ -55,12 +59,14 @@ public class VocabDeck extends BaseEntity {
     private Instant deletedAt;
 
     /** Bộ thư viện mới của giáo viên: luôn ở trạng thái Nháp, chưa có nhóm thẻ (BR-BT-02, UC-BT-02). */
-    public static VocabDeck newDraft(UUID ownerId, String name, UUID categoryId, String imageUrl, boolean pro) {
+    public static VocabDeck newDraft(UUID ownerId, String name, UUID categoryId, String cefrLevel, String imageUrl,
+            boolean pro) {
         VocabDeck deck = new VocabDeck();
         deck.ownerId = ownerId;
         deck.name = name;
         deck.kind = KIND_LIBRARY;
         deck.categoryId = categoryId;
+        deck.cefrLevel = cefrLevel;
         deck.imageUrl = imageUrl;
         deck.pro = pro;
         deck.status = STATUS_DRAFT;

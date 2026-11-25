@@ -5,6 +5,7 @@ import LearningProfileForm from "../components/LearningProfileForm";
 import SecuritySection from "../components/SecuritySection";
 import Icon from "@/components/common/Icon";
 import { useAuth } from "@/features/auth";
+import SubscriptionPanel from "@/features/subscription/components/SubscriptionPanel";
 
 const TABS = [
   { id: "profile", icon: "circle-user" },
@@ -29,7 +30,12 @@ export default function Settings() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <span className="block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">{t("settings.overline")}</span>
+        <div className="mb-1.5 flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary-soft px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-primary-text">
+            <Icon name="settings" className="size-3.5" />
+            {t("settings.overline")}
+          </span>
+        </div>
         <h1 className="font-display text-4xl font-bold leading-[1.15] tracking-[-0.02em]">{t("settings.title")}</h1>
         <p className="text-text-muted">{t("settings.subtitle")}</p>
       </div>
@@ -72,6 +78,8 @@ export default function Settings() {
             <SecuritySection />
           ) : tab === "learning" ? (
             <LearningProfileForm mode="settings" />
+          ) : tab === "plan" ? (
+            <SubscriptionPanel />
           ) : (
             <div className="rounded-lg border border-border bg-surface p-5 text-sm text-text-muted shadow-[var(--shadow-card)]">{t("settings.comingSoon")}</div>
           )}

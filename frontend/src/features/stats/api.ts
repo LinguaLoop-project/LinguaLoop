@@ -12,7 +12,6 @@ import type {
   StatsOverview,
   StatsRange,
   Streak,
-  TodayGoal,
   WrongWords,
 } from "./types";
 
@@ -30,10 +29,7 @@ export const statsApi = {
   /** Chỉ chuỗi ngày học, cho chip ở thanh trên cùng. */
   getStreak: () => get<Streak>("/streak"),
 
-  /** Số câu đã luyện hôm nay và mục tiêu ngày, cho trang Hôm nay. */
-  getTodayGoal: () => get<TodayGoal>("/today-goal"),
-
-  /** Lịch nhiệt 13 tuần gần nhất (UC-TH-01). */
+  /** Lịch nhiệt 90 ngày gần nhất (UC-TH-01). */
   getActivity: () => get<ActivityMap>("/activity"),
 
   /** Mười từ nghe sai nhiều nhất (UC-TH-01). */
@@ -42,9 +38,9 @@ export const statsApi = {
   /** Lỗi Nghe chép theo đủ sáu nhóm từ (UC-TH-01). */
   getDictationErrors: (range: StatsRange) => get<DictationErrors>("/dictation-errors", { range }),
 
-  /** Lịch sử luyện tập, 20 dòng mỗi trang; `page` từ 0 (UC-TH-02). */
-  getHistory: (mode: HistoryMode, range: StatsRange, page: number) =>
-    get<HistoryPage>("/history", { mode, range, page }),
+  /** Lịch sử luyện tập; `page` từ 0, `days` (tùy chọn) để phân trang theo số ngày gần nhất (UC-TH-02). */
+  getHistory: (mode: HistoryMode, range: StatsRange, page: number, days?: number) =>
+    get<HistoryPage>("/history", days !== undefined ? { mode, range, page, days } : { mode, range, page }),
 
   /** Từng lượt của một Buổi luyện; `day` là ngày lịch yyyy-MM-dd. */
   getPracticeSession: (lessonId: string, mode: PracticeKind, day: string) =>

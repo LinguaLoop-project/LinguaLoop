@@ -53,12 +53,6 @@ export interface DictationErrors {
   classes: DictationErrorRow[];
 }
 
-/** Mục tiêu câu luyện trong ngày (BR-TH-18). */
-export interface TodayGoal {
-  sentences: number;
-  target: number;
-}
-
 /** Hoạt động trong một ngày của lịch nhiệt (BR-TH-15). */
 export interface ActivityDay {
   date: string;
@@ -66,7 +60,7 @@ export interface ActivityDay {
 }
 
 export interface ActivityMap {
-  /** Thứ Hai đầu tiên của 13 tuần. */
+  /** Thứ Hai của tuần chứa ngày đầu tiên trong 90 ngày. */
   from: string;
   /** Hôm nay theo múi giờ của học viên. */
   to: string;

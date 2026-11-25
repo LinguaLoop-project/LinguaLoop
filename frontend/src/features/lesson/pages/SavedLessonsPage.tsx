@@ -316,8 +316,11 @@ export default function SavedLessonsPage() {
     <section ref={topRef} className="w-full" aria-busy={query.isFetching}>
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4 lg:flex-nowrap">
         <div className="min-w-0 lg:flex-1">
-          <div className="mb-1 block text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.12em] text-primary-text">
-            {t("overline")}
+          <div className="mb-1.5 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary-soft px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-primary-text">
+              <Icon name="bookmark-check" className="size-3.5" />
+              {t("overline")}
+            </span>
           </div>
           <h1 className="font-display text-4xl font-bold leading-[1.15] tracking-[-0.02em]">{t("title")}</h1>
           <p className="mt-1 text-text-muted">

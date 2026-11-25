@@ -95,7 +95,7 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
         <>
           {DEV_TOOLS_ENABLED && <DevPlanSwitch />}
           <Link
-            to="/student/stats"
+            to="/student"
             className={`${PILL} max-sm:hidden ${streak?.studiedToday ? "" : "opacity-80"}`}
             title={t("student.topbar.streak")}
             aria-label={`${t("student.topbar.streak")}: ${streak?.current ?? 0}`}
@@ -117,8 +117,9 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
               <span className="font-display tabular-nums">{remaining}</span>
             </span>
           )}
-          <span
-            className={`${PILL} hidden md:inline-flex ${isPro ? "border-warning text-warning" : ""}`}
+          <Link
+            to="/student/subscription"
+            className={`${PILL} hidden no-underline md:inline-flex ${isPro ? "border-warning text-warning" : ""}`}
             title={t("student.topbar.plan")}
           >
             {isPro ? (
@@ -129,7 +130,7 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
             ) : (
               "Free"
             )}
-          </span>
+          </Link>
         </>
       )}
 

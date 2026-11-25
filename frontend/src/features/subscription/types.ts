@@ -1,7 +1,51 @@
 export type PlanCode = "free" | "pro";
 
+/** Gói hiện tại (`GET /subscriptions/me`); với Pro, `startsAt`/`endsAt` là khoảng Pro liên tục gồm cả các kỳ gia hạn. */
 export interface PlanResponse {
   plan: PlanCode;
+  startsAt: string | null;
+  endsAt: string | null;
+}
+
+/** Một gói Pro đang bán (`SalePlanView`, BR-PR-11). */
+export interface SalePlan {
+  id: string;
+  name: string;
+  months: number;
+  priceVnd: number;
+  creditsPerMonth: number;
+}
+
+/** Loại đơn (BR-PR-05): nâng cấp từ Free hoặc gia hạn nối tiếp. */
+export type OrderKind = "upgrade" | "renew";
+
+export type OrderStatus = "pending" | "paid" | "canceled" | "failed" | "expired";
+
+/** Một đơn đăng ký (`OrderView`); thông tin gói lưu cố định lúc tạo. `responseCode` là mã phản hồi VNPAY. */
+export interface ProOrder {
+  id: string;
+  planId: string | null;
+  planName: string;
+  months: number;
+  creditsPerMonth: number;
+  amountVnd: number;
+  kind: OrderKind;
+  status: OrderStatus;
+  createdAt: string;
+  expiresAt: string;
+  paidAt: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  transactionNo: string | null;
+  bankCode: string | null;
+  payDate: string | null;
+  responseCode: string | null;
+}
+
+/** Đơn vừa tạo và đường dẫn sang VNPAY; `paymentUrl` null khi gói 0 đồng đã được ghi nhận ngay. */
+export interface Checkout {
+  order: ProOrder;
+  paymentUrl: string | null;
 }
 
 /**

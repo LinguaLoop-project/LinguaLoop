@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TH-xem-thong-ke-hoc-tap/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 35 AC, 25 đã có test, 6 một phần, 0 thiếu, 4 thủ công.
+Tổng hợp: 35 AC, 26 đã có test, 5 một phần, 0 thiếu, 4 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -18,11 +18,10 @@ Tổng hợp: 35 AC, 25 đã có test, 6 một phần, 0 thiếu, 4 thủ công.
 | AC-TH-23 | Hôm nay chưa học vẫn giữ chuỗi, chỉ mất chuỗi sau một ngày trọn vẹn không học | UC-TH-01 | D, B | StatsApiIntegrationTest.streak_countsGiveUpsRetriesVocabAnswersAndCompletedAiSessions_butNotUnfinishedAiOnes_AC_TH_23; StreakCalculatorTest.notYetStudyingToday_keepsYesterdaysRun_AC_TH_23 | Đã có |
 | AC-TH-27 | So sánh số câu đã luyện với khoảng liền trước | UC-TH-01 | D, A | StatsApiIntegrationTest.overview_comparesSentencesWithTheSameLengthPeriodBefore_AC_TH_27; StatsApiIntegrationTest.overview_showsADropAsANegativeDelta_AC_TH_27; `frontend/src/features/stats/utils.test.ts` (signedDelta) | Đã có |
 | AC-TH-29 | "Luyện ngay" ở nhóm từ sai mở bài gần nhất còn mở được | UC-TH-01 | D, A | StatsApiIntegrationTest.dictationErrors_practiceLessonIsTheLatestOpenLessonWithAWrongWordOfThatClass_AC_TH_29; StatsApiIntegrationTest.dictationErrors_withoutAnyOpenLesson_hasNoPracticeLesson_AC_TH_29; `frontend/src/features/stats/utils.test.ts` (dictationPracticeHref) | Đã có |
-| AC-TH-31 | Lịch nhiệt các ngày học trong 13 tuần | UC-TH-01 | D, A | StatsApiIntegrationTest.activity_countsAttemptsCardAnswersAndFinishedAiSessionsPerDayOver13Weeks_AC_TH_31; StatsApiIntegrationTest.activity_forANewLearner_hasNoActiveDays_AC_TH_31; `frontend/src/features/stats/utils.test.ts` (heatLevel, buildHeatWeeks) | Đã có |
+| AC-TH-31 | Lịch nhiệt các ngày học trong 90 ngày | UC-TH-01 | D, A | StatsApiIntegrationTest.activity_countsAttemptsCardAnswersAndFinishedAiSessionsPerDayOverTheLast90Days_AC_TH_31; StatsApiIntegrationTest.activity_forANewLearner_hasNoActiveDays_AC_TH_31; `frontend/src/features/stats/utils.test.ts` (heatLevel, buildHeatWeeks) | Đã có |
 | AC-TH-32 | Xếp hạng từ nghe sai nhiều nhất | UC-TH-01 | D, A | StatsApiIntegrationTest.wrongWords_rankFirstSubmissionMistakesCaseInsensitively_AC_TH_32; StatsApiIntegrationTest.wrongWords_followTheRange_skipGiveUpsAndStopAtTen_AC_TH_32 | Đã có |
 | AC-TH-33 | Lưu từ nghe sai vào từ vựng | UC-TH-01 | A | `frontend/src/features/stats/i18n.test.ts` | Thủ công (bấm Lưu vào từ vựng, chọn nghĩa ở hộp tra từ, kiểm tra ở Từ & câu đã lưu) |
 | AC-TH-34 | Giải thích các nhóm từ bằng nút dấu chấm than | UC-TH-01 | D | `frontend/src/features/stats/i18n.test.ts` (đủ khoá giải thích ở cả hai ngôn ngữ) | Một phần |
-| AC-TH-35 | Vòng tiến độ mục tiêu luyện câu ở trang Hôm nay | UC-TH-01 | D, B | StatsApiIntegrationTest.todayGoal_countsDistinctSentencesPracticedTodayAgainstTheDailyMinutes_AC_TH_35; `frontend/src/features/stats/utils.test.ts` (goalPercent) | Một phần (vòng tiến độ ở trang Hôm nay kiểm tay trên trình duyệt) |
 | AC-TH-08 | Hiển thị lịch sử luyện tập gom theo Buổi luyện, từ mới nhất đến cũ nhất | UC-TH-02 | D | StatsApiIntegrationTest.history_groupsAttemptsIntoPracticeSessions_newestFirst_AC_TH_08 | Đã có |
 | AC-TH-09 | Lọc lịch sử luyện tập theo chế độ học và khoảng thời gian | UC-TH-02 | D, B | StatsApiIntegrationTest.history_filtersByModeAndRange_AC_TH_09 | Đã có |
 | AC-TH-10 | Phân trang danh sách lịch sử luyện tập | UC-TH-02 | B | StatsApiIntegrationTest.history_pagesBy20Rows_AC_TH_10; StatsApiIntegrationTest.history_mergesSourcesByTimeAcrossPages_AC_TH_10 | Đã có |
@@ -30,6 +29,7 @@ Tổng hợp: 35 AC, 25 đã có test, 6 một phần, 0 thiếu, 4 thủ công.
 | AC-TH-12 | Hiển thị thông báo khi chưa có lịch sử khớp bộ lọc | UC-TH-02 | B | StatsApiIntegrationTest.history_showsOnlyFinishedAiSessions_andAnEmptyFilterIsEmpty_AC_TH_12 | Một phần |
 | AC-TH-13 | Thông báo lỗi khi mất kết nối lúc tải lịch sử | UC-TH-02 | A | `frontend/src/features/stats/api.test.ts` | Thủ công (kiểm tay trên trình duyệt: chặn request thống kê, hiện thẻ Mất kết nối kèm nút Thử lại, bấm Thử lại tải lại được) |
 | AC-TH-24 | Xem từng lượt trong một Buổi luyện | UC-TH-02 | D, A | StatsApiIntegrationTest.history_aPracticeSessionIsNotFoundForOtherLearnersOrOtherDays_AC_TH_24; StatsApiIntegrationTest.history_aPracticeSessionOpensIntoItsAttempts_evenWhenTheLessonWasUnpublished_AC_TH_11 | Đã có |
+| AC-TH-35 | Phân trang lịch sử theo ngày | UC-TH-02 | D, B | StatsApiIntegrationTest.history_pagesByDays_neverSplitsADay_andCountsRealTotals_AC_TH_35; StatsApiIntegrationTest.history_byDaysLoadsBeyondTheFirstBatch_soTotalsStayExact_AC_TH_35; `frontend/src/features/stats/utils.test.ts` (groupHistoryByDate, dayKeyInZone) | Đã có |
 | AC-TH-14 | Hiển thị Bản đồ 44 âm vị phân nhóm Nguyên âm, Phụ âm và phân màu theo tỷ lệ lỗi | UC-TH-03 | D, B | StatsApiIntegrationTest.pronunciation_mapsAll44Phonemes_withLevelsFromTheErrorRate_AC_TH_14; PhonemeLevelTest.fewerThanFiveEncounters_isInsufficientNoMatterTheErrors_AC_TH_14; PhonemeLevelTest.below15Percent_isGood_andExactly15IsAttention_AC_TH_14; PhonemeLevelTest.between15And30Percent_isAttention_andAbove30IsBad_AC_TH_14 | Đã có |
 | AC-TH-15 | Tính đúng tỷ lệ lỗi âm vị theo âm đích và ngưỡng dưới 60 điểm | UC-TH-03 | D, B | StatsApiIntegrationTest.pronunciation_countsErrorsAgainstTheTargetPhonemeAndTheBelow60Threshold_AC_TH_15; PhonemeLevelTest.percentRoundsAndIsNullWhenNeverEncountered_AC_TH_15 | Đã có |
 | AC-TH-16 | Xem chi tiết một âm yếu đã đủ dữ liệu | UC-TH-03 | D | StatsApiIntegrationTest.phonemeDetail_showsConfusionTipTrendAndTheLessonToPractice_AC_TH_16; StatsApiIntegrationTest.phonemeDetail_trendIsAlwaysTheLast8Weeks_regardlessOfTheRange_AC_TH_16; StatsApiIntegrationTest.phonemeDetail_whenMostFailuresHearNothing_reportsOmission_AC_TH_16 | Đã có |

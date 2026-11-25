@@ -24,7 +24,7 @@ const COLUMNS: { titleKey: string; links: FooterLink[] }[] = [
       { key: "mywords", to: "/student/mywords" },
       { key: "weakness", to: "/student/weakness" },
       { key: "settings", to: "/student/settings" },
-      { key: "pro", to: "/student/settings?tab=plan" },
+      { key: "pro", to: "/student/subscription" },
     ],
   },
   { titleKey: "support", links: [{ key: "guide" }, { key: "faq" }, { key: "report" }, { key: "contact" }] },
