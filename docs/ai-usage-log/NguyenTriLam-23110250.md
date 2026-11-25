@@ -999,6 +999,18 @@
 - **Commit:** d6fb9d2, b3b4542
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-087
+
+- **Ngày:** 2026-11-26
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Đề xuất rồi triển khai các tính năng cải thiện trang Cài đặt, làm từng phần một và mỗi phần một commit: đổi và gỡ ảnh đại diện (tải ảnh lên S3 qua URL ký sẵn), tab Luyện tập (tốc độ, giọng, phiên âm, bản dịch mặc định của Nghe chép, Shadowing, Xem), cá nhân hóa màu nhấn, cỡ chữ câu luyện tập và nền trang học
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../user/service/UserAccountServiceImpl.java:setAvatar, removeAvatar`, `AvatarImageValidator.java`, `UserController.java` (`PUT/DELETE /users/me/avatar`), `storage/service/UploadPurpose.java` (mục đích AVATAR), migration `V20261125_1000__user_avatar_key.sql`, test `AvatarApiIntegrationTest` (AC-TK-66..68); `frontend/src/features/user/avatarImage.ts:cropAndCompressAvatar`, `components/AvatarPicker.tsx`, `practicePrefs.ts`, `components/PracticeSection.tsx`, `DisplaySection.tsx` (màu nhấn, cỡ chữ, nền), `frontend/src/hooks/appearance.ts`, `useAppearance.ts`, khối biến màu và lớp `practice-sentence` trong `styles/index.css`, test `avatarImage.test.ts`, `practicePrefs.test.ts`, `useAppearance.test.ts`; đặc tả `docs/srs/TK-tai-khoan-xac-thuc` (BR-TK-19 mở rộng, BR-TK-20, BR-TK-21, UC-TK-10, AC-TK-66..70)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chọn các tính năng làm trước (ảnh đại diện, tab Luyện tập, màu nhấn, cỡ chữ và nền), hoãn nhắc học qua email và tùy chọn loại thông báo, và yêu cầu làm trên nhánh hiện tại, mỗi phần một commit. AI viết đặc tả, API, giao diện và test, dựng máy chủ S3 giả để chạy thử luồng tải ảnh khi không kéo được ảnh MinIO, kiểm tra nội dung tệp bằng byte đầu thay vì tin Content-Type, và loại khỏi tab Luyện tập các tùy chọn trang luyện tập chưa có (số lần nghe lại, gợi ý chữ cái đầu, giọng từ điển) thay vì làm giả.
+- **Commit:** 791eec8, 9dbdbc2, f8605cd
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
