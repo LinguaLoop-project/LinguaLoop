@@ -19,6 +19,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lingualoop.backend.audit.dto.AuditChanges;
 import com.lingualoop.backend.audit.dto.request.AuditEntryRequest;
 import com.lingualoop.backend.audit.enums.AuditAction;
 import com.lingualoop.backend.audit.enums.AuditEntityType;
@@ -48,8 +49,6 @@ import com.lingualoop.backend.lesson.repository.TopicRepository;
 import com.lingualoop.backend.report.service.TakedownCommandService;
 import com.lingualoop.backend.report.service.TakedownQueryService;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.dto.UserAccountView;
-import com.lingualoop.backend.user.service.UserAccountService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -77,7 +76,6 @@ class LessonManageServiceImpl implements LessonManageService {
     private final SentenceRepository sentences;
     private final TopicRepository topics;
     private final AuditService auditService;
-    private final UserAccountService users;
     private final IpaGenerator ipaGenerator;
     private final TakedownQueryService takedowns;
     private final TakedownCommandService takedownCommands;
@@ -162,20 +160,16 @@ class LessonManageServiceImpl implements LessonManageService {
             throw new BusinessException(ErrorCode.LESSON_TITLE_TAKEN);
         }
 
-        Map<String, Object> diff = new LinkedHashMap<>();
         UUID oldTopic = lesson.getTopic() == null ? null : lesson.getTopic().getId();
-        change(diff, "title", lesson.getTitle(), title);
-        change(diff, "topicId", oldTopic, request.topicId());
-        change(diff, "cefrLevel", lesson.getCefrLevel().name(), request.cefrLevel().name());
-        change(diff, "pro", lesson.isPro(), request.pro());
-        if (!diff.isEmpty()) {
+        boolean changed = !title.equals(lesson.getTitle()) || !request.topicId().equals(oldTopic)
+                || request.cefrLevel() != lesson.getCefrLevel() || request.pro() != lesson.isPro();
+        // Sửa thông tin bài không ghi nhật ký (BR-NK-18).
+        if (changed) {
             lesson.setTitle(title);
             lesson.setTopic(topics.getReferenceById(request.topicId()));
             lesson.setCefrLevel(request.cefrLevel());
             lesson.setPro(request.pro());
             flushLesson(lesson);
-            audit(teacherId, Role.TEACHER, AuditAction.UPDATE, AuditEntityType.LESSON, lesson.getId(), title, diff,
-                    null);
         }
         return detailOf(lessonId);
     }
@@ -259,8 +253,6 @@ class LessonManageServiceImpl implements LessonManageService {
             Sentence s = byId.get(id);
             s.setDeletedAt(now);
             changed.add(s);
-            audit(teacherId, Role.TEACHER, AuditAction.DELETE, AuditEntityType.SENTENCE, id, s.getTextEn(), null,
-                    lesson.getTitle());
         }
         List<Sentence> created = new ArrayList<>();
         for (Draft d : remaining) {
@@ -272,31 +264,25 @@ class LessonManageServiceImpl implements LessonManageService {
                 continue;
             }
             Sentence s = byId.get(d.id());
-            Map<String, Object> diff = new LinkedHashMap<>();
-            change(diff, "textEn", s.getTextEn(), d.textEn());
-            change(diff, "ipaUs", s.getIpaUs(), d.ipaUs());
-            change(diff, "ipaUk", s.getIpaUk(), d.ipaUk());
-            change(diff, "textVi", s.getTextVi(), d.textVi());
-            change(diff, "startMs", s.getStartMs(), d.startMs());
-            change(diff, "endMs", s.getEndMs(), d.endMs());
-            if (diff.isEmpty()) {
+            if (sameAs(s, d)) {
                 continue;
             }
             apply(s, d);
             changed.add(s);
-            audit(teacherId, Role.TEACHER, AuditAction.UPDATE, AuditEntityType.SENTENCE, s.getId(), d.textEn(), diff,
-                    lesson.getTitle());
         }
         changed.addAll(created);
         if (!changed.isEmpty()) {
             sentences.saveAllAndFlush(changed);
             lessons.touch(lessonId);
         }
-        for (Sentence s : created) {
-            audit(teacherId, Role.TEACHER, AuditAction.CREATE, AuditEntityType.SENTENCE, s.getId(), s.getTextEn(),
-                    null, lesson.getTitle());
-        }
         return detailOf(lessonId);
+    }
+
+    /** Câu không đổi gì so với bản nháp; thêm, sửa, xóa câu không ghi nhật ký (BR-NK-18). */
+    private static boolean sameAs(Sentence s, Draft d) {
+        return Objects.equals(s.getTextEn(), d.textEn()) && Objects.equals(s.getIpaUs(), d.ipaUs())
+                && Objects.equals(s.getIpaUk(), d.ipaUk()) && Objects.equals(s.getTextVi(), d.textVi())
+                && Objects.equals(s.getStartMs(), d.startMs()) && Objects.equals(s.getEndMs(), d.endMs());
     }
 
     private static void apply(Sentence s, Draft d) {
@@ -502,15 +488,13 @@ class LessonManageServiceImpl implements LessonManageService {
                 .isPresent()) {
             throw new BusinessException(ErrorCode.LESSON_VIDEO_TAKEN);
         }
-        Map<String, Object> diff = new LinkedHashMap<>();
-        change(diff, "title", lesson.getTitle(), title);
+        Map<String, Object> diff = AuditChanges.create().field("title", lesson.getTitle(), title).build();
         lesson.setTitle(title);
         lesson.setDeletedAt(null);
         lesson.setStatus(LessonStatus.DRAFT);
         lesson.setUnpublishReason(null);
         flushLesson(lesson);
-        audit(teacherId, Role.TEACHER, AuditAction.RESTORE, AuditEntityType.LESSON, lessonId, title,
-                diff.isEmpty() ? null : diff, null);
+        audit(teacherId, Role.TEACHER, AuditAction.RESTORE, AuditEntityType.LESSON, lessonId, title, diff, null);
     }
 
     // ------------------------------------------------------------------ quyền (BR-BH-01, 02)
@@ -558,20 +542,10 @@ class LessonManageServiceImpl implements LessonManageService {
 
     private void audit(UUID actorId, Role role, AuditAction action, AuditEntityType type, UUID entityId,
             String entityName, Map<String, Object> diff, String note) {
-        String actorName = users.findById(actorId).map(UserAccountView::displayName).orElse(null);
-        auditService.record(new AuditEntryRequest(actorId, actorName, role, action, type, entityId, entityName, diff,
+        auditService.record(new AuditEntryRequest(actorId, null, role, action, type, entityId, entityName, diff,
                 note));
     }
 
-    /** Ghi {@code {"old":..,"new":..}} vào {@code diff} khi giá trị đổi. */
-    private static void change(Map<String, Object> diff, String field, Object oldValue, Object newValue) {
-        if (!Objects.equals(oldValue, newValue)) {
-            Map<String, Object> pair = new LinkedHashMap<>();
-            pair.put("old", oldValue);
-            pair.put("new", newValue);
-            diff.put(field, pair);
-        }
-    }
 
     /** Tiêu đề sau khi cắt khoảng trắng hai đầu: bắt buộc, tối đa 100 ký tự (BR-BH-08). */
     static String validTitle(String raw) {

@@ -13,6 +13,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lingualoop.backend.audit.dto.AuditChanges;
 import com.lingualoop.backend.audit.dto.request.AuditEntryRequest;
 import com.lingualoop.backend.audit.enums.AuditAction;
 import com.lingualoop.backend.audit.enums.AuditEntityType;
@@ -92,8 +93,7 @@ class AdminCreditConfigServiceImpl implements AdminCreditConfigService {
         }
         // Ghi xuống ngay để đọc lại updated_at do trigger đặt (phiên bản mới trả cho client)
         settingsRepository.flush();
-        String adminName = users.findById(adminId).map(UserAccountView::displayName).orElse(null);
-        auditService.record(new AuditEntryRequest(adminId, adminName, Role.ADMIN, AuditAction.UPDATE,
+        auditService.record(new AuditEntryRequest(adminId, null, Role.ADMIN, AuditAction.UPDATE,
                 AuditEntityType.SETTINGS, null, "Cấu hình credit", diff, null));
         return view(settings, prices);
     }
@@ -119,14 +119,8 @@ class AdminCreditConfigServiceImpl implements AdminCreditConfigService {
     }
 
     private static void putIfChanged(Map<String, Object> diff, String field, Object oldValue, Object newValue) {
-        boolean same = oldValue instanceof BigDecimal oldDecimal && newValue instanceof BigDecimal newDecimal
-                ? oldDecimal.compareTo(newDecimal) == 0
-                : Objects.equals(oldValue, newValue);
-        if (!same) {
-            Map<String, Object> change = new LinkedHashMap<>();
-            change.put("old", oldValue);
-            change.put("new", newValue);
-            diff.put(field, change);
+        if (!AuditChanges.same(oldValue, newValue)) {
+            diff.put(field, AuditChanges.pair(oldValue, newValue));
         }
     }
 

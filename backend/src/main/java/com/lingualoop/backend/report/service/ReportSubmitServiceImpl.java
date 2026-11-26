@@ -25,6 +25,7 @@ class ReportSubmitServiceImpl implements ReportSubmitService {
 
     private final ReportRepository repository;
     private final Clock clock;
+    private final ReportAuditor auditor;
 
     @Override
     @Transactional
@@ -51,13 +52,17 @@ class ReportSubmitServiceImpl implements ReportSubmitService {
             throw new BusinessException(ErrorCode.REPORT_DUPLICATE);
         }
         ReportStatus status = reason.isViolation() ? ReportStatus.WAITING_ADMIN : ReportStatus.WAITING_TEACHER;
+        UUID reportId;
         try {
-            repository.insert(studentId, type, request.targetId(), reason.value(), status, fix, fixField, description,
-                    clock.instant()).orElseThrow(() -> new BusinessException(ErrorCode.REPORT_TARGET_NOT_FOUND));
+            reportId = repository.insert(studentId, type, request.targetId(), reason.value(), status, fix, fixField,
+                    description, clock.instant())
+                    .orElseThrow(() -> new BusinessException(ErrorCode.REPORT_TARGET_NOT_FOUND));
         } catch (DataIntegrityViolationException ex) {
             // Hai lần gửi trùng chạy đồng thời: chỉ mục duy nhất uq_report_open_* chặn lần sau (BR-BC-08).
             throw new BusinessException(ErrorCode.REPORT_DUPLICATE);
         }
+        // Học viên gửi báo cáo được ghi nhật ký (BR-XL-07, BR-NK-18).
+        auditor.submitted(studentId, reportId, reason, status, description);
     }
 
     /** Trường cần sửa: lý do một trường thì chọn sẵn; nhiều trường thì phải chọn đúng một trường của lý do (BR-BC-11). */

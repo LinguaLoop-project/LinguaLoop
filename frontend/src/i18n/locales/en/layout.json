@@ -119,7 +119,8 @@
         "accounts": "ACCOUNTS",
         "queue": "NEEDS ACTION",
         "content": "CONTENT",
-        "config": "CONFIGURATION"
+        "config": "CONFIGURATION",
+        "monitoring": "MONITORING"
       },
       "items": {
         "dashboard": "Overview",
@@ -131,7 +132,9 @@
         "republish": "Republish requests",
         "transfers": "Reassign content",
         "credit": "Credit settings",
-        "plans": "Pro plans"
+        "plans": "Pro plans",
+        "practiceStats": "Practice stats",
+        "aiStats": "AI stats"
       }
     },
     "topbar": {
@@ -152,7 +155,6 @@
         "teachers": "Teachers",
         "content": "Content",
         "settings": "System settings",
-        "logs": "Activity log",
         "profile": "Administrator profile",
         "analytics": "Analytics & Statistics",
         "userDetail": "User details",
@@ -162,7 +164,10 @@
         "republish": "Republish requests",
         "transfers": "Reassign content",
         "credit": "Credit settings",
-        "plans": "Pro plans"
+        "plans": "Pro plans",
+        "practice-stats": "Practice statistics",
+        "ai-stats": "AI usage and cost",
+        "auditDetail": "Object history"
       }
     }
   },

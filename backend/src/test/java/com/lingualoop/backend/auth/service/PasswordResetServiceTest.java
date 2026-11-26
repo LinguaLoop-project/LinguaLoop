@@ -64,7 +64,7 @@ class PasswordResetServiceTest {
                 Duration.ofDays(30), Duration.ofSeconds(10), new AuthProperties.Cookie("Lax", false));
 
         service = new PasswordResetService(tokens, accounts, refreshTokens, loginAttempts, dispatcher, encoder, props,
-                Clock.fixed(NOW, ZoneOffset.UTC), new TransactionTemplate(txManager));
+                Clock.fixed(NOW, ZoneOffset.UTC), new TransactionTemplate(txManager), mock(SecurityAuditor.class));
     }
 
     private static UserAccountView account(boolean locked, String passwordHash) {

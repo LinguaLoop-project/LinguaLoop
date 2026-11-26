@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,10 +13,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.lingualoop.backend.audit.dto.request.AuditEntryRequest;
-import com.lingualoop.backend.audit.enums.AuditAction;
-import com.lingualoop.backend.audit.enums.AuditEntityType;
-import com.lingualoop.backend.audit.service.AuditService;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.ForbiddenException;
@@ -28,13 +23,12 @@ import com.lingualoop.backend.report.dto.request.ReportListQuery;
 import com.lingualoop.backend.report.enums.ReportReason;
 import com.lingualoop.backend.report.enums.ReportStatus;
 import com.lingualoop.backend.report.enums.ReportTargetType;
+import com.lingualoop.backend.report.repository.ClosedReport;
 import com.lingualoop.backend.report.repository.ModerationRepository;
 import com.lingualoop.backend.report.repository.ReportRepository;
 import com.lingualoop.backend.report.repository.ReportRepository.Scope;
 import com.lingualoop.backend.report.repository.ReportRepository.Window;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.dto.UserAccountView;
-import com.lingualoop.backend.user.service.UserAccountService;
 import com.lingualoop.backend.vocab.service.VocabDeckContentService;
 
 import lombok.RequiredArgsConstructor;
@@ -62,8 +56,7 @@ class ReportReviewServiceImpl implements ReportReviewService {
 
     private final ReportRepository repository;
     private final ModerationRepository moderation;
-    private final AuditService audit;
-    private final UserAccountService users;
+    private final ReportAuditor auditor;
     private final Clock clock;
     private final LessonModerationService lessons;
     private final VocabDeckContentService cards;
@@ -197,16 +190,12 @@ class ReportReviewServiceImpl implements ReportReviewService {
             throw new BusinessException(ErrorCode.REPORT_FIX_UNAVAILABLE);
         }
         ReportTargetType type = targetTypeOf(item);
-        String old = type == ReportTargetType.SENTENCE
-                ? lessons.applyReportFix(item.targetId(), entry.fixField(), entry.suggestedFix())
-                : cards.applyReportFix(teacherId, item.targetId(), entry.fixField(), entry.suggestedFix());
-        Map<String, Object> change = new HashMap<>();
-        change.put("old", old);
-        change.put("new", entry.suggestedFix().strip());
-        String actorName = users.findById(teacherId).map(UserAccountView::displayName).orElse(null);
-        audit.record(new AuditEntryRequest(teacherId, actorName, Role.TEACHER, AuditAction.UPDATE,
-                type == ReportTargetType.SENTENCE ? AuditEntityType.SENTENCE : AuditEntityType.CARD, item.targetId(),
-                item.content(), Map.of(entry.fixField(), change), "Áp dụng bản sửa đề xuất của báo cáo"));
+        // Áp dụng bản sửa là sửa nội dung, không ghi nhật ký; lần đánh dấu Đã xử lý sau đó mới ghi (BR-NK-18).
+        if (type == ReportTargetType.SENTENCE) {
+            lessons.applyReportFix(item.targetId(), entry.fixField(), entry.suggestedFix());
+        } else {
+            cards.applyReportFix(teacherId, item.targetId(), entry.fixField(), entry.suggestedFix());
+        }
     }
 
     @Override
@@ -242,8 +231,9 @@ class ReportReviewServiceImpl implements ReportReviewService {
     @Transactional
     public int rejectAllByReporter(UUID adminId, UUID studentId, String reason) {
         String text = ReportTexts.required("note", reason);
-        List<UUID> rejected = repository.rejectOpenByReporter(studentId, adminId, text, clock.instant());
-        record(rejected, adminId, Role.ADMIN, ReportStatus.REJECTED, text);
+        List<ClosedReport> rejected = repository.rejectOpenByReporter(studentId, adminId, text, clock.instant());
+        auditor.closed(rejected, ReportStatus.REJECTED, adminId, Role.ADMIN, text);
+        outcomes.rejected(rejected.stream().map(ClosedReport::id).toList(), text);
         return rejected.size();
     }
 
@@ -255,24 +245,11 @@ class ReportReviewServiceImpl implements ReportReviewService {
         if (closed.isEmpty()) {
             throw new BusinessException(ErrorCode.REPORT_ALREADY_HANDLED);
         }
-        record(closed, actorId, role, to, note);
-    }
-
-    /** Mỗi báo cáo đổi trạng thái có một dòng nhật ký riêng (BR-XL-07, BR-XL-14). */
-    private void record(List<UUID> reportIds, UUID actorId, Role role, ReportStatus to, String note) {
-        if (reportIds.isEmpty()) {
-            return;
-        }
-        String actorName = users.findById(actorId).map(UserAccountView::displayName).orElse(null);
-        AuditAction action = to == ReportStatus.RESOLVED ? AuditAction.RESOLVE : AuditAction.REJECT;
+        auditor.closed(closed.stream().map(id -> new ClosedReport(id, from)).toList(), to, actorId, role, note);
         if (to == ReportStatus.RESOLVED) {
-            outcomes.resolved(reportIds);
+            outcomes.resolved(closed);
         } else {
-            outcomes.rejected(reportIds, note);
-        }
-        for (UUID id : reportIds) {
-            audit.record(new AuditEntryRequest(actorId, actorName, role, action, AuditEntityType.REPORT, id, null,
-                    Map.of("status", Map.of("new", to.value())), note));
+            outcomes.rejected(closed, note);
         }
     }
 

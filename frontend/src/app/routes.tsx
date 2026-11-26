@@ -63,6 +63,10 @@ const AdminUserListPage = lazy(() => import("@/features/user/pages/admin/AdminUs
 const AdminUserDetailPage = lazy(() => import("@/features/user/pages/admin/AdminUserDetailPage"));
 const AdminCreditConfigPage = lazy(() => import("@/features/credit/pages/admin/AdminCreditConfigPage"));
 const AdminProPlanPage = lazy(() => import("@/features/subscription/pages/admin/AdminProPlanPage"));
+const AdminAuditLogPage = lazy(() => import("@/features/audit/pages/admin/AdminAuditLogPage"));
+const AdminOverviewPage = lazy(() => import("@/features/stats/pages/admin/AdminOverviewPage"));
+const AdminPracticeStatsPage = lazy(() => import("@/features/stats/pages/admin/AdminPracticeStatsPage"));
+const AdminAiStatsPage = lazy(() => import("@/features/stats/pages/admin/AdminAiStatsPage"));
 const SubscriptionPage = lazy(() => import("@/features/subscription/pages/SubscriptionPage"));
 const PaymentReturnPage = lazy(() => import("@/features/subscription/pages/PaymentReturnPage"));
 const AdminContentTransferPage = lazy(() => import("@/features/user/pages/admin/AdminContentTransferPage"));
@@ -358,7 +362,15 @@ const getRoutesConfig = (): RouteObject[] => {
       children: [
         {
           index: true,
-          element: <PlaceholderPage pageKey="admin.overview" />,
+          element: <AdminOverviewPage />,
+        },
+        {
+          path: "practice-stats",
+          element: <AdminPracticeStatsPage />,
+        },
+        {
+          path: "ai-stats",
+          element: <AdminAiStatsPage />,
         },
         {
           path: "users",
@@ -406,7 +418,7 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "audit",
-          element: <PlaceholderPage pageKey="admin.audit" />,
+          element: <AdminAuditLogPage />,
         },
         {
           path: "credit",
@@ -432,10 +444,6 @@ const getRoutesConfig = (): RouteObject[] => {
         {
           path: "settings",
           element: <Settings />,
-        },
-        {
-          path: "logs",
-          element: <PlaceholderPage pageKey="admin.logs" />,
         },
         {
           path: "profile",

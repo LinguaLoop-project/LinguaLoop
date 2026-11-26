@@ -36,26 +36,26 @@ class AuditServiceIntegrationTest {
     void record_inTransaction_storesAllFieldsAndDiffAsJson() {
         UUID actor = newUser();
         UUID entityId = UUID.randomUUID();
-        Map<String, Object> diff = Map.of("title", Map.of("from", "Old", "to", "New"));
+        Map<String, Object> diff = Map.of("months", Map.of("old", 3, "new", 1));
 
-        inTransaction(() -> auditService.record(new AuditEntryRequest(actor, "Cô Lan", Role.TEACHER,
-                AuditAction.UPDATE, AuditEntityType.LESSON, entityId, "Bài 1", diff, "sửa tiêu đề")));
+        inTransaction(() -> auditService.record(new AuditEntryRequest(actor, "Tâm", Role.ADMIN,
+                AuditAction.UPDATE, AuditEntityType.PLAN, entityId, "Pro 1 tháng", diff, "đổi thời hạn")));
 
         Map<String, Object> row = jdbc.queryForMap(
                 "SELECT actor_id, actor_name, actor_role, action, target_type, target_id, target_name, note, created_at, "
-                        + "changes->'title'->>'from' AS diff_from, changes->'title'->>'to' AS diff_to "
+                        + "changes->'months'->>'old' AS diff_old, changes->'months'->>'new' AS diff_new "
                         + "FROM audit_logs WHERE target_id = ?", entityId);
         assertThat(row.get("actor_id")).isEqualTo(actor);
-        assertThat(row.get("actor_name")).isEqualTo("Cô Lan");
-        assertThat(row.get("actor_role")).isEqualTo("teacher");
-        assertThat(row.get("target_name")).isEqualTo("Bài 1");
-        assertThat(row.get("note")).isEqualTo("sửa tiêu đề");
+        assertThat(row.get("actor_name")).isEqualTo("Tâm");
+        assertThat(row.get("actor_role")).isEqualTo("admin");
+        assertThat(row.get("target_name")).isEqualTo("Pro 1 tháng");
+        assertThat(row.get("note")).isEqualTo("đổi thời hạn");
         assertThat(row.get("action")).isEqualTo("update");
-        assertThat(row.get("target_type")).isEqualTo("lesson");
+        assertThat(row.get("target_type")).isEqualTo("plan");
         assertThat(row.get("target_id")).isEqualTo(entityId);
         assertThat(row.get("created_at")).isNotNull();
-        assertThat(row.get("diff_from")).isEqualTo("Old");
-        assertThat(row.get("diff_to")).isEqualTo("New");
+        assertThat(row.get("diff_old")).isEqualTo("3");
+        assertThat(row.get("diff_new")).isEqualTo("1");
     }
 
     @Test
@@ -63,13 +63,14 @@ class AuditServiceIntegrationTest {
         UUID entityId = UUID.randomUUID();
 
         inTransaction(() -> auditService.record(new AuditEntryRequest(
-                newUser(), Role.ADMIN, AuditAction.DELETE, AuditEntityType.SENTENCE, entityId, null)));
+                newUser(), null, Role.TEACHER, AuditAction.DELETE, AuditEntityType.LESSON, entityId, "Bài 1",
+                null, null)));
 
         Map<String, Object> row = jdbc.queryForMap(
                 "SELECT action, target_type, changes IS NULL AS diff_is_null "
                         + "FROM audit_logs WHERE target_id = ?", entityId);
         assertThat(row.get("action")).isEqualTo("delete");
-        assertThat(row.get("target_type")).isEqualTo("sentence");
+        assertThat(row.get("target_type")).isEqualTo("lesson");
         assertThat(row.get("diff_is_null")).isEqualTo(true);
     }
 
@@ -78,7 +79,7 @@ class AuditServiceIntegrationTest {
         UUID entityId = UUID.randomUUID();
 
         inTransaction(() -> auditService.record(new AuditEntryRequest(
-                null, null, AuditAction.UPDATE, AuditEntityType.SENTENCE, entityId, null)));
+                null, null, null, AuditAction.RESOLVE, AuditEntityType.REPORT, entityId, "apple", null, "Tự đóng")));
 
         Map<String, Object> row = jdbc.queryForMap(
                 "SELECT actor_id, actor_name, actor_role FROM audit_logs WHERE target_id = ?", entityId);
@@ -91,7 +92,8 @@ class AuditServiceIntegrationTest {
     void record_outsideTransaction_throwsIllegalTransactionStateException() {
         UUID entityId = UUID.randomUUID();
         AuditEntryRequest entry = new AuditEntryRequest(
-                newUser(), Role.ADMIN, AuditAction.PUBLISH, AuditEntityType.TOPIC, entityId, null);
+                newUser(), null, Role.ADMIN, AuditAction.PUBLISH, AuditEntityType.PLAN, entityId, "Pro 1 tháng",
+                null, null);
 
         assertThatThrownBy(() -> auditService.record(entry))
                 .isInstanceOf(IllegalTransactionStateException.class);
@@ -103,7 +105,8 @@ class AuditServiceIntegrationTest {
     void record_whenBusinessTransactionRollsBack_logIsRolledBackToo() {
         UUID entityId = UUID.randomUUID();
         AuditEntryRequest entry = new AuditEntryRequest(
-                newUser(), Role.TEACHER, AuditAction.CREATE, AuditEntityType.LESSON, entityId, null);
+                newUser(), null, Role.TEACHER, AuditAction.CREATE, AuditEntityType.LESSON, entityId, "Bài 1",
+                null, null);
 
         assertThatThrownBy(() -> inTransaction(() -> {
             auditService.record(entry);

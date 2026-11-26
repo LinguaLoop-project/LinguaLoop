@@ -195,6 +195,15 @@ class ReportReviewApiIntegrationTest {
         assertThat(data.status(first)).isEqualTo("resolved");
         assertThat(data.note(first)).isEqualTo("Đã sửa bản dịch");
         assertThat(data.countAudit(id, "resolve")).isEqualTo(1);
+        // Mẫu chung của nhật ký báo cáo (BR-NK-03): tên là câu bị báo cáo, thuộc bài học, trạng thái cũ và mới.
+        assertThat(data.auditOf(id, "resolve")).satisfies(row -> {
+            assertThat(row.get("target_name")).isEqualTo("Where is the gate?");
+            assertThat(row.get("parent_type")).isEqualTo("lesson");
+            assertThat(row.get("parent_id")).isEqualTo(lesson);
+            assertThat(row.get("changes").toString()).contains("\"old\": \"waiting_teacher\"",
+                    "\"new\": \"resolved\"");
+            assertThat(row.get("note")).isEqualTo("Đã sửa bản dịch");
+        });
     }
 
     // ---------------------------------------------------------------- áp dụng bản sửa đề xuất (UC-XL-02 nhánh 2a)
@@ -205,14 +214,14 @@ class ReportReviewApiIntegrationTest {
     }
 
     @Test
-    void applyFix_sentence_writesChosenFieldAndAudits_thenResolves_AC_XL_19() throws Exception {
+    void applyFix_sentence_writesChosenFieldWithoutAudit_thenResolves_AC_XL_19() throws Exception {
         UUID id = report("translation", "waiting_teacher", Duration.ofHours(1));
         data.setFix(id, "Cửa ra máy bay", "text_vi");
 
         asTeacher(applyFix(id, id)).andExpect(status().isNoContent());
 
         assertThat(data.field("sentences", sentence, "text_vi")).isEqualTo("Cửa ra máy bay");
-        assertThat(data.countContentUpdates("sentence", sentence)).isEqualTo(1);
+        assertThat(data.countContentUpdates("sentence", sentence)).isZero();
         assertThat(data.status(id)).isEqualTo("waiting_teacher");
         asTeacher(action(TEACHER + "/" + id + "/resolve", "Đã áp dụng bản sửa của học viên"))
                 .andExpect(status().isNoContent());
@@ -293,7 +302,7 @@ class ReportReviewApiIntegrationTest {
 
         assertThat(data.field("vocab_cards", card, "meaning_vi")).isEqualTo("duy trì");
         assertThat(data.field("vocab_cards", card, "word")).isEqualTo("sustain");
-        assertThat(data.countContentUpdates("card", card)).isEqualTo(1);
+        assertThat(data.countContentUpdates("card", card)).isZero();
     }
 
     @Test

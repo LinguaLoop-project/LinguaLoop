@@ -35,6 +35,7 @@ public class PasswordResetService {
     private final AuthProperties authProperties;
     private final Clock clock;
     private final TransactionTemplate transactionTemplate;
+    private final SecurityAuditor securityAuditor;
 
     /**
      * Cấp liên kết đặt lại và gửi thư. Chỉ gửi khi email có tài khoản, tài khoản không bị quản trị viên khoá và thư
@@ -95,6 +96,7 @@ public class PasswordResetService {
         userAccountService.markEmailVerified(account.id());
         refreshTokenService.revokeAllForUser(account.id());
         loginAttemptService.clear(account.email());
+        securityAuditor.passwordReset(account);
     }
 
     private EmailToken requireUsableToken(String rawToken, Instant now) {

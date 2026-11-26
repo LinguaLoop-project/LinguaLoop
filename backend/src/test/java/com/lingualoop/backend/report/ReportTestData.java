@@ -2,6 +2,7 @@ package com.lingualoop.backend.report;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -234,6 +235,13 @@ public class ReportTestData {
         Integer n = jdbc.queryForObject("SELECT count(*) FROM audit_logs WHERE target_type = ? AND target_id = ? "
                 + "AND action = 'update'", Integer.class, type, id);
         return n == null ? 0 : n;
+    }
+
+    /** Mục nhật ký mới nhất của một báo cáo theo hành động: tên, đối tượng chứa, thay đổi, ghi chú. */
+    public Map<String, Object> auditOf(UUID report, String action) {
+        return jdbc.queryForMap("SELECT target_name, parent_type, parent_id, changes::text AS changes, note "
+                + "FROM audit_logs WHERE target_type = 'report' AND target_id = ? AND action = ? ORDER BY id DESC "
+                + "LIMIT 1", report, action);
     }
 
     public int countAudit(UUID report, String action) {

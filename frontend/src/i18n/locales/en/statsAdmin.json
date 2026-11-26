@@ -1,0 +1,131 @@
+{
+  "period": "Time range",
+  "periods": {
+    "D7": "7 days",
+    "D30": "30 days",
+    "D90": "90 days"
+  },
+  "plans": {
+    "ALL": "All",
+    "FREE": "Free",
+    "PRO": "Pro"
+  },
+  "accountPlans": {
+    "free": "Free",
+    "pro": "Pro",
+    "teacher": "Teacher",
+    "admin": "Admin"
+  },
+  "computedAt": "Updated {{time}}, refreshed hourly",
+  "vsPrevious": "vs previous period",
+  "noPrevious": "No data for the previous period",
+  "empty": "No data in this time range",
+  "loadError": "Couldn't load the statistics",
+  "chart": {
+    "showTable": "Show as table",
+    "hideTable": "Hide table",
+    "day": "Day"
+  },
+  "overview": {
+    "title": "System overview",
+    "accounts": "Total accounts",
+    "accountsSplit": "{{students}} learners · {{teachers}} teachers · {{admins}} admins",
+    "verified": "Email verified",
+    "verifiedSub": "{{pct}} of all accounts",
+    "newAccounts": "New accounts",
+    "activePro": "Active Pro accounts",
+    "proRatio": "{{pct}} of learners",
+    "revenue": "Recognized revenue",
+    "revenueSub": "Share of Pro orders active in the range",
+    "published": "Published content",
+    "publishedValue": "{{lessons}} lessons · {{decks}} decks",
+    "pendingReports": "Reports awaiting admin",
+    "handleNow": "Handle now",
+    "activeUsersChart": "Active users per day",
+    "activeUsersHint": "Did dictation, shadowing, card review or used AI successfully",
+    "newAccountsChart": "New accounts per day",
+    "activeUsers": "Active users",
+    "newAccountsSeries": "New accounts",
+    "oldestReports": "Longest-waiting reports",
+    "noPendingReports": "No reports are awaiting an admin",
+    "reportedBy": "Reported by {{name}}",
+    "unknownReporter": "Unknown reporter"
+  },
+  "practice": {
+    "title": "Practice statistics",
+    "plan": "Learner plan",
+    "learners": "Learners who practiced",
+    "dictation": "Dictation attempts",
+    "shadowing": "Shadowing attempts",
+    "reviews": "Card reviews",
+    "lessonsCompleted": "Lessons completed",
+    "dictationAvg": "Avg. dictation score",
+    "shadowingAvg": "Avg. shadowing score",
+    "correctRate": "Card review accuracy",
+    "dailyChart": "Practice per day",
+    "series": {
+      "dictation": "Dictation",
+      "shadowing": "Shadowing",
+      "review": "Card review"
+    },
+    "topLessons": "Most practiced lessons",
+    "topDecks": "Decks with the most learners",
+    "attempts_one": "{{value}} attempt",
+    "attempts_other": "{{value}} attempts",
+    "learnersUnit_one": "{{value}} learner",
+    "learnersUnit_other": "{{value}} learners"
+  },
+  "ai": {
+    "title": "AI usage and cost",
+    "adjustCredit": "Adjust credit settings",
+    "creditValue": "1 credit = {{value}}",
+    "features": {
+      "shadowing_feedback": "AI feedback on a reading",
+      "lesson_chat": "Lesson AI practice",
+      "tutor_session": "Sentence tutor session",
+      "lesson_suggest": "Translation suggestions",
+      "lesson_import": "Lesson from a YouTube link"
+    },
+    "netRevenue": "Net revenue",
+    "cost": "AI cost",
+    "grossProfit": "Gross profit",
+    "grossMargin": "Margin {{pct}}",
+    "featureTable": "Profit and loss by feature",
+    "colFeature": "Feature",
+    "colPrice": "Price / unit",
+    "colCost": "Total cost",
+    "creditsChart": "Credits spent per day",
+    "topAccounts": "Top credit spenders",
+    "colName": "Account",
+    "colPlan": "Plan",
+    "colCredits": "Credits",
+    "credits_one": "{{value}} credit",
+    "credits_other": "{{value}} credits",
+    "colCostPerUnit": "Cost / unit",
+    "perUnit": "{{value}} / {{unit}}",
+    "units": {
+      "shadowing_feedback": "review",
+      "tutor_session": "session",
+      "lesson_chat": "conversation",
+      "lesson_suggest": "sentence",
+      "lesson_import": "lesson"
+    },
+    "unitCount": {
+      "shadowing_feedback_one": "{{value}} review",
+      "shadowing_feedback_other": "{{value}} reviews",
+      "tutor_session_one": "{{value}} session",
+      "tutor_session_other": "{{value}} sessions",
+      "lesson_chat_one": "{{value}} conversation",
+      "lesson_chat_other": "{{value}} conversations",
+      "lesson_suggest_one": "{{value}} sentence",
+      "lesson_suggest_other": "{{value}} sentences",
+      "lesson_import_one": "{{value}} lesson",
+      "lesson_import_other": "{{value}} lessons"
+    },
+    "netRevenueHint": "After payment gateway fee",
+    "trialShare": "Free trial: {{pct}}",
+    "loss": "Loss",
+    "colUsed": "Used",
+    "unusedList": "Not used yet: {{names}}"
+  }
+}

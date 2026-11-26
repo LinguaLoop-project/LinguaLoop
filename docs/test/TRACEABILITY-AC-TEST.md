@@ -32,14 +32,14 @@ Hai tỉ lệ ở cột cuối đo hai việc khác nhau:
 | [DI-dictation-cau-da-luu](traceability/DI-dictation-cau-da-luu.md) | 45 | 0 | 0 | 45 | 0 | 0 | 0% | — |
 | [GA-quan-ly-goi-han-muc-ai](traceability/GA-quan-ly-goi-han-muc-ai.md) | 44 | 25 | 4 | 0 | 15 | 0 | 57% | 65.9% |
 | [HT-hoc-the-on-tap](traceability/HT-hoc-the-on-tap.md) | 81 | 15 | 23 | 43 | 0 | 0 | 19% | 100% |
-| [NK-nhat-ky-thong-ke-he-thong](traceability/NK-nhat-ky-thong-ke-he-thong.md) | 25 | 0 | 0 | 25 | 0 | 0 | 0% | — |
+| [NK-nhat-ky-thong-ke-he-thong](traceability/NK-nhat-ky-thong-ke-he-thong.md) | 27 | 0 | 19 | 8 | 0 | 0 | 0% | 100% |
 | [NT-quan-ly-nhom-the-the](traceability/NT-quan-ly-nhom-the-the.md) | 76 | 52 | 8 | 16 | 0 | 0 | 68% | 100% |
 | [PR-goi-pro](traceability/PR-goi-pro.md) | 24 | 15 | 4 | 5 | 0 | 0 | 62% | 100% |
 | [QT-quan-tri-tai-khoan](traceability/QT-quan-tri-tai-khoan.md) | 55 | 36 | 5 | 14 | 0 | 0 | 65% | 100% |
 | [SH-shadowing](traceability/SH-shadowing.md) | 28 | 0 | 0 | 28 | 0 | 0 | 0% | — |
 | [TC-tra-cuu-hoc-thu-dong](traceability/TC-tra-cuu-hoc-thu-dong.md) | 43 | 9 | 2 | 27 | 5 | 0 | 21% | 68.8% |
 | [TH-xem-thong-ke-hoc-tap](traceability/TH-xem-thong-ke-hoc-tap.md) | 35 | 26 | 5 | 0 | 4 | 0 | 74% | 88.6% |
-| [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 77 | 42 | 20 | 14 | 1 | 0 | 55% | 98.4% |
+| [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 77 | 42 | 23 | 11 | 1 | 0 | 55% | 98.5% |
 | [TN-xem-thong-ke-noi-dung](traceability/TN-xem-thong-ke-noi-dung.md) | 23 | 0 | 0 | 23 | 0 | 0 | 0% | — |
 | [XL-xu-ly-bao-cao](traceability/XL-xu-ly-bao-cao.md) | 62 | 14 | 27 | 21 | 0 | 0 | 23% | 100% |
-| **Tổng** | **868** | **373** | **124** | **342** | **25** | **4** | **43%** | **95.2%** |
+| **Tổng** | **870** | **373** | **146** | **322** | **25** | **4** | **43%** | **95.4%** |

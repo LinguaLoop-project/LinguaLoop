@@ -11,7 +11,7 @@
 
 | Mã | Quy tắc | Áp dụng trong |
 |---|---|---|
-| BR-TN-02 | Cách tính các chỉ số: **lượt luyện** là mỗi lần học viên nộp bài làm một câu ở chế độ nghe chép hoặc shadowing; **điểm trung bình** là trung bình điểm của các lượt luyện trong khoảng thời gian; **hoàn thành bài** là học viên đã học hết bài; **tỷ lệ hoàn thành** = số học viên hoàn thành / số học viên đã bắt đầu; **lượt ôn thẻ** là mỗi lần học viên trả lời một thẻ; **tỷ lệ trả lời đúng** = số lượt ôn đúng / số lượt ôn; **học viên đã ôn bộ** là học viên có ít nhất một lượt ôn thẻ của bộ trong khoảng thời gian. | UC-TN-01 (Bước 2), UC-TN-02 (Bước 2), UC-TN-03 (Bước 2), AC-TN-09, 16 |
+| BR-TN-02 | Cách tính các chỉ số: **lượt luyện** là mỗi lần học viên nộp bài làm một câu ở chế độ nghe chép hoặc shadowing; **điểm trung bình** là trung bình điểm của các lượt luyện trong khoảng thời gian; **hoàn thành bài** là học viên đã có ít nhất một lượt luyện ở cùng một chế độ (nghe chép hoặc shadowing) trên mọi câu chưa bị xóa của bài; thời điểm hoàn thành là thời điểm của lượt luyện làm đủ các câu đó; mỗi học viên được tính hoàn thành một bài tối đa một lần cho mỗi chế độ, và được tính vào khoảng thời gian chứa thời điểm hoàn thành; **tỷ lệ hoàn thành** = số học viên hoàn thành / số học viên đã bắt đầu; **lượt ôn thẻ** là mỗi lần học viên trả lời một thẻ; **tỷ lệ trả lời đúng** = số lượt ôn đúng / số lượt ôn; **học viên đã ôn bộ** là học viên có ít nhất một lượt ôn thẻ của bộ trong khoảng thời gian. | UC-TN-01 (Bước 2), UC-TN-02 (Bước 2), UC-TN-03 (Bước 2), AC-TN-09, 16 |
 | BR-TN-06 | Số liệu được cập nhật mỗi giờ và luôn hiển thị thời điểm cập nhật gần nhất. | UC-TN-01 (2), UC-TN-02 (2), UC-TN-03 (2), AC-TN-01 |
 
 ## Giới hạn số

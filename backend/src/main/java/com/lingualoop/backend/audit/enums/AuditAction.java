@@ -18,7 +18,15 @@ public enum AuditAction {
     CHANGE_ROLE,
     TRANSFER,
     /** Quản trị viên cấp credit cho giáo viên (UC-GA-07). */
-    GRANT_CREDIT;
+    GRANT_CREDIT,
+    /** Nhập nhiều thẻ từ tệp: một mục cho cả lần nhập (UC-NT-07, BR-NT-10). */
+    IMPORT,
+    /** Đặt lại mật khẩu qua liên kết (UC-TK-06, BR-TK-18). */
+    PASSWORD_RESET,
+    /** Tạo hoặc đổi mật khẩu (UC-TK-07, BR-TK-18). */
+    PASSWORD_CHANGE,
+    /** Tạm khóa đăng nhập vì sai mật khẩu nhiều lần (BR-TK-03, BR-TK-18). */
+    LOGIN_LOCKED;
 
     /** Giá trị lưu trong DB. */
     public String value() {

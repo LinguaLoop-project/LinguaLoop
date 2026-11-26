@@ -14,6 +14,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lingualoop.backend.audit.dto.AuditChanges;
+import com.lingualoop.backend.audit.enums.AuditAction;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ConflictException;
 import com.lingualoop.backend.common.exception.ErrorCode;
@@ -68,6 +70,7 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
     private final Clock clock;
     private final TakedownQueryService takedowns;
     private final TakedownCommandService takedownCommands;
+    private final VocabAuditor auditor;
 
     @Override
     @Transactional(readOnly = true)
@@ -126,6 +129,12 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
             }
             VocabDeck saved = saveDraft(VocabDeck.newDraft(teacherId, name, request.categoryId(), request.cefrLevel(),
                     imageKey, request.pro()));
+            auditor.deck(teacherId, AuditAction.CREATE, saved.getId(), saved.getName(), AuditChanges.create()
+                    .field("name", null, saved.getName())
+                    .field("category", null, categoryName)
+                    .field("cefrLevel", null, saved.getCefrLevel())
+                    .field("pro", null, saved.isPro())
+                    .build(), null);
             return new DeckManageView.Item(saved.getId(), saved.getName(), images.resolve(saved.getImageUrl()),
                     saved.getCategoryId(), categoryName, saved.getCefrLevel(), 0, 0, saved.isPro(), saved.getStatus(),
                     saved.getUpdatedAt(), null, null);
@@ -214,6 +223,7 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
             if (updated == 0) {
                 throw new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND);
             }
+            // Sửa thông tin bộ thẻ không ghi nhật ký (BR-NK-18).
             saved = true;
         } catch (RuntimeException ex) {
             if (newKey != null && !saved) {
@@ -267,6 +277,7 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
                     Map.of("noGroups", noGroups, "emptyGroups", emptyGroups));
         }
         repository.updateStatus(deckId, VocabDeck.STATUS_PUBLISHED, null);
+        auditor.deck(teacherId, AuditAction.PUBLISH, deckId, deck.getName(), null, null);
     }
 
     @Override
@@ -275,6 +286,7 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
         DeckStateRow deck = teacherDeck(repository.lockState(deckId), teacherId);
         requirePublished(deck);
         repository.updateStatus(deckId, VocabDeck.STATUS_DRAFT, null);
+        auditor.deck(teacherId, AuditAction.UNPUBLISH, deckId, deck.getName(), null, null);
     }
 
     @Override
@@ -307,8 +319,9 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
     @Override
     @Transactional
     public void deleteDeck(UUID teacherId, UUID deckId) {
-        teacherDeck(repository.lockState(deckId), teacherId);
+        DeckStateRow deck = teacherDeck(repository.lockState(deckId), teacherId);
         repository.softDelete(deckId, clock.instant());
+        auditor.deck(teacherId, AuditAction.DELETE, deckId, deck.getName(), null, null);
         // Yêu cầu xuất bản lại đang chờ tự hủy, dấu giữ nguyên qua khôi phục (UC-BT-07, BR-BT-10, BR-XL-13).
         takedownCommands.cancelPendingForDeletedDeck(deckId);
     }
@@ -337,6 +350,8 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
             }
             throw ex;
         }
+        auditor.deck(teacherId, AuditAction.RESTORE, deckId, name,
+                AuditChanges.create().field("name", deck.getName(), name).build(), null);
     }
 
     // ------------------------------------------------------------------ quyền (BR-BT-01)

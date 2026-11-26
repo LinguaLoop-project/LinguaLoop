@@ -1,15 +1,21 @@
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/auth";
+import { toAdminApiError } from "@/features/user";
 import type {
   ActivityMap,
+  AiUsageStats,
   DictationErrors,
   HistoryMode,
   HistoryPage,
+  OverviewStats,
   PhonemeDetail,
+  PlanFilter,
   PracticeKind,
   PracticeSessionDetail,
+  PracticeStats,
   PronunciationOverview,
   StatsOverview,
+  StatsPeriod,
   StatsRange,
   Streak,
   WrongWords,
@@ -51,4 +57,27 @@ export const statsApi = {
 
   /** Chi tiết một âm vị; ký hiệu IPA đi qua query vì có ký tự như θ và ʃ. */
   getPhoneme: (symbol: string, range: StatsRange) => get<PhonemeDetail>("/pronunciation/phoneme", { symbol, range }),
+};
+
+const STATS = "/admin/stats";
+const ADMIN_TIMEOUT_MS = 20_000;
+
+async function call<T>(request: Promise<{ data: ApiResponse<T> }>): Promise<T> {
+  try {
+    return (await request).data.data;
+  } catch (error) {
+    throw toAdminApiError(error);
+  }
+}
+
+/** Thống kê hệ thống của quản trị viên (UC-NK-02 đến 04). Lỗi ném ra là `AdminApiError`. */
+export const adminStatsApi = {
+  overview: (period: StatsPeriod) =>
+    call<OverviewStats>(axiosClient.get(`${STATS}/overview`, { params: { period }, timeout: ADMIN_TIMEOUT_MS })),
+  practice: (period: StatsPeriod, plan: PlanFilter) =>
+    call<PracticeStats>(
+      axiosClient.get(`${STATS}/practice`, { params: { period, plan }, timeout: ADMIN_TIMEOUT_MS }),
+    ),
+  aiUsage: (period: StatsPeriod) =>
+    call<AiUsageStats>(axiosClient.get(`${STATS}/ai-usage`, { params: { period }, timeout: ADMIN_TIMEOUT_MS })),
 };

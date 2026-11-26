@@ -52,6 +52,8 @@ Bảng mới thêm bằng migration phải được gán cho một feature trong
 
 Feature không có bảng (`stats`, `ai`, `devtools`) không có `entity/` hay `repository/`. Chúng chỉ gọi service interface của feature khác hoặc gọi dịch vụ ngoài.
 
+Ngoại lệ: `stats` được có `repository/` **chỉ đọc** để tổng hợp số liệu từ bảng của nhiều feature trong một câu truy vấn (cùng cách với `AdminUserRepository`). Repository này chỉ dùng câu SQL hằng, giá trị lọc truyền bằng tham số, chỉ `SELECT`, không có `entity/` và không bao giờ ghi vào bảng của feature khác.
+
 ### 2.3 Bên trong một feature
 
 ```

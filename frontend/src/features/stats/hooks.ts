@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { statsApi } from "./api";
-import type { HistoryMode, PracticeKind, StatsRange } from "./types";
+import { adminStatsApi, statsApi } from "./api";
+import type { HistoryMode, PlanFilter, PracticeKind, StatsPeriod, StatsRange } from "./types";
 import { HISTORY_DAYS_PER_PAGE } from "./utils";
 
 /**
@@ -95,3 +95,29 @@ export const usePhoneme = (symbol: string | null, range: StatsRange) =>
     enabled: symbol !== null,
     placeholderData: keepPreviousData,
   });
+
+// ---------------------------------------------------------------- thống kê hệ thống của quản trị viên (UC-NK-02 đến 04)
+
+const STATS_KEY = ["admin", "stats"] as const;
+
+/**
+ * Backend tính lại mỗi giờ (BR-NK-10) nên phía trình duyệt giữ 5 phút là đủ; đổi bộ lọc thì giữ số liệu cũ (mờ) cho
+ * tới khi số liệu mới về, không nháy khung.
+ */
+const COMMON = { staleTime: 5 * 60_000, placeholderData: keepPreviousData, retry: false } as const;
+
+export function useOverviewStats(period: StatsPeriod) {
+  return useQuery({ queryKey: [...STATS_KEY, "overview", period], queryFn: () => adminStatsApi.overview(period), ...COMMON });
+}
+
+export function usePracticeStats(period: StatsPeriod, plan: PlanFilter) {
+  return useQuery({
+    queryKey: [...STATS_KEY, "practice", period, plan],
+    queryFn: () => adminStatsApi.practice(period, plan),
+    ...COMMON,
+  });
+}
+
+export function useAiUsageStats(period: StatsPeriod) {
+  return useQuery({ queryKey: [...STATS_KEY, "ai-usage", period], queryFn: () => adminStatsApi.aiUsage(period), ...COMMON });
+}

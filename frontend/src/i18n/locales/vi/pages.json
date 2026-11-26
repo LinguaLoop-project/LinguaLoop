@@ -692,10 +692,6 @@
       "title": "Cài đặt hệ thống",
       "description": "Cấu hình máy chủ, khóa API AI, email dịch vụ và cổng thanh toán trực tuyến."
     },
-    "logs": {
-      "title": "Nhật ký hoạt động",
-      "description": "Nhật ký truy cập, bảo mật, xác thực người dùng và giám sát lỗi server."
-    },
     "profile": {
       "title": "Hồ sơ quản trị viên",
       "description": "Thông tin cá nhân quản trị viên và nhật ký phiên đăng nhập."

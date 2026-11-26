@@ -33,6 +33,7 @@
 | BR-BT-16 | Bộ thẻ có thể gắn một **cấp độ** CEFR (A1, A2, B1, B2, C1 hoặc C2) khi tạo hoặc sửa, không bắt buộc (mặc định là chưa gắn). Cấp độ hiển thị kèm bộ ở danh sách bộ của giáo viên và thư viện của học viên, và được dùng để tự chọn bộ khởi đầu cho học viên chưa học bộ nào (BR-HT-32). Đổi cấp độ của bộ đã xuất bản không ảnh hưởng tiến độ đã có. | UC-BT-02, UC-BT-03, AC-BT-81 |
 | BR-BT-07 | Sửa bộ đã xuất bản có hiệu lực ngay sau khi lưu; học viên thấy thay đổi khi mở lại hoặc tải lại bộ. Thẻ bị xóa thì tiến độ học của thẻ đó không còn được tính; tiến độ các thẻ còn lại được giữ. | UC-BT-03, UC-NT-03, UC-NT-06, AC-BT-15, AC-NT-16, 41 |
 | BR-BT-11 | Xem chi tiết không ghi nhận tiến độ học và không tính vào thống kê học của học viên. | UC-BT-04, AC-BT-22 |
+| BR-BT-16 | Thao tác tạo, xuất bản, gỡ xuất bản, xóa và khôi phục bộ thẻ được ghi vào nhật ký theo BR-NK-18: người thực hiện, vai trò, thời điểm, thông tin lúc tạo, lý do nếu có. Sửa thông tin bộ thẻ không ghi nhật ký. | UC-BT-02, UC-BT-03, UC-BT-05 đến UC-BT-08 |
 
 ## Giới hạn số
 
