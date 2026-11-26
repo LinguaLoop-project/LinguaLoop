@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TK-tai-khoan-xac-thuc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 70 AC, 42 đã có test, 15 một phần, 12 thiếu, 1 thủ công.
+Tổng hợp: 70 AC, 42 đã có test, 16 một phần, 11 thiếu, 1 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -70,9 +70,9 @@ Tổng hợp: 70 AC, 42 đã có test, 15 một phần, 12 thiếu, 1 thủ côn
 | AC-TK-62 | Hiển thị tài khoản của chính học viên | UC-TK-10 | D |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
 | AC-TK-63 | Tài khoản của học viên mới chưa xác thực email | UC-TK-10 | B |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
 | AC-TK-64 | Đổi tên hiển thị | UC-TK-10 | D, B | `frontend/src/features/user/profilePayload.test.ts` (đổi tên giữ nguyên các trường hồ sơ khác) | Một phần (chưa có test giao diện) |
-| AC-TK-65 | Chọn chế độ màu và ngôn ngữ giao diện | UC-TK-10 | D | `frontend/src/features/user/profilePayload.test.ts` (đổi ngôn ngữ giữ nguyên các trường khác) | Một phần (chưa có test giao diện) |
+| AC-TK-65 | Chọn chế độ màu và ngôn ngữ giao diện | UC-TK-10 | D | `frontend/src/features/user/profilePayload.test.ts` (đổi ngôn ngữ giữ nguyên các trường khác); `frontend/src/features/user/timezones.test.ts` | Một phần (chưa có test giao diện) |
 | AC-TK-66 | Đổi ảnh đại diện | UC-TK-10 | D | AvatarApiIntegrationTest.setAvatar_savesTheKeyAndMeReturnsItsUrl_AC_TK_66; AvatarApiIntegrationTest.setAvatar_acceptsPngAndWebpAndReplacesThePreviousFile_AC_TK_66; `frontend/src/features/user/avatarImage.test.ts` (cắt vuông ở giữa) | Một phần (chưa có test giao diện) |
 | AC-TK-67 | Ảnh đại diện không hợp lệ | UC-TK-10 | A, B | AvatarApiIntegrationTest.setAvatar_rejectsAFileThatIsNotReallyAnImage_AC_TK_67; AvatarApiIntegrationTest.setAvatar_rejectsAKeyThatIsNotTheCallers_orWasNeverUploaded_AC_TK_67; AvatarApiIntegrationTest.setAvatar_isForStudentsOnly_andNeedsAToken_AC_TK_67; `frontend/src/features/user/avatarImage.test.ts` (loại tệp và dung lượng) | Một phần (chưa có test giao diện) |
 | AC-TK-68 | Gỡ ảnh đại diện | UC-TK-10 | D, B | AvatarApiIntegrationTest.removeAvatar_fallsBackToTheGooglePictureAndDeletesTheFile_AC_TK_68 | Một phần (chưa có test giao diện) |
 | AC-TK-69 | Chọn tùy chọn luyện tập mặc định | UC-TK-10 | D, B | `frontend/src/features/user/practicePrefs.test.ts` (đọc mặc định, giá trị đã lưu, dữ liệu hỏng, giữ trường khác khi ghi) | Một phần (chưa có test giao diện) |
-| AC-TK-70 | Cá nhân hóa màu nhấn, cỡ chữ và nền trang học | UC-TK-10 | D, B | `frontend/src/hooks/useAppearance.test.ts` (mặc định, giá trị đã lưu, mục lạ hoặc hỏng) | Một phần (chưa có test giao diện) |
+| AC-TK-70 | Cá nhân hóa giao diện | UC-TK-10 | D, B | `frontend/src/hooks/useAppearance.test.ts` (mặc định, dữ liệu cũ, mục lạ hoặc hỏng, gói giao diện); `frontend/src/styles/contrast.test.ts` (tương phản 4,5:1 của 5 bảng màu ở cả hai chế độ) | Một phần (chưa có test giao diện) |
