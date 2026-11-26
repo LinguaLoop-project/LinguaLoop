@@ -21,8 +21,9 @@ function lookup(tree: unknown, path: string): unknown {
   return walk(tree, path.split("."));
 }
 
-// Mọi file nguồn của feature, đọc dạng chữ để dò các lời gọi t("khoá tĩnh")
-const sources = import.meta.glob(["./**/*.ts", "./**/*.tsx", "!./**/*.test.ts"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+// Mọi file nguồn của feature, đọc dạng chữ để dò các lời gọi t("khoá tĩnh"); bỏ file trang quản trị (namespace statsAdmin)
+const allSources = import.meta.glob(["./**/*.ts", "./**/*.tsx", "!./**/*.test.ts"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const sources = Object.values(allSources).filter((code) => !code.includes('useTranslation("statsAdmin")'));
 
 describe("chuỗi giao diện của thống kê học tập", () => {
   it("tiếng Việt và tiếng Anh có cùng bộ khoá", () => {
@@ -31,7 +32,7 @@ describe("chuỗi giao diện của thống kê học tập", () => {
 
   it("mọi khoá tĩnh được dùng trong code đều trỏ tới một chuỗi, ở cả hai ngôn ngữ", () => {
     const used = new Set<string>();
-    for (const code of Object.values(sources)) {
+    for (const code of sources) {
       for (const match of code.matchAll(/\bt\(\s*"([A-Za-z][\w.]*)"/g)) used.add(match[1]);
     }
     expect(used.size).toBeGreaterThan(30);
