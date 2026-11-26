@@ -1,10 +1,6 @@
 package com.lingualoop.backend.stats.repository;
 
-import static com.lingualoop.backend.stats.repository.StatsSql.inRange;
-import static com.lingualoop.backend.stats.repository.StatsSql.planFilter;
-import static com.lingualoop.backend.stats.repository.StatsSql.studentOnly;
 import static com.lingualoop.backend.stats.repository.StatsSql.ts;
-import static com.lingualoop.backend.stats.repository.StatsSql.vnDay;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -32,10 +28,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SystemPracticeStatsRepository {
 
-    private static final String ATTEMPTS = "FROM sentence_attempts a WHERE " + inRange("a") + " AND "
-            + studentOnly("a") + " AND " + planFilter("a");
-    private static final String REVIEWS = "FROM vocab_review_logs r WHERE " + inRange("r") + " AND "
-            + studentOnly("r") + " AND " + planFilter("r");
+    /**
+     * Lượt luyện {@code a} của học viên (bỏ giáo viên, quản trị viên) khớp bộ lọc gói tại thời điểm luyện: tham số
+     * {@code :plan} là {@code ALL}, {@code FREE} hoặc {@code PRO}; Pro là có đơn đã thanh toán còn hiệu lực lúc đó
+     * (BR-NK-12).
+     */
+    private static final String STUDENT_PLAN_A = """
+            NOT EXISTS (SELECT 1 FROM users t WHERE t.id = a.user_id AND t.role <> 'student')
+            AND (CAST(:plan AS text) = 'ALL' OR (CAST(:plan AS text) = 'PRO') = EXISTS (
+                SELECT 1 FROM pro_orders o WHERE o.user_id = a.user_id AND o.status = 'paid'
+                AND a.created_at >= o.starts_at AND a.created_at < o.ends_at))
+            """;
+    /** Như {@link #STUDENT_PLAN_A} cho lượt ôn thẻ {@code r}. */
+    private static final String STUDENT_PLAN_R = """
+            NOT EXISTS (SELECT 1 FROM users t WHERE t.id = r.user_id AND t.role <> 'student')
+            AND (CAST(:plan AS text) = 'ALL' OR (CAST(:plan AS text) = 'PRO') = EXISTS (
+                SELECT 1 FROM pro_orders o WHERE o.user_id = r.user_id AND o.status = 'paid'
+                AND r.created_at >= o.starts_at AND r.created_at < o.ends_at))
+            """;
+    private static final String ATTEMPTS = " FROM sentence_attempts a"
+            + " WHERE a.created_at >= :from AND a.created_at < :to AND " + STUDENT_PLAN_A;
+    private static final String REVIEWS = " FROM vocab_review_logs r"
+            + " WHERE r.created_at >= :from AND r.created_at < :to AND " + STUDENT_PLAN_R;
 
     /**
      * Học viên hoàn thành bài ở một chế độ khi đã có lượt luyện ở chế độ đó trên mọi câu chưa xóa của bài; thời điểm
@@ -45,7 +59,7 @@ public class SystemPracticeStatsRepository {
             WITH firsts AS (
                 SELECT a.user_id, s.lesson_id, a.mode, a.sentence_id, min(a.created_at) AS t
                 FROM sentence_attempts a JOIN sentences s ON s.id = a.sentence_id AND s.deleted_at IS NULL
-                WHERE a.created_at < :to AND %s AND %s
+                WHERE a.created_at < :to AND """ + " " + STUDENT_PLAN_A + """
                 GROUP BY 1, 2, 3, 4
             ), totals AS (
                 SELECT lesson_id, count(*) AS n FROM sentences WHERE deleted_at IS NULL GROUP BY 1
@@ -54,7 +68,13 @@ public class SystemPracticeStatsRepository {
             )
             SELECT count(*) FROM done d JOIN totals x ON x.lesson_id = d.lesson_id
             WHERE d.c = x.n AND d.t >= :from AND d.t < :to
-            """.formatted(studentOnly("a"), planFilter("a"));
+            """;
+
+    /** Số lượt theo ngày (giờ Việt Nam) của từng chế độ luyện và của ôn thẻ ({@code review}). */
+    private static final String DAILY = "SELECT a.mode AS series, "
+            + "(a.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date AS day, count(*) AS n" + ATTEMPTS
+            + " GROUP BY 1, 2 UNION ALL SELECT 'review', (r.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date, "
+            + "count(*)" + REVIEWS + " GROUP BY 2";
 
     private final JdbcClient jdbc;
 
@@ -84,12 +104,12 @@ public class SystemPracticeStatsRepository {
                 .query((rs, n) -> new Totals(0, rs.getLong("dictation"), rs.getLong("shadowing"), 0, 0,
                         rs.getBigDecimal("dictation_avg"), rs.getBigDecimal("shadowing_avg"), 0))
                 .single();
-        ReviewCounts reviews = jdbc.sql("SELECT count(*) AS total, count(*) FILTER (WHERE r.is_correct) AS correct "
+        ReviewCounts reviews = jdbc.sql("SELECT count(*) AS total, count(*) FILTER (WHERE r.is_correct) AS correct"
                 + REVIEWS)
-                .params(params).query((rs, n) -> new ReviewCounts(rs.getLong("total"), rs.getLong("correct")))
+                .params(params).query(ReviewCounts.class)
                 .single();
-        long learners = jdbc.sql("SELECT count(DISTINCT x.user_id) FROM (SELECT a.user_id " + ATTEMPTS
-                + " UNION SELECT r.user_id " + REVIEWS + ") x")
+        long learners = jdbc.sql("SELECT count(DISTINCT x.user_id) FROM (SELECT a.user_id" + ATTEMPTS
+                + " UNION SELECT r.user_id" + REVIEWS + ") x")
                 .params(params).query(Long.class).single();
         long completed = jdbc.sql(COMPLETED).params(params).query(Long.class).single();
         return new Totals(learners, attempts.dictation(), attempts.shadowing(), reviews.total(), reviews.correct(),
@@ -99,9 +119,7 @@ public class SystemPracticeStatsRepository {
     /** Số lượt theo ngày (giờ Việt Nam) của nghe chép, shadowing và ôn thẻ; ngày trống không có trong kết quả. */
     public Map<String, Map<LocalDate, Long>> daily(Instant from, Instant to, PlanFilter plan) {
         Map<String, Map<LocalDate, Long>> result = new HashMap<>();
-        jdbc.sql("SELECT a.mode AS series, " + vnDay("a.created_at") + " AS day, count(*) AS n " + ATTEMPTS
-                + " GROUP BY 1, 2 UNION ALL SELECT 'review', " + vnDay("r.created_at") + ", count(*) " + REVIEWS
-                + " GROUP BY 2")
+        jdbc.sql(DAILY)
                 .params(params(from, to, plan))
                 .query((rs, n) -> new DailyCount(rs.getString("series"), rs.getObject("day", LocalDate.class),
                         rs.getLong("n")))
@@ -119,8 +137,7 @@ public class SystemPracticeStatsRepository {
                 JOIN sentences s ON s.id = a.sentence_id
                 JOIN lessons l ON l.id = s.lesson_id AND l.kind = 'library'
                 LEFT JOIN users o ON o.id = l.owner_id
-                WHERE """ + " " + inRange("a") + " AND " + studentOnly("a") + " AND " + planFilter("a") + """
-
+                WHERE a.created_at >= :from AND a.created_at < :to AND """ + " " + STUDENT_PLAN_A + """
                 GROUP BY l.id, l.title, o.display_name
                 ORDER BY value DESC, lower(l.title), l.id LIMIT :limit""")
                 .params(params(from, to, plan)).param("limit", limit)
@@ -135,9 +152,7 @@ public class SystemPracticeStatsRepository {
                 JOIN vocab_cards c ON c.id = r.card_id
                 JOIN vocab_decks d ON d.id = c.deck_id AND d.kind = 'library'
                 LEFT JOIN users o ON o.id = d.owner_id
-                WHERE """ + " " + inRange("r") + " AND " + studentOnly("r") + " AND "
-                + planFilter("r") + """
-
+                WHERE r.created_at >= :from AND r.created_at < :to AND """ + " " + STUDENT_PLAN_R + """
                 GROUP BY d.id, d.name, o.display_name
                 ORDER BY value DESC, lower(d.name), d.id LIMIT :limit""")
                 .params(params(from, to, plan)).param("limit", limit)

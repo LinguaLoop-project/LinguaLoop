@@ -1,7 +1,6 @@
 package com.lingualoop.backend.stats.repository;
 
 import static com.lingualoop.backend.stats.repository.StatsSql.ts;
-import static com.lingualoop.backend.stats.repository.StatsSql.vnDay;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,12 +29,22 @@ public class OverviewStatsRepository {
 
     /** Một lượt luyện, một lượt ôn thẻ hoặc một lần dùng AI thành công trong khoảng (BR-NK-06). */
     private static final String ACTIVITY = """
-            SELECT user_id, created_at FROM sentence_attempts a WHERE %s
+            SELECT user_id, created_at FROM sentence_attempts a WHERE a.created_at >= :from AND a.created_at < :to
             UNION ALL
-            SELECT user_id, created_at FROM vocab_review_logs r WHERE %s
+            SELECT user_id, created_at FROM vocab_review_logs r WHERE r.created_at >= :from AND r.created_at < :to
             UNION ALL
-            SELECT user_id, created_at FROM ai_usage_logs l WHERE l.status = 'success' AND %s
-            """.formatted(StatsSql.inRange("a"), StatsSql.inRange("r"), StatsSql.inRange("l"));
+            SELECT user_id, created_at FROM ai_usage_logs l
+            WHERE l.status = 'success' AND l.created_at >= :from AND l.created_at < :to
+            """;
+
+    private static final String DAILY_ACTIVE_USERS = """
+            SELECT (x.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date AS day, count(DISTINCT x.user_id) AS n
+            FROM (""" + ACTIVITY + """
+            ) x GROUP BY 1""";
+
+    private static final String DAILY_NEW_ACCOUNTS = """
+            SELECT (u.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date AS day, count(*) AS n
+            FROM users u WHERE u.created_at >= :from AND u.created_at < :to GROUP BY 1""";
 
     private final JdbcClient jdbc;
 
@@ -65,7 +74,7 @@ public class OverviewStatsRepository {
     }
 
     public long newAccounts(Instant from, Instant to) {
-        return jdbc.sql("SELECT count(*) FROM users u WHERE " + StatsSql.inRange("u"))
+        return jdbc.sql("SELECT count(*) FROM users u WHERE u.created_at >= :from AND u.created_at < :to")
                 .param("from", ts(from)).param("to", ts(to)).query(Long.class).single();
     }
 
@@ -107,15 +116,14 @@ public class OverviewStatsRepository {
 
     /** Số người dùng hoạt động theo ngày (giờ Việt Nam); ngày không có ai không có trong kết quả. */
     public Map<LocalDate, Long> dailyActiveUsers(Instant from, Instant to) {
-        return byDay("SELECT " + vnDay("x.created_at") + " AS day, count(DISTINCT x.user_id) AS n FROM ("
-                + ACTIVITY + ") x GROUP BY 1", from, to);
+        return byDay(DAILY_ACTIVE_USERS, from, to);
     }
 
     public Map<LocalDate, Long> dailyNewAccounts(Instant from, Instant to) {
-        return byDay("SELECT " + vnDay("u.created_at") + " AS day, count(*) AS n FROM users u WHERE "
-                + StatsSql.inRange("u") + " GROUP BY 1", from, to);
+        return byDay(DAILY_NEW_ACCOUNTS, from, to);
     }
 
+    /** {@code sql} là một trong các hằng truy vấn theo ngày của lớp này. */
     private Map<LocalDate, Long> byDay(String sql, Instant from, Instant to) {
         Map<LocalDate, Long> result = new HashMap<>();
         jdbc.sql(sql).param("from", ts(from)).param("to", ts(to))
