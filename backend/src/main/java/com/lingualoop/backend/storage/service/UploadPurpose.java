@@ -34,11 +34,11 @@ public enum UploadPurpose {
             Set.of(Role.TEACHER)),
 
     /**
-     * Ảnh đại diện của học viên (UC-TK-10): JPG/PNG/WebP, tối đa 1 MB (trình duyệt đã cắt vuông và nén). Nằm dưới
-     * {@code vocab-decks/} để dùng chung bucket policy đọc công khai như ảnh thẻ; thư mục riêng {@code avatars/} nên key
-     * của các mục đích không lẫn nhau khi kiểm chủ sở hữu.
+     * Ảnh đại diện của học viên (UC-TK-10): JPG/PNG/WebP, tối đa 1 MB (trình duyệt đã cắt vuông và nén). Nằm ở
+     * {@code user/avatar/<userId>/}, tách khỏi {@code vocab-decks/}; bucket policy phải cho đọc công khai {@code user/avatar/*}
+     * để trình duyệt hiển thị được ảnh.
      */
-    AVATAR("vocab-decks/avatars",
+    AVATAR("user/avatar",
             Map.of("image/jpeg", "jpg", "image/png", "png", "image/webp", "webp"),
             1_048_576L,
             Set.of(Role.STUDENT));
