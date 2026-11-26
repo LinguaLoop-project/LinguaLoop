@@ -191,6 +191,7 @@ export default function TopBar({ config, drawerOpen, onOpenDrawer, onOpenPalette
         <NotificationBell
           buttonClassName={GROUP_BUTTON}
           allHref={config.role === "student" ? "/student/notifications" : undefined}
+          preferencesHref={config.role === "student" ? "/student/settings?tab=notifications" : undefined}
         />
         <span aria-hidden="true" className={DIVIDER} />
         <AccountMenu config={config} compact />

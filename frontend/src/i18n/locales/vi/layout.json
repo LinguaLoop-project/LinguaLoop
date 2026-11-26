@@ -233,6 +233,22 @@
       "REPORT_RESOLVED": "Báo cáo của bạn đã được xử lý. Cảm ơn bạn đã giúp cải thiện nội dung.",
       "REPORT_REJECTED": "Báo cáo của bạn không được chấp nhận: {{reason}}"
     },
+    "categories": {
+      "review": "Ôn tập",
+      "streak": "Chuỗi ngày",
+      "credit": "Credit AI",
+      "plan": "Gói Pro",
+      "payment": "Thanh toán",
+      "report": "Báo cáo",
+      "system": "Hệ thống"
+    },
+    "groups": {
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "last7Days": "7 ngày qua",
+      "earlier": "Trước đó",
+      "continued": "(tiếp)"
+    },
     "title": "Thông báo",
     "markAll": "Đánh dấu tất cả đã đọc",
     "empty": "Chưa có thông báo nào",
@@ -249,7 +265,16 @@
       "all": "Tất cả",
       "unread": "Chưa đọc",
       "unreadCount": "Chưa đọc ({{count}})",
-      "emptyUnread": "Bạn đã đọc hết thông báo"
+      "unreadBadge": "{{count}} chưa đọc",
+      "preferences": "Cài đặt nhắc nhở",
+      "markedAll": "Đã đánh dấu tất cả thông báo là đã đọc.",
+      "markOneRead": "Đánh dấu đã đọc",
+      "showing": "Hiển thị {{from}}–{{to}} trong {{total}} thông báo",
+      "emptyUnread": "Bạn đã đọc hết thông báo",
+      "emptyUnreadDesc": "Mọi nhắc nhở và cập nhật mới nhất đều đã được xem qua.",
+      "emptyDesc": "Khi có thẻ đến hạn ôn, cập nhật gói Pro hoặc phản hồi báo cáo, thông báo sẽ hiện ở đây.",
+      "viewAllFilter": "Xem tất cả thông báo",
+      "goToday": "Về trang Hôm nay"
     }
   }
 }

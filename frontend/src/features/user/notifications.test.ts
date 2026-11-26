@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  groupNotificationsByDate,
   notificationText,
+  notificationVisual,
   parseNotificationFilter,
   parsePageIndex,
   relativeTime,
@@ -76,5 +78,50 @@ describe("safeInternalLink (AC-TK-74)", () => {
     expect(safeInternalLink("javascript:alert(1)")).toBeNull();
     expect(safeInternalLink("")).toBeNull();
     expect(safeInternalLink(null)).toBeNull();
+  });
+});
+
+describe("notificationVisual & groupNotificationsByDate", () => {
+  it("ánh xạ biểu tượng và nhóm theo loại, loại lạ về mặc định", () => {
+    expect(notificationVisual("STREAK_AT_RISK")).toEqual({ icon: "flame", tone: "warning", category: "streak" });
+    expect(notificationVisual("PRO_ACTIVATED")).toEqual({ icon: "crown", tone: "success", category: "plan" });
+    expect(notificationVisual("UNKNOWN_TYPE")).toEqual({ icon: "bell", tone: "primary", category: "system" });
+    expect(notificationVisual(null)).toEqual({ icon: "bell", tone: "primary", category: "system" });
+  });
+
+  it("nhóm thông báo theo Hôm nay, Hôm qua, 7 ngày qua và Trước đó", () => {
+    const now = new Date(2026, 10, 26, 15, 0, 0).getTime();
+    const item = (id: string, date: Date): NotificationItem => ({
+      id,
+      message: id,
+      read: false,
+      createdAt: date.toISOString(),
+    });
+    const list = [
+      item("a", new Date(2026, 10, 26, 14, 0, 0)),
+      item("b", new Date(2026, 10, 26, 9, 0, 0)),
+      item("c", new Date(2026, 10, 25, 20, 0, 0)),
+      item("d", new Date(2026, 10, 22, 10, 0, 0)),
+      item("e", new Date(2026, 10, 10, 10, 0, 0)),
+    ];
+    const groups = groupNotificationsByDate(list, now);
+    expect(groups.map((g) => [g.group, g.items.map((x) => x.id)])).toEqual([
+      ["today", ["a", "b"]],
+      ["yesterday", ["c"]],
+      ["last7Days", ["d"]],
+      ["earlier", ["e"]],
+    ]);
+  });
+
+  it("chia nhóm theo múi giờ của học viên, không theo trình duyệt", () => {
+    const now = Date.parse("2026-11-26T18:00:00Z"); // 01:00 ngày 27 ở Việt Nam, 13:00 ngày 26 ở New York
+    const entry: NotificationItem = { id: "x", message: "x", read: false, createdAt: "2026-11-26T16:00:00Z" };
+    // Cùng một thời điểm: đã sang hôm qua ở Việt Nam nhưng vẫn là hôm nay ở New York
+    expect(groupNotificationsByDate([entry], now, "Asia/Ho_Chi_Minh")[0].group).toBe("yesterday");
+    expect(groupNotificationsByDate([entry], now, "America/New_York")[0].group).toBe("today");
+    expect(groupNotificationsByDate([{ ...entry, createdAt: "2026-11-26T20:00:00Z" }], Date.parse("2026-11-27T05:00:00Z"), "Asia/Ho_Chi_Minh")[0].group).toBe("today");
+    expect(groupNotificationsByDate([{ ...entry, createdAt: "2026-11-26T10:00:00Z" }], Date.parse("2026-11-27T05:00:00Z"), "Asia/Ho_Chi_Minh")[0].group).toBe("yesterday");
+    expect(groupNotificationsByDate([{ ...entry, createdAt: "2026-11-19T10:00:00Z" }], now, "America/New_York")[0].group).toBe("last7Days");
+    expect(groupNotificationsByDate([{ ...entry, createdAt: "2026-11-18T10:00:00Z" }], now, "America/New_York")[0].group).toBe("earlier");
   });
 });

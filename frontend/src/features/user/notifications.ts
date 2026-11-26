@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosClient } from "@/api/axiosClient";
+import { dayKeyInZone } from "@/features/stats/utils";
 
 export interface NotificationItem {
   id: string;
@@ -73,8 +74,9 @@ export function useNotifications() {
 }
 
 /** Một trang của trang Thông báo; cùng tiền tố khoá với chuông nên đánh dấu đã đọc làm mới cả hai. */
-export function useNotificationPage(filter: NotificationFilter, page: number) {
+export function useNotificationPage(filter: NotificationFilter, page: number, enabled = true) {
   return useQuery({
+    enabled,
     queryKey: [...KEY, "page", filter, page],
     queryFn: () => notificationApi.page(filter, page),
     refetchInterval: REFRESH_MS,
@@ -183,3 +185,85 @@ export function useSetNotificationPreference() {
     onSuccess: (data) => queryClient.setQueryData(PREFERENCES_KEY, data),
   });
 }
+
+export type NotificationTone = "vocab" | "warning" | "danger" | "success" | "primary" | "muted";
+export type NotificationCategory = "review" | "streak" | "credit" | "plan" | "payment" | "report" | "system";
+
+export interface NotificationVisual {
+  icon: string;
+  tone: NotificationTone;
+  category: NotificationCategory;
+}
+
+const VISUAL_BY_TYPE: Record<string, NotificationVisual> = {
+  REVIEW_DUE: { icon: "layers", tone: "vocab", category: "review" },
+  STREAK_AT_RISK: { icon: "flame", tone: "warning", category: "streak" },
+  AI_CREDIT_EXHAUSTED: { icon: "zap", tone: "danger", category: "credit" },
+  PRO_ACTIVATED: { icon: "crown", tone: "success", category: "plan" },
+  PAYMENT_FAILED: { icon: "credit-card", tone: "danger", category: "payment" },
+  PRO_EXPIRING: { icon: "clock", tone: "warning", category: "plan" },
+  PRO_EXPIRED: { icon: "crown", tone: "muted", category: "plan" },
+  REPORT_RESOLVED: { icon: "circle-check", tone: "success", category: "report" },
+  REPORT_REJECTED: { icon: "flag", tone: "danger", category: "report" },
+};
+
+const DEFAULT_VISUAL: NotificationVisual = { icon: "bell", tone: "primary", category: "system" };
+
+/** Biểu tượng, tông màu và nhóm phân loại tương ứng với từng loại thông báo. */
+export function notificationVisual(type: string | null | undefined): NotificationVisual {
+  if (!type) return DEFAULT_VISUAL;
+  return VISUAL_BY_TYPE[type] ?? DEFAULT_VISUAL;
+}
+
+export type NotificationDateGroup = "today" | "yesterday" | "last7Days" | "earlier";
+
+export interface NotificationSection {
+  group: NotificationDateGroup;
+  items: NotificationItem[];
+}
+
+/** Chuyển khóa ngày `YYYY-MM-DD` thành số ngày kể từ mốc epoch để tính chênh lệch ngày lịch. */
+function dayNumber(key: string): number {
+  const [y, m, d] = key.split("-").map(Number);
+  return Date.UTC(y, m - 1, d) / 86_400_000;
+}
+
+/** Nhóm của một thông báo theo ngày lịch trong múi giờ `timeZone` (thiếu thì dùng giờ trình duyệt). */
+export function dateGroupOf(iso: string, now: number = Date.now(), timeZone?: string): NotificationDateGroup {
+  const parsed = new Date(iso);
+  if (Number.isNaN(parsed.getTime())) return "earlier";
+  const diffDays = dayNumber(dayKeyInZone(new Date(now), timeZone)) - dayNumber(dayKeyInZone(parsed, timeZone));
+  if (diffDays <= 0) return "today";
+  if (diffDays === 1) return "yesterday";
+  if (diffDays <= 7) return "last7Days";
+  return "earlier";
+}
+
+/** Nhóm danh sách thông báo theo mốc thời gian (Hôm nay / Hôm qua / 7 ngày qua / Trước đó), giữ nguyên thứ tự gốc. */
+export function groupNotificationsByDate(
+  items: NotificationItem[],
+  now: number = Date.now(),
+  timeZone?: string,
+): NotificationSection[] {
+  const sections: NotificationSection[] = [];
+  for (const item of items) {
+    const group = dateGroupOf(item.createdAt, now, timeZone);
+    const last = sections[sections.length - 1];
+    if (last && last.group === group) {
+      last.items.push(item);
+    } else {
+      sections.push({ group, items: [item] });
+    }
+  }
+  return sections;
+}
+
+/** Màu nền và chữ của biểu tượng và nhãn theo tông, dùng chung cho chuông và trang Thông báo. */
+export const NOTIFICATION_TONE_CLASS: Record<NotificationTone, string> = {
+  vocab: "bg-fn-vocab-soft text-fn-vocab",
+  warning: "bg-warning/15 text-warning",
+  danger: "bg-danger/15 text-danger",
+  success: "bg-success/15 text-success",
+  primary: "bg-primary-soft text-primary-text",
+  muted: "bg-bg-elevated text-text-muted",
+};

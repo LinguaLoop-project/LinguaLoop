@@ -233,6 +233,22 @@
       "REPORT_RESOLVED": "Your report has been handled. Thank you for helping improve the content.",
       "REPORT_REJECTED": "Your report was not accepted: {{reason}}"
     },
+    "categories": {
+      "review": "Review",
+      "streak": "Streak",
+      "credit": "AI Credits",
+      "plan": "Pro Plan",
+      "payment": "Payment",
+      "report": "Report",
+      "system": "System"
+    },
+    "groups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last7Days": "Last 7 days",
+      "earlier": "Earlier",
+      "continued": "(cont.)"
+    },
     "title": "Notifications",
     "markAll": "Mark all as read",
     "empty": "No notifications yet",
@@ -249,7 +265,16 @@
       "all": "All",
       "unread": "Unread",
       "unreadCount": "Unread ({{count}})",
-      "emptyUnread": "You're all caught up"
+      "unreadBadge": "{{count}} unread",
+      "preferences": "Notification settings",
+      "markedAll": "All notifications marked as read.",
+      "markOneRead": "Mark as read",
+      "showing": "Showing {{from}}–{{to}} of {{total}} notifications",
+      "emptyUnread": "You're all caught up",
+      "emptyUnreadDesc": "You've checked every reminder and latest update.",
+      "emptyDesc": "Review reminders, Pro plan updates and report outcomes will show up here.",
+      "viewAllFilter": "View all notifications",
+      "goToday": "Go to Today"
     }
   }
 }
