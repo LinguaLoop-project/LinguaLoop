@@ -60,6 +60,7 @@ class ReportReviewServiceImpl implements ReportReviewService {
     private final Clock clock;
     private final LessonModerationService lessons;
     private final VocabDeckContentService cards;
+    private final ReportOutcomeNotifier outcomes;
 
     // ---------------------------------------------------------------- danh sách và chi tiết (UC-XL-01)
 
@@ -232,6 +233,7 @@ class ReportReviewServiceImpl implements ReportReviewService {
         String text = ReportTexts.required("note", reason);
         List<ClosedReport> rejected = repository.rejectOpenByReporter(studentId, adminId, text, clock.instant());
         auditor.closed(rejected, ReportStatus.REJECTED, adminId, Role.ADMIN, text);
+        outcomes.rejected(rejected.stream().map(ClosedReport::id).toList(), text);
         return rejected.size();
     }
 
@@ -244,8 +246,12 @@ class ReportReviewServiceImpl implements ReportReviewService {
             throw new BusinessException(ErrorCode.REPORT_ALREADY_HANDLED);
         }
         auditor.closed(closed.stream().map(id -> new ClosedReport(id, from)).toList(), to, actorId, role, note);
+        if (to == ReportStatus.RESOLVED) {
+            outcomes.resolved(closed);
+        } else {
+            outcomes.rejected(closed, note);
+        }
     }
-
 
     private Window window() {
         Instant now = clock.instant();

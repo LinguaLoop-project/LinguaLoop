@@ -16,5 +16,7 @@ public record MeResponse(
         int dailyMinutes,
         String uiLanguage,
         String timezone,
-        boolean termsAccepted) {
+        boolean termsAccepted,
+        /** true khi học viên đã tự tải ảnh đại diện lên (khác ảnh Google); dùng để hiện nút "Gỡ ảnh". */
+        boolean customAvatar) {
 }

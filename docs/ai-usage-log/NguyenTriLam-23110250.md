@@ -987,6 +987,42 @@
 - **Commit:** 58df768, 77a158d, 8b54da3, bb79348, 22e2b7b, 66acb5e, 1acc9fd, 8b7b4d5, cbae2fc, 1a61237
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-086
+
+- **Ngày:** 2026-11-25
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Làm trang Thông báo đầy đủ cho học viên (chia trang, lọc chưa đọc) và tab Tài khoản và tab Giao diện & ngôn ngữ trong Cài đặt (đổi tên hiển thị, gửi lại email xác thực, chọn chế độ màu và ngôn ngữ), bỏ mục "Kiểm tra trình độ" chưa có nội dung; sau đó gộp `main`, giải quyết xung đột với phần thống kê đã chuyển vào trang Hôm nay và thêm liên kết quản lý gói; sau đó bỏ trang Hồ sơ riêng và phần thành tích (đã có ở trang Hôm nay), bỏ tab Quyền riêng tư vì chưa có đặc tả
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../user/controller/NotificationController.java:all`, `NotificationServiceImpl.java:page`, `NotificationRepository.java:findPage, countAll`, test `NotificationApiIntegrationTest` (AC-TK-59, AC-TK-60); `frontend/src/features/user/pages/NotificationsPage.tsx`, `components/AccountSection.tsx`, `DisplaySection.tsx`, `profilePayload.ts`, `notifications.ts`, `NotificationBell.tsx` (liên kết "Xem tất cả thông báo"), `Settings.tsx` (tab lấy từ `?tab=`, chuyển tab ngay trong trang), bản dịch `auth.json`, `layout.json`; đặc tả `docs/srs/TK-tai-khoan-xac-thuc` (BR-TK-18, BR-TK-19, UC-TK-10, AC-TK-59..62)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên quyết định phạm vi hai trang, việc bỏ mục Kiểm tra trình độ và yêu cầu xử lý xung đột sau khi gộp `main`. AI viết API, trang và test, chỉ ra các xung đột ngữ nghĩa (mục Thống kê và thẻ mục tiêu câu đã bị gỡ ở `main`) rồi giải quyết, và rà lại bằng typecheck, lint, test.
+- **Commit:** d6fb9d2, b3b4542
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-087
+
+- **Ngày:** 2026-11-26
+- **Công cụ AI / model:** Claude Code (Opus 5.5, Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Đề xuất rồi triển khai các tính năng cải thiện trang Cài đặt, làm từng phần một và mỗi phần một commit: đổi và gỡ ảnh đại diện (tải ảnh lên S3 qua URL ký sẵn), tab Luyện tập (tốc độ, giọng, phiên âm, bản dịch mặc định của Nghe chép, Shadowing, Xem), cá nhân hóa màu nhấn, cỡ chữ câu luyện tập và nền trang học; sau đó sinh viên tự làm lại giao diện Cài đặt (gói giao diện, bảng màu, bo góc, bộ chọn múi giờ) và nhờ AI rà soát
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../user/service/UserAccountServiceImpl.java:setAvatar, removeAvatar`, `AvatarImageValidator.java`, `UserController.java` (`PUT/DELETE /users/me/avatar`), `storage/service/UploadPurpose.java` (mục đích AVATAR), migration `V20261125_1000__user_avatar_key.sql`, test `AvatarApiIntegrationTest` (AC-TK-66..68); `frontend/src/features/user/avatarImage.ts:cropAndCompressAvatar`, `components/AvatarPicker.tsx`, `practicePrefs.ts`, `components/PracticeSection.tsx`, `DisplaySection.tsx` (màu nhấn, cỡ chữ, nền), `frontend/src/hooks/appearance.ts`, `useAppearance.ts`, khối biến màu và lớp `practice-sentence` trong `styles/index.css`, test `avatarImage.test.ts`, `practicePrefs.test.ts`, `useAppearance.test.ts`; đặc tả `docs/srs/TK-tai-khoan-xac-thuc` (BR-TK-19 mở rộng, BR-TK-20, BR-TK-21, UC-TK-10, AC-TK-66..70)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên chọn các tính năng làm trước (ảnh đại diện, tab Luyện tập, màu nhấn, cỡ chữ và nền), hoãn nhắc học qua email và tùy chọn loại thông báo, và yêu cầu làm trên nhánh hiện tại, mỗi phần một commit. AI viết đặc tả, API, giao diện và test, dựng máy chủ S3 giả để chạy thử luồng tải ảnh khi không kéo được ảnh MinIO, kiểm tra nội dung tệp bằng byte đầu thay vì tin Content-Type, và loại khỏi tab Luyện tập các tùy chọn trang luyện tập chưa có (số lần nghe lại, gợi ý chữ cái đầu, giọng từ điển) thay vì làm giả. Sinh viên đổi thư mục ảnh đại diện sang `user/avatar` và tự cấu hình CORS, quyền S3 sau khi AI chỉ ra lỗi chặn tải lên (header `Cache-Control` bị ký nhưng CORS chỉ cho `Content-Type`). Khi rà soát giao diện mới của sinh viên, AI tính tỉ lệ tương phản từ chính các biến CSS và chỉ ra 3 chỗ dưới 4,5:1 (chữ phụ bảng màu Trung tính tối, Xanh lá sáng, chữ trắng trên nút Xanh lá tối); AI sửa, thêm test tự đọc `index.css` để chặn tái phạm, cập nhật đặc tả BR-TK-21 và AC-TK-65, AC-TK-70.
+- **Commit:** 791eec8, 9dbdbc2, f8605cd, f33a5b7, c439a2b, f0d00af, 0a94eaa
+- **Lỗi liên quan:** NONE
+
+### AI-LAM-088
+
+- **Ngày:** 2026-11-26
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Rà soát phần thông báo hiện có, đề xuất danh sách thông báo nên có cho học viên rồi triển khai: thanh toán Pro thành công hoặc thất bại, nhắc gói Pro sắp hết hạn và đã hết hạn, kết quả xử lý báo cáo gửi lại người báo, nhắc ôn thẻ đến hạn, nhắc giữ chuỗi ngày học, thông báo hết credit AI, cùng tùy chọn bật/tắt từng loại nhắc
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../user/service/NotificationType.java`, `NotificationServiceImpl.java:send, preferences, setPreference`, `LearningReminderService.java:run`, `LearningReminderJob.java`, `NotificationRepository.java:insert (khóa chống trùng), studentsInLocalHours`, `NotificationController.java` (`/notifications/preferences`); `subscription/service/ProPaymentServiceImpl.java:activate, confirm`, `ProExpiryReminderService.java:run`; `report/service/ReportOutcomeNotifier.java`, `ReportReviewServiceImpl.java:record`, `TakedownMarker.java:mark`; `credit/service/CreditServiceImpl.java:notifyExhausted`; migration `V20261126_1000__notification_types.sql`, `V20261126_1100__notification_preferences.sql`; `frontend/src/features/user/notifications.ts:notificationText, safeInternalLink`, `useNotificationView.ts`, `components/NotificationPreferencesSection.tsx`, bản dịch `auth.json`, `layout.json`; test `NotificationApiIntegrationTest`, `ProPaymentApiIntegrationTest`, `ReportReviewApiIntegrationTest`, `CreditServiceIntegrationTest`, `LearningReminderServiceTest`, `notifications.test.ts`; đặc tả `docs/srs/TK-tai-khoan-xac-thuc` (BR-TK-22, BR-TK-23, UC-TK-09, UC-TK-10, AC-TK-71..77)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên yêu cầu liệt kê thông báo hiện có và chọn triển khai danh sách đề xuất. AI đối chiếu mã để chỉ ra học viên gần như không nhận thông báo nào, thiết kế lược đồ có loại, tham số, đường dẫn và khóa chống trùng (giữ câu tiếng Việt dự phòng để thông báo cũ không hỏng), viết dịch vụ, công việc định kỳ, giao diện và test. AI báo lại rằng thông báo "bài học theo dõi có nội dung mới" chưa làm được vì bài học đã xuất bản bị khóa cấu trúc (không thêm câu được), và chưa chạy giao diện trên trình duyệt thật. Khi chạy toàn bộ test, 2 test `EspeakIpaGeneratorTest` (cần chương trình espeak của máy) thất bại không liên quan thay đổi này.
+- **Commit:** f8ac034, b8c6286
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).

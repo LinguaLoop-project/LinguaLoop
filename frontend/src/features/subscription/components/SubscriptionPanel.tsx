@@ -34,8 +34,8 @@ export default function SubscriptionPanel() {
   if (plan.isLoading) {
     return (
       <div className="flex flex-col gap-6">
-        <Skeleton className="h-44 w-full rounded-2xl" />
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-44 w-full rounded-lg" />
+        <Skeleton className="h-64 w-full rounded-lg" />
       </div>
     );
   }
@@ -62,7 +62,7 @@ export default function SubscriptionPanel() {
       {/* Thẻ tóm tắt gói hiện tại & ví credit */}
       <section
         aria-labelledby="current-plan-title"
-        className={`relative overflow-hidden rounded-2xl border p-6 shadow-[var(--shadow-card)] ${
+        className={`relative overflow-hidden rounded-lg border p-5 shadow-[var(--shadow-card)] sm:p-6 ${
           isPro
             ? "border-warning/35 bg-[linear-gradient(135deg,var(--surface),color-mix(in_srgb,var(--warning)_8%,var(--surface)))]"
             : "border-border bg-[linear-gradient(135deg,var(--surface),color-mix(in_srgb,var(--primary)_7%,var(--surface)))]"
@@ -160,7 +160,7 @@ export default function SubscriptionPanel() {
           </h2>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
+        <div className="overflow-x-auto rounded-lg border border-border bg-surface shadow-[var(--shadow-card)]">
           <table className="w-full min-w-[520px] text-sm">
             <thead>
               <tr className="border-b border-border bg-bg-elevated/60 text-left text-text-muted">

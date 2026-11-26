@@ -94,6 +94,22 @@ public class ProOrderPaymentRepository {
                 .single();
     }
 
+    /** Học viên mà thời điểm hết hạn xa nhất của các đơn đã thanh toán nằm trong [{@code from}, {@code to}] (nhắc hết hạn). */
+    public List<PeriodEnd> findPeriodEndsBetween(Instant from, Instant to) {
+        return jdbc.sql("""
+                SELECT user_id, max(ends_at) AS ends_at FROM pro_orders
+                WHERE status = 'paid' AND ends_at IS NOT NULL
+                GROUP BY user_id
+                HAVING max(ends_at) BETWEEN :from AND :to""")
+                .param("from", Timestamp.from(from)).param("to", Timestamp.from(to))
+                .query((rs, n) -> new PeriodEnd(rs.getObject("user_id", UUID.class), instant(rs, "ends_at")))
+                .list();
+    }
+
+    /** Thời điểm kết thúc gói Pro của một học viên. */
+    public record PeriodEnd(UUID userId, Instant endsAt) {
+    }
+
     /** Khoảng Pro đang hiệu lực (chuỗi đơn đã thanh toán còn hạn); rỗng với học viên Free. */
     public Optional<ProPeriod> currentPeriod(UUID userId, Instant now) {
         return jdbc.sql("""

@@ -35,15 +35,19 @@ import com.lingualoop.backend.security.Role;
 import com.lingualoop.backend.subscription.dto.ActiveProOrder;
 import com.lingualoop.backend.subscription.service.SubscriptionQueryService;
 import com.lingualoop.backend.user.dto.UserAccountView;
+import com.lingualoop.backend.user.service.NotificationService;
+import com.lingualoop.backend.user.service.NotificationType;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Ví credit AI (BR-GA). Mọi thao tác chạy trong một giao dịch có khoá dòng ví ({@code FOR UPDATE}), nên hai yêu cầu
  * đồng thời không trừ vượt số dư. Dùng {@link TransactionTemplate} thay cho {@code @Transactional} để lỗi
  * {@code QUOTA_EXCEEDED} được ném sau khi nhật ký từ chối đã commit.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 class CreditServiceImpl implements CreditService {
@@ -53,6 +57,7 @@ class CreditServiceImpl implements CreditService {
     /** Chặn trên số đơn vị trình duyệt báo cho một phiên, để số sai không làm lệch thống kê quá mức. */
     static final long MAX_REPORTED_UNITS = 50_000_000L;
     private static final int SWEEP_BATCH = 200;
+    private static final java.time.ZoneId NOTICE_ZONE = java.time.ZoneId.of("Asia/Ho_Chi_Minh");
 
     private final AiWalletRepository wallets;
     private final AiSettingsRepository settingsRepository;
@@ -60,12 +65,29 @@ class CreditServiceImpl implements CreditService {
     private final AiUsageLogRepository logs;
     private final SubscriptionQueryService subscriptions;
     private final UserAccountService users;
+    private final NotificationService notifications;
     private final CreditProperties properties;
     private final TransactionTemplate tx;
     private final Clock clock;
 
     /** Ví đã làm mới kèm loại ví. */
     private record Refreshed(AiWallet wallet, String kind) {
+    }
+
+    /**
+     * Báo một lần mỗi ngày khi tính năng AI bị từ chối vì hết credit (BR-TK-23); học viên mới có đường dẫn tới trang Gói
+     * đăng ký. Lỗi ghi thông báo không được làm hỏng việc từ chối chính.
+     */
+    private void notifyExhausted(UUID userId) {
+        try {
+            boolean student = users.findById(userId).map(u -> u.role() == Role.STUDENT).orElse(false);
+            notifications.send(userId, NotificationType.AI_CREDIT_EXHAUSTED,
+                    "Bạn đã hết credit AI nên chưa dùng được tính năng AI lúc này.",
+                    student ? "/student/subscription" : null, Map.of(),
+                    "ai-credit:" + ZonedDateTime.now(clock).withZoneSameInstant(NOTICE_ZONE).toLocalDate());
+        } catch (RuntimeException e) {
+            log.warn("Không ghi được thông báo hết credit của {}: {}", userId, e.getMessage());
+        }
     }
 
     @Override
@@ -99,6 +121,7 @@ class CreditServiceImpl implements CreditService {
             return balance;
         });
         if (shortBalance != null) {
+            notifyExhausted(userId);
             throw new BusinessException(ErrorCode.QUOTA_EXCEEDED,
                     Map.of("feature", feature.dbValue(), "balance", shortBalance, "cost", cost));
         }

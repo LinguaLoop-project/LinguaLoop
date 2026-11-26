@@ -208,6 +208,20 @@ public class ReportRepository {
                 .list();
     }
 
+    /** Học viên đã gửi từng báo cáo trong {@code reportIds} (báo cáo -> người báo), để gửi kết quả xử lý (BR-TK-22). */
+    public Map<UUID, UUID> reporterIdsOf(Collection<UUID> reportIds) {
+        if (reportIds.isEmpty()) {
+            return Map.of();
+        }
+        Map<UUID, UUID> result = new java.util.HashMap<>();
+        jdbc.sql("SELECT id, reporter_id FROM content_reports WHERE id IN (:ids)")
+                .param("ids", reportIds)
+                .query(rs -> {
+                    result.put(rs.getObject("id", UUID.class), rs.getObject("reporter_id", UUID.class));
+                });
+        return result;
+    }
+
     /** Số báo cáo đã gửi và số bị từ chối từ {@code since} của từng học viên (BR-XL-14). */
     public Map<UUID, ReportView.ReporterStats> reporterStats(Collection<UUID> reporterIds, Instant since) {
         if (reporterIds.isEmpty()) {

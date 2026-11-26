@@ -22,10 +22,6 @@
       "weakness": {
         "title": "Weakness diagnosis",
         "desc": "Analyze pronunciation and phonetic errors"
-      },
-      "test": {
-        "title": "Placement test",
-        "desc": "CEFR-based assessment"
       }
     },
     "login": "Sign in",
@@ -50,8 +46,7 @@
         "vocab": "Vocabulary",
         "savedLessons": "Saved lessons",
         "mywords": "Saved words & sentences",
-        "weakness": "Weaknesses",
-        "test": "Placement test"
+        "weakness": "Weaknesses"
       },
       "pro": {
         "price": "From {{price}}/mo",
@@ -64,14 +59,17 @@
       "search": "Open quick search",
       "searchPlaceholder": "Look up words, open lessons, jump to a page…",
       "streak": "Learning streak",
+      "studiedToday": "Studied today",
+      "notStudiedToday": "Study today to keep your streak",
       "quota": "AI credits left",
       "account": "Account of {{name}}",
       "menuAria": "Account",
       "upgrade": "Upgrade to Pro",
-      "profile": "Profile",
+      "managePlan": "Manage Pro plan",
+      "profile": "Account",
+      "appearance": "Appearance & colors",
       "learning": "Learning settings",
       "security": "Security & sign-in",
-      "privacy": "Privacy & data",
       "logout": "Sign out",
       "plan": "Current plan"
     }
@@ -194,7 +192,6 @@
         "dictation": "Dictation",
         "shadowing": "Shadowing",
         "vocab": "Vocabulary",
-        "test": "Level test",
         "mywords": "Saved words & sentences",
         "weakness": "Weak spots",
         "settings": "Account settings",
@@ -230,6 +227,33 @@
     "resetUsage": "Reset today's usage"
   },
   "notifications": {
+    "types": {
+      "REVIEW_DUE": "You have {{count}} vocabulary cards due for review today.",
+      "STREAK_AT_RISK": "Your {{days}}-day streak will break if you don't study today. A few minutes of practice keeps it alive.",
+      "AI_CREDIT_EXHAUSTED": "You're out of AI credits, so AI features are unavailable right now.",
+      "PRO_ACTIVATED": "Payment successful. Your Pro plan is active until {{endsAt}}.",
+      "PAYMENT_FAILED": "Your Pro payment did not go through. You can try again on the Subscription page.",
+      "PRO_EXPIRING": "Your Pro plan expires on {{endsAt}} ({{days}} days left). Renew to avoid an interruption.",
+      "PRO_EXPIRED": "Your Pro plan has expired and your account is back on the Free plan. You can renew any time.",
+      "REPORT_RESOLVED": "Your report has been handled. Thank you for helping improve the content.",
+      "REPORT_REJECTED": "Your report was not accepted: {{reason}}"
+    },
+    "categories": {
+      "review": "Review",
+      "streak": "Streak",
+      "credit": "AI Credits",
+      "plan": "Pro Plan",
+      "payment": "Payment",
+      "report": "Report",
+      "system": "System"
+    },
+    "groups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last7Days": "Last 7 days",
+      "earlier": "Earlier",
+      "continued": "(cont.)"
+    },
     "title": "Notifications",
     "markAll": "Mark all as read",
     "empty": "No notifications yet",
@@ -237,6 +261,25 @@
     "error": "Couldn't load notifications.",
     "retry": "Retry",
     "unread": "Unread",
-    "ariaUnread": "Notifications, {{count}} unread"
+    "ariaUnread": "Notifications, {{count}} unread",
+    "viewAll": "View all notifications",
+    "page": {
+      "overline": "Inbox",
+      "sub": "System notifications sent to you, newest first.",
+      "filterAria": "Filter notifications",
+      "all": "All",
+      "unread": "Unread",
+      "unreadCount": "Unread ({{count}})",
+      "unreadBadge": "{{count}} unread",
+      "preferences": "Notification settings",
+      "markedAll": "All notifications marked as read.",
+      "markOneRead": "Mark as read",
+      "showing": "Showing {{from}}–{{to}} of {{total}} notifications",
+      "emptyUnread": "You're all caught up",
+      "emptyUnreadDesc": "You've checked every reminder and latest update.",
+      "emptyDesc": "Review reminders, Pro plan updates and report outcomes will show up here.",
+      "viewAllFilter": "View all notifications",
+      "goToday": "Go to Today"
+    }
   }
 }

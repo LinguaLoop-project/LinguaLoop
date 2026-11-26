@@ -38,6 +38,15 @@ public interface UserAccountService {
     UserAccountView saveLearningProfile(UUID userId, String displayName, int dailyMinutes, String uiLanguage,
             String timezone, boolean acceptTerms);
 
-    /** Hồ sơ trả cho client từ bản chụp tài khoản. */
+    /**
+     * Đặt ảnh đại diện từ tệp học viên vừa tải lên S3 (UC-TK-10): kiểm tệp thuộc học viên, đúng loại, dung lượng và nội dung
+     * thật là JPG/PNG/WebP; ảnh tự tải lên trước đó bị xóa. Chỉ học viên.
+     */
+    UserAccountView setAvatar(UUID userId, String key);
+
+    /** Bỏ ảnh tự tải lên để quay về ảnh Google (nếu có) hoặc chữ cái đầu; xóa tệp cũ trên S3. Chỉ học viên. */
+    UserAccountView removeAvatar(UUID userId);
+
+    /** Hồ sơ trả cho client từ bản chụp tài khoản; ảnh tự tải lên được đổi từ khóa S3 thành URL đọc. */
     MeResponse toMe(UserAccountView account);
 }

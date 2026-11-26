@@ -45,6 +45,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import com.jayway.jsonpath.JsonPath;
 import com.lingualoop.backend.TestcontainersConfiguration;
+import com.lingualoop.backend.subscription.service.ProExpiryReminderService;
 import com.lingualoop.backend.security.Role;
 import com.lingualoop.backend.user.AdminUserTestData;
 
@@ -70,6 +71,7 @@ class ProPaymentApiIntegrationTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private AdminUserTestData data;
     @Autowired private JdbcTemplate jdbc;
+    @Autowired private ProExpiryReminderService reminders;
 
     private UUID student;
     private UUID monthPlan;
@@ -526,5 +528,85 @@ class ProPaymentApiIntegrationTest {
             params.put(kv[0], URLDecoder.decode(kv[1], StandardCharsets.US_ASCII));
         }
         return params;
+    }
+
+    // ------------------------------------------------------------------ thông báo cho học viên (BR-TK-22)
+
+    private List<Map<String, Object>> notices(UUID user) {
+        return jdbc.queryForList("SELECT type, link, message, params::text AS params FROM notifications "
+                + "WHERE user_id = ? ORDER BY created_at, id", user);
+    }
+
+    @Test
+    void successfulPayment_notifiesOnceEvenWhenIpnAndReturnBothArrive_AC_TK_71() throws Exception {
+        String orderId = pending(student, monthPlan, "upgrade")[0];
+        Map<String, String> paid = result(orderId, 99_000, "00");
+
+        ipn(paid).andExpect(status().isOk());
+        vnpayReturn(student, paid).andExpect(status().isOk());
+        ipn(paid).andExpect(status().isOk());
+
+        List<Map<String, Object>> list = notices(student);
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0)).containsEntry("type", "PRO_ACTIVATED").containsEntry("link", "/student/subscription");
+        assertThat((String) list.get(0).get("message")).startsWith("Thanh toán thành công");
+        assertThat((String) list.get(0).get("params")).contains(endsAt(orderId).toString().substring(0, 19));
+    }
+
+    @Test
+    void failedPaymentNotifies_butCancelingOnVnpayDoesNot_AC_TK_71() throws Exception {
+        String canceled = pending(student, monthPlan, "upgrade")[0];
+        vnpayReturn(student, result(canceled, 99_000, "24")).andExpect(status().isOk());
+        assertThat(notices(student)).isEmpty();
+
+        String failed = pending(student, monthPlan, "upgrade")[0];
+        ipn(result(failed, 99_000, "51")).andExpect(status().isOk());
+
+        List<Map<String, Object>> list = notices(student);
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0)).containsEntry("type", "PAYMENT_FAILED").containsEntry("link", "/student/subscription");
+    }
+
+    @Test
+    void expiryReminders_sendEachMilestoneOnce_AC_TK_72() {
+        UUID soon = data.user(Role.STUDENT, "Sắp hết hạn");
+        UUID tomorrow = data.user(Role.STUDENT, "Còn một ngày");
+        UUID later = data.user(Role.STUDENT, "Còn lâu");
+        UUID expired = data.user(Role.STUDENT, "Vừa hết hạn");
+        UUID longGone = data.user(Role.STUDENT, "Hết hạn đã lâu");
+        activePro(soon, 20, 6);
+        activePro(tomorrow, 29, 1);
+        activePro(later, 10, 20);
+        activePro(expired, 31, -1);
+        activePro(longGone, 60, -10);
+        Instant now = Instant.now();
+
+        assertThat(reminders.run(now)).isEqualTo(3);
+        assertThat(reminders.run(now.plusSeconds(3600))).isZero();
+
+        assertThat(notices(soon)).extracting(n -> n.get("type")).containsExactly("PRO_EXPIRING");
+        assertThat((String) notices(soon).get(0).get("params")).contains("\"days\"");
+        assertThat(notices(tomorrow)).extracting(n -> n.get("type")).containsExactly("PRO_EXPIRING");
+        assertThat(notices(expired)).extracting(n -> n.get("type")).containsExactly("PRO_EXPIRED");
+        assertThat(notices(later)).isEmpty();
+        assertThat(notices(longGone)).isEmpty();
+    }
+
+    @Test
+    void expiryReminders_afterRenewingTheNextExpiryIsRemindedAgain_AC_TK_72() {
+        UUID user = data.user(Role.STUDENT, "Gia hạn");
+        activePro(user, 25, 5);
+        Instant now = Instant.now();
+        reminders.run(now);
+        assertThat(notices(user)).hasSize(1);
+
+        // Gia hạn thêm 30 ngày: thời điểm hết hạn mới còn xa nên chưa nhắc, tới gần mới nhắc lại.
+        activePro(user, 0, 35);
+        reminders.run(now);
+        assertThat(notices(user)).hasSize(1);
+        reminders.run(now.plusSeconds(30 * DAY));
+        assertThat(notices(user)).hasSize(2);
+        reminders.run(now.plusSeconds(30 * DAY));
+        assertThat(notices(user)).hasSize(2);
     }
 }

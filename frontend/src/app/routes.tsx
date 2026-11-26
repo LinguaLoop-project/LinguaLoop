@@ -23,6 +23,7 @@ const ResetPassword = lazy(() => import("@/features/auth/pages/ResetPassword"));
 const GoogleCallback = lazy(() => import("@/features/auth/pages/GoogleCallback"));
 
 const Settings = lazy(() => import("@/features/user/pages/Settings"));
+const NotificationsPage = lazy(() => import("@/features/user/pages/NotificationsPage"));
 const OnboardingPage = lazy(() => import("@/features/user/pages/OnboardingPage"));
 const TodayPage = lazy(() => import("@/features/review/pages/TodayPage"));
 const DailyReviewPage = lazy(() => import("@/features/review/pages/DailyReviewPage"));
@@ -234,10 +235,6 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <WeaknessPage />,
         },
         {
-          path: "test",
-          element: <PlaceholderPage pageKey="student.test" />,
-        },
-        {
           path: "settings",
           element: <Settings />,
         },
@@ -247,11 +244,12 @@ const getRoutesConfig = (): RouteObject[] => {
         },
         {
           path: "profile",
-          element: <PlaceholderPage pageKey="student.profile" />,
+          // Hồ sơ là tab Tài khoản của Cài đặt (UC-TK-10); giữ địa chỉ cũ chuyển hướng để liên kết đã lưu vẫn dùng được
+          element: <Navigate to="/student/settings?tab=account" replace />,
         },
         {
           path: "notifications",
-          element: <PlaceholderPage pageKey="student.notifications" />,
+          element: <NotificationsPage />,
         },
         {
           // Thống kê nay nằm trên trang Hôm nay; giữ địa chỉ cũ để liên kết đã lưu vẫn dùng được

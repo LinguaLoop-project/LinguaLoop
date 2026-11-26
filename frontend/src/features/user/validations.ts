@@ -50,3 +50,12 @@ export function buildLearningProfileSchema(requireTerms: boolean) {
 }
 
 export type LearningProfileFormData = yup.InferType<ReturnType<typeof buildLearningProfileSchema>>;
+
+/** Form đổi tên hiển thị ở tab Tài khoản của Cài đặt. */
+export function buildDisplayNameSchema() {
+  return yup.object().shape({
+    displayName: yup.string().trim().required(msg("displayNameRequired")).max(50, msg("displayNameMax")),
+  });
+}
+
+export type DisplayNameFormData = yup.InferType<ReturnType<typeof buildDisplayNameSchema>>;

@@ -22,7 +22,9 @@ public record UserAccountView(
         boolean googleLinked,
         int dailyMinutes,
         String timezone,
-        boolean termsAccepted) {
+        boolean termsAccepted,
+        /** Khóa ảnh đại diện tự tải lên; null nếu dùng ảnh Google hoặc chưa có ảnh. */
+        String avatarKey) {
 
     public boolean hasPassword() {
         return passwordHash != null;

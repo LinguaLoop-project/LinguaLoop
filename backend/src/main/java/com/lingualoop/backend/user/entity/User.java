@@ -34,6 +34,10 @@ public class User extends BaseEntity {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    /** Khóa tệp ảnh đại diện học viên tự tải lên trên S3; có thì ưu tiên hơn {@link #avatarUrl} (ảnh Google). */
+    @Column(name = "avatar_key")
+    private String avatarKey;
+
     @Convert(converter = RoleAttributeConverter.class)
     @Column(nullable = false)
     private Role role = Role.STUDENT;
@@ -145,6 +149,10 @@ public class User extends BaseEntity {
      * Lưu hồ sơ học tập. Lần đầu thành công thì đánh dấu đã thiết lập hồ sơ (UC-TK-08); các lần sau chỉ cập nhật.
      * Điều khoản chỉ ghi nhận một lần: thời điểm đồng ý đầu tiên được giữ nguyên.
      */
+    public void changeAvatarKey(String avatarKey) {
+        this.avatarKey = avatarKey;
+    }
+
     public void saveLearningProfile(String displayName, short dailyMinutes, String uiLanguage, String timezone,
             boolean acceptTerms, Instant now) {
         this.displayName = displayName;

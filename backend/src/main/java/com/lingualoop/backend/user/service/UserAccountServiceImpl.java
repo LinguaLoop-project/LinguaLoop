@@ -16,6 +16,8 @@ import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.FieldValidationException;
 import com.lingualoop.backend.common.exception.NotFoundException;
 import com.lingualoop.backend.security.Role;
+import com.lingualoop.backend.storage.service.FileStorageService;
+import com.lingualoop.backend.storage.service.UploadPurpose;
 import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.dto.response.MeResponse;
 import com.lingualoop.backend.user.entity.User;
@@ -23,7 +25,9 @@ import com.lingualoop.backend.user.mapper.UserMapper;
 import com.lingualoop.backend.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 class UserAccountServiceImpl implements UserAccountService {
@@ -36,6 +40,8 @@ class UserAccountServiceImpl implements UserAccountService {
     private final UserRepository userRepository;
     private final Clock clock;
     private final UserMapper userMapper;
+    private final FileStorageService storage;
+    private final AvatarImageValidator avatarValidator;
 
     @Override
     @Transactional(readOnly = true)
@@ -150,7 +156,70 @@ class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
+    @Transactional
+    public UserAccountView setAvatar(UUID userId, String key) {
+        User user = load(userId);
+        requireStudent(user);
+        try {
+            storage.confirmUpload(userId, UploadPurpose.AVATAR, key);
+        } catch (BusinessException ex) {
+            if (ex.getErrorCode() == ErrorCode.STORAGE_FILE_INVALID) {
+                throw new FieldValidationException(AvatarImageValidator.FIELD, AvatarImageValidator.CODE_TYPE);
+            }
+            throw ex;
+        }
+        try {
+            avatarValidator.validate(storage.readHead(key, AvatarImageValidator.HEAD_BYTES));
+        } catch (FieldValidationException ex) {
+            discardQuietly(userId, key);
+            throw ex;
+        }
+        String previous = user.getAvatarKey();
+        user.changeAvatarKey(key);
+        UserAccountView view = userMapper.toUserAccountView(userRepository.saveAndFlush(user));
+        if (previous != null && !previous.equals(key)) {
+            discardQuietly(userId, previous);
+        }
+        return view;
+    }
+
+    @Override
+    @Transactional
+    public UserAccountView removeAvatar(UUID userId) {
+        User user = load(userId);
+        requireStudent(user);
+        String previous = user.getAvatarKey();
+        user.changeAvatarKey(null);
+        UserAccountView view = userMapper.toUserAccountView(userRepository.saveAndFlush(user));
+        if (previous != null) {
+            discardQuietly(userId, previous);
+        }
+        return view;
+    }
+
+    private static void requireStudent(User user) {
+        if (user.getRole() != Role.STUDENT) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+    }
+
+    /** Xóa tệp thừa trên S3; lỗi kho tệp không được làm hỏng thao tác đã thành công của học viên. */
+    private void discardQuietly(UUID userId, String key) {
+        try {
+            storage.discardUpload(userId, UploadPurpose.AVATAR, key);
+        } catch (RuntimeException ex) {
+            log.warn("Không xóa được ảnh đại diện cũ: {}", key, ex);
+        }
+    }
+
+    @Override
     public MeResponse toMe(UserAccountView account) {
-        return userMapper.toMe(account);
+        MeResponse me = userMapper.toMe(account);
+        if (account.avatarKey() == null) {
+            return me;
+        }
+        return new MeResponse(me.id(), me.email(), me.displayName(), storage.publicUrl(account.avatarKey()), me.role(),
+                me.emailVerified(), me.onboarded(), me.hasPassword(), me.googleLinked(), me.dailyMinutes(),
+                me.uiLanguage(), me.timezone(), me.termsAccepted(), true);
     }
 }
