@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TK-tai-khoan-xac-thuc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 77 AC, 42 đã có test, 20 một phần, 14 thiếu, 1 thủ công.
+Tổng hợp: 77 AC, 42 đã có test, 23 một phần, 11 thiếu, 1 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
