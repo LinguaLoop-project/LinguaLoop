@@ -7,8 +7,8 @@ import { DEFAULT_LANGUAGE, isLanguage, setLanguage, type Language } from "@/i18n
 export interface LanguageSwitcherProps {
   /** Chiều cao nút, mặc định `h-9` như Header trang chủ. */
   heightClass?: string;
-  /** "chip": viên thuốc có icon quả địa cầu, dùng ở chân trang (mockup v2). "bare": không viền, nằm trong cụm nút. */
-  variant?: "default" | "chip" | "bare";
+  /** "chip": viên thuốc có icon quả địa cầu ở chân trang. "bare": không viền kèm tên đầy đủ. "compact": cờ + mã ngắn VI/EN cho TopBar. */
+  variant?: "default" | "chip" | "bare" | "compact";
 }
 
 const LANGUAGES: Language[] = ["vi", "en"];
@@ -39,6 +39,7 @@ function Flag({ language }: { language: Language }) {
 export default function LanguageSwitcher({ heightClass = "h-9", variant = "default" }: LanguageSwitcherProps) {
   const chip = variant === "chip";
   const bare = variant === "bare";
+  const compact = variant === "compact";
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -67,21 +68,27 @@ export default function LanguageSwitcher({ heightClass = "h-9", variant = "defau
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap text-sm text-[var(--text)] transition-all ${
+        className={`inline-flex cursor-pointer items-center justify-center whitespace-nowrap text-sm text-[var(--text)] transition-all ${
           chip
-            ? "h-8 rounded-full border border-border-strong bg-surface px-3 hover:border-primary hover:bg-primary-soft"
-            : bare
-              ? "h-8 rounded-full px-2.5 font-medium hover:bg-[var(--surface-hover)]"
-              : `rounded-lg border border-[var(--border)] px-3 font-medium hover:bg-[var(--surface-hover)] ${heightClass}`
+            ? "h-8 gap-2 rounded-full border border-border-strong bg-surface px-3 hover:border-primary hover:bg-primary-soft"
+            : compact
+              ? "h-8 gap-1.5 rounded-full px-2 text-xs font-semibold uppercase tracking-wide text-text-muted hover:bg-surface-hover hover:text-text"
+              : bare
+                ? "h-8 gap-2 rounded-full px-2.5 font-medium hover:bg-[var(--surface-hover)]"
+                : `gap-2 rounded-lg border border-[var(--border)] px-3 font-medium hover:bg-[var(--surface-hover)] ${heightClass}`
         }`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("language.label")}
+        title={t(`language.names.${current}`)}
       >
         {chip ? <Icon name="globe" className="text-xl" /> : <Flag language={current} />}
-        {/* Màn hình hẹp chỉ hiện cờ để thanh trên không bị tràn */}
-        <span className={chip ? "" : "hidden sm:inline"}>{t(`language.names.${current}`)}</span>
-        {!chip && (
+        {compact ? (
+          <span className="hidden sm:inline">{current.toUpperCase()}</span>
+        ) : (
+          <span className={chip ? "" : "hidden sm:inline"}>{t(`language.names.${current}`)}</span>
+        )}
+        {!chip && !compact && (
           <ChevronDown
             className={`h-3.5 w-3.5 text-[var(--text-subtle)] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           />
@@ -92,7 +99,7 @@ export default function LanguageSwitcher({ heightClass = "h-9", variant = "defau
         <div
           role="listbox"
           aria-label={t("language.label")}
-          className={`absolute right-0 z-50 w-36 rounded-xl border border-[var(--border-strong)] bg-[var(--surface)] p-1.5 shadow-xl ${chip ? "bottom-full mb-2" : "mt-2"}`}
+          className={`absolute right-0 z-50 w-36 animate-[menu-in_150ms_var(--ease-out)] rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] p-1.5 shadow-xl ${chip ? "bottom-full mb-2" : "mt-2"}`}
         >
           {LANGUAGES.map((language) => (
             <button

@@ -94,9 +94,9 @@ export const STUDENT_SHELL: ShellConfig = {
   menuPlanRow: true,
   menu: [
     { icon: "circle-user", labelKey: "student.topbar.profile", to: "/student/settings?tab=account" },
+    { icon: "palette", labelKey: "student.topbar.appearance", to: "/student/settings?tab=display" },
     { icon: "target", labelKey: "student.topbar.learning", to: "/student/settings?tab=learning" },
     { icon: "shield-check", labelKey: "student.topbar.security", to: "/student/settings?tab=security" },
-    { icon: "contrast", labelKey: "theme.toggle", action: "theme" },
   ],
 };
 

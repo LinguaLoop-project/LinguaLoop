@@ -1,8 +1,30 @@
 import { useEffect, useSyncExternalStore } from "react";
-import { DEFAULT_APPEARANCE, parseAppearance, type Appearance } from "./appearance";
+import {
+  ACCENTS,
+  CORNER_STYLES,
+  DEFAULT_APPEARANCE,
+  LEARN_BACKGROUNDS,
+  SENTENCE_SIZES,
+  THEME_PRESETS,
+  parseAppearance,
+  type Accent,
+  type Appearance,
+  type CornerStyle,
+  type LearnBackground,
+  type SentenceSize,
+  type ThemePreset,
+} from "./appearance";
 
-export { ACCENTS, DEFAULT_APPEARANCE, LEARN_BACKGROUNDS, SENTENCE_SIZES, parseAppearance } from "./appearance";
-export type { Accent, Appearance, LearnBackground, SentenceSize } from "./appearance";
+export {
+  ACCENTS,
+  CORNER_STYLES,
+  DEFAULT_APPEARANCE,
+  LEARN_BACKGROUNDS,
+  SENTENCE_SIZES,
+  THEME_PRESETS,
+  parseAppearance,
+};
+export type { Accent, Appearance, CornerStyle, LearnBackground, SentenceSize, ThemePreset };
 
 const STORAGE_KEY = "ll.appearance";
 
@@ -18,10 +40,14 @@ let current: Appearance = readStored();
 const listeners = new Set<() => void>();
 
 function apply(value: Appearance) {
+  if (typeof document === "undefined") return;
   const root = document.documentElement.dataset;
   root.accent = value.accent;
   root.sentence = value.sentenceSize;
   root.learnBg = value.learnBackground;
+  root.corners = value.cornerStyle;
+  if (value.reduceMotion) root.motion = "reduced";
+  else delete root.motion;
 }
 
 apply(current);
