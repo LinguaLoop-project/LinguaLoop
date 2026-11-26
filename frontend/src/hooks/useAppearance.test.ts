@@ -59,5 +59,9 @@ describe("parseAppearance (AC-TK-70)", () => {
       expect(LEARN_BACKGROUNDS).toContain(preset.learnBackground);
       expect(CORNER_STYLES).toContain(preset.cornerStyle);
     }
+    expect(LEARN_BACKGROUNDS).toEqual(["none", "paper", "gradient", "aurora", "dots", "grid"]);
+    expect(parseAppearance(JSON.stringify({ learnBackground: "aurora" })).learnBackground).toBe("aurora");
+    expect(parseAppearance(JSON.stringify({ learnBackground: "dots" })).learnBackground).toBe("dots");
+    expect(parseAppearance(JSON.stringify({ learnBackground: "grid" })).learnBackground).toBe("grid");
   });
 });

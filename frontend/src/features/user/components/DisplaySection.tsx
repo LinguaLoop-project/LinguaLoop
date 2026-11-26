@@ -38,16 +38,42 @@ const ACCENT_SWATCH: Record<Accent, string> = {
   slate: "#71717A",
 };
 
-/** Nền xem trước khớp với CSS `data-learn-bg` (đồng bộ màu nhấn đang chọn) trong `index.css`. */
-function learnBgStyle(bg: LearnBackground, theme: Theme): CSSProperties {
+/** Nền xem trước khớp với CSS `data-learn-bg` (đồng bộ bảng màu đang chọn) trong `index.css`. */
+function learnBgStyle(bg: LearnBackground, theme: Theme, compact = false): CSSProperties {
   if (bg === "paper") {
     return { backgroundColor: theme === "light" ? "#F6F0E2" : "#19150F" };
   }
   if (bg === "gradient") {
-    const primaryMix = theme === "light" ? "12%" : "20%";
-    const accentMix = theme === "light" ? "12%" : "14%";
+    const primaryMix = theme === "light" ? "8%" : "12%";
+    const accentMix = theme === "light" ? "8%" : "12%";
     return {
       background: `linear-gradient(160deg, color-mix(in srgb, var(--primary) ${primaryMix}, var(--bg-base)) 0%, var(--bg-base) 52%, color-mix(in srgb, var(--accent-2) ${accentMix}, var(--bg-base)) 100%)`,
+    };
+  }
+  if (bg === "aurora") {
+    const p1 = theme === "light" ? "8%" : "12%";
+    const p2 = theme === "light" ? "8%" : "12%";
+    const p3 = theme === "light" ? "8%" : "10%";
+    return {
+      background: `radial-gradient(58% 52% at 15% 15%, color-mix(in srgb, var(--primary) ${p1}, transparent) 0%, transparent 70%), radial-gradient(52% 48% at 88% 20%, color-mix(in srgb, var(--accent-2) ${p2}, transparent) 0%, transparent 70%), radial-gradient(60% 50% at 50% 100%, color-mix(in srgb, var(--accent) ${p3}, transparent) 0%, transparent 72%), var(--bg-base)`,
+    };
+  }
+  if (bg === "dots") {
+    const size = compact ? "10px 10px" : "20px 20px";
+    const radius = compact ? "1px" : "1.25px";
+    return {
+      backgroundColor: "var(--bg-base)",
+      backgroundImage: `radial-gradient(color-mix(in srgb, var(--primary) 30%, transparent) ${radius}, transparent ${radius})`,
+      backgroundSize: size,
+    };
+  }
+  if (bg === "grid") {
+    const size = compact ? "12px 12px" : "28px 28px";
+    return {
+      backgroundColor: "var(--bg-base)",
+      backgroundImage:
+        "linear-gradient(to right, color-mix(in srgb, var(--primary) 18%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--primary) 18%, transparent) 1px, transparent 1px)",
+      backgroundSize: size,
     };
   }
   return { backgroundColor: "var(--bg-base)" };
@@ -56,7 +82,7 @@ function learnBgStyle(bg: LearnBackground, theme: Theme): CSSProperties {
 /**
  * Tab Giao diện & ngôn ngữ trong Cài đặt (UC-TK-10, BR-TK-21):
  * - Card 1: Giao diện hiển thị (xem trước trực tiếp, preset 1 chạm, chế độ màu gồm Auto, bảng màu đồng bộ, kiểu bo góc,
- *   cỡ chữ câu luyện tập, nền trang học, giảm chuyển động — tất cả lưu trên trình duyệt).
+ *   cỡ chữ câu luyện tập, nền giao diện, giảm chuyển động — tất cả lưu trên trình duyệt).
  * - Card 2: Ngôn ngữ giao diện (đổi ngay, rồi lưu vào hồ sơ để lần đăng nhập sau giữ nguyên).
  */
 export default function DisplaySection() {
@@ -142,7 +168,7 @@ export default function DisplaySection() {
           )
         }
       >
-        {/* Khung xem trước trực tiếp: phản ánh ngay chế độ màu, bảng màu, kiểu bo góc, cỡ chữ và nền trang học */}
+        {/* Khung xem trước trực tiếp: phản ánh ngay chế độ màu, bảng màu, kiểu bo góc, cỡ chữ và nền giao diện */}
         <div
           aria-label={t("settings.display.previewLabel")}
           className="overflow-hidden rounded-md border border-border p-4 transition-colors duration-200 sm:p-5"
@@ -396,12 +422,12 @@ export default function DisplaySection() {
             />
           </SettingRow>
 
-          {/* Nền trang học dạng 3 ô xem trước */}
+          {/* Nền giao diện toàn ứng dụng dạng lưới 6 ô xem trước */}
           <SettingRow label={t("settings.display.learnBackground")} hint={t("settings.display.learnBackgroundHint")} stacked>
             <div
               role="group"
               aria-label={t("settings.display.learnBackground")}
-              className="grid grid-cols-1 gap-3 sm:grid-cols-3"
+              className="grid grid-cols-2 gap-3 sm:grid-cols-3"
             >
               {LEARN_BACKGROUNDS.map((bg) => {
                 const active = appearance.learnBackground === bg;
@@ -420,9 +446,9 @@ export default function DisplaySection() {
                     <div
                       aria-hidden="true"
                       className="flex h-12 items-center justify-center rounded-sm border border-border/80 p-2"
-                      style={learnBgStyle(bg, theme)}
+                      style={learnBgStyle(bg, theme, true)}
                     >
-                      <div className="h-6 w-3/4 rounded-[4px] border border-border bg-surface shadow-xs" />
+                      <div className="h-6 w-3/4 rounded-[4px] border border-border bg-surface/90 shadow-xs" />
                     </div>
                     <div className="flex items-center justify-between gap-2 px-0.5">
                       <span className="truncate text-sm font-medium text-text">

@@ -72,7 +72,7 @@
 
     --text:           #F4F1FF;
     --text-muted:     #A59DC0;
-    --text-subtle:    #857DA3;
+    --text-subtle:    #8780A5;
 
     --primary:        #8B5CF6;
     --primary-hover:  #9D74FF;
@@ -116,7 +116,7 @@
 
     --text:           #1A1030;
     --text-muted:     #5B5275;
-    --text-subtle:    #6F6789;
+    --text-subtle:    #6E6688;
 
     --primary:        #7C3AED;
     --primary-hover:  #6D28D9;
@@ -165,7 +165,7 @@
     --border-strong: rgba(148, 184, 255, 0.28);
     --text: #F0F6FF;
     --text-muted: #94A8C9;
-    --text-subtle: #6E84A8;
+    --text-subtle: #758AAC;
     --primary: #3B82F6;
     --primary-hover: #60A5FA;
     --primary-soft: rgba(59, 130, 246, 0.16);
@@ -188,7 +188,7 @@
     --border-strong: rgba(30, 64, 175, 0.22);
     --text: #0F172A;
     --text-muted: #475569;
-    --text-subtle: #64748B;
+    --text-subtle: #5D6C81;
     --primary: #2563EB;
     --primary-hover: #1D4ED8;
     --primary-soft: rgba(37, 99, 235, 0.10);
@@ -212,7 +212,7 @@
     --border-strong: rgba(249, 168, 212, 0.28);
     --text: #FFF1F7;
     --text-muted: #C49CB0;
-    --text-subtle: #9E778B;
+    --text-subtle: #A37E91;
     --primary: #EC4899;
     --primary-hover: #F472B6;
     --primary-soft: rgba(236, 72, 153, 0.16);
@@ -235,7 +235,7 @@
     --border-strong: rgba(157, 23, 77, 0.22);
     --text: #27101C;
     --text-muted: #6E4A5D;
-    --text-subtle: #886175;
+    --text-subtle: #855F73;
     --primary: #DB2777;
     --primary-hover: #BE185D;
     --primary-soft: rgba(219, 39, 119, 0.10);
@@ -282,7 +282,7 @@
     --border-strong: rgba(6, 95, 70, 0.22);
     --text: #0C221A;
     --text-muted: #46665A;
-    --text-subtle: #557669;
+    --text-subtle: #527266;
     --primary: #047857;
     --primary-hover: #065F46;
     --primary-soft: rgba(4, 120, 87, 0.10);
@@ -306,7 +306,7 @@
     --border-strong: rgba(251, 191, 36, 0.28);
     --text: #FFFBEB;
     --text-muted: #C2AF96;
-    --text-subtle: #99876E;
+    --text-subtle: #9B8971;
     --primary: #F59E0B;
     --primary-hover: #FBBF24;
     --primary-soft: rgba(245, 158, 11, 0.16);
@@ -329,7 +329,7 @@
     --border-strong: rgba(146, 64, 14, 0.23);
     --text: #26180B;
     --text-muted: #6E563F;
-    --text-subtle: #887058;
+    --text-subtle: #806953;
     --primary: #D97706;
     --primary-hover: #B45309;
     --primary-soft: rgba(217, 119, 6, 0.11);
@@ -376,7 +376,7 @@
     --border-strong: rgba(24, 24, 27, 0.22);
     --text: #18181B;
     --text-muted: #52525B;
-    --text-subtle: #71717A;
+    --text-subtle: #686870;
     --primary: #3F3F46;
     --primary-hover: #27272A;
     --primary-soft: rgba(24, 24, 27, 0.07);
@@ -411,10 +411,18 @@
   .practice-input { font-size: calc(20px * var(--sentence-scale)); }
   @media (min-width: 768px) { .practice-sentence { font-size: calc(26px * var(--sentence-scale)); } }
 
-  /* Nền các trang học (BR-TK-21): đồng bộ theo màu nhấn và chế độ sáng/tối đang chọn. */
-  :root[data-learn-page][data-learn-bg="paper"][data-theme="light"] body { background-color: #F6F0E2; }
-  :root[data-learn-page][data-learn-bg="paper"][data-theme="dark"] body { background-color: #19150F; }
-  :root[data-learn-page][data-learn-bg="gradient"][data-theme="light"] body {
+  /* Nền giao diện toàn ứng dụng (BR-TK-21): đồng bộ theo bảng màu và chế độ sáng/tối đang chọn. */
+  :root[data-learn-bg="paper"][data-theme="light"] body { background-color: #F6F0E2; }
+  :root[data-learn-bg="paper"][data-theme="dark"] body { background-color: #19150F; }
+  :root[data-learn-bg="gradient"][data-theme="light"] body {
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--primary) 8%, var(--bg-base)) 0%,
+      var(--bg-base) 52%,
+      color-mix(in srgb, var(--accent-2) 8%, var(--bg-base)) 100%
+    ) fixed;
+  }
+  :root[data-learn-bg="gradient"][data-theme="dark"] body {
     background: linear-gradient(
       160deg,
       color-mix(in srgb, var(--primary) 12%, var(--bg-base)) 0%,
@@ -422,16 +430,39 @@
       color-mix(in srgb, var(--accent-2) 12%, var(--bg-base)) 100%
     ) fixed;
   }
-  :root[data-learn-page][data-learn-bg="gradient"][data-theme="dark"] body {
-    background: linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--primary) 20%, var(--bg-base)) 0%,
-      var(--bg-base) 52%,
-      color-mix(in srgb, var(--accent-2) 14%, var(--bg-base)) 100%
-    ) fixed;
+  :root[data-learn-bg="aurora"][data-theme="light"] body {
+    background:
+      radial-gradient(55% 45% at 15% 10%, color-mix(in srgb, var(--primary) 8%, transparent) 0%, transparent 70%),
+      radial-gradient(50% 45% at 88% 18%, color-mix(in srgb, var(--accent-2) 8%, transparent) 0%, transparent 70%),
+      radial-gradient(60% 50% at 50% 100%, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 72%),
+      var(--bg-base);
+    background-attachment: fixed;
   }
-  :root[data-learn-page][data-learn-bg="paper"] body::before,
-  :root[data-learn-page][data-learn-bg="gradient"] body::before { display: none; }
+  :root[data-learn-bg="aurora"][data-theme="dark"] body {
+    background:
+      radial-gradient(55% 45% at 15% 10%, color-mix(in srgb, var(--primary) 12%, transparent) 0%, transparent 70%),
+      radial-gradient(50% 45% at 88% 18%, color-mix(in srgb, var(--accent-2) 12%, transparent) 0%, transparent 70%),
+      radial-gradient(60% 50% at 50% 100%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 72%),
+      var(--bg-base);
+    background-attachment: fixed;
+  }
+  :root[data-learn-bg="dots"] body {
+    background-color: var(--bg-base);
+    background-image: radial-gradient(color-mix(in srgb, var(--primary) 24%, transparent) 1.25px, transparent 1.25px);
+    background-size: 22px 22px;
+    background-attachment: fixed;
+  }
+  :root[data-learn-bg="grid"] body {
+    background-color: var(--bg-base);
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--primary) 13%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--primary) 13%, transparent) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-attachment: fixed;
+  }
+  :root[data-learn-bg="paper"] body::before,
+  :root[data-learn-bg="gradient"] body::before,
+  :root[data-learn-bg="aurora"] body::before { display: none; }
 
   *, *::before, *::after { box-sizing: border-box; }
   html { overflow-x: clip; }

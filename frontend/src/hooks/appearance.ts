@@ -1,13 +1,13 @@
 import type { ThemeMode } from "./useTheme";
 
 /**
- * Cá nhân hóa giao diện (UC-TK-10, BR-TK-21): màu nhấn (đồng bộ nền/viền/chữ phụ), cỡ chữ câu luyện tập, nền các trang
- * học, kiểu bo góc và giảm chuyển động. Lưu trên trình duyệt và áp qua thuộc tính `data-*` của thẻ html để CSS đổi biến
+ * Cá nhân hóa giao diện (UC-TK-10, BR-TK-21): màu nhấn (đồng bộ nền/viền/chữ phụ), cỡ chữ câu luyện tập, nền giao diện toàn ứng dụng, kiểu bo góc và giảm chuyển động. Lưu trên trình duyệt và áp qua thuộc tính `data-*` của thẻ html để CSS đổi biến
  * màu ngay, không cần tải lại trang.
  */
 export const ACCENTS = ["violet", "blue", "pink", "green", "amber", "slate"] as const;
 export const SENTENCE_SIZES = ["md", "lg"] as const;
-export const LEARN_BACKGROUNDS = ["none", "paper", "gradient"] as const;
+/** Nền toàn ứng dụng. Tên `learnBackground` giữ từ lúc nền chỉ áp cho trang học, để không làm mất lựa chọn đã lưu. */
+export const LEARN_BACKGROUNDS = ["none", "paper", "gradient", "aurora", "dots", "grid"] as const;
 export const CORNER_STYLES = ["rounded", "balanced", "sharp"] as const;
 
 export type Accent = (typeof ACCENTS)[number];
@@ -47,7 +47,7 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
     id: "cosmic",
     mode: "dark",
     accent: "violet",
-    learnBackground: "none",
+    learnBackground: "aurora",
     cornerStyle: "rounded",
     preview: { bg: "#07050D", surface: "#140F24", primary: "#8B5CF6" },
   },
@@ -71,7 +71,7 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
     id: "emeraldCalm",
     mode: "dark",
     accent: "green",
-    learnBackground: "gradient",
+    learnBackground: "dots",
     cornerStyle: "rounded",
     preview: { bg: "#050D0A", surface: "#0F201A", primary: "#10B981" },
   },
@@ -79,7 +79,7 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
     id: "sakuraLight",
     mode: "light",
     accent: "pink",
-    learnBackground: "gradient",
+    learnBackground: "aurora",
     cornerStyle: "rounded",
     preview: { bg: "#FFF7FA", surface: "#FFFFFF", primary: "#DB2777" },
   },
@@ -87,7 +87,7 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
     id: "minimal",
     mode: "system",
     accent: "slate",
-    learnBackground: "none",
+    learnBackground: "grid",
     cornerStyle: "sharp",
     preview: { bg: "#111114", surface: "#18181B", primary: "#E4E4E7" },
   },

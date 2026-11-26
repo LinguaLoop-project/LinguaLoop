@@ -1,4 +1,4 @@
-import { useEffect, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import {
   ACCENTS,
   CORNER_STYLES,
@@ -72,15 +72,4 @@ export function setAppearance(changes: Partial<Appearance>): boolean {
 
 export function useAppearance(): Appearance {
   return useSyncExternalStore(subscribe, () => current);
-}
-
-/** Đánh dấu trang đang mở là trang học để nền học viên chọn được áp dụng; gỡ dấu khi rời trang. */
-export function useLearnPageBackground() {
-  useEffect(() => {
-    const root = document.documentElement.dataset;
-    root.learnPage = "true";
-    return () => {
-      delete root.learnPage;
-    };
-  }, []);
 }

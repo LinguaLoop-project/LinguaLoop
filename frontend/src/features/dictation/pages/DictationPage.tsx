@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useLearnPageBackground } from "@/hooks/useAppearance";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
@@ -586,7 +585,6 @@ function DictationWorkspace({ lesson }: { lesson: DictationLesson }) {
 
 /** Trang `/student/dictation/:id`. Mỗi bài có state riêng nên đặt `key` theo id bài. */
 export default function DictationPage() {
-  useLearnPageBackground();
   const { id: slug = "" } = useParams<{ id: string }>();
   return <DictationSession key={slug} slug={slug} />;
 }
