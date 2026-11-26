@@ -66,7 +66,8 @@
     "newTitle": "Tiêu đề mới",
     "offensiveCount": "{{count}} báo cáo Phản cảm đang mở về câu của bài sẽ được đóng cùng.",
     "pendingRequestNote": "Yêu cầu xuất bản lại đang chờ quản trị viên duyệt sẽ bị hủy; khôi phục xong bạn cần gửi lại.",
-    "takenDownRestoreNote": "Bài đang mang dấu \"Bị quản trị viên gỡ\": muốn xuất bản lại phải gửi quản trị viên duyệt."
+    "takenDownRestoreNote": "Bài đang mang dấu \"Bị quản trị viên gỡ\": muốn xuất bản lại phải gửi quản trị viên duyệt.",
+    "stats": "Xem thống kê"
   },
   "form": {
     "link": "Link YouTube",

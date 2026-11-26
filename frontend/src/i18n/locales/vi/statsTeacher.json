@@ -1,0 +1,82 @@
+{
+  "back": "Quay lại",
+  "empty": "Chưa có dữ liệu trong khoảng thời gian này",
+  "notRanked": "Chưa đủ dữ liệu để xếp hạng",
+  "loadError": "Không tải được số liệu",
+  "noScore": "—",
+  "status": {
+    "draft": "Nháp",
+    "published": "Đã xuất bản"
+  },
+  "overview": {
+    "title": "Tổng quan",
+    "noContent": "Bạn chưa có nội dung nào",
+    "noContentDesc": "Tạo bài học hoặc bộ thẻ đầu tiên để xem học viên học thế nào.",
+    "createLesson": "Tạo bài học mới",
+    "createDeck": "Tạo bộ thẻ mới",
+    "content": "Nội dung",
+    "contentValue": "{{lessons}} bài · {{decks}} bộ",
+    "contentDraft": "Nháp: {{lessons}} bài · {{decks}} bộ",
+    "attempts": "Lượt luyện bài",
+    "learners": "Học viên hoạt động",
+    "openReports": "Báo cáo đang mở",
+    "viewReports": "Xem báo lỗi",
+    "dailyChart": "Hoạt động theo ngày",
+    "series": {
+      "dictation": "Nghe chép",
+      "shadowing": "Shadowing",
+      "review": "Ôn thẻ"
+    },
+    "topLessons": "Bài học nhiều học viên nhất",
+    "topDecks": "Bộ thẻ nhiều học viên nhất",
+    "learnersUnit": "{{value}} học viên",
+    "lessonMeta": "{{attempts}} lượt · Nghe chép {{dictation}} · Shadowing {{shadowing}}",
+    "deckMeta": "{{reviews}} lượt ôn · Đúng {{pct}}"
+  },
+  "lesson": {
+    "title": "Thống kê bài học",
+    "forbidden": "Bạn không có quyền xem thống kê bài học này",
+    "notFound": "Không tìm thấy bài học",
+    "started": "Học viên bắt đầu",
+    "completed": "Học viên hoàn thành",
+    "completionRate": "Tỷ lệ hoàn thành {{pct}}",
+    "dictation": "Lượt nghe chép",
+    "shadowing": "Lượt shadowing",
+    "avg": "Điểm TB {{score}}",
+    "dailyChart": "Lượt luyện theo ngày",
+    "series": {
+      "dictation": "Nghe chép",
+      "shadowing": "Shadowing"
+    },
+    "hardestDictation": "Câu khó nhất · Nghe chép",
+    "hardestShadowing": "Câu khó nhất · Shadowing",
+    "hardMeta": "Câu {{order}} · {{attempts}} lượt",
+    "scoreUnit": "{{score}} điểm"
+  },
+  "deck": {
+    "title": "Thống kê bộ thẻ",
+    "forbidden": "Bạn không có quyền xem thống kê bộ này",
+    "notFound": "Không tìm thấy bộ thẻ",
+    "learners": "Học viên ôn thẻ",
+    "reviews": "Lượt ôn thẻ",
+    "correctRate": "Tỷ lệ đúng",
+    "dailyChart": "Lượt ôn theo ngày",
+    "series": {
+      "reviews": "Lượt ôn",
+      "correct": "Lượt đúng"
+    },
+    "states": "Trạng thái học của thẻ",
+    "statesHint": "Tính trên các học viên đã ôn bộ trong khoảng, theo trạng thái hiện tại",
+    "state": {
+      "new": "Mới",
+      "learning": "Đang học",
+      "reviewing": "Đang ôn",
+      "mastered": "Đã thuộc"
+    },
+    "hardest": "Thẻ khó nhất · {{group}}",
+    "reviewsUnit": "{{value}} lượt ôn",
+    "correctUnit": "Đúng {{pct}}",
+    "groups": "Nhóm thẻ",
+    "hardestNoGroup": "Thẻ khó nhất"
+  }
+}

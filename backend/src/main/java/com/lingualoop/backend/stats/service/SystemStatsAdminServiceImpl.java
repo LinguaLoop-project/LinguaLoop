@@ -1,9 +1,10 @@
 package com.lingualoop.backend.stats.service;
 
 import static com.lingualoop.backend.stats.service.RevenueCalculator.vnd;
+import static com.lingualoop.backend.stats.service.StatsNumbers.pct;
+import static com.lingualoop.backend.stats.service.StatsNumbers.score;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -139,16 +140,5 @@ class SystemStatsAdminServiceImpl implements SystemStatsAdminService {
 
     private static BigDecimal sum(List<FeatureRow> rows, Function<FeatureRow, BigDecimal> value) {
         return rows.stream().map(value).reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    /** Điểm trung bình làm tròn 1 chữ số thập phân; trống khi không có lượt nào. */
-    private static BigDecimal score(BigDecimal avg) {
-        return avg == null ? null : avg.setScale(1, RoundingMode.HALF_UP);
-    }
-
-    /** Tỷ lệ phần trăm 1 chữ số thập phân; mẫu bằng 0 thì trống. */
-    private static BigDecimal pct(long part, long whole) {
-        return whole == 0 ? null
-                : BigDecimal.valueOf(part * 100).divide(BigDecimal.valueOf(whole), 1, RoundingMode.HALF_UP);
     }
 }

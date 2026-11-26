@@ -373,7 +373,8 @@
       "publish": "Xuất bản",
       "unpublish": "Gỡ xuất bản",
       "delete": "Xóa",
-      "restore": "Khôi phục"
+      "restore": "Khôi phục",
+      "stats": "Xem thống kê"
     },
     "form": {
       "name": "Tên bộ",

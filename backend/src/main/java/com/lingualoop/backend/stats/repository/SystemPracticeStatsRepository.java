@@ -53,7 +53,8 @@ public class SystemPracticeStatsRepository {
 
     /**
      * Học viên hoàn thành bài ở một chế độ khi đã có lượt luyện ở chế độ đó trên mọi câu chưa xóa của bài; thời điểm
-     * hoàn thành là lượt đầu tiên của câu cuối cùng được làm đủ (BR-TN-02). Mỗi học viên, bài, chế độ tính một lần.
+     * hoàn thành là lúc sớm nhất học viên làm đủ các câu ở một chế độ (BR-TN-02). Mỗi học viên và bài tính một lần, dù
+     * hoàn thành ở một hay cả hai chế độ.
      */
     private static final String COMPLETED = """
             WITH firsts AS (
@@ -65,9 +66,12 @@ public class SystemPracticeStatsRepository {
                 SELECT lesson_id, count(*) AS n FROM sentences WHERE deleted_at IS NULL GROUP BY 1
             ), done AS (
                 SELECT user_id, lesson_id, mode, max(t) AS t, count(*) AS c FROM firsts GROUP BY 1, 2, 3
+            ), completed AS (
+                SELECT d.user_id, d.lesson_id, min(d.t) AS t
+                FROM done d JOIN totals x ON x.lesson_id = d.lesson_id
+                WHERE d.c = x.n GROUP BY 1, 2
             )
-            SELECT count(*) FROM done d JOIN totals x ON x.lesson_id = d.lesson_id
-            WHERE d.c = x.n AND d.t >= :from AND d.t < :to
+            SELECT count(*) FROM completed WHERE t >= :from AND t < :to
             """;
 
     /** Số lượt theo ngày (giờ Việt Nam) của từng chế độ luyện và của ôn thẻ ({@code review}). */

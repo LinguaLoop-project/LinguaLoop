@@ -56,6 +56,9 @@ const TeacherLessonDetailPage = lazy(() => import("@/features/lesson/pages/teach
 const AdminLessonListPage = lazy(() => import("@/features/lesson/pages/admin/AdminLessonListPage"));
 const AdminLessonDetailPage = lazy(() => import("@/features/lesson/pages/admin/AdminLessonDetailPage"));
 
+const TeacherOverviewPage = lazy(() => import("@/features/stats/pages/teacher/TeacherOverviewPage"));
+const TeacherLessonStatsPage = lazy(() => import("@/features/stats/pages/teacher/TeacherLessonStatsPage"));
+const TeacherDeckStatsPage = lazy(() => import("@/features/stats/pages/teacher/TeacherDeckStatsPage"));
 const TeacherReportListPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportListPage"));
 const TeacherReportDetailPage = lazy(() => import("@/features/report/pages/teacher/TeacherReportDetailPage"));
 const AdminUserListPage = lazy(() => import("@/features/user/pages/admin/AdminUserListPage"));
@@ -281,7 +284,7 @@ const getRoutesConfig = (): RouteObject[] => {
       children: [
         {
           index: true,
-          element: <PlaceholderPage pageKey="teacher.overview" />,
+          element: <TeacherOverviewPage />,
         },
         {
           path: "lessons",
@@ -295,6 +298,10 @@ const getRoutesConfig = (): RouteObject[] => {
         {
           path: "lessons/:id",
           element: <TeacherLessonDetailPage />,
+        },
+        {
+          path: "lessons/:id/stats",
+          element: <TeacherLessonStatsPage />,
         },
         {
           path: "lessons/:id/sentences",
@@ -316,6 +323,10 @@ const getRoutesConfig = (): RouteObject[] => {
         {
           path: "decks/:id",
           element: <TeacherDeckDetailPage />,
+        },
+        {
+          path: "decks/:id/stats",
+          element: <TeacherDeckStatsPage />,
         },
         {
           path: "reports",

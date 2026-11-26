@@ -152,6 +152,21 @@ class SystemStatsAdminServiceIntegrationTest {
     }
 
     @Test
+    void practice_learnerCompletingBothModesCountsOnce_BR_TN_02() {
+        clock.fixAt(Instant.parse("2031-05-16T05:00:00Z"));
+        Instant now = Instant.parse("2031-05-15T03:00:00Z");
+        Instant old = Instant.parse("2025-01-01T00:00:00Z");
+        List<UUID> s = lesson(user("teacher", old), 1);
+        UUID student = user("student", old);
+        attempt(student, s.get(0), "dictation", 80, false, false, now);
+        attempt(student, s.get(0), "shadowing", 80, false, false, now);
+
+        PracticeStatsView view = stats.practice(StatsPeriod.D7, PlanFilter.ALL);
+
+        assertThat(view.lessonsCompleted().current()).isEqualByComparingTo("1");
+    }
+
+    @Test
     void practice_reviewsCorrectRateAndTopDeck_AC_NK_16() {
         clock.fixAt(Instant.parse("2031-08-16T05:00:00Z"));
         Instant now = Instant.parse("2031-08-15T03:00:00Z");

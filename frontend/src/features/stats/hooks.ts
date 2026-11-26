@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { adminStatsApi, statsApi } from "./api";
+import { adminStatsApi, statsApi, teacherStatsApi } from "./api";
 import type { HistoryMode, PlanFilter, PracticeKind, StatsPeriod, StatsRange } from "./types";
 import { HISTORY_DAYS_PER_PAGE } from "./utils";
 
@@ -120,4 +120,37 @@ export function usePracticeStats(period: StatsPeriod, plan: PlanFilter) {
 
 export function useAiUsageStats(period: StatsPeriod) {
   return useQuery({ queryKey: [...STATS_KEY, "ai-usage", period], queryFn: () => adminStatsApi.aiUsage(period), ...COMMON });
+}
+
+// ---------------------------------------------------------------- thống kê nội dung của giáo viên (UC-TN-01 đến 03)
+
+const TEACHER_STATS_KEY = ["teacher", "stats"] as const;
+
+/** Backend tính lại mỗi giờ (BR-TN-06); `always` để mất mạng báo lỗi ngay kèm nút Tải lại (AC-TN-08). */
+const TEACHER_COMMON = { ...COMMON, networkMode: NETWORK_MODE } as const;
+
+export function useTeacherOverviewStats(period: StatsPeriod) {
+  return useQuery({
+    queryKey: [...TEACHER_STATS_KEY, "overview", period],
+    queryFn: () => teacherStatsApi.overview(period),
+    ...TEACHER_COMMON,
+  });
+}
+
+export function useTeacherLessonStats(lessonId: string, period: StatsPeriod) {
+  return useQuery({
+    queryKey: [...TEACHER_STATS_KEY, "lesson", lessonId, period],
+    queryFn: () => teacherStatsApi.lesson(lessonId, period),
+    ...TEACHER_COMMON,
+    enabled: lessonId !== "",
+  });
+}
+
+export function useTeacherDeckStats(deckId: string, period: StatsPeriod) {
+  return useQuery({
+    queryKey: [...TEACHER_STATS_KEY, "deck", deckId, period],
+    queryFn: () => teacherStatsApi.deck(deckId, period),
+    ...TEACHER_COMMON,
+    enabled: deckId !== "",
+  });
 }

@@ -40,6 +40,8 @@ export interface ManageDeckListProps {
   /** Bấm vào dòng: mở trang bộ (xem và sửa tại chỗ). */
   onOpen?: (deck: ManageDeckItem) => void;
   onAction?: (action: DeckAction, deck: ManageDeckItem) => void;
+  /** Mở thống kê của bộ (UC-TN-03); chỉ giáo viên truyền vào. */
+  onStats?: (deck: ManageDeckItem) => void;
 }
 
 function formatDate(iso: string, language: string): string {
@@ -206,6 +208,18 @@ export default function ManageDeckList(props: ManageDeckListProps) {
                 </div>
                 <div className="relative z-10 flex shrink-0 items-center gap-2">
                   <StatusBadge status={status} label={t(STATUS_LABEL[status])} />
+                  {props.onStats && !deletedAt && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      iconOnly
+                      aria-label={t("manage.action.stats")}
+                      title={t("manage.action.stats")}
+                      onClick={() => props.onStats?.(deck)}
+                    >
+                      <Icon name="chart-line" />
+                    </Button>
+                  )}
                   {actions.map((action) => {
                     const label = t(`manage.action.${action}`);
                     return (
