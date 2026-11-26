@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,8 @@ import com.lingualoop.backend.subscription.repository.ProOrderPaymentRepository;
 import com.lingualoop.backend.subscription.repository.ProOrderPaymentRepository.OrderRow;
 import com.lingualoop.backend.subscription.repository.ProPlanRepository;
 import com.lingualoop.backend.user.dto.UserAccountView;
+import com.lingualoop.backend.user.service.NotificationService;
+import com.lingualoop.backend.user.service.NotificationType;
 import com.lingualoop.backend.user.service.UserAccountService;
 
 import lombok.RequiredArgsConstructor;
@@ -51,10 +54,13 @@ class ProPaymentServiceImpl implements ProPaymentService {
     private static final ZoneId VN = ZoneId.of("Asia/Ho_Chi_Minh");
     private static final DateTimeFormatter PAY_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private static final int HISTORY_LIMIT = 50;
+    private static final DateTimeFormatter NOTICE_DATE = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final String SUBSCRIPTION_LINK = "/student/subscription";
 
     private final ProOrderPaymentRepository orders;
     private final ProPlanRepository plans;
     private final UserAccountService users;
+    private final NotificationService notifications;
     private final VnpayGateway vnpay;
     private final TransactionTemplate tx;
     private final Clock clock;
@@ -187,6 +193,9 @@ class ProPaymentServiceImpl implements ProPaymentService {
                 orders.markCanceled(order.id(), now, code);
             } else {
                 orders.markFailed(order.id(), code);
+                notifications.send(order.userId(), NotificationType.PAYMENT_FAILED,
+                        "Thanh toán gói Pro không thành công. Bạn có thể thử lại ở trang Gói đăng ký.",
+                        SUBSCRIPTION_LINK, Map.of(), "pro-failed:" + order.id());
             }
             return new Confirmation(Outcome.PROCESSED, orders.find(orderId).orElseThrow());
         }));
@@ -199,8 +208,13 @@ class ProPaymentServiceImpl implements ProPaymentService {
     private void activate(OrderRow order, Instant now, String transactionNo, String bankCode, Instant payDate) {
         Instant startsAt = orders.latestPaidEnd(order.userId(), now).orElse(now);
         Instant endsAt = startsAt.atZone(VN).plusMonths(order.months()).toInstant();
-        orders.markPaid(order.id(), now, startsAt, endsAt, blankToNull(transactionNo), blankToNull(bankCode),
-                payDate);
+        int changed = orders.markPaid(order.id(), now, startsAt, endsAt, blankToNull(transactionNo),
+                blankToNull(bankCode), payDate);
+        if (changed > 0) {
+            notifications.send(order.userId(), NotificationType.PRO_ACTIVATED,
+                    "Thanh toán thành công. Gói Pro của bạn có hiệu lực đến " + NOTICE_DATE.format(endsAt.atZone(VN)) + ".",
+                    SUBSCRIPTION_LINK, Map.of("endsAt", endsAt.truncatedTo(ChronoUnit.SECONDS).toString()), "pro-paid:" + order.id());
+        }
         log.info("Đơn Pro {} đã thanh toán, hiệu lực {} đến {}", order.id(), startsAt, endsAt);
     }
 

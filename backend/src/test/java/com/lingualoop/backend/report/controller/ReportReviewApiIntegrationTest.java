@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,6 +44,7 @@ class ReportReviewApiIntegrationTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ReportTestData data;
+    @Autowired private JdbcTemplate jdbc;
 
     private UUID teacherA;
     private UUID admin;
@@ -431,5 +434,48 @@ class ReportReviewApiIntegrationTest {
         assertThat(data.status(done)).isEqualTo("resolved");
         assertThat(data.status(theirs)).isEqualTo("waiting_teacher");
         assertThat(data.countAudit(a, "reject")).isEqualTo(1);
+    }
+
+    // ---------------------------------------------------------------- báo kết quả cho người báo cáo (BR-TK-22)
+
+    private List<Map<String, Object>> notices(UUID user) {
+        return jdbc.queryForList("SELECT type, message, params::text AS params FROM notifications WHERE user_id = ?",
+                user);
+    }
+
+    @Test
+    void resolve_notifiesEveryReporterOfTheGroupOnce_AC_TK_73() throws Exception {
+        UUID other = data.user(Role.STUDENT, "Trần Bình");
+        data.sentenceReport(other, sentence, "translation", "waiting_teacher", now.minus(Duration.ofHours(2)));
+        UUID id = report("translation", "waiting_teacher", Duration.ofHours(1));
+        data.updateSentence(sentence, "text_vi", "Cửa ra máy bay");
+
+        asTeacher(action(TEACHER + "/" + id + "/resolve", "Đã sửa bản dịch")).andExpect(status().isNoContent());
+
+        assertThat(notices(student)).extracting(n -> n.get("type")).containsExactly("REPORT_RESOLVED");
+        assertThat(notices(other)).extracting(n -> n.get("type")).containsExactly("REPORT_RESOLVED");
+        assertThat(notices(teacherA)).isEmpty();
+    }
+
+    @Test
+    void reject_notifiesTheReporterWithTheReason_AC_TK_73() throws Exception {
+        UUID id = report("translation", "waiting_teacher", Duration.ofHours(1));
+
+        asTeacher(action(TEACHER + "/" + id + "/reject", "Đúng ngữ cảnh")).andExpect(status().isNoContent());
+
+        List<Map<String, Object>> list = notices(student);
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0)).containsEntry("type", "REPORT_REJECTED");
+        assertThat((String) list.get(0).get("message")).contains("Đúng ngữ cảnh");
+        assertThat((String) list.get(0).get("params")).contains("Đúng ngữ cảnh");
+    }
+
+    @Test
+    void failedResolve_doesNotNotifyTheReporter_AC_TK_73() throws Exception {
+        UUID id = report("translation", "waiting_teacher", Duration.ofHours(1));
+
+        asTeacher(action(TEACHER + "/" + id + "/resolve", "Chưa sửa gì")).andExpect(status().isUnprocessableContent());
+
+        assertThat(notices(student)).isEmpty();
     }
 }

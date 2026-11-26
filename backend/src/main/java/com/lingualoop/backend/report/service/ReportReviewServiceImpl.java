@@ -67,6 +67,7 @@ class ReportReviewServiceImpl implements ReportReviewService {
     private final Clock clock;
     private final LessonModerationService lessons;
     private final VocabDeckContentService cards;
+    private final ReportOutcomeNotifier outcomes;
 
     // ---------------------------------------------------------------- danh sách và chi tiết (UC-XL-01)
 
@@ -264,6 +265,11 @@ class ReportReviewServiceImpl implements ReportReviewService {
         }
         String actorName = users.findById(actorId).map(UserAccountView::displayName).orElse(null);
         AuditAction action = to == ReportStatus.RESOLVED ? AuditAction.RESOLVE : AuditAction.REJECT;
+        if (to == ReportStatus.RESOLVED) {
+            outcomes.resolved(reportIds);
+        } else {
+            outcomes.rejected(reportIds, note);
+        }
         for (UUID id : reportIds) {
             audit.record(new AuditEntryRequest(actorId, actorName, role, action, AuditEntityType.REPORT, id, null,
                     Map.of("status", Map.of("new", to.value())), note));

@@ -33,6 +33,7 @@ class TakedownMarker {
 
     private final ModerationRepository repository;
     private final NotificationService notifications;
+    private final ReportOutcomeNotifier outcomes;
     private final AuditService audit;
     private final UserAccountService users;
 
@@ -51,6 +52,7 @@ class TakedownMarker {
             notifications.send(ownerId, "%s \"%s\" đã bị quản trị viên gỡ: %s. Hãy sửa nội dung rồi gửi yêu cầu "
                     .formatted(kindLabel(type), containerName, reason) + "duyệt xuất bản lại.");
         }
+        outcomes.resolved(closed);
         String actorName = users.findById(adminId).map(UserAccountView::displayName).orElse(null);
         for (UUID id : closed) {
             audit.record(new AuditEntryRequest(adminId, actorName, Role.ADMIN, AuditAction.RESOLVE,
