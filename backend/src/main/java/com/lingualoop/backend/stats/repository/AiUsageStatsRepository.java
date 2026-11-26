@@ -1,9 +1,6 @@
 package com.lingualoop.backend.stats.repository;
 
-import static com.lingualoop.backend.stats.repository.StatsSql.inRange;
-import static com.lingualoop.backend.stats.repository.StatsSql.proAt;
 import static com.lingualoop.backend.stats.repository.StatsSql.ts;
-import static com.lingualoop.backend.stats.repository.StatsSql.vnDay;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -26,12 +23,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AiUsageStatsRepository {
 
-    /** Mỗi dòng nhật ký AI trong khoảng kèm cờ dùng thử: học viên không đang Pro lúc dùng (BR-NK-14). */
+    /**
+     * Mỗi dòng nhật ký AI trong {@code [:from, :to)} kèm cờ dùng thử: học viên không có đơn Pro đã thanh toán còn
+     * hiệu lực lúc dùng (BR-NK-12, 14).
+     */
     private static final String LOGS = """
-            SELECT l.*, u.role = 'student' AND NOT %s AS trial
+            SELECT l.*, u.role = 'student' AND NOT EXISTS (
+                       SELECT 1 FROM pro_orders o WHERE o.user_id = l.user_id AND o.status = 'paid'
+                       AND l.created_at >= o.starts_at AND l.created_at < o.ends_at) AS trial
             FROM ai_usage_logs l JOIN users u ON u.id = l.user_id
-            WHERE %s
-            """.formatted(proAt("l"), inRange("l"));
+            WHERE l.created_at >= :from AND l.created_at < :to
+            """;
 
     private final JdbcClient jdbc;
 
@@ -56,16 +58,19 @@ public class AiUsageStatsRepository {
                 ) x ON x.feature = f.feature
                 GROUP BY f.feature ORDER BY f.feature""")
                 .param("from", ts(from)).param("to", ts(to))
-                .query((rs, n) -> new FeatureRow(rs.getString("feature"), rs.getLong("uses"), rs.getLong("units"),
-                        rs.getLong("credits"), rs.getBigDecimal("cost"), rs.getBigDecimal("trial_cost")))
+                .query(FeatureRow.class)
                 .list();
     }
 
     /** Credit đã tiêu theo ngày (giờ Việt Nam) của từng tính năng; ngày trống không có trong kết quả. */
     public Map<String, Map<LocalDate, Long>> dailyCredits(Instant from, Instant to) {
         Map<String, Map<LocalDate, Long>> result = new HashMap<>();
-        jdbc.sql("SELECT l.feature, " + vnDay("l.created_at") + " AS day, sum(l.credits_charged) AS n "
-                + "FROM ai_usage_logs l WHERE l.status = 'success' AND " + inRange("l") + " GROUP BY 1, 2")
+        jdbc.sql("""
+                SELECT l.feature, (l.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date AS day,
+                       sum(l.credits_charged) AS n
+                FROM ai_usage_logs l
+                WHERE l.status = 'success' AND l.created_at >= :from AND l.created_at < :to
+                GROUP BY 1, 2""")
                 .param("from", ts(from)).param("to", ts(to))
                 .query((rs, n) -> new DailyCredits(rs.getString("feature"), rs.getObject("day", LocalDate.class),
                         rs.getLong("n")))
@@ -87,7 +92,7 @@ public class AiUsageStatsRepository {
 
     public List<TopAccountRow> topAccounts(Instant from, Instant to, Instant now, int limit) {
         return jdbc.sql("""
-                SELECT l.user_id, u.display_name, u.email::text AS email,
+                SELECT l.user_id, u.display_name AS name, u.email::text AS email,
                        CASE WHEN u.role <> 'student' THEN u.role
                             WHEN EXISTS (SELECT 1 FROM pro_orders o WHERE o.user_id = u.id AND o.status = 'paid'
                                          AND o.starts_at <= :now AND o.ends_at > :now) THEN 'pro'
@@ -95,14 +100,12 @@ public class AiUsageStatsRepository {
                        sum(l.credits_charged) FILTER (WHERE l.status = 'success') AS credits,
                        sum(l.cost_vnd) AS cost
                 FROM ai_usage_logs l JOIN users u ON u.id = l.user_id
-                WHERE """ + " " + inRange("l") + """
-
+                WHERE l.created_at >= :from AND l.created_at < :to
                 GROUP BY l.user_id, u.id, u.display_name, u.email, u.role
                 HAVING sum(l.credits_charged) FILTER (WHERE l.status = 'success') > 0
                 ORDER BY credits DESC, cost DESC, l.user_id LIMIT :limit""")
                 .param("from", ts(from)).param("to", ts(to)).param("now", ts(now)).param("limit", limit)
-                .query((rs, n) -> new TopAccountRow(rs.getObject("user_id", UUID.class), rs.getString("display_name"),
-                        rs.getString("email"), rs.getString("plan"), rs.getLong("credits"), rs.getBigDecimal("cost")))
+                .query(TopAccountRow.class)
                 .list();
     }
 }
