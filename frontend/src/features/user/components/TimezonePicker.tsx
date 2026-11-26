@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import Icon from "@/components/common/Icon";
 import {
@@ -24,12 +24,18 @@ interface ZoneEntry {
   searchKey: string;
 }
 
-/** Bộ chọn múi giờ có tìm kiếm, hiển thị độ lệch UTC, giờ địa phương và nút chọn nhanh múi giờ thiết bị. */
+/**
+ * Bộ chọn múi giờ có tìm kiếm, hiển thị độ lệch UTC, giờ địa phương và nút chọn nhanh múi giờ thiết bị. Theo mẫu combobox:
+ * ô tìm kiếm giữ focus, phím mũi tên đổi mục đang chọn, Enter chọn, Esc đóng và trả focus về nút mở.
+ */
 export default function TimezonePicker({ id, value, onChange, error, hint }: TimezonePickerProps) {
   const { t } = useTranslation("auth");
+  const listId = useId();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const deviceZone = useMemo(() => detectTimezone(), []);
 
@@ -60,6 +66,22 @@ export default function TimezonePicker({ id, value, onChange, error, hint }: Tim
     return entries.filter((e) => e.searchKey.includes(q));
   }, [entries, query]);
 
+  const optionId = (index: number) => `${listId}-opt-${index}`;
+  const safeActive = Math.min(activeIndex, Math.max(filtered.length - 1, 0));
+  const activeOptionId = filtered.length > 0 ? optionId(safeActive) : undefined;
+
+  const close = (returnFocus: boolean) => {
+    setOpen(false);
+    setQuery("");
+    if (returnFocus) triggerRef.current?.focus();
+  };
+
+  const openList = () => {
+    const selected = entries.findIndex((e) => e.zone === value);
+    setActiveIndex(Math.max(selected, 0));
+    setOpen(true);
+  };
+
   useEffect(() => {
     if (!open) return;
     searchRef.current?.focus();
@@ -69,28 +91,65 @@ export default function TimezonePicker({ id, value, onChange, error, hint }: Tim
         setQuery("");
       }
     };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-        setQuery("");
-      }
-    };
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("touchstart", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("mousedown", onPointerDown);
       document.removeEventListener("touchstart", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
+
+  // Mục đang chọn luôn nằm trong vùng nhìn thấy của danh sách khi di chuyển bằng phím.
+  useEffect(() => {
+    if (!open || !activeOptionId) return;
+    document.getElementById(activeOptionId)?.scrollIntoView({ block: "nearest" });
+  }, [open, activeOptionId]);
 
   const canUseDevice = Boolean(deviceZone && deviceZone !== value);
 
   const selectZone = (zone: string) => {
     onChange(zone);
-    setOpen(false);
-    setQuery("");
+    close(true);
+  };
+
+  const onTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!open) openList();
+    }
+  };
+
+  const onSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    const last = filtered.length - 1;
+    switch (event.key) {
+      case "ArrowDown":
+        event.preventDefault();
+        setActiveIndex(Math.min(safeActive + 1, last));
+        break;
+      case "ArrowUp":
+        event.preventDefault();
+        setActiveIndex(Math.max(safeActive - 1, 0));
+        break;
+      case "Home":
+        event.preventDefault();
+        setActiveIndex(0);
+        break;
+      case "End":
+        event.preventDefault();
+        setActiveIndex(Math.max(last, 0));
+        break;
+      case "Enter":
+        event.preventDefault();
+        if (filtered[safeActive]) selectZone(filtered[safeActive].zone);
+        break;
+      case "Escape":
+        event.preventDefault();
+        close(true);
+        break;
+      case "Tab":
+        close(false);
+        break;
+    }
   };
 
   return (
@@ -113,12 +172,15 @@ export default function TimezonePicker({ id, value, onChange, error, hint }: Tim
 
       <div className="relative">
         <button
+          ref={triggerRef}
           id={id}
           type="button"
           aria-haspopup="listbox"
           aria-expanded={open}
+          aria-controls={open ? listId : undefined}
           aria-invalid={error ? true : undefined}
-          onClick={() => setOpen((v) => !v)}
+          onClick={() => (open ? close(false) : openList())}
+          onKeyDown={onTriggerKeyDown}
           className={`flex min-h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-md border bg-bg-elevated px-3.5 py-2 text-left text-[15px] text-text transition-[border-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_var(--primary-soft)] ${
             error
               ? "border-danger"
@@ -148,67 +210,86 @@ export default function TimezonePicker({ id, value, onChange, error, hint }: Tim
         </button>
 
         {open && (
-          <div
-            role="dialog"
-            aria-label={t("learningProfile.timezone")}
-            className="absolute left-0 right-0 top-full z-30 mt-1.5 flex animate-[menu-in_150ms_var(--ease-out)] flex-col overflow-hidden rounded-md border border-border-strong bg-surface shadow-[0_20px_44px_-16px_rgba(0,0,0,0.45)]"
-          >
-          <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-            <Icon name="search" className="shrink-0 text-base text-text-muted" />
-            <input
-              ref={searchRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("learningProfile.timezoneSearch")}
-              aria-label={t("learningProfile.timezoneSearch")}
-              className="w-full bg-transparent text-sm text-text placeholder:text-text-subtle focus:outline-none"
-            />
-            {query && (
-              <button
-                type="button"
-                aria-label={t("learningProfile.timezoneClear")}
-                onClick={() => setQuery("")}
-                className="grid size-6 shrink-0 place-items-center rounded-sm text-text-muted hover:bg-surface-hover hover:text-text"
-              >
-                <Icon name="x" className="text-sm" />
-              </button>
-            )}
-          </div>
+          <div className="absolute left-0 right-0 top-full z-30 mt-1.5 flex animate-[menu-in_150ms_var(--ease-out)] flex-col overflow-hidden rounded-md border border-border-strong bg-surface shadow-[0_20px_44px_-16px_rgba(0,0,0,0.45)]">
+            <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+              <Icon name="search" className="shrink-0 text-base text-text-muted" />
+              <input
+                ref={searchRef}
+                type="text"
+                role="combobox"
+                aria-expanded="true"
+                aria-controls={listId}
+                aria-autocomplete="list"
+                aria-activedescendant={activeOptionId}
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setActiveIndex(0);
+                }}
+                onKeyDown={onSearchKeyDown}
+                placeholder={t("learningProfile.timezoneSearch")}
+                aria-label={t("learningProfile.timezoneSearch")}
+                className="w-full bg-transparent text-sm text-text placeholder:text-text-subtle focus:outline-none"
+              />
+              {query && (
+                <button
+                  type="button"
+                  aria-label={t("learningProfile.timezoneClear")}
+                  onClick={() => {
+                    setQuery("");
+                    setActiveIndex(0);
+                    searchRef.current?.focus();
+                  }}
+                  className="grid size-6 shrink-0 place-items-center rounded-sm text-text-muted hover:bg-surface-hover hover:text-text"
+                >
+                  <Icon name="x" className="text-sm" />
+                </button>
+              )}
+            </div>
 
-          <div role="listbox" aria-label={t("learningProfile.timezone")} className="max-h-60 overflow-y-auto p-1">
-            {filtered.length === 0 ? (
-              <p className="px-3 py-4 text-center text-sm text-text-muted">{t("learningProfile.timezoneEmpty")}</p>
-            ) : (
-              filtered.map((entry) => {
-                const active = entry.zone === value;
-                return (
-                  <button
-                    key={entry.zone}
-                    type="button"
-                    role="option"
-                    aria-selected={active}
-                    onClick={() => selectZone(entry.zone)}
-                    className={`flex w-full cursor-pointer items-center justify-between gap-2 rounded-sm px-3 py-2 text-left text-sm transition-colors ${
-                      active
-                        ? "bg-primary-soft font-semibold text-text"
-                        : "text-text-muted hover:bg-surface-hover hover:text-text"
-                    }`}
-                  >
-                    <span className="flex min-w-0 flex-col">
-                      <span className="truncate">{entry.label}</span>
-                      <span className="truncate text-xs text-text-subtle">{entry.zone}</span>
-                    </span>
-                    <span className="flex shrink-0 items-center gap-2">
-                      {entry.offset && <span className="font-mono text-xs text-text-subtle">{entry.offset}</span>}
-                      {active && <Icon name="check" className="text-base text-primary-text" />}
-                    </span>
-                  </button>
-                );
-              })
-            )}
+            <div id={listId} role="listbox" aria-label={t("learningProfile.timezone")} className="max-h-60 overflow-y-auto p-1">
+              {filtered.length === 0 ? (
+                <p role="status" className="px-3 py-4 text-center text-sm text-text-muted">
+                  {t("learningProfile.timezoneEmpty")}
+                </p>
+              ) : (
+                filtered.map((entry, index) => {
+                  const selected = entry.zone === value;
+                  const active = index === safeActive;
+                  return (
+                    <div
+                      key={entry.zone}
+                      id={optionId(index)}
+                      role="option"
+                      aria-selected={selected}
+                      // Giữ focus ở ô tìm kiếm khi bấm chuột để bàn phím tiếp tục dùng được.
+                      onMouseDown={(event) => event.preventDefault()}
+                      onMouseMove={() => {
+                        if (!active) setActiveIndex(index);
+                      }}
+                      onClick={() => selectZone(entry.zone)}
+                      className={`flex w-full cursor-pointer items-center justify-between gap-2 rounded-sm px-3 py-2 text-left text-sm transition-colors ${
+                        selected
+                          ? "bg-primary-soft font-semibold text-text"
+                          : active
+                            ? "bg-surface-hover text-text"
+                            : "text-text-muted"
+                      } ${active && selected ? "ring-1 ring-primary/40" : ""}`}
+                    >
+                      <span className="flex min-w-0 flex-col">
+                        <span className="truncate">{entry.label}</span>
+                        <span className="truncate text-xs text-text-subtle">{entry.zone}</span>
+                      </span>
+                      <span className="flex shrink-0 items-center gap-2">
+                        {entry.offset && <span className="font-mono text-xs text-text-subtle">{entry.offset}</span>}
+                        {selected && <Icon name="check" className="text-base text-primary-text" />}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
-        </div>
         )}
       </div>
 
