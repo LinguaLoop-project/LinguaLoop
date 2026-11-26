@@ -62,7 +62,7 @@ class AdminTeacherCreditApiIntegrationTest {
         assertThat(data.walletBalance(teacher)).isEqualTo(700);
         assertThat(data.walletHasReset(teacher)).isFalse();
         assertThat(data.countAudit(teacher, "grant_credit")).isEqualTo(1);
-        assertThat(data.auditNote(teacher, "grant_credit")).isEqualTo("Cấp credit soạn bài tháng 11");
+        assertThat(data.auditNote(teacher, "grant_credit")).isEqualTo("Cấp 500 credit: Cấp credit soạn bài tháng 11");
         assertThat(data.notifications(teacher)).singleElement().asString().contains("500 credit");
     }
 

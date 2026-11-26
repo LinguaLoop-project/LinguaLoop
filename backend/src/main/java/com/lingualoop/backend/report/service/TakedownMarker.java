@@ -3,7 +3,6 @@ package com.lingualoop.backend.report.service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -13,11 +12,11 @@ import com.lingualoop.backend.audit.enums.AuditAction;
 import com.lingualoop.backend.audit.enums.AuditEntityType;
 import com.lingualoop.backend.audit.service.AuditService;
 import com.lingualoop.backend.report.enums.ReportTargetType;
+import com.lingualoop.backend.report.enums.ReportStatus;
+import com.lingualoop.backend.report.repository.ClosedReport;
 import com.lingualoop.backend.report.repository.ModerationRepository;
 import com.lingualoop.backend.security.Role;
-import com.lingualoop.backend.user.dto.UserAccountView;
 import com.lingualoop.backend.user.service.NotificationService;
-import com.lingualoop.backend.user.service.UserAccountService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,31 +33,29 @@ class TakedownMarker {
     private final ModerationRepository repository;
     private final NotificationService notifications;
     private final AuditService audit;
-    private final UserAccountService users;
+    private final ReportAuditor auditor;
 
     /**
      * @param alreadyClosed báo cáo nơi gọi đã đóng (dòng báo cáo đang xử lý ở UC-XL-04); gỡ tay thì rỗng
      * @param ownerId giáo viên chủ, {@code null} nếu nội dung chưa gán chủ (chỉ lưu dấu, không báo ai)
      */
     void mark(UUID adminId, ReportTargetType type, UUID containerId, String containerName, UUID ownerId,
-            String reason, String source, List<UUID> alreadyClosed, Instant now) {
-        List<UUID> closed = new ArrayList<>(alreadyClosed);
-        closed.addAll(repository.closeOpenOffensive(type, containerId, adminId, reason, now));
-        repository.markTakenDown(type, containerId, reason, repository.snapshotOfReports(type, closed), adminId, now,
+            String reason, String source, List<ClosedReport> alreadyClosed, Instant now) {
+        List<ClosedReport> closed = new ArrayList<>(alreadyClosed);
+        // Báo cáo Phản cảm chỉ chờ quản trị viên nên trạng thái trước khi đóng luôn là Chờ quản trị viên.
+        repository.closeOpenOffensive(type, containerId, adminId, reason, now)
+                .forEach(id -> closed.add(new ClosedReport(id, ReportStatus.WAITING_ADMIN)));
+        repository.markTakenDown(type, containerId, reason,
+                repository.snapshotOfReports(type, closed.stream().map(ClosedReport::id).toList()), adminId, now,
                 source);
 
         if (ownerId != null) {
             notifications.send(ownerId, "%s \"%s\" đã bị quản trị viên gỡ: %s. Hãy sửa nội dung rồi gửi yêu cầu "
                     .formatted(kindLabel(type), containerName, reason) + "duyệt xuất bản lại.");
         }
-        String actorName = users.findById(adminId).map(UserAccountView::displayName).orElse(null);
-        for (UUID id : closed) {
-            audit.record(new AuditEntryRequest(adminId, actorName, Role.ADMIN, AuditAction.RESOLVE,
-                    AuditEntityType.REPORT, id, null, Map.of("status", Map.of("new", "resolved")), reason));
-        }
-        audit.record(new AuditEntryRequest(adminId, actorName, Role.ADMIN, AuditAction.UNPUBLISH, entityOf(type),
-                containerId, containerName, Map.of("takenDown", Map.of("new", true), "source", Map.of("new", source)),
-                reason));
+        auditor.closed(closed, ReportStatus.RESOLVED, adminId, Role.ADMIN, reason);
+        audit.record(new AuditEntryRequest(adminId, null, Role.ADMIN, AuditAction.UNPUBLISH, entityOf(type),
+                containerId, containerName, null, reason));
     }
 
     static String kindLabel(ReportTargetType type) {

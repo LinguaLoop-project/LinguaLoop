@@ -51,6 +51,7 @@ class VocabDeckManageServiceImplTest {
     @Mock private FileStorageService storage;
     @Mock private TakedownQueryService takedowns;
     @Mock private TakedownCommandService takedownCommands;
+    @Mock private VocabAuditor auditor;
 
     private VocabDeckManageServiceImpl service;
     private final UUID teacher = UUID.randomUUID();
@@ -60,7 +61,7 @@ class VocabDeckManageServiceImplTest {
     void setUp() {
         Clock clock = Clock.fixed(Instant.parse("2026-11-13T03:30:00Z"), ZoneOffset.UTC);
         service = new VocabDeckManageServiceImpl(repository, deckRepository, new DeckImageValidator(), storage,
-                new DeckImageUrls(storage), new CardAudioUrls(null), clock, takedowns, takedownCommands);
+                new DeckImageUrls(storage), new CardAudioUrls(null), clock, takedowns, takedownCommands, auditor);
         when(repository.existsActiveName(any(), anyString())).thenReturn(false);
         when(deckRepository.saveAndFlush(any(VocabDeck.class))).thenAnswer(inv -> inv.getArgument(0));
         when(storage.publicUrl(anyString())).thenAnswer(inv -> BASE_URL + inv.getArgument(0));

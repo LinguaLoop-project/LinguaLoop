@@ -288,17 +288,45 @@ public class ReportRepository {
                 .query(UUID.class).list();
     }
 
-    /** Từ chối mọi báo cáo đang mở của một học viên, chỉ của học viên đó (BR-XL-14). */
-    public List<UUID> rejectOpenByReporter(UUID reporterId, UUID actorId, String note, Instant at) {
+    /** Từ chối mọi báo cáo đang mở của một học viên, chỉ của học viên đó (BR-XL-14); kèm trạng thái trước khi đóng. */
+    public List<ClosedReport> rejectOpenByReporter(UUID reporterId, UUID actorId, String note, Instant at) {
         return jdbc.sql("""
-                UPDATE content_reports
+                UPDATE content_reports cr
                 SET status = 'rejected', handled_by = :actor, handled_at = :at, handling_note = :note,
                     status_changed_at = :at
-                WHERE reporter_id = :reporter AND status IN ('waiting_teacher','waiting_admin')
-                RETURNING id""")
+                FROM content_reports old
+                WHERE old.id = cr.id AND cr.reporter_id = :reporter AND cr.status IN ('waiting_teacher','waiting_admin')
+                RETURNING cr.id, old.status AS old_status""")
                 .param("reporter", reporterId).param("actor", actorId).param("note", note)
                 .param("at", Timestamp.from(at))
-                .query(UUID.class).list();
+                .query(ReportRepository::closed).list();
+    }
+
+    /**
+     * Báo cáo cho nhật ký (BR-NK-03): câu hoặc từ bị báo cáo, bài học hoặc bộ thẻ chứa nó. Câu, thẻ đã xóa
+     * mềm vẫn đọc được.
+     */
+    public record AuditSubject(UUID id, String content, boolean sentence, UUID containerId) {
+    }
+
+    public List<AuditSubject> findAuditSubjects(List<UUID> reportIds) {
+        return jdbc.sql("""
+                SELECT cr.id, COALESCE(s.text_en, c.word) AS content, cr.sentence_id IS NOT NULL AS sentence,
+                       COALESCE(s.lesson_id, c.deck_id) AS container_id
+                FROM content_reports cr
+                LEFT JOIN sentences s ON s.id = cr.sentence_id
+                LEFT JOIN vocab_cards c ON c.id = cr.card_id
+                WHERE cr.id IN (:ids)""")
+                .param("ids", reportIds)
+                .query((rs, n) -> new AuditSubject(rs.getObject("id", UUID.class), rs.getString("content"),
+                        rs.getBoolean("sentence"), rs.getObject("container_id", UUID.class)))
+                .list();
+    }
+
+    /** Dòng trả về của câu lệnh đóng báo cáo: id và trạng thái trước khi đóng (đọc từ bản tự join {@code old}). */
+    static ClosedReport closed(ResultSet rs, int n) throws SQLException {
+        return new ClosedReport(rs.getObject("id", UUID.class),
+                ReportStatus.fromValue(rs.getString("old_status")).orElseThrow());
     }
 
     // ---------------------------------------------------------------- hỗ trợ

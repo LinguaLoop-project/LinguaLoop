@@ -197,6 +197,12 @@ class TeacherLessonImportApiIntegrationTest {
         assertThat(rows.get(0)).containsEntry("text_en", "Sentence number 0.").containsEntry("text_vi", null)
                 .containsEntry("ipa_us", "ipa").containsEntry("start_ms", 1_000).containsEntry("end_ms", 6_000);
         assertThat(rows.get(23)).containsEntry("start_ms", 231_000).containsEntry("end_ms", 236_000);
+        // Một mục Tạo cho bài kèm thông tin lúc tạo, không ghi riêng từng câu (BR-NK-18)
+        Map<String, Object> created = jdbc.queryForMap("SELECT changes::text AS changes, note FROM audit_logs "
+                + "WHERE target_id = ? AND action = 'create'", lessonId);
+        assertThat(created.get("note")).isEqualTo("Tạo từ YouTube");
+        assertThat(created.get("changes").toString()).contains("\"title\"", "Airport English", "\"cefrLevel\"",
+                "\"sentenceCount\": {\"new\": 24, \"old\": null}");
 
         // tạo bài trừ 10 credit mỗi bài, một lần khi lưu Nháp (BR-BH-14)
         assertThat(balance()).isEqualTo(90);

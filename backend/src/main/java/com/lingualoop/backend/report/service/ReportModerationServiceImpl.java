@@ -25,6 +25,7 @@ import com.lingualoop.backend.report.dto.ReportView;
 import com.lingualoop.backend.report.dto.RepublishView;
 import com.lingualoop.backend.report.enums.ReportStatus;
 import com.lingualoop.backend.report.enums.ReportTargetType;
+import com.lingualoop.backend.report.repository.ClosedReport;
 import com.lingualoop.backend.report.repository.ModerationRepository;
 import com.lingualoop.backend.report.repository.ModerationRepository.ContainerRow;
 import com.lingualoop.backend.report.repository.ModerationRepository.RequestRow;
@@ -87,7 +88,8 @@ class ReportModerationServiceImpl implements ReportModerationService {
             decks.unpublishForReport(container, text);
         }
         marker.mark(adminId, type, container, item.containerName(), item.ownerId(), text,
-                ModerationRepository.SOURCE_REPORT, closed, now);
+                ModerationRepository.SOURCE_REPORT, closed.stream().map(id -> new ClosedReport(id, status)).toList(),
+                now);
     }
 
     /** Dòng Chờ quản trị viên, hoặc dòng lỗi nội dung đã chờ quá 30 ngày (BR-XL-02, BR-XL-11). */
@@ -193,8 +195,7 @@ class ReportModerationServiceImpl implements ReportModerationService {
                     .formatted(kindLabel(row.type()), row.containerName()));
         }
         audit.record(new AuditEntryRequest(adminId, nameOf(adminId), Role.ADMIN, AuditAction.PUBLISH,
-                entityOf(row.type()), row.containerId(), row.containerName(), Map.of("takenDown", Map.of("new", false)),
-                null));
+                entityOf(row.type()), row.containerId(), row.containerName(), null, null));
     }
 
     @Override

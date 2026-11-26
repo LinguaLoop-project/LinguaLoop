@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Icon from "@/components/common/Icon";
@@ -24,41 +23,8 @@ export function StatusBadge({ locked }: Readonly<{ locked: boolean }>) {
   );
 }
 
-export interface FilterSelectProps {
-  icon: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  children: ReactNode;
-}
-
-/** Ô chọn lọc có icon đầu; viền tô màu khi đang lọc. */
-export function FilterSelect({ icon, label, value, onChange, children }: Readonly<FilterSelectProps>) {
-  const active = value !== "";
-  return (
-    <div className="relative">
-      <span
-        className={`pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 ${active ? "text-primary" : "text-text-subtle"}`}
-      >
-        <Icon name={icon} />
-      </span>
-      <select
-        aria-label={label}
-        title={label}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`h-10 cursor-pointer appearance-none rounded-md border bg-surface pl-9 pr-9 text-sm text-text transition-colors hover:border-border-strong focus-visible:outline-2 focus-visible:outline-primary ${
-          active ? "border-primary" : "border-border"
-        }`}
-      >
-        {children}
-      </select>
-      <span className="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 text-text-subtle">
-        <Icon name="chevron-down" />
-      </span>
-    </div>
-  );
-}
+/** Ô chọn lọc đã chuyển sang components/common để các màn quản trị khác dùng chung. */
+export { default as FilterSelect } from "@/components/common/FilterSelect";
 
 /** Chữ cái đầu của tên làm ảnh đại diện khi tài khoản chưa có ảnh. */
 export function Avatar({ name, url, size = "md" }: Readonly<{ name: string; url?: string | null; size?: "md" | "lg" }>) {

@@ -24,7 +24,7 @@ Tổng hợp: 62 AC, 14 đã có test, 27 một phần, 21 thiếu.
 | AC-XL-16 | Bài học chứa nội dung bị báo đã bị xóa | UC-XL-01 |  |  | Thiếu |
 | AC-XL-17 | Sửa theo báo cáo thành công | UC-XL-02 | D | ReportReviewApiIntegrationTest.resolve_afterFixingField_closesWholeGroup_AC_XL_17_AC_XL_18 (chưa test giao diện) | Một phần |
 | AC-XL-18 | Xử lý cả các báo cáo trùng | UC-XL-02 | D | ReportReviewApiIntegrationTest.resolve_afterFixingField_closesWholeGroup_AC_XL_17_AC_XL_18 (chưa test giao diện) | Một phần |
-| AC-XL-19 | Áp dụng bản sửa đề xuất | UC-XL-02 | D | ReportReviewApiIntegrationTest.applyFix_sentence_writesChosenFieldAndAudits_thenResolves_AC_XL_19; ReportReviewApiIntegrationTest.applyFix_card_validatesLikeCardEdit_AC_XL_19 | Đã có |
+| AC-XL-19 | Áp dụng bản sửa đề xuất | UC-XL-02 | D | ReportReviewApiIntegrationTest.applyFix_sentence_writesChosenFieldWithoutAudit_thenResolves_AC_XL_19; ReportReviewApiIntegrationTest.applyFix_card_validatesLikeCardEdit_AC_XL_19 | Đã có |
 | AC-XL-20 | Chọn một trong nhiều bản sửa của nhóm báo cáo trùng | UC-XL-02 | D | ReportReviewApiIntegrationTest.applyFix_choosesOneFixOfDuplicateGroup_AC_XL_20 | Đã có |
 | AC-XL-21 | Báo cáo không có bản sửa và hủy áp dụng | UC-XL-02 | A | ReportReviewApiIntegrationTest.applyFix_withoutFixOrOutsideGroupOrNotOwn_isRejected_AC_XL_21 (chưa test giao diện: ẩn nút Áp dụng bản sửa với báo cáo Khác, nút Hủy đóng hộp xác nhận) | Một phần |
 | AC-XL-22 | Rời màn hình sửa mà không lưu | UC-XL-02 |  |  | Thiếu |

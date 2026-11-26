@@ -23,6 +23,7 @@ public class LoginAttemptService {
     private final LoginAttemptRepository repository;
     private final AuthProperties authProperties;
     private final Clock clock;
+    private final SecurityAuditor securityAuditor;
 
     /** Ném {@code AUTH_ACCOUNT_LOCKED} kèm {@code lockedUntil} nếu email đang bị tạm khoá. */
     @Transactional(readOnly = true)
@@ -44,6 +45,8 @@ public class LoginAttemptService {
         LoginAttempt attempt = repository.recordFailure(email, max, now.plus(authProperties.lockDuration()), now);
         Instant lockedUntil = attempt.getLockedUntil();
         if (lockedUntil != null && lockedUntil.isAfter(now)) {
+            // Lần sai này vừa gây khóa (assertNotLocked chặn mọi lần thử khi đang khóa), ghi một lần (BR-TK-18).
+            securityAuditor.loginLocked(email, lockedUntil);
             return new FailureResult(0, lockedUntil);
         }
         return new FailureResult(max - attempt.getFailedCount(), null);

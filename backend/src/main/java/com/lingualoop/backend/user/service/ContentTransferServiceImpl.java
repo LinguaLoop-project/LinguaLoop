@@ -191,12 +191,9 @@ class ContentTransferServiceImpl implements ContentTransferService {
                     diff, null);
         }
         if (source != null) {
-            Map<String, Object> diff = new LinkedHashMap<>();
-            diff.put("lessons", movedLessons);
-            diff.put("decks", movedDecks);
-            diff.put("recipient", recipient.getDisplayName());
             auditor.record(adminId, AuditAction.TRANSFER, AuditEntityType.USER, source.getId(),
-                    source.getDisplayName(), diff, null);
+                    source.getDisplayName(), null, "Giao %d bài học, %d bộ thẻ cho %s".formatted(movedLessons,
+                            movedDecks, recipient.getDisplayName()));
         }
         notifications.send(recipient.getId(), notificationMessage(movedLessons, movedDecks));
         return new ContentTransferView.Result(recipient.getId(), recipient.getDisplayName(), movedLessons, movedDecks);

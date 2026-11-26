@@ -34,6 +34,7 @@ public class PasswordService {
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
     private final TransactionTemplate transactionTemplate;
+    private final SecurityAuditor securityAuditor;
 
     /**
      * @param sessionId phiên đang dùng (claim {@code sid}); phiên này được giữ, mọi phiên khác bị thu hồi.
@@ -51,6 +52,7 @@ public class PasswordService {
         transactionTemplate.executeWithoutResult(status -> {
             userAccountService.updatePasswordHash(userId, newHash);
             refreshTokenService.revokeAllExcept(userId, sessionId);
+            securityAuditor.passwordChanged(account);
         });
     }
 

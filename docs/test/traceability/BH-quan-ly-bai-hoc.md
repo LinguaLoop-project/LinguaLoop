@@ -38,7 +38,7 @@ Tổng hợp: 102 AC, 69 đã có test, 2 một phần, 27 thiếu, 4 không áp
 | AC-BH-94 | Video đã có bài của giáo viên khác | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_videoAlreadyUsedByAnotherTeacher_hidesThatLesson_AC_BH_94 | Đã có |
 | AC-BH-95 | Hai yêu cầu tạo bài cùng video cùng lúc | UC-BH-03 |  |  | Thiếu |
 | AC-BH-102 | Không đủ credit để tạo bài | UC-BH-03 | A | TeacherLessonImportApiIntegrationTest.create_withoutEnoughCredit_createsNothingAndCallsNoService_AC_BH_102 | Đã có |
-| AC-BH-24 | Sửa thông tin bài Nháp | UC-BH-04 | A | LessonManageApiIntegrationTest.updateInfo_savesAndAudits_AC_BH_24 | Đã có |
+| AC-BH-24 | Sửa thông tin bài Nháp | UC-BH-04 | A | LessonManageApiIntegrationTest.updateInfo_savesWithoutAudit_AC_BH_24 | Đã có |
 | AC-BH-25 | Sửa bài đã xuất bản có hiệu lực ngay | UC-BH-04 |  |  | Thiếu |
 | AC-BH-26 | Bật nhãn Pro cho bài đã xuất bản | UC-BH-04 |  |  | Thiếu |
 | AC-BH-27 | Đổi chủ đề | UC-BH-04 |  |  | Thiếu |
@@ -48,9 +48,9 @@ Tổng hợp: 102 AC, 69 đã có test, 2 một phần, 27 thiếu, 4 không áp
 | AC-BH-31 | Bài đã bị xóa trong lúc sửa | UC-BH-04 | A | LessonManageApiIntegrationTest.updateInfo_otherTeacherOrDeleted_AC_BH_30_31 | Đã có |
 | AC-BH-32 | Hủy chỉnh sửa | UC-BH-04 |  |  | Thiếu |
 | AC-BH-33 | Mất kết nối khi lưu | UC-BH-04 |  |  | Thiếu |
-| AC-BH-34 | Sửa câu tiếng Anh và bản dịch | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_savesTranslationAndIpaWithAudit_AC_BH_34_35_36; sentenceDraft.test.ts "chỉ gửi câu đã đổi và câu đã chọn xóa" | Đã có |
+| AC-BH-34 | Sửa câu tiếng Anh và bản dịch | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_savesTranslationAndIpaWithoutAudit_AC_BH_34_35_36; sentenceDraft.test.ts "chỉ gửi câu đã đổi và câu đã chọn xóa" | Đã có |
 | AC-BH-35 | IPA được tạo lại khi sửa câu tiếng Anh | UC-BH-05 | D | Chưa có: test hiện tại chỉ kiểm lưu IPA gửi lên, chưa kiểm tạo lại IPA khi câu tiếng Anh đổi | Thiếu |
-| AC-BH-36 | Sửa mốc thời gian | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_savesTranslationAndIpaWithAudit_AC_BH_34_35_36; sentenceDraft.test.ts "định dạng và đọc lại mốc thời gian" | Đã có |
+| AC-BH-36 | Sửa mốc thời gian | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_savesTranslationAndIpaWithoutAudit_AC_BH_34_35_36; sentenceDraft.test.ts "định dạng và đọc lại mốc thời gian" | Đã có |
 | AC-BH-37 | Mốc thời gian không hợp lệ | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_invalidTimesOrText_rejectsAll_AC_BH_37_38; sentenceDraft.test.ts "báo mốc chồng lấn câu kề bên", "báo đoạn ngắn hơn 0,5 giây…" | Đã có |
 | AC-BH-38 | Câu tiếng Anh để trống hoặc quá dài | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_invalidTimesOrText_rejectsAll_AC_BH_37_38; sentenceDraft.test.ts "câu tiếng Anh trống hoặc bản dịch 501 ký tự" | Đã có |
 | AC-BH-39 | Xóa câu | UC-BH-05 | A | LessonManageApiIntegrationTest.updateSentences_deleteRenumbers_AC_BH_39; sentenceDraft.test.ts "chỉ gửi câu đã đổi và câu đã chọn xóa" | Đã có |

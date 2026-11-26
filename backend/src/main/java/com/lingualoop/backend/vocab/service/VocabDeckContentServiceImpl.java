@@ -19,6 +19,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lingualoop.backend.audit.enums.AuditAction;
 import com.lingualoop.backend.common.exception.BusinessException;
 import com.lingualoop.backend.common.exception.ErrorCode;
 import com.lingualoop.backend.common.exception.FieldValidationException;
@@ -77,6 +78,7 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     private final CardAudioUrls audio;
     private final Clock clock;
     private final ReportCleanupService reportCleanup;
+    private final VocabAuditor auditor;
 
     // ------------------------------------------------------------------ nhóm thẻ (UC-NT-01, 02, 03)
 
@@ -212,11 +214,18 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     @Transactional
     public DeckManageView.Card updateCard(Actor actor, UUID userId, UUID deckId, UUID groupId, UUID cardId,
             CardRequest request) {
+        return saveCard(actor, userId, deckId, groupId, cardId, request);
+    }
+
+    /** Thêm, sửa, xóa nhóm thẻ và thẻ không ghi nhật ký (BR-NK-18). */
+    private DeckManageView.Card saveCard(Actor actor, UUID userId, UUID deckId, UUID groupId, UUID cardId,
+            CardRequest request) {
         rejectImage(actor, request);
         images.discardOnRollback(userId, request.imageKey());
         lockDeck(actor, userId, deckId);
-        String oldImage = repository.findCard(deckId, groupId, cardId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_CARD_NOT_FOUND)).imageUrl();
+        DeckManageView.Card before = repository.findCard(deckId, groupId, cardId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_CARD_NOT_FOUND));
+        String oldImage = before.imageUrl();
         requireWordFree(deckId, request.word(), cardId);
         if (request.imageKey() != null) {
             images.verify(userId, request.imageKey());
@@ -248,7 +257,7 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
                         v.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName());
             }
         }
-        updateCard(teacherId, at.deckId(), at.groupId(), cardId, fix.request());
+        saveCard(Actor.TEACHER, teacherId, at.deckId(), at.groupId(), cardId, fix.request());
         return fix.oldValue();
     }
 
@@ -396,8 +405,8 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
     @Transactional
     public CardImportView.Result importCards(Actor actor, UUID userId, UUID deckId, UUID groupId, String filename,
             byte[] content) {
-        lockDeck(actor, userId, deckId);
-        group(deckId, groupId);
+        DeckStateRow deck = lockDeck(actor, userId, deckId);
+        DeckManageView.Group group = group(deckId, groupId);
         List<CardRequest> cards = parseCards(deckId, filename, content);
         Instant start = now();
         for (int i = 0; i < cards.size(); i++) {
@@ -406,6 +415,11 @@ class VocabDeckContentServiceImpl implements VocabDeckContentService {
             repository.insertCard(deckId, groupId, card, audioOf(card), null, start.plus(i, ChronoUnit.MICROS));
         }
         repository.touchDeck(deckId, start);
+        if (actor == Actor.TEACHER) {
+            // Một mục cho cả lần nhập, không ghi riêng từng thẻ (BR-NT-10).
+            auditor.deck(userId, AuditAction.IMPORT, deckId, deck.getName(), null,
+                    "Nhập %d thẻ vào nhóm %s".formatted(cards.size(), group.name()));
+        }
         return new CardImportView.Result(cards.size());
     }
 

@@ -6,16 +6,13 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.lingualoop.backend.audit.dto.request.AuditEntryRequest;
-import com.lingualoop.backend.audit.enums.AuditAction;
-import com.lingualoop.backend.audit.enums.AuditEntityType;
-import com.lingualoop.backend.audit.service.AuditService;
+import com.lingualoop.backend.report.enums.ReportStatus;
+import com.lingualoop.backend.report.repository.ClosedReport;
 import com.lingualoop.backend.report.repository.ModerationRepository;
 import com.lingualoop.backend.report.repository.ModerationRepository.RemindedGroup;
 import com.lingualoop.backend.user.service.NotificationService;
@@ -38,7 +35,7 @@ public class ReportMaintenanceService implements ReportCleanupService {
 
     private final ModerationRepository repository;
     private final NotificationService notifications;
-    private final AuditService audit;
+    private final ReportAuditor auditor;
     private final Clock clock;
 
     /** Kết quả một lượt: số dòng được nhắc, số giáo viên nhận thông báo, số báo cáo được đóng. */
@@ -57,9 +54,11 @@ public class ReportMaintenanceService implements ReportCleanupService {
                 .collect(Collectors.groupingBy(RemindedGroup::ownerId, Collectors.counting()));
         perTeacher.forEach((teacher, count) -> notifications.send(teacher,
                 "Bạn có %d báo cáo chờ quá 7 ngày".formatted(count)));
+        // Lần nhắc là việc tự động, không ghi nhật ký hệ thống (BR-NK-18); dấu đã nhắc nằm trên báo cáo.
 
-        List<UUID> closed = repository.closeForDeletedItems(NOTE_DELETED, now);
-        List<UUID> purged = repository.closeForPermanentlyDeleted(now.minus(RESTORE_WINDOW), NOTE_PURGED, now);
+        List<ClosedReport> closed = repository.closeForDeletedItems(NOTE_DELETED, now);
+        List<ClosedReport> purged = repository.closeForPermanentlyDeleted(now.minus(RESTORE_WINDOW), NOTE_PURGED,
+                now);
         record(closed, NOTE_DELETED);
         record(purged, NOTE_PURGED);
         return new RunResult(reminded.size(), perTeacher.size(), closed.size() + purged.size());
@@ -85,9 +84,8 @@ public class ReportMaintenanceService implements ReportCleanupService {
         record(repository.closeForSentence(sentenceId, NOTE_DELETED, clock.instant()), NOTE_DELETED);
     }
 
-    private void record(List<UUID> reportIds, String note) {
-        Function<UUID, AuditEntryRequest> entry = id -> new AuditEntryRequest(null, null, null, AuditAction.RESOLVE,
-                AuditEntityType.REPORT, id, null, Map.of("status", Map.of("new", "resolved")), note);
-        reportIds.forEach(id -> audit.record(entry.apply(id)));
+    /** Hệ thống tự đóng: mỗi báo cáo một mục, người thực hiện là Hệ thống (BR-XL-07). */
+    private void record(List<ClosedReport> closed, String note) {
+        auditor.closed(closed, ReportStatus.RESOLVED, null, null, note);
     }
 }
