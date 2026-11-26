@@ -53,7 +53,7 @@ class AuditCoverageIntegrationTest {
     void deckCreateIsLoggedWithCreatedValues_groupAndCardEditsAreNot_BR_NK_18() {
         UUID teacher = data.teacher("Lê Thanh");
         String name = "TOEIC " + UUID.randomUUID().toString().substring(0, 6);
-        UUID deck = decks.createDeck(teacher, new CreateDeckRequest(name, null, true, null)).id();
+        UUID deck = decks.createDeck(teacher, new CreateDeckRequest(name, null, null, true, null)).id();
         DeckManageView.Group group = content.addGroup(teacher, deck, new GroupRequest("Office"));
         content.renameGroup(teacher, deck, group.id(), new GroupRequest("Office 2"));
         DeckManageView.Card invoice = content.addCard(teacher, deck, group.id(), card("invoice", "hóa đơn"));
@@ -76,7 +76,7 @@ class AuditCoverageIntegrationTest {
     void publishUnpublishDeleteRestore_areLogged_BR_BT_16() {
         UUID teacher = data.teacher("GV");
         String name = "Bộ " + UUID.randomUUID().toString().substring(0, 6);
-        UUID deck = decks.createDeck(teacher, new CreateDeckRequest(name, null, false, null)).id();
+        UUID deck = decks.createDeck(teacher, new CreateDeckRequest(name, null, null, false, null)).id();
         DeckManageView.Group group = content.addGroup(teacher, deck, new GroupRequest("G"));
         content.addCard(teacher, deck, group.id(), card("apple", "táo"));
         decks.publish(teacher, deck);

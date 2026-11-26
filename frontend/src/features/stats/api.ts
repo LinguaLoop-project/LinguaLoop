@@ -35,7 +35,7 @@ export const statsApi = {
   /** Chỉ chuỗi ngày học, cho chip ở thanh trên cùng. */
   getStreak: () => get<Streak>("/streak"),
 
-  /** Lịch nhiệt 13 tuần gần nhất (UC-TH-01). */
+  /** Lịch nhiệt 90 ngày gần nhất (UC-TH-01). */
   getActivity: () => get<ActivityMap>("/activity"),
 
   /** Mười từ nghe sai nhiều nhất (UC-TH-01). */

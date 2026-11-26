@@ -95,7 +95,7 @@ export default function AccountMenu({ config, compact = false }: { config: Shell
                 className="mx-1 flex min-h-10 w-[calc(100%-0.5rem)] cursor-pointer items-center justify-between gap-2.5 rounded-sm border border-border bg-transparent px-3 text-left text-[15px] hover:bg-surface-hover"
                 onClick={() => {
                   setOpen(false);
-                  navigate("/student/settings?tab=plan");
+                  navigate("/student/subscription");
                 }}
               >
                 <span className="inline-flex h-6 items-center rounded-sm bg-[color-mix(in_srgb,var(--text-muted)_14%,transparent)] px-2 text-xs font-semibold text-text-muted">Free</span>

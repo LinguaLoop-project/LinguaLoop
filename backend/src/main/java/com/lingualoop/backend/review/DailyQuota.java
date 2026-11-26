@@ -1,7 +1,7 @@
 package com.lingualoop.backend.review;
 
 /**
- * Định mức của một phiên Ôn tập hằng ngày theo mục tiêu ngày (BR-HT-24): số thẻ tối đa và số câu tối đa của mỗi chế độ
+ * Định mức của một phiên Luyện tập hằng ngày theo mục tiêu ngày (BR-HT-24): số thẻ tối đa và số câu tối đa của mỗi chế độ
  * (Nghe chép, Shadowing chia đều).
  */
 record DailyQuota(int cards, int sentencesPerMode) {

@@ -6,6 +6,7 @@ import {
   activitySummary,
   dayKeyInZone,
   previousDayKey,
+  activityWindowStart,
   buildHeatWeeks,
   dictationPracticeHref,
   groupHistoryByDate,
@@ -223,6 +224,17 @@ describe("buildHeatWeeks (AC-TH-31)", () => {
 
   it("ngày sau hôm nay chưa tới nên để trống", () => {
     expect(weeks[2].slice(3)).toEqual([null, null, null, null]);
+  });
+
+  it("cửa sổ 90 ngày: ô trước ngày đầu để trống nên đúng 90 ô có ngày", () => {
+    // 2026-11-25 là thứ Tư; ngày đầu của cửa sổ 90 ngày là 2026-08-28 (thứ Sáu); thứ Hai của tuần đó là 2026-08-24
+    const to = "2026-11-25";
+    const start = activityWindowStart(to);
+    expect(start).toBe("2026-08-28");
+    const grid = buildHeatWeeks("2026-08-24", to, [], start);
+    expect(grid[0].slice(0, 4)).toEqual([null, null, null, null]);
+    expect(grid[0][4]?.date).toBe("2026-08-28");
+    expect(grid.flat().filter((cell) => cell !== null)).toHaveLength(90);
   });
 
   it("đếm số ngày đã học", () => {

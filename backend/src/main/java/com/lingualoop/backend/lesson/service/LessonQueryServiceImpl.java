@@ -2,6 +2,7 @@ package com.lingualoop.backend.lesson.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -167,6 +168,11 @@ class LessonQueryServiceImpl implements LessonQueryService {
     public Optional<LessonSuggestionResponse> suggestShadowingLesson(UUID userId, boolean userPro) {
         return lessonRepository.findUnpracticedShadowingLesson(userId, userPro).stream().findFirst()
                 .map(l -> new LessonSuggestionResponse(l.getId(), l.getTitle(), l.getCefrLevel(), (int) l.getSentenceCount()));
+    }
+
+    @Override
+    public Optional<String> mostPracticedLevel(UUID userId, Instant since) {
+        return lessonRepository.findMostPracticedLevel(userId, since).stream().findFirst();
     }
 
     @Override
