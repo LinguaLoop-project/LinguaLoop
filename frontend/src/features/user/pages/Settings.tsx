@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import AccountSection from "../components/AccountSection";
 import DisplaySection from "../components/DisplaySection";
 import LearningProfileForm from "../components/LearningProfileForm";
+import NotificationPreferencesSection from "../components/NotificationPreferencesSection";
 import PracticeSection from "../components/PracticeSection";
 import SecuritySection from "../components/SecuritySection";
 import Badge from "@/components/common/Badge";
@@ -16,6 +17,7 @@ const ALL_TABS = [
   { id: "account", icon: "circle-user", studentOnly: false },
   { id: "learning", icon: "target", studentOnly: true },
   { id: "practice", icon: "headphones", studentOnly: true },
+  { id: "notifications", icon: "bell", studentOnly: true },
   { id: "display", icon: "palette", studentOnly: false },
   { id: "security", icon: "shield-check", studentOnly: false },
   { id: "plan", icon: "crown", studentOnly: true },
@@ -23,7 +25,7 @@ const ALL_TABS = [
 
 type TabId = (typeof ALL_TABS)[number]["id"];
 
-/** Trang Cài đặt: hiển thị đủ 6 tab cho học viên, và các tab tài khoản/giao diện/bảo mật cho giáo viên & quản trị viên. */
+/** Trang Cài đặt: hiển thị đủ 7 tab cho học viên, và các tab tài khoản/giao diện/bảo mật cho giáo viên & quản trị viên. */
 export default function Settings() {
   const { t } = useTranslation("auth");
   const { user, handleLogout } = useAuth();
@@ -120,6 +122,8 @@ export default function Settings() {
             <DisplaySection />
           ) : tab === "security" ? (
             <SecuritySection />
+          ) : tab === "notifications" ? (
+            <NotificationPreferencesSection />
           ) : tab === "practice" ? (
             <PracticeSection />
           ) : tab === "learning" ? (

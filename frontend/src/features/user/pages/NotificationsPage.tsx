@@ -11,11 +11,11 @@ import {
   parsePageIndex,
   relativeTime,
   useMarkAllNotificationsRead,
-  useMarkNotificationRead,
   useNotificationPage,
   useNotifications,
   type NotificationFilter,
 } from "../notifications";
+import { useNotificationView } from "../useNotificationView";
 
 /** Trang Thông báo đầy đủ của học viên (UC-TK-09, BR-TK-18): lọc Tất cả hoặc Chưa đọc, 20 thông báo mỗi trang. */
 export default function NotificationsPage() {
@@ -25,7 +25,7 @@ export default function NotificationsPage() {
   const page = parsePageIndex(params.get("page"));
   const query = useNotificationPage(filter, page);
   const unread = useNotifications().data?.unreadCount ?? 0;
-  const markRead = useMarkNotificationRead();
+  const view = useNotificationView();
   const markAll = useMarkAllNotificationsRead();
   const data = query.data;
 
@@ -103,16 +103,14 @@ export default function NotificationsPage() {
               <li key={item.id}>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (!item.read) markRead.mutate(item.id);
-                  }}
+                  onClick={() => view.open(item)}
                   className={`flex w-full items-start gap-3 px-5 py-3.5 text-left transition-colors hover:bg-surface-hover ${
-                    item.read ? "cursor-default" : "cursor-pointer bg-primary-soft"
+                    item.read && !item.link ? "cursor-default" : "cursor-pointer"} ${item.read ? "" : "bg-primary-soft"
                   }`}
                 >
                   <span aria-hidden="true" className={`mt-2 size-2 shrink-0 rounded-full ${item.read ? "bg-transparent" : "bg-primary"}`} />
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className={`text-sm leading-snug ${item.read ? "text-text-muted" : "font-medium text-text"}`}>{item.message}</span>
+                    <span className={`text-sm leading-snug ${item.read ? "text-text-muted" : "font-medium text-text"}`}>{view.text(item)}</span>
                     <time dateTime={item.createdAt} title={new Date(item.createdAt).toLocaleString(i18n.language === "en" ? "en-GB" : "vi-VN")} className="text-xs text-text-subtle">
                       {relativeTime(item.createdAt, i18n.language)}
                     </time>

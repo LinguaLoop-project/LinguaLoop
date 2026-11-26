@@ -222,6 +222,17 @@
     "resetUsage": "Đặt lại lượt hôm nay"
   },
   "notifications": {
+    "types": {
+      "REVIEW_DUE": "Bạn có {{count}} thẻ từ vựng đến hạn ôn hôm nay.",
+      "STREAK_AT_RISK": "Chuỗi {{days}} ngày học của bạn sẽ đứt nếu hôm nay bạn chưa học. Luyện nhanh vài phút để giữ chuỗi.",
+      "AI_CREDIT_EXHAUSTED": "Bạn đã hết credit AI nên chưa dùng được tính năng AI lúc này.",
+      "PRO_ACTIVATED": "Thanh toán thành công. Gói Pro của bạn có hiệu lực đến {{endsAt}}.",
+      "PAYMENT_FAILED": "Thanh toán gói Pro không thành công. Bạn có thể thử lại ở trang Gói đăng ký.",
+      "PRO_EXPIRING": "Gói Pro của bạn sẽ hết hạn vào {{endsAt}} (còn {{days}} ngày). Gia hạn để không bị gián đoạn.",
+      "PRO_EXPIRED": "Gói Pro của bạn đã hết hạn, tài khoản đã về gói Free. Bạn có thể gia hạn bất cứ lúc nào.",
+      "REPORT_RESOLVED": "Báo cáo của bạn đã được xử lý. Cảm ơn bạn đã giúp cải thiện nội dung.",
+      "REPORT_REJECTED": "Báo cáo của bạn không được chấp nhận: {{reason}}"
+    },
     "title": "Thông báo",
     "markAll": "Đánh dấu tất cả đã đọc",
     "empty": "Chưa có thông báo nào",

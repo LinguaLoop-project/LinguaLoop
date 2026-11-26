@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Icon from "@/components/common/Icon";
-import { relativeTime, useMarkAllNotificationsRead, useMarkNotificationRead, useNotifications } from "../notifications";
+import { relativeTime, useMarkAllNotificationsRead, useNotifications } from "../notifications";
 import type { NotificationItem } from "../notifications";
+import { useNotificationView } from "../useNotificationView";
 
 export interface NotificationBellProps {
   /** Lớp cho nút chuông, để khớp cụm nút trên thanh trên. */
@@ -86,6 +87,7 @@ export default function NotificationBell({ buttonClassName = "", allHref }: Read
             isError={query.isError}
             items={query.data?.items ?? []}
             onRetry={() => void query.refetch()}
+            onNavigate={() => setOpen(false)}
           />
           {allHref && (
             <Link
@@ -107,9 +109,16 @@ function PanelBody({
   isError,
   items,
   onRetry,
-}: Readonly<{ isLoading: boolean; isError: boolean; items: NotificationItem[]; onRetry: () => void }>) {
+  onNavigate,
+}: Readonly<{
+  isLoading: boolean;
+  isError: boolean;
+  items: NotificationItem[];
+  onRetry: () => void;
+  onNavigate: () => void;
+}>) {
   const { t, i18n } = useTranslation("layout");
-  const markRead = useMarkNotificationRead();
+  const view = useNotificationView(onNavigate);
 
   if (isLoading) {
     return <p className="px-4 py-6 text-center text-sm text-text-muted">{t("notifications.loading")}</p>;
@@ -138,9 +147,7 @@ function PanelBody({
         <li key={item.id}>
           <button
             type="button"
-            onClick={() => {
-              if (!item.read) markRead.mutate(item.id);
-            }}
+            onClick={() => view.open(item)}
             className={`flex w-full cursor-pointer items-start gap-3 px-4 py-2.5 text-left transition-colors hover:bg-surface-hover ${
               item.read ? "" : "bg-primary-soft"
             }`}
@@ -151,7 +158,7 @@ function PanelBody({
             />
             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
               <span className={`text-sm leading-snug ${item.read ? "text-text-muted" : "font-medium text-text"}`}>
-                {item.message}
+                {view.text(item)}
               </span>
               <span className="text-xs text-text-subtle">{relativeTime(item.createdAt, i18n.language)}</span>
             </span>

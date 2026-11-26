@@ -222,6 +222,17 @@
     "resetUsage": "Reset today's usage"
   },
   "notifications": {
+    "types": {
+      "REVIEW_DUE": "You have {{count}} vocabulary cards due for review today.",
+      "STREAK_AT_RISK": "Your {{days}}-day streak will break if you don't study today. A few minutes of practice keeps it alive.",
+      "AI_CREDIT_EXHAUSTED": "You're out of AI credits, so AI features are unavailable right now.",
+      "PRO_ACTIVATED": "Payment successful. Your Pro plan is active until {{endsAt}}.",
+      "PAYMENT_FAILED": "Your Pro payment did not go through. You can try again on the Subscription page.",
+      "PRO_EXPIRING": "Your Pro plan expires on {{endsAt}} ({{days}} days left). Renew to avoid an interruption.",
+      "PRO_EXPIRED": "Your Pro plan has expired and your account is back on the Free plan. You can renew any time.",
+      "REPORT_RESOLVED": "Your report has been handled. Thank you for helping improve the content.",
+      "REPORT_REJECTED": "Your report was not accepted: {{reason}}"
+    },
     "title": "Notifications",
     "markAll": "Mark all as read",
     "empty": "No notifications yet",
