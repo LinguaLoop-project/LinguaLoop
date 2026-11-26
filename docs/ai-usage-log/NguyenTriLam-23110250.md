@@ -1011,6 +1011,18 @@
 - **Commit:** 791eec8, 9dbdbc2, f8605cd, f33a5b7, c439a2b, f0d00af, 0a94eaa
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-088
+
+- **Ngày:** 2026-11-26
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Rà soát phần thông báo hiện có, đề xuất danh sách thông báo nên có cho học viên rồi triển khai: thanh toán Pro thành công hoặc thất bại, nhắc gói Pro sắp hết hạn và đã hết hạn, kết quả xử lý báo cáo gửi lại người báo, nhắc ôn thẻ đến hạn, nhắc giữ chuỗi ngày học, thông báo hết credit AI, cùng tùy chọn bật/tắt từng loại nhắc
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../user/service/NotificationType.java`, `NotificationServiceImpl.java:send, preferences, setPreference`, `LearningReminderService.java:run`, `LearningReminderJob.java`, `NotificationRepository.java:insert (khóa chống trùng), studentsInLocalHours`, `NotificationController.java` (`/notifications/preferences`); `subscription/service/ProPaymentServiceImpl.java:activate, confirm`, `ProExpiryReminderService.java:run`; `report/service/ReportOutcomeNotifier.java`, `ReportReviewServiceImpl.java:record`, `TakedownMarker.java:mark`; `credit/service/CreditServiceImpl.java:notifyExhausted`; migration `V20261126_1000__notification_types.sql`, `V20261126_1100__notification_preferences.sql`; `frontend/src/features/user/notifications.ts:notificationText, safeInternalLink`, `useNotificationView.ts`, `components/NotificationPreferencesSection.tsx`, bản dịch `auth.json`, `layout.json`; test `NotificationApiIntegrationTest`, `ProPaymentApiIntegrationTest`, `ReportReviewApiIntegrationTest`, `CreditServiceIntegrationTest`, `LearningReminderServiceTest`, `notifications.test.ts`; đặc tả `docs/srs/TK-tai-khoan-xac-thuc` (BR-TK-22, BR-TK-23, UC-TK-09, UC-TK-10, AC-TK-71..77)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên yêu cầu liệt kê thông báo hiện có và chọn triển khai danh sách đề xuất. AI đối chiếu mã để chỉ ra học viên gần như không nhận thông báo nào, thiết kế lược đồ có loại, tham số, đường dẫn và khóa chống trùng (giữ câu tiếng Việt dự phòng để thông báo cũ không hỏng), viết dịch vụ, công việc định kỳ, giao diện và test. AI báo lại rằng thông báo "bài học theo dõi có nội dung mới" chưa làm được vì bài học đã xuất bản bị khóa cấu trúc (không thêm câu được), và chưa chạy giao diện trên trình duyệt thật. Khi chạy toàn bộ test, 2 test `EspeakIpaGeneratorTest` (cần chương trình espeak của máy) thất bại không liên quan thay đổi này.
+- **Commit:** f8ac034, b8c6286
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
