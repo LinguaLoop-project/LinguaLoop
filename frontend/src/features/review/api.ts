@@ -1,14 +1,25 @@
 import { axiosClient } from "@/api/axiosClient";
 import type { ApiResponse } from "@/features/auth";
 import type { PracticeMode } from "@/features/practice/types";
-import type { DailyPlan, PlanSentence } from "./types";
+import type { DailyCards, DailyPlan, PlanSentence } from "./types";
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
 export const reviewApi = {
-  /** Kế hoạch Ôn tập hằng ngày: định mức theo mục tiêu ngày, số thẻ đến hạn và các câu được chọn (UC-HT-05). */
+  /** Kế hoạch Luyện tập hằng ngày: định mức theo mục tiêu ngày, số thẻ đến hạn và các câu được chọn (UC-HT-05). */
   getDailyPlan: async (): Promise<DailyPlan> => {
     const response = await axiosClient.get<ApiResponse<DailyPlan>>("/review/daily-plan", { timeout: REQUEST_TIMEOUT_MS });
+    return response.data.data;
+  },
+
+  /**
+   * Thẻ của phần ôn thẻ theo khung bài ngày (BR-HT-29); `extra` là lượt "Ôn thêm" chỉ có thẻ đến hạn (BR-HT-24).
+   */
+  getDailyCards: async (extra: boolean): Promise<DailyCards> => {
+    const response = await axiosClient.get<ApiResponse<DailyCards>>("/review/daily-cards", {
+      params: { extra },
+      timeout: REQUEST_TIMEOUT_MS,
+    });
     return response.data.data;
   },
 

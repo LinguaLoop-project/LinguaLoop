@@ -1,5 +1,5 @@
 // Kiểm và gửi biểu mẫu tạo bộ thẻ (UC-BT-02, BR-BT-03, 13). Máy chủ kiểm lại tên và chữ ký ảnh.
-import type { CreateDeckInput, DeckApiError, TeacherDeckItem } from "./deckManageTypes";
+import type { CefrLevel, CreateDeckInput, DeckApiError, TeacherDeckItem } from "./deckManageTypes";
 
 export const DECK_NAME_MAX = 100;
 export const DECK_IMAGE_MAX_BYTES = 2_097_152;
@@ -12,6 +12,7 @@ export type ImageError = "ImageType" | "MaxBytes";
 export interface CreateDeckValues {
   name: string;
   categoryId: string | null;
+  cefrLevel: CefrLevel | null;
   pro: boolean;
   image: File | null;
 }
@@ -20,11 +21,12 @@ export interface CreateDeckErrors {
   name?: NameError;
   image?: ImageError;
   categoryId?: string;
+  cefrLevel?: string;
   /** Lỗi không gắn ô nào: mất kết nối, lỗi máy chủ (AC-BT-13). */
   form?: "failed";
 }
 
-export const EMPTY_CREATE_DECK: CreateDeckValues = { name: "", categoryId: null, pro: false, image: null };
+export const EMPTY_CREATE_DECK: CreateDeckValues = { name: "", categoryId: null, cefrLevel: null, pro: false, image: null };
 
 /** Tên bắt buộc, 1 đến 100 ký tự sau khi cắt khoảng trắng hai đầu. */
 export function validateDeckName(name: string): NameError | null {
@@ -52,7 +54,7 @@ export function validateCreateDeck(values: CreateDeckValues): CreateDeckErrors {
 }
 
 export function toCreateDeckInput(values: CreateDeckValues): CreateDeckInput {
-  return { name: values.name.trim(), categoryId: values.categoryId, pro: values.pro };
+  return { name: values.name.trim(), categoryId: values.categoryId, cefrLevel: values.cefrLevel, pro: values.pro };
 }
 
 /** Lỗi từ server gắn về đúng ô; trùng tên (409) gắn vào ô tên; lỗi khác là "tạo không thành công". */
@@ -67,6 +69,7 @@ export function errorsFromApi(error: DeckApiError): CreateDeckErrors {
       else if (field === "contentType") errors.image = "ImageType";
       else if (field === "size") errors.image = "MaxBytes";
       else if (field === "categoryId") errors.categoryId = code;
+      else if (field === "cefrLevel") errors.cefrLevel = code;
     }
     return errors;
   }

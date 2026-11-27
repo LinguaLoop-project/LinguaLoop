@@ -13,6 +13,7 @@ import {
   type CreateDeckValues,
 } from "../../createDeckForm";
 import { useCreateTeacherDeck, useDeckCategories } from "../../deckManageHooks";
+import { CEFR_LEVELS, type CefrLevel } from "../../deckManageTypes";
 import { TEACHER_DECKS_PATH } from "../../deckManagePaths";
 
 /**
@@ -90,6 +91,22 @@ export default function TeacherDeckCreatePage() {
           {errors.categoryId && (
             <span className="text-danger">{t("manage.form.categoryInvalid")}</span>
           )}
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-text">
+          {t("manage.level")}
+          <select
+            className="rounded-md border border-border bg-surface px-3 py-2"
+            value={values.cefrLevel ?? ""}
+            onChange={(e) => set({ cefrLevel: (e.target.value || null) as CefrLevel | null })}
+          >
+            <option value="">{t("manage.noLevel")}</option>
+            {CEFR_LEVELS.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+          {errors.cefrLevel && <span className="text-danger">{t("manage.form.levelInvalid")}</span>}
         </label>
         <label className="flex items-center gap-2 text-sm text-text">
           <input type="checkbox" checked={values.pro} onChange={(e) => set({ pro: e.target.checked })} />

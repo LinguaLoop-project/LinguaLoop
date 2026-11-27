@@ -15,6 +15,7 @@ const detail: DeckDetail = {
   imageUrl: "https://cdn.test/a.jpg",
   categoryId: "c1",
   categoryName: "Học thuật",
+  cefrLevel: null,
   pro: false,
   status: "draft",
   updatedAt: "2026-11-13T03:00:00Z",
@@ -34,6 +35,7 @@ describe("editDeckForm (UC-BT-03)", () => {
     expect(editValuesFromDetail(detail)).toEqual({
       name: "TOEIC 1",
       categoryId: "c1",
+      cefrLevel: null,
       pro: false,
       image: null,
       removeImage: false,
@@ -46,6 +48,7 @@ describe("editDeckForm (UC-BT-03)", () => {
     expect(isEditDirty({ ...base, name: " TOEIC 1 " }, detail)).toBe(false);
     expect(isEditDirty({ ...base, name: "TOEIC 2" }, detail)).toBe(true);
     expect(isEditDirty({ ...base, pro: true }, detail)).toBe(true);
+    expect(isEditDirty({ ...base, cefrLevel: "B1" }, detail)).toBe(true);
     expect(isEditDirty({ ...base, removeImage: true }, detail)).toBe(true);
     expect(isEditDirty({ ...base, removeImage: true }, { ...detail, imageUrl: null })).toBe(false);
   });
@@ -55,7 +58,23 @@ describe("editDeckForm (UC-BT-03)", () => {
     const values: EditDeckValues = { ...editValuesFromDetail(detail), name: "  TOEIC 2 ", categoryId: "c2" };
     const result = await submitEditDeck(values, update);
     expect(result.ok).toBe(true);
-    expect(update).toHaveBeenCalledWith({ name: "TOEIC 2", categoryId: "c2", pro: false, removeImage: false }, null);
+    expect(update).toHaveBeenCalledWith(
+      { name: "TOEIC 2", categoryId: "c2", cefrLevel: null, pro: false, removeImage: false },
+      null,
+    );
+  });
+
+  it("Gửi cấp độ đã chọn, chọn lại \"Chưa gắn\" thì gửi null và lỗi cấp độ gắn về ô cấp độ (AC-BT-81)", async () => {
+    const update = vi.fn().mockResolvedValue(detail);
+    await submitEditDeck({ ...editValuesFromDetail(detail), cefrLevel: "B1" }, update);
+    expect(update.mock.calls[0][0].cefrLevel).toBe("B1");
+    await submitEditDeck({ ...editValuesFromDetail({ ...detail, cefrLevel: "B1" }), cefrLevel: null }, update);
+    expect(update.mock.calls[1][0].cefrLevel).toBeNull();
+
+    const bad = vi.fn().mockRejectedValue(err({ kind: "validation", fieldErrors: [{ field: "cefrLevel", code: "Pattern" }] }));
+    const result = await submitEditDeck({ ...editValuesFromDetail(detail), cefrLevel: "B1" }, bad);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.cefrLevel).toBe("Pattern");
   });
 
   it("Xóa ảnh thì gửi removeImage, chọn ảnh mới thì bỏ cờ xóa (AC-BT-16)", () => {

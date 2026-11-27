@@ -8,6 +8,8 @@ export type MeResponse = {
   email: string;
   displayName: string | null;
   avatarUrl: string | null;
+  /** true khi học viên tự tải ảnh đại diện lên (khác ảnh Google). */
+  customAvatar: boolean;
   role: Role;
   emailVerified: boolean;
   onboarded: boolean;

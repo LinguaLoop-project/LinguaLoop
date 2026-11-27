@@ -71,11 +71,11 @@ class VocabDeckManageServiceImplTest {
     }
 
     private static CreateDeckRequest named(String name) {
-        return new CreateDeckRequest(name, null, false, null);
+        return new CreateDeckRequest(name, null, null, false, null);
     }
 
     private CreateDeckRequest withImage(String name) {
-        return new CreateDeckRequest(name, null, false, imageKey);
+        return new CreateDeckRequest(name, null, null, false, imageKey);
     }
 
     private VocabDeck savedDeck() {

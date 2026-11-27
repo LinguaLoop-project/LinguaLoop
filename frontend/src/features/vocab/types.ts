@@ -68,6 +68,8 @@ export interface DeckSummary {
   /** Ảnh bìa bộ; null khi bộ chưa có ảnh. */
   thumbnailUrl: string | null;
   category: DeckCategory | null;
+  /** Cấp độ CEFR của bộ (A1 đến C2); null khi chưa gắn (BR-BT-16). */
+  cefrLevel: string | null;
   cardCount: number;
   groupCount: number;
   progress: DeckProgress;
@@ -176,6 +178,11 @@ export interface AnswerInput {
   /** Bắt buộc với Flashcard: 1 Quên, 3 Khó, 4 Được, 5 Dễ. */
   quality?: number;
   responseMs?: number;
+  /**
+   * Thẻ củng cố của phiên Luyện tập hằng ngày (BR-HT-30): chỉ ghi nhật ký, không đổi lịch ôn. Server chỉ nghe theo với thẻ
+   * đã học và chưa đến hạn.
+   */
+  practice?: boolean;
 }
 
 /** Một câu trả lời trước khi trang học gắn `answerId`. */

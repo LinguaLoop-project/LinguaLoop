@@ -153,14 +153,31 @@ function addDays(date: string, days: number): string {
  * Chia các ngày từ `from` (thứ Hai) đến `to` thành các cột tuần, mỗi cột 7 ô từ thứ Hai đến Chủ nhật. Ngày sau `to`
  * chưa tới nên là null. Ngày không có trong `days` là 0 hoạt động.
  */
-export function buildHeatWeeks(from: string, to: string, days: ActivityDay[]): (HeatCell | null)[][] {
+/** Số ngày của Lịch nhiệt, tính cả hôm nay (BR-TH-15); trùng hằng số của backend. */
+export const ACTIVITY_WINDOW_DAYS = 90;
+
+/** Ngày đầu tiên của cửa sổ 90 ngày kết thúc ở `to`. */
+export function activityWindowStart(to: string): string {
+  return addDays(to, -(ACTIVITY_WINDOW_DAYS - 1));
+}
+
+/**
+ * Lưới tuần của Lịch nhiệt, mỗi cột bắt đầu từ thứ Hai. Ô trước `windowStart` (đầu cột đầu tiên) hoặc sau `to` để trống
+ * nên số ô có ngày đúng bằng số ngày của cửa sổ.
+ */
+export function buildHeatWeeks(
+  from: string,
+  to: string,
+  days: ActivityDay[],
+  windowStart: string = from,
+): (HeatCell | null)[][] {
   const counts = new Map(days.map((d) => [d.date, d.count]));
   const weeks: (HeatCell | null)[][] = [];
   for (let start = from; start <= to; start = addDays(start, 7)) {
     weeks.push(
       Array.from({ length: 7 }, (_, i) => {
         const date = addDays(start, i);
-        if (date > to) return null;
+        if (date > to || date < windowStart) return null;
         const count = counts.get(date) ?? 0;
         return { date, count, level: heatLevel(count) };
       }),
@@ -174,7 +191,7 @@ export function activeDayCount(days: ActivityDay[]): number {
   return days.filter((d) => d.count > 0).length;
 }
 
-/** Tổng hợp nhanh cho Lịch nhiệt 13 tuần: số ngày có học, tổng hoạt động và kỷ lục hoạt động trong 1 ngày. */
+/** Tổng hợp nhanh cho Lịch nhiệt 90 ngày: số ngày có học, tổng hoạt động và kỷ lục hoạt động trong 1 ngày. */
 export function activitySummary(days: ActivityDay[]): {
   activeDays: number;
   totalActivities: number;

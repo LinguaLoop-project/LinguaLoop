@@ -75,6 +75,13 @@ class S3FileStorageServiceTest {
     }
 
     @Test
+    void presignUpload_putsAvatarsUnderUserAvatarFolder_AC_TK_66() {
+        PresignedUpload upload = service.presignUpload(userId, UploadPurpose.AVATAR, "image/webp", 1024);
+
+        assertThat(upload.key()).startsWith("user/avatar/" + userId + "/").endsWith(".webp");
+    }
+
+    @Test
     void presignUpload_normalizesContentTypeParameters() {
         PresignedUpload upload = service.presignUpload(userId, UploadPurpose.DECK_IMAGE, "Image/JPEG; q=1", 10);
 

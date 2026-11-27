@@ -105,6 +105,29 @@ class CreditServiceIntegrationTest {
         assertThat(balanceOf(user)).isEqualTo(4);
     }
 
+    /** AC-TK-75: hết credit thì báo một lần mỗi ngày, tắt loại này thì không báo. */
+    @Test
+    void rejectionNotifiesOncePerDay_unlessTheLearnerTurnedItOff_AC_TK_75() {
+        UUID user = newUser();
+        TestData.setCredits(jdbc, user, 0);
+
+        for (int i = 0; i < 3; i++) {
+            assertThatThrownBy(() -> creditService.requireCanStart(user, AiFeature.LESSON_CHAT))
+                    .isInstanceOf(BusinessException.class);
+        }
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM notifications WHERE user_id = ? "
+                + "AND type = 'AI_CREDIT_EXHAUSTED'", Long.class, user)).isEqualTo(1);
+
+        UUID muted = newUser();
+        TestData.setCredits(jdbc, muted, 0);
+        jdbc.update("INSERT INTO notification_preferences (user_id, type, enabled) VALUES (?, 'AI_CREDIT_EXHAUSTED', false)",
+                muted);
+        assertThatThrownBy(() -> creditService.requireCanStart(muted, AiFeature.LESSON_CHAT))
+                .isInstanceOf(BusinessException.class);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM notifications WHERE user_id = ?", Long.class, muted))
+                .isZero();
+    }
+
     /** AC-BH-72: số dư phải đủ cho mọi câu đã chọn, không chỉ một câu. */
     @Test
     void requireCanStartChecksEveryUnit() {

@@ -22,7 +22,6 @@ const studentGroups: NavGroup[] = [
       { id: "saved-lessons", icon: "bookmark-check", labelKey: k("student", "sidebar.items", "savedLessons"), to: "/student/saved-lessons" },
       { id: "mywords", icon: "bookmark", labelKey: k("student", "sidebar.items", "mywords"), to: "/student/mywords", tone: "vocab" },
       { id: "weakness", icon: "target", labelKey: k("student", "sidebar.items", "weakness"), to: "/student/weakness", tone: "weakness" },
-      { id: "test", icon: "file-check", labelKey: k("student", "sidebar.items", "test"), to: "/student/test", tone: "assessment" },
     ],
   },
 ];
@@ -101,11 +100,10 @@ export const STUDENT_SHELL: ShellConfig = {
   accountAriaKey: "student.topbar.account",
   menuPlanRow: true,
   menu: [
-    { icon: "circle-user", labelKey: "student.topbar.profile", to: "/student/settings?tab=profile" },
+    { icon: "circle-user", labelKey: "student.topbar.profile", to: "/student/settings?tab=account" },
+    { icon: "palette", labelKey: "student.topbar.appearance", to: "/student/settings?tab=display" },
     { icon: "target", labelKey: "student.topbar.learning", to: "/student/settings?tab=learning" },
     { icon: "shield-check", labelKey: "student.topbar.security", to: "/student/settings?tab=security" },
-    { icon: "lock-keyhole", labelKey: "student.topbar.privacy", to: "/student/settings?tab=privacy" },
-    { icon: "contrast", labelKey: "theme.toggle", action: "theme" },
   ],
 };
 

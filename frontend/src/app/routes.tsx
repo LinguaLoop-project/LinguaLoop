@@ -23,6 +23,7 @@ const ResetPassword = lazy(() => import("@/features/auth/pages/ResetPassword"));
 const GoogleCallback = lazy(() => import("@/features/auth/pages/GoogleCallback"));
 
 const Settings = lazy(() => import("@/features/user/pages/Settings"));
+const NotificationsPage = lazy(() => import("@/features/user/pages/NotificationsPage"));
 const OnboardingPage = lazy(() => import("@/features/user/pages/OnboardingPage"));
 const TodayPage = lazy(() => import("@/features/review/pages/TodayPage"));
 const DailyReviewPage = lazy(() => import("@/features/review/pages/DailyReviewPage"));
@@ -68,6 +69,8 @@ const AdminAuditLogPage = lazy(() => import("@/features/audit/pages/admin/AdminA
 const AdminOverviewPage = lazy(() => import("@/features/stats/pages/admin/AdminOverviewPage"));
 const AdminPracticeStatsPage = lazy(() => import("@/features/stats/pages/admin/AdminPracticeStatsPage"));
 const AdminAiStatsPage = lazy(() => import("@/features/stats/pages/admin/AdminAiStatsPage"));
+const SubscriptionPage = lazy(() => import("@/features/subscription/pages/SubscriptionPage"));
+const PaymentReturnPage = lazy(() => import("@/features/subscription/pages/PaymentReturnPage"));
 const AdminContentTransferPage = lazy(() => import("@/features/user/pages/admin/AdminContentTransferPage"));
 const AdminReportListPage = lazy(() => import("@/features/report/pages/admin/AdminReportListPage"));
 const AdminReportDetailPage = lazy(() => import("@/features/report/pages/admin/AdminReportDetailPage"));
@@ -234,20 +237,21 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <WeaknessPage />,
         },
         {
-          path: "test",
-          element: <PlaceholderPage pageKey="student.test" />,
-        },
-        {
           path: "settings",
           element: <Settings />,
         },
         {
+          path: "subscription",
+          element: <SubscriptionPage />,
+        },
+        {
           path: "profile",
-          element: <PlaceholderPage pageKey="student.profile" />,
+          // Hồ sơ là tab Tài khoản của Cài đặt (UC-TK-10); giữ địa chỉ cũ chuyển hướng để liên kết đã lưu vẫn dùng được
+          element: <Navigate to="/student/settings?tab=account" replace />,
         },
         {
           path: "notifications",
-          element: <PlaceholderPage pageKey="student.notifications" />,
+          element: <NotificationsPage />,
         },
         {
           // Thống kê nay nằm trên trang Hôm nay; giữ địa chỉ cũ để liên kết đã lưu vẫn dùng được
@@ -255,6 +259,19 @@ const getRoutesConfig = (): RouteObject[] => {
           element: <Navigate to="/student" replace />,
         },
       ],
+    },
+  ];
+
+  // VNPAY chuyển học viên về đúng VNPAY_RETURN_URL (/payment/vnpay-return), nằm trong khung học viên.
+  const paymentRoutes: RouteObject[] = [
+    {
+      path: "payment",
+      element: (
+        <AuthGuard allowedRoles={["student"]}>
+          <StudentLayout />
+        </AuthGuard>
+      ),
+      children: [{ path: "vnpay-return", element: <PaymentReturnPage /> }],
     },
   ];
 
@@ -455,6 +472,7 @@ const getRoutesConfig = (): RouteObject[] => {
   return [
     ...publicRoutes,
     ...studentRoutes,
+    ...paymentRoutes,
     ...watchRoutes,
     ...teacherRoutes,
     ...adminRoutes,

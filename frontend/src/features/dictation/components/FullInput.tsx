@@ -73,7 +73,7 @@ export default function FullInput({
         placeholder={t("input.placeholder")}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
-        className="block min-h-[88px] w-full resize-none rounded-lg border border-border-strong bg-bg-base px-4 py-3 text-xl font-medium leading-normal transition-[border-color,box-shadow] duration-200 placeholder:text-text-subtle focus:border-fn-dictation focus:outline-none focus:shadow-[0_0_0_4px_var(--fn-dictation-soft)]"
+        className="block min-h-[88px] w-full resize-none rounded-lg border border-border-strong bg-bg-base px-4 py-3 practice-input font-medium leading-normal transition-[border-color,box-shadow] duration-200 placeholder:text-text-subtle focus:border-fn-dictation focus:outline-none focus:shadow-[0_0_0_4px_var(--fn-dictation-soft)]"
       />
       {!slots && hint && <HintLine hint={hint} lengths={hintLengths} />}
       {slots && <WordSlots slots={slots} typed={value} revealed={revealed} revealing={revealing} onReveal={onReveal} />}

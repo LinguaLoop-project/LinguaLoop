@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import Badge from "@/components/common/Badge";
 import Icon from "@/components/common/Icon";
 import { useAuth } from "@/features/auth";
+import { useMyPlan } from "@/features/subscription/hooks/useMyPlan";
 import { toggleTheme } from "@/hooks/useTheme";
 import type { ShellConfig } from "./shellConfig";
 
@@ -19,7 +21,7 @@ function initials(name: string) {
 }
 
 const ITEM =
-  "flex w-full min-h-10 cursor-pointer items-center gap-2.5 rounded-sm border-0 bg-transparent px-3 text-left text-[15px] transition-colors duration-150 hover:bg-surface-hover";
+  "flex w-full min-h-10 cursor-pointer items-center gap-2.5 rounded-sm border-0 bg-transparent px-3 text-left text-sm font-medium transition-colors duration-150 hover:bg-surface-hover";
 
 /** Menu tài khoản dùng chung; mục riêng của từng vai trò lấy từ `config.menu`. */
 /** `compact`: nút 32px để nằm trong cụm nút của thanh trên. */
@@ -27,6 +29,8 @@ export default function AccountMenu({ config, compact = false }: { config: Shell
   const { t } = useTranslation("layout");
   const navigate = useNavigate();
   const { user, handleLogout } = useAuth();
+  const plan = useMyPlan(Boolean(config.menuPlanRow));
+  const isPro = plan.data?.plan === "pro";
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -50,12 +54,14 @@ export default function AccountMenu({ config, compact = false }: { config: Shell
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || "";
   const email = user?.email ?? "";
+  const avatarUrl = user?.avatarUrl ?? null;
+  const emailUnverified = user ? !user.emailVerified : false;
 
   return (
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className={`grid cursor-pointer select-none place-items-center rounded-full bg-primary-soft font-bold text-primary-text transition-shadow hover:shadow-[0_0_0_2px_var(--primary-soft)] ${
+        className={`relative grid cursor-pointer select-none place-items-center overflow-hidden rounded-full bg-primary-soft font-bold text-primary-text transition-shadow hover:shadow-[0_0_0_2px_var(--primary-soft)] ${
           compact ? "h-8 w-8 text-xs" : "h-10 w-10 border border-border-strong text-sm"
         }`}
         onClick={() => setOpen((v) => !v)}
@@ -64,7 +70,11 @@ export default function AccountMenu({ config, compact = false }: { config: Shell
         aria-controls="account-menu"
         aria-label={t(config.accountAriaKey, { name: displayName })}
       >
-        {initials(displayName)}
+        {avatarUrl ? (
+          <img src={avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+        ) : (
+          initials(displayName)
+        )}
       </button>
 
       {open && (
@@ -72,18 +82,22 @@ export default function AccountMenu({ config, compact = false }: { config: Shell
           id="account-menu"
           role="menu"
           aria-label={t(`${config.ns}.topbar.menuAria`)}
-          className="absolute right-0 top-[52px] z-[70] flex w-[300px] animate-[menu-in_200ms_var(--ease-out)] flex-col gap-0.5 rounded-lg border border-border-strong bg-surface p-2 shadow-[0_24px_48px_-16px_rgba(0,0,0,.55),0_0_0_1px_var(--border)]"
+          className="absolute right-0 top-[48px] z-[70] flex w-[288px] animate-[menu-in_200ms_var(--ease-out)] flex-col gap-0.5 rounded-lg border border-border-strong bg-surface p-2 shadow-[0_24px_48px_-16px_rgba(0,0,0,.55),0_0_0_1px_var(--border)]"
         >
-          <div className="flex items-center gap-3 px-2 pb-3 pt-2">
+          <div className="flex items-center gap-3 px-2 pb-2.5 pt-1.5">
             <span
               aria-hidden="true"
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border-strong bg-primary-soft text-sm font-bold text-primary-text"
+              className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full border border-border-strong bg-primary-soft text-sm font-bold text-primary-text"
             >
-              {initials(displayName)}
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+              ) : (
+                initials(displayName)
+              )}
             </span>
             <div className="min-w-0 flex-1">
-              <b className="block truncate">{displayName}</b>
-              <div className="truncate text-[13px] text-text-muted">{email}</div>
+              <b className="block truncate text-sm font-semibold text-text">{displayName}</b>
+              <div className="truncate text-xs text-text-muted">{email}</div>
             </div>
           </div>
 
@@ -92,49 +106,68 @@ export default function AccountMenu({ config, compact = false }: { config: Shell
               <button
                 type="button"
                 role="menuitem"
-                className="mx-1 flex min-h-10 w-[calc(100%-0.5rem)] cursor-pointer items-center justify-between gap-2.5 rounded-sm border border-border bg-transparent px-3 text-left text-[15px] hover:bg-surface-hover"
+                className={`mx-1 flex min-h-10 w-[calc(100%-0.5rem)] cursor-pointer items-center justify-between gap-2.5 rounded-sm border px-3 text-left text-sm transition-colors ${
+                  isPro
+                    ? "border-warning/30 bg-warning/10 hover:bg-warning/15"
+                    : "border-border bg-bg-elevated hover:border-primary/40 hover:bg-surface-hover"
+                }`}
                 onClick={() => {
                   setOpen(false);
-                  navigate("/student/settings?tab=plan");
+                  navigate(isPro ? "/student/settings?tab=plan" : "/student/subscription");
                 }}
               >
-                <span className="inline-flex h-6 items-center rounded-sm bg-[color-mix(in_srgb,var(--text-muted)_14%,transparent)] px-2 text-xs font-semibold text-text-muted">Free</span>
-                <span className="text-[13px]">{t("student.topbar.upgrade")}</span>
-                <Icon name="arrow-right" />
+                {isPro ? (
+                  <Badge variant="pro">
+                    <Icon name="crown" fill />
+                    PRO
+                  </Badge>
+                ) : (
+                  <Badge>Free</Badge>
+                )}
+                <span className="flex-1 text-xs font-semibold text-text">
+                  {t(isPro ? "student.topbar.managePlan" : "student.topbar.upgrade")}
+                </span>
+                <Icon name="arrow-right" className="text-sm text-text-muted" />
               </button>
-              <hr className="my-1 border-0 border-t border-border" />
+              <hr className="my-1.5 border-0 border-t border-border" />
             </>
           )}
 
-          {config.menu.map((item) => (
-            <button
-              key={item.labelKey}
-              type="button"
-              role="menuitem"
-              className={`${ITEM} text-text`}
-              onClick={() => {
-                setOpen(false);
-                if (item.action === "theme") toggleTheme();
-                else if (item.to) navigate(item.to);
-              }}
-            >
-              <Icon name={item.icon} className="text-lg" />
-              {t(item.labelKey)}
-            </button>
-          ))}
+          {config.menu.map((item) => {
+            const showVerifyDot = emailUnverified && item.to?.includes("tab=account");
+            return (
+              <button
+                key={item.labelKey}
+                type="button"
+                role="menuitem"
+                className={`${ITEM} text-text`}
+                onClick={() => {
+                  setOpen(false);
+                  if (item.action === "theme") toggleTheme();
+                  else if (item.to) navigate(item.to);
+                }}
+              >
+                <Icon name={item.icon} className="text-[18px] text-text-muted" />
+                <span className="flex-1 truncate">{t(item.labelKey)}</span>
+                {showVerifyDot && (
+                  <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-warning" />
+                )}
+              </button>
+            );
+          })}
 
-          <hr className="my-1 border-0 border-t border-border" />
+          <hr className="my-1.5 border-0 border-t border-border" />
 
           <button
             type="button"
             role="menuitem"
-            className={`${ITEM} text-danger`}
+            className={`${ITEM} text-danger hover:bg-danger/10`}
             onClick={() => {
               setOpen(false);
               handleLogout();
             }}
           >
-            <Icon name="log-out" className="text-lg" />
+            <Icon name="log-out" className="text-[18px]" />
             {t(`${config.ns}.topbar.logout`)}
           </button>
         </div>

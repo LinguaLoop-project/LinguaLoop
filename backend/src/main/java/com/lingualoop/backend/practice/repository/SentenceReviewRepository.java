@@ -109,10 +109,50 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
             WHERE r.user_id = :userId
               AND (r.last_reviewed_at IS NULL OR r.last_reviewed_at < :dayStart)
               AND (r.last_skipped_at IS NULL OR r.last_skipped_at < :dayStart)
+              AND NOT EXISTS (SELECT 1 FROM user_sentence_extra x
+                              WHERE x.user_id = r.user_id AND x.sentence_id = r.sentence_id AND x.mode = r.mode
+                                AND (x.last_reviewed_at >= :dayStart OR x.last_skipped_at >= :dayStart))
               AND (NOT l.is_pro OR :userPro)
             ORDER BY a.total_score ASC NULLS LAST, r.created_at ASC, r.sentence_id""", nativeQuery = true)
     List<PlanEntry> findReviewableToday(@Param("userId") UUID userId, @Param("userPro") boolean userPro,
             @Param("dayStart") Instant dayStart);
+
+    /**
+     * Câu luyện thêm của từng chế độ (BR-HT-31), tối đa {@code perMode} câu mỗi chế độ: câu học viên đã luyện, không ở
+     * trong Câu cần ôn, có lượt gần nhất (không tính lượt "Hiện cả câu") dưới 80 điểm và chưa có lượt nào, chưa ôn, chưa bỏ
+     * qua từ {@code dayStart}. Bỏ câu của bài chưa xuất bản và bài Pro khi học viên dùng gói Free. Điểm thấp trước, bằng
+     * điểm thì câu luyện lâu hơn trước.
+     */
+    @Query(value = """
+            SELECT q.sentence_id AS sentenceId, q.mode AS mode, q.lesson_id AS lessonId, q.lesson_title AS lessonTitle,
+                   q.youtube_id AS youtubeId, q.start_ms AS startMs, q.end_ms AS endMs, q.text_en AS text,
+                   q.text_vi AS textVi, q.total_score AS lastScore
+            FROM (
+                SELECT t.sentence_id, t.mode, l.id AS lesson_id, l.title AS lesson_title, l.youtube_id, s.start_ms,
+                       s.end_ms, s.text_en, s.text_vi, t.total_score,
+                       row_number() OVER (PARTITION BY t.mode ORDER BY t.total_score ASC, t.created_at ASC,
+                                          t.sentence_id) AS rn
+                FROM (
+                    SELECT DISTINCT ON (a.sentence_id, a.mode) a.sentence_id, a.mode, a.total_score, a.created_at
+                    FROM sentence_attempts a
+                    WHERE a.user_id = :userId AND NOT a.gave_up AND a.total_score IS NOT NULL
+                    ORDER BY a.sentence_id, a.mode, a.created_at DESC, a.id DESC) t
+                JOIN sentences s ON s.id = t.sentence_id AND s.deleted_at IS NULL
+                JOIN lessons l ON l.id = s.lesson_id AND l.deleted_at IS NULL AND l.status = 'published'
+                WHERE t.total_score < 80
+                  AND (NOT l.is_pro OR :userPro)
+                  AND NOT EXISTS (SELECT 1 FROM user_sentence_review r
+                                  WHERE r.user_id = :userId AND r.sentence_id = t.sentence_id AND r.mode = t.mode)
+                  AND NOT EXISTS (SELECT 1 FROM sentence_attempts a2
+                                  WHERE a2.user_id = :userId AND a2.sentence_id = t.sentence_id AND a2.mode = t.mode
+                                    AND a2.created_at >= :dayStart)
+                  AND NOT EXISTS (SELECT 1 FROM user_sentence_extra x
+                                  WHERE x.user_id = :userId AND x.sentence_id = t.sentence_id AND x.mode = t.mode
+                                    AND (x.last_reviewed_at >= :dayStart OR x.last_skipped_at >= :dayStart))) q
+            WHERE q.rn <= :perMode
+            ORDER BY q.mode, q.rn""", nativeQuery = true)
+    List<PlanEntry> findExtraToday(@Param("userId") UUID userId, @Param("userPro") boolean userPro,
+            @Param("dayStart") Instant dayStart, @Param("perMode") int perMode);
 
     /** Lấy một câu cụ thể trong danh sách Câu cần ôn để mở trực tiếp màn Ôn câu khi bấm "Luyện lại". */
     @Query(value = """
@@ -171,11 +211,41 @@ public interface SentenceReviewRepository extends JpaRepository<SentenceReview, 
      * còn trong danh sách Câu cần ôn: câu đã gỡ ("Đã ổn") không còn dấu "đã ôn" nên không được đếm.
      */
     @Query(value = """
-            SELECT r.mode AS mode, count(*) AS total
-            FROM user_sentence_review r
-            WHERE r.user_id = :userId AND r.last_reviewed_at >= :since
-            GROUP BY r.mode""", nativeQuery = true)
+            SELECT t.mode AS mode, count(*) AS total
+            FROM (SELECT r.sentence_id, r.mode FROM user_sentence_review r
+                  WHERE r.user_id = :userId AND r.last_reviewed_at >= :since
+                  UNION
+                  SELECT x.sentence_id, x.mode FROM user_sentence_extra x
+                  WHERE x.user_id = :userId AND x.last_reviewed_at >= :since) t
+            GROUP BY t.mode""", nativeQuery = true)
     List<ModeCount> countReviewedSince(@Param("userId") UUID userId, @Param("since") Instant since);
+
+    /**
+     * Đánh dấu câu luyện thêm đã ôn (BR-HT-31). Như {@link #markReviewed} nhưng câu không ở trong danh sách nên ghi vào
+     * {@code user_sentence_extra}; chỉ ghi khi học viên vừa có lượt thật từ {@code since} trở lại đây. Trả về 0 khi không
+     * đủ điều kiện.
+     */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = """
+            INSERT INTO user_sentence_extra (user_id, sentence_id, mode, last_reviewed_at)
+            SELECT :userId, :sentenceId, :mode, :now
+            WHERE EXISTS (SELECT 1 FROM sentence_attempts a
+                          WHERE a.user_id = :userId AND a.sentence_id = :sentenceId AND a.mode = :mode
+                            AND NOT a.gave_up AND a.created_at >= :since)
+            ON CONFLICT (user_id, sentence_id, mode) DO UPDATE SET last_reviewed_at = EXCLUDED.last_reviewed_at""",
+            nativeQuery = true)
+    int markExtraReviewed(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId,
+            @Param("mode") String mode, @Param("now") Instant now, @Param("since") Instant since);
+
+    /** Hoãn câu luyện thêm sang ngày mai khi học viên bỏ qua (BR-HT-31): ghi lần bỏ qua gần nhất. */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = """
+            INSERT INTO user_sentence_extra (user_id, sentence_id, mode, last_skipped_at)
+            VALUES (:userId, :sentenceId, :mode, :now)
+            ON CONFLICT (user_id, sentence_id, mode) DO UPDATE SET last_skipped_at = EXCLUDED.last_skipped_at""",
+            nativeQuery = true)
+    int skipExtra(@Param("userId") UUID userId, @Param("sentenceId") UUID sentenceId, @Param("mode") String mode,
+            @Param("now") Instant now);
 
     interface ModeCount {
         String getMode();

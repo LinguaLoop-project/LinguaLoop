@@ -10,6 +10,7 @@
     "totalActivities_other": "{{count}} total activities",
     "bestDay_one": "Peak {{count}} activity/day",
     "bestDay_other": "Peak {{count}} activities/day",
+    "kpiActiveValue": "{{active}}/{{total}} days",
     "kpiActiveRate": "Active days",
     "kpiLongestStreak": "Longest streak",
     "kpiTotalActivities": "Total activities",

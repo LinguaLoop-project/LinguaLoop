@@ -26,7 +26,7 @@ public class VocabReviewController {
 
     /**
      * Lượt ôn tiếp theo: tối đa 50 thẻ đến hạn; truyền {@code deck} để chỉ ôn một bộ, {@code limit} để lấy ít hơn 50
-     * thẻ (phiên Ôn tập hằng ngày).
+     * thẻ (phiên Luyện tập hằng ngày).
      */
     @GetMapping
     public ApiResponse<ReviewView.Queue> queue(@CurrentUserId UUID userId, @RequestParam(required = false) UUID deck,

@@ -34,7 +34,7 @@ public interface StatsService {
     /** Mười từ nghe sai nhiều nhất trong khoảng (BR-TH-16). */
     WrongWordsView wrongWords(UUID userId, String range);
 
-    /** Lịch nhiệt 13 tuần gần nhất (BR-TH-15). */
+    /** Lịch nhiệt 90 ngày gần nhất (BR-TH-15). */
     ActivityView activity(UUID userId);
 
     /** Lịch sử luyện tập từ mới đến cũ, đã lọc theo chế độ và khoảng (BR-TH-06, BR-TH-07); {@code page} từ 0. */

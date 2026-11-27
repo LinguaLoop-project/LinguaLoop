@@ -6,18 +6,21 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { applyFieldErrors, errorMessage, toApiError, useAuthStore, DAILY_MINUTES } from "@/features/auth";
 import type { ApiError, DailyMinutes } from "@/features/auth";
 import { isLanguage, setLanguage, type Language } from "@/i18n";
+import { toast } from "@/stores/toastStore";
 import { userApi } from "../api";
 import { quotaFor } from "../dailyQuota";
-import { detectTimezone, timezoneOptions } from "../timezones";
+import { detectTimezone } from "../timezones";
 import { buildLearningProfileSchema, type LearningProfileFormData } from "../validations";
 import Button from "@/components/common/Button";
 import Checkbox from "@/components/common/Checkbox";
 import FormAlert from "@/components/common/FormAlert";
+import Icon from "@/components/common/Icon";
 import SegmentedControl from "@/components/common/SegmentedControl";
 import { TextField } from "@/components/common/TextField";
+import TimezonePicker from "./TimezonePicker";
 
 export type LearningProfileFormProps = {
-  /** `onboarding`: đủ 5 trường, lưu xong chuyển về trang Hôm nay. `settings`: chỉ thời lượng, ngôn ngữ, múi giờ. */
+  /** `onboarding`: đủ 5 trường, lưu xong chuyển về trang Hôm nay. `settings`: chỉ thời lượng và múi giờ (tên ở tab Tài khoản, ngôn ngữ ở tab Giao diện). */
   mode: "onboarding" | "settings";
 };
 
@@ -35,15 +38,15 @@ export default function LearningProfileForm({ mode }: LearningProfileFormProps) 
   const schema = useMemo(() => buildLearningProfileSchema(requireTerms), [requireTerms]);
 
   const [formError, setFormError] = useState<ApiError | null>(null);
-  const [saved, setSaved] = useState(false);
 
   const {
     register,
     handleSubmit,
     setError,
     setValue,
+    reset,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<LearningProfileFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -61,12 +64,10 @@ export default function LearningProfileForm({ mode }: LearningProfileFormProps) 
   const dailyMinutes = useWatch({ control, name: "dailyMinutes" });
   const uiLanguage = useWatch({ control, name: "uiLanguage" });
   const timezone = useWatch({ control, name: "timezone" });
-  const zones = useMemo(() => timezoneOptions(timezone), [timezone]);
   const quota = quotaFor(dailyMinutes);
 
   const onSubmit = async (data: LearningProfileFormData) => {
     setFormError(null);
-    setSaved(false);
     try {
       const response = await userApi.saveLearningProfile({
         displayName: data.displayName.trim(),
@@ -75,7 +76,19 @@ export default function LearningProfileForm({ mode }: LearningProfileFormProps) 
         timezone: data.timezone,
         acceptTerms: Boolean(data.acceptTerms),
       });
-      setUser(response.data.data);
+      const updated = response.data.data;
+      setUser(updated);
+      if (onboarding) {
+        navigate("/student", { replace: true });
+      } else {
+        reset({
+          ...data,
+          displayName: updated.displayName ?? data.displayName.trim(),
+          dailyMinutes: updated.dailyMinutes,
+          timezone: updated.timezone,
+        });
+        toast(t("settings.learning.success"), { icon: "circle-check" });
+      }
     } catch (err: unknown) {
       // Giữ nguyên những gì đã nhập để thử lại (AC-TK-51).
       const error = toApiError(err);
@@ -90,34 +103,34 @@ export default function LearningProfileForm({ mode }: LearningProfileFormProps) 
             })
           : 0;
       if (applied === 0) setFormError(error);
-      return;
-    }
-    if (onboarding) {
-      navigate("/student", { replace: true });
-    } else {
-      setSaved(true);
     }
   };
 
-  const minutesOptions = DAILY_MINUTES.map((minutes) => ({
-    value: String(minutes),
-    label: t("learningProfile.minutes", { count: minutes }),
-  }));
-
   return (
     <form
-      className={onboarding ? "flex flex-col gap-5" : "flex flex-col gap-5 rounded-lg border border-border bg-surface p-5 shadow-[var(--shadow-card)]"}
+      className={
+        onboarding
+          ? "flex flex-col gap-5"
+          : "flex flex-col gap-6 rounded-lg border border-border bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6"
+      }
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
       {!onboarding && (
-        <div>
-          <h3 className="text-lg font-bold leading-[1.4]">{t("settings.learning.title")}</h3>
-          <p className="mt-1 text-[13px] text-text-muted">{t("settings.learning.hint")}</p>
+        <div className="flex items-start gap-3">
+          <span
+            aria-hidden="true"
+            className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-primary-soft text-primary-text"
+          >
+            <Icon name="target" className="text-lg" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-base font-bold leading-snug text-text sm:text-lg">{t("settings.learning.title")}</h3>
+            <p className="mt-0.5 text-[13px] leading-relaxed text-text-muted">{t("settings.learning.hint")}</p>
+          </div>
         </div>
       )}
 
-      {saved && <FormAlert variant="success">{t("settings.learning.success")}</FormAlert>}
       {formError && <FormAlert variant="danger">{errorMessage(formError)}</FormAlert>}
 
       {onboarding && (
@@ -133,61 +146,88 @@ export default function LearningProfileForm({ mode }: LearningProfileFormProps) 
         />
       )}
 
-      <div className="flex flex-col gap-1.5">
+      {/* Chọn mục tiêu học mỗi ngày dạng thẻ trực quan kèm định mức thẻ/câu */}
+      <div className="flex flex-col gap-2">
         <span id={`${formId}-minutes`} className="text-sm font-semibold text-text">
           {t("learningProfile.dailyMinutes")}
         </span>
-        <SegmentedControl
-          options={minutesOptions}
-          value={String(dailyMinutes)}
-          ariaLabel={t("learningProfile.dailyMinutes")}
-          onChange={(value) => setValue("dailyMinutes", Number(value) as DailyMinutes, { shouldValidate: true })}
-        />
-        <p className="text-[13px] leading-normal text-text-subtle">
+        <div
+          role="group"
+          aria-labelledby={`${formId}-minutes`}
+          className={`grid gap-2.5 ${onboarding ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-4"}`}
+        >
+          {DAILY_MINUTES.map((minutes) => {
+            const active = dailyMinutes === minutes;
+            const itemQuota = quotaFor(minutes);
+            return (
+              <button
+                key={minutes}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setValue("dailyMinutes", minutes as DailyMinutes, { shouldValidate: true, shouldDirty: true })}
+                className={`relative flex cursor-pointer flex-col gap-1.5 rounded-md border p-3.5 text-left transition-all duration-150 ${
+                  active
+                    ? "border-primary bg-primary-soft/65 shadow-[inset_0_0_0_1px_var(--primary)]"
+                    : "border-border bg-bg-elevated hover:border-border-strong hover:bg-surface-hover"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-display text-xl font-bold leading-none text-text">
+                    {t("learningProfile.minutes", { count: minutes })}
+                  </span>
+                  {active ? (
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-primary text-white">
+                      <Icon name="check" className="text-xs" strokeWidth={2.5} />
+                    </span>
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="size-4 shrink-0 rounded-full border border-border-strong"
+                    />
+                  )}
+                </div>
+                <span className={`text-xs font-semibold ${active ? "text-primary-text" : "text-text-muted"}`}>
+                  {t(`learningProfile.goalTiers.${minutes}`)}
+                </span>
+                <span className="mt-0.5 text-xs text-text-subtle">
+                  {t("learningProfile.goalQuota", { cards: itemQuota.cards, sentences: itemQuota.sentences })}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <p className={`text-[13px] leading-normal ${errors.dailyMinutes ? "text-danger" : "text-text-subtle"}`}>
           {errors.dailyMinutes?.message ??
             t("learningProfile.dailyMinutesHint", { cards: quota.cards, sentences: quota.sentences })}
         </p>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-semibold text-text">{t("learningProfile.uiLanguage")}</span>
-        <SegmentedControl
-          options={[
-            { value: "vi", label: "Tiếng Việt" },
-            { value: "en", label: "English" },
-          ]}
-          value={uiLanguage}
-          ariaLabel={t("learningProfile.uiLanguage")}
-          onChange={(value) => {
-            setValue("uiLanguage", value as Language, { shouldValidate: true });
-            // Đổi giao diện ngay khi chọn, không chờ lưu.
-            void setLanguage(value as Language);
-          }}
-        />
-      </div>
+      {onboarding && (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-semibold text-text">{t("learningProfile.uiLanguage")}</span>
+          <SegmentedControl
+            options={[
+              { value: "vi", label: "Tiếng Việt" },
+              { value: "en", label: "English" },
+            ]}
+            value={uiLanguage}
+            ariaLabel={t("learningProfile.uiLanguage")}
+            onChange={(value) => {
+              setValue("uiLanguage", value as Language, { shouldValidate: true, shouldDirty: true });
+              // Đổi giao diện ngay khi chọn, không chờ lưu.
+              void setLanguage(value as Language);
+            }}
+          />
+        </div>
+      )}
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${formId}-timezone`} className="text-sm font-semibold text-text">
-          {t("learningProfile.timezone")}
-        </label>
-        <select
-          id={`${formId}-timezone`}
-          aria-invalid={errors.timezone ? true : undefined}
-          className={`h-12 w-full rounded-md border bg-surface px-3.5 text-[15px] text-text outline-none transition-[border-color,box-shadow] duration-150 focus:shadow-[0_0_0_3px_var(--primary-soft)] ${
-            errors.timezone ? "border-danger" : "border-border-strong focus:border-primary"
-          }`}
-          {...register("timezone")}
-        >
-          {zones.map((zone) => (
-            <option key={zone} value={zone}>
-              {zone}
-            </option>
-          ))}
-        </select>
-        <p className={`text-[13px] leading-normal ${errors.timezone ? "text-danger" : "text-text-subtle"}`}>
-          {errors.timezone?.message ?? t("learningProfile.timezoneHint")}
-        </p>
-      </div>
+      <TimezonePicker
+        id={`${formId}-timezone`}
+        value={timezone}
+        onChange={(zone) => setValue("timezone", zone, { shouldValidate: true, shouldDirty: true })}
+        error={errors.timezone?.message}
+        hint={t("learningProfile.timezoneHint")}
+      />
 
       {onboarding && requireTerms && (
         <div className="flex flex-col gap-1">
@@ -209,8 +249,15 @@ export default function LearningProfileForm({ mode }: LearningProfileFormProps) 
         </div>
       )}
 
-      <div className={onboarding ? "" : "flex justify-end pt-1"}>
-        <Button type="submit" variant="primary" size={onboarding ? "lg" : undefined} fullWidth={onboarding} disabled={isSubmitting} isLoading={isSubmitting}>
+      <div className={onboarding ? "" : "flex items-center justify-end gap-3 border-t border-border/70 pt-4"}>
+        <Button
+          type="submit"
+          variant="primary"
+          size={onboarding ? "lg" : undefined}
+          fullWidth={onboarding}
+          disabled={isSubmitting || (!onboarding && !isDirty)}
+          isLoading={isSubmitting}
+        >
           {isSubmitting ? t("learningProfile.saving") : t(onboarding ? "onboarding.submit" : "settings.learning.submit")}
         </Button>
       </div>

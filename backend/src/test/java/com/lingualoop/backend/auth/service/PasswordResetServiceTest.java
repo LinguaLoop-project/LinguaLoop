@@ -69,7 +69,7 @@ class PasswordResetServiceTest {
 
     private static UserAccountView account(boolean locked, String passwordHash) {
         return new UserAccountView(UUID.randomUUID(), "a@x.com", "A", null, passwordHash, Role.STUDENT, "vi", false,
-                locked, false, false, 15, "Asia/Ho_Chi_Minh", false);
+                locked, false, false, 15, "Asia/Ho_Chi_Minh", false, null);
     }
 
     private static EmailToken tokenOf(UserAccountView account, Instant createdAt, Duration ttl) {

@@ -25,7 +25,7 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
      */
     @Query(value = """
             SELECT d.id AS id, d.name AS name, d.kind AS kind, d.is_pro AS pro, d.image_url AS thumbnailUrl,
-                   cat.id AS categoryId, cat.name AS categoryName,
+                   cat.id AS categoryId, cat.name AS categoryName, d.cefr_level AS cefrLevel,
                    count(c.id) AS cardCount, count(DISTINCT g.id) AS groupCount,
                    count(c.id) FILTER (WHERE p.interval_days >= 21) AS mastered,
                    count(c.id) FILTER (WHERE p.interval_days < 21 AND p.repetitions >= 2) AS reviewing,
@@ -108,6 +108,8 @@ public interface VocabDeckRepository extends JpaRepository<VocabDeck, UUID> {
         UUID getCategoryId();
 
         String getCategoryName();
+
+        String getCefrLevel();
 
         long getCardCount();
 

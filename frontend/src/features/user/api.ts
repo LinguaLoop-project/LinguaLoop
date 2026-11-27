@@ -37,6 +37,16 @@ export const userApi = {
     return axiosClient.put<ApiResponse<MeResponse>>("/users/me/learning-profile", payload);
   },
 
+  /** Đặt ảnh đại diện từ tệp đã tải lên S3 (mục đích AVATAR); trả hồ sơ mới (UC-TK-10). */
+  setAvatar: (key: string) => {
+    return axiosClient.put<ApiResponse<MeResponse>>("/users/me/avatar", { key });
+  },
+
+  /** Bỏ ảnh tự tải lên, quay về ảnh Google hoặc chữ cái đầu (UC-TK-10). */
+  removeAvatar: () => {
+    return axiosClient.delete<ApiResponse<MeResponse>>("/users/me/avatar");
+  },
+
   // 204. Thành công thì các phiên khác bị thu hồi, phiên hiện tại giữ nguyên.
   changePassword: (payload: ChangePasswordPayload) => {
     return axiosClient.put<void>("/users/me/password", payload);
