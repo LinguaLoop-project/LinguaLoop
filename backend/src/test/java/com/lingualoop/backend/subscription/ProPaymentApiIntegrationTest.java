@@ -581,8 +581,9 @@ class ProPaymentApiIntegrationTest {
         activePro(longGone, 60, -10);
         Instant now = Instant.now();
 
-        assertThat(reminders.run(now)).isEqualTo(3);
-        assertThat(reminders.run(now.plusSeconds(3600))).isZero();
+        // Cơ sở dữ liệu test dùng chung: lần chạy cũng nhắc học viên Pro của test khác, nên kiểm theo từng người.
+        reminders.run(now);
+        reminders.run(now.plusSeconds(3600));
 
         assertThat(notices(soon)).extracting(n -> n.get("type")).containsExactly("PRO_EXPIRING");
         assertThat((String) notices(soon).get(0).get("params")).contains("\"days\"");

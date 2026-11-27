@@ -133,6 +133,8 @@
         "transfers": "Reassign content",
         "credit": "Credit settings",
         "plans": "Pro plans",
+        "topics": "Topics",
+        "categories": "Deck categories",
         "practiceStats": "Practice stats",
         "aiStats": "AI stats"
       }
@@ -165,6 +167,8 @@
         "transfers": "Reassign content",
         "credit": "Credit settings",
         "plans": "Pro plans",
+        "topics": "Topics",
+        "categories": "Deck categories",
         "practice-stats": "Practice statistics",
         "ai-stats": "AI usage and cost",
         "auditDetail": "Object history"

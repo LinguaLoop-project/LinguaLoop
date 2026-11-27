@@ -1,0 +1,65 @@
+{
+  "save": "Lưu",
+  "cancel": "Hủy",
+  "reload": "Tải lại",
+  "rename": "Sửa tên",
+  "clearFilters": "Xóa bộ lọc",
+  "saveFailed": "Lưu không thành công, vui lòng kiểm tra kết nối rồi thử lại",
+  "columns": {
+    "updatedAt": "Ngày cập nhật",
+    "actions": "Thao tác"
+  },
+  "topics": {
+    "title": "Chủ đề",
+    "subtitle": "Chủ đề để giáo viên xếp bài học. Chủ đề chỉ hiển thị với học viên khi có ít nhất 1 bài đã xuất bản.",
+    "add": "Thêm chủ đề",
+    "count_other": "{{count}} chủ đề",
+    "searchPlaceholder": "Tìm theo tên chủ đề",
+    "visibility": "Trạng thái hiển thị",
+    "allStatuses": "Mọi trạng thái",
+    "visible": "Đang hiển thị",
+    "hidden": "Chưa hiển thị",
+    "empty": "Chưa có chủ đề nào",
+    "noMatch": "Không tìm thấy chủ đề phù hợp",
+    "loadFailed": "Không tải được danh sách chủ đề",
+    "columns": {
+      "name": "Tên chủ đề",
+      "publishedLessons": "Bài đã xuất bản",
+      "status": "Trạng thái"
+    },
+    "form": {
+      "addTitle": "Thêm chủ đề",
+      "renameTitle": "Sửa tên chủ đề \"{{name}}\"",
+      "name": "Tên chủ đề",
+      "required": "Tên chủ đề là bắt buộc",
+      "tooLong": "Tên chủ đề dài tối đa 100 ký tự",
+      "nameTaken": "Tên chủ đề đã tồn tại",
+      "created": "Đã thêm chủ đề \"{{name}}\"",
+      "renamed": "Đã đổi tên chủ đề thành \"{{name}}\""
+    }
+  },
+  "categories": {
+    "title": "Danh mục bộ thẻ",
+    "subtitle": "Danh mục để giáo viên phân loại bộ thẻ từ vựng.",
+    "add": "Thêm danh mục",
+    "count_other": "{{count}} danh mục",
+    "searchPlaceholder": "Tìm theo tên danh mục",
+    "empty": "Chưa có danh mục nào",
+    "noMatch": "Không tìm thấy danh mục phù hợp",
+    "loadFailed": "Không tải được danh sách danh mục",
+    "columns": {
+      "name": "Tên danh mục",
+      "publishedDecks": "Bộ thẻ đã xuất bản"
+    },
+    "form": {
+      "addTitle": "Thêm danh mục",
+      "renameTitle": "Sửa tên danh mục \"{{name}}\"",
+      "name": "Tên danh mục",
+      "required": "Tên danh mục là bắt buộc",
+      "tooLong": "Tên danh mục dài tối đa 100 ký tự",
+      "nameTaken": "Tên danh mục đã tồn tại",
+      "created": "Đã thêm danh mục \"{{name}}\"",
+      "renamed": "Đã đổi tên danh mục thành \"{{name}}\""
+    }
+  }
+}

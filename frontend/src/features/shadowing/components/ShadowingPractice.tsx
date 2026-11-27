@@ -621,6 +621,21 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                   <p className="mb-2 mt-1 text-center text-sm text-text-muted">{sentence.textVi}</p>
                 )}
 
+                {/* Ngay dưới câu để bấm từ nào thấy chi tiết từng âm ngay, không phải kéo xuống dưới phần nhận xét */}
+                {record && selectedWord && (
+                  <div className="mt-3">
+                    <WordDetail
+                      key={`${selectedWord.position}-${selectedWord.word}`}
+                      word={selectedWord}
+                      ipa={selectedIpa}
+                      ipaAccent={shownIpaAccent}
+                      accent={settings.accent}
+                      onClose={() => setSelected(null)}
+                      onUpgrade={() => setShowUpgradeModal(true, "pro")}
+                    />
+                  </div>
+                )}
+
                 <div className="mt-3 flex flex-col gap-3 empty:hidden">
                   {note?.kind === "mic" && (
                     <MicDeniedNote
@@ -681,19 +696,6 @@ export default function ShadowingPractice({ lesson, sentences, latest }: Shadowi
                       }}
                       onAskTutor={askTutor}
                     />
-                    {selectedWord && (
-                      <div className="mt-4">
-                        <WordDetail
-                          key={`${selectedWord.position}-${selectedWord.word}`}
-                          word={selectedWord}
-                          ipa={selectedIpa}
-                          ipaAccent={shownIpaAccent}
-                          accent={settings.accent}
-                          onClose={() => setSelected(null)}
-                          onUpgrade={() => setShowUpgradeModal(true, "pro")}
-                        />
-                      </div>
-                    )}
                     <ShadowingTools
                       sentence={sentence}
                       pinned={pinnedIds.has(sentence.id)}

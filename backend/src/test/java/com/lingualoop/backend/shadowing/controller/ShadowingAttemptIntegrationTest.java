@@ -130,7 +130,7 @@ class ShadowingAttemptIntegrationTest {
         // Lượt đọc cũ: điểm tổng là của Azure, chưa có azure_score
         jdbc.update("UPDATE sentence_attempts SET total_score = 72.5, azure_score = NULL WHERE user_id = ?", user);
 
-        String sql = new String(getClass().getResourceAsStream("/db/migration/V20261127_1000__shadowing_weighted_score.sql")
+        String sql = new String(getClass().getResourceAsStream("/db/migration/V20261127_1100__shadowing_weighted_score.sql")
                 .readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
         // Cột đã có từ lúc khởi động nên bỏ câu ALTER, chạy phần cập nhật dữ liệu
         for (String statement : sql.substring(sql.indexOf("UPDATE")).split(";")) {
@@ -721,7 +721,7 @@ class ShadowingAttemptIntegrationTest {
 
     private Lesson lesson(String name, boolean pro) {
         Topic topic = new Topic();
-        topic.setName(name + " topic");
+        topic.setName(name + " topic " + UUID.randomUUID());
         topic = topics.save(topic);
 
         Lesson l = new Lesson();

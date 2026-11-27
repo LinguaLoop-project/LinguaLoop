@@ -27,7 +27,9 @@
     "REPORT": "Báo cáo",
     "USER": "Tài khoản",
     "PLAN": "Gói Pro",
-    "SETTINGS": "Cấu hình credit"
+    "SETTINGS": "Cấu hình credit",
+    "TOPIC": "Chủ đề",
+    "CATEGORY": "Danh mục"
   },
   "roles": {
     "student": "Học viên",
