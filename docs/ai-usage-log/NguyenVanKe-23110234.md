@@ -634,7 +634,7 @@
 - **Vị trí code do AI sinh (`file:hàm`):** `audit/controller/AdminAuditLogController.java`; `audit/service/AuditAdminServiceImpl.java:list`, `:detail`, `:open`; `audit/repository/AuditLogQueryRepository.java:find`, `:count`, `:findDisplayName`; `audit/dto/AuditChanges.java:field`, `:build`; `audit/service/AuditTargetLookup.java`; `lesson/service/LessonAuditTargetLookup.java`; `vocab/service/VocabAuditTargetLookup.java`; `vocab/service/VocabAuditor.java:deck`; `auth/service/SecurityAuditor.java:loginLocked`, `:passwordReset`, `:passwordChanged`; `report/service/ReportAuditor.java:submitted`, `:closed`; `report/repository/ReportRepository.java:findAuditSubjects`, `:rejectOpenByReporter`; `report/repository/ModerationRepository.java:closeForPermanentlyDeleted`, `:closeForDeletedItems`, `:closeForSentence`, `:closeForCard`, `:closeForGroup`; `report/service/TakedownMarker.java:mark`; `lesson/service/LessonDraftWriter.java`; `lesson/service/LessonManageServiceImpl.java:updateInfo`, `:sameAs`; `vocab/service/VocabDeckManageServiceImpl.java`; `user/service/UserAdminServiceImpl.java`; `user/service/ContentTransferServiceImpl.java`; `stats/controller/AdminStatsController.java`; `stats/service/SystemStatsAdminServiceImpl.java:overview`, `:practice`, `:aiUsage`, `:feature`; `stats/service/RevenueCalculator.java:revenue`, `:grossProfit`, `:grossMarginPct`; `stats/service/AiEconomicsCalculator.java:pricePerUnit`, `:costPerUnit`, `:isLoss`, `:sharePct`; `stats/service/StatsWindow.java`; `stats/repository/OverviewStatsRepository.java`, `PracticeStatsRepository.java`, `AiUsageStatsRepository.java`, `RevenueStatsRepository.java`; `config/CacheConfig.java:cacheManager`; test `AdminAuditLogApiIntegrationTest`, `AuditCoverageIntegrationTest`, `AuditChangesTest`, `SystemStatsAdminServiceIntegrationTest`, `AdminStatsApiIntegrationTest`, `AiEconomicsCalculatorTest`, `RevenueCalculatorTest`, `StatsWindowTest`
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế yêu cầu rút gọn trang thống kê AI, chỉ giữ số liệu lãi lỗ cùng biểu đồ credit theo ngày và top tài khoản; tính giá bán và chi phí theo đơn vị tính tiền thay vì theo lượt gọi. Kế chọn thu gọn nhật ký: bỏ ghi sửa câu, nhóm thẻ, thẻ, thông tin bài học và bộ thẻ, nhắc báo cáo quá hạn; bỏ trang lịch sử đối tượng (UC-NK-02 cũ). Kế bảo rollback phần gom nhiều lần sửa câu thành một mục nhật ký mà AI đã viết
 - **Commit:** 77d3e05
-- **Lỗi liên quan:** AI-ERR-KE-006
+- **Lỗi liên quan:** NONE
 
 ### AI-KE-056
 
@@ -664,18 +664,6 @@
 
 - **Ngày:** 2026-11-26
 - **Công cụ AI / model:** Claude Code (Opus 5.5)
-- **Phạm vi (`Scope`):** DOCUMENTATION
-- **Loại công việc (`Task Type`):** DOCUMENTATION
-- **Prompt chính / yêu cầu:** Rà soát đặc tả TN (`/usecase-review TN`) rồi sửa theo các quyết định của Kế: đếm hoàn thành mỗi học viên một lần, mức tăng giảm theo %, phạm vi số liệu (chỉ học viên, bỏ câu, thẻ, nhóm đã xóa), thu gọn thống kê (bỏ bảng câu/thẻ đầy đủ, sắp xếp và lọc nhóm; thay bằng câu khó nhất theo từng chế độ và thẻ khó nhất theo nhóm), thêm biểu đồ theo ngày, xếp hai danh sách tổng quan theo số học viên
-- **Vị trí code do AI sinh (`file:hàm`):** `docs/srs/TN-xem-thong-ke-noi-dung/usecase.md` (UC-TN-01 Bước 2, 3; UC-TN-02 Bước 3, nhánh 2a; UC-TN-03 Bước 2, 3, nhánh 2a, 4a, 4b; AC-TN-01, 02, 03, 09, 10, 11, 14, 16, 17, 18, 19, 22); `docs/srs/TN-xem-thong-ke-noi-dung/quy-tac-nghiep-vu.md` (BR-TN-02, 03, 04, 06)
-- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chốt mọi quy tắc nghiệp vụ: bỏ "Câu học viên hay sai nhất" khỏi tổng quan, thêm biểu đồ theo ngày cho tổng quan và bộ thẻ, chỉ giữ 5 câu khó nhất tách riêng nghe chép và shadowing, 5 thẻ khó nhất theo từng nhóm kèm danh sách nhóm để chọn, hai danh sách tổng quan cùng xếp theo số học viên.
-- **Commit:** 1275732
-- **Lỗi liên quan:** NONE
-
-### AI-KE-059
-
-- **Ngày:** 2026-11-26
-- **Công cụ AI / model:** Claude Code (Opus 5.5)
 - **Phạm vi (`Scope`):** OTHER
 - **Loại công việc (`Task Type`):** CODE_GENERATION
 - **Prompt chính / yêu cầu:** API thống kê nội dung cho giáo viên (module TN, phạm vi phụ `DATABASE`): tổng quan, một bài học, một bộ thẻ; kiểm quyền chủ nội dung, cache 1 giờ, số báo cáo đang mở lấy trực tiếp; test tích hợp gắn mã AC-TN
@@ -684,7 +672,7 @@
 - **Commit:** 10791d1
 - **Lỗi liên quan:** NONE
 
-### AI-KE-060
+### AI-KE-059
 
 - **Ngày:** 2026-11-26
 - **Công cụ AI / model:** Claude Code (Opus 5.5)
@@ -774,21 +762,6 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit sửa (bắt buộc, khác commit trên):** Chưa có (chưa tính vào mốc ≥ 5 lỗi cho tới khi có commit sửa)
 - **Kiểm chứng sau sửa:** Chưa có.
 - **Trạng thái (`Error Status`):** INVESTIGATING
-
-### AI-ERR-KE-006
-
-- **Liên kết bản ghi AI:** AI-KE-055
-- **Loại lỗi (`Error Type`):** LOGIC_ERROR
-- **Ngày phát hiện:** 2026-11-26
-- **Đầu ra sai/thiếu sót và bối cảnh:** Câu SQL đếm số học viên hoàn thành bài trên trang thống kê luyện tập của quản trị viên (UC-NK-03) đếm theo từng cặp (học viên, bài, chế độ). Học viên làm đủ mọi câu ở cả nghe chép lẫn shadowing bị tính là 2 lượt hoàn thành, nên số hoàn thành bị thổi lên và tỷ lệ hoàn thành có thể vượt số học viên đã bắt đầu.
-- **Vị trí (`file:hàm`):** `stats/repository/SystemPracticeStatsRepository.java:COMPLETED` (dùng trong `:totals`)
-- **Nguyên nhân phân tích:** BR-TN-02 lúc đó chỉ định nghĩa "hoàn thành ở một chế độ", chưa nói mỗi học viên tính bao nhiêu lần; AI chọn cách đếm theo chế độ mà không nêu chỗ chưa rõ để chốt.
-- **Cách phát hiện / bằng chứng:** Khi chạy `/usecase-review TN`, đặc tả hoàn thành bài bị nêu là mơ hồ; Kế chốt "đếm hoàn thành mỗi học viên một lần". Đối chiếu lại câu `COMPLETED` cũ thấy điều kiện `GROUP BY 1, 2, 3` (user, lesson, mode) đếm mỗi chế độ một lần.
-- **Cách sửa:** Thêm CTE `completed` lấy `min(t)` theo (học viên, bài) rồi mới đếm trong khoảng; thời điểm hoàn thành là lúc sớm nhất làm đủ ở một chế độ. BR-TN-02 ghi rõ mỗi học viên được tính hoàn thành một bài tối đa một lần.
-- **Commit gây ra lỗi (đưa đầu ra AI vào code):** 77d3e05
-- **Commit sửa (bắt buộc, khác commit trên):** 10791d1
-- **Kiểm chứng sau sửa:** `SystemStatsAdminServiceIntegrationTest.practice_learnerCompletingBothModesCountsOnce_BR_TN_02` pass; `./mvnw verify`: 1789 test, 0 lỗi, 4 bỏ qua, BUILD SUCCESS.
-- **Trạng thái (`Error Status`):** VERIFIED
 
 ## 3. Bằng chứng bổ sung (nếu cần)
 
