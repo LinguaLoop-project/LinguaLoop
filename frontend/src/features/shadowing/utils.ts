@@ -163,6 +163,17 @@ export function weakPhonemes(records: Record<string, SentenceRecord>, limit = 3)
     .map(([symbol]) => symbol);
 }
 
+/** Mọi âm chưa chuẩn của một lượt đọc kèm số lần, nhiều nhất trước. Không cắt bớt để học viên biết hết âm cần sửa. */
+export function badPhonemeChips(words: WordResult[]): [symbol: string, count: number][] {
+  const counts = new Map<string, number>();
+  for (const w of words) {
+    for (const p of w.phonemes) {
+      if (p.needsFix) counts.set(p.expected ?? p.symbol, (counts.get(p.expected ?? p.symbol) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+}
+
 /** 00:02.0 */
 export function fmtClock(ms: number): string {
   // Làm tròn tới 0,1 giây trước khi tách phút, để 59,96 giây không hiện thành "00:60.0"

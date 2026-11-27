@@ -1,5 +1,6 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { FunctionCall, LiveServerMessage, Session } from "@google/genai";
+import { BrowserTranscriber } from "@/lib/browserTranscriber";
 import { LiveUsageMeter } from "@/lib/liveUsage";
 import { MIC_RATE, MicCapture, encodeWav, int16Level, totalSamples } from "@/lib/pcmRecorder";
 import * as api from "./api";
@@ -109,6 +110,8 @@ export class TutorSessionController {
   #usage = new LiveUsageMeter();
   #mic: MicCapture | null = null;
   #player: PcmPlayer | null = null;
+  /** Chép lời bằng trình duyệt (khóa tiếng Anh); null khi trình duyệt không hỗ trợ thì dùng chữ của Gemini. */
+  #stt: BrowserTranscriber | null = null;
   #micLevel = 0;
 
   #started = false;
@@ -164,6 +167,7 @@ export class TutorSessionController {
       this.#mic = await MicCapture.create((pcm) => this.#onMicChunk(pcm));
       this.#player = new PcmPlayer((speaking) => this.#set({ tutorSpeaking: speaking }));
       await this.#player.resume();
+      this.#startTranscriber();
     } catch (err) {
       this.#teardown();
       this.#set({
@@ -418,7 +422,8 @@ export class TutorSessionController {
       }
       if (content.inputTranscription?.text) {
         this.#learnerActivity();
-        this.#pushTranscript("learner", content.inputTranscription.text);
+        // Chữ của Gemini hay sai ngôn ngữ; khi trình duyệt chép được thì chỉ lấy chữ của trình duyệt
+        if (!this.#stt?.working) this.#pushTranscript("learner", content.inputTranscription.text);
       }
       if (content.outputTranscription?.text) {
         this.#onTutorOutput();
@@ -696,7 +701,33 @@ export class TutorSessionController {
 
   // --- transcript ---
 
+  #startTranscriber() {
+    this.#stt = BrowserTranscriber.create({
+      // Không chép lúc gia sư đang nói (tiếng loa) hay lúc người học giữ nút đọc để chấm
+      isActive: () => this.#state.phase === "live" && !this.#state.holding && !this.#state.tutorSpeaking,
+      onText: (text) => {
+        this.#learnerActivity();
+        this.#setLearnerTranscript(text);
+      },
+    });
+    this.#stt?.start();
+  }
+
+  /** Chữ của trình duyệt là cả lượt nói đến lúc này, nên thay chứ không nối thêm như chữ của Gemini. */
+  #setLearnerTranscript(text: string) {
+    const open = this.#openTurn;
+    if (open && open.role === "learner") {
+      this.#set({ turns: this.#state.turns.map((t) => (t.id === open.id ? { ...t, text } : t)) });
+      return;
+    }
+    this.#flushTurn();
+    const id = ++this.#turnSeq;
+    this.#openTurn = { id, role: "learner" };
+    this.#set({ turns: [...this.#state.turns, { id, role: "learner", text }] });
+  }
+
   #pushTranscript(role: "tutor" | "learner", text: string) {
+    if (role === "tutor" && this.#openTurn?.role !== "tutor") this.#stt?.reset();
     const open = this.#openTurn;
     if (open && open.role === role) {
       const turns = this.#state.turns.map((t) => (t.id === open.id ? { ...t, text: t.text + text } : t));
@@ -775,6 +806,8 @@ export class TutorSessionController {
 
   #teardown() {
     this.#stopTimers();
+    this.#stt?.stop();
+    this.#stt = null;
     this.#mic?.stop();
     this.#player?.close();
     this.#mic = null;
