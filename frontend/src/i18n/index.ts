@@ -41,6 +41,12 @@ import viAuditAdmin from "./locales/vi/auditAdmin.json";
 import enAuditAdmin from "./locales/en/auditAdmin.json";
 import viStatsAdmin from "./locales/vi/statsAdmin.json";
 import enStatsAdmin from "./locales/en/statsAdmin.json";
+import viSubscription from "./locales/vi/subscription.json";
+import enSubscription from "./locales/en/subscription.json";
+import viCatalogAdmin from "./locales/vi/catalogAdmin.json";
+import enCatalogAdmin from "./locales/en/catalogAdmin.json";
+import viLanding from "./locales/vi/landing.json";
+import enLanding from "./locales/en/landing.json";
 import viStatsTeacher from "./locales/vi/statsTeacher.json";
 import enStatsTeacher from "./locales/en/statsTeacher.json";
 
@@ -77,14 +83,14 @@ export function setLanguage(language: Language): Promise<unknown> {
 
 void i18n.use(initReactI18next).init({
   resources: {
-    vi: { common: viCommon, auth: viAuth, layout: viLayout, pages: viPages, dictation: viDictation, mywords: viMywords, practice: viPractice, dictionary: viDictionary, vocab: viVocab, review: viReview, report: viReport, watch: viWatch, saved: viSaved, aichat: viAichat, lessonManage: viLessonManage, userAdmin: viUserAdmin, creditAdmin: viCreditAdmin, stats: viStats, auditAdmin: viAuditAdmin, statsAdmin: viStatsAdmin, statsTeacher: viStatsTeacher },
-    en: { common: enCommon, auth: enAuth, layout: enLayout, pages: enPages, dictation: enDictation, mywords: enMywords, practice: enPractice, dictionary: enDictionary, vocab: enVocab, review: enReview, report: enReport, watch: enWatch, saved: enSaved, aichat: enAichat, lessonManage: enLessonManage, userAdmin: enUserAdmin, creditAdmin: enCreditAdmin, stats: enStats, auditAdmin: enAuditAdmin, statsAdmin: enStatsAdmin, statsTeacher: enStatsTeacher },
+    vi: { common: viCommon, auth: viAuth, layout: viLayout, pages: viPages, dictation: viDictation, mywords: viMywords, practice: viPractice, dictionary: viDictionary, vocab: viVocab, review: viReview, report: viReport, watch: viWatch, saved: viSaved, aichat: viAichat, lessonManage: viLessonManage, userAdmin: viUserAdmin, creditAdmin: viCreditAdmin, stats: viStats, auditAdmin: viAuditAdmin, statsAdmin: viStatsAdmin, subscription: viSubscription, catalogAdmin: viCatalogAdmin, landing: viLanding, statsTeacher: viStatsTeacher },
+    en: { common: enCommon, auth: enAuth, layout: enLayout, pages: enPages, dictation: enDictation, mywords: enMywords, practice: enPractice, dictionary: enDictionary, vocab: enVocab, review: enReview, report: enReport, watch: enWatch, saved: enSaved, aichat: enAichat, lessonManage: enLessonManage, userAdmin: enUserAdmin, creditAdmin: enCreditAdmin, stats: enStats, auditAdmin: enAuditAdmin, statsAdmin: enStatsAdmin, subscription: enSubscription, catalogAdmin: enCatalogAdmin, landing: enLanding, statsTeacher: enStatsTeacher },
   },
   lng: readStoredLanguage(),
   fallbackLng: DEFAULT_LANGUAGE,
   supportedLngs: SUPPORTED_LANGUAGES,
   defaultNS: "common",
-  ns: ["common", "auth", "layout", "pages", "dictation", "mywords", "dictionary", "practice", "vocab", "review", "watch", "saved", "lessonManage", "userAdmin", "aichat", "creditAdmin", "stats", "auditAdmin", "statsAdmin", "statsTeacher"],
+  ns: ["common", "auth", "layout", "pages", "dictation", "mywords", "dictionary", "practice", "vocab", "review", "watch", "saved", "lessonManage", "userAdmin", "aichat", "creditAdmin", "stats", "auditAdmin", "statsAdmin", "subscription", "landing", "statsTeacher"],
   interpolation: { escapeValue: false }, // React đã escape
   returnNull: false,
 });

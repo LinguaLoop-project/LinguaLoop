@@ -60,7 +60,7 @@ export interface ActivityDay {
 }
 
 export interface ActivityMap {
-  /** Thứ Hai đầu tiên của 13 tuần. */
+  /** Thứ Hai của tuần chứa ngày đầu tiên trong 90 ngày. */
   from: string;
   /** Hôm nay theo múi giờ của học viên. */
   to: string;

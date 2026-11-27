@@ -63,6 +63,36 @@ class VocabReviewServiceImpl implements VocabReviewService {
         return new LearnView.SessionRef(learn.openSession(userId, deck == null ? null : deck.getId(), "review"));
     }
 
+    @Override
+    public List<LearnView.Card> newWordCards(UUID userId, UUID deckId, int limit) {
+        return review.findNewWords(userId, deckId, subscriptions.isPro(userId), limit).stream().map(this::toCard).toList();
+    }
+
+    @Override
+    public int countNewWords(UUID userId, UUID deckId, int cap) {
+        return review.countNewWords(userId, deckId, subscriptions.isPro(userId), cap);
+    }
+
+    @Override
+    public int countNewWordsStartedSince(UUID userId, Instant since) {
+        return review.countNewWordsStartedSince(userId, since);
+    }
+
+    @Override
+    public List<LearnView.Card> reinforceCards(UUID userId, Instant since, int limit) {
+        return review.findReinforce(userId, subscriptions.isPro(userId), since, limit).stream().map(this::toCard).toList();
+    }
+
+    @Override
+    public int countReinforce(UUID userId, Instant since, int cap) {
+        return review.countReinforce(userId, subscriptions.isPro(userId), since, cap);
+    }
+
+    @Override
+    public int countScheduledBetween(UUID userId, Instant from, Instant to) {
+        return review.countScheduledBetween(userId, subscriptions.isPro(userId), from, to);
+    }
+
     private DeckRow deckOrThrow(UUID userId, UUID deckId, boolean userPro) {
         return decks.findDecks(userId, deckId, userPro).stream().findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND));

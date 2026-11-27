@@ -16,9 +16,9 @@ import com.lingualoop.backend.subscription.repository.ProOrderRepository;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Công cụ chỉ để thử tính năng Free/Pro và credit khi chưa có thanh toán thật. Bật Pro = tạo một đơn
+ * Công cụ để thử tính năng Free/Pro và credit mà không cần thanh toán qua VNPAY. Bật Pro = tạo một đơn
  * {@code pro_orders} đã thanh toán, nên {@code isPro} và ví credit chạy đúng đường thật. Chỉ nạp khi
- * {@code app.dev-tools.enabled=true}; bỏ cả package này khi làm thanh toán Pro thật.
+ * {@code app.dev-tools.enabled=true}, không bật ở môi trường thật.
  */
 @Service
 @ConditionalOnProperty(name = "app.dev-tools.enabled", havingValue = "true")

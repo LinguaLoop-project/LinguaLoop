@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { buttonClasses } from "@/components/common/buttonStyles";
 import { preloadYouTubeApi } from "@/features/dictation/usePlayer";
 import type { RoundSummary } from "@/features/vocab/components/review/ReviewSession";
+import CardSourceChips from "../components/CardSourceChips";
 import DailyCards from "../components/DailyCards";
 import ReviewShell, { type ShellStep } from "../components/ReviewShell";
 import ReviewSummary from "../components/ReviewSummary";
@@ -66,7 +67,7 @@ interface SessionProps {
   onContinue: () => void;
 }
 
-/** Một lượt của phiên Ôn tập hằng ngày: thẻ rồi câu, chuyển liền mạch, kết thúc bằng tổng kết chung (UC-HT-05). */
+/** Một lượt của phiên Luyện tập hằng ngày: thẻ rồi câu, chuyển liền mạch, kết thúc bằng tổng kết chung (UC-HT-05). */
 function DailySession({ plan, run, extra, onContinue }: SessionProps) {
   const { t } = useTranslation("review");
   const sentences = extra ? [] : plan.sentences;
@@ -145,7 +146,16 @@ function DailySession({ plan, run, extra, onContinue }: SessionProps) {
           : undefined
       }
     >
-      {phase === "cards" && <DailyCards limit={cardsInSession} run={run} onComplete={completeCards} onExit={exitCards} />}
+      {phase === "cards" && (
+        <>
+          {!extra && (
+            <div className="mb-3">
+              <CardSourceChips sources={plan.cardSources} />
+            </div>
+          )}
+          <DailyCards extra={extra} run={run} onComplete={completeCards} onExit={exitCards} />
+        </>
+      )}
       {phase === "bridge" && (
         <div role="status" className="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface px-6 py-14 text-center shadow-[var(--shadow-card)]">
           <Mascot mood="celebrate" size={96} alt="" />
@@ -168,7 +178,7 @@ function DailySession({ plan, run, extra, onContinue }: SessionProps) {
   );
 }
 
-/** Ôn tập hằng ngày (UC-HT-05): lập kế hoạch theo mục tiêu ngày rồi dẫn học viên qua thẻ và câu. */
+/** Luyện tập hằng ngày (UC-HT-05): lập kế hoạch theo mục tiêu ngày rồi dẫn học viên qua thẻ và câu. */
 export default function DailyReviewPage() {
   const { t } = useTranslation("review");
   const [run, setRun] = useState(0);

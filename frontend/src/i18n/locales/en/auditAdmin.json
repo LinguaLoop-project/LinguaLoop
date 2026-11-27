@@ -27,7 +27,9 @@
     "REPORT": "Report",
     "USER": "Account",
     "PLAN": "Pro plan",
-    "SETTINGS": "Credit settings"
+    "SETTINGS": "Credit settings",
+    "TOPIC": "Topic",
+    "CATEGORY": "Category"
   },
   "roles": {
     "student": "Learner",

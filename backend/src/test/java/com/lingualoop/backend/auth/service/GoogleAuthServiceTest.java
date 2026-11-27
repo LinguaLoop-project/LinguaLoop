@@ -51,7 +51,7 @@ class GoogleAuthServiceTest {
 
     private static UserAccountView account(boolean verified, boolean locked, boolean hasPassword, boolean googleLinked) {
         return new UserAccountView(UUID.randomUUID(), "minh@gmail.com", "Minh", null, hasPassword ? "hash" : null,
-                Role.STUDENT, "vi", verified, locked, false, googleLinked, 15, "Asia/Ho_Chi_Minh", false);
+                Role.STUDENT, "vi", verified, locked, false, googleLinked, 15, "Asia/Ho_Chi_Minh", false, null);
     }
 
     @Test

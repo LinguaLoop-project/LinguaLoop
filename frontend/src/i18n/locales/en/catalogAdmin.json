@@ -1,0 +1,67 @@
+{
+  "save": "Save",
+  "cancel": "Cancel",
+  "reload": "Reload",
+  "rename": "Rename",
+  "clearFilters": "Clear filters",
+  "saveFailed": "Could not save. Please check your connection and try again",
+  "columns": {
+    "updatedAt": "Updated",
+    "actions": "Actions"
+  },
+  "topics": {
+    "title": "Topics",
+    "subtitle": "Topics teachers file lessons under. A topic is shown to students only when it has at least 1 published lesson.",
+    "add": "Add topic",
+    "count_one": "{{count}} topic",
+    "count_other": "{{count}} topics",
+    "searchPlaceholder": "Search by topic name",
+    "visibility": "Visibility",
+    "allStatuses": "All statuses",
+    "visible": "Visible",
+    "hidden": "Not visible",
+    "empty": "No topics yet",
+    "noMatch": "No matching topics",
+    "loadFailed": "Could not load topics",
+    "columns": {
+      "name": "Topic name",
+      "publishedLessons": "Published lessons",
+      "status": "Status"
+    },
+    "form": {
+      "addTitle": "Add topic",
+      "renameTitle": "Rename topic \"{{name}}\"",
+      "name": "Topic name",
+      "required": "Topic name is required",
+      "tooLong": "Topic name can be at most 100 characters",
+      "nameTaken": "This topic name already exists",
+      "created": "Added topic \"{{name}}\"",
+      "renamed": "Renamed topic to \"{{name}}\""
+    }
+  },
+  "categories": {
+    "title": "Deck categories",
+    "subtitle": "Categories teachers use to classify vocabulary decks.",
+    "add": "Add category",
+    "count_one": "{{count}} category",
+    "count_other": "{{count}} categories",
+    "searchPlaceholder": "Search by category name",
+    "empty": "No categories yet",
+    "noMatch": "No matching categories",
+    "loadFailed": "Could not load categories",
+    "columns": {
+      "name": "Category name",
+      "publishedDecks": "Published decks"
+    },
+    "form": {
+      "addTitle": "Add category",
+      "renameTitle": "Rename category \"{{name}}\"",
+      "name": "Category name",
+      "required": "Category name is required",
+      "tooLong": "Category name can be at most 100 characters",
+      "nameTaken": "This category name already exists",
+      "created": "Added category \"{{name}}\"",
+      "renamed": "Renamed category to \"{{name}}\""
+    }
+  }
+}

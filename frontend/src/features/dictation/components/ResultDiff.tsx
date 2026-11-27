@@ -147,7 +147,7 @@ export default function ResultDiff({
             </div>
           )}
           {words ? (
-            <div className="font-display text-[22px] font-bold leading-[1.9] @[600px]:text-[26px] @[600px]:leading-loose">
+            <div className="font-display practice-sentence font-bold leading-[1.9] @[600px]:leading-loose">
               {context
                 ? context.map((token, i) => {
                     const graded = token.blank ? byPosition.get(token.position) : undefined;
@@ -174,7 +174,7 @@ export default function ResultDiff({
           ) : (
             <>
               {text && (
-                <p className="font-display text-[22px] font-bold leading-[1.9] @[600px]:text-[26px]">
+                <p className="font-display practice-sentence font-bold leading-[1.9]">
                   <ClickableText text={text} />
                 </p>
               )}

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,6 +31,8 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_PATHS = {
         "/api/v1/auth/**",
+        // Máy chủ VNPAY báo kết quả thanh toán; tin cậy nhờ chữ ký, không có đăng nhập (UC-PR-03)
+        "/api/v1/payments/vnpay/ipn",
         "/actuator/health/**",
         "/v3/api-docs/**",
         "/swagger-ui/**",
@@ -51,6 +54,8 @@ public class SecurityConfig {
                 .formLogin(f -> f.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_PATHS).permitAll()
+                        // Bài học giới thiệu trên trang chủ cho khách chưa đăng nhập, chỉ đọc (BR-TC-20)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/public/lessons/showcase").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole(Role.ADMIN.name())
                         .requestMatchers("/api/v1/teacher/**").hasAnyRole(Role.TEACHER.name(), Role.ADMIN.name())
                         .anyRequest().authenticated())

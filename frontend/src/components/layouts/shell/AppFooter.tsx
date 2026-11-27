@@ -16,7 +16,6 @@ const COLUMNS: { titleKey: string; links: FooterLink[] }[] = [
       { key: "dictation", to: "/student/dictation" },
       { key: "shadowing", to: "/student/shadowing" },
       { key: "vocab", to: "/student/vocab" },
-      { key: "test", to: "/student/test" },
     ],
   },
   {
@@ -25,11 +24,11 @@ const COLUMNS: { titleKey: string; links: FooterLink[] }[] = [
       { key: "mywords", to: "/student/mywords" },
       { key: "weakness", to: "/student/weakness" },
       { key: "settings", to: "/student/settings" },
-      { key: "pro", to: "/student/settings?tab=plan" },
+      { key: "pro", to: "/student/subscription" },
     ],
   },
-  { titleKey: "support", links: [{ key: "guide" }, { key: "faq" }, { key: "report" }, { key: "contact" }] },
-  { titleKey: "about", links: [{ key: "brand" }, { key: "terms" }, { key: "privacy" }, { key: "voiceData" }] },
+  { titleKey: "support", links: [{ key: "guide" }, { key: "faq", to: "/#faq" }, { key: "report" }, { key: "contact" }] },
+  { titleKey: "about", links: [{ key: "brand" }, { key: "terms" }, { key: "privacy" }, { key: "voiceData", to: "/#privacy" }] },
 ];
 
 const SOCIALS = [

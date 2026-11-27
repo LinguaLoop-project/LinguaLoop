@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { SentenceRecord, WordResult } from "./types";
 import {
   alignWords,
+  badPhonemeChips,
   fmtClock,
   fmtDuration,
   litTokenIndex,
@@ -224,6 +225,31 @@ describe("weakPhonemes", () => {
 
   it("lượt khôi phục từ lịch sử không có âm vị thì không trả gì", () => {
     expect(weakPhonemes({ a: rec([word(0, "hello")]) })).toEqual([]);
+  });
+});
+
+describe("badPhonemeChips (BUG-003, AC-SH-15)", () => {
+  const ph = (symbol: string, needsFix: boolean, expected?: string) => ({ symbol, expected, accuracy: needsFix ? 40 : 90, needsFix });
+
+  it("liệt kê đủ mọi âm chưa chuẩn, không cắt còn 3, nhiều lần nhất trước", () => {
+    const words = [
+      word(0, "think", { phonemes: [ph("t", true), ph("ɪ", true), ph("ŋ", true)] }),
+      word(1, "this", { phonemes: [ph("ð", true), ph("ɪ", true), ph("s", true)] }),
+      word(2, "ok", { phonemes: [ph("k", false)] }),
+    ];
+    const chips = badPhonemeChips(words);
+    expect(chips).toHaveLength(5);
+    expect(chips[0]).toEqual(["ɪ", 2]);
+    expect(chips.map(([s]) => s)).not.toContain("k");
+  });
+
+  it("gộp theo âm mẫu khi Azure báo một biến thể", () => {
+    const words = [word(0, "if", { phonemes: [ph("v", true, "f")] }), word(1, "off", { phonemes: [ph("f", true, "f")] })];
+    expect(badPhonemeChips(words)).toEqual([["f", 2]]);
+  });
+
+  it("không có âm nào cần sửa thì rỗng", () => {
+    expect(badPhonemeChips([word(0, "hi", { phonemes: [ph("h", false)] })])).toEqual([]);
   });
 });
 

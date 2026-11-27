@@ -63,7 +63,7 @@ class UserMapperTest {
     void toMe_accountWithPassword_mapsRoleValueAndHasPassword() {
         UUID id = UUID.randomUUID();
         UserAccountView account = new UserAccountView(id, "a@x.com", "An", "http://a/p.png", "hash", Role.ADMIN, "vi",
-                true, false, true, false, 20, "Asia/Tokyo", true);
+                true, false, true, false, 20, "Asia/Tokyo", true, null);
 
         MeResponse me = mapper.toMe(account);
 
@@ -85,7 +85,7 @@ class UserMapperTest {
     @Test
     void toMe_googleOnlyAccount_hasNoPasswordAndIsGoogleLinked() {
         UserAccountView account = new UserAccountView(UUID.randomUUID(), "g@x.com", "Gg", null, null, Role.STUDENT,
-                "vi", true, false, false, true, 15, "Asia/Ho_Chi_Minh", false);
+                "vi", true, false, false, true, 15, "Asia/Ho_Chi_Minh", false, null);
 
         MeResponse me = mapper.toMe(account);
 

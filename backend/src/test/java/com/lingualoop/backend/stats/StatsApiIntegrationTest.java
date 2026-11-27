@@ -807,7 +807,7 @@ class StatsApiIntegrationTest {
     // ---------------------------------------------------------------- lịch nhiệt và từ nghe sai nhiều nhất
 
     @Test
-    void activity_countsAttemptsCardAnswersAndFinishedAiSessionsPerDayOver13Weeks_AC_TH_31() throws Exception {
+    void activity_countsAttemptsCardAnswersAndFinishedAiSessionsPerDayOverTheLast90Days_AC_TH_31() throws Exception {
         UUID user = users.newUser();
         UUID lesson = lesson(false, "published");
         UUID s0 = sentence(lesson, 0);
@@ -820,20 +820,23 @@ class StatsApiIntegrationTest {
         reviewLog(user, cards.get(0), null, false, at(1));
         aiSession(user, lesson, "completed", at(2), 2);
         aiSession(user, lesson, "active", at(3), 1);                   // chưa xong: không tính
-        dictation(user, s1, at(100), 50);                              // ngoài 13 tuần
+        dictation(user, s1, at(89), 50);                               // ngày thứ 90, còn trong cửa sổ
+        dictation(user, s1, at(90), 50);                               // ngoài 90 ngày
 
         LocalDate today = LocalDate.now(ZONE);
-        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(12);
+        LocalDate monday = today.minusDays(89).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         as(user, get("/api/v1/stats/activity")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.from").value(monday.toString()))
                 .andExpect(jsonPath("$.data.to").value(today.toString()))
-                .andExpect(jsonPath("$.data.days.length()").value(3))
-                .andExpect(jsonPath("$.data.days[0].date").value(today.minusDays(2).toString()))
+                .andExpect(jsonPath("$.data.days.length()").value(4))
+                .andExpect(jsonPath("$.data.days[0].date").value(today.minusDays(89).toString()))
                 .andExpect(jsonPath("$.data.days[0].count").value(1))
-                .andExpect(jsonPath("$.data.days[1].date").value(today.minusDays(1).toString()))
-                .andExpect(jsonPath("$.data.days[1].count").value(2))
-                .andExpect(jsonPath("$.data.days[2].date").value(today.toString()))
-                .andExpect(jsonPath("$.data.days[2].count").value(3));
+                .andExpect(jsonPath("$.data.days[1].date").value(today.minusDays(2).toString()))
+                .andExpect(jsonPath("$.data.days[1].count").value(1))
+                .andExpect(jsonPath("$.data.days[2].date").value(today.minusDays(1).toString()))
+                .andExpect(jsonPath("$.data.days[2].count").value(2))
+                .andExpect(jsonPath("$.data.days[3].date").value(today.toString()))
+                .andExpect(jsonPath("$.data.days[3].count").value(3));
     }
 
     @Test

@@ -250,10 +250,6 @@
       "title": "Weakness analysis",
       "description": "A map of difficult sounds, commonly confused grammar and targeted fixing exercises."
     },
-    "test": {
-      "title": "Placement test",
-      "description": "An adaptive CEFR test that pins down your exact language level."
-    },
     "settings": {
       "title": "Account settings",
       "description": "Manage your profile, Pro plan, study reminders and privacy."
@@ -593,6 +589,8 @@
       "result": {
         "best": "Best {{best}}",
         "noIssues": "No sound is below 60",
+        "formula": "Score = 50% accuracy + 30% fluency + 20% prosody, scaled by completeness",
+        "formulaNoProsody": "Score = 60% accuracy + 40% fluency, scaled by completeness",
         "omitted": "Skipped words ×{{n}}",
         "inserted": "Extra words ×{{n}}",
         "badPhoneme": "Sound /{{symbol}}/ is off ×{{n}}",

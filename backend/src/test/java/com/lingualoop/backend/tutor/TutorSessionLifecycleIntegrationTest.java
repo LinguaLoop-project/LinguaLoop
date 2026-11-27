@@ -302,7 +302,7 @@ class TutorSessionLifecycleIntegrationTest {
 
         attempt(s, "sentence").andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.target").value("sentence"))
-                .andExpect(jsonPath("$.data.score").value(85.0))
+                .andExpect(jsonPath("$.data.score").value(86.4)) // 0,6×84 + 0,4×90 (không có ngữ điệu), BR-SH-23
                 .andExpect(jsonPath("$.data.nextStep").value("end"))
                 .andExpect(jsonPath("$.data.outcome").value("completed"));
 

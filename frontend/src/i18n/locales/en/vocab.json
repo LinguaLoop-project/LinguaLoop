@@ -2,7 +2,7 @@
   "overline": "Vocabulary Practice",
   "title": "Vocabulary",
   "subtitle": "Learn decks part by part and review cards just before you forget them.",
-  "reviewToday": "Today's review",
+  "reviewToday": "Today's practice",
   "say": {
     "due": "You have {{count}} cards due today—review them before you forget!",
     "clear": "All cards are on schedule! Pick a deck to learn a new part."
@@ -371,6 +371,8 @@
     "allCategories": "All categories",
     "otherCategory": "Other",
     "noCategory": "None (listed under Other)",
+    "level": "Level",
+    "noLevel": "No level",
     "status": "Status",
     "statusAll": "All statuses",
     "statusPublished": "Published",
@@ -401,6 +403,7 @@
       "image": "Cover image (JPG, PNG, up to 2 MB)",
       "imageInvalid": "Only JPG or PNG images up to 2 MB",
       "categoryInvalid": "This category no longer exists",
+      "levelInvalid": "Invalid level",
       "pro": "Requires Pro plan",
       "failed": "Could not create the deck, please try again",
       "cancel": "Cancel",

@@ -16,6 +16,7 @@ import com.google.genai.types.ContextWindowCompressionConfig;
 import com.google.genai.types.CreateAuthTokenConfig;
 import com.google.genai.types.FunctionDeclaration;
 import com.google.genai.types.HttpOptions;
+import com.google.genai.types.LanguageHints;
 import com.google.genai.types.LiveConnectConfig;
 import com.google.genai.types.LiveConnectConstraints;
 import com.google.genai.types.Modality;
@@ -45,6 +46,8 @@ class GeminiLiveTokenIssuer implements LiveTokenIssuer {
 
     /** Thời hạn token, đủ cho trần 10 phút của phiên kèm thời gian chờ Azure chấm (ADR 0003). */
     private static final Duration TOKEN_LIFETIME = Duration.ofMinutes(12);
+    /** Người học nói tiếng Việt hoặc tiếng Anh; không gợi ý thì phần nhận dạng hay đoán sang tiếng Nhật, Hàn... */
+    private static final List<String> LEARNER_LANGUAGES = List.of("en-US", "vi-VN");
 
     private final GeminiProperties gemini;
     private final GeminiLiveProperties live;
@@ -83,12 +86,14 @@ class GeminiLiveTokenIssuer implements LiveTokenIssuer {
         return new LiveToken(name, live.model(), expiresAt);
     }
 
-    private LiveConnectConfig liveConfig(LiveSpec spec) {
+    LiveConnectConfig liveConfig(LiveSpec spec) {
         LiveConnectConfig.Builder builder = LiveConnectConfig.builder()
                 .responseModalities(Modality.Known.AUDIO)
                 .systemInstruction(Content.fromParts(Part.fromText(spec.systemPrompt())))
                 .tools(Tool.builder().functionDeclarations(spec.tools()).build())
-                .inputAudioTranscription(AudioTranscriptionConfig.builder().build())
+                .inputAudioTranscription(AudioTranscriptionConfig.builder()
+                        .languageHints(LanguageHints.builder().languageCodes(LEARNER_LANGUAGES))
+                        .build())
                 .outputAudioTranscription(AudioTranscriptionConfig.builder().build());
         if (spec.compressContext()) {
             builder.contextWindowCompression(ContextWindowCompressionConfig.builder()

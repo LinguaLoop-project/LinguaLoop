@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Button } from "./Button";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../features/auth/stores/authStore";
 import { useAiEnergy } from "@/hooks/useAiEnergy";
 import { AI_ACTION_TUTOR } from "@/features/subscription/types";
 import Icon from "@/components/common/Icon";
 import type { UpgradeReason } from "@/stores/quotaStore";
+import { rememberReturnTo } from "@/features/subscription/payment";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ const SUFFIX: Record<UpgradeReason, string> = { quota: "", tutor: "Tutor", ai_fe
 export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, reason = "quota" }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuthStore();
   const { priceOf } = useAiEnergy();
 
@@ -39,12 +41,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, rea
 
   const handleUpgrade = () => {
     onClose();
-    // Navigate to a subscription page
     if (user?.role === "admin") {
       navigate("/admin/plans");
-    } else {
-      // Assuming student upgrade page
-      navigate("/student/subs"); // Change this to real upgrade page if available
+    } else if (user?.role === "student") {
+      // Nhớ trang đang học để quay lại sau khi thanh toán (AC-PR-07)
+      rememberReturnTo(location.pathname + location.search);
+      navigate("/student/subscription?choose=1");
     }
   };
 

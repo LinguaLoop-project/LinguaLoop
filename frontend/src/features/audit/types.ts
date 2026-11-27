@@ -29,7 +29,9 @@ export type AuditEntityType =
   | "REPORT"
   | "USER"
   | "SETTINGS"
-  | "PLAN";
+  | "PLAN"
+  | "TOPIC"
+  | "CATEGORY";
 
 /** Vai trò người thực hiện ghi trong nhật ký; "system" là thao tác tự động. */
 export type AuditActorRole = "student" | "teacher" | "admin" | "system";

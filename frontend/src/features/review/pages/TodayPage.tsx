@@ -11,6 +11,7 @@ import { buttonClasses } from "@/components/common/buttonStyles";
 import { useAuthStore } from "@/features/auth";
 import { useLessonSearch } from "@/features/lesson";
 import { StatsDashboard, useStreak, type Streak } from "@/features/stats";
+import CardSourceChips from "../components/CardSourceChips";
 import SuggestionCards from "../components/SuggestionCards";
 import { hasSuggestions } from "../flow";
 import { useDailyPlan } from "../hooks";
@@ -50,7 +51,7 @@ function Stat({ icon, value, label, tone = "primary", progress, subLabel, action
             {actionTo && actionLabel && (
               <Link
                 to={actionTo}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-fn-shadowing hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-primary-text hover:underline"
               >
                 {actionLabel}
                 <Icon name="arrow-right" className="size-3" />
@@ -315,13 +316,21 @@ function ReviewCard({ plan, streak }: { plan: DailyPlan; streak?: Streak }) {
           </div>
           <p className="mt-1 text-text-muted">
             {hasWork
-              ? t("today.reviewDesc", { cards: plan.cardsInPlan, sentences: plan.sentences.length })
+              ? t(plan.cardsDoneToday + plan.sentencesDoneToday > 0 ? "today.reviewDescRemaining" : "today.reviewDesc", {
+                  cards: plan.cardsInPlan,
+                  sentences: plan.sentences.length,
+                })
               : `${backlog ? t("today.doneQuota", { cards: plan.cardsDue, sentences: plan.sentencesPending }) : t("today.doneDesc")} ${next}`}
           </p>
           <p className="mt-2.5 inline-flex items-center gap-2 rounded-md border border-primary/25 bg-primary-soft/50 px-3 py-1.5 text-[13px] font-medium text-text">
             <Icon name="sparkles" className="size-3.5 shrink-0 text-primary-text" />
             <span>{loopiMessage}</span>
           </p>
+          {hasWork && (
+            <div className="mt-2.5">
+              <CardSourceChips sources={plan.cardSources} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -335,12 +344,12 @@ function ReviewCard({ plan, streak }: { plan: DailyPlan; streak?: Streak }) {
           tone="vocab"
         />
         <QuotaStat
-          icon="mic"
+          icon="messages-square"
           done={plan.sentencesDoneToday}
           target={plan.sentencesTarget}
           doneLabel={t("today.sentencesDone")}
           idleLabel={t("today.sentencesPending")}
-          tone="shadowing"
+          tone="primary"
           actionTo={canQuickReviewSentences ? "/student/review/sentences" : undefined}
           actionLabel={canQuickReviewSentences ? t("today.sentencesQuick") : undefined}
         />
@@ -350,12 +359,12 @@ function ReviewCard({ plan, streak }: { plan: DailyPlan; streak?: Streak }) {
             icon="target"
             value={`${overallPct}%`}
             label={t("today.goalProgress", { percent: overallPct })}
-            tone={overallPct === 100 ? "success" : "primary"}
+            tone={overallPct === 100 ? "success" : "assessment"}
             progress={overallPct}
             subLabel={t("today.goalPlan", { minutes: plan.dailyMinutes })}
           />
         ) : (
-          <Stat icon="target" value={t("today.minutes", { count: plan.dailyMinutes })} label={t("today.goal")} />
+          <Stat icon="target" value={t("today.minutes", { count: plan.dailyMinutes })} label={t("today.goal")} tone="assessment" />
         )}
       </div>
 
@@ -419,7 +428,7 @@ function HeroStreakPill({ streak }: { streak: Streak }) {
 }
 
 /**
- * Trang "Hôm nay" (đích sau onboarding): mục tiêu ngày, việc cần ôn và nút bắt đầu Ôn tập hôm nay (UC-HT-05), kèm khu
+ * Trang "Hôm nay" (đích sau onboarding): mục tiêu ngày, việc cần ôn và nút bắt đầu Luyện tập hôm nay (UC-HT-05), kèm khu
  * vực Thống kê học tập ở bên dưới (UC-TH-01, UC-TH-02).
  */
 export default function TodayPage() {

@@ -61,7 +61,8 @@ class StatsServiceImpl implements StatsService {
     private static final int TOP_WRONG_WORDS = 10;
 
     /** Số tuần của lịch nhiệt, khoảng 3 tháng (BR-TH-15). */
-    private static final int ACTIVITY_WEEKS = 13;
+    /** Lịch nhiệt hiển thị đúng 90 ngày gần nhất tính cả hôm nay (BR-TH-15). */
+    private static final int ACTIVITY_DAYS = 90;
 
     /** Trang lịch sử tối đa; chặn offset lớn vì mỗi nguồn phải lấy {@code (page + 1) * 20} dòng để trộn. */
     private static final int MAX_HISTORY_PAGE = 500;
@@ -157,16 +158,17 @@ class StatsServiceImpl implements StatsService {
     @Override
     public ActivityView activity(UUID userId) {
         Window w = window(userId, StatsRange.DAYS_30);
-        LocalDate from = w.today().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                .minusWeeks(ACTIVITY_WEEKS - 1L);
-        Instant since = from.atStartOfDay(w.zone()).toInstant();
+        LocalDate windowStart = w.today().minusDays(ACTIVITY_DAYS - 1L);
+        // Lưới xếp theo tuần từ thứ Hai nên cột đầu có thể bắt đầu trước cửa sổ; các ô trước cửa sổ không có dữ liệu.
+        LocalDate from = windowStart.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        Instant since = windowStart.atStartOfDay(w.zone()).toInstant();
         Map<LocalDate, Long> counts = new java.util.TreeMap<>();
         for (Map<LocalDate, Long> part : List.of(practice.activityByDay(userId, since),
                 vocab.activityByDay(userId, since), aiChat.activityByDay(userId, since))) {
             part.forEach((day, n) -> counts.merge(day, n, Long::sum));
         }
         List<ActivityView.Day> days = counts.entrySet().stream()
-                .filter(e -> e.getValue() > 0 && !e.getKey().isAfter(w.today()))
+                .filter(e -> e.getValue() > 0 && !e.getKey().isBefore(windowStart) && !e.getKey().isAfter(w.today()))
                 .map(e -> new ActivityView.Day(e.getKey(), e.getValue())).toList();
         return new ActivityView(from, w.today(), days);
     }

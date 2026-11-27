@@ -11,6 +11,10 @@ export interface CategoryOption {
   name: string;
 }
 
+/** Cấp độ CEFR một bộ có thể gắn (BR-BT-16); chưa gắn thì `null`. */
+export const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+export type CefrLevel = (typeof CEFR_LEVELS)[number];
+
 /** `draft` | `published`; bộ đã xóa giữ trạng thái trước khi xóa và có `deletedAt`. */
 export type DeckStatus = "draft" | "published";
 
@@ -24,6 +28,7 @@ export interface TeacherDeckItem {
   imageUrl: string | null;
   categoryId: string | null;
   categoryName: string | null;
+  cefrLevel: CefrLevel | null;
   groupCount: number;
   cardCount: number;
   pro: boolean;
@@ -41,6 +46,7 @@ export interface AdminDeckItem {
   imageUrl: string | null;
   categoryId: string | null;
   categoryName: string | null;
+  cefrLevel: CefrLevel | null;
   groupCount: number;
   cardCount: number;
   pro: boolean;
@@ -78,6 +84,8 @@ export interface DeckListFilter {
 export interface CreateDeckInput {
   name: string;
   categoryId: string | null;
+  /** `null` = chưa gắn cấp độ (BR-BT-16). */
+  cefrLevel: CefrLevel | null;
   pro: boolean;
 }
 
@@ -100,6 +108,7 @@ export interface DeckDetail {
   imageUrl: string | null;
   categoryId: string | null;
   categoryName: string | null;
+  cefrLevel: CefrLevel | null;
   pro: boolean;
   status: DeckStatus;
   updatedAt: string;

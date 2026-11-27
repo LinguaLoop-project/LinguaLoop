@@ -1,0 +1,332 @@
+{
+  "hero": {
+    "badge": "Vòng lặp luyện tiếng Anh thực hành cùng AI",
+    "mobileGreeting": "Chào bạn! Cùng Loopi luyện 15 phút mỗi ngày nhé.",
+    "titleBefore": "Luyện nghe chép và phát âm trên ",
+    "titleHighlight": "video thật",
+    "titleAfter": ", đúng vào điểm yếu của bạn.",
+    "subtitle": "Chỉ 10–30 phút mỗi ngày với vòng lặp khép kín: nghe chép thích ứng, shadowing chấm 44 âm vị giọng Mỹ, gia sư AI sửa lỗi đúng lúc và ôn thẻ lặp lại ngắt quãng SM-2.",
+    "ctaStart": "Bắt đầu miễn phí",
+    "ctaContinue": "Vào trang học ngay",
+    "ctaHowItWorks": "Xem vòng lặp 4 bước",
+    "loopiAlt": "Loopi chào đón bạn đến với LinguaLoop",
+    "trust": {
+      "noCard": "Miễn phí bắt đầu, không cần thẻ",
+      "responsive": "Học tốt trên máy tính & điện thoại",
+      "aiTrial": "Tặng sẵn credit AI dùng thử"
+    },
+    "preview": {
+      "caption": "Trải nghiệm giao diện luyện tập thực tế",
+      "interactiveHint": "Thử tương tác trực tiếp ngay bên dưới",
+      "tabs": {
+        "shadowing": "Shadowing · 44 âm vị",
+        "dictation": "Nghe chép · Thích ứng"
+      },
+      "shadowing": {
+        "lesson": "Bài học B1 · Daily Conversation",
+        "listenBtn": "Nghe câu mẫu",
+        "stopBtn": "Dừng đọc",
+        "waveformIdle": "Bấm để nghe nhịp đọc mẫu & theo dõi từng từ",
+        "waveformPlaying": "Đang phát câu mẫu giọng Anh–Mỹ…",
+        "scoreLabel": "Điểm phát âm",
+        "tapWordHint": "Bấm vào từ gạch đỏ/vàng để xem mẹo sửa từng âm vị",
+        "metrics": {
+          "accuracy": "Chính xác",
+          "fluency": "Trôi chảy",
+          "completeness": "Đầy đủ",
+          "prosody": "Ngữ điệu"
+        },
+        "mouthVideo": "Kèm video khẩu hình minh họa",
+        "wordTips": {
+          "thought": {
+            "phoneme": "/θ/",
+            "score": 58,
+            "title": "Âm /θ/ trong “thought”",
+            "body": "Đặt nhẹ đầu lưỡi giữa hai hàm răng trên và dưới rồi đẩy hơi ra, không bật thành /t/ hay /s/."
+          },
+          "weather": {
+            "phoneme": "/ð/",
+            "score": 71,
+            "title": "Âm /ð/ trong “weather”",
+            "body": "Giữ đầu lưỡi giống /θ/ nhưng làm rung dây thanh quản ở cổ họng, tránh đọc cứng thành /d/ hoặc /z/."
+          },
+          "through": {
+            "phoneme": "/θ/",
+            "score": 54,
+            "title": "Âm /θ/ trong “through”",
+            "body": "Thổi hơi liên tục qua khe lưỡi–răng trước khi chuyển nhanh sang âm /r/ tròn môi."
+          }
+        }
+      },
+      "dictation": {
+        "lesson": "Mức dễ · Gõ thử 2 ô trống hoặc thử lỗi đồng âm",
+        "placeholder1": "gõ: this",
+        "placeholder2": "gõ: weather",
+        "checkBtn": "Kiểm tra",
+        "tryHomophoneBtn": "Thử lỗi đồng âm",
+        "resetBtn": "Làm lại",
+        "feedbackIdle": "Gõ 2 từ còn thiếu rồi bấm Kiểm tra, hoặc bấm “Thử lỗi đồng âm” để xem cách hệ thống chấm.",
+        "feedbackPerfect": "Chuẩn xác cả 2 ô! Hệ thống ghi nhận bạn đã nắm vững từ chức năng và từ đồng âm ở câu này.",
+        "feedbackHomophone": "Phát hiện từ đồng âm: bạn gõ “whether” (liệu rằng) thay vì “weather” (thời tiết) — cùng cách đọc /ˈweð.ər/!",
+        "feedbackError": "Hệ thống đã phân loại lỗi từng từ (bỏ sót từ chức năng / sai chính tả) để ưu tiên khoét lại ở lần luyện sau.",
+        "legend": {
+          "correct": "Đúng",
+          "missing": "Bỏ sót từ chức năng",
+          "spelling": "Sai chính tả",
+          "homophone": "Từ đồng âm"
+        },
+        "dictWord": "through",
+        "dictIpa": "/θruː/ (US) · /θruː/ (UK)",
+        "dictMeaning": "giới từ — xuyên qua, suốt (một khoảng thời gian)",
+        "dictSaved": "Đã lưu vào Từ đã lưu (SM-2)"
+      }
+    }
+  },
+  "stats": {
+    "ariaLabel": "Quy mô học liệu LinguaLoop",
+    "items": {
+      "lessons": {
+        "value": "1.000+",
+        "label": "Bài học video YouTube",
+        "detail": "Phân cấp trình độ A1 đến C2"
+      },
+      "sentences": {
+        "value": "29.000+",
+        "label": "Câu thoại tách mốc",
+        "detail": "Phát lại từng câu tức thì"
+      },
+      "phonemes": {
+        "value": "44",
+        "label": "Âm vị giọng Mỹ",
+        "detail": "Mẹo sửa tiếng Việt & khẩu hình"
+      },
+      "dictionary": {
+        "value": "100.000+",
+        "label": "Mục từ điển song ngữ",
+        "detail": "Phiên âm Anh–Mỹ & Anh–Anh"
+      },
+      "decks": {
+        "value": "6.000+",
+        "label": "Thẻ trong 9 bộ từ",
+        "detail": "Lịch ôn SM-2 giới hạn tải ngày"
+      }
+    }
+  },
+  "marquee": {
+    "eyebrow": "Kho học liệu thực tế",
+    "title": "Học tiếng Anh qua video đúng chủ đề bạn thích",
+    "subtitle": "Hơn 1.000 bài học phân cấp từ A1 đến C2, tách sẵn câu thoại theo mốc thời gian. Rê chuột vào bất kỳ thẻ nào để dừng và xem chi tiết.",
+    "sentencesUnit": "{{count}} câu",
+    "pauseHint": "Rê chuột để tạm dừng",
+    "filterLabel": "Lọc theo trình độ",
+    "loading": "Đang tải bài học",
+    "dictation": "Nghe chép",
+    "shadowing": "Shadowing",
+    "filters": {
+      "all": "Tất cả",
+      "basic": "A1–A2",
+      "intermediate": "B1–B2",
+      "advanced": "C1–C2"
+    }
+  },
+  "loop": {
+    "eyebrow": "Vì sao là LinguaLoop?",
+    "title": "Vòng lặp 4 bước khép kín, không còn học rời rạc",
+    "subtitle": "Thay vì xem video một nơi, tra từ một nẻo rồi quên sạch, mọi câu bạn nghe và nói đều nối thẳng vào hồ sơ điểm yếu và phiên ôn hằng ngày.",
+    "returnCycle": "Câu bạn làm chưa tốt tự vào Câu cần ôn và quay lại trong phiên ôn hằng ngày — giữ vòng lặp học luôn khép kín.",
+    "steps": {
+      "dictation": {
+        "step": "Bước 01",
+        "title": "Nghe chép thích ứng",
+        "desc": "Chọn 1 trong 3 mức độ. Mức dễ ưu tiên khoét ô trống ở nhóm từ bạn hay nghe sót (từ chức năng, đuôi -ed/-s, số…), nhận diện từ đồng âm và phân loại lỗi theo từng nhóm từ."
+      },
+      "shadowing": {
+        "step": "Bước 02",
+        "title": "Shadowing chấm 44 âm vị",
+        "desc": "Đọc theo câu mẫu, hệ thống chấm 4 tiêu chí và đối chiếu âm đích theo chuẩn Anh–Mỹ để chỉ đích danh âm nào cần chỉnh."
+      },
+      "tutor": {
+        "step": "Bước 03",
+        "title": "Gia sư AI sửa đúng lúc",
+        "desc": "Nhận xét chi tiết bằng tiếng Việt. Khi bạn lặp lại lỗi trên cùng một câu, gia sư giọng nói thời gian thực xuất hiện hướng dẫn đọc lại và chấm lại từng từ."
+      },
+      "review": {
+        "step": "Bước 04",
+        "title": "Phiên ôn hằng ngày gọn nhẹ",
+        "desc": "Tự gộp Ôn thẻ (SM-2) và Ôn câu cần ôn vừa khít mục tiêu 10, 15, 20 hoặc 30 phút mỗi ngày để giữ chuỗi ngày học bền bỉ."
+      }
+    },
+    "simulator": {
+      "eyebrow": "Mô phỏng Định mức ôn ngày",
+      "title": "Bạn rảnh bao nhiêu phút mỗi ngày?",
+      "minutesUnit": "{{count}} phút",
+      "recommended": "Phổ biến",
+      "cardsLabel": "Thẻ từ vựng (SM-2)",
+      "dictationLabel": "Câu ôn nghe chép",
+      "shadowingLabel": "Câu ôn shadowing",
+      "note": "Định mức thực tế trong LinguaLoop: hoàn thành đủ mục tiêu là xong ngày hôm nay — không bị dồn hàng trăm thẻ gây nản.",
+      "plans": {
+        "10": "Nhịp nhẹ nhàng để khởi động và giữ chuỗi ngày học cả khi bận rộn.",
+        "15": "Mức cân bằng mặc định: đủ ôn từ đến hạn và xử lý cả câu nghe lẫn câu nói yếu.",
+        "20": "Tăng tốc vốn từ vựng hằng ngày cho mục tiêu giao tiếp và thi chứng chỉ.",
+        "30": "Nhịp luyện chuyên sâu giúp cải thiện rõ rệt cả nghe chi tiết lẫn phát âm."
+      }
+    }
+  },
+  "features": {
+    "eyebrow": "Điểm khác biệt cốt lõi",
+    "title": "Mọi công cụ cần thiết để nhìn rõ và xử lý dứt điểm chỗ yếu",
+    "subtitle": "Thiết kế cho người Việt tự học tiếng Anh — tập trung vào phản hồi chi tiết từng từ, từng âm vị và nhịp ôn tập vừa sức.",
+    "weakness": {
+      "badge": "Hồ sơ điểm yếu",
+      "title": "Bản đồ 44 âm vị tương tác",
+      "desc": "Bấm vào từng âm vị để xem ví dụ, lỗi người Việt hay nhầm và mẹo sửa chi tiết. Trong ứng dụng, bạn có thể bấm thẳng vào âm yếu để chuyển sang luyện đúng câu chứa âm đó.",
+      "tapHint": "Bấm một âm bất kỳ để xem chi tiết",
+      "legendGood": "Ổn định",
+      "legendMid": "Cần để ý",
+      "legendWeak": "Hay sai",
+      "exampleLabel": "Ví dụ",
+      "confusionLabel": "Hay nhầm",
+      "items": {
+        "theta": { "example": "thought, through", "confusion": "/θ/ → /t/ hoặc /s/", "tip": "Đặt đầu lưỡi giữa hai răng và thổi hơi nhẹ, không bật hơi như âm /t/." },
+        "eth": { "example": "this, weather", "confusion": "/ð/ → /d/ hoặc /z/", "tip": "Đặt lưỡi giống /θ/ nhưng bật rung dây thanh ở cổ họng." },
+        "r": { "example": "really, world", "confusion": "Chưa cong đầu lưỡi", "tip": "Cuộn nhẹ đầu lưỡi lên phía sau mà không chạm vòm miệng, hơi chu môi." },
+        "ae": { "example": "back, habit", "confusion": "/æ/ → /e/", "tip": "Mở hàm dưới rộng hơn âm /e/, khóe miệng hơi kéo ngang." },
+        "ih": { "example": "live, ship", "confusion": "/ɪ/ → /iː/", "tip": "Thả lỏng môi và phát âm thật ngắn, dứt khoát hơn /iː/." },
+        "ng": { "example": "thing, singing", "confusion": "Bỏ âm mũi cuối", "tip": "Nâng cuống lưỡi chạm ngạc mềm để hơi thoát qua mũi, không bật /g/ thừa." },
+        "sh": { "example": "should, fresh", "confusion": "/ʃ/ → /s/", "tip": "Tròn nhẹ đôi môi về phía trước và đẩy luồng hơi rộng, êm." },
+        "ch": { "example": "check, watch", "confusion": "Thiếu lực bật đầu", "tip": "Chạm lưỡi chặn hơi ngắn rồi bật nhanh ra thành luồng gió tròn môi." },
+        "v": { "example": "voice, have", "confusion": "Quên âm /v/ cuối từ", "tip": "Răng cửa trên chạm nhẹ môi dưới và rung thanh quản rõ kể cả ở cuối từ." },
+        "z": { "example": "days, eyes", "confusion": "/z/ → /s/ ở âm cuối", "tip": "Giữ rung cổ họng khi khép từ có đuôi -s/-es đứng sau nguyên âm hoặc phụ âm hữu thanh." },
+        "au": { "example": "sound, around", "confusion": "Chưa khép môi về /ʊ/", "tip": "Bắt đầu mở miệng rộng ở /a/ rồi trượt mượt sang tròn môi /ʊ/." },
+        "ei": { "example": "daily, make", "confusion": "Đọc dẹt thành /e/", "tip": "Trượt nhẹ từ /e/ lên /ɪ/ ở cuối âm tiết để nghe tự nhiên hơn." }
+      }
+    },
+    "dictation": {
+      "badge": "Nghe chép thông minh",
+      "title": "Thống kê lỗi theo nhóm từ",
+      "desc": "Không chỉ chấm đúng hay sai cả câu. Hệ thống tách lỗi theo 6 nhóm từ để bạn biết chính xác mình đang nghe hụt ở đâu và tự khoét ô trống vào đúng chỗ yếu.",
+      "chartTitle": "Ví dụ: tỷ lệ sai theo nhóm từ trong 7 ngày",
+      "groups": [
+        { "label": "Từ chức năng (a, to, the, of)", "pct": 34, "tone": "danger" },
+        { "label": "Từ chia đuôi (-ed, -s, -ing)", "pct": 26, "tone": "warning" },
+        { "label": "Số & tên riêng (2019, London)", "pct": 18, "tone": "info" },
+        { "label": "Từ nội dung & chính tả", "pct": 12, "tone": "primary" }
+      ],
+      "footnote": "Mức dễ khoét ô trống nhiều hơn ở các nhóm bạn sai nhiều."
+    },
+    "tutor": {
+      "badge": "Gia sư AI bám sát bài",
+      "title": "Nhận xét sư phạm & luyện nói thời gian thực",
+      "desc": "Khi bạn lặp lại lỗi trên một câu shadowing, gia sư giọng nói xuất hiện để hướng dẫn sửa từng từ, bắt đọc lại và chấm lại tối đa 3 lần — tự dừng khi lạc đề để tiết kiệm credit.",
+      "chat": {
+        "header": "Phiên gia sư giọng nói · Đang luyện từ “thought”",
+        "aiPrompt": "Bạn vừa đọc “thought” hơi giống /tɔːt/. Hãy đặt đầu lưỡi nhẹ giữa hai răng và đọc lại chậm từ này nhé!",
+        "userRetry": "“thought” — lượt đọc lại 1/3",
+        "scoreJump": "62 → 91 điểm",
+        "aiPraise": "Chuẩn rồi! Âm /θ/ đã nghe rất rõ hơi. Giờ ghép lại cả câu để chốt điểm nhé."
+      }
+    },
+    "vocab": {
+      "badge": "Học thụ động & Bộ từ SM-2",
+      "title": "Lướt video ngắn, tra 1 chạm và ôn thẻ không quá tải",
+      "desc": "Xem video ngắn tối đa 3 phút kèm lời thoại chạy theo giọng nói. Chạm từ bất kỳ để tra từ điển Anh–Việt, lưu vào Từ đã lưu hoặc Bộ của tôi (nhập Excel/CSV) và học qua 4 cách.",
+      "watchCaption": "Học thụ động · 01:12 / 02:45",
+      "watchLineBefore": "Small habits ",
+      "watchLineActive": "compound",
+      "watchLineAfter": " into big results.",
+      "watchMeaning": "tích lũy, nhân lên dần · Đã lưu vào Bộ của tôi",
+      "sm2Badge": "SM-2 · Ôn lại sau 4 ngày",
+      "modes": ["Flashcard", "Đoán từ", "Trắc nghiệm", "Trắc nghiệm đảo"]
+    }
+  },
+  "trust": {
+    "eyebrow": "Minh bạch & Quyền riêng tư",
+    "title": "Chấm điểm rõ ràng, tôn trọng dữ liệu giọng nói của bạn",
+    "items": {
+      "voice": {
+        "title": "Không lưu tệp ghi âm của bạn",
+        "desc": "LinguaLoop không lưu tệp âm thanh của bạn trên máy chủ. Giọng nói chỉ được gửi tới dịch vụ chấm phát âm (Microsoft Azure) và gia sư giọng nói (Google Gemini) để xử lý ngay lượt đó."
+      },
+      "deterministic": {
+        "title": "Điểm số kiểm chứng được",
+        "desc": "Điểm phát âm do dịch vụ chấm chuyên dụng (Microsoft Azure) chấm từng âm rồi gộp bằng công thức công khai; kết quả nghe chép từng từ và lịch ôn thẻ dùng thuật toán cố định. Chatbot AI chỉ giải thích và trò chuyện, không quyết định điểm."
+      },
+      "credit": {
+        "title": "Credit AI minh bạch",
+        "desc": "Mỗi tính năng AI có giá credit cố định, hiện ngay trên nút trước khi bạn dùng; số dư không bao giờ bị âm."
+      }
+    }
+  },
+  "pricing": {
+    "eyebrow": "Gói học linh hoạt",
+    "title": "Bắt đầu miễn phí, nâng cấp Pro khi bạn cần bứt tốc",
+    "subtitle": "Trải nghiệm trọn vòng lặp học tập mà không cần thẻ thanh toán. Khi nâng cấp, thanh toán an toàn qua cổng VNPAY.",
+    "free": {
+      "name": "Gói Miễn phí",
+      "tag": "Free",
+      "price": "0đ",
+      "period": "dùng mãi mãi",
+      "desc": "Đầy đủ nền tảng để xây thói quen nghe chép, shadowing và ôn từ vựng mỗi ngày.",
+      "cta": "Tạo tài khoản miễn phí",
+      "ctaAuthed": "Tiếp tục học miễn phí",
+      "items": [
+        "Học mọi bài học video và bộ từ không gắn nhãn Pro",
+        "Nghe chép 3 mức độ & Shadowing chấm 44 âm vị",
+        "Học thụ động, tra từ điển 1 chạm và ôn thẻ SM-2",
+        "Tạo Bộ của tôi không giới hạn (hỗ trợ nhập Excel/CSV)",
+        "Tặng credit AI dùng thử để trải nghiệm gia sư AI"
+      ]
+    },
+    "pro": {
+      "name": "Gói Pro",
+      "tag": "Phổ biến",
+      "price": "Theo tháng",
+      "period": "chọn kỳ hạn, giá hiện khi nâng cấp",
+      "desc": "Dành cho người học đều đặn muốn mở toàn bộ học liệu Pro, video khẩu hình và credit AI mỗi tháng.",
+      "cta": "Đăng ký để nâng cấp Pro",
+      "ctaAuthed": "Xem gói Pro & nâng cấp",
+      "items": [
+        "Mở khóa toàn bộ bài học Pro: đọc lời thoại và luyện đầy đủ",
+        "Mở khóa toàn bộ các bộ từ vựng Pro theo chủ đề & chứng chỉ",
+        "Xem video khẩu hình hướng dẫn sửa khi phát âm dưới 60 điểm",
+        "Cấp lại credit AI mỗi tháng để dùng gia sư và nhận xét AI",
+        "Sắp ra mắt: tạo bài học cá nhân từ liên kết YouTube có phụ đề"
+      ]
+    },
+    "paymentNote": "Thanh toán an toàn qua VNPAY (QR, thẻ ATM nội địa, thẻ quốc tế). Thời hạn gia hạn được cộng nối tiếp, không mất ngày."
+  },
+  "faq": {
+    "eyebrow": "Câu hỏi thường gặp",
+    "title": "Giải đáp nhanh trước khi bạn bắt đầu",
+    "items": [
+      {
+        "q": "Mình mới bắt đầu hoặc mất gốc (A1) có học được không?",
+        "a": "Hoàn toàn được. Thư viện có bài học phân cấp từ A1 đến C2, nghe chép hỗ trợ 3 mức độ (mức dễ chỉ khoét một số ô trống quan trọng) và bộ từ khởi đầu phù hợp để bạn làm quen ngay trong 10–15 phút đầu tiên."
+      },
+      {
+        "q": "Hệ thống chấm phát âm theo giọng Anh–Mỹ hay Anh–Anh?",
+        "a": "Giọng chấm phát âm cố định theo chuẩn Anh–Mỹ gồm 44 âm vị để chỉ chính xác âm đích cần sửa. Khi đọc câu hoặc tra từ điển, bạn vẫn có thể chọn hiển thị song song phiên âm Anh–Mỹ và Anh–Anh."
+      },
+      {
+        "q": "Credit AI hoạt động như thế nào?",
+        "a": "Tài khoản miễn phí được tặng sẵn credit AI dùng thử để trải nghiệm nhận xét và gia sư AI. Tài khoản Pro được cấp mới credit AI mỗi tháng. Mỗi tính năng AI có giá credit cố định, hiện ngay trên nút trước khi bạn dùng."
+      },
+      {
+        "q": "Mình có cần cài ứng dụng trên điện thoại không?",
+        "a": "Không cần. LinguaLoop được tối ưu giao diện web thích ứng cho cả điện thoại và máy tính, giúp bạn nghe chép, thu âm shadowing, lướt Học thụ động và ôn thẻ trực tiếp trên trình duyệt."
+      },
+      {
+        "q": "Bản ghi âm giọng nói của mình có bị lưu trên máy chủ không?",
+        "a": "Không. Bản ghi Shadowing được giữ trên trình duyệt để bạn nghe lại, so sánh với câu mẫu và gửi tới Microsoft Azure để chấm điểm. Khi trò chuyện với gia sư giọng nói, âm thanh được truyền trực tiếp tới Google Gemini để gia sư nghe và trả lời, và trình duyệt có thể dùng dịch vụ nhận dạng giọng nói của Google để hiện chữ bạn nói. Máy chủ LinguaLoop chỉ lưu điểm và kết quả từng từ, không lưu âm thanh."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Dành 15 phút đầu tiên cùng Loopi hôm nay",
+    "subtitle": "Chọn một video bạn thích, nghe chép vài câu, thử chấm phát âm 44 âm vị và xem ngay bản đồ điểm yếu đầu tiên của riêng bạn.",
+    "primaryGuest": "Tạo tài khoản miễn phí",
+    "secondaryGuest": "Đã có tài khoản? Đăng nhập",
+    "primaryAuthed": "Vào trang học ngay"
+  }
+}

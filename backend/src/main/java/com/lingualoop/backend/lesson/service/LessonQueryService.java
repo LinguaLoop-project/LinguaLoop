@@ -1,5 +1,6 @@
 package com.lingualoop.backend.lesson.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,6 +50,12 @@ public interface LessonQueryService {
      * Rỗng nếu người học đã luyện Shadowing mọi bài họ xem được.
      */
     Optional<LessonSuggestionResponse> suggestShadowingLesson(UUID userId, boolean userPro);
+
+    /**
+     * Cấp độ hiện tại của người học (BR-HT-32): mức CEFR xuất hiện nhiều nhất trong các bài họ đã luyện Nghe chép hoặc
+     * Shadowing từ {@code since}, bằng nhau thì mức thấp hơn. Rỗng nếu chưa luyện bài nào từ mốc đó.
+     */
+    Optional<String> mostPracticedLevel(UUID userId, Instant since);
 
     LessonDetailResponse getLessonDetail(UUID lessonId, UUID userId);
 

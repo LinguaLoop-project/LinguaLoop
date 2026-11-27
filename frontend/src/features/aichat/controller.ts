@@ -1,5 +1,6 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { FunctionCall, LiveServerMessage, Session } from "@google/genai";
+import { BrowserTranscriber } from "@/lib/browserTranscriber";
 import { LiveUsageMeter } from "@/lib/liveUsage";
 import { PcmPlayer, int16ToBase64 } from "@/features/tutor/audio";
 import { MIC_RATE, MicCapture, int16Level } from "@/lib/pcmRecorder";
@@ -114,6 +115,8 @@ export class LiveChatController {
   #usage = new LiveUsageMeter();
   #mic: MicCapture | null = null;
   #player: PcmPlayer | null = null;
+  /** Chép lời bằng trình duyệt (khóa tiếng Anh); null khi trình duyệt không hỗ trợ thì dùng chữ của Gemini. */
+  #stt: BrowserTranscriber | null = null;
   #micLevel = 0;
 
   #playClipFn: PlayClip | null = null;
@@ -178,6 +181,7 @@ export class LiveChatController {
       this.#mic = await MicCapture.create((pcm) => this.#onMicChunk(pcm));
       this.#player = new PcmPlayer((speaking) => this.#set({ tutorSpeaking: speaking }));
       await this.#player.resume();
+      this.#startTranscriber();
     } catch (err) {
       this.#teardown();
       this.#set({ phase: "fallback", fallbackCode: "MIC_UNAVAILABLE", fallbackReason: errorMessage(err) });
@@ -311,7 +315,8 @@ export class LiveChatController {
       if (content.inputTranscription?.text) {
         this.#clearNudge();
         this.#learnerActivity();
-        this.#pushCaption("learner", content.inputTranscription.text);
+        // Chữ của Gemini hay sai ngôn ngữ; khi trình duyệt chép được thì chỉ lấy chữ của trình duyệt
+        if (!this.#stt?.working) this.#pushCaption("learner", content.inputTranscription.text);
       }
       if (content.outputTranscription?.text) {
         this.#onTutorOutput();
@@ -668,9 +673,29 @@ export class LiveChatController {
 
   // --- phụ đề ---
 
+  #startTranscriber() {
+    this.#stt = BrowserTranscriber.create({
+      isActive: () =>
+        this.#state.phase === "live" &&
+        !this.#state.muted &&
+        !this.#state.tutorSpeaking &&
+        !this.#externalAudio &&
+        performance.now() >= this.#micBlockedUntil,
+      onText: (text) => {
+        this.#clearNudge();
+        this.#learnerActivity();
+        this.#lastRole = "learner";
+        this.#learnerText = text;
+        this.#set({ captions: { ...this.#state.captions, learner: text } });
+      },
+    });
+    this.#stt?.start();
+  }
+
   #pushCaption(role: "tutor" | "learner", text: string) {
     const fresh = this.#lastRole !== role;
     this.#lastRole = role;
+    if (role === "tutor" && fresh) this.#stt?.reset();
     if (role === "learner") this.#learnerText = fresh ? text : this.#learnerText + text;
     const prev = fresh ? "" : this.#state.captions[role];
     this.#set({ captions: { ...this.#state.captions, [role]: prev + text } });
@@ -736,6 +761,8 @@ export class LiveChatController {
   }
 
   #teardownMedia() {
+    this.#stt?.stop();
+    this.#stt = null;
     this.#mic?.stop();
     this.#player?.close();
     this.#mic = null;

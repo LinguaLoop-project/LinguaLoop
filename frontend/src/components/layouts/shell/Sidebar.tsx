@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Badge from "@/components/common/Badge";
 import Button from "@/components/common/Button";
@@ -8,6 +8,9 @@ import { useReviewEntries } from "@/features/practice";
 import { type ReportBadgeKind, useReportBadge } from "@/features/report";
 import { useSavedWords } from "@/features/vocab";
 import { useAiEnergy } from "@/hooks/useAiEnergy";
+import { formatVnd } from "@/features/user";
+import { useSalePlans } from "@/features/subscription/hooks/usePayment";
+import { lowestMonthlyPriceVnd, rememberReturnTo } from "@/features/subscription/payment";
 import type { NavItem, NavTone, ShellConfig } from "./shellConfig";
 
 /**
@@ -132,23 +135,34 @@ function Item({ item, config, collapsed, onNavigate }: { item: NavItem; config: 
 }
 
 function ProCard({ hide }: { hide: string }) {
-  const { t } = useTranslation("layout");
+  const { t, i18n } = useTranslation("layout");
   const navigate = useNavigate();
+  const location = useLocation();
   const { isPro } = useAiEnergy();
+  const plans = useSalePlans(!isPro);
   if (isPro) return null;
+  const lowest = lowestMonthlyPriceVnd(plans.data ?? []);
+  const priceLabel = lowest != null ? t("student.sidebar.pro.price", { price: formatVnd(lowest, i18n.language) }) : null;
   return (
     <div
       className={`mb-2 rounded-xl border border-primary/30 bg-[linear-gradient(145deg,var(--surface),var(--primary-soft))] p-3 shadow-[var(--shadow-card)] ${hide}`}
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-1.5">
         <Badge variant="pro">
           <Icon name="crown" />
           PRO
         </Badge>
-        <b className="text-sm font-bold text-text">{t("student.sidebar.pro.price")}</b>
+        {priceLabel && <b className="whitespace-nowrap text-xs font-bold tabular-nums text-text">{priceLabel}</b>}
       </div>
       <p className="my-1.5 line-clamp-2 text-xs leading-snug text-text-muted">{t("student.sidebar.pro.desc")}</p>
-      <Button size="sm" fullWidth onClick={() => navigate("/pricing")}>
+      <Button
+        size="sm"
+        fullWidth
+        onClick={() => {
+          rememberReturnTo(location.pathname + location.search);
+          navigate("/student/subscription?choose=1");
+        }}
+      >
         {t("student.sidebar.pro.cta")}
       </Button>
     </div>

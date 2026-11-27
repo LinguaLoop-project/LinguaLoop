@@ -213,7 +213,7 @@ class ShadowingAttemptServiceImpl implements ShadowingAttemptService {
             words.add(new ShadowingAttemptResponse.WordResult(position++, word.word(), word.accuracyScore(),
                     ShadowingAttemptRecorder.outcomeOf(word.errorType()), phonemes));
         }
-        return new ShadowingAttemptResponse(attemptId, sentence.id(), a.pronunciationScore(), a.accuracyScore(),
+        return new ShadowingAttemptResponse(attemptId, sentence.id(), a.overallScore(), a.accuracyScore(),
                 a.fluencyScore(), a.completenessScore(), a.prosodyScore(), a.recognizedText(), words);
     }
 

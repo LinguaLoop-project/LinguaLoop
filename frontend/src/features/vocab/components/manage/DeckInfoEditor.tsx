@@ -5,7 +5,7 @@ import { FormAlert } from "@/components/common/FormAlert";
 import Icon from "@/components/common/Icon";
 import { toast } from "@/stores/toastStore";
 import { useDeckCategories, useUpdateTeacherDeck } from "../../deckManageHooks";
-import type { DeckDetail } from "../../deckManageTypes";
+import { CEFR_LEVELS, type CefrLevel, type DeckDetail } from "../../deckManageTypes";
 import { FilterSelect, ToggleChip } from "./DeckBits";
 import {
   editValuesFromDetail,
@@ -163,9 +163,23 @@ export default function DeckInfoEditor({ deck, onGone }: DeckInfoEditorProps) {
               </option>
             ))}
           </FilterSelect>
+          <FilterSelect
+            icon="graduation-cap"
+            label={t("manage.level")}
+            value={values.cefrLevel ?? ""}
+            onChange={(value) => set({ cefrLevel: (value || null) as CefrLevel | null })}
+          >
+            <option value="">{t("manage.noLevel")}</option>
+            {CEFR_LEVELS.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </FilterSelect>
           <ToggleChip icon="crown" label={t("manage.form.pro")} checked={values.pro} onChange={(pro) => set({ pro })} />
         </div>
         {errors.categoryId && <span className="px-2 text-sm text-danger">{t("manage.form.categoryInvalid")}</span>}
+        {errors.cefrLevel && <span className="px-2 text-sm text-danger">{t("manage.form.levelInvalid")}</span>}
         {errors.form === "failed" && <FormAlert variant="danger">{t("manage.form.saveFailed")}</FormAlert>}
         {errors.form === "forbidden" && <FormAlert variant="danger">{t("manage.feedback.forbidden")}</FormAlert>}
       </div>

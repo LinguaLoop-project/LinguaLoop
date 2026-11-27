@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/SH-shadowing/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 28 AC, 0 đã có test, 0 một phần, 28 thiếu.
+Tổng hợp: 29 AC, 0 đã có test, 1 một phần, 28 thiếu.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -27,6 +27,7 @@ Tổng hợp: 28 AC, 0 đã có test, 0 một phần, 28 thiếu.
 | AC-SH-19 | Mở video khẩu hình cho gói Pro và khóa hoàn toàn ở gói Free | UC-SH-02 |  |  | Thiếu |
 | AC-SH-20 | Lỗi tải mẹo hoặc video không làm mất điểm lượt đọc | UC-SH-02 |  |  | Thiếu |
 | AC-SH-21 | Chọn âm theo âm đích khi đọc nhầm phụ âm | UC-SH-02 |  |  | Thiếu |
+| AC-SH-29 | Điểm tổng do hệ thống tính từ điểm thành phần | UC-SH-02 | D, B | PronunciationAssessmentTest (4 ca: trọng số, đọc thiếu câu, không có ngữ điệu, giới hạn 0..100); ShadowingAttemptIntegrationTest.migration_recomputesOldShadowingScoresAndKeepsTheAzureOnes_AC_SH_29 | Một phần (chưa có test giao diện) |
 | AC-SH-22 | Hỏi lưu câu khi dưới 60 điểm và không nhớ lựa chọn từ chối | UC-SH-03 |  |  | Thiếu |
 | AC-SH-23 | Không hỏi khi điểm từ 60 đến 79 | UC-SH-03 |  |  | Thiếu |
 | AC-SH-24 | Hỏi bỏ khỏi danh sách khi đạt từ 80 điểm trở lên | UC-SH-03 |  |  | Thiếu |

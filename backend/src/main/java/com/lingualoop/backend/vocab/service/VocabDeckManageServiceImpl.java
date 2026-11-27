@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -49,6 +50,9 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
 
     static final int PAGE_SIZE = 10;
     static final int NAME_MAX = 100;
+
+    /** Các cấp độ CEFR một bộ có thể gắn (BR-BT-16), khớp CHECK của {@code vocab_decks.cefr_level}. */
+    static final Set<String> CEFR_LEVELS = Set.of("A1", "A2", "B1", "B2", "C1", "C2");
     static final int CARD_PAGE_SIZE = 20;
     static final int REASON_MAX = 500;
     static final Duration DELETED_RETENTION = Duration.ofDays(30);
@@ -113,6 +117,7 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
         String imageKey = request.imageKey();
         try {
             String name = validName(request.name());
+            validCefrLevel(request.cefrLevel());
             String categoryName = request.categoryId() == null ? null
                     : repository.findCategoryName(request.categoryId())
                             .orElseThrow(() -> new FieldValidationException("categoryId", "Exists"));
@@ -122,16 +127,17 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
             if (imageKey != null) {
                 verifyImage(teacherId, imageKey);
             }
-            VocabDeck saved = saveDraft(VocabDeck.newDraft(teacherId, name, request.categoryId(), imageKey,
-                    request.pro()));
+            VocabDeck saved = saveDraft(VocabDeck.newDraft(teacherId, name, request.categoryId(), request.cefrLevel(),
+                    imageKey, request.pro()));
             auditor.deck(teacherId, AuditAction.CREATE, saved.getId(), saved.getName(), AuditChanges.create()
                     .field("name", null, saved.getName())
                     .field("category", null, categoryName)
+                    .field("cefrLevel", null, saved.getCefrLevel())
                     .field("pro", null, saved.isPro())
                     .build(), null);
             return new DeckManageView.Item(saved.getId(), saved.getName(), images.resolve(saved.getImageUrl()),
-                    saved.getCategoryId(), categoryName, 0, 0, saved.isPro(), saved.getStatus(), saved.getUpdatedAt(),
-                    null, null);
+                    saved.getCategoryId(), categoryName, saved.getCefrLevel(), 0, 0, saved.isPro(), saved.getStatus(),
+                    saved.getUpdatedAt(), null, null);
         } catch (RuntimeException ex) {
             if (imageKey != null) {
                 storage.discardUpload(teacherId, UploadPurpose.DECK_IMAGE, imageKey);
@@ -201,6 +207,7 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
         try {
             DeckStateRow deck = teacherDeck(repository.findState(deckId), teacherId);
             String name = validName(request.name());
+            validCefrLevel(request.cefrLevel());
             if (request.categoryId() != null && repository.findCategoryName(request.categoryId()).isEmpty()) {
                 throw new FieldValidationException("categoryId", "Exists");
             }
@@ -212,7 +219,7 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
             }
             oldImage = deck.getImageUrl();
             image = newKey != null ? newKey : (request.removeImage() ? null : oldImage);
-            int updated = saveInfo(deckId, name, request.categoryId(), image, request.pro());
+            int updated = saveInfo(deckId, name, request.categoryId(), request.cefrLevel(), image, request.pro());
             if (updated == 0) {
                 throw new BusinessException(ErrorCode.VOCAB_DECK_NOT_FOUND);
             }
@@ -230,9 +237,9 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
         return detailOf(deckId);
     }
 
-    private int saveInfo(UUID deckId, String name, UUID categoryId, String image, boolean pro) {
+    private int saveInfo(UUID deckId, String name, UUID categoryId, String cefrLevel, String image, boolean pro) {
         try {
-            return repository.updateInfo(deckId, name, categoryId, image, pro, clock.instant());
+            return repository.updateInfo(deckId, name, categoryId, cefrLevel, image, pro, clock.instant());
         } catch (DataIntegrityViolationException ex) {
             if (isDuplicateName(ex)) {
                 throw new ConflictException(DUPLICATE_NAME);
@@ -388,7 +395,7 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
                 .map(g -> new DeckManageView.Group(g.getId(), g.getName(), g.getCardCount()))
                 .toList();
         return new DeckManageView.Detail(r.getId(), r.getName(), images.resolve(r.getImageUrl()), r.getCategoryId(),
-                r.getCategoryName(), r.getPro(), r.getStatus(), r.getUpdatedAt(), r.getOwnerId(), r.getOwnerName(),
+                r.getCategoryName(), r.getCefrLevel(), r.getPro(), r.getStatus(), r.getUpdatedAt(), r.getOwnerId(), r.getOwnerName(),
                 r.getUnpublishReason(), r.getCardCount(), groups);
     }
 
@@ -449,6 +456,13 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
         return name;
     }
 
+    /** Cấp độ không bắt buộc; có thì phải là A1 đến C2 (BR-BT-16). */
+    private static void validCefrLevel(String level) {
+        if (level != null && !CEFR_LEVELS.contains(level)) {
+            throw new FieldValidationException("cefrLevel", "Pattern");
+        }
+    }
+
     private static boolean isDuplicateName(DataIntegrityViolationException ex) {
         String message = ex.getMostSpecificCause().getMessage();
         return message != null && message.contains(UNIQUE_NAME_INDEX);
@@ -466,13 +480,13 @@ class VocabDeckManageServiceImpl implements VocabDeckManageService {
 
     private DeckManageView.Item toItem(DeckManageRow r) {
         return new DeckManageView.Item(r.getId(), r.getName(), images.resolve(r.getImageUrl()), r.getCategoryId(),
-                r.getCategoryName(), r.getGroupCount(), r.getCardCount(), r.getPro(), r.getStatus(), r.getUpdatedAt(),
+                r.getCategoryName(), r.getCefrLevel(), r.getGroupCount(), r.getCardCount(), r.getPro(), r.getStatus(), r.getUpdatedAt(),
                 r.getDeletedAt(), r.getUnpublishReason());
     }
 
     private DeckManageView.AdminItem toAdminItem(DeckManageRow r) {
         return new DeckManageView.AdminItem(r.getId(), r.getName(), images.resolve(r.getImageUrl()), r.getCategoryId(),
-                r.getCategoryName(), r.getGroupCount(), r.getCardCount(), r.getPro(), r.getStatus(), r.getUpdatedAt(),
+                r.getCategoryName(), r.getCefrLevel(), r.getGroupCount(), r.getCardCount(), r.getPro(), r.getStatus(), r.getUpdatedAt(),
                 r.getOwnerId(), r.getOwnerName());
     }
 }

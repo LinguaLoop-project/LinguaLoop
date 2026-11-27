@@ -74,11 +74,17 @@ class VocabLearnServiceImpl implements VocabLearnService {
         int quality = flashcard ? request.quality() : Sm2.qualityOf(request.isCorrect(), request.isHintUsed());
         boolean correct = quality >= 3;
 
+        // Thẻ củng cố chưa đến hạn chỉ ghi nhật ký, không tạo hay đổi lịch ôn (BR-HT-30).
+        boolean practice = request.isPractice() && learn.isScheduledLater(userId, request.cardId());
         boolean fresh = learn.insertLog(userId, request.cardId(), sessionId, request.answerId(), request.mode().dbValue(),
                 correct, quality, request.responseMs());
         ProgressRow progress = learn.lockProgress(userId, request.cardId());
         if (!fresh) {
             return toResult(progress);
+        }
+        if (practice) {
+            return new LearnView.AnswerResult(Sm2.statusOf(progress.repetitions(), progress.intervalDays()),
+                    progress.dueAt(), progress.intervalDays(), quality);
         }
 
         Sm2.Result result = Sm2.grade(progress.fresh() ? Sm2.State.FRESH : stateOf(progress), quality);

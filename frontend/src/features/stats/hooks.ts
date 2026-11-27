@@ -40,7 +40,7 @@ export const useStatsOverview = (range: StatsRange) =>
 export const useStreak = (enabled = true) =>
   useQuery({ ...base, queryKey: statsKeys.streak, queryFn: statsApi.getStreak, enabled });
 
-/** Lịch nhiệt 13 tuần, không phụ thuộc bộ lọc khoảng. */
+/** Lịch nhiệt 90 ngày, không phụ thuộc bộ lọc khoảng. */
 export const useActivity = () => useQuery({ ...base, queryKey: statsKeys.activity, queryFn: statsApi.getActivity });
 
 export const useWrongWords = (range: StatsRange) =>

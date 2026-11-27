@@ -33,7 +33,7 @@ export default function DevPlanSwitch() {
 
   return (
     <div
-      className="hidden items-center gap-1 rounded-full border border-dashed border-warning px-1 py-0.5 md:inline-flex"
+      className="hidden h-10 items-center gap-0.5 rounded-full border border-dashed border-warning/70 bg-surface/60 p-1 opacity-85 transition-opacity hover:opacity-100 lg:inline-flex"
       title={t("dev.title")}
     >
       <Icon name="wrench" className="ml-1 text-warning" />

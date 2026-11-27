@@ -37,6 +37,7 @@ Sổ này chỉ tóm tắt. Mô tả, các bước tái hiện, kết quả mong
 |---|---|---|---|---|---|---|---|---|---|---|
 | BUG-001 | Giáo viên xuất bản lại trực tiếp bài bị quản trị viên gỡ | Critical | Đã sửa | P1 | Kế | AC-BH-51, 76, 77, 78, 79, 80 | #64 | ReportModerationApiIntegrationTest.publish_lessonTakenDownByReport_requiresReview_AC_BH_76; ReportModerationApiIntegrationTest.adminUnpublishLesson_marksNotifiesAndClosesOffensive_AC_BH_51_AC_BH_80; ReportModerationApiIntegrationTest.deleteLesson_cancelsPendingRequest_AC_BH_78; ReportModerationApiIntegrationTest.restoreLesson_keepsTakedownMark_AC_BH_79; ReportModerationApiIntegrationTest.adminLessonDetail_takenDownDraftIsViewable_plainDraftIsNot_AC_BH_10 | 2026-11-18 | — |
 | BUG-002 | Đổi câu tiếng Anh qua API giữ IPA cũ, IPA sửa tay được | Major | Mới | P3 | Kế | AC-BH-35 | #65 | — | 2026-11-18 | — |
+| BUG-003 | Chép lời sai ngôn ngữ ở gia sư và kết quả Shadowing thiếu âm, khó xem chi tiết | Major | Đang sửa | P2 | Lâm | AC-SH-15 | #82 | BrowserTranscriber (browserTranscriber.test.ts); badPhonemeChips (utils.test.ts) | 2026-11-27 | — |
 
 <!-- Mẫu một dòng (đổi XXX thành số thứ tự, ví dụ BUG-001). Giữ nguyên thứ tự 4 cột đầu vì script báo cáo đọc theo vị trí:
 | BUG-XXX | Đăng nhập sai 5 lần không khóa | Critical | Đóng | P1 | Kế | AC-TK-13 | #123 | LoginIntegrationTest.login_fifthWrongPassword_locksAccountFor15Minutes_AC_TK_13 | 2026-11-01 | 2026-11-02 |

@@ -81,7 +81,7 @@ export default function ClozeInput({
       <div
         role="group"
         aria-label={t("input.cloze")}
-        className="flex flex-wrap items-end gap-x-2 gap-y-2 rounded-lg border border-border-strong bg-bg-base px-4 py-4 text-xl font-medium leading-normal"
+        className="flex flex-wrap items-end gap-x-2 gap-y-2 rounded-lg border border-border-strong bg-bg-base px-4 py-4 practice-input font-medium leading-normal"
       >
         {tokens.map((token) => {
           if (!token.blank) {
@@ -134,7 +134,7 @@ export default function ClozeInput({
                 style={{ width: `${Math.max(3, length + 1.5)}ch` }}
                 onChange={(e) => onChange(token.position, e.target.value.replace(/\s+/g, " ").trimStart())}
                 onKeyDown={(e) => onKeyDown(e, order)}
-                className="h-10 min-w-12 max-w-full rounded-sm border border-border-strong bg-bg-elevated px-2 text-center text-xl font-semibold transition-[border-color,box-shadow] duration-200 focus:border-fn-dictation focus:outline-none focus:shadow-[0_0_0_3px_var(--fn-dictation-soft)]"
+                className="h-10 min-w-12 max-w-full rounded-sm border border-border-strong bg-bg-elevated px-2 text-center practice-input font-semibold transition-[border-color,box-shadow] duration-200 focus:border-fn-dictation focus:outline-none focus:shadow-[0_0_0_3px_var(--fn-dictation-soft)]"
               />
             </span>
           );

@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TK-tai-khoan-xac-thuc/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 58 AC, 42 đã có test, 7 một phần, 8 thiếu, 1 thủ công.
+Tổng hợp: 77 AC, 42 đã có test, 23 một phần, 11 thiếu, 1 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -64,3 +64,22 @@ Tổng hợp: 58 AC, 42 đã có test, 7 một phần, 8 thiếu, 1 thủ công.
 | AC-TK-56 | Chưa có thông báo | UC-TK-09 | B |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
 | AC-TK-57 | Không tải được thông báo | UC-TK-09 | A |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
 | AC-TK-58 | Không ghi nhận được đã đọc | UC-TK-09 | A |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
+| AC-TK-59 | Trang Thông báo phân trang 20 thông báo, mới nhất ở đầu | UC-TK-09 | D, A | NotificationApiIntegrationTest.all_pagesBy20NewestFirstAndOnlyOwn_AC_TK_59; NotificationApiIntegrationTest.all_rejectsAnUnknownFilter_andNeedsAToken_AC_TK_59; `frontend/src/features/user/notifications.test.ts` (parsePageIndex) | Một phần (backend và tham số địa chỉ có test; trang chưa có test giao diện) |
+| AC-TK-60 | Lọc chưa đọc và đánh dấu đã đọc ngay trên trang | UC-TK-09 | D | NotificationApiIntegrationTest.all_unreadFilterListsOnlyUnreadAndFollowsMarkRead_AC_TK_60; `frontend/src/features/user/notifications.test.ts` (parseNotificationFilter) | Một phần (backend và tham số địa chỉ có test; trang chưa có test giao diện) |
+| AC-TK-61 | Trang Thông báo khi chưa có thông báo hoặc không tải được | UC-TK-09 | B, A |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
+| AC-TK-71 | Thông báo thanh toán Pro | UC-TK-09 | D, B | ProPaymentApiIntegrationTest.successfulPayment_notifiesOnceEvenWhenIpnAndReturnBothArrive_AC_TK_71; ProPaymentApiIntegrationTest.failedPaymentNotifies_butCancelingOnVnpayDoesNot_AC_TK_71 | Một phần (chưa có test giao diện) |
+| AC-TK-72 | Nhắc gói Pro sắp hết hạn và đã hết hạn | UC-TK-09 | D, B | ProPaymentApiIntegrationTest.expiryReminders_sendEachMilestoneOnce_AC_TK_72; ProPaymentApiIntegrationTest.expiryReminders_afterRenewingTheNextExpiryIsRemindedAgain_AC_TK_72 | Một phần (chưa có test giao diện) |
+| AC-TK-73 | Kết quả báo cáo nội dung | UC-TK-09 | D, B | ReportReviewApiIntegrationTest.resolve_notifiesEveryReporterOfTheGroupOnce_AC_TK_73; ReportReviewApiIntegrationTest.reject_notifiesTheReporterWithTheReason_AC_TK_73; ReportReviewApiIntegrationTest.failedResolve_doesNotNotifyTheReporter_AC_TK_73 | Một phần (chưa có test giao diện) |
+| AC-TK-74 | Thông báo có loại, dịch theo ngôn ngữ và chống trùng | UC-TK-09 | D, B | NotificationApiIntegrationTest.typedNotification_returnsTypeParamsAndLink_legacyOnesHaveNone_AC_TK_74; NotificationApiIntegrationTest.dedupeKey_sendsOncePerUser_butDifferentUsersAndKeysStillSend_AC_TK_74; `frontend/src/features/user/notifications.test.ts` (nội dung dịch, ngày giờ Việt Nam, đường dẫn nội bộ) | Một phần (chưa có test giao diện) |
+| AC-TK-75 | Thông báo hết credit AI | UC-TK-09 | D, B | CreditServiceIntegrationTest.rejectionNotifiesOncePerDay_unlessTheLearnerTurnedItOff_AC_TK_75 | Một phần (chưa có test giao diện) |
+| AC-TK-77 | Nhắc ôn thẻ và giữ chuỗi ngày học | UC-TK-09 | D, B | LearningReminderServiceTest (7 ca: khung giờ theo múi giờ, chỉ khi có việc, một lần mỗi ngày, học viên đã tắt, học viên lỗi) | Một phần (chưa có test tích hợp với dữ liệu thật) |
+| AC-TK-62 | Hiển thị tài khoản của chính học viên | UC-TK-10 | D |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
+| AC-TK-63 | Tài khoản của học viên mới chưa xác thực email | UC-TK-10 | B |  | Thiếu (chỉ có ở giao diện; chưa có test giao diện) |
+| AC-TK-64 | Đổi tên hiển thị | UC-TK-10 | D, B | `frontend/src/features/user/profilePayload.test.ts` (đổi tên giữ nguyên các trường hồ sơ khác) | Một phần (chưa có test giao diện) |
+| AC-TK-65 | Chọn chế độ màu và ngôn ngữ giao diện | UC-TK-10 | D | `frontend/src/features/user/profilePayload.test.ts` (đổi ngôn ngữ giữ nguyên các trường khác); `frontend/src/features/user/timezones.test.ts` | Một phần (chưa có test giao diện) |
+| AC-TK-66 | Đổi ảnh đại diện | UC-TK-10 | D | AvatarApiIntegrationTest.setAvatar_savesTheKeyAndMeReturnsItsUrl_AC_TK_66; AvatarApiIntegrationTest.setAvatar_acceptsPngAndWebpAndReplacesThePreviousFile_AC_TK_66; `frontend/src/features/user/avatarImage.test.ts` (cắt vuông ở giữa) | Một phần (chưa có test giao diện) |
+| AC-TK-67 | Ảnh đại diện không hợp lệ | UC-TK-10 | A, B | AvatarApiIntegrationTest.setAvatar_rejectsAFileThatIsNotReallyAnImage_AC_TK_67; AvatarApiIntegrationTest.setAvatar_rejectsAKeyThatIsNotTheCallers_orWasNeverUploaded_AC_TK_67; AvatarApiIntegrationTest.setAvatar_isForStudentsOnly_andNeedsAToken_AC_TK_67; `frontend/src/features/user/avatarImage.test.ts` (loại tệp và dung lượng) | Một phần (chưa có test giao diện) |
+| AC-TK-68 | Gỡ ảnh đại diện | UC-TK-10 | D, B | AvatarApiIntegrationTest.removeAvatar_fallsBackToTheGooglePictureAndDeletesTheFile_AC_TK_68 | Một phần (chưa có test giao diện) |
+| AC-TK-69 | Chọn tùy chọn luyện tập mặc định | UC-TK-10 | D, B | `frontend/src/features/user/practicePrefs.test.ts` (đọc mặc định, giá trị đã lưu, dữ liệu hỏng, giữ trường khác khi ghi) | Một phần (chưa có test giao diện) |
+| AC-TK-70 | Cá nhân hóa giao diện | UC-TK-10 | D, B | `frontend/src/hooks/useAppearance.test.ts` (mặc định Tím Vũ Trụ, dữ liệu cũ, mục lạ hoặc hỏng, gói giao diện, 6 nền); `frontend/src/hooks/guestLook.test.ts` (khách thấy mặc định, đăng nhập lại về lựa chọn cũ, khách đổi sáng/tối không ghi đè, đặt lại mặc định xóa lựa chọn); `frontend/src/styles/contrast.test.ts` (tương phản 4,5:1 của 6 bảng màu ở cả hai chế độ, kể cả chữ phụ trên nền có vệt màu; giới hạn mức tô của nền; cực quang cố định khi cuộn) | Một phần (chưa có test giao diện) |
+| AC-TK-76 | Bật hoặc tắt loại thông báo nhắc học | UC-TK-10 | D, B | NotificationApiIntegrationTest.preferences_listConfigurableTypesDefaultOn_andToggleOnlyForTheCaller_AC_TK_76; NotificationApiIntegrationTest.preferences_rejectUnknownOrAlwaysOnTypesAndMissingBody_AC_TK_76 | Một phần (chưa có test giao diện) |

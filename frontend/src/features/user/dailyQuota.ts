@@ -1,6 +1,6 @@
 import type { DailyMinutes } from "@/features/auth";
 
-/** Định mức của một phiên Ôn tập hằng ngày theo mục tiêu ngày (BR-HT-24): số thẻ và tổng số câu (chia đều hai chế độ). */
+/** Định mức của một phiên Luyện tập hằng ngày theo mục tiêu ngày (BR-HT-24): số thẻ và tổng số câu (chia đều hai chế độ). */
 export const DAILY_QUOTA: Record<DailyMinutes, { cards: number; sentences: number }> = {
   10: { cards: 15, sentences: 2 },
   15: { cards: 20, sentences: 4 },

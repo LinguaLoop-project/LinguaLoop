@@ -12,7 +12,11 @@
       "listening": "Nghe chép",
       "pronunciation": "Shadowing",
       "vocabulary": "Từ vựng",
-      "more": "Xem thêm"
+      "more": "Xem thêm",
+      "loop": "Vòng lặp học",
+      "features": "Tính năng",
+      "pricing": "Gói học",
+      "faq": "Hỏi đáp"
     },
     "more": {
       "lessons": {
@@ -22,16 +26,13 @@
       "weakness": {
         "title": "Chẩn đoán điểm yếu",
         "desc": "Phân tích lỗi phát âm & ngữ âm"
-      },
-      "test": {
-        "title": "Kiểm tra trình độ",
-        "desc": "Đánh giá chuẩn khung CEFR"
       }
     },
     "login": "Đăng nhập",
+    "register": "Đăng ký",
     "logout": "Đăng xuất",
-    "start": "Bắt đầu",
-    "learnNow": "Học ngay"
+    "start": "Bắt đầu ngay",
+    "learnNow": "Vào học ngay"
   },
   "student": {
     "sidebar": {
@@ -50,13 +51,12 @@
         "vocab": "Từ vựng",
         "savedLessons": "Bài đã lưu",
         "mywords": "Từ & câu đã lưu",
-        "weakness": "Điểm yếu",
-        "test": "Kiểm tra trình độ"
+        "weakness": "Điểm yếu"
       },
       "pro": {
-        "price": "Từ 33k/tháng",
+        "price": "Từ {{price}}/tháng",
         "desc": "Chấm không giới hạn, nhận xét AI, video khẩu hình.",
-        "cta": "Dùng thử Pro"
+        "cta": "Đăng ký Pro"
       },
       "loopi": "Giữ chuỗi hôm nay nhé!"
     },
@@ -64,14 +64,17 @@
       "search": "Mở tìm kiếm nhanh",
       "searchPlaceholder": "Tra từ, mở bài, chuyển màn…",
       "streak": "Chuỗi ngày học",
+      "studiedToday": "Đã học hôm nay",
+      "notStudiedToday": "Học hôm nay để giữ chuỗi",
       "quota": "Credit AI còn lại",
       "account": "Tài khoản {{name}}",
       "menuAria": "Tài khoản",
       "upgrade": "Nâng cấp Pro",
-      "profile": "Hồ sơ",
+      "managePlan": "Quản lý gói Pro",
+      "profile": "Tài khoản",
+      "appearance": "Giao diện & màu sắc",
       "learning": "Cài đặt học tập",
       "security": "Bảo mật & đăng nhập",
-      "privacy": "Quyền riêng tư & dữ liệu",
       "logout": "Đăng xuất",
       "plan": "Gói hiện tại"
     }
@@ -135,6 +138,8 @@
         "transfers": "Giao lại nội dung",
         "credit": "Cấu hình credit",
         "plans": "Gói Pro",
+        "topics": "Chủ đề",
+        "categories": "Danh mục bộ thẻ",
         "practiceStats": "Thống kê luyện tập",
         "aiStats": "Thống kê AI"
       }
@@ -167,6 +172,8 @@
         "transfers": "Giao lại nội dung",
         "credit": "Cấu hình credit",
         "plans": "Gói Pro",
+        "topics": "Chủ đề",
+        "categories": "Danh mục bộ thẻ",
         "practice-stats": "Thống kê luyện tập",
         "ai-stats": "Thống kê AI và chi phí",
         "auditDetail": "Lịch sử đối tượng"
@@ -194,7 +201,6 @@
         "dictation": "Nghe chép",
         "shadowing": "Shadowing",
         "vocab": "Từ vựng",
-        "test": "Kiểm tra trình độ",
         "mywords": "Từ & câu đã lưu",
         "weakness": "Điểm yếu",
         "settings": "Cài đặt tài khoản",
@@ -230,6 +236,33 @@
     "resetUsage": "Đặt lại lượt hôm nay"
   },
   "notifications": {
+    "types": {
+      "REVIEW_DUE": "Bạn có {{count}} thẻ từ vựng đến hạn ôn hôm nay.",
+      "STREAK_AT_RISK": "Chuỗi {{days}} ngày học của bạn sẽ đứt nếu hôm nay bạn chưa học. Luyện nhanh vài phút để giữ chuỗi.",
+      "AI_CREDIT_EXHAUSTED": "Bạn đã hết credit AI nên chưa dùng được tính năng AI lúc này.",
+      "PRO_ACTIVATED": "Thanh toán thành công. Gói Pro của bạn có hiệu lực đến {{endsAt}}.",
+      "PAYMENT_FAILED": "Thanh toán gói Pro không thành công. Bạn có thể thử lại ở trang Gói đăng ký.",
+      "PRO_EXPIRING": "Gói Pro của bạn sẽ hết hạn vào {{endsAt}} (còn {{days}} ngày). Gia hạn để không bị gián đoạn.",
+      "PRO_EXPIRED": "Gói Pro của bạn đã hết hạn, tài khoản đã về gói Free. Bạn có thể gia hạn bất cứ lúc nào.",
+      "REPORT_RESOLVED": "Báo cáo của bạn đã được xử lý. Cảm ơn bạn đã giúp cải thiện nội dung.",
+      "REPORT_REJECTED": "Báo cáo của bạn không được chấp nhận: {{reason}}"
+    },
+    "categories": {
+      "review": "Ôn tập",
+      "streak": "Chuỗi ngày",
+      "credit": "Credit AI",
+      "plan": "Gói Pro",
+      "payment": "Thanh toán",
+      "report": "Báo cáo",
+      "system": "Hệ thống"
+    },
+    "groups": {
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "last7Days": "7 ngày qua",
+      "earlier": "Trước đó",
+      "continued": "(tiếp)"
+    },
     "title": "Thông báo",
     "markAll": "Đánh dấu tất cả đã đọc",
     "empty": "Chưa có thông báo nào",
@@ -237,6 +270,25 @@
     "error": "Không tải được thông báo.",
     "retry": "Thử lại",
     "unread": "Chưa đọc",
-    "ariaUnread": "Thông báo, {{count}} chưa đọc"
+    "ariaUnread": "Thông báo, {{count}} chưa đọc",
+    "viewAll": "Xem tất cả thông báo",
+    "page": {
+      "overline": "Hộp thư",
+      "sub": "Thông báo hệ thống gửi cho bạn, mới nhất ở đầu.",
+      "filterAria": "Lọc thông báo",
+      "all": "Tất cả",
+      "unread": "Chưa đọc",
+      "unreadCount": "Chưa đọc ({{count}})",
+      "unreadBadge": "{{count}} chưa đọc",
+      "preferences": "Cài đặt nhắc nhở",
+      "markedAll": "Đã đánh dấu tất cả thông báo là đã đọc.",
+      "markOneRead": "Đánh dấu đã đọc",
+      "showing": "Hiển thị {{from}}–{{to}} trong {{total}} thông báo",
+      "emptyUnread": "Bạn đã đọc hết thông báo",
+      "emptyUnreadDesc": "Mọi nhắc nhở và cập nhật mới nhất đều đã được xem qua.",
+      "emptyDesc": "Khi có thẻ đến hạn ôn, cập nhật gói Pro hoặc phản hồi báo cáo, thông báo sẽ hiện ở đây.",
+      "viewAllFilter": "Xem tất cả thông báo",
+      "goToday": "Về trang Hôm nay"
+    }
   }
 }
