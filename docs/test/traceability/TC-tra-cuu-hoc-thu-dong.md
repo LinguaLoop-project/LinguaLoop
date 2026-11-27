@@ -2,7 +2,7 @@
 
 > Nguồn AC: `docs/srs/TC-tra-cuu-hoc-thu-dong/usecase.md`. **Loại**: D (dương), A (âm), B (biên). **Trạng thái**: `Đã có`, `Một phần`, `Thiếu`, `Thủ công`, `Không áp dụng` (định nghĩa ở [mục lục](../TRACEABILITY-AC-TEST.md#định-nghĩa-trạng-thái)).
 
-Tổng hợp: 43 AC, 9 đã có test, 2 một phần, 27 thiếu, 5 thủ công.
+Tổng hợp: 44 AC, 9 đã có test, 3 một phần, 27 thiếu, 5 thủ công.
 
 | AC | Tên | UC | Loại | Test | Trạng thái |
 |---|---|---|:---:|---|---|
@@ -16,6 +16,7 @@ Tổng hợp: 43 AC, 9 đã có test, 2 một phần, 27 thiếu, 5 thủ công.
 | AC-TC-08 | Hiển thị nhãn khóa đối với bài Pro trong danh sách khi dùng gói Free | UC-TC-01 |  |  | Thiếu |
 | AC-TC-09 | Thông báo khi không có bài học nào khớp bộ lọc | UC-TC-01 |  |  | Thiếu |
 | AC-TC-10 | Yêu cầu đăng nhập và xử lý khi mất kết nối | UC-TC-01 |  |  | Thiếu |
+| AC-TC-44 | Bài học giới thiệu trên trang chủ cho khách chưa đăng nhập | UC-TC-01 | D, A, B | PublicLessonShowcaseIntegrationTest.guestWithoutToken_getsOnlyVisibleLessonsWithCardFields_atMostThreePerLevel_AC_TC_44; PublicLessonShowcaseIntegrationTest.hidesDraftDeletedPersonalAndSilentLessons_andTopicsWithoutVisibleLessons_AC_TC_44; PublicLessonShowcaseIntegrationTest.sameSeedKeepsTheSamePick_andAtMostThreePerLevel_AC_TC_44; PublicLessonShowcaseIntegrationTest.onlyReadingIsPublic_AC_TC_44 | Một phần (chưa có test giao diện cho khung trống và ẩn khi lỗi) |
 | AC-TC-11 | Hiển thị thông tin chi tiết bài học và tối đa 3 bài liên quan | UC-TC-02 |  |  | Thiếu |
 | AC-TC-12 | Từ chối hiển thị bài học chưa xuất bản, đã xóa hoặc không tồn tại | UC-TC-02 |  |  | Thiếu |
 | AC-TC-13 | Hiển thị danh sách câu lời thoại theo đúng thứ tự câu | UC-TC-02 |  |  | Thiếu |
