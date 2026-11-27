@@ -4,7 +4,7 @@ import Button from "@/components/common/Button";
 import Icon from "@/components/common/Icon";
 import Mascot from "@/components/common/Mascot";
 import type { SentenceRecord } from "../types";
-import { TONE_TEXT, toneOf } from "../utils";
+import { TONE_TEXT, badPhonemeChips, toneOf } from "../utils";
 
 const K = "student.shadowingPractice";
 
@@ -43,16 +43,7 @@ export default function AttemptResult({ record, isFinish, onListen, onNext, extr
   const omitted = record.words.filter((w) => w.outcome === "omitted").length;
   const inserted = record.words.filter((w) => w.outcome === "inserted").length;
   const hasPhonemes = record.words.some((w) => w.phonemes.length > 0);
-  const badPhonemes = new Map<string, number>();
-  for (const w of record.words) {
-    for (const p of w.phonemes) {
-      if (p.needsFix) {
-        const key = p.expected ?? p.symbol;
-        badPhonemes.set(key, (badPhonemes.get(key) ?? 0) + 1);
-      }
-    }
-  }
-  const phonemeChips = [...badPhonemes.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const phonemeChips = badPhonemeChips(record.words);
   const noIssues = hasPhonemes && omitted === 0 && inserted === 0 && phonemeChips.length === 0;
 
   const metrics = [
