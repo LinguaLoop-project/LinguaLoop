@@ -70,6 +70,33 @@ export function setAppearance(changes: Partial<Appearance>): boolean {
   }
 }
 
+/** Khách chưa đăng nhập (hoặc vừa đăng xuất) thấy mặc định Tím Vũ Trụ; không xoá lựa chọn đã lưu của học viên. */
+export function showDefaultAppearance() {
+  current = DEFAULT_APPEARANCE;
+  apply(current);
+  listeners.forEach((listener) => listener());
+}
+
+/** Đăng nhập xong thì áp lại giao diện học viên đã lưu trên trình duyệt này. */
+export function restoreStoredAppearance() {
+  current = readStored();
+  apply(current);
+  listeners.forEach((listener) => listener());
+}
+
+/** Đưa giao diện về mặc định hệ thống (Tím Vũ Trụ) và xoá tuỳ chỉnh đã lưu. */
+export function resetAppearance(): boolean {
+  current = DEFAULT_APPEARANCE;
+  apply(current);
+  listeners.forEach((listener) => listener());
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function useAppearance(): Appearance {
   return useSyncExternalStore(subscribe, () => current);
 }

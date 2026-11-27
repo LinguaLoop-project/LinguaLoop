@@ -1,16 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { ACCENTS, CORNER_STYLES, DEFAULT_APPEARANCE, LEARN_BACKGROUNDS, THEME_PRESETS, parseAppearance } from "./appearance";
+import { DEFAULT_THEME_MODE } from "./useTheme";
 
 describe("parseAppearance (AC-TK-70)", () => {
-  it("chưa lưu gì thì dùng mặc định: tím, vừa, không nền, bo mềm, không giảm chuyển động", () => {
+  it("chưa lưu gì thì dùng mặc định Tím Vũ Trụ: tối, tím, cực quang, bo mềm, không giảm chuyển động", () => {
     expect(parseAppearance(null)).toEqual(DEFAULT_APPEARANCE);
     expect(DEFAULT_APPEARANCE).toEqual({
       accent: "violet",
       sentenceSize: "md",
-      learnBackground: "none",
+      learnBackground: "aurora",
       cornerStyle: "rounded",
       reduceMotion: false,
     });
+    const cosmic = THEME_PRESETS.find((preset) => preset.id === "cosmic");
+    expect(cosmic).toBeDefined();
+    expect(DEFAULT_THEME_MODE).toBe(cosmic?.mode);
+    expect(DEFAULT_APPEARANCE.accent).toBe(cosmic?.accent);
+    expect(DEFAULT_APPEARANCE.learnBackground).toBe(cosmic?.learnBackground);
+    expect(DEFAULT_APPEARANCE.cornerStyle).toBe(cosmic?.cornerStyle);
   });
 
   it("đọc đúng giá trị đã lưu bao gồm các tuỳ chọn mới và dữ liệu cũ", () => {
@@ -45,7 +52,7 @@ describe("parseAppearance (AC-TK-70)", () => {
     ).toEqual({
       accent: "violet",
       sentenceSize: "lg",
-      learnBackground: "none",
+      learnBackground: "aurora",
       cornerStyle: "rounded",
       reduceMotion: false,
     });
