@@ -12,7 +12,11 @@
       "listening": "Listening",
       "pronunciation": "Pronunciation",
       "vocabulary": "Vocabulary",
-      "more": "More"
+      "more": "More",
+      "loop": "How it works",
+      "features": "Features",
+      "pricing": "Plans",
+      "faq": "FAQ"
     },
     "more": {
       "lessons": {
@@ -25,9 +29,10 @@
       }
     },
     "login": "Sign in",
+    "register": "Sign up",
     "logout": "Sign out",
-    "start": "Get started",
-    "learnNow": "Learn now"
+    "start": "Start now",
+    "learnNow": "Open workspace"
   },
   "student": {
     "sidebar": {

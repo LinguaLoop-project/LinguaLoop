@@ -15,6 +15,7 @@ import {
   LEARN_BACKGROUNDS,
   SENTENCE_SIZES,
   THEME_PRESETS,
+  resetAppearance as resetStoredAppearance,
   setAppearance,
   useAppearance,
   type Accent,
@@ -22,7 +23,7 @@ import {
   type LearnBackground,
   type ThemePreset,
 } from "@/hooks/useAppearance";
-import { setTheme, useTheme, type Theme, type ThemeMode } from "@/hooks/useTheme";
+import { DEFAULT_THEME_MODE, resetTheme, setTheme, useTheme, type Theme, type ThemeMode } from "@/hooks/useTheme";
 import { toast } from "@/stores/toastStore";
 import { userApi } from "../api";
 import { profilePayload } from "../profilePayload";
@@ -102,7 +103,7 @@ export default function DisplaySection() {
     appearance.learnBackground === DEFAULT_APPEARANCE.learnBackground &&
     appearance.cornerStyle === DEFAULT_APPEARANCE.cornerStyle &&
     appearance.reduceMotion === DEFAULT_APPEARANCE.reduceMotion &&
-    mode === "system";
+    mode === DEFAULT_THEME_MODE;
 
   const pickAppearance = (changes: Parameters<typeof setAppearance>[0]) => setStorageBlocked(!setAppearance(changes));
 
@@ -122,8 +123,8 @@ export default function DisplaySection() {
   };
 
   const resetAppearance = () => {
-    setTheme("system");
-    const ok = setAppearance(DEFAULT_APPEARANCE);
+    resetTheme();
+    const ok = resetStoredAppearance();
     setStorageBlocked(!ok);
     if (ok) toast(t("settings.display.resetDone"), { icon: "rotate-ccw" });
   };

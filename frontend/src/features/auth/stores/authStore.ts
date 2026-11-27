@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { restoreStoredAppearance, showDefaultAppearance } from "@/hooks/useAppearance";
+import { restoreStoredTheme, showDefaultTheme } from "@/hooks/useTheme";
 import { authService } from "../services/authService";
 import { toApiError } from "../errors";
 import type { ApiError, AuthResponse, LoginPayload, MeResponse } from "../types";
@@ -32,8 +34,22 @@ export type AuthActions = {
 // Dùng chung một lần gọi khi React StrictMode chạy effect hai lần
 let initPromise: Promise<void> | null = null;
 
+/**
+ * Khách chưa đăng nhập (kể cả vừa đăng xuất hay hết phiên) thấy giao diện mặc định Tím Vũ Trụ. Lựa chọn giao diện của
+ * học viên chỉ lưu trên trình duyệt (BR-TK-20) nên không xoá, đăng nhập lại thì áp lại đúng lựa chọn đó (AC-TK-70).
+ */
+function showGuestLook() {
+  showDefaultTheme();
+  showDefaultAppearance();
+}
+
+function showLearnerLook() {
+  restoreStoredTheme();
+  restoreStoredAppearance();
+}
+
 // ─── Store ─────────────────────────────────────────────────────────────────────
-export const useAuthStore = create<AuthState & AuthActions>((set) => ({
+export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   user: null,
   accessToken: "",
   isAuthenticated: false,
@@ -41,11 +57,19 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   error: null,
   initialized: false,
 
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
+  setUser: (user) => {
+    // Chỉ đổi giao diện khi chuyển giữa khách và học viên; cập nhật hồ sơ không được áp lại lựa chọn đã lưu
+    if (!!user !== !!get().user) {
+      if (user) showLearnerLook();
+      else showGuestLook();
+    }
+    set({ user, isAuthenticated: !!user });
+  },
 
   setToken: (accessToken) => set({ accessToken }),
 
-  logout: () =>
+  logout: () => {
+    showGuestLook();
     set({
       user: null,
       accessToken: "",
@@ -53,7 +77,8 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       error: null,
       loading: false,
       initialized: true,
-    }),
+    });
+  },
 
   clearError: () => set({ error: null }),
 
@@ -64,6 +89,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       try {
         const response = await authService.refresh();
         const data = response.data.data;
+        showLearnerLook();
         set({
           loading: false,
           initialized: true,
@@ -72,6 +98,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
           user: data.user,
         });
       } catch {
+        showGuestLook();
         set({
           loading: false,
           initialized: true,
@@ -89,6 +116,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
     try {
       const response = await authService.login(payload);
       const data = response.data.data;
+      showLearnerLook();
       set({
         loading: false,
         initialized: true,
@@ -113,6 +141,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
     try {
       const response = await authService.googleLogin(code);
       const data = response.data.data;
+      showLearnerLook();
       set({
         loading: false,
         initialized: true,

@@ -23,10 +23,11 @@ export interface Appearance {
   reduceMotion: boolean;
 }
 
+/** Mặc định hệ thống khớp gói Tím Vũ Trụ (`cosmic`): nền cực quang, màu tím, bo mềm. */
 export const DEFAULT_APPEARANCE: Appearance = {
   accent: "violet",
   sentenceSize: "md",
-  learnBackground: "none",
+  learnBackground: "aurora",
   cornerStyle: "rounded",
   reduceMotion: false,
 };

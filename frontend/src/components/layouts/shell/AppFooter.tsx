@@ -27,8 +27,8 @@ const COLUMNS: { titleKey: string; links: FooterLink[] }[] = [
       { key: "pro", to: "/student/subscription" },
     ],
   },
-  { titleKey: "support", links: [{ key: "guide" }, { key: "faq" }, { key: "report" }, { key: "contact" }] },
-  { titleKey: "about", links: [{ key: "brand" }, { key: "terms" }, { key: "privacy" }, { key: "voiceData" }] },
+  { titleKey: "support", links: [{ key: "guide" }, { key: "faq", to: "/#faq" }, { key: "report" }, { key: "contact" }] },
+  { titleKey: "about", links: [{ key: "brand" }, { key: "terms" }, { key: "privacy" }, { key: "voiceData", to: "/#privacy" }] },
 ];
 
 const SOCIALS = [

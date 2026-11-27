@@ -1023,6 +1023,18 @@
 - **Commit:** f8ac034, b8c6286
 - **Lỗi liên quan:** NONE
 
+### AI-LAM-089
+
+- **Ngày:** 2026-11-27
+- **Công cụ AI / model:** Claude Code (Sonnet 5.5)
+- **Phạm vi (`Scope`):** FULLSTACK
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Nhận xét nội dung trang chủ (landing page) sinh viên đã soạn và sửa các mục chưa đúng ở cả bản tiếng Việt lẫn tiếng Anh; đánh giá đề xuất làm API công khai cho băng chuyền bài học rồi triển khai; sửa việc đăng xuất làm mất cài đặt giao diện, nút đăng nhập/đăng ký ở header và cập nhật AC-TK-70; sửa header trang chủ bị vỡ khi đã đăng nhập và đổi nút ngôn ngữ cho giống trang học
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/.../lesson/controller/PublicLessonController.java`, `lesson/service/LessonShowcaseServiceImpl.java:showcase`, `lesson/repository/ShowcaseRepository.java:lessons, topics`, `lesson/dto/ShowcaseView.java`, `security/SecurityConfig.java`, `config/CacheConfig.java`; test `PublicLessonShowcaseIntegrationTest`; `frontend/src/features/landing/api.ts:fetchShowcase, useLessonShowcase, formatDuration`, `components/LessonMarquee.tsx`, `pages/LandingPage.tsx:lessonHref`, bản dịch `landing.json` (sửa nội dung); `components/layouts/Header.tsx` (theo dõi mục đang xem, cụm ngôn ngữ và sáng/tối, bố cục màn 1024px); `hooks/useTheme.ts:showDefaultTheme, restoreStoredTheme`, `hooks/useAppearance.ts:showDefaultAppearance, restoreStoredAppearance`, `features/auth/stores/authStore.ts:showGuestLook, showLearnerLook, setUser`; test `api.test.ts`, `guestLook.test.ts`; đặc tả BR-TC-20, AC-TC-44, BR-TK-21, AC-TK-70
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Sinh viên tự dựng giao diện và nội dung trang chủ (hero, vòng lặp 4 bước, bento tính năng, bảng giá, FAQ), đặt giao diện mặc định Tím Vũ Trụ và nút "Đặt lại mặc định". AI chỉ ra các câu chưa đúng thực tế (tính năng chưa có, cách xử lý giọng nói, cách tính credit) và sửa trong cả hai file dịch; khuyên thay danh sách bài học giả bằng API công khai chỉ trả dữ liệu đã duyệt, có cache, rồi viết API, test và phần giao diện; khi rà phần sinh viên sửa, AI phát hiện đăng xuất xóa lựa chọn giao diện đã lưu nên đổi sang chỉ hiện mặc định cho khách. 10 ảnh minh họa chưa rõ bản quyền trong `frontend/public/landing/` không được đưa vào repo (trang dùng ảnh thu nhỏ YouTube của bài học thật).
+- **Commit:** 585e909, 01b73fe, 2ce0e57
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
