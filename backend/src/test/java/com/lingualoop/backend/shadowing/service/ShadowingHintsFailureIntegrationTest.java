@@ -88,7 +88,7 @@ class ShadowingHintsFailureIntegrationTest {
     private Sentence sentence() {
         String tag = UUID.randomUUID().toString().substring(0, 8);
         Topic topic = new Topic();
-        topic.setName("hint topic");
+        topic.setName("hint topic " + UUID.randomUUID());
         topic = topics.save(topic);
 
         Lesson lesson = new Lesson();

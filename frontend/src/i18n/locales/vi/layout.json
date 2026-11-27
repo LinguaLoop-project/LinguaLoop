@@ -133,6 +133,8 @@
         "transfers": "Giao lại nội dung",
         "credit": "Cấu hình credit",
         "plans": "Gói Pro",
+        "topics": "Chủ đề",
+        "categories": "Danh mục bộ thẻ",
         "practiceStats": "Thống kê luyện tập",
         "aiStats": "Thống kê AI"
       }
@@ -165,6 +167,8 @@
         "transfers": "Giao lại nội dung",
         "credit": "Cấu hình credit",
         "plans": "Gói Pro",
+        "topics": "Chủ đề",
+        "categories": "Danh mục bộ thẻ",
         "practice-stats": "Thống kê luyện tập",
         "ai-stats": "Thống kê AI và chi phí",
         "auditDetail": "Lịch sử đối tượng"

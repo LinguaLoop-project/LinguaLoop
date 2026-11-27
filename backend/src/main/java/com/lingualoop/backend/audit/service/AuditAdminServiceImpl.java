@@ -74,7 +74,7 @@ class AuditAdminServiceImpl implements AuditAdminService {
 
     /**
      * "Mở đối tượng" (BR-NK-17): báo cáo mở bài học hoặc bộ thẻ chứa nội dung bị báo cáo; bài học, bộ thẻ mở chính nó;
-     * tài khoản, gói Pro, cấu hình credit không bị xóa nên luôn mở được. Đối tượng đã bị xóa thì không mở.
+     * tài khoản, gói Pro, cấu hình credit, chủ đề, danh mục không bị xóa nên luôn mở được. Đối tượng đã bị xóa thì không mở.
      */
     private Link open(AuditLog log, Optional<Info> parent) {
         AuditEntityType type = log.getTargetType();
@@ -83,7 +83,7 @@ class AuditAdminServiceImpl implements AuditAdminService {
                     ? new Link(log.getParentType(), log.getParentId()) : null;
             case LESSON, DECK -> lookup(type, log.getTargetId()).filter(t -> !t.deleted()).isPresent()
                     ? new Link(type, log.getTargetId()) : null;
-            case USER, PLAN, SETTINGS -> new Link(type, log.getTargetId());
+            case USER, PLAN, SETTINGS, TOPIC, CATEGORY -> new Link(type, log.getTargetId());
             default -> null;
         };
     }

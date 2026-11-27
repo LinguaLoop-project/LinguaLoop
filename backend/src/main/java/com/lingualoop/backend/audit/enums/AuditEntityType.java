@@ -21,7 +21,11 @@ public enum AuditEntityType {
     /** Cấu hình credit (UC-GA-02). */
     SETTINGS,
     /** Gói Pro (UC-GA-04 đến 06). */
-    PLAN;
+    PLAN,
+    /** Chủ đề bài học (UC-CD-02, 03, BR-CD-07). */
+    TOPIC,
+    /** Danh mục bộ thẻ (UC-CD-05, 06, BR-CD-07). */
+    CATEGORY;
 
     public String value() {
         return name().toLowerCase(Locale.ROOT);

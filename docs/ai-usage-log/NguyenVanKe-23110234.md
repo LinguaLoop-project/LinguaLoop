@@ -660,6 +660,42 @@
 - **Commit:** 097c746
 - **Lỗi liên quan:** NONE
 
+### AI-KE-058
+
+- **Ngày:** 2026-11-25
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** LESSON
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Làm backend module CD theo đặc tả: REST API xem, tìm, lọc, thêm, sửa tên chủ đề và danh mục; DTO tách request/response, projection để chỉ lấy cột cần; Spring Data JPA tránh N+1 khi đếm bài học/bộ thẻ; service xử lý nghiệp vụ và ghi nhật ký
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/src/main/java/com/lingualoop/backend/lesson/controller/AdminTopicController.java:list, create, rename`; `backend/src/main/java/com/lingualoop/backend/lesson/service/AdminTopicServiceImpl.java:list, create, rename, saveCheckingName, audit`; `backend/src/main/java/com/lingualoop/backend/lesson/repository/TopicRepository.java:findAdminRows, findAdminRow, existsByNameIgnoreCaseAndIdNot`; `backend/src/main/java/com/lingualoop/backend/lesson/entity/Topic.java:named`; `backend/src/main/java/com/lingualoop/backend/lesson/dto/projection/AdminTopicRow.java`; `backend/src/main/java/com/lingualoop/backend/lesson/dto/response/AdminTopicResponse.java:from`; `backend/src/main/java/com/lingualoop/backend/lesson/dto/request/TopicNameRequest.java`; `backend/src/main/java/com/lingualoop/backend/vocab/controller/AdminDeckCategoryController.java:list, create, rename`; `backend/src/main/java/com/lingualoop/backend/vocab/service/AdminDeckCategoryServiceImpl.java:list, create, rename, saveCheckingName, audit`; `backend/src/main/java/com/lingualoop/backend/vocab/repository/DeckCategoryRepository.java:findAdminRows, findAdminRow`; `backend/src/main/java/com/lingualoop/backend/vocab/entity/DeckCategory.java:named, rename`; `backend/src/main/java/com/lingualoop/backend/vocab/dto/projection/AdminCategoryRow.java`; `backend/src/main/java/com/lingualoop/backend/vocab/dto/response/AdminCategoryResponse.java:from`; `backend/src/main/java/com/lingualoop/backend/vocab/dto/request/CategoryNameRequest.java`; `backend/src/main/java/com/lingualoop/backend/audit/enums/AuditEntityType.java` (TOPIC, CATEGORY); `backend/src/main/java/com/lingualoop/backend/audit/service/AuditAdminServiceImpl.java:open`; `backend/src/main/java/com/lingualoop/backend/common/exception/ErrorCode.java` (TOPIC_*, DECK_CATEGORY_*); `backend/src/main/resources/db/migration/V20261127_1000__topics_categories_updated_at.sql` (tạo với tên V20261125_1000, đổi version khi merge main vì trùng `V20261125_1000__user_avatar_key.sql`)
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế đặt yêu cầu kiến trúc (projection, tránh N+1) và chọn tách nhánh từ feat/admin-audit-stats; không sửa trực tiếp code AI sinh.
+- **Commit:** 9bc251c
+- **Lỗi liên quan:** NONE
+
+### AI-KE-059
+
+- **Ngày:** 2026-11-25
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Làm frontend module CD: trang quản lý chủ đề (tìm, lọc trạng thái hiển thị) và danh mục (tìm), hộp thoại thêm/sửa tên dùng chung, đủ luồng rỗng, không khớp, trùng tên, mất kết nối; i18n vi/en; mục sidebar; liên kết từ nhật ký
+- **Vị trí code do AI sinh (`file:hàm`):** `frontend/src/features/lesson/pages/admin/AdminTopicPage.tsx:AdminTopicPage`; `frontend/src/features/lesson/adminTopics.ts:topicListParams, topicListState, topicSaveError`; `frontend/src/features/lesson/services/adminTopicService.ts:adminTopicService`; `frontend/src/features/lesson/hooks/useAdminTopics.ts:useAdminTopics, useCreateTopic, useRenameTopic`; `frontend/src/features/vocab/pages/admin/AdminCategoryPage.tsx:AdminCategoryPage`; `frontend/src/features/vocab/categoryAdmin.ts:categoryListState, categorySaveError`; `frontend/src/features/vocab/categoryAdminApi.ts:categoryAdminApi`; `frontend/src/features/vocab/categoryAdminHooks.ts:useAdminCategories, useCreateCategory, useRenameCategory`; `frontend/src/components/common/NameFormDialog.tsx:NameFormDialog`; `frontend/src/components/common/nameField.ts:validateName`; `frontend/src/features/audit/auditFormat.ts:auditObjectPath`; `frontend/src/i18n/locales/vi/catalogAdmin.json`, `frontend/src/i18n/locales/en/catalogAdmin.json`; `frontend/src/app/routes.tsx`; `frontend/src/components/layouts/shell/shellConfigs.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế yêu cầu làm frontend sau backend; không sửa trực tiếp code AI sinh.
+- **Commit:** 9bc251c
+- **Lỗi liên quan:** NONE
+
+### AI-KE-060
+
+- **Ngày:** 2026-11-25
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** TESTING
+- **Loại công việc (`Task Type`):** TEST_GENERATION
+- **Prompt chính / yêu cầu:** Viết test theo AC của module CD (API tích hợp, logic frontend), test đếm số câu SQL để chứng minh không N+1, rồi cập nhật bảng truy vết AC → test
+- **Vị trí code do AI sinh (`file:hàm`):** `backend/src/test/java/com/lingualoop/backend/lesson/controller/AdminTopicApiIntegrationTest.java` (các test *_AC_CD_01 đến 13, list_countsInOneQuery_noNPlusOne); `backend/src/test/java/com/lingualoop/backend/vocab/controller/AdminDeckCategoryApiIntegrationTest.java` (các test *_AC_CD_15 đến 27, list_countsInOneQuery_noNPlusOne); `frontend/src/features/lesson/adminTopics.test.ts`; `frontend/src/features/vocab/categoryAdmin.test.ts`; `frontend/src/components/common/nameField.test.ts`; `frontend/src/features/audit/auditFormat.test.ts`; `docs/test/traceability/CD-quan-ly-chu-de-danh-muc.md`; `docs/test/TRACEABILITY-AC-TEST.md`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế yêu cầu kiểm tra code khớp đặc tả và cập nhật truy vết; không sửa trực tiếp test AI sinh.
+- **Commit:** 9bc251c
+- **Lỗi liên quan:** NONE
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
