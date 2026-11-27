@@ -27,6 +27,7 @@ public interface SentenceAttemptMapper {
     @Mapping(target = "fluencyScore", ignore = true)
     @Mapping(target = "completenessScore", ignore = true)
     @Mapping(target = "prosodyScore", ignore = true)
+    @Mapping(target = "azureScore", ignore = true)
     SentenceAttempt toEntity(DictationAttemptRequest request);
 
     @Mapping(target = "id", ignore = true)

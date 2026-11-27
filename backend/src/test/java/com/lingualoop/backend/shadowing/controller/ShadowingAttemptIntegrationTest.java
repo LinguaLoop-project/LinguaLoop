@@ -90,7 +90,7 @@ class ShadowingAttemptIntegrationTest {
 
         post(user, s.getId(), WavFixtures.valid(2_000))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.score").value(72.5))
+                .andExpect(jsonPath("$.data.score").value(72.0))
                 .andExpect(jsonPath("$.data.recognizedText").value("hello world"))
                 .andExpect(jsonPath("$.data.words.length()").value(2))
                 .andExpect(jsonPath("$.data.words[0].word").value("hello"))
@@ -104,7 +104,10 @@ class ShadowingAttemptIntegrationTest {
         assertThat(count("sentence_attempts WHERE user_id = ? AND mode = 'shadowing'", user))
                 .isEqualTo(1);
         assertThat(jdbc.queryForObject("""
-                SELECT total_score FROM sentence_attempts WHERE user_id = ?""", Double.class, user)).isEqualTo(72.5);
+                SELECT total_score FROM sentence_attempts WHERE user_id = ?""", Double.class, user)).isEqualTo(72.0);
+        // Điểm hiển thị do hệ thống tính (BR-SH-23); điểm tổng gốc của Azure được giữ lại để đối chiếu
+        assertThat(jdbc.queryForObject("""
+                SELECT azure_score FROM sentence_attempts WHERE user_id = ?""", Double.class, user)).isEqualTo(72.5);
         assertThat(jdbc.queryForList("""
                 SELECT w.position FROM sentence_attempt_words w JOIN sentence_attempts a ON a.id = w.attempt_id
                 WHERE a.user_id = ? ORDER BY w.position""", Integer.class, user)).containsExactly(0, 1);
@@ -117,6 +120,29 @@ class ShadowingAttemptIntegrationTest {
                 WHERE a.user_id = ? AND ph.symbol = 'oʊ'""", Integer.class, user)).isEqualTo(1);
         assertThat(count("sentence_attempt_phonemes p JOIN sentence_attempt_words w ON w.id = p.attempt_word_id "
                 + "JOIN sentence_attempts a ON a.id = w.attempt_id WHERE a.user_id = ?", user)).isEqualTo(8);
+    }
+
+    @Test
+    void migration_recomputesOldShadowingScoresAndKeepsTheAzureOnes_AC_SH_29() throws Exception {
+        UUID user = newUser();
+        Sentence s = sentence(lesson("legacy", false), 0, "Hello world");
+        post(user, s.getId(), WavFixtures.valid(2_000)).andExpect(status().isOk());
+        // Lượt đọc cũ: điểm tổng là của Azure, chưa có azure_score
+        jdbc.update("UPDATE sentence_attempts SET total_score = 72.5, azure_score = NULL WHERE user_id = ?", user);
+
+        String sql = new String(getClass().getResourceAsStream("/db/migration/V20261127_1100__shadowing_weighted_score.sql")
+                .readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        // Cột đã có từ lúc khởi động nên bỏ câu ALTER, chạy phần cập nhật dữ liệu
+        for (String statement : sql.substring(sql.indexOf("UPDATE")).split(";")) {
+            if (!statement.isBlank()) {
+                jdbc.execute(statement);
+            }
+        }
+
+        assertThat(jdbc.queryForObject("SELECT total_score FROM sentence_attempts WHERE user_id = ?", Double.class, user))
+                .isEqualTo(72.0); // 0,5×70 + 0,3×80 + 0,2×65, đầy đủ 100%
+        assertThat(jdbc.queryForObject("SELECT azure_score FROM sentence_attempts WHERE user_id = ?", Double.class, user))
+                .isEqualTo(72.5);
     }
 
     @Test

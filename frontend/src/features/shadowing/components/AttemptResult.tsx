@@ -92,6 +92,9 @@ export default function AttemptResult({ record, isFinish, onListen, onNext, extr
             )}
           </div>
           <p className="text-sm text-text-muted">{t(`${K}.word.clickHint`)}</p>
+          <p className="text-xs text-text-subtle">
+            {t(record.prosody === null ? `${K}.result.formulaNoProsody` : `${K}.result.formula`)}
+          </p>
         </div>
       </div>
 

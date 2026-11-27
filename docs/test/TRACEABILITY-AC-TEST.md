@@ -36,10 +36,10 @@ Hai tỉ lệ ở cột cuối đo hai việc khác nhau:
 | [NT-quan-ly-nhom-the-the](traceability/NT-quan-ly-nhom-the-the.md) | 76 | 52 | 8 | 16 | 0 | 0 | 68% | 100% |
 | [PR-goi-pro](traceability/PR-goi-pro.md) | 24 | 15 | 4 | 5 | 0 | 0 | 62% | 100% |
 | [QT-quan-tri-tai-khoan](traceability/QT-quan-tri-tai-khoan.md) | 55 | 36 | 5 | 14 | 0 | 0 | 65% | 100% |
-| [SH-shadowing](traceability/SH-shadowing.md) | 28 | 0 | 0 | 28 | 0 | 0 | 0% | — |
+| [SH-shadowing](traceability/SH-shadowing.md) | 29 | 0 | 1 | 28 | 0 | 0 | 0% | 100% |
 | [TC-tra-cuu-hoc-thu-dong](traceability/TC-tra-cuu-hoc-thu-dong.md) | 43 | 9 | 2 | 27 | 5 | 0 | 21% | 68.8% |
 | [TH-xem-thong-ke-hoc-tap](traceability/TH-xem-thong-ke-hoc-tap.md) | 35 | 26 | 5 | 0 | 4 | 0 | 74% | 88.6% |
 | [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 77 | 42 | 23 | 11 | 1 | 0 | 55% | 98.5% |
 | [TN-xem-thong-ke-noi-dung](traceability/TN-xem-thong-ke-noi-dung.md) | 23 | 0 | 0 | 23 | 0 | 0 | 0% | — |
 | [XL-xu-ly-bao-cao](traceability/XL-xu-ly-bao-cao.md) | 62 | 14 | 27 | 21 | 0 | 0 | 23% | 100% |
-| **Tổng** | **870** | **389** | **154** | **294** | **29** | **4** | **45%** | **94.9%** |
+| **Tổng** | **871** | **389** | **155** | **294** | **29** | **4** | **45%** | **94.9%** |

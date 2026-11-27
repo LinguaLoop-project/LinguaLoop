@@ -125,7 +125,7 @@ public class TutorAttemptService {
 
     private TutorDtos.AttemptResponse finishSentence(TutorSession session, PronunciationAssessment assessment,
             Map<Short, String> symbols) {
-        double score = assessment.pronunciationScore();
+        double score = assessment.overallScore();
         int attemptNumber = session.recordSentenceAttempt();
         TutorSessionWord pending = session.firstPending(null).orElse(null);
         AttemptRule.NextStep step = attemptRule.afterSentenceAttempt(pending != null);

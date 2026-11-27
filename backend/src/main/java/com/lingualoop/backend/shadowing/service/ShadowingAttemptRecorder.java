@@ -34,8 +34,8 @@ class ShadowingAttemptRecorder {
     @Transactional
     public long save(UUID userId, UUID lessonId, UUID sentenceId, PronunciationAssessment assessment,
             List<List<String>> targets, int durationMs) {
-        SentenceAttempt attempt = SentenceAttempt.azureShadowing(userId, sentenceId, assessment.pronunciationScore(),
-                assessment.accuracyScore(), assessment.fluencyScore(), assessment.completenessScore(),
+        SentenceAttempt attempt = SentenceAttempt.azureShadowing(userId, sentenceId, assessment.overallScore(),
+                assessment.pronunciationScore(), assessment.accuracyScore(), assessment.fluencyScore(), assessment.completenessScore(),
                 assessment.prosodyScore());
         attempt.setDurationMs(durationMs);
 

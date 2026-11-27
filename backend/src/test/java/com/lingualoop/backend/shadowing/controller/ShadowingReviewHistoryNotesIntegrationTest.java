@@ -63,7 +63,7 @@ class ShadowingReviewHistoryNotesIntegrationTest {
     }
 
     private static PronunciationAssessment scored(double score) {
-        return new PronunciationAssessment("hello there", score, score - 1, score - 2, 100, 60.0, List.of(
+        return new PronunciationAssessment("hello there", score, score, score, 100, score, List.of(
                 new WordResult("hello", score, ErrorType.NONE, List.of(new PhonemeResult("h", score))),
                 new WordResult("there", score, ErrorType.NONE, List.of(new PhonemeResult("ð", score)))));
     }
@@ -265,10 +265,10 @@ class ShadowingReviewHistoryNotesIntegrationTest {
         as(user, get("/api/v1/sentences/" + sentence + "/shadowing-attempts")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(3))
                 .andExpect(jsonPath("$.data[0].score").value(90.0))
-                .andExpect(jsonPath("$.data[0].accuracy").value(89.0))
-                .andExpect(jsonPath("$.data[0].fluency").value(88.0))
+                .andExpect(jsonPath("$.data[0].accuracy").value(90.0))
+                .andExpect(jsonPath("$.data[0].fluency").value(90.0))
                 .andExpect(jsonPath("$.data[0].completeness").value(100.0))
-                .andExpect(jsonPath("$.data[0].prosody").value(60.0))
+                .andExpect(jsonPath("$.data[0].prosody").value(90.0))
                 .andExpect(jsonPath("$.data[1].score").value(70.0))
                 .andExpect(jsonPath("$.data[2].score").value(40.0));
     }
