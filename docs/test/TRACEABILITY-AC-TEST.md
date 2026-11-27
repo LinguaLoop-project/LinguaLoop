@@ -40,6 +40,6 @@ Hai tỉ lệ ở cột cuối đo hai việc khác nhau:
 | [TC-tra-cuu-hoc-thu-dong](traceability/TC-tra-cuu-hoc-thu-dong.md) | 43 | 9 | 2 | 27 | 5 | 0 | 21% | 68.8% |
 | [TH-xem-thong-ke-hoc-tap](traceability/TH-xem-thong-ke-hoc-tap.md) | 35 | 26 | 5 | 0 | 4 | 0 | 74% | 88.6% |
 | [TK-tai-khoan-xac-thuc](traceability/TK-tai-khoan-xac-thuc.md) | 58 | 42 | 7 | 8 | 1 | 0 | 72% | 98% |
-| [TN-xem-thong-ke-noi-dung](traceability/TN-xem-thong-ke-noi-dung.md) | 23 | 0 | 0 | 23 | 0 | 0 | 0% | — |
+| [TN-xem-thong-ke-noi-dung](traceability/TN-xem-thong-ke-noi-dung.md) | 23 | 0 | 19 | 4 | 0 | 0 | 0% | 100% |
 | [XL-xu-ly-bao-cao](traceability/XL-xu-ly-bao-cao.md) | 62 | 14 | 27 | 21 | 0 | 0 | 23% | 100% |
-| **Tổng** | **843** | **355** | **122** | **337** | **25** | **4** | **42%** | **95%** |
+| **Tổng** | **843** | **355** | **141** | **318** | **25** | **4** | **42%** | **95.2%** |
