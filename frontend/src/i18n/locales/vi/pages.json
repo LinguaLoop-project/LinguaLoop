@@ -588,6 +588,8 @@
       "result": {
         "best": "Cao nhất {{best}}",
         "noIssues": "Không có âm nào dưới 60",
+        "formula": "Điểm = 50% chính xác + 30% trôi chảy + 20% ngữ điệu, nhân tỉ lệ đầy đủ",
+        "formulaNoProsody": "Điểm = 60% chính xác + 40% trôi chảy, nhân tỉ lệ đầy đủ",
         "omitted": "Bỏ sót từ ×{{n}}",
         "inserted": "Thừa từ ×{{n}}",
         "badPhoneme": "Âm /{{symbol}}/ chưa chuẩn ×{{n}}",

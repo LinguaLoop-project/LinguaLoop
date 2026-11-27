@@ -59,7 +59,7 @@ class ShadowingHintsFailureIntegrationTest {
 
     @Test
     void assess_whenTipLookupFails_stillReturnsTheScoreAndKeepsTheAttempt_AC_SHADOW_23() throws Exception {
-        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("think", 70, 70, 70, 70, null,
+        when(scoring.assess(any(), any())).thenReturn(new PronunciationAssessment("think", 70, 70, 70, 100, null,
                 List.of(new WordResult("think", 70, ErrorType.MISPRONUNCIATION, List.of(new PhonemeResult("θ", 40))))));
         when(hints.hintsFor(any(), any())).thenThrow(new IllegalStateException("bảng mẹo lỗi"));
         UUID user = userAccountService.createLocal("hint-" + UUID.randomUUID() + "@x.com", "Hint", "h").id();

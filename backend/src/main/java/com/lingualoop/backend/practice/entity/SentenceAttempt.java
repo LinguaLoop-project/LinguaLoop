@@ -84,6 +84,10 @@ public class SentenceAttempt {
     @Column(name = "prosody_score", precision = 5, scale = 2)
     private BigDecimal prosodyScore;
 
+    /** Điểm tổng gốc của Azure, giữ để đối chiếu; điểm hiển thị và thống kê là {@code totalScore} do hệ thống tính. */
+    @Column(name = "azure_score", precision = 5, scale = 2)
+    private BigDecimal azureScore;
+
     // Chung
     @Column(name = "total_score", nullable = false, precision = 5, scale = 2)
     private BigDecimal totalScore;
@@ -105,13 +109,14 @@ public class SentenceAttempt {
     @OrderBy("position")
     private List<SentenceAttemptWord> words = new ArrayList<>();
 
-    public static SentenceAttempt azureShadowing(UUID userId, UUID sentenceId, double score, double accuracy,
-            double fluency, double completeness, Double prosody) {
+    public static SentenceAttempt azureShadowing(UUID userId, UUID sentenceId, double score, double azureScore,
+            double accuracy, double fluency, double completeness, Double prosody) {
         SentenceAttempt attempt = new SentenceAttempt();
         attempt.userId = userId;
         attempt.sentenceId = sentenceId;
         attempt.mode = PracticeMode.shadowing;
         attempt.totalScore = scale(score);
+        attempt.azureScore = scale(azureScore);
         attempt.accuracyScore = scale(accuracy);
         attempt.fluencyScore = scale(fluency);
         attempt.completenessScore = scale(completeness);
