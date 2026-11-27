@@ -392,7 +392,8 @@
       "publish": "Publish",
       "unpublish": "Unpublish",
       "delete": "Delete",
-      "restore": "Restore"
+      "restore": "Restore",
+      "stats": "View stats"
     },
     "form": {
       "name": "Deck name",

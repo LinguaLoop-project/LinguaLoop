@@ -67,7 +67,8 @@
     "offensiveCount_one": "{{count}} open offensive report about this lesson's sentences will be closed too.",
     "offensiveCount_other": "{{count}} open offensive reports about this lesson's sentences will be closed too.",
     "pendingRequestNote": "The republish request waiting for admin approval will be cancelled; send it again after restoring.",
-    "takenDownRestoreNote": "The lesson is marked \"Taken down by an admin\": republishing needs admin approval."
+    "takenDownRestoreNote": "The lesson is marked \"Taken down by an admin\": republishing needs admin approval.",
+    "stats": "View stats"
   },
   "form": {
     "link": "YouTube link",

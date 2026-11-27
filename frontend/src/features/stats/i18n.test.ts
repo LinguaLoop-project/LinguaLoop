@@ -21,9 +21,11 @@ function lookup(tree: unknown, path: string): unknown {
   return walk(tree, path.split("."));
 }
 
-// Mọi file nguồn của feature, đọc dạng chữ để dò các lời gọi t("khoá tĩnh"); bỏ file trang quản trị (namespace statsAdmin)
+// Mọi file nguồn của feature, đọc dạng chữ để dò các lời gọi t("khoá tĩnh"); bỏ file trang quản trị và giáo viên (namespace statsAdmin, statsTeacher)
 const allSources = import.meta.glob(["./**/*.ts", "./**/*.tsx", "!./**/*.test.ts"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-const sources = Object.values(allSources).filter((code) => !code.includes('useTranslation("statsAdmin")'));
+const sources = Object.values(allSources).filter(
+  (code) => !code.includes('useTranslation("statsAdmin")') && !code.includes('useTranslation("statsTeacher")'),
+);
 
 describe("chuỗi giao diện của thống kê học tập", () => {
   it("tiếng Việt và tiếng Anh có cùng bộ khoá", () => {

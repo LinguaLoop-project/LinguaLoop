@@ -50,6 +50,8 @@ export interface LessonManageListProps {
   onCreate?: () => void;
   onOpen: (lesson: LessonItem) => void;
   onAction: (action: LessonAction, lesson: LessonItem) => void;
+  /** Mở thống kê của bài (UC-TN-02); chỉ giáo viên truyền vào. */
+  onStats?: (lesson: LessonItem) => void;
 }
 
 /**
@@ -143,6 +145,18 @@ export default function LessonManageList(props: Readonly<LessonManageListProps>)
               </div>
               <div className="relative z-10 flex shrink-0 items-center gap-2">
                 <StatusBadge status={status} label={t(`status.${status}`)} />
+                {props.onStats && !deleted && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    iconOnly
+                    aria-label={t("action.stats")}
+                    title={t("action.stats")}
+                    onClick={() => props.onStats?.(lesson)}
+                  >
+                    <Icon name="chart-line" />
+                  </Button>
+                )}
                 {actions.map((action) => {
                   const label = t(`action.${action}`);
                   return (

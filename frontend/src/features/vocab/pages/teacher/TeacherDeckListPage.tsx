@@ -52,6 +52,7 @@ export default function TeacherDeckListPage() {
         onCreate={goCreate}
         onOpen={(deck) => goDeck(deck.id)}
         onAction={(action, deck) => setPending({ action, deck })}
+        onStats={(deck) => navigate(`${TEACHER_DECKS_PATH}/${deck.id}/stats`)}
       />
       {pending && (
         <DeckActionDialog

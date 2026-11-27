@@ -303,3 +303,76 @@ export interface AiUsageStats {
   creditsByFeature: DailySeries;
   topAccounts: TopAccount[];
 }
+
+// ---------------------------------------------------------------- thống kê nội dung của giáo viên (UC-TN-01 đến 03)
+
+/** Tổng quan nội dung của giáo viên (UC-TN-01). Số lượng nội dung là số hiện tại; còn lại theo khoảng (BR-TN-03). */
+export interface TeacherOverview {
+  computedAt: string;
+  period: StatsPeriod;
+  content: { publishedLessons: number; draftLessons: number; publishedDecks: number; draftDecks: number };
+  practiceAttempts: Metric;
+  /** Học viên có lượt luyện bài học hoặc lượt ôn bộ thẻ của giáo viên, mỗi người tính một lần (BR-TN-02). */
+  learners: number;
+  /** Số dòng báo cáo đang chờ giáo viên xử lý, như danh sách "Báo cáo nội dung" (UC-XL-01). */
+  openReports: number;
+  /** Chuỗi "dictation", "shadowing", "review". */
+  daily: DailySeries;
+  topLessons: { id: string; title: string; learners: number; attempts: number; dictationAvgScore: number | null; shadowingAvgScore: number | null }[];
+  topDecks: { id: string; name: string; learners: number; reviews: number; correctRatePct: number | null }[];
+}
+
+/** Câu khó của bài ở một chế độ; chỉ có câu từ 10 lượt trở lên ở chế độ đó (BR-TN-04). */
+export interface TeacherHardSentence {
+  id: string;
+  /** Thứ tự câu trong bài, từ 1. */
+  order: number;
+  text: string;
+  attempts: number;
+  avgScore: number | null;
+}
+
+/** Thống kê một bài học (UC-TN-02). */
+export interface TeacherLessonStats {
+  computedAt: string;
+  period: StatsPeriod;
+  lessonId: string;
+  title: string;
+  status: "draft" | "published";
+  learnersStarted: number;
+  learnersCompleted: number;
+  completionRatePct: number | null;
+  dictationAttempts: number;
+  shadowingAttempts: number;
+  dictationAvgScore: number | null;
+  shadowingAvgScore: number | null;
+  daily: DailySeries;
+  hardestDictation: TeacherHardSentence[];
+  hardestShadowing: TeacherHardSentence[];
+}
+
+/** Thẻ khó; chỉ có thẻ từ 10 lượt ôn trở lên (BR-TN-04). */
+export interface TeacherHardCard {
+  id: string;
+  word: string;
+  reviews: number;
+  correctRatePct: number | null;
+}
+
+/** Thống kê một bộ thẻ (UC-TN-03). */
+export interface TeacherDeckStats {
+  computedAt: string;
+  period: StatsPeriod;
+  deckId: string;
+  name: string;
+  status: "draft" | "published";
+  learners: number;
+  reviews: number;
+  correctRatePct: number | null;
+  /** Chuỗi "reviews", "correct". */
+  daily: DailySeries;
+  /** Tỷ lệ cặp (học viên, thẻ) ở từng trạng thái học; trống khi chưa có học viên (BR-TN-02). */
+  cardStates: { newPct: number | null; learningPct: number | null; reviewingPct: number | null; masteredPct: number | null };
+  /** Nhóm thẻ theo thứ tự trong bộ, mỗi nhóm tối đa 5 thẻ khó nhất. */
+  groups: { id: string; name: string; hardestCards: TeacherHardCard[] }[];
+}

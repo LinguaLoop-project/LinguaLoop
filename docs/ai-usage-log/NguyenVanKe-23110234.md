@@ -540,7 +540,7 @@
 - **Prompt chính / yêu cầu:** Quản lý bài học của giáo viên và quản trị viên theo UC-BH-01, 02, 04 đến 10: danh sách, chi tiết, sửa thông tin và câu, xuất bản, gỡ, xóa, khôi phục
 - **Vị trí code do AI sinh (`file:hàm`):** `lesson/service/LessonManageServiceImpl.java:listForTeacher`, `:listForAdmin`, `:getForTeacher`, `:getForAdmin`, `:updateInfo`, `:updateSentences`, `:fillMissingIpa`, `:validateSentences`, `:publish`, `:unpublishByTeacher`, `:unpublishByAdmin`, `:delete`, `:restore`; `lesson/controller/TeacherLessonController.java`; `lesson/controller/AdminLessonController.java`; `lesson/repository/LessonManageRepository.java`; `LessonManageApiIntegrationTest.java`
 - **Commit:** dcb98f8
-- **Lỗi liên quan:** AI-ERR-KE-004
+- **Lỗi liên quan:** AI-ERR-KE-004, AI-ERR-KE-005
 
 ### AI-KE-048
 
@@ -574,7 +574,7 @@
 - **Vị trí code do AI sinh (`file:hàm`):** `db/migration/V20261121_1000__fixed_credit_pricing.sql`; `credit/service/CreditServiceImpl.java:requireCanStart`, `:charge`, `:recordCost`, `:logFailedCost`, `:logFailure`, `:recordLiveUsage`, `:estimateUnreportedLiveCosts`, `:fillEstimate`, `:fill`, `:maxLiveDuration`, `:costOf`, `:refresh`, `:grant`; `credit/service/LiveCostEstimateJob.java:run`; `credit/AiUsage.java`; `credit/entity/AiWallet.java:grantTrial`, `:closeTrial`, `:add`; `credit/entity/AiUsageLog.java:forSession`, `:liveCostPending`, `:fillLiveCost`; `credit/entity/AiSettings.java:update`; `credit/entity/AiFeaturePrice.java:update`; `credit/repository/AiUsageLogRepository.java:findLivePendingForUpdate`, `:lockStaleLivePending`; `credit/repository/AiWalletRepository.java:resetBalance`; `credit/dto/LiveUsageRequest.java`; `config/CreditProperties.java`; `aichat/LessonChatServiceImpl.java:liveStarted`, `:liveUsage`; `aichat/LessonChatController.java:liveUsage`; `tutor/TutorSessionService.java:started`, `:reportUsage`; `tutor/controller/TutorController.java:usage`; `lesson/service/TeacherLessonImportServiceImpl.java:create`, `:saveDraft`; `lesson/service/LessonSuggestionServiceImpl.java:suggest`, `:translate`; `lesson/transcript/Transcript.java`; `lesson/transcriptapi/TranscriptApiTranscriber.java:transcribe`; `shadowing/service/AiFeedbackServiceImpl.java`; `CreditServiceIntegrationTest.java`; `LiveCostIntegrationTest.java`; `TutorSessionLifecycleIntegrationTest.java:usage_fillsTheCostOfTheChargedSessionOnce_andHidesOthersSessions`; `LessonChatLiveApiIntegrationTest.java:liveUsage_fillsTheCostOfTheChargedConversationOnce`; `TeacherLessonImportApiIntegrationTest.java:create_transcriptInAnotherLanguage_logsTheBilledCostWithoutCharging`, `:create_videoWithoutCaptions_logsNoCost`
 - **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chốt các quyết định nghiệp vụ và thiết kế, AI viết code theo: tặng 100 credit dùng thử một lần thay credit miễn phí mỗi ngày, bỏ credit dùng thử còn lại khi mua Pro, số dư về 0 khi Pro hết hạn, không cấp bù cho tài khoản cũ; tạo bài từ YouTube 10 credit; thực hành theo bài giữ đơn giá Live; gộp hai migration chưa chạy trên prod thành một file; chi phí phiên giọng nói lấy token do trình duyệt báo kèm ước tính theo thời lượng; điền chi phí vào dòng trừ credit qua cột `session_id` thay cho cột `cost_recorded_at` AI đề xuất; ghi chi phí khi tạo bài lỗi sau lúc đã lấy phụ đề; ở MVP chấp nhận tính theo giá model chính, bỏ qua model dự phòng
 - **Commit:** b28a11e
-- **Lỗi liên quan:** NONE
+- **Lỗi liên quan:** AI-ERR-KE-005
 
 ### AI-KE-051
 
@@ -696,6 +696,34 @@
 - **Commit:** 9bc251c
 - **Lỗi liên quan:** NONE
 
+### AI-KE-061
+
+- **Ngày:** 2026-11-26
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** OTHER
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** API thống kê nội dung cho giáo viên (module TN, phạm vi phụ `DATABASE`): tổng quan, một bài học, một bộ thẻ; kiểm quyền chủ nội dung, cache 1 giờ, số báo cáo đang mở lấy trực tiếp; test tích hợp gắn mã AC-TN
+- **Vị trí code do AI sinh (`file:hàm`):** `stats/controller/TeacherStatsController.java:overview`, `:lesson`, `:deck`; `stats/service/TeacherContentStatsServiceImpl.java:overview`, `:lesson`, `:deck`, `:owned`; `stats/service/TeacherContentStatsReader.java:overview`, `:lesson`, `:deck`, `:hardest`, `:series`; `stats/repository/TeacherContentStatsRepository.java:learners`, `:overviewDaily`, `:topLessons`, `:topDecks`, `:lessonTotals`, `:lessonCompleted`, `:lessonDaily`, `:hardSentences`, `:deckTotals`, `:deckDaily`, `:deckStates`, `:deckGroups`, `:hardCards`, `:daily`; `stats/service/StatsNumbers.java:score`, `:pct`; `stats/dto/TeacherOverviewView.java`, `TeacherLessonStatsView.java`, `TeacherDeckStatsView.java`; `config/CacheConfig.java:cacheManager`; `stats/service/TeacherContentStatsServiceIntegrationTest.java`; `stats/controller/TeacherStatsApiIntegrationTest.java`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế chốt cách tính (điểm trung bình gồm lượt "Hiện cả câu", tỷ lệ đúng tính lượt có q ≥ 3, câu hoặc thẻ dưới 10 lượt không xếp hạng, học viên hoạt động là luyện bài hoặc ôn bộ) và yêu cầu thu gọn kết quả trả về theo phạm vi mới.
+- **Commit:** 10791d1
+- **Lỗi liên quan:** NONE
+
+### AI-KE-062
+
+- **Ngày:** 2026-11-26
+- **Công cụ AI / model:** Claude Code (Opus 5.5)
+- **Phạm vi (`Scope`):** FRONTEND
+- **Loại công việc (`Task Type`):** CODE_GENERATION
+- **Prompt chính / yêu cầu:** Ba trang thống kê của giáo viên (tổng quan, bài học, bộ thẻ) với ô chỉ số, biểu đồ theo ngày, danh sách xếp hạng; nút "Xem thống kê" ở danh sách bài học và bộ thẻ; i18n vi/en
+- **Vị trí code do AI sinh (`file:hàm`):** `src/features/stats/pages/teacher/TeacherOverviewPage.tsx:TeacherOverviewPage`; `src/features/stats/pages/teacher/TeacherLessonStatsPage.tsx:TeacherLessonStatsPage`, `:CompletionBar`; `src/features/stats/pages/teacher/TeacherDeckStatsPage.tsx:TeacherDeckStatsPage`, `:StateBar`; `src/features/stats/components/TeacherStatsBits.tsx:BackButton`, `:StatsLoadError`, `:ForbiddenState`, `:RankList`; `src/features/stats/useContentAccessError.ts:useContentAccessError`; `src/features/stats/api.ts`; `src/features/stats/hooks.ts:useTeacherOverviewStats`, `:useTeacherLessonStats`, `:useTeacherDeckStats`; `src/features/stats/types.ts`; `src/features/lesson/manage/components/LessonManageList.tsx`; `src/features/vocab/components/manage/ManageDeckList.tsx`; `src/app/routes.tsx`; `src/i18n/locales/vi/statsTeacher.json` (và bản `en`); `src/features/stats/teacherI18n.test.ts`
+- **Phần sinh viên tự viết/chỉnh sửa/loại bỏ:** Kế góp ý giao diện qua ảnh chụp: tiêu đề bảng bị dính, nút sắp xếp dạng tab khó hiểu (dẫn tới bỏ bảng), bốn ô của bài học xếp một hàng, cần danh sách nhóm thẻ để chọn, đặt lại tên nhãn cho thống nhất và bỏ các dòng ghi chú.
+- **Commit:** 10791d1
+- **Lỗi liên quan:** NONE
+
+## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
+
+Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
+
 ## 2. Lỗi, đề xuất sai hoặc thiếu sót của AI đã được xác minh
 
 Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit sửa thật (xem `README.md` §4.5).
@@ -759,6 +787,21 @@ Lỗi trong file này do chủ file tự phát hiện. Mỗi lỗi cần commit 
 - **Commit sửa (bắt buộc, khác commit trên):** 061b15f
 - **Kiểm chứng sau sửa:** `ReportModerationApiIntegrationTest.publish_lessonTakenDownByReport_requiresReview_AC_BH_76`, `:adminUnpublishLesson_marksNotifiesAndClosesOffensive_AC_BH_51_AC_BH_80`, `:deleteLesson_cancelsPendingRequest_AC_BH_78`, `:restoreLesson_keepsTakedownMark_AC_BH_79`, `:adminLessonDetail_takenDownDraftIsViewable_plainDraftIsNot_AC_BH_10` pass; `./mvnw verify`: 1427 test, 0 lỗi, BUILD SUCCESS.
 - **Trạng thái (`Error Status`):** VERIFIED
+
+### AI-ERR-KE-005
+
+- **Liên kết bản ghi AI:** AI-KE-050, AI-KE-047
+- **Loại lỗi (`Error Type`):** LOGIC_ERROR
+- **Ngày phát hiện:** 2026-11-26
+- **Đầu ra sai/thiếu sót và bối cảnh:** Khi nối gợi ý bản dịch (UC-BH-10) vào ví credit, AI gọi `credits.charge(...)` ngay sau khi Gemini dịch xong. Lệnh trừ chạy trong giao dịch riêng của `CreditServiceImpl.charge` và commit trước khi tạo IPA, dựng response và gửi về client. Bản dịch gợi ý không được lưu ở server, chỉ nằm trong response. Vì vậy request không về tới client (client hết thời gian chờ, mất kết nối, lỗi 500 sau khi đã trừ) thì giáo viên mất credit mà không nhận được bản dịch nào. AI cũng không giới hạn tổng thời gian dịch ở backend so với `SUGGEST_TIMEOUT_MS` (3 phút) của frontend: mỗi lô 20 câu có thể mất tới khoảng 61 giây, bài trên khoảng 60 câu có thể vượt timeout của client. Timeout còn hiện câu "Mất kết nối, chưa lưu được", khiến giáo viên bấm "Thử lại" và bị trừ lần hai. Vi phạm BR-BH-14 ("Lỗi do hệ thống thì không trừ credit"), AC-BH-74, AC-BH-91.
+- **Vị trí (`file:hàm`):** `lesson/service/LessonSuggestionServiceImpl.java:translate`, `:suggest`; `credit/service/CreditServiceImpl.java:charge`; `src/features/lesson/manage/api.ts:SUGGEST_TIMEOUT_MS`; `src/features/lesson/manage/errors.ts:errorMessage`
+- **Nguyên nhân phân tích:** AI coi việc dịch xong là đã giao kết quả cho giáo viên, nên đặt bước trừ credit ngay sau lời gọi AI theo mẫu của tạo bài từ YouTube. Ở tạo bài, `TeacherLessonImportServiceImpl.create` lưu bài Nháp trước rồi mới trừ, nên mất response thì bài vẫn còn. Gợi ý dịch không có bước lưu tương đương, AI không nhận ra khác biệt này. AI cũng đặt timeout ở frontend (dcb98f8) mà không đối chiếu với thời gian tối đa của các lô dịch ở backend.
+- **Cách phát hiện / bằng chứng:** Kế chạy thử gợi ý dịch thì thấy báo lỗi nhưng số dư vẫn giảm. Tái hiện ngày 2026-11-26: tạm hạ `SUGGEST_TIMEOUT_MS` xuống 3 giây, gợi ý dịch cho bài 53 câu. Giao diện báo "Mất kết nối, chưa lưu được. Hãy thử lại.", không câu nào được điền. Backend vẫn chạy hết 3 lô Gemini rồi ghi `ai_usage_logs` dòng `success`, 2139 token vào, 2542 token ra, `credits_charged` 53, lúc 09:36:21Z (6 ms sau lô cuối). Ghi BUG-004 (#79).
+- **Cách sửa:** Chưa sửa. Hướng sửa: `suggest` dịch, tạo IPA và dựng response trước, `charge` là bước cuối; thêm giới hạn tổng thời gian dịch nhỏ hơn timeout của client; thông báo riêng cho timeout của gợi ý dịch.
+- **Commit gây ra lỗi (đưa đầu ra AI vào code):** dcb98f8, b28a11e
+- **Commit sửa (bắt buộc, khác commit trên):** Chưa có (chưa tính vào mốc ≥ 5 lỗi cho tới khi có commit sửa)
+- **Kiểm chứng sau sửa:** Chưa có.
+- **Trạng thái (`Error Status`):** INVESTIGATING
 
 ## 3. Bằng chứng bổ sung (nếu cần)
 

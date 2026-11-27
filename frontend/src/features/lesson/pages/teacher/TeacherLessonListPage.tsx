@@ -69,6 +69,7 @@ export default function TeacherLessonListPage() {
         onCreate={focusCreate}
         onOpen={(lesson) => navigate(`${TEACHER_LESSONS_PATH}/${lesson.id}`)}
         onAction={(action, lesson) => setPending({ action, lesson })}
+        onStats={(lesson) => navigate(`${TEACHER_LESSONS_PATH}/${lesson.id}/stats`)}
       />
       {pending && (
         <LessonActionDialog

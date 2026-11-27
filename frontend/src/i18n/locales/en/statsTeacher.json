@@ -1,0 +1,82 @@
+{
+  "back": "Back",
+  "empty": "No data for this period yet",
+  "notRanked": "Not enough data to rank yet",
+  "loadError": "Couldn't load the stats",
+  "noScore": "—",
+  "status": {
+    "draft": "Draft",
+    "published": "Published"
+  },
+  "overview": {
+    "title": "Overview",
+    "noContent": "You don't have any content yet",
+    "noContentDesc": "Create your first lesson or deck to see how students learn.",
+    "createLesson": "Create a lesson",
+    "createDeck": "Create a deck",
+    "content": "Content",
+    "contentValue": "{{lessons}} lessons · {{decks}} decks",
+    "contentDraft": "Draft: {{lessons}} lessons · {{decks}} decks",
+    "attempts": "Lesson practice",
+    "learners": "Active students",
+    "openReports": "Open reports",
+    "viewReports": "View reports",
+    "dailyChart": "Daily activity",
+    "series": {
+      "dictation": "Dictation",
+      "shadowing": "Shadowing",
+      "review": "Card reviews"
+    },
+    "topLessons": "Lessons with the most students",
+    "topDecks": "Decks with the most students",
+    "learnersUnit": "{{value}} students",
+    "lessonMeta": "{{attempts}} attempts · Dictation {{dictation}} · Shadowing {{shadowing}}",
+    "deckMeta": "{{reviews}} reviews · {{pct}} correct"
+  },
+  "lesson": {
+    "title": "Lesson stats",
+    "forbidden": "You don't have permission to view this lesson's stats",
+    "notFound": "Lesson not found",
+    "started": "Students started",
+    "completed": "Students completed",
+    "completionRate": "Completion rate {{pct}}",
+    "dictation": "Dictation attempts",
+    "shadowing": "Shadowing attempts",
+    "avg": "Avg score {{score}}",
+    "dailyChart": "Daily practice",
+    "series": {
+      "dictation": "Dictation",
+      "shadowing": "Shadowing"
+    },
+    "hardestDictation": "Hardest sentences · Dictation",
+    "hardestShadowing": "Hardest sentences · Shadowing",
+    "hardMeta": "Sentence {{order}} · {{attempts}} attempts",
+    "scoreUnit": "{{score}} pts"
+  },
+  "deck": {
+    "title": "Deck stats",
+    "forbidden": "You don't have permission to view this deck's stats",
+    "notFound": "Deck not found",
+    "learners": "Students reviewing",
+    "reviews": "Card reviews",
+    "correctRate": "Correct rate",
+    "dailyChart": "Daily reviews",
+    "series": {
+      "reviews": "Reviews",
+      "correct": "Correct"
+    },
+    "states": "Card learning states",
+    "statesHint": "Across students who reviewed the deck in this period, by their current state",
+    "state": {
+      "new": "New",
+      "learning": "Learning",
+      "reviewing": "Reviewing",
+      "mastered": "Mastered"
+    },
+    "hardest": "Hardest cards · {{group}}",
+    "reviewsUnit": "{{value}} reviews",
+    "correctUnit": "{{pct}} correct",
+    "groups": "Card groups",
+    "hardestNoGroup": "Hardest cards"
+  }
+}

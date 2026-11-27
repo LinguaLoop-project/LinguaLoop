@@ -18,6 +18,9 @@ import type {
   StatsPeriod,
   StatsRange,
   Streak,
+  TeacherDeckStats,
+  TeacherLessonStats,
+  TeacherOverview,
   WrongWords,
 } from "./types";
 
@@ -80,4 +83,20 @@ export const adminStatsApi = {
     ),
   aiUsage: (period: StatsPeriod) =>
     call<AiUsageStats>(axiosClient.get(`${STATS}/ai-usage`, { params: { period }, timeout: ADMIN_TIMEOUT_MS })),
+};
+
+const TEACHER_STATS = "/teacher/stats";
+
+/** Thống kê nội dung của giáo viên (UC-TN-01 đến 03). Lỗi ném ra là `AdminApiError` (có `status` để phân biệt 403, 404). */
+export const teacherStatsApi = {
+  overview: (period: StatsPeriod) =>
+    call<TeacherOverview>(axiosClient.get(`${TEACHER_STATS}/overview`, { params: { period }, timeout: ADMIN_TIMEOUT_MS })),
+  lesson: (lessonId: string, period: StatsPeriod) =>
+    call<TeacherLessonStats>(
+      axiosClient.get(`${TEACHER_STATS}/lessons/${lessonId}`, { params: { period }, timeout: ADMIN_TIMEOUT_MS }),
+    ),
+  deck: (deckId: string, period: StatsPeriod) =>
+    call<TeacherDeckStats>(
+      axiosClient.get(`${TEACHER_STATS}/decks/${deckId}`, { params: { period }, timeout: ADMIN_TIMEOUT_MS }),
+    ),
 };
