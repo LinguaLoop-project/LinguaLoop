@@ -1,0 +1,332 @@
+{
+  "hero": {
+    "badge": "Closed-loop AI English practice",
+    "mobileGreeting": "Hi there! Practice 15 minutes a day with Loopi.",
+    "titleBefore": "Practice dictation and pronunciation on ",
+    "titleHighlight": "real videos",
+    "titleAfter": ", focused on your weak spots.",
+    "subtitle": "Just 10–30 minutes a day in one connected loop: adaptive dictation, 44-phoneme American English shadowing, just-in-time AI tutoring, and SM-2 spaced repetition.",
+    "ctaStart": "Start for free",
+    "ctaContinue": "Go to your workspace",
+    "ctaHowItWorks": "See the 4-step loop",
+    "loopiAlt": "Loopi welcoming you to LinguaLoop",
+    "trust": {
+      "noCard": "Free to start, no card required",
+      "responsive": "Works smoothly on desktop & mobile web",
+      "aiTrial": "Includes trial AI credits"
+    },
+    "preview": {
+      "caption": "Live look at the practice experience",
+      "interactiveHint": "Try interacting directly below",
+      "tabs": {
+        "shadowing": "Shadowing · 44 phonemes",
+        "dictation": "Dictation · Adaptive"
+      },
+      "shadowing": {
+        "lesson": "B1 Lesson · Daily Conversation",
+        "listenBtn": "Play sample",
+        "stopBtn": "Stop audio",
+        "waveformIdle": "Play sample audio to see live word-by-word sync",
+        "waveformPlaying": "Playing American English reference…",
+        "scoreLabel": "Pronunciation",
+        "tapWordHint": "Tap any red or amber word to inspect its phoneme fix",
+        "metrics": {
+          "accuracy": "Accuracy",
+          "fluency": "Fluency",
+          "completeness": "Completeness",
+          "prosody": "Prosody"
+        },
+        "mouthVideo": "Includes mouth-movement guide video",
+        "wordTips": {
+          "thought": {
+            "phoneme": "/θ/",
+            "score": 58,
+            "title": "Phoneme /θ/ in “thought”",
+            "body": "Rest the tip of your tongue lightly between your upper and lower teeth and let air flow softly—avoid releasing a hard /t/ or /s/."
+          },
+          "weather": {
+            "phoneme": "/ð/",
+            "score": 71,
+            "title": "Phoneme /ð/ in “weather”",
+            "body": "Keep the same tongue position as /θ/ while vibrating your vocal cords—avoid hardening it into /d/ or /z/."
+          },
+          "through": {
+            "phoneme": "/θ/",
+            "score": 54,
+            "title": "Phoneme /θ/ in “through”",
+            "body": "Keep steady airflow between tongue and teeth before gliding smoothly into a rounded /r/."
+          }
+        }
+      },
+      "dictation": {
+        "lesson": "Easy mode · Fill 2 blanks or test a homophone error",
+        "placeholder1": "type: this",
+        "placeholder2": "type: weather",
+        "checkBtn": "Check",
+        "tryHomophoneBtn": "Try homophone error",
+        "resetBtn": "Reset",
+        "feedbackIdle": "Fill the 2 blanks and press Check, or click “Try homophone error” to see word-level grading.",
+        "feedbackPerfect": "Spot on! Both blanks match—function words and homophones are graded word by word.",
+        "feedbackHomophone": "Homophone detected: you typed “whether” instead of “weather”—same /ˈweð.ər/ sound, different meaning!",
+        "feedbackError": "Each error is tagged (missed function word / spelling typo) so future easy-mode blanks target your weak spots.",
+        "legend": {
+          "correct": "Correct",
+          "missing": "Missed function word",
+          "spelling": "Spelling error",
+          "homophone": "Homophone"
+        },
+        "dictWord": "through",
+        "dictIpa": "/θruː/ (US) · /θruː/ (UK)",
+        "dictMeaning": "preposition — from one end to the other; throughout",
+        "dictSaved": "Saved to Saved Words (SM-2)"
+      }
+    }
+  },
+  "stats": {
+    "ariaLabel": "LinguaLoop content scale",
+    "items": {
+      "lessons": {
+        "value": "1,000+",
+        "label": "YouTube video lessons",
+        "detail": "Graded from A1 to C2"
+      },
+      "sentences": {
+        "value": "29,000+",
+        "label": "Timestamped sentences",
+        "detail": "Instant sentence-by-sentence replay"
+      },
+      "phonemes": {
+        "value": "44",
+        "label": "US English phonemes",
+        "detail": "Correction tips & mouth videos"
+      },
+      "dictionary": {
+        "value": "100,000+",
+        "label": "Dictionary entries",
+        "detail": "US & UK transcriptions and audio"
+      },
+      "decks": {
+        "value": "6,000+",
+        "label": "Cards across 9 decks",
+        "detail": "Daily-capped SM-2 review schedule"
+      }
+    }
+  },
+  "marquee": {
+    "eyebrow": "Curated video library",
+    "title": "Practice English with real topics you actually enjoy",
+    "subtitle": "Over 1,000 lessons graded from A1 to C2 with timestamped sentences ready for dictation and shadowing. Hover any card to pause.",
+    "sentencesUnit": "{{count}} sentences",
+    "pauseHint": "Hover to pause",
+    "filterLabel": "Filter by level",
+    "loading": "Loading lessons",
+    "dictation": "Dictation",
+    "shadowing": "Shadowing",
+    "filters": {
+      "all": "All levels",
+      "basic": "A1–A2",
+      "intermediate": "B1–B2",
+      "advanced": "C1–C2"
+    }
+  },
+  "loop": {
+    "eyebrow": "Why LinguaLoop?",
+    "title": "A 4-step closed loop—no more scattered study apps",
+    "subtitle": "Instead of watching videos in one place, looking up words in another, and forgetting both, every sentence feeds directly into your weakness profile and daily review.",
+    "returnCycle": "Sentences you struggle with go to Sentences to Review and come back in your daily review—closing the learning loop.",
+    "steps": {
+      "dictation": {
+        "step": "Step 01",
+        "title": "Adaptive dictation",
+        "desc": "Pick from 3 difficulty levels. Easy mode favours blanks in the word groups you tend to miss (function words, -ed/-s endings, numbers…), flags homophones, and classifies errors by word group."
+      },
+      "shadowing": {
+        "step": "Step 02",
+        "title": "44-phoneme shadowing",
+        "desc": "Repeat after the native speaker, get scored on 4 speech dimensions, and see the exact American English phonemes that need work."
+      },
+      "tutor": {
+        "step": "Step 03",
+        "title": "Just-in-time AI tutor",
+        "desc": "Get clear pedagogical feedback. Repeat the same mistake on a sentence and a real-time voice tutor steps in to drill and re-score each tricky word."
+      },
+      "review": {
+        "step": "Step 04",
+        "title": "Focused daily review",
+        "desc": "Combines due SM-2 vocabulary cards and saved review sentences into your 10, 15, 20, or 30-minute daily goal to keep your streak alive."
+      }
+    },
+    "simulator": {
+      "eyebrow": "Daily Review Quota Preview",
+      "title": "How many minutes do you have each day?",
+      "minutesUnit": "{{count}} min",
+      "recommended": "Default",
+      "cardsLabel": "Vocabulary cards (SM-2)",
+      "dictationLabel": "Dictation review sentences",
+      "shadowingLabel": "Shadowing review sentences",
+      "note": "Exact daily quota inside LinguaLoop: once you finish your daily target, you're done—no hundred-card backlog burnout.",
+      "plans": {
+        "10": "A light daily rhythm to keep your streak alive even on your busiest days.",
+        "15": "The balanced default: clears due cards and drills both listening and speaking weak spots.",
+        "20": "Faster daily vocabulary growth for conversation fluency and exam preparation.",
+        "30": "Deep daily practice for noticeable gains in fine-grained listening and pronunciation."
+      }
+    }
+  },
+  "features": {
+    "eyebrow": "Core capabilities",
+    "title": "Everything you need to spot and fix recurring mistakes",
+    "subtitle": "Built for self-learners who want concrete feedback down to every word and phoneme—without daily review burnout.",
+    "weakness": {
+      "badge": "Weakness profile",
+      "title": "Interactive 44-phoneme map",
+      "desc": "Tap any phoneme below to inspect sample words, common confusions, and practical tips. Inside LinguaLoop, click any weak sound to jump straight into targeted sentence drills.",
+      "tapHint": "Tap any phoneme to inspect",
+      "legendGood": "Strong",
+      "legendMid": "Watch",
+      "legendWeak": "Needs work",
+      "exampleLabel": "Examples",
+      "confusionLabel": "Common mix-up",
+      "items": {
+        "theta": { "example": "thought, through", "confusion": "/θ/ → /t/ or /s/", "tip": "Rest the tongue tip lightly between your teeth and exhale softly without a hard /t/ burst." },
+        "eth": { "example": "this, weather", "confusion": "/ð/ → /d/ or /z/", "tip": "Use the same tongue placement as /θ/ while vibrating your vocal cords." },
+        "r": { "example": "really, world", "confusion": "Flat tongue tip", "tip": "Curl the tongue tip slightly back without touching the roof of your mouth, lips softly rounded." },
+        "ae": { "example": "back, habit", "confusion": "/æ/ → /e/", "tip": "Drop your lower jaw wider than /e/ and stretch the corners of your mouth slightly." },
+        "ih": { "example": "live, ship", "confusion": "/ɪ/ → /iː/", "tip": "Relax your lips and keep the vowel crisp and noticeably shorter than /iː/." },
+        "ng": { "example": "thing, singing", "confusion": "Dropped nasal ending", "tip": "Raise the back of your tongue to the soft palate so air flows through your nose without adding /g/." },
+        "sh": { "example": "should, fresh", "confusion": "/ʃ/ → /s/", "tip": "Round your lips forward slightly and push a broad, soft stream of air." },
+        "ch": { "example": "check, watch", "confusion": "Weak initial release", "tip": "Briefly block airflow with the tongue blade, then release crisply through rounded lips." },
+        "v": { "example": "voice, have", "confusion": "Dropped final /v/", "tip": "Touch your upper teeth gently to your lower lip and keep voicing even at word endings." },
+        "z": { "example": "days, eyes", "confusion": "Final /z/ → /s/", "tip": "Keep your vocal cords vibrating on -s/-es endings after vowels and voiced consonants." },
+        "au": { "example": "sound, around", "confusion": "Unrounded glide", "tip": "Start wide on /a/ and glide smoothly into a rounded /ʊ/." },
+        "ei": { "example": "daily, make", "confusion": "Flattened to /e/", "tip": "Glide lightly upward from /e/ toward /ɪ/ at the end of the syllable." }
+      }
+    },
+    "dictation": {
+      "badge": "Smart dictation",
+      "title": "Error analytics by word group",
+      "desc": "Go beyond pass/fail grading. Errors are broken down across 6 word groups so you see exactly why you miss words—and easy mode blanks target those groups first.",
+      "chartTitle": "Example: error rate by word group over 7 days",
+      "groups": [
+        { "label": "Function words (a, to, the, of)", "pct": 34, "tone": "danger" },
+        { "label": "Inflected endings (-ed, -s, -ing)", "pct": 26, "tone": "warning" },
+        { "label": "Numbers & proper nouns (2019, London)", "pct": 18, "tone": "info" },
+        { "label": "Content words & spelling", "pct": 12, "tone": "primary" }
+      ],
+      "footnote": "Easy mode leaves more blanks in the groups you miss most."
+    },
+    "tutor": {
+      "badge": "Lesson-grounded AI tutor",
+      "title": "Pedagogical feedback & real-time voice coaching",
+      "desc": "Repeat a mistake on a shadowing sentence and the live voice tutor steps in to drill and re-score each word up to 3 times—auto-closing if off-topic to save AI credits.",
+      "chat": {
+        "header": "Live voice tutor · Drilling “thought”",
+        "aiPrompt": "Your “thought” sounded close to /tɔːt/. Rest your tongue tip gently between your teeth and try saying it slowly!",
+        "userRetry": "“thought” — retry 1/3",
+        "scoreJump": "62 → 91 score",
+        "aiPraise": "Nice! That /θ/ airflow came through clearly. Let's put it back into the full sentence."
+      }
+    },
+    "vocab": {
+      "badge": "Passive watch & SM-2 decks",
+      "title": "Short-video immersion, 1-tap lookup & balanced card reviews",
+      "desc": "Swipe through short videos (under 3 minutes) with live synced transcripts. Tap any word to look up US/UK phonetics, save to Saved Words or My Decks (Excel/CSV import), and learn in 4 modes.",
+      "watchCaption": "Passive Learning · 01:12 / 02:45",
+      "watchLineBefore": "Small habits ",
+      "watchLineActive": "compound",
+      "watchLineAfter": " into big results.",
+      "watchMeaning": "build up and multiply · Saved to My Decks",
+      "sm2Badge": "SM-2 · Review in 4 days",
+      "modes": ["Flashcards", "Guess word", "Multiple choice", "Reverse quiz"]
+    }
+  },
+  "trust": {
+    "eyebrow": "Transparency & privacy",
+    "title": "Transparent scoring that respects your voice data",
+    "items": {
+      "voice": {
+        "title": "Your recordings are not stored",
+        "desc": "LinguaLoop does not keep your audio on its servers. Your voice is only sent to the pronunciation scoring service (Microsoft Azure) and the voice tutor (Google Gemini) to handle that turn."
+      },
+      "deterministic": {
+        "title": "Scores you can verify",
+        "desc": "Pronunciation is scored phoneme by phoneme by a dedicated service (Microsoft Azure) and combined with a published formula; word-level dictation results and card intervals use fixed algorithms. The AI chatbot only explains and coaches—it never decides your score."
+      },
+      "credit": {
+        "title": "Transparent AI credits",
+        "desc": "Each AI feature has a fixed credit price shown on its button before you use it, and your balance never goes negative."
+      }
+    }
+  },
+  "pricing": {
+    "eyebrow": "Flexible plans",
+    "title": "Start free, upgrade to Pro whenever you're ready",
+    "subtitle": "Try the full learning loop with no payment details required. Pro plans support secure checkout via VNPAY.",
+    "free": {
+      "name": "Free Plan",
+      "tag": "Free",
+      "price": "$0",
+      "period": "forever",
+      "desc": "Everything you need to build a daily dictation, shadowing, and vocabulary habit.",
+      "cta": "Create free account",
+      "ctaAuthed": "Continue on Free",
+      "items": [
+        "Access every video lesson and deck not marked Pro",
+        "3-level dictation & 44-phoneme shadowing scoring",
+        "Passive learning, 1-tap dictionary, and SM-2 card reviews",
+        "Unlimited personal decks (manual entry or Excel/CSV import)",
+        "Trial AI credits included to test AI feedback & tutor"
+      ]
+    },
+    "pro": {
+      "name": "Pro Plan",
+      "tag": "Popular",
+      "price": "Monthly",
+      "period": "choose a term, price shown at checkout",
+      "desc": "For consistent learners who want all Pro lessons, mouth-movement videos, and monthly AI credits.",
+      "cta": "Sign up to unlock Pro",
+      "ctaAuthed": "View Pro plans & upgrade",
+      "items": [
+        "Full access to all Pro video lessons and transcripts",
+        "Unlock all Pro vocabulary decks for exams & topics",
+        "Mouth-movement videos whenever a sound scores below 60",
+        "Fresh monthly AI credits for feedback and live AI tutor",
+        "Coming soon: create personal lessons from captioned YouTube links"
+      ]
+    },
+    "paymentNote": "Secure payment via VNPAY (QR, domestic ATM, international cards). Renewals stack onto your existing end date with zero lost days."
+  },
+  "faq": {
+    "eyebrow": "Frequently asked questions",
+    "title": "Quick answers before you start",
+    "items": [
+      {
+        "q": "Can complete beginners (A1) use LinguaLoop?",
+        "a": "Yes. Lessons span A1 through C2, dictation offers 3 difficulty modes (Easy mode only blanks out key words), and starter vocabulary decks let you build momentum in your first 10–15 minutes."
+      },
+      {
+        "q": "Which English accent is used for pronunciation scoring?",
+        "a": "Pronunciation scoring uses the 44-phoneme American English standard so target sounds are consistent. When reading sentences or checking the dictionary, you can toggle between US and UK transcriptions anytime."
+      },
+      {
+        "q": "How do AI credits work?",
+        "a": "Free accounts receive one-time trial AI credits to try AI feedback and the tutor. Pro plans grant fresh AI credits every month. Each AI feature has a fixed credit price shown on its button before you use it."
+      },
+      {
+        "q": "Do I need to install a mobile app?",
+        "a": "No installation required. LinguaLoop is a responsive web app built for both phone and desktop browsers—you can practice dictation, record shadowing, watch short clips, and review cards anywhere."
+      },
+      {
+        "q": "Are my voice recordings saved on the server?",
+        "a": "No. Shadowing clips stay in your browser so you can replay and compare them with the reference audio, and are sent to Microsoft Azure for scoring. When you talk to the voice tutor, audio streams directly to Google Gemini so the tutor can hear and reply, and your browser may use Google's speech recognition to show what you said. LinguaLoop servers keep only scores and word-level results, never audio."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Spend your first 15 minutes with Loopi today",
+    "subtitle": "Pick a real video, dictate a few lines, test 44-phoneme pronunciation scoring, and uncover your personal weakness map.",
+    "primaryGuest": "Create free account",
+    "secondaryGuest": "Already have an account? Sign in",
+    "primaryAuthed": "Open my workspace"
+  }
+}

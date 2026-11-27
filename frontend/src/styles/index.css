@@ -474,6 +474,7 @@
 
   *, *::before, *::after { box-sizing: border-box; }
   html { overflow-x: clip; }
+  html:has([data-landing]) { scroll-behavior: smooth; }
 
   body {
     font-family: var(--font-body);
@@ -507,6 +508,31 @@
   @keyframes menu-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
   @keyframes settings-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
+  /* Dải bài học trôi ngang vô hạn (Landing Page): 60fps GPU, tự dừng khi rê chuột */
+  @keyframes marquee-left {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+  @keyframes marquee-right {
+    from { transform: translate3d(-50%, 0, 0); }
+    to { transform: translate3d(0, 0, 0); }
+  }
+  .animate-marquee-left { animation: marquee-left 42s linear infinite; will-change: transform; }
+  .animate-marquee-right { animation: marquee-right 48s linear infinite; will-change: transform; }
+  .marquee-mask {
+    mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);
+  }
+  .marquee-group:hover .marquee-track,
+  .marquee-group:focus-within .marquee-track { animation-play-state: paused; }
+
+  /* Thanh sóng âm khi phát câu mẫu trên HeroPreview */
+  @keyframes wave-bar {
+    0%, 100% { transform: scaleY(0.32); }
+    50% { transform: scaleY(1); }
+  }
+  .animate-wave-bar { animation: wave-bar 0.78s ease-in-out infinite; transform-origin: center; }
+
   /* Khối chờ tải: shimmer ngắn, tắt khi người dùng bật giảm chuyển động */
   .skeleton {
     background-image: linear-gradient(90deg, transparent 0%, var(--border) 50%, transparent 100%);
@@ -520,14 +546,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html:has([data-landing]) { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
   .skeleton { animation: none; background-image: none; }
+  .marquee-track { animation: none !important; transform: none !important; }
+  .animate-wave-bar { animation: none !important; }
 }
 
+:root[data-motion="reduced"]:has([data-landing]) { scroll-behavior: auto; }
 :root[data-motion="reduced"] *,
 :root[data-motion="reduced"] *::before,
 :root[data-motion="reduced"] *::after {
@@ -538,4 +568,11 @@
 :root[data-motion="reduced"] .skeleton {
   animation: none;
   background-image: none;
+}
+:root[data-motion="reduced"] .marquee-track {
+  animation: none !important;
+  transform: none !important;
+}
+:root[data-motion="reduced"] .animate-wave-bar {
+  animation: none !important;
 }

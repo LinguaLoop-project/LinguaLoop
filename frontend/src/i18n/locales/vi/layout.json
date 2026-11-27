@@ -12,7 +12,11 @@
       "listening": "Nghe chép",
       "pronunciation": "Shadowing",
       "vocabulary": "Từ vựng",
-      "more": "Xem thêm"
+      "more": "Xem thêm",
+      "loop": "Vòng lặp học",
+      "features": "Tính năng",
+      "pricing": "Gói học",
+      "faq": "Hỏi đáp"
     },
     "more": {
       "lessons": {
@@ -25,9 +29,10 @@
       }
     },
     "login": "Đăng nhập",
+    "register": "Đăng ký",
     "logout": "Đăng xuất",
-    "start": "Bắt đầu",
-    "learnNow": "Học ngay"
+    "start": "Bắt đầu ngay",
+    "learnNow": "Vào học ngay"
   },
   "student": {
     "sidebar": {

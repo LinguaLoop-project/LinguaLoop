@@ -80,6 +80,7 @@ const AdminRepublishDetailPage = lazy(() => import("@/features/report/pages/admi
 const SavedLessonsPage = lazy(() => import("@/features/lesson/pages/SavedLessonsPage"));
 const WatchPage = lazy(() => import("@/features/watch/pages/WatchPage"));
 const ShadowingPage = lazy(() => import("@/features/shadowing/pages/ShadowingPage"));
+const LandingPage = lazy(() => import("@/features/landing/pages/LandingPage"));
 
 const getRoutesConfig = (): RouteObject[] => {
   const publicRoutes: RouteObject[] = [
@@ -89,7 +90,7 @@ const getRoutesConfig = (): RouteObject[] => {
       children: [
         {
           index: true,
-          element: <div>Home</div>,
+          element: <LandingPage />,
         },
       ],
     },
